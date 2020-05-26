@@ -1,0 +1,27 @@
+[package]
+name = "amadeus"
+version = "0.0.1"
+authors = [ "Qeenon" ]
+repository = "https://github.com/Qeenon/Amadeus"
+readme = "README.md"
+keywords = [ "discord", "bot" ]
+edition = "2018"
+
+[dependencies]
+rand = "0.7.3"
+chrono = "0.4.11"
+typemap = "0.3.3"
+rust-ini = "0.15.2"
+argparse = "0.2.2"
+log = "0.4.8"
+env_logger = "0.7.1"
+curl = "0.4.29"
+regex = "1.3.7"
+serde_json = "1.0.53"
+lazy_static = "1.4.0"
+ssh2 = "0.8.1"
+
+uuid = { version = "0.8.1", features = ["serde"] }
+
+serenity = { version = "0.8.6", features = ["cache", "framework", "standard_framework", "voice"] }
+

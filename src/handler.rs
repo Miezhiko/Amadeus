@@ -3,7 +3,6 @@ use crate::{
     msg::{ channel_message }
   },
   commands::voice,
-  conf,
   collections::overwatch::{ OVERWATCH, OVERWATCH_REPLIES }
 };
 

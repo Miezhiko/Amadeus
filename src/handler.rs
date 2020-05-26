@@ -85,21 +85,12 @@ impl EventHandler for Handler {
       }
       return;
     } else if msg.author.bot {
-      // only on own server
-      if let Some(guild_id) = msg.guild_id {
-        let conf = conf::parse_config();
-        if let Ok(guild_u64) = conf.guild.parse::<u64>() {
-          if &guild_u64 == guild_id.as_u64() {
-            // 1 of 3 will be replaced
-            let rnd = rand::thread_rng().gen_range(0, 3);
-            if rnd == 1 || msg.content == "pong" {
-              if let Err(why) = msg.delete(&ctx) {
-                error!("Error deleting ekks {:?}", why);
-              }
-              channel_message(&ctx, &msg, msg.content.as_str());
-            }
-          }
+      let rnd = rand::thread_rng().gen_range(0, 2);
+      if rnd == 1 || msg.content == "pong" {
+        if let Err(why) = msg.delete(&ctx) {
+          error!("Error replacing other bots {:?}", why);
         }
+        channel_message(&ctx, &msg, msg.content.as_str());
       }
     } else if let Some(find_char_in_words) = OVERWATCH.into_iter().find(|&c| {
         let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);

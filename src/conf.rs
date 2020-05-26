@@ -22,7 +22,6 @@ pub fn parse_config() -> types::AOptions {
   let mut options: types::AOptions = types::AOptions {
     rejoin : true,
     discord : String::from(""),
-    guild : String::from(""),
     last_guild : String::from(""),
     last_channel : String::from(""),
     last_stream : String::from(""),

@@ -100,3 +100,22 @@ pub fn tomorrow(ctx: &mut Context, msg: &Message) -> CommandResult {
   let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
   tour(ctx, msg, tomorrow)
 }
+
+#[command]
+pub fn weekends(ctx: &mut Context, msg: &Message) -> CommandResult {
+  let mut today : DateTime<Utc> = Utc::now();
+  if today.weekday() == Weekday::Sun {
+    channel_message(&ctx, &msg, "Sunday:");
+    let _ = tour(ctx, msg, today);
+  } else {
+    while today.weekday() != Weekday::Sat {
+      today = today + Duration::days(1); 
+    }
+    channel_message(&ctx, &msg, "Saturday:");
+    let _ = tour(ctx, msg, today);
+    let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
+    channel_message(&ctx, &msg, "Sunday:");
+    let _ = tour(ctx, msg, tomorrow);
+  }
+  Ok(())
+}

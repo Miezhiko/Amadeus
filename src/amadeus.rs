@@ -60,7 +60,7 @@ struct General;
 struct Voice;
 
 #[group]
-#[commands(yesterday, today, tomorrow)]
+#[commands(yesterday, today, tomorrow, weekends)]
 struct Warcraft;
 
 #[check]

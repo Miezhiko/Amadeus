@@ -42,6 +42,8 @@ ping: shows shard latency", false)
       .field("music commands", "join: to music channel
 leave: from music channel
 play <url>: play an radio stream or youtube music", false)
+      .field("warcraft commands", "today: show tournaments today (same with tomorrow or yesterday)
+weekends: show tours on weekends", false)
       .footer(|f| f.text("As explained by Maho Hiyajo, Amadeus' capabilities of storing memory data make it possible to back-up the data of a person's memories. This could be useful, for example, to fight against memory loss."))
       .colour((246, 111, 0)))) {
     error!("Error sending help message: {:?}", why);

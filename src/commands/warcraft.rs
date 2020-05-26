@@ -105,25 +105,38 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
 }
 
 pub fn tour(ctx: &mut Context, msg: &Message, on : DateTime<Utc>) -> CommandResult {
-  tour_internal(ctx, msg, on, false)
+  tour_internal(ctx, msg, on, false)?;
+  Ok(())
 }
 
 #[command]
 pub fn yesterday(ctx: &mut Context, msg: &Message) -> CommandResult {
   let yesterday : DateTime<Utc> = Utc::now() - Duration::days(1); 
-  tour(ctx, msg, yesterday)
+  tour(ctx, msg, yesterday)?;
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error replacing other bots {:?}", why);
+  }
+  Ok(())
 }
 
 #[command]
 pub fn today(ctx: &mut Context, msg: &Message) -> CommandResult {
   let today : DateTime<Utc> = Utc::now(); 
-  tour_internal(ctx, msg, today, true)
+  tour_internal(ctx, msg, today, true)?;
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error replacing other bots {:?}", why);
+  }
+  Ok(())
 }
 
 #[command]
 pub fn tomorrow(ctx: &mut Context, msg: &Message) -> CommandResult {
   let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
-  tour(ctx, msg, tomorrow)
+  tour(ctx, msg, tomorrow)?;
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error replacing other bots {:?}", why);
+  }
+  Ok(())
 }
 
 #[command]
@@ -142,6 +155,9 @@ pub fn weekends(ctx: &mut Context, msg: &Message) -> CommandResult {
     let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
     channel_message(&ctx, &msg, "Sunday:");
     tour(ctx, msg, tomorrow)?;
+  }
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error replacing other bots {:?}", why);
   }
   Ok(())
 }

@@ -3,7 +3,8 @@ use crate::{
   handler::Handler,
   commands::{
     meta::*,
-    voice::*
+    voice::*,
+    warcraft::*
   },
   commands::voice::VoiceManager,
   commands::meta::ShardManagerContainer,
@@ -57,6 +58,10 @@ struct General;
 #[group]
 #[commands(join, leave, play)]
 struct Voice;
+
+#[group]
+#[commands(yesterday, today, tomorrow)]
+struct Warcraft;
 
 #[check]
 #[name = "Admin"]
@@ -158,6 +163,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
 
     .group(&GENERAL_GROUP)
     .group(&VOICE_GROUP)
+    .group(&WARCRAFT_GROUP)
   );
 
   client.start()

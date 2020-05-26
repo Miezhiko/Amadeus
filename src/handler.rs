@@ -45,7 +45,7 @@ impl EventHandler for Handler {
           .embed(|e| {
             let mut e = e
               .author(|a| a.icon_url(&user.face()).name(&user.name))
-              .title("has joined");
+              .title("has joined here, that message was too short so it's just random text");
             if let Some(ref joined_at) = member.joined_at {
               e = e.timestamp(joined_at);
             } e
@@ -67,7 +67,7 @@ impl EventHandler for Handler {
         if let Err(why) = channel.send_message(&ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&user.face()).name(&user.name))
-              .title("has left")
+              .title("has left however it's okay, I think it's fine")
               .timestamp(chrono::Utc::now().to_rfc3339())
             })) {
           error!("Failed to log leaving user {:?}", why);

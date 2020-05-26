@@ -98,6 +98,8 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
   if eventos.len() > 0 {
     let out = eventos.join("\n");
     channel_message(&ctx, &msg, out.as_str());
+  } else {
+    channel_message(&ctx, &msg,"I am sorry but I can't find anything at the momenet");
   }
   Ok(())
 }

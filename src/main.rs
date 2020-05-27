@@ -1,3 +1,5 @@
+#![feature(proc_macro_hygiene)]
+
 extern crate chrono;
 extern crate typemap;
 extern crate argparse;
@@ -9,6 +11,7 @@ extern crate serde_json;
 extern crate uuid;
 extern crate ical;
 extern crate reqwest;
+extern crate wikibase;
 
 #[macro_use] extern crate log;
 extern crate serenity;

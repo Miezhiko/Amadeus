@@ -95,6 +95,9 @@ pub fn join(ctx: &mut Context, msg: &Message) -> CommandResult {
   } else {
     direct_message(ctx, msg, "Some error joining the channel...");
   }
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error deleting original command {:?}", why);
+  }
   Ok(())
 }
 
@@ -120,6 +123,9 @@ pub fn leave(ctx: &mut Context, msg: &Message) -> CommandResult {
     }
   } else {
     reply(ctx, &msg, "I'm not in a voice channel");
+  }
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
@@ -171,6 +177,9 @@ pub fn play(ctx: &mut Context, msg: &Message, mut args: Args) -> CommandResult {
     reply(ctx, msg, &format!("playing stream: {}", url));
   } else {
     reply(ctx, msg, "Not in a voice channel to play in...");
+  }
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }

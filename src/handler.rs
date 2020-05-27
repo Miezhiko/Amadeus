@@ -137,16 +137,24 @@ impl EventHandler for Handler {
       }
     } else {
       if msg.guild(&ctx).is_some() {
-        let guild = msg.guild(&ctx).unwrap();
-        let guild_id = guild.read().id;
-        let channel_id = msg.channel_id;
-        let mut conf = conf::parse_config();
-        let last_guild_conf = GuildId( conf.last_guild_chat.parse::<u64>().unwrap_or(0) );
-        let last_channel_conf = ChannelId( conf.last_channel_chat.parse::<u64>().unwrap_or(0) );
-        if last_guild_conf != guild_id || last_channel_conf != channel_id {
-          conf.last_guild_chat = format!("{}", guild_id);
-          conf.last_channel_chat = format!("{}", channel_id);
-          conf::write_config(&conf);
+        let is_admin =
+          if let Some(member) = msg.member(&ctx.cache) {
+            if let Ok(permissions) = member.permissions(&ctx.cache) {
+              permissions.administrator()
+            } else { false }
+          } else {false };
+        if !is_admin {
+          let guild = msg.guild(&ctx).unwrap();
+          let guild_id = guild.read().id;
+          let channel_id = msg.channel_id;
+          let mut conf = conf::parse_config();
+          let last_guild_conf = GuildId( conf.last_guild_chat.parse::<u64>().unwrap_or(0) );
+          let last_channel_conf = ChannelId( conf.last_channel_chat.parse::<u64>().unwrap_or(0) );
+          if last_guild_conf != guild_id || last_channel_conf != channel_id {
+            conf.last_guild_chat = format!("{}", guild_id);
+            conf.last_channel_chat = format!("{}", channel_id);
+            conf::write_config(&conf);
+          }
         }
       }
       if let Some(find_char_in_words) = OVERWATCH.into_iter().find(|&c| {

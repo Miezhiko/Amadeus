@@ -4,8 +4,7 @@ use crate::{
   commands::{
     meta::*,
     voice::*,
-    warcraft::*,
-    wiki::*
+    warcraft::*
   },
   commands::voice::VoiceManager,
   commands::meta::ShardManagerContainer,
@@ -63,10 +62,6 @@ struct Voice;
 #[group]
 #[commands(lineup, yesterday, today, tomorrow, weekends)]
 struct Warcraft;
-
-#[group]
-#[commands(wiki)]
-struct Wiki;
 
 #[check]
 #[name = "Admin"]
@@ -169,7 +164,6 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
     .group(&GENERAL_GROUP)
     .group(&VOICE_GROUP)
     .group(&WARCRAFT_GROUP)
-    .group(&WIKI_GROUP)
   );
 
   client.start()

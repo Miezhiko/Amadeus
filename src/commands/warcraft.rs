@@ -30,14 +30,16 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
   let str_date_now = on.format("%Y%m%d").to_string();
   let str_time_now = on.format("%H%M").to_string();
 
-  let mut eventos : Vec<String> = Vec::new();
+  let mut eventos : Vec<(String, String, bool)> = Vec::new();
 
   for line in reader {
     match line {
       Ok(l) => {
         for e in l.events {
           let mut is_today = false;
+          let mut tvstr : String = String::new();
           let mut evstr : String = String::new();
+
           for ep in e.properties {
             if ep.name == "DTSTART" {
               if let Some(val) = ep.value {
@@ -66,7 +68,7 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
                           }
                           format!(" ({}:{} MSK)", msk_h.to_string(), str_min)
                         } else { String::from("") };
-                      evstr = format!("• {}:{} CET {}", str_hour, str_min, msk);
+                      tvstr = format!("• {}:{} CET {}", str_hour, str_min, msk);
                     }
                   }
                 }
@@ -75,7 +77,7 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
               if is_today {
                 if ep.name == "SUMMARY" {
                   if let Some(val) = &ep.value {
-                    evstr = format!("{} | {}", evstr, val);
+                    evstr = format!("{}", val);
                   }
                 }
                 if ep.name == "DESCRIPTION" {
@@ -87,7 +89,7 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
             }
           }
           if is_today && !evstr.is_empty() {
-            eventos.push(evstr);
+            eventos.push((tvstr, evstr, false));
           }
         }
       },
@@ -96,8 +98,16 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
   }
 
   if eventos.len() > 0 {
-    let out = eventos.join("\n");
-    channel_message(&ctx, &msg, out.as_str());
+    let date_str_x = on.format("%e-%b (%A)").to_string();
+    let title = format!("Events on {}", date_str_x);
+    if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+      .embed(|e| e
+        .title(title)
+        .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
+        .fields(eventos)
+        .colour((255, 192, 203)))) {
+      error!("Error sending help message: {:?}", why);
+    }
   } else {
     channel_message(&ctx, &msg,"I am sorry but I can't find anything at the momenet");
   }

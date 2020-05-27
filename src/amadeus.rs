@@ -4,7 +4,8 @@ use crate::{
   commands::{
     meta::*,
     voice::*,
-    warcraft::*
+    warcraft::*,
+    owner::*
   },
   commands::voice::VoiceManager,
   commands::meta::ShardManagerContainer,
@@ -50,7 +51,6 @@ impl IFlagAction for Version {
   }
 }
 
-
 #[group]
 #[commands(ping, help)]
 struct General;
@@ -62,6 +62,12 @@ struct Voice;
 #[group]
 #[commands(lineup, yesterday, today, tomorrow, weekends)]
 struct Warcraft;
+
+#[group]
+#[owners_only]
+#[checks(Admin)]
+#[commands(say)]
+struct Owner;
 
 #[check]
 #[name = "Admin"]
@@ -164,6 +170,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
     .group(&GENERAL_GROUP)
     .group(&VOICE_GROUP)
     .group(&WARCRAFT_GROUP)
+    .group(&OWNER_GROUP)
   );
 
   client.start()

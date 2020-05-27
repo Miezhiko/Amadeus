@@ -3,5 +3,7 @@ pub struct AOptions {
   pub discord : String,
   pub last_guild : String,
   pub last_channel : String,
-  pub last_stream : String
+  pub last_stream : String,
+  pub last_guild_chat : String,
+  pub last_channel_chat : String
 }

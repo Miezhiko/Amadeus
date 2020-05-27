@@ -1,4 +1,5 @@
 use crate::{
+  conf,
   common::{
     msg::{ channel_message }
   },
@@ -9,7 +10,7 @@ use crate::{
 use serenity::{
   model::{ event::ResumedEvent, gateway::Ready, guild::Member
          , channel::Message
-         , id::GuildId, user::User },
+         , id::GuildId, id::ChannelId, user::User },
   prelude::*,
 };
 
@@ -134,25 +135,39 @@ impl EventHandler for Handler {
           }
         }
       }
-
-    } else if let Some(find_char_in_words) = OVERWATCH.into_iter().find(|&c| {
+    } else {
+      if msg.guild(&ctx).is_some() {
+        let guild = msg.guild(&ctx).unwrap();
+        let guild_id = guild.read().id;
+        let channel_id = msg.channel_id;
+        let mut conf = conf::parse_config();
+        let last_guild_conf = GuildId( conf.last_guild_chat.parse::<u64>().unwrap_or(0) );
+        let last_channel_conf = ChannelId( conf.last_channel_chat.parse::<u64>().unwrap_or(0) );
+        if last_guild_conf != guild_id || last_channel_conf != channel_id {
+          conf.last_guild_chat = format!("{}", guild_id);
+          conf.last_channel_chat = format!("{}", channel_id);
+          conf::write_config(&conf);
+        }
+      }
+      if let Some(find_char_in_words) = OVERWATCH.into_iter().find(|&c| {
         let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
         let is_overwatch = Regex::new(regex.as_str()).unwrap();
         is_overwatch.is_match(msg.content.as_str()) }) 
       {
         let mut rng = thread_rng();
         set! { ov_reply = OVERWATCH_REPLIES.choose(&mut rng).unwrap()
-             , reply = format!("{} {}", ov_reply, find_char_in_words) };
+            , reply = format!("{} {}", ov_reply, find_char_in_words) };
         if let Err(why) = msg.channel_id.say(&ctx, reply) {
           error!("Error sending overwatch reply: {:?}", why);
         }
-    } else {
-      let regex_no_u = Regex::new(r"(^|\W)((?i)no u(?-i))($|\W)").unwrap();
-      if regex_no_u.is_match(msg.content.as_str()) {
-        let rnd = rand::thread_rng().gen_range(0, 2);
-        if rnd == 1 {
-          if let Err(why) = msg.channel_id.say(&ctx, "No u") {
-            error!("Error sending no u reply: {:?}", why);
+      } else {
+        let regex_no_u = Regex::new(r"(^|\W)((?i)no u(?-i))($|\W)").unwrap();
+        if regex_no_u.is_match(msg.content.as_str()) {
+          let rnd = rand::thread_rng().gen_range(0, 2);
+          if rnd == 1 {
+            if let Err(why) = msg.channel_id.say(&ctx, "No u") {
+              error!("Error sending no u reply: {:?}", why);
+            }
           }
         }
       }

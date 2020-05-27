@@ -99,6 +99,18 @@ impl EventHandler for Handler {
         if let Err(why) = &msg.delete(&ctx) {
           error!("Error replacing other bots {:?}", why);
         }
+      } else {
+        if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
+          r.limit(5)
+        ) {
+          for mmm in messages {
+            if mmm.content.as_str().contains("Processing, this may take awhile") {
+              if let Err(why) = mmm.delete(&ctx) {
+                error!("Error removing processing message {:?}", why);
+              }
+            }
+          }
+        }
       }
 
       if !msg.content.is_empty() {

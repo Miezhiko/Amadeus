@@ -13,6 +13,8 @@ use serenity::{
   prelude::*,
 };
 
+use serenity::builder::CreateEmbed;
+
 use rand::{
   Rng,
   thread_rng,
@@ -84,13 +86,43 @@ impl EventHandler for Handler {
       }
       return;
     } else if msg.author.bot {
+      /* Earlie Amadeus was not that agressive but now...
       let rnd = rand::thread_rng().gen_range(0, 2);
-      if rnd == 1 || msg.content == "pong" {
-        if let Err(why) = msg.delete(&ctx) {
+      if rnd == 1 || msg.content == "pong" {*/
+
+      let is_file = msg.attachments.len() > 0;
+      /* ok if that's  a file we just keep it 
+      for file in &msg.attachments {
+      } */
+
+      if !is_file {
+        if let Err(why) = &msg.delete(&ctx) {
           error!("Error replacing other bots {:?}", why);
         }
-        channel_message(&ctx, &msg, msg.content.as_str());
       }
+
+      if !msg.content.is_empty() {
+        channel_message(&ctx, &msg, &msg.content.as_str());
+      }
+
+      for embed in &msg.embeds {
+        let mut not_stupid_zephyr = true;
+        if (&embed.description).is_some() {
+          if embed.description.as_ref().unwrap().contains("DiscordAPIError") {
+            not_stupid_zephyr = false
+          }
+        }
+        if not_stupid_zephyr {
+          if let Err(why) = &msg.channel_id.send_message(&ctx, |m| {
+            m.embed(|e| {
+              *e = CreateEmbed::from(embed.clone());
+              e })
+          }) {
+            error!("Error replacing other bots embeds {:?}", why);
+          }
+        }
+      }
+
     } else if let Some(find_char_in_words) = OVERWATCH.into_iter().find(|&c| {
         let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
         let is_overwatch = Regex::new(regex.as_str()).unwrap();

@@ -104,7 +104,7 @@ impl EventHandler for Handler {
           r.limit(5)
         ) {
           for mmm in messages {
-            if mmm.content.as_str().contains("Processing, this may take awhile") {
+            if mmm.content.as_str().to_lowercase().contains("processing") {
               if let Err(why) = mmm.delete(&ctx) {
                 error!("Error removing processing message {:?}", why);
               }

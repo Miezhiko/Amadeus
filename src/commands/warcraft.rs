@@ -174,7 +174,26 @@ pub fn lineup(ctx: &mut Context, msg: &Message, args: Args) -> CommandResult {
   let mut maps_out : Vec<(String, String, bool)> = Vec::new();
   let text = args.message();
 
-  let playermap_split = text.split(" ");
+  let check_for_title : Vec<String> =
+    text.split("|").map(str::to_string).collect();
+
+  info!("cft: {}", check_for_title.join(""));
+
+  let title = if check_for_title.len() > 1 {
+    let s = &check_for_title[0];
+    String::from(s.trim())
+  } else {
+    String::from("Custom lineup")
+  };
+
+  let players = if check_for_title.len() > 1 {
+    let s = &check_for_title[1];
+    String::from(s.trim())
+  } else {
+    String::from(text)
+  };
+
+  let playermap_split = players.split(" ").filter(|x| !x.is_empty());
   let playermap : Vec<String> =
     playermap_split.map(str::to_string).collect();
   for i in (0..(playermap.len() -1)).step_by(2) {
@@ -185,6 +204,7 @@ pub fn lineup(ctx: &mut Context, msg: &Message, args: Args) -> CommandResult {
 
   if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
     .embed(|e| e
+      .title(title)
       .fields(maps_out)
       .colour((255,182,193))
       .footer(|f| f.text(footer))

@@ -177,8 +177,6 @@ pub fn lineup(ctx: &mut Context, msg: &Message, args: Args) -> CommandResult {
   let check_for_title : Vec<String> =
     text.split("|").map(str::to_string).collect();
 
-  info!("cft: {}", check_for_title.join(""));
-
   let title = if check_for_title.len() > 1 {
     let s = &check_for_title[0];
     String::from(s.trim())

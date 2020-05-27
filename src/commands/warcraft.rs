@@ -8,7 +8,7 @@ use serenity::{
   prelude::*,
   model::channel::*,
   framework::standard::{
-    CommandResult,
+    Args, CommandResult,
     macros::command
   },
 };
@@ -62,13 +62,13 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
                       let str_min = &val[11..13];
                       let msk =
                         if let Ok(str_int) = str_hour.parse::<i32>() {
-                          let mut msk_h = str_int + 3;
+                          let mut msk_h = str_int + 1;
                           if msk_h >= 24 {
                             msk_h = msk_h - 24;
                           }
                           format!(" ({}:{} MSK)", msk_h.to_string(), str_min)
                         } else { String::from("") };
-                      tvstr = format!("• {}:{} CET {}", str_hour, str_min, msk);
+                      tvstr = format!("• {}:{} CEST {}", str_hour, str_min, msk);
                     }
                   }
                 }
@@ -124,7 +124,7 @@ pub fn yesterday(ctx: &mut Context, msg: &Message) -> CommandResult {
   let yesterday : DateTime<Utc> = Utc::now() - Duration::days(1); 
   tour(ctx, msg, yesterday)?;
   if let Err(why) = msg.delete(&ctx) {
-    error!("Error replacing other bots {:?}", why);
+    error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
@@ -134,7 +134,7 @@ pub fn today(ctx: &mut Context, msg: &Message) -> CommandResult {
   let today : DateTime<Utc> = Utc::now(); 
   tour_internal(ctx, msg, today, true)?;
   if let Err(why) = msg.delete(&ctx) {
-    error!("Error replacing other bots {:?}", why);
+    error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
@@ -144,7 +144,7 @@ pub fn tomorrow(ctx: &mut Context, msg: &Message) -> CommandResult {
   let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
   tour(ctx, msg, tomorrow)?;
   if let Err(why) = msg.delete(&ctx) {
-    error!("Error replacing other bots {:?}", why);
+    error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
@@ -153,21 +153,46 @@ pub fn tomorrow(ctx: &mut Context, msg: &Message) -> CommandResult {
 pub fn weekends(ctx: &mut Context, msg: &Message) -> CommandResult {
   let mut today : DateTime<Utc> = Utc::now();
   if today.weekday() == Weekday::Sun {
-    channel_message(&ctx, &msg, "Sunday:");
     tour_internal(ctx, msg, today, true)?;
   } else {
     let is_saturday = today.weekday() == Weekday::Sat;
     while today.weekday() != Weekday::Sat {
       today = today + Duration::days(1); 
     }
-    channel_message(&ctx, &msg, "Saturday:");
     tour_internal(ctx, msg, today, is_saturday)?;
     let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
-    channel_message(&ctx, &msg, "Sunday:");
     tour(ctx, msg, tomorrow)?;
   }
   if let Err(why) = msg.delete(&ctx) {
-    error!("Error replacing other bots {:?}", why);
+    error!("Error deleting original command {:?}", why);
+  }
+  Ok(())
+}
+
+#[command]
+pub fn lineup(ctx: &mut Context, msg: &Message, args: Args) -> CommandResult {
+  let mut maps_out : Vec<(String, String, bool)> = Vec::new();
+  let text = args.message();
+
+  let playermap_split = text.split(" ");
+  let playermap : Vec<String> =
+    playermap_split.map(str::to_string).collect();
+  for i in (0..(playermap.len() -1)).step_by(2) {
+    maps_out.push((playermap[i].clone(), playermap[i + 1].clone(), true));
+  }
+
+  let footer = format!("Made by {}", msg.author.name);
+
+  if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+    .embed(|e| e
+      .fields(maps_out)
+      .colour((255,182,193))
+      .footer(|f| f.text(footer))
+    )) {
+    error!("Error sending help message: {:?}", why);
+  }
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }

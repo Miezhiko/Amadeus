@@ -200,29 +200,38 @@ impl EventHandler for Handler {
           ctx.set_activity(Activity::listening(&msg.author.name));
           ctx.online();
           // markov
-          let rnd = rand::thread_rng().gen_range(0, 5);
-          if rnd == 1 {
-            if let Some(guild) = msg.guild(&ctx) {
-              let guild_id = guild.read().id;
-              if let Ok(channels) = guild_id.channels(&ctx) {
-                let main_channel = channels.iter().find(|&(c, _)|
-                  if let Some(name) = c.name(&ctx) {
-                    name == "main"
-                  } else {
-                    false
-                  });
-                if let Some((_, _channel)) = main_channel {
-                  let mut chain = Chain::new();
-                  if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                    r.limit(250)
-                  ) {
-                    for mmm in messages {
-                      chain.feed_str(mmm.content.as_str());
+          let channel_name = 
+            if let Some(ch) = msg.channel(&ctx) {
+              ch.id().name(&ctx).unwrap_or(String::from(""))
+            } else { String::from("") };
+          if channel_name == "main" || channel_name == "dating" || channel_name == "warcraft"
+          || channel_name == "team-chat" || channel_name == "🚧random" || channel_name == "💻computers" {
+            let rnd = rand::thread_rng().gen_range(0, 5);
+            if rnd == 1 {
+              if let Some(guild) = msg.guild(&ctx) {
+                let guild_id = guild.read().id;
+                if let Ok(channels) = guild_id.channels(&ctx) {
+                  let main_channel = channels.iter().find(|&(c, _)|
+                    if let Some(name) = c.name(&ctx) {
+                      name == "main"
+                    } else {
+                      false
+                    });
+                  if let Some((_, _channel)) = main_channel {
+                    let mut chain = Chain::new();
+                    if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
+                      r.limit(250)
+                    ) {
+                      for mmm in messages {
+                        chain.feed_str(mmm.content.as_str());
+                      }
+                    }
+                    chain.feed_str(msg.content.as_str());
+                    let answer = chain.generate_str();
+                    if !answer.is_empty() {
+                      reply(&ctx, &msg, answer.as_str());
                     }
                   }
-                  chain.feed_str(msg.content.as_str());
-                  let answer = chain.generate_str();
-                  reply(&ctx, &msg, answer.as_str());
                 }
               }
             }

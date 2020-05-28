@@ -50,10 +50,14 @@ impl EventHandler for Handler {
         });
       if let Some((_, channel)) = main_channel {
         if let Ok(messages) = channel.messages(&ctx, |r|
-          r.limit(50)
+          r.limit(250)
         ) {
           for mmm in messages {
-            chain.feed_str(mmm.content.as_str());
+            let msg_content = &mmm.content;
+            let russian = lang::is_russian(msg_content.as_str());
+            if !russian {
+              chain.feed_str(msg_content.as_str());
+            }
           }
         }
       }
@@ -93,10 +97,14 @@ impl EventHandler for Handler {
         });
       if let Some((_, channel)) = main_channel {
         if let Ok(messages) = channel.messages(&ctx, |r|
-          r.limit(50)
+          r.limit(250)
         ) {
           for mmm in messages {
-            chain.feed_str(mmm.content.as_str());
+            let msg_content = &mmm.content;
+            let russian = lang::is_russian(msg_content.as_str());
+            if !russian {
+              chain.feed_str(msg_content.as_str());
+            }
           }
         }
       }

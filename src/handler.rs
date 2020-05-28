@@ -12,9 +12,11 @@ use serenity::{
          , channel::Message
          , id::GuildId, id::ChannelId, user::User },
   prelude::*,
+  http::AttachmentType,
+  builder::CreateEmbed
 };
 
-use serenity::builder::CreateEmbed;
+use std::borrow::Cow;
 
 use rand::{
   Rng,
@@ -87,20 +89,24 @@ impl EventHandler for Handler {
       }
       return;
     } else if msg.author.bot {
-      /* Earlie Amadeus was not that agressive but now...
-      let rnd = rand::thread_rng().gen_range(0, 2);
-      if rnd == 1 || msg.content == "pong" {*/
-
-      let is_file = msg.attachments.len() > 0;
-      /* ok if that's  a file we just keep it 
+      let mut is_file = false;
       for file in &msg.attachments {
-      } */
-
-      if !is_file {
-        if let Err(why) = &msg.delete(&ctx) {
-          error!("Error replacing other bots {:?}", why);
+        if let Ok(bytes) = file.download() {
+          let cow = AttachmentType::Bytes {
+            data: Cow::from(bytes),
+            filename: String::from(&file.filename)
+          };
+          if let Err(why) = msg.channel_id.send_message(&ctx, |m| m.add_file(cow)) {
+            error!("Failed to download and post attachment {:?}", why);
+          } else {
+            is_file = true;
+          }
         }
-      } else {
+      }
+      if let Err(why) = &msg.delete(&ctx) {
+        error!("Error replacing other bots {:?}", why);
+      }
+      if is_file {
         if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
           r.limit(5)
         ) {
@@ -113,11 +119,9 @@ impl EventHandler for Handler {
           }
         }
       }
-
       if !msg.content.is_empty() {
         channel_message(&ctx, &msg, &msg.content.as_str());
       }
-
       for embed in &msg.embeds {
         let mut not_stupid_zephyr = true;
         if (&embed.description).is_some() {

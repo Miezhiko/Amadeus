@@ -269,14 +269,20 @@ impl EventHandler for Handler {
                     if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
                       r.limit(4000)
                     ) {
+                      let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
                       for mmm in messages {
-                        let without_mention =
-                          content_safe(&ctx, &mmm.content, &ContentSafeOptions::default());
-                        if !without_mention.contains("$") {
-                          let is_russian = lang::is_russian(without_mention.as_str());
+                        let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
+                        result = result.replace(":", "");
+                        result =
+                          content_safe(&ctx, &result, &ContentSafeOptions::default()
+                            .clean_user(false).clean_channel(true)
+                            .clean_everyone(true).clean_here(true));
+    
+                        if !result.is_empty() && !result.contains("$") {
+                          let is_russian = lang::is_russian(result.as_str());
                           if (russian && is_russian)
                           || (!russian && !is_russian) {
-                            chain.feed_str(without_mention.as_str());
+                            chain.feed_str(result.as_str());
                           }
                         }
                       }

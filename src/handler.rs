@@ -40,6 +40,22 @@ impl EventHandler for Handler {
   }
   fn guild_member_addition(&self, ctx: Context, guild_id: GuildId, /*mut*/ member: Member) {
     if let Ok(channels) = guild_id.channels(&ctx) {
+      let mut chain = Chain::new();
+      let main_channel = channels.iter().find(|&(c, _)|
+      if let Some(name) = c.name(&ctx) {
+          name == "main"
+        } else {
+          false
+        });
+      if let Some((_, channel)) = main_channel {
+        if let Ok(messages) = channel.messages(&ctx, |r|
+          r.limit(50)
+        ) {
+          for mmm in messages {
+            chain.feed_str(mmm.content.as_str());
+          }
+        }
+      }
       let log_channel = channels.iter().find(|&(c, _)|
         if let Some(name) = c.name(&ctx) {
           name == "log"
@@ -48,11 +64,14 @@ impl EventHandler for Handler {
         });
       if let Some((_, channel)) = log_channel {
         let user = member.user.read();
+        chain.feed_str(user.name.as_str());
+        let markov = chain.generate_str();
+        let title = format!("has joined here, {}", markov);
         if let Err(why) = channel.send_message(&ctx, |m| m
           .embed(|e| {
             let mut e = e
               .author(|a| a.icon_url(&user.face()).name(&user.name))
-              .title("has joined here, that message was too short so it's just random text");
+              .title(title);
             if let Some(ref joined_at) = member.joined_at {
               e = e.timestamp(joined_at);
             } e
@@ -64,6 +83,22 @@ impl EventHandler for Handler {
   }
   fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user : User, _ : Option<Member>) {
     if let Ok(channels) = guild_id.channels(&ctx) {
+      let mut chain = Chain::new();
+      let main_channel = channels.iter().find(|&(c, _)|
+      if let Some(name) = c.name(&ctx) {
+          name == "main"
+        } else {
+          false
+        });
+      if let Some((_, channel)) = main_channel {
+        if let Ok(messages) = channel.messages(&ctx, |r|
+          r.limit(50)
+        ) {
+          for mmm in messages {
+            chain.feed_str(mmm.content.as_str());
+          }
+        }
+      }
       let log_channel = channels.iter().find(|&(c, _)|
         if let Some(name) = c.name(&ctx) {
           name == "log"
@@ -71,10 +106,13 @@ impl EventHandler for Handler {
           false
         });
       if let Some((_, channel)) = log_channel {
+        chain.feed_str(user.name.as_str());
+        let markov = chain.generate_str();
+        let title = format!("has left, {}", markov);
         if let Err(why) = channel.send_message(&ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&user.face()).name(&user.name))
-              .title("has left however it's okay, I think it's fine")
+              .title(title)
               .timestamp(chrono::Utc::now().to_rfc3339())
             })) {
           error!("Failed to log leaving user {:?}", why);
@@ -167,16 +205,16 @@ impl EventHandler for Handler {
             if let Some(guild) = msg.guild(&ctx) {
               let guild_id = guild.read().id;
               if let Ok(channels) = guild_id.channels(&ctx) {
-                let log_channel = channels.iter().find(|&(c, _)|
+                let main_channel = channels.iter().find(|&(c, _)|
                   if let Some(name) = c.name(&ctx) {
                     name == "main"
                   } else {
                     false
                   });
-                if let Some((_, _channel)) = log_channel {
+                if let Some((_, _channel)) = main_channel {
                   let mut chain = Chain::new();
                   if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                    r.limit(50)
+                    r.limit(250)
                   ) {
                     for mmm in messages {
                       chain.feed_str(mmm.content.as_str());

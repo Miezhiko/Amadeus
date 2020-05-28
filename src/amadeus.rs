@@ -196,8 +196,14 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
                         chain.feed_str(mmm.content.as_str());
                       }
                     }
+                    for conf in CONFUSION {
+                      chain.feed_str( conf );
+                    }
                     chain.feed_str(msg.content.as_str());
-                    let answer = chain.generate_str();
+                    let mut answer = chain.generate_str();
+                    if answer.contains("#") {
+                      answer = chain.generate_str();
+                    }
                     if !answer.is_empty() {
                       reply(&ctx, &msg, answer.as_str());
                     }

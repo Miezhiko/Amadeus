@@ -207,7 +207,7 @@ impl EventHandler for Handler {
           if channel_name == "main" || channel_name == "dating" || channel_name == "warcraft"
           || channel_name == "team-chat" || channel_name == "🚧random" || channel_name == "💻computers" {
             let rnd = rand::thread_rng().gen_range(0, 3);
-            if rnd == 1 {
+            if rnd == 1 && msg.mentions.len () == 0 {
               if let Some(guild) = msg.guild(&ctx) {
                 let guild_id = guild.read().id;
                 if let Ok(channels) = guild_id.channels(&ctx) {

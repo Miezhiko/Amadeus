@@ -206,7 +206,7 @@ impl EventHandler for Handler {
             } else { String::from("") };
           if channel_name == "main" || channel_name == "dating" || channel_name == "warcraft"
           || channel_name == "team-chat" || channel_name == "🚧random" || channel_name == "💻computers" {
-            let rnd = rand::thread_rng().gen_range(0, 5);
+            let rnd = rand::thread_rng().gen_range(0, 3);
             if rnd == 1 {
               if let Some(guild) = msg.guild(&ctx) {
                 let guild_id = guild.read().id;
@@ -227,9 +227,18 @@ impl EventHandler for Handler {
                       }
                     }
                     chain.feed_str(msg.content.as_str());
-                    let answer = chain.generate_str();
+                    let mut answer = chain.generate_str();
+                    // try to avoid mentions
+                    if answer.contains("#") {
+                      answer = chain.generate_str();
+                    }
                     if !answer.is_empty() {
-                      reply(&ctx, &msg, answer.as_str());
+                      let rnd2 = rand::thread_rng().gen_range(0, 3);
+                      if rnd2 == 1 {
+                        reply(&ctx, &msg, answer.as_str());
+                      } else {
+                        channel_message(&ctx, &msg, answer.as_str());
+                      }
                     }
                   }
                 }

@@ -201,7 +201,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
                     }
                     chain.feed_str(msg.content.as_str());
                     let mut answer = chain.generate_str();
-                    if answer.contains("#") {
+                    if answer.contains("#") && answer.contains("@") {
                       answer = chain.generate_str();
                     }
                     if !answer.is_empty() {

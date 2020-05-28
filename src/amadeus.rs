@@ -5,7 +5,8 @@ use crate::{
     meta::*,
     voice::*,
     warcraft::*,
-    owner::*
+    owner::*,
+    admin::*
   },
   commands::voice::VoiceManager,
   commands::meta::ShardManagerContainer,
@@ -66,8 +67,13 @@ struct Warcraft;
 #[group]
 #[owners_only]
 #[checks(Admin)]
-#[commands(idle, stream, say)]
+#[commands(say)]
 struct Owner;
+
+#[group]
+#[checks(Admin)]
+#[commands(idle, stream)]
+struct Admin;
 
 #[check]
 #[name = "Admin"]
@@ -171,6 +177,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
     .group(&VOICE_GROUP)
     .group(&WARCRAFT_GROUP)
     .group(&OWNER_GROUP)
+    .group(&ADMIN_GROUP)
   );
 
   client.start()

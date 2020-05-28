@@ -1,14 +1,13 @@
 encoding=utf-8
 
 [Discord]
-token=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+token=0
 
 [Music]
 rejoin=false
-last_guild=32423423423423432
-last_channel=4324324324234234
+last_guild=0
+last_channel=0
 last_stream=http://ice2.somafm.com/fluid-32-aac
 
 [Chat]
-last_guild=611822838831251466
-last_channel=706599231712133191
+last_channel=0

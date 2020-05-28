@@ -36,7 +36,7 @@ pub fn parse_config() -> types::AOptions {
         options.rejoin        = &(conf["Music"]["rejoin"]) == "true";
         options.last_guild    = conf["Music"]["last_guild"].to_owned();
         options.last_channel  = conf["Music"]["last_channel"].to_owned();
-        options.last_stream   = conf["Chat"]["last_guild"].to_owned();
+        options.last_stream   = conf["Music"]["last_stream"].to_owned();
         options.last_channel_chat = conf["Chat"]["last_channel"].to_owned();
       }));
   if config_load_status.is_err() {

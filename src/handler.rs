@@ -1,7 +1,7 @@
 use crate::{
   conf,
   common::{
-    msg::{ channel_message }
+    msg::{ channel_message, reply }
   },
   commands::voice,
   collections::overwatch::{ OVERWATCH, OVERWATCH_REPLIES }
@@ -25,6 +25,8 @@ use rand::{
 };
 
 use regex::Regex;
+
+use markov::Chain;
 
 pub struct Handler;
 
@@ -159,6 +161,34 @@ impl EventHandler for Handler {
           // wakes up on any activity
           ctx.set_activity(Activity::listening(&msg.author.name));
           ctx.online();
+          // markov
+          let rnd = rand::thread_rng().gen_range(0, 5);
+          if rnd == 1 {
+            if let Some(guild) = msg.guild(&ctx) {
+              let guild_id = guild.read().id;
+              if let Ok(channels) = guild_id.channels(&ctx) {
+                let log_channel = channels.iter().find(|&(c, _)|
+                  if let Some(name) = c.name(&ctx) {
+                    name == "main"
+                  } else {
+                    false
+                  });
+                if let Some((_, _channel)) = log_channel {
+                  let mut chain = Chain::new();
+                  if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
+                    r.limit(50)
+                  ) {
+                    for mmm in messages {
+                      chain.feed_str(mmm.content.as_str());
+                    }
+                  }
+                  chain.feed_str(msg.content.as_str());
+                  let answer = chain.generate_str();
+                  reply(&ctx, &msg, answer.as_str());
+                }
+              }
+            }
+          }
         }
       }
       if let Some(find_char_in_words) = OVERWATCH.into_iter().find(|&c| {

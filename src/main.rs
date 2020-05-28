@@ -11,6 +11,7 @@ extern crate serde_json;
 extern crate uuid;
 extern crate ical;
 extern crate reqwest;
+extern crate markov;
 
 #[macro_use] extern crate log;
 extern crate serenity;

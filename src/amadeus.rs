@@ -41,7 +41,6 @@ use regex::Regex;
 use markov::Chain;
 
 use rand::{
-  Rng,
   thread_rng,
   seq::SliceRandom
 };
@@ -170,52 +169,35 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
             error!("Error sending greeting reply: {:?}", why);
           }
         } else {
-          let channel_name = 
-            if let Some(ch) = msg.channel(&ctx) {
-              ch.id().name(&ctx).unwrap_or(String::from(""))
-            } else { String::from("") };
-          if channel_name == "main" || channel_name == "dating" || channel_name == "warcraft"
-          || channel_name == "team-chat" || channel_name == "🚧random" || channel_name == "💻computers" {
-            let rnd = rand::thread_rng().gen_range(0, 4);
-            if rnd != 1 {
-              if let Some(guild) = msg.guild(&ctx) {
-                let guild_id = guild.read().id;
-                if let Ok(channels) = guild_id.channels(&ctx) {
-                  let main_channel = channels.iter().find(|&(c, _)|
-                    if let Some(name) = c.name(&ctx) {
-                      name == "main"
-                    } else {
-                      false
-                    });
-                  if let Some((_, _channel)) = main_channel {
-                    let mut chain = Chain::new();
-                    if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                      r.limit(2500)
-                    ) {
-                      for mmm in messages {
-                        chain.feed_str(mmm.content.as_str());
-                      }
-                    }
-                    for conf in CONFUSION {
-                      chain.feed_str( conf );
-                    }
-                    chain.feed_str(msg.content.as_str());
-                    let mut answer = chain.generate_str();
-                    while answer.contains("#") && answer.contains("@") {
-                      answer = chain.generate_str();
-                    }
-                    if !answer.is_empty() {
-                      reply(&ctx, &msg, answer.as_str());
-                    }
+          if let Some(guild) = msg.guild(&ctx) {
+            let guild_id = guild.read().id;
+            if let Ok(channels) = guild_id.channels(&ctx) {
+              let main_channel = channels.iter().find(|&(c, _)|
+                if let Some(name) = c.name(&ctx) {
+                  name == "main"
+                } else {
+                  false
+                });
+              if let Some((_, _channel)) = main_channel {
+                let mut chain = Chain::new();
+                if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
+                  r.limit(6000)
+                ) {
+                  for mmm in messages {
+                    chain.feed_str(mmm.content.as_str());
                   }
                 }
-              }
-            } else {
-              let mut rng = thread_rng();
-              set! { hi_reply = CONFUSION.choose(&mut rng).unwrap()
-                  , reply = format!("{}", hi_reply) };
-              if let Err(why) = msg.reply(&ctx, reply) {
-                error!("Error sending confusion reply: {:?}", why);
+                for conf in CONFUSION {
+                  chain.feed_str( conf );
+                }
+                chain.feed_str(msg.content.as_str());
+                let mut answer = chain.generate_str();
+                while answer.contains("@") {
+                  answer = chain.generate_str();
+                }
+                if !answer.is_empty() {
+                  reply(&ctx, &msg, answer.as_str());
+                }
               }
             }
           }

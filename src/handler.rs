@@ -221,7 +221,7 @@ impl EventHandler for Handler {
                     }
                   }
                   let mut answer = chain.generate_str();
-                  while answer.contains("#") && answer.contains("@") {
+                  while answer.contains("@") {
                     answer = chain.generate_str();
                   }
                   ctx.set_activity(Activity::playing(&answer));
@@ -251,7 +251,7 @@ impl EventHandler for Handler {
                   if let Some((_, _channel)) = main_channel {
                     let mut chain = Chain::new();
                     if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                      r.limit(550)
+                      r.limit(1550)
                     ) {
                       for mmm in messages {
                         chain.feed_str(mmm.content.as_str());
@@ -260,7 +260,7 @@ impl EventHandler for Handler {
                     chain.feed_str(msg.content.as_str());
                     let mut answer = chain.generate_str();
                     // try to avoid mentions
-                    while answer.contains("#") && answer.contains("@") {
+                    while answer.contains("@") {
                       answer = chain.generate_str();
                     }
                     if !answer.is_empty() {

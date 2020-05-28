@@ -9,7 +9,7 @@ use crate::{
 
 use serenity::{
   model::{ event::ResumedEvent, gateway::Ready, guild::Member
-         , channel::Message
+         , channel::Message, gateway::Activity
          , id::GuildId, id::ChannelId, user::User },
   prelude::*,
   http::AttachmentType,
@@ -159,6 +159,9 @@ impl EventHandler for Handler {
             conf.last_channel_chat = format!("{}", channel_id);
             conf::write_config(&conf);
           }
+          // wakes up on any activity
+          ctx.set_activity(Activity::listening(&msg.author.name));
+          ctx.online();
         }
       }
       if let Some(find_char_in_words) = OVERWATCH.into_iter().find(|&c| {

@@ -4,13 +4,36 @@ use crate::{
 
 use serenity::{
   model::{ id::GuildId, id::ChannelId
-         , channel::* },
+         , channel::*
+         , gateway::Activity },
   prelude::*,
   framework::standard::{
     Args, CommandResult,
     macros::command
   }
 };
+
+#[command]
+pub fn idle(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
+  let what = args.message();
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error deleting original command {:?}", why);
+  }
+  ctx.set_activity(Activity::playing(&what));
+  ctx.idle();
+  Ok(())
+}
+
+#[command]
+pub fn stream(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
+  let what = args.message();
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error deleting original command {:?}", why);
+  }
+  ctx.set_activity(Activity::streaming("Amadeus", &what));
+  ctx.dnd();
+  Ok(())
+}
 
 #[command]
 pub fn say(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {

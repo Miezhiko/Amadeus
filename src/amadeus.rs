@@ -66,7 +66,7 @@ struct Warcraft;
 #[group]
 #[owners_only]
 #[checks(Admin)]
-#[commands(say)]
+#[commands(idle, stream, say)]
 struct Owner;
 
 #[check]

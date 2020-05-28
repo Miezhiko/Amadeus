@@ -1,6 +1,7 @@
 use crate::{
   conf,
   common::{
+    lang,
     msg::{ channel_message, reply }
   },
   commands::voice,
@@ -221,7 +222,7 @@ impl EventHandler for Handler {
                     }
                   }
                   let mut answer = chain.generate_str();
-                  while answer.contains("@") {
+                  while answer.contains("@") || answer.contains("$") {
                     answer = chain.generate_str();
                   }
                   ctx.set_activity(Activity::playing(&answer));
@@ -249,18 +250,24 @@ impl EventHandler for Handler {
                       false
                     });
                   if let Some((_, _channel)) = main_channel {
+                    let msg_content = &msg.content;
+                    let russian = lang::is_russian(msg_content);
                     let mut chain = Chain::new();
                     if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                      r.limit(1550)
+                      r.limit(2666)
                     ) {
                       for mmm in messages {
-                        chain.feed_str(mmm.content.as_str());
+                        let is_russian = lang::is_russian(mmm.content.as_str());
+                        if (russian && is_russian)
+                        || (!russian && !is_russian) {
+                          chain.feed_str(mmm.content.as_str());
+                        }
                       }
                     }
                     chain.feed_str(msg.content.as_str());
                     let mut answer = chain.generate_str();
-                    // try to avoid mentions
-                    while answer.contains("@") {
+                    // try to avoid mentions and bot stuff
+                    while answer.contains("@") || answer.contains("$") {
                       answer = chain.generate_str();
                     }
                     if !answer.is_empty() {

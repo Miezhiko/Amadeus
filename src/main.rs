@@ -12,6 +12,7 @@ extern crate uuid;
 extern crate ical;
 extern crate reqwest;
 extern crate markov;
+extern crate ucd;
 
 #[macro_use] extern crate log;
 extern crate serenity;

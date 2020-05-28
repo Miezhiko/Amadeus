@@ -1,5 +1,6 @@
 use crate::{
   common::{
+    lang,
     msg::{ reply }
   },
   types::AOptions,
@@ -170,6 +171,8 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
           }
         } else {
           if let Some(guild) = msg.guild(&ctx) {
+            let msg_content = &msg.content;
+            let russian = lang::is_russian(msg_content);
             let guild_id = guild.read().id;
             if let Ok(channels) = guild_id.channels(&ctx) {
               let main_channel = channels.iter().find(|&(c, _)|
@@ -184,15 +187,21 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
                   r.limit(6000)
                 ) {
                   for mmm in messages {
-                    chain.feed_str(mmm.content.as_str());
+                    let is_russian = lang::is_russian(mmm.content.as_str());
+                    if (russian && is_russian)
+                    || (!russian && !is_russian) {
+                      chain.feed_str(mmm.content.as_str());
+                    }
                   }
                 }
-                for conf in CONFUSION {
-                  chain.feed_str( conf );
+                if !russian {
+                  for conf in CONFUSION {
+                    chain.feed_str( conf );
+                  }
                 }
-                chain.feed_str(msg.content.as_str());
+                chain.feed_str(msg_content.as_str());
                 let mut answer = chain.generate_str();
-                while answer.contains("@") {
+                while answer.contains("@") || answer.contains("$") {
                   answer = chain.generate_str();
                 }
                 if !answer.is_empty() {

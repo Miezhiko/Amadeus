@@ -262,7 +262,7 @@ impl EventHandler for Handler {
                     let russian = lang::is_russian(msg_content);
                     let mut chain = Chain::new();
                     if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                      r.limit(2666)
+                      r.limit(4000)
                     ) {
                       for mmm in messages {
                         let msg_content2 = &mmm.content;

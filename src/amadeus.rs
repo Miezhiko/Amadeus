@@ -184,7 +184,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
               if let Some((_, _channel)) = main_channel {
                 let mut chain = Chain::new();
                 if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                  r.limit(6000)
+                  r.limit(6666)
                 ) {
                   for mmm in messages {
                     let msg_content2 = &mmm.content;

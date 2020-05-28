@@ -214,13 +214,16 @@ impl EventHandler for Handler {
                 if let Some((_, _channel)) = main_channel {
                   let mut chain = Chain::new();
                   if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                    r.limit(150)
+                    r.limit(350)
                   ) {
                     for mmm in messages {
                       chain.feed_str(mmm.content.as_str());
                     }
                   }
-                  let answer = chain.generate_str();
+                  let mut answer = chain.generate_str();
+                  while answer.contains("#") && answer.contains("@") {
+                    answer = chain.generate_str();
+                  }
                   ctx.set_activity(Activity::playing(&answer));
                   ctx.idle();
                 }

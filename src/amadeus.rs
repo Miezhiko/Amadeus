@@ -187,10 +187,13 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
                   r.limit(6000)
                 ) {
                   for mmm in messages {
-                    let is_russian = lang::is_russian(mmm.content.as_str());
-                    if (russian && is_russian)
-                    || (!russian && !is_russian) {
-                      chain.feed_str(mmm.content.as_str());
+                    let msg_content2 = &mmm.content;
+                    if !msg_content2.contains("$") {
+                      let is_russian = lang::is_russian(msg_content2.as_str());
+                      if (russian && is_russian)
+                      || (!russian && !is_russian) {
+                        chain.feed_str(msg_content2.as_str());
+                      }
                     }
                   }
                 }

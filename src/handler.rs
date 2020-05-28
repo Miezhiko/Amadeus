@@ -17,6 +17,11 @@ use serenity::{
   builder::CreateEmbed
 };
 
+use serenity::utils::{
+  content_safe,
+  ContentSafeOptions,
+};
+
 use std::borrow::Cow;
 
 use rand::{
@@ -265,22 +270,19 @@ impl EventHandler for Handler {
                       r.limit(4000)
                     ) {
                       for mmm in messages {
-                        let msg_content2 = &mmm.content;
-                        if !msg_content2.contains("$") {
-                          let is_russian = lang::is_russian(msg_content2.as_str());
+                        let without_mention =
+                          content_safe(&ctx, &mmm.content, &ContentSafeOptions::default());
+                        if !without_mention.contains("$") {
+                          let is_russian = lang::is_russian(without_mention.as_str());
                           if (russian && is_russian)
                           || (!russian && !is_russian) {
-                            chain.feed_str(msg_content2.as_str());
+                            chain.feed_str(without_mention.as_str());
                           }
                         }
                       }
                     }
                     chain.feed_str(msg.content.as_str());
-                    let mut answer = chain.generate_str();
-                    // try to avoid mentions and bot stuff
-                    while answer.contains("@") || answer.contains("$") {
-                      answer = chain.generate_str();
-                    }
+                    let answer = chain.generate_str();
                     if !answer.is_empty() {
                       let rnd2 = rand::thread_rng().gen_range(0, 3);
                       if rnd2 == 1 {

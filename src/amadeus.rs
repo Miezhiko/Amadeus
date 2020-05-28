@@ -27,6 +27,11 @@ use serenity::{
   model::{channel::{Message}}
 };
 
+use serenity::utils::{
+  content_safe,
+  ContentSafeOptions,
+};
+
 use argparse::{
   ArgumentParser,
   action::{IFlagAction, ParseResult}
@@ -187,12 +192,13 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
                   r.limit(6666)
                 ) {
                   for mmm in messages {
-                    let msg_content2 = &mmm.content;
-                    if !msg_content2.contains("$") {
-                      let is_russian = lang::is_russian(msg_content2.as_str());
+                    let without_mention =
+                      content_safe(&ctx, &mmm.content, &ContentSafeOptions::default());
+                    if !without_mention.contains("$") {
+                      let is_russian = lang::is_russian(without_mention.as_str());
                       if (russian && is_russian)
                       || (!russian && !is_russian) {
-                        chain.feed_str(msg_content2.as_str());
+                        chain.feed_str(without_mention.as_str());
                       }
                     }
                   }
@@ -203,10 +209,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
                   }
                 }
                 chain.feed_str(msg_content.as_str());
-                let mut answer = chain.generate_str();
-                while answer.contains("@") || answer.contains("$") {
-                  answer = chain.generate_str();
-                }
+                let answer = chain.generate_str();
                 if !answer.is_empty() {
                   reply(&ctx, &msg, answer.as_str());
                 }

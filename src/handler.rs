@@ -272,7 +272,7 @@ impl EventHandler for Handler {
                       let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
                       for mmm in messages {
                         let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
-                        result = result.replace(":", "");
+                        result = result.replace(": ", "");
                         result =
                           content_safe(&ctx, &result, &ContentSafeOptions::default()
                             .clean_user(false).clean_channel(true)

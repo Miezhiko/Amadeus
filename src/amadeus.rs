@@ -190,7 +190,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
                   if let Some((_, _channel)) = main_channel {
                     let mut chain = Chain::new();
                     if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                      r.limit(500)
+                      r.limit(2500)
                     ) {
                       for mmm in messages {
                         chain.feed_str(mmm.content.as_str());
@@ -201,7 +201,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
                     }
                     chain.feed_str(msg.content.as_str());
                     let mut answer = chain.generate_str();
-                    if answer.contains("#") && answer.contains("@") {
+                    while answer.contains("#") && answer.contains("@") {
                       answer = chain.generate_str();
                     }
                     if !answer.is_empty() {

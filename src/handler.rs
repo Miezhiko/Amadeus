@@ -197,8 +197,36 @@ impl EventHandler for Handler {
             conf::write_config(&conf);
           }
           // wakes up on any activity
-          ctx.set_activity(Activity::listening(&msg.author.name));
-          ctx.online();
+          let rndx = rand::thread_rng().gen_range(0, 5);
+          if rndx != 1 {
+            ctx.set_activity(Activity::listening(&msg.author.name));
+            ctx.online();
+          } else {
+            if let Some(guild) = msg.guild(&ctx) {
+              let guild_id = guild.read().id;
+              if let Ok(channels) = guild_id.channels(&ctx) {
+                let main_channel = channels.iter().find(|&(c, _)|
+                  if let Some(name) = c.name(&ctx) {
+                    name == "main"
+                  } else {
+                    false
+                  });
+                if let Some((_, _channel)) = main_channel {
+                  let mut chain = Chain::new();
+                  if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
+                    r.limit(150)
+                  ) {
+                    for mmm in messages {
+                      chain.feed_str(mmm.content.as_str());
+                    }
+                  }
+                  let answer = chain.generate_str();
+                  ctx.set_activity(Activity::playing(&answer));
+                  ctx.idle();
+                }
+              }
+            }
+          }
           // markov
           let channel_name = 
             if let Some(ch) = msg.channel(&ctx) {
@@ -220,7 +248,7 @@ impl EventHandler for Handler {
                   if let Some((_, _channel)) = main_channel {
                     let mut chain = Chain::new();
                     if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                      r.limit(1250)
+                      r.limit(550)
                     ) {
                       for mmm in messages {
                         chain.feed_str(mmm.content.as_str());

@@ -17,6 +17,7 @@ extern crate reqwest;
 extern crate markov;
 extern crate ucd;
 extern crate timer;
+extern crate comfy_table;
 
 #[macro_use] extern crate log;
 extern crate serenity;

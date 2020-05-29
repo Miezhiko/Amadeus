@@ -13,7 +13,10 @@ use serenity::{
   },
 };
 
+use std::collections::HashMap;
+
 use reqwest;
+use comfy_table::*;
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
@@ -25,6 +28,39 @@ struct Stats {
   losses: u32,
   games: u32,
   winrate: f64
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+struct WinLosses {
+  race: u32,
+  wins: u32,
+  losses: u32,
+  games: u32,
+  winrate: f64
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+struct WinLossesOnMap {
+  map: String,
+  winLosses: Vec<WinLosses>
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+struct RaceWinsOnMap {
+  race: u32,
+  winLossesOnMap: Vec<WinLossesOnMap>
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+struct Stats2 {
+  id: String,
+  raceWinsOnMap: Vec<RaceWinsOnMap>,
+  battleTag: String,
+  season: u32
 }
 
 #[allow(non_snake_case)]
@@ -65,6 +101,18 @@ struct Search {
   playersInfo: Option<String>
 }
 
+fn get_race(r : u32) -> String {
+  String::from(
+    match r {
+      1 => "Human",
+      2 => "Orc",
+      4 => "Night Elf",
+      8 => "Undead",
+      _ => "Random"
+    }
+  )
+}
+
 #[command]
 pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
   let mut args_msg = args.message();
@@ -91,16 +139,10 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
     if stats.len() > 0 {
       let name = &userx.split("#").collect::<Vec<&str>>()[0];
       for stat in &stats {
-        let race = match stat.race {
-          1 => "Human",
-          2 => "Orc",
-          4 => "Night Elf",
-          8 => "Undead",
-          _ => "Random"
-        };
+        let race = get_race(stat.race);
         let winrate = (stat.winrate * 100.0).round();
         let stat_str = format!("wins: {}, loses: {}, winrate: {}%", stat.wins, stat.losses, winrate);
-        out.push((String::from(race), stat_str, false));
+        out.push((race, stat_str, false));
       }
       let max_games : Option<&Stats> = stats.iter().max_by_key(|s| s.games);
       let max_games_race = if max_games.is_some() { max_games.unwrap().race } else { 0 };
@@ -111,29 +153,66 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           8 => "http://icons.iconarchive.com/icons/3xhumed/mega-games-pack-18/256/Warcraft-3-Reign-of-Chaos-icon.png",
           _ => "http://icons.iconarchive.com/icons/3xhumed/mega-games-pack-31/256/Warcraft-II-new-2-icon.png"
         };
-      let mut main_race_colors = match max_games_race {
+      let main_race_colors = match max_games_race {
           1 => (0, 0, 222),
           2 => (222, 0, 0),
           4 => (0, 222, 0),
           8 => (155, 0, 143),
           _ => (50, 120, 150)
         };
-      // not very good implementation of weird lilyal idea
-      if stats.len() > 1 {
-        let not_main : Vec<&Stats> = stats.iter().filter(|s| s.race != max_games_race).collect();
-        if not_main.len() > 0 {
-          let (r,g,b) = main_race_colors;
-          main_race_colors = match max_games_race {
-            1 => (r+0/2, g+0/2, b+222/2),
-            2 => (r+222/2, g+0/2, b+0/2),
-            4 => (r+0/2, g+222/2, b+0/2),
-            8 => (r+155/2, g+0/2, b+143/2),
-            _ => (r+50/2, g+120/2, b+150/2)
-          };
+
+      let mut description = format!("[{}]\n", userx.as_str());
+
+      let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season=1", user);
+      let res2 = reqwest::blocking::get(uri2.as_str())?;
+      let stats2 : Stats2 = res2.json()?;
+
+      let mut table = Table::new();
+
+      table.set_content_arrangement(ContentArrangement::Dynamic)
+           .set_table_width(40)
+           .set_header(vec!["Map", "vs HU", "vs O", "vs NE", "vs UD"]);
+
+      for s3 in stats2.raceWinsOnMap {
+        if s3.winLossesOnMap.len() > 0 {
+          if s3.race == 16 { // max_games_race {
+            for s4 in s3.winLossesOnMap {
+              let text = match s4.map.as_str() {
+                "Overall"         => "All",
+                "echoisles"       => "EI",
+                "northernisles"   => "NIS",
+                "amazonia"        => "AZ",
+                "lastrefuge"      => "LR",
+                "concealedhill"   => "CH",
+                "twistedmeadows"  => "TM",
+                "terenasstand"    => "TS",
+                another_map       => another_map
+              };
+              let mut scores : HashMap<u32, String> = HashMap::new();
+              for s5 in s4.winLosses {
+                let vs_winrate = (s5.winrate * 100.0).round();
+                let text = format!("{}%", vs_winrate);
+                scores.insert(s5.race, text);
+              }
+              table.add_row(vec![
+                Cell::new(text).set_alignment(CellAlignment::Left),
+                Cell::new(scores.get(&1).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center),
+                Cell::new(scores.get(&2).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center),
+                Cell::new(scores.get(&4).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center),
+                Cell::new(scores.get(&8).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center)
+              ]);
+            }
+          }
         }
       }
+
+      description = format!("{}```\n{}\n```", description, table);
+
       let footer = format!("Requested by {}", msg.author.name);
-      let description = format!("BattleTag: {}", userx.as_str());
       if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
         .embed(|e| e
           .title(name)

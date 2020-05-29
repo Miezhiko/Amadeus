@@ -96,7 +96,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           _ => "Random"
         };
         let winrate = (stat.winrate * 100.0).round();
-        let stat_str = format!("wins: {}, loses: {}, winrate: {}", stat.wins, stat.losses, winrate);
+        let stat_str = format!("wins: {}, loses: {}, winrate: {}%", stat.wins, stat.losses, winrate);
         out.push((String::from(race), stat_str, false));
       }
       let max_games : Option<&Stats> = stats.iter().max_by_key(|p| p.games);
@@ -108,13 +108,15 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           8 => "http://icons.iconarchive.com/icons/3xhumed/mega-games-pack-18/256/Warcraft-3-Reign-of-Chaos-icon.png",
           _ => "http://icons.iconarchive.com/icons/3xhumed/mega-games-pack-31/256/Warcraft-II-new-2-icon.png"
         };
+        let footer = format!("Requested by {}", msg.author.name);
       if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
         .embed(|e| e
           .title(name)
           .description(userx.as_str())
           .thumbnail(main_race_avatar)
           .fields(out)
-          .colour((225, 222, 103)))) {
+          .colour((225, 222, 103))
+          .footer(|f| f.text(footer)))) {
         error!("Error sending help message: {:?}", why);
       }
     } else {

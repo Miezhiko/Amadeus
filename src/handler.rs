@@ -6,7 +6,8 @@ use crate::{
     msg::{ channel_message }
   },
   commands::voice,
-  collections::overwatch::{ OVERWATCH, OVERWATCH_REPLIES }
+  collections::overwatch::{ OVERWATCH, OVERWATCH_REPLIES },
+  collections::channels::AI_ALLOWED
 };
 
 use serenity::{
@@ -222,8 +223,7 @@ impl EventHandler for Handler {
             if let Some(ch) = msg.channel(&ctx) {
               ch.id().name(&ctx).unwrap_or(String::from(""))
             } else { String::from("") };
-          if channel_name == "main" || channel_name == "dating" || channel_name == "warcraft"
-          || channel_name == "team-chat" || channel_name == "🚧random" || channel_name == "💻computers" {
+          if AI_ALLOWED.into_iter().any(|&c| c == channel_name.as_str()) {
             let rnd = rand::thread_rng().gen_range(0, 3);
             if rnd == 1 && msg.mentions.len () == 0 {
               chain::response(&ctx, &msg, 5000);

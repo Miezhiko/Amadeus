@@ -26,7 +26,7 @@ use rand::{
   Rng
 };
 
-pub fn generate_english(ctx: &Context, guild_id: &GuildId, limit: u64) -> String {
+pub fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, russian : bool) -> String {
   let mut out = String::new();
   if let Ok(channels) = guild_id.channels(&ctx) {
     let mut chain = Chain::new();
@@ -46,7 +46,7 @@ pub fn generate_english(ctx: &Context, guild_id: &GuildId, limit: u64) -> String
                   .clean_everyone(true).clean_here(true));
               if !result.is_empty() && !result.contains("$") {
                 let is_russian = lang::is_russian(result.as_str());
-                if !is_russian {
+                if (russian && is_russian) || (!russian && !is_russian) {
                   chain.feed_str(result.as_str());
                 }
               }
@@ -58,6 +58,11 @@ pub fn generate_english(ctx: &Context, guild_id: &GuildId, limit: u64) -> String
     out = chain.generate_str();
   }
   out
+}
+
+pub fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId, limit: u64) -> String {
+  let rndx = rand::thread_rng().gen_range(0, 2);
+  generate_with_language(&ctx, &guild_id, limit, rndx != 1)
 }
 
 pub fn generate(ctx: &Context, msg : &Message, limit: u64) -> String {

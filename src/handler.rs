@@ -1,8 +1,9 @@
 use crate::{
+  ai::chain,
   conf,
   common::{
     lang,
-    msg::{ channel_message, reply }
+    msg::{ channel_message }
   },
   commands::voice,
   collections::overwatch::{ OVERWATCH, OVERWATCH_REPLIES }
@@ -15,11 +16,6 @@ use serenity::{
   prelude::*,
   http::AttachmentType,
   builder::CreateEmbed
-};
-
-use serenity::utils::{
-  content_safe,
-  ContentSafeOptions,
 };
 
 use std::borrow::Cow;
@@ -216,36 +212,13 @@ impl EventHandler for Handler {
             ctx.set_activity(Activity::listening(&msg.author.name));
             ctx.online();
           } else {
-            if let Some(guild) = msg.guild(&ctx) {
-              let guild_id = guild.read().id;
-              if let Ok(channels) = guild_id.channels(&ctx) {
-                let main_channel = channels.iter().find(|&(c, _)|
-                  if let Some(name) = c.name(&ctx) {
-                    name == "main"
-                  } else {
-                    false
-                  });
-                if let Some((_, _channel)) = main_channel {
-                  let mut chain = Chain::new();
-                  if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                    r.limit(350)
-                  ) {
-                    for mmm in messages {
-                      chain.feed_str(mmm.content.as_str());
-                    }
-                  }
-                  let mut answer = chain.generate_str();
-                  while answer.contains("@") || answer.contains("$") {
-                    answer = chain.generate_str();
-                  }
-                  ctx.set_activity(Activity::playing(&answer));
-                  ctx.idle();
-                }
-              }
+            let activity = chain::generate(&ctx, &msg, 400);
+            if !activity.is_empty() {
+              ctx.set_activity(Activity::playing(&activity));
+              ctx.idle();
             }
           }
-          // markov
-          let channel_name = 
+          let channel_name =
             if let Some(ch) = msg.channel(&ctx) {
               ch.id().name(&ctx).unwrap_or(String::from(""))
             } else { String::from("") };
@@ -253,53 +226,7 @@ impl EventHandler for Handler {
           || channel_name == "team-chat" || channel_name == "🚧random" || channel_name == "💻computers" {
             let rnd = rand::thread_rng().gen_range(0, 3);
             if rnd == 1 && msg.mentions.len () == 0 {
-              if let Some(guild) = msg.guild(&ctx) {
-                let guild_id = guild.read().id;
-                if let Ok(channels) = guild_id.channels(&ctx) {
-                  let main_channel = channels.iter().find(|&(c, _)|
-                    if let Some(name) = c.name(&ctx) {
-                      name == "main"
-                    } else {
-                      false
-                    });
-                  if let Some((_, _channel)) = main_channel {
-                    let msg_content = &msg.content;
-                    let russian = lang::is_russian(msg_content);
-                    let mut chain = Chain::new();
-                    if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-                      r.limit(4000)
-                    ) {
-                      let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
-                      for mmm in messages {
-                        let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
-                        result = result.replace(": ", "");
-                        result =
-                          content_safe(&ctx, &result, &ContentSafeOptions::default()
-                            .clean_user(false).clean_channel(true)
-                            .clean_everyone(true).clean_here(true));
-    
-                        if !result.is_empty() && !result.contains("$") {
-                          let is_russian = lang::is_russian(result.as_str());
-                          if (russian && is_russian)
-                          || (!russian && !is_russian) {
-                            chain.feed_str(result.as_str());
-                          }
-                        }
-                      }
-                    }
-                    chain.feed_str(msg.content.as_str());
-                    let answer = chain.generate_str();
-                    if !answer.is_empty() {
-                      let rnd2 = rand::thread_rng().gen_range(0, 3);
-                      if rnd2 == 1 {
-                        reply(&ctx, &msg, answer.as_str());
-                      } else {
-                        channel_message(&ctx, &msg, answer.as_str());
-                      }
-                    }
-                  }
-                }
-              }
+              chain::response(&ctx, &msg, 5000);
             }
           }
         }

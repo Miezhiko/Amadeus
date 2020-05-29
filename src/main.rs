@@ -26,6 +26,7 @@ pub mod conf;
 pub mod types;
 pub mod collections;
 pub mod commands;
+pub mod ai;
 
 mod handler;
 mod amadeus;

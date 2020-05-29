@@ -38,16 +38,18 @@ pub fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, rus
             r.limit(limit)
           ) {
             for mmm in messages {
-              let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
-              result = result.replace(": ", "");
-              result =
-                content_safe(&ctx, &result, &ContentSafeOptions::default()
-                  .clean_user(false).clean_channel(true)
-                  .clean_everyone(true).clean_here(true));
-              if !result.is_empty() && !result.contains("$") {
-                let is_russian = lang::is_russian(result.as_str());
-                if (russian && is_russian) || (!russian && !is_russian) {
-                  chain.feed_str(result.as_str());
+              if !mmm.author.bot {
+                let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
+                result = result.replace(": ", "");
+                result =
+                  content_safe(&ctx, &result, &ContentSafeOptions::default()
+                    .clean_user(false).clean_channel(true)
+                    .clean_everyone(true).clean_here(true));
+                if !result.is_empty() && !result.contains("$") {
+                  let is_russian = lang::is_russian(result.as_str());
+                  if (russian && is_russian) || (!russian && !is_russian) {
+                    chain.feed_str(result.as_str());
+                  }
                 }
               }
             }

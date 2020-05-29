@@ -6,6 +6,7 @@ use crate::{
     meta::*,
     voice::*,
     warcraft::*,
+    pad::*,
     owner::*,
     admin::*
   },
@@ -64,6 +65,10 @@ struct Voice;
 #[group]
 #[commands(lineup, yesterday, today, tomorrow, weekends)]
 struct Warcraft;
+
+#[group]
+#[commands(stats)]
+struct Pad;
 
 #[group]
 #[owners_only]
@@ -172,6 +177,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
     .group(&GENERAL_GROUP)
     .group(&VOICE_GROUP)
     .group(&WARCRAFT_GROUP)
+    .group(&PAD_GROUP)
     .group(&OWNER_GROUP)
     .group(&ADMIN_GROUP)
   );

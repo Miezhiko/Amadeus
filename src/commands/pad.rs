@@ -135,15 +135,16 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
     let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay=20&season=1", user);
     let res = reqwest::blocking::get(uri.as_str())?;
     let stats : Vec<Stats> = res.json()?;
-    let mut out : Vec<(String, String, bool)> = Vec::new();
+    
+    let mut stats_by_races : String = String::new();
     if stats.len() > 0 {
       let name = &userx.split("#").collect::<Vec<&str>>()[0];
       for stat in &stats {
         let race = get_race(stat.race);
         let winrate = (stat.winrate * 100.0).round();
-        let stat_str = format!("wins: {}, loses: {}, winrate: {}%", stat.wins, stat.losses, winrate);
-        out.push((race, stat_str, false));
+        stats_by_races = format!("{}\n**{}**\t : wins: {}, loses: {}, winrate: **{}%**", stats_by_races, race, stat.wins, stat.losses, winrate);
       }
+
       let max_games : Option<&Stats> = stats.iter().max_by_key(|s| s.games);
       let max_games_race = if max_games.is_some() { max_games.unwrap().race } else { 0 };
       let main_race_avatar = match max_games_race {
@@ -218,7 +219,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           .title(name)
           .description(description)
           .thumbnail(main_race_avatar)
-          .fields(out)
+          .fields(vec![("Stats by races", stats_by_races.as_str(), false)])
           .colour(main_race_colors)
           .footer(|f| f.text(footer)))) {
         error!("Error sending help message: {:?}", why);

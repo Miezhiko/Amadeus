@@ -225,7 +225,8 @@ impl EventHandler for Handler {
             } else { String::from("") };
           if AI_ALLOWED.into_iter().any(|&c| c == channel_name.as_str()) {
             let rnd = rand::thread_rng().gen_range(0, 3);
-            if rnd == 1 && msg.mentions.len () == 0 {
+            let mentioned_bot = (&msg.mentions).into_iter().any(|u| u.bot);
+            if rnd == 1 && !mentioned_bot {
               chain::response(&ctx, &msg, 5000);
             }
           }

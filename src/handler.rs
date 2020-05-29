@@ -2,7 +2,6 @@ use crate::{
   ai::chain,
   conf,
   common::{
-    lang,
     msg::{ channel_message }
   },
   commands::voice,
@@ -29,8 +28,6 @@ use rand::{
 
 use regex::Regex;
 
-use markov::Chain;
-
 pub struct Handler;
 
 impl EventHandler for Handler {
@@ -43,26 +40,7 @@ impl EventHandler for Handler {
   }
   fn guild_member_addition(&self, ctx: Context, guild_id: GuildId, /*mut*/ member: Member) {
     if let Ok(channels) = guild_id.channels(&ctx) {
-      let mut chain = Chain::new();
-      let main_channel = channels.iter().find(|&(c, _)|
-      if let Some(name) = c.name(&ctx) {
-          name == "main"
-        } else {
-          false
-        });
-      if let Some((_, channel)) = main_channel {
-        if let Ok(messages) = channel.messages(&ctx, |r|
-          r.limit(250)
-        ) {
-          for mmm in messages {
-            let msg_content = &mmm.content;
-            let russian = lang::is_russian(msg_content.as_str());
-            if !russian {
-              chain.feed_str(msg_content.as_str());
-            }
-          }
-        }
-      }
+      let ai_text = chain::generate_english(&ctx, &guild_id, 500);
       let log_channel = channels.iter().find(|&(c, _)|
         if let Some(name) = c.name(&ctx) {
           name == "log"
@@ -71,9 +49,7 @@ impl EventHandler for Handler {
         });
       if let Some((_, channel)) = log_channel {
         let user = member.user.read();
-        chain.feed_str(user.name.as_str());
-        let markov = chain.generate_str();
-        let title = format!("has joined here, {}", markov);
+        let title = format!("has joined here, {}", ai_text.as_str());
         if let Err(why) = channel.send_message(&ctx, |m| m
           .embed(|e| {
             let mut e = e
@@ -90,26 +66,7 @@ impl EventHandler for Handler {
   }
   fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user : User, _ : Option<Member>) {
     if let Ok(channels) = guild_id.channels(&ctx) {
-      let mut chain = Chain::new();
-      let main_channel = channels.iter().find(|&(c, _)|
-      if let Some(name) = c.name(&ctx) {
-          name == "main"
-        } else {
-          false
-        });
-      if let Some((_, channel)) = main_channel {
-        if let Ok(messages) = channel.messages(&ctx, |r|
-          r.limit(250)
-        ) {
-          for mmm in messages {
-            let msg_content = &mmm.content;
-            let russian = lang::is_russian(msg_content.as_str());
-            if !russian {
-              chain.feed_str(msg_content.as_str());
-            }
-          }
-        }
-      }
+      let ai_text = chain::generate_english(&ctx, &guild_id, 500);
       let log_channel = channels.iter().find(|&(c, _)|
         if let Some(name) = c.name(&ctx) {
           name == "log"
@@ -117,9 +74,7 @@ impl EventHandler for Handler {
           false
         });
       if let Some((_, channel)) = log_channel {
-        chain.feed_str(user.name.as_str());
-        let markov = chain.generate_str();
-        let title = format!("has left, {}", markov);
+        let title = format!("has left, {}", ai_text.as_str());
         if let Err(why) = channel.send_message(&ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&user.face()).name(&user.name))
@@ -227,7 +182,7 @@ impl EventHandler for Handler {
             let rnd = rand::thread_rng().gen_range(0, 3);
             let mentioned_bot = (&msg.mentions).into_iter().any(|u| u.bot);
             if rnd == 1 && !mentioned_bot {
-              chain::response(&ctx, &msg, 5000);
+              chain::chat(&ctx, &msg, 5000);
             }
           }
         }

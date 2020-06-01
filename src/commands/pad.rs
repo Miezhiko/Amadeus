@@ -163,8 +163,14 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
     let game_mode_res = reqwest::blocking::get(game_mode_uri.as_str())?;
     let game_mode_stats : Vec<GMStats> = game_mode_res.json()?;
 
-    //TODO: grab other game modes
     let mut league_info : String = String::new();
+    let mut ffa_info : String = String::new();
+
+    let mut at_list : Vec<(u32, String)> = Vec::new();
+    let mut at_info : String = String::new();
+
+    let mut league_avi : String = String::new();
+
     for gmstat in game_mode_stats {
       if gmstat.gameMode == 1 {
         let lid = gmstat.leagueOrder;
@@ -178,8 +184,83 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           6 => "Bronze",
           _ => ""
         };
-        league_info = format!("**MMR**: __**{}**__\nLeague: **{}** *Division:* **{}**: *Rank*: **{}**",
-          gmstat.mmr, league_str, gmstat.division, gmstat.rank);
+        league_avi = String::from(match lid {
+          0 => "https://www.w3champions.com/img/0.26f0662f.png",
+          1 => "https://www.w3champions.com/img/1.9730fb2e.png",
+          2 => "https://www.w3champions.com/img/2.48f016c5.png",
+          3 => "https://www.w3champions.com/img/3.0fe1d052.png",
+          4 => "https://www.w3champions.com/img/4.a255b682.png",
+          5 => "https://www.w3champions.com/img/5.7f2f103c.png",
+          6 => "https://www.w3champions.com/img/6.26efd96b.png",
+          _ => ""
+        });
+        let winrate = (gmstat.winrate * 100.0).round();
+        let league_division = if lid > 1 {
+          format!("*League*: **{}** *Division:* **{}**", league_str, gmstat.division)
+        } else {
+          format!("*League*: **{}**", league_str)
+        };
+        league_info = format!("**Winrate**: **{}%** **MMR**: __**{}**__\n{} *Rank*: **{}**",
+          winrate, gmstat.mmr, league_division.as_str(), gmstat.rank);
+      }
+      if gmstat.gameMode == 5 {
+        let lid = gmstat.leagueOrder;
+        let league_str = match lid {
+          0 => "GrandMaster",
+          1 => "Master",
+          2 => "Diamond",
+          3 => "Platinum",
+          4 => "Gold",
+          5 => "Silver",
+          6 => "Bronze",
+          _ => ""
+        };
+        let winrate = (gmstat.winrate * 100.0).round();
+        let league_division = if lid > 1 {
+          format!("*League*: **{}** *Division:* **{}**", league_str, gmstat.division)
+        } else {
+          format!("*League*: **{}**", league_str)
+        };
+        ffa_info = format!("{} *Rank*: **{}** *Winrate*: **{}%** *MMR*: __**{}**__",
+          league_division, gmstat.rank, winrate, gmstat.mmr);
+      }
+      if gmstat.gameMode == 6 {
+        let players = gmstat.playerIds;
+        let mut player_str = String::new();
+        for p in players {
+          if p.battleTag != userx {
+            player_str = p.name;
+            break;
+          }
+        }
+        let lid = gmstat.leagueOrder;
+        let league_str = match lid {
+          0 => "GrandMaster",
+          1 => "Master",
+          2 => "Diamond",
+          3 => "Platinum",
+          4 => "Gold",
+          5 => "Silver",
+          6 => "Bronze",
+          _ => ""
+        };
+        let winrate = (gmstat.winrate * 100.0).round();
+        let league_division = if lid > 1 {
+          format!("**{}** *div:* **{}**", league_str, gmstat.division)
+        } else {
+          format!("**{}**", league_str)
+        };
+        let strnfo = format!("__**{}**__ {} *gmaes* {} *Rank*: {} __**{}%**__ *MMR*: __**{}**__",
+          player_str.as_str(), gmstat.games, league_division, gmstat.rank, winrate, gmstat.mmr);
+        at_list.push((gmstat.mmr, strnfo));
+      }
+    }
+    if at_list.len() > 0 {
+      at_list.sort_by(|(mmra,_), (mmrb, _) | mmra.cmp(mmrb));
+      at_list.reverse();
+      let map_of_sort : Vec<String> = at_list.into_iter().map(|(_, strx)| strx).take(5).collect();
+      if map_of_sort.len() > 0 {
+        at_info = map_of_sort.join("\n");
       }
     }
 
@@ -193,7 +274,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
       for stat in &stats {
         let race = get_race(stat.race);
         let winrate = (stat.winrate * 100.0).round();
-        stats_by_races = format!("{}\n**{}**\t : wins: {}, loses: {}, winrate: **{}%**", stats_by_races, race, stat.wins, stat.losses, winrate);
+        stats_by_races = format!("{}\n**{}**\t : *wins*: {}, *loses*: {}, *winrate*: **{}%**", stats_by_races, race, stat.wins, stat.losses, winrate);
       }
 
       let max_games : Option<&Stats> = stats.iter().max_by_key(|s| s.games);
@@ -265,12 +346,21 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
       description = format!("{}```\n{}\n```", description, table);
 
       let footer = format!("Requested by {}", msg.author.name);
+
+      let mut additional_info = vec![("Stats by races", stats_by_races.as_str(), false)];
+      if !ffa_info.is_empty() {
+        additional_info.push(("FFA", ffa_info.as_str(), false));
+      }
+      if !at_info.is_empty() {
+        additional_info.push(("AT 2x2", at_info.as_str(), false));
+      }
+
       if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
         .embed(|e| e
           .title(name)
           .description(description)
-          .thumbnail(main_race_avatar)
-          .fields(vec![("Stats by races", stats_by_races.as_str(), false)])
+          .thumbnail(if league_avi.is_empty() { main_race_avatar } else { league_avi.as_str() })
+          .fields(additional_info)
           .colour(main_race_colors)
           .footer(|f| f.text(footer)))) {
         error!("Error sending help message: {:?}", why);

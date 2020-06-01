@@ -120,7 +120,7 @@ impl EventHandler for Handler {
           }
         }
       }
-      if !msg.content.is_empty() {
+      if !msg.content.is_empty() && !msg.content.starts_with("http") {
         channel_message(&ctx, &msg, &msg.content.as_str());
       }
       for embed in &msg.embeds {

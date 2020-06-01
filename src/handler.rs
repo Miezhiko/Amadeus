@@ -29,44 +29,12 @@ use rand::{
 
 use regex::Regex;
 
-extern crate timer;
-extern crate chrono;
-
 pub struct Handler;
 
 impl EventHandler for Handler {
   fn ready(&self, ctx : Context, ready : Ready) {
     info!("Connected as {}", ready.user.name);
     voice::rejoin_voice_channel(&ctx);
-
-    let conf = conf::parse_config();
-    let last_guild_u64 = conf.last_guild.parse::<u64>().unwrap_or(0);
-    if last_guild_u64 != 0 {
-      let guild_id = GuildId( last_guild_u64 );
-      if let Ok(channels) = guild_id.channels(&ctx) {
-        let main_channel = channels.iter().find(|&(c, _)|
-          if let Some(name) = c.name(&ctx)
-            { name == "main" } else { false });
-        if let Some((_, channel)) = main_channel {
-          let timer = timer::Timer::new();
-          let _guard = {
-            let ch_clone = channel.clone();
-            timer.schedule_repeating(chrono::Duration::minutes(10), move || {
-              let rndx = rand::thread_rng().gen_range(0, 2);
-              if rndx != 1 {
-                if let Err(why) = ch_clone.send_message(&ctx, |m| {
-                  let ai_text = chain::generate_english_or_russian(&ctx, &guild_id, 8000);
-                  m.content(ai_text)
-                }) {
-                  error!("Failed to post periodic message {:?}", why);
-                }
-              }
-            });
-          };
-        }
-      }
-    }
-
   }
   fn resume(&self, _ctx : Context, _ : ResumedEvent) {
     info!("Resumed");

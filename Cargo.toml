@@ -1,6 +1,6 @@
 [package]
 name = "amadeus"
-version = "0.2.2"
+version = "0.2.3"
 authors = [ "Qeenon" ]
 repository = "https://github.com/Qeenon/Amadeus"
 readme = "README.md"
@@ -23,7 +23,6 @@ serde_json = "1.0.53"
 lazy_static = "1.4.0"
 markov = "1.0.3"
 ucd = "0.1.1"
-timer = "0.2.0"
 comfy-table = "0.1.1"
 
 reqwest = { version = "0.10.5", features = ["json"] }

@@ -4,6 +4,7 @@ use crate::{
   common::{
     msg::{ channel_message }
   },
+  collections::base::REACTIONS,
   commands::voice,
   collections::overwatch::{ OVERWATCH, OVERWATCH_REPLIES },
   collections::channels::AI_ALLOWED
@@ -11,7 +12,7 @@ use crate::{
 
 use serenity::{
   model::{ event::ResumedEvent, gateway::Ready, guild::Member
-         , channel::Message, gateway::Activity
+         , channel::Message, channel::ReactionType, id::EmojiId, gateway::Activity
          , id::GuildId, id::ChannelId, user::User },
   prelude::*,
   http::AttachmentType,
@@ -210,6 +211,19 @@ impl EventHandler for Handler {
               let rnd = rand::thread_rng().gen_range(0, 3);
               if rnd == 1 {
                 chain::chat(&ctx, &msg, 5000);
+              }
+              let rnd2 = rand::thread_rng().gen_range(0, 4);
+              if rnd2 == 1 {
+                let mut rng = thread_rng();
+                let emoji_id : u64 = *REACTIONS.choose(&mut rng).unwrap();
+                let reaction = ReactionType::Custom {
+                  animated: false,
+                  id: EmojiId(emoji_id),
+                  name: None
+                };
+                if let Err(why) = msg.react(&ctx, reaction) {
+                  error!("Failed to react: {:?}", why);
+                }
               }
             }
           }

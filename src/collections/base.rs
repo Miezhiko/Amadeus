@@ -36,3 +36,20 @@ pub static CONFUSION: &'static [&'static str] =
     , "People's feelings are memories that transcend time."
     , "Every brilliant day should be lived for those who passed away."
     , "Everyone is watching someone other than themselves, someone important to them..." ];
+
+pub static REACTIONS: &'static [u64] =
+  &[ 639041088492929034
+   , 657178237952327685
+   , 639088598674833410
+   , 657178237243490304
+   , 612371808246824997
+   , 657178237515989012
+   , 657178237444554762
+   , 657178237234839592
+   , 657178236882649099
+   , 641635941756174355
+   , 657178236937043968
+   , 657179213056704522
+   , 679215075092987914
+   , 641638050945957904
+   , 611889889755004936 ];

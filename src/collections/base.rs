@@ -19,6 +19,7 @@ pub static CONFUSION_RU: &'static [&'static str] =
    , "Произошло что-то серьёзное, если ты зовёшь меня по имени"
    , "Чувства людей – воспоминания, которые преодолели время."
    , "Время течёт быстрее или медленнее в зависимости от восприятия. Теория относительности такая романтичная. И такая грустная."
+   , "Эл Псай Конгру"
    ];
 
 pub static CONFUSION: &'static [&'static str] =
@@ -35,7 +36,8 @@ pub static CONFUSION: &'static [&'static str] =
     , "I've only lived 18 years, but I don't want to change any of them. They're all part of my life, even the failures."
     , "People's feelings are memories that transcend time."
     , "Every brilliant day should be lived for those who passed away."
-    , "Everyone is watching someone other than themselves, someone important to them..." ];
+    , "Everyone is watching someone other than themselves, someone important to them..."
+    , "El Psy Kongroo" ];
 
 pub static REACTIONS: &'static [(u64, &'static str)] =
   &[ (639041088492929034, "tir")

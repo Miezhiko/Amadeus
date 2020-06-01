@@ -140,6 +140,19 @@ fn get_race(r : u32) -> String {
   )
 }
 
+fn get_league(l: u32) -> String {
+  String::from(match l {
+    0 => "GrandMaster",
+    1 => "Master",
+    2 => "Diamond",
+    3 => "Platinum",
+    4 => "Gold",
+    5 => "Silver",
+    6 => "Bronze",
+    _ => ""
+  })
+}
+
 #[command]
 pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
   let mut args_msg = args.message();
@@ -174,16 +187,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
     for gmstat in game_mode_stats {
       if gmstat.gameMode == 1 {
         let lid = gmstat.leagueOrder;
-        let league_str = match lid {
-          0 => "GrandMaster",
-          1 => "Master",
-          2 => "Diamond",
-          3 => "Platinum",
-          4 => "Gold",
-          5 => "Silver",
-          6 => "Bronze",
-          _ => ""
-        };
+        let league_str = get_league(lid);
         league_avi = String::from(match lid {
           0 => "https://www.w3champions.com/img/0.26f0662f.png",
           1 => "https://www.w3champions.com/img/1.9730fb2e.png",
@@ -205,21 +209,12 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
       }
       if gmstat.gameMode == 5 {
         let lid = gmstat.leagueOrder;
-        let league_str = match lid {
-          0 => "GrandMaster",
-          1 => "Master",
-          2 => "Diamond",
-          3 => "Platinum",
-          4 => "Gold",
-          5 => "Silver",
-          6 => "Bronze",
-          _ => ""
-        };
+        let league_str = get_league(lid);
         let winrate = (gmstat.winrate * 100.0).round();
         let league_division = if lid > 1 {
-          format!("*League*: **{}** *Division:* **{}**", league_str, gmstat.division)
+          format!("**{}** *Division:* **{}**", league_str, gmstat.division)
         } else {
-          format!("*League*: **{}**", league_str)
+          format!("**{}**", league_str)
         };
         ffa_info = format!("{} *Rank*: **{}** *Winrate*: **{}%** *MMR*: __**{}**__",
           league_division, gmstat.rank, winrate, gmstat.mmr);
@@ -234,16 +229,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           }
         }
         let lid = gmstat.leagueOrder;
-        let league_str = match lid {
-          0 => "GrandMaster",
-          1 => "Master",
-          2 => "Diamond",
-          3 => "Platinum",
-          4 => "Gold",
-          5 => "Silver",
-          6 => "Bronze",
-          _ => ""
-        };
+        let league_str = get_league(lid);
         let winrate = (gmstat.winrate * 100.0).round();
         let league_division = if lid > 1 {
           format!("**{}** *div:* **{}**", league_str, gmstat.division)

@@ -3,7 +3,7 @@ use crate::{
     lang,
     msg::{ reply, channel_message }
   },
-  collections::base::{ CONFUSION },
+  collections::base::{ CONFUSION, CONFUSION_RU },
   collections::channels::AI_LEARN
 };
 
@@ -103,6 +103,10 @@ pub fn generate(ctx: &Context, msg : &Message, limit: u64) -> String {
       }
       if !russian {
         for confuse in CONFUSION {
+          chain.feed_str( confuse );
+        }
+      } else {
+        for confuse in CONFUSION_RU {
           chain.feed_str( confuse );
         }
       }

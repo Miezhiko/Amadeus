@@ -173,64 +173,66 @@ impl EventHandler for Handler {
       }
     } else {
       if msg.guild(&ctx).is_some() {
-        let is_admin =
-          if let Some(member) = msg.member(&ctx.cache) {
-            if let Ok(permissions) = member.permissions(&ctx.cache) {
-              permissions.administrator()
-            } else { false }
-          } else {false };
-        if !is_admin {
-          let channel_id = msg.channel_id;
-          let mut conf = conf::parse_config();
-          let last_channel_conf =
-            ChannelId( conf.last_channel_chat.parse::<u64>().unwrap_or(0) );
-          if last_channel_conf != channel_id {
-            conf.last_channel_chat = format!("{}", channel_id);
-            conf::write_config(&conf);
-          }
-          // wakes up on any activity
-          let rndx = rand::thread_rng().gen_range(0, 5);
-          if rndx != 1 {
-            ctx.set_activity(Activity::listening(&msg.author.name));
-            ctx.online();
-          } else {
-            let activity = chain::generate(&ctx, &msg, 400);
-            if !activity.is_empty() {
-              ctx.set_activity(Activity::playing(&activity));
-              ctx.idle();
+        let mentioned_bot = (&msg.mentions).into_iter().any(|u| u.bot);
+        if !mentioned_bot {
+          let is_admin =
+            if let Some(member) = msg.member(&ctx.cache) {
+              if let Ok(permissions) = member.permissions(&ctx.cache) {
+                permissions.administrator()
+              } else { false }
+            } else {false };
+          if !is_admin {
+            let channel_id = msg.channel_id;
+            let mut conf = conf::parse_config();
+            let last_channel_conf =
+              ChannelId( conf.last_channel_chat.parse::<u64>().unwrap_or(0) );
+            if last_channel_conf != channel_id {
+              conf.last_channel_chat = format!("{}", channel_id);
+              conf::write_config(&conf);
             }
-          }
-          let channel_name =
-            if let Some(ch) = msg.channel(&ctx) {
-              ch.id().name(&ctx).unwrap_or(String::from(""))
-            } else { String::from("") };
-          if AI_ALLOWED.into_iter().any(|&c| c == channel_name.as_str()) {
-            let rnd = rand::thread_rng().gen_range(0, 3);
-            let mentioned_bot = (&msg.mentions).into_iter().any(|u| u.bot);
-            if rnd == 1 && !mentioned_bot {
-              chain::chat(&ctx, &msg, 5000);
+            // wakes up on any activity
+            let rndx = rand::thread_rng().gen_range(0, 5);
+            if rndx != 1 {
+              ctx.set_activity(Activity::listening(&msg.author.name));
+              ctx.online();
+            } else {
+              let activity = chain::generate(&ctx, &msg, 400);
+              if !activity.is_empty() {
+                ctx.set_activity(Activity::playing(&activity));
+                ctx.idle();
+              }
+            }
+            let channel_name =
+              if let Some(ch) = msg.channel(&ctx) {
+                ch.id().name(&ctx).unwrap_or(String::from(""))
+              } else { String::from("") };
+            if AI_ALLOWED.into_iter().any(|&c| c == channel_name.as_str()) {
+              let rnd = rand::thread_rng().gen_range(0, 3);
+              if rnd == 1 {
+                chain::chat(&ctx, &msg, 5000);
+              }
             }
           }
         }
-      }
-      if let Some(find_char_in_words) = OVERWATCH.into_iter().find(|&c| {
-        let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
-        let is_overwatch = Regex::new(regex.as_str()).unwrap();
-        is_overwatch.is_match(msg.content.as_str()) }) 
-      {
-        let mut rng = thread_rng();
-        set! { ov_reply = OVERWATCH_REPLIES.choose(&mut rng).unwrap()
-            , reply = format!("{} {}", ov_reply, find_char_in_words) };
-        if let Err(why) = msg.channel_id.say(&ctx, reply) {
-          error!("Error sending overwatch reply: {:?}", why);
-        }
-      } else {
-        let regex_no_u = Regex::new(r"(^|\W)((?i)no u(?-i))($|\W)").unwrap();
-        if regex_no_u.is_match(msg.content.as_str()) {
-          let rnd = rand::thread_rng().gen_range(0, 2);
-          if rnd == 1 {
-            if let Err(why) = msg.channel_id.say(&ctx, "No u") {
-              error!("Error sending no u reply: {:?}", why);
+        if let Some(find_char_in_words) = OVERWATCH.into_iter().find(|&c| {
+          let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
+          let is_overwatch = Regex::new(regex.as_str()).unwrap();
+          is_overwatch.is_match(msg.content.as_str()) }) 
+        {
+          let mut rng = thread_rng();
+          set! { ov_reply = OVERWATCH_REPLIES.choose(&mut rng).unwrap()
+              , reply = format!("{} {}", ov_reply, find_char_in_words) };
+          if let Err(why) = msg.channel_id.say(&ctx, reply) {
+            error!("Error sending overwatch reply: {:?}", why);
+          }
+        } else {
+          let regex_no_u = Regex::new(r"(^|\W)((?i)no u(?-i))($|\W)").unwrap();
+          if regex_no_u.is_match(msg.content.as_str()) {
+            let rnd = rand::thread_rng().gen_range(0, 2);
+            if rnd == 1 {
+              if let Err(why) = msg.channel_id.say(&ctx, "No u") {
+                error!("Error sending no u reply: {:?}", why);
+              }
             }
           }
         }

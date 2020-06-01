@@ -88,6 +88,13 @@ struct Player {
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
+struct RankingPointsProgress {
+  rankingPoints: u32,
+  mmr: u32
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
 struct Search {
   gateway: u32,
   id: String,
@@ -98,7 +105,27 @@ struct Search {
   player: Player,
   gameMode: u32,
   season: u32,
-  playersInfo: Option<String>
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+struct GMStats {
+  division: u32,
+  gameMode: u32,
+  games: u32,
+  gateWay: u32,
+  id: String,
+  leagueId: u32,
+  leagueOrder: u32,
+  losses: u32,
+  mmr: u32,
+  playerIds: Vec<PlayerId>,
+  rank: u32,
+  rankingPoints: u32,
+  rankingPointsProgress: RankingPointsProgress,
+  season: u32,
+  winrate: f64,
+  wins: u32
 }
 
 fn get_race(r : u32) -> String {
@@ -132,6 +159,30 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
     };
   if !userx.is_empty() {
     let user = userx.replace("#","%23");
+    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay=20&season=1", user);
+    let game_mode_res = reqwest::blocking::get(game_mode_uri.as_str())?;
+    let game_mode_stats : Vec<GMStats> = game_mode_res.json()?;
+
+    //TODO: grab other game modes
+    let mut league_info : String = String::new();
+    for gmstat in game_mode_stats {
+      if gmstat.gameMode == 1 {
+        let lid = gmstat.leagueOrder;
+        let league_str = match lid {
+          0 => "GrandMaster",
+          1 => "Master",
+          2 => "Diamond",
+          3 => "Platinum",
+          4 => "Gold",
+          5 => "Silver",
+          6 => "Bronze",
+          _ => ""
+        };
+        league_info = format!("**MMR**: __**{}**__\nLeague: **{}** *Division:* **{}**: *Rank*: **{}**",
+          gmstat.mmr, league_str, gmstat.division, gmstat.rank);
+      }
+    }
+
     let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay=20&season=1", user);
     let res = reqwest::blocking::get(uri.as_str())?;
     let stats : Vec<Stats> = res.json()?;
@@ -162,7 +213,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           _ => (50, 120, 150)
         };
 
-      let mut description = format!("[{}]\n", userx.as_str());
+      let mut description = format!("[{}] {}\n", userx.as_str(), league_info.as_str());
 
       let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season=1", user);
       let res2 = reqwest::blocking::get(uri2.as_str())?;

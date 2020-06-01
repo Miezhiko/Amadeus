@@ -212,14 +212,14 @@ impl EventHandler for Handler {
               if rnd == 1 {
                 chain::chat(&ctx, &msg, 5000);
               }
-              let rnd2 = rand::thread_rng().gen_range(0, 4);
+              let rnd2 = rand::thread_rng().gen_range(0, 5);
               if rnd2 == 1 {
                 let mut rng = thread_rng();
-                let emoji_id : u64 = *REACTIONS.choose(&mut rng).unwrap();
+                let (emoji_id, emji_name) = *REACTIONS.choose(&mut rng).unwrap();
                 let reaction = ReactionType::Custom {
                   animated: false,
                   id: EmojiId(emoji_id),
-                  name: None
+                  name: Some(String::from(emji_name))
                 };
                 if let Err(why) = msg.react(&ctx, reaction) {
                   error!("Failed to react: {:?}", why);

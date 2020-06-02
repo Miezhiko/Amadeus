@@ -1,5 +1,5 @@
 use crate::{
-  ai::chain,
+  stains::ai::chain,
   conf,
   common::{
     msg::{ channel_message }

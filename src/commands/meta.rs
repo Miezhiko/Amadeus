@@ -45,6 +45,7 @@ play <url>: play an radio stream or youtube music", false)
       .field("warcraft commands", "today: show tournaments today (same with tomorrow or yesterday)
 weekends: show tours at weekend
 stats <nick>: shows ladder race stats (nick - battle tag or tag without numbers) (without nick will use discord name)
+ongoing: show ongoing solo matches
 lineup <title>: | map player map2 player2+player3 (title is optional)", false)
       .footer(|f| f.text("As explained by Maho Hiyajo, Amadeus' capabilities of storing memory data make it possible to back-up the data of a person's memories. This could be useful, for example, to fight against memory loss."))
       .colour((246, 111, 0)))) {

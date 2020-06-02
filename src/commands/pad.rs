@@ -1,6 +1,10 @@
 use crate::{
   common::{
     msg::{ channel_message }
+  },
+  stains::pad::{
+    types::*,
+    utils::{ get_race, get_race2, get_league, get_map }
   }
 };
 
@@ -18,139 +22,37 @@ use std::collections::HashMap;
 use reqwest;
 use comfy_table::*;
 
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct Stats {
-  race: u32,
-  gateWay: u32,
-  id: String,
-  wins: u32,
-  losses: u32,
-  games: u32,
-  winrate: f64
-}
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct WinLosses {
-  race: u32,
-  wins: u32,
-  losses: u32,
-  games: u32,
-  winrate: f64
-}
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct WinLossesOnMap {
-  map: String,
-  winLosses: Vec<WinLosses>
-}
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct RaceWinsOnMap {
-  race: u32,
-  winLossesOnMap: Vec<WinLossesOnMap>
-}
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct Stats2 {
-  id: String,
-  raceWinsOnMap: Vec<RaceWinsOnMap>,
-  battleTag: String,
-  season: u32
-}
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct PlayerId {
-  name: String,
-  battleTag: String
-}
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct Player {
-  playerIds: Vec<PlayerId>,
-  name: String,
-  id: String,
-  mmr: u32,
-  gateWay: u32,
-  gameMode: u32,
-  season: u32,
-  wins: u32,
-  losses: u32,
-  games: u32,
-  winrate: f64
-}
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct RankingPointsProgress {
-  rankingPoints: u32,
-  mmr: u32
-}
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct Search {
-  gateway: u32,
-  id: String,
-  league: u32,
-  rankNumber: u32,
-  rankingPoints: u32,
-  playerId: String,
-  player: Player,
-  gameMode: u32,
-  season: u32,
-}
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct GMStats {
-  division: u32,
-  gameMode: u32,
-  games: u32,
-  gateWay: u32,
-  id: String,
-  leagueId: u32,
-  leagueOrder: u32,
-  losses: u32,
-  mmr: u32,
-  playerIds: Vec<PlayerId>,
-  rank: u32,
-  rankingPoints: u32,
-  rankingPointsProgress: RankingPointsProgress,
-  season: u32,
-  winrate: f64,
-  wins: u32
-}
-
-fn get_race(r : u32) -> String {
-  String::from(
-    match r {
-      1 => "Human",
-      2 => "Orc",
-      4 => "Night Elf",
-      8 => "Undead",
-      _ => "Random"
+#[command]
+pub fn ongoing(ctx: &mut Context, msg: &Message) -> CommandResult {
+  let res = reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&pageSize=50&gameMode=1")?;
+  let going : Going = res.json()?;
+  if going.matches.len() > 0 {
+    let footer = format!("Requested by {}", msg.author.name);
+    let mut description : String = String:: new();
+    for m in going.matches {
+      if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
+        let g_map = get_map(m.map.as_str());
+        let race1 = get_race2(m.teams[0].players[0].race);
+        let race2 = get_race2(m.teams[0].players[0].race);
+        let mstr = format!("*{}* ({}) **{}** [{}] vs ({}) **{}** [{}]",
+          g_map, race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
+               , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr);
+        description = format!("{}\n{}", mstr, description);
+      }
     }
-  )
-}
-
-fn get_league(l: u32) -> String {
-  String::from(match l {
-    0 => "GrandMaster",
-    1 => "Master",
-    2 => "Diamond",
-    3 => "Platinum",
-    4 => "Gold",
-    5 => "Silver",
-    6 => "Bronze",
-    _ => ""
-  })
+    if !description.is_empty() {
+      if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+        .embed(|e| e
+          .title("Ongoing matches")
+          .description(description)
+          .thumbnail("https://juncturemedia.com/wp-content/uploads/2016/04/tumblr_mzvkan11qt1sh3xeyo1_250.gif")
+          .colour((180,40,200))
+          .footer(|f| f.text(footer)))) {
+        error!("Error sending ongoing message: {:?}", why);
+      }
+    }
+  }
+  Ok(())
 }
 
 #[command]
@@ -296,17 +198,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
         if s3.winLossesOnMap.len() > 0 {
           if s3.race == 16 { // max_games_race {
             for s4 in s3.winLossesOnMap {
-              let text = match s4.map.as_str() {
-                "Overall"         => "All",
-                "echoisles"       => "EI",
-                "northernisles"   => "NIS",
-                "amazonia"        => "AZ",
-                "lastrefuge"      => "LR",
-                "concealedhill"   => "CH",
-                "twistedmeadows"  => "TM",
-                "terenasstand"    => "TS",
-                another_map       => another_map
-              };
+              let text = get_map(s4.map.as_str());
               let mut scores : HashMap<u32, String> = HashMap::new();
               for s5 in s4.winLosses {
                 let vs_winrate = (s5.winrate * 100.0).round();
@@ -349,7 +241,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           .fields(additional_info)
           .colour(main_race_colors)
           .footer(|f| f.text(footer)))) {
-        error!("Error sending help message: {:?}", why);
+        error!("Error sending stats message: {:?}", why);
       }
     } else {
       let resp = format!("User {} not found", args_msg);

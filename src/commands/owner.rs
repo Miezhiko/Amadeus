@@ -3,7 +3,7 @@ use crate::{
     msg::{ channel_message }
   },
   conf,
-  ai::chain::ACTIVITY_LEVEL
+  stains::ai::chain::ACTIVITY_LEVEL
 };
 
 use serenity::{

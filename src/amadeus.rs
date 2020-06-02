@@ -1,5 +1,5 @@
 use crate::{
-  ai::chain,
+  stains::ai::chain,
   types::AOptions,
   handler::Handler,
   commands::{
@@ -67,7 +67,7 @@ struct Voice;
 struct Warcraft;
 
 #[group]
-#[commands(stats)]
+#[commands(stats, ongoing)]
 struct Pad;
 
 #[group]

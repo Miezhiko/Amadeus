@@ -1,7 +1,6 @@
 #![feature(proc_macro_hygiene)]
 
-#[macro_use]
-extern crate serde;
+#[macro_use] extern crate serde;
 extern crate chrono;
 extern crate typemap;
 extern crate argparse;
@@ -25,12 +24,12 @@ extern crate serenity;
 
 extern crate curl;
 
-pub mod common;
+#[macro_use] pub mod common;
 pub mod conf;
 pub mod types;
 pub mod collections;
 pub mod commands;
-pub mod ai;
+pub mod stains;
 
 mod handler;
 mod amadeus;

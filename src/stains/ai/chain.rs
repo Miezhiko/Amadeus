@@ -28,7 +28,7 @@ use rand::{
 
 use std::sync::atomic::{ AtomicU32 };
 
-pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(3);
+pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(4);
 
 pub fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, russian : bool) -> String {
   let mut out = String::new();
@@ -45,11 +45,12 @@ pub fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, rus
               if !mmm.author.bot {
                 let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
                 result = result.replace(": ", "");
+                let is_http = result.starts_with("http") && !result.starts_with("https://images");
                 result =
                   content_safe(&ctx, &result, &ContentSafeOptions::default()
                     .clean_user(false).clean_channel(true)
                     .clean_everyone(true).clean_here(true));
-                if !result.is_empty() && !result.contains("$") {
+                if !result.is_empty() && !result.contains("$") && !is_http {
                   let is_russian = lang::is_russian(result.as_str());
                   if (russian && is_russian) || (!russian && !is_russian) {
                     chain.feed_str(result.as_str());

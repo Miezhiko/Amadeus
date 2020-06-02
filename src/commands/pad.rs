@@ -48,7 +48,7 @@ pub fn ongoing(ctx: &mut Context, msg: &Message) -> CommandResult {
         .embed(|e| e
           .title("Ongoing matches")
           .description(description)
-          .thumbnail("https://juncturemedia.com/wp-content/uploads/2016/04/tumblr_mzvkan11qt1sh3xeyo1_250.gif")
+          .thumbnail("https://i.pinimg.com/originals/b4/a0/40/b4a04082647a8505b3991cbaea7d2f86.png")
           .colour((180,40,200))
           .footer(|f| f.text(footer)))) {
         error!("Error sending ongoing message: {:?}", why);

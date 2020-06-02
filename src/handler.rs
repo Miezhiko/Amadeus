@@ -1,5 +1,6 @@
 use crate::{
   stains::ai::chain,
+  stains::pad,
   conf,
   common::{
     msg::{ channel_message }
@@ -11,16 +12,17 @@ use crate::{
 };
 
 use serenity::{
+  prelude::*,
   model::{ event::ResumedEvent, gateway::Ready, guild::Member
          , channel::Message, channel::ReactionType, id::EmojiId, gateway::Activity
          , id::GuildId, id::ChannelId, user::User },
-  prelude::*,
   http::AttachmentType,
   builder::CreateEmbed
 };
 
 use std::borrow::Cow;
 use std::sync::atomic::{ Ordering };
+use std::time;
 
 use rand::{
   Rng,
@@ -36,6 +38,73 @@ impl EventHandler for Handler {
   fn ready(&self, ctx : Context, ready : Ready) {
     info!("Connected as {}", ready.user.name);
     voice::rejoin_voice_channel(&ctx);
+
+    let conf = conf::parse_config();
+    let last_guild_u64 = conf.last_guild.parse::<u64>().unwrap_or(0);
+    if last_guild_u64 != 0 {
+      let guild_id = GuildId( last_guild_u64 );
+      if let Ok(channels) = guild_id.channels(&ctx) {
+        let main_channel = channels.iter().find(|&(c, _)|
+          if let Some(name) = c.name(&ctx)
+            { name == "main" } else { false });
+        if let Some((_, channel)) = main_channel {
+          let ch_clone = channel.clone();
+          let ctx_clone = ctx.clone();
+          std::thread::spawn(move || {
+            loop {
+              let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
+              let rndx = rand::thread_rng().gen_range(0, activity_level);
+              if rndx == 1 {
+                if let Err(why) = ch_clone.send_message(&ctx_clone, |m| {
+                  let ai_text = chain::generate_english_or_russian(&ctx_clone, &guild_id, 8000);
+                  m.content(ai_text)
+                }) {
+                  error!("Failed to post periodic message {:?}", why);
+                }
+              }
+              std::thread::sleep(time::Duration::from_secs(15*60));
+            }
+          });
+        }
+
+        let log_channel = channels.iter().find(|&(c, _)|
+          if let Some(name) = c.name(&ctx)
+            { name == "log" } else { false });
+        if let Some((_, channel)) = log_channel {
+          let ch_clone = channel.clone();
+          let ctx_clone = ctx.clone();
+          std::thread::spawn(move || {
+            loop {
+              if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
+                let mut k_to_del : Vec<String> = Vec::new();
+                for (k, (_, v2)) in games_lock.iter_mut() {
+                  if *v2 < 60 {
+                    *v2 += 1;
+                  } else {
+                    k_to_del.push(k.clone());
+                  }
+                }
+                for ktd in k_to_del {
+                  games_lock.remove(ktd.as_str());
+                }
+                if let Some((ma, text)) = pad::team_checker::check() {
+                  match ch_clone.send_message(&ctx_clone, |m| {
+                    m.content(text) }) {
+                    Ok(msg_id) => {
+                      games_lock.insert(ma, (msg_id.id.as_u64().clone(), 0));
+                    }
+                    Err(why) => {
+                      error!("Failed to post live match {:?}", why);
+                    }
+                  }
+                }
+                std::thread::sleep(time::Duration::from_secs(30));
+              }
+            }
+          });
+        }
+      }
+    }
   }
   fn resume(&self, _ctx : Context, _ : ResumedEvent) {
     info!("Resumed");
@@ -177,7 +246,10 @@ impl EventHandler for Handler {
                 ch.id().name(&ctx).unwrap_or(String::from(""))
               } else { String::from("") };
             if AI_ALLOWED.into_iter().any(|&c| c == channel_name.as_str()) {
-              let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
+              let mut activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
+              if activity_level > 1 {
+                activity_level -= 1;
+              }
               let rnd = rand::thread_rng().gen_range(0, activity_level);
               if rnd == 1 {
                 chain::chat(&ctx, &msg, 5000);

@@ -119,3 +119,40 @@ pub_struct!(Going {
   matches: Vec<Match>,
   count: u32,
 });
+
+pub_struct!(UnitScore {
+  unitsProduced: u32,
+  unitsKilled: u32,
+  largestArmy: u32,
+});
+
+pub_struct!(Hero {
+  icon: String,
+  level: u32,
+});
+
+pub_struct!(HeroScore {
+  heroesKilled: u32,
+  itemsObtained: u32,
+  mercsHired: u32,
+  expGained: u32,
+});
+
+pub_struct!(ResourceScore {
+  goldCollected: u32,
+  lumberCollected: u32,
+  goldUpkeepLost: u32,
+});
+
+pub_struct!(PlayerScore {
+  battleTag: String,
+  unitScore: UnitScore,
+  heroes: Vec<Hero>,
+  heroScore: HeroScore,
+  resourceScore: ResourceScore,
+});
+
+pub_struct!(MD {
+  r#match: Match,
+  playerScores: Vec<PlayerScore>,
+});

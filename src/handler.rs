@@ -73,13 +73,15 @@ impl EventHandler for Handler {
         if let Some((_, channel)) = log_channel {
           let ch_clone = channel.clone();
           let ctx_clone = ctx.clone();
+          let ch_ud = ch_clone.id.as_u64().clone();
           std::thread::spawn(move || {
             loop {
               if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
                 let mut k_to_del : Vec<String> = Vec::new();
-                for (k, (_, v2)) in games_lock.iter_mut() {
-                  if *v2 < 60 {
+                for (k, (_, v2, v3)) in games_lock.iter_mut() {
+                  if *v2 < 180 {
                     *v2 += 1;
+                    *v3 = false;
                   } else {
                     k_to_del.push(k.clone());
                   }
@@ -87,11 +89,12 @@ impl EventHandler for Handler {
                 for ktd in k_to_del {
                   games_lock.remove(ktd.as_str());
                 }
-                if let Some((ma, text)) = pad::team_checker::check() {
+                let our_gsx = pad::team_checker::check(&ctx_clone, ch_ud);
+                for (ma,text) in our_gsx {
                   match ch_clone.send_message(&ctx_clone, |m| {
                     m.content(text) }) {
                     Ok(msg_id) => {
-                      games_lock.insert(ma, (msg_id.id.as_u64().clone(), 0));
+                      games_lock.insert(ma, (msg_id.id.as_u64().clone(), 0, false));
                     }
                     Err(why) => {
                       error!("Failed to post live match {:?}", why);

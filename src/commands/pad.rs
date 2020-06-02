@@ -32,7 +32,7 @@ pub fn ongoing(ctx: &mut Context, msg: &Message) -> CommandResult {
   if going.matches.len() > 0 {
     let footer = format!("Requested by {}", msg.author.name);
     let mut description : String = String:: new();
-    for m in going.matches {
+    for m in going.matches.into_iter().take(10).collect::<Vec<Match>>() {
       if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
         let g_map = get_map(m.map.as_str());
         let race1 = get_race2(m.teams[0].players[0].race);

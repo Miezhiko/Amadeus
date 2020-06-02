@@ -21,10 +21,6 @@ extern crate comfy_table;
 #[macro_use] extern crate log;
 extern crate serenity;
 
-#[macro_use] pub mod macros;
-
-extern crate curl;
-
 #[macro_use] pub mod common;
 pub mod conf;
 pub mod types;

@@ -24,6 +24,9 @@ use comfy_table::*;
 
 #[command]
 pub fn ongoing(ctx: &mut Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error deleting original command {:?}", why);
+  }
   let res = reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&pageSize=50&gameMode=1")?;
   let going : Going = res.json()?;
   if going.matches.len() > 0 {

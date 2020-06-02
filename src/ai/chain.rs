@@ -85,11 +85,12 @@ pub fn generate(ctx: &Context, msg : &Message, limit: u64) -> String {
               for mmm in messages {
                 let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
                 result = result.replace(": ", "");
+                let is_http = result.starts_with("http") && !result.starts_with("https://images");
                 result =
                   content_safe(&ctx, &result, &ContentSafeOptions::default()
                     .clean_user(false).clean_channel(true)
                     .clean_everyone(true).clean_here(true));
-                if !result.is_empty() && !result.contains("$") {
+                if !result.is_empty() && !result.contains("$") && !is_http {
                   let is_russian = lang::is_russian(result.as_str());
                   if (russian && is_russian)
                   || (!russian && !is_russian) {

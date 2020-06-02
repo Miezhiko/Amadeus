@@ -1,5 +1,9 @@
 use crate::{
-  conf
+  common::{
+    msg::{ channel_message }
+  },
+  conf,
+  ai::chain::ACTIVITY_LEVEL
 };
 
 use serenity::{
@@ -11,6 +15,27 @@ use serenity::{
     macros::command
   }
 };
+
+use std::sync::atomic::{ Ordering };
+
+#[command]
+pub fn set(ctx: &mut Context, msg: &Message, mut args : Args) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error deleting original command {:?}", why);
+  }
+  if let Ok(property) = args.single::<String>() {
+    match property.as_str() {
+      "activity" =>
+        if let Ok(level) = args.single::<u32>() {
+          ACTIVITY_LEVEL.store(level, Ordering::Relaxed);
+          let chan_msg = format!("Activity level is: {} now", level);
+          channel_message(&ctx, &msg, chan_msg.as_str());
+        },
+      _ => ()
+    }
+  }
+  Ok(())
+}
 
 #[command]
 pub fn say(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {

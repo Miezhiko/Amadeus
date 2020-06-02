@@ -20,6 +20,7 @@ use serenity::{
 };
 
 use std::borrow::Cow;
+use std::sync::atomic::{ Ordering };
 
 use rand::{
   Rng,
@@ -176,7 +177,8 @@ impl EventHandler for Handler {
                 ch.id().name(&ctx).unwrap_or(String::from(""))
               } else { String::from("") };
             if AI_ALLOWED.into_iter().any(|&c| c == channel_name.as_str()) {
-              let rnd = rand::thread_rng().gen_range(0, 3);
+              let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
+              let rnd = rand::thread_rng().gen_range(0, activity_level);
               if rnd == 1 {
                 chain::chat(&ctx, &msg, 5000);
               }

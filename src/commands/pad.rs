@@ -36,10 +36,10 @@ pub fn ongoing(ctx: &mut Context, msg: &Message) -> CommandResult {
       if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
         let g_map = get_map(m.map.as_str());
         let race1 = get_race2(m.teams[0].players[0].race);
-        let race2 = get_race2(m.teams[0].players[0].race);
-        let mstr = format!("*{}* ({}) **{}** [{}] vs ({}) **{}** [{}]",
-          g_map, race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
-               , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr);
+        let race2 = get_race2(m.teams[1].players[0].race);
+        let mstr = format!("({}) **{}** [{}] vs ({}) **{}** [{}] *{}*",
+          race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
+        , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
         description = format!("{}\n{}", mstr, description);
       }
     }

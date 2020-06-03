@@ -23,6 +23,7 @@ pub fn check_match(matchid : &str) -> Option<String> {
   let url = format!("https://statistic-service.w3champions.com/api/matches/{}", matchid);
   if let Ok(res) = reqwest::blocking::get(url.as_str()) {
     if let Ok(md) = res.json::<MD>() {
+      info!("step 5");
       let m = md.r#match;
       let g_map = get_map(m.map.as_str());
       let race1 = get_race2(m.teams[0].players[0].race);
@@ -63,20 +64,24 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String)> {
                 m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u
               );
               if is_div1 || is_div2 {
-              
+                info!("step 4");
                 let g_map = get_map(m.map.as_str());
                 let race1 = get_race2(m.teams[0].players[0].race);
                 let race2 = get_race2(m.teams[1].players[0].race);
                 let mstr = format!("({}) **{}** [{}] vs ({}) **{}** [{}] *{}*",
                   race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
                 , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
-                if let Some((v1, _, g)) = games_lock.get_mut(m.id.as_str()) {
+                if let Some((_v1, _, g)) = games_lock.get_mut(m.id.as_str()) {
                   *g = true;
+                  //TODO:
+                  // possibly here it change id and I need to update HashMap
+                  /*
                   if let Ok(mut msg) = ctx.http.get_message(channel_id, *v1) {
                     if let Err(why) = msg.edit(ctx, |m| m.content(mstr)) {
                       error!("Failed to update game score {:?}", why);
                     }
                   }
+                  */
                 } else {
                   out.push((m.id, mstr));
                 }
@@ -93,8 +98,10 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String)> {
                     error!("Failed to update game score {:?}", why);
                   }
                 }
+                // we only delete match if it's passed
+                // if not possibly there is a bug and we're waiting for end
+                k_to_del.push(k.clone());
               }
-              k_to_del.push(k.clone());
             }
           }
           for ktd in k_to_del {

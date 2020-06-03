@@ -53,7 +53,7 @@ impl EventHandler for Handler {
           std::thread::spawn(move || {
             loop {
               let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
-              let rndx = rand::thread_rng().gen_range(0, activity_level);
+              let rndx = rand::thread_rng().gen_range(0, activity_level + 10);
               if rndx == 1 {
                 if let Err(why) = ch_clone.send_message(&ctx_clone, |m| {
                   let ai_text = chain::generate_english_or_russian(&ctx_clone, &guild_id, 8000);
@@ -74,12 +74,13 @@ impl EventHandler for Handler {
           let ch_clone = channel.clone();
           let ctx_clone = ctx.clone();
           let ch_ud = ch_clone.id.as_u64().clone();
+          info!("step 1");
           std::thread::spawn(move || {
             loop {
               if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
                 let mut k_to_del : Vec<String> = Vec::new();
                 for (k, (_, v2, v3)) in games_lock.iter_mut() {
-                  if *v2 < 180 {
+                  if *v2 < 666 {
                     *v2 += 1;
                     *v3 = false;
                   } else {
@@ -89,12 +90,17 @@ impl EventHandler for Handler {
                 for ktd in k_to_del {
                   games_lock.remove(ktd.as_str());
                 }
+              }
+              { info!("step 2");
                 let our_gsx = pad::team_checker::check(&ctx_clone, ch_ud);
                 for (ma,text) in our_gsx {
                   match ch_clone.send_message(&ctx_clone, |m| {
                     m.content(text) }) {
                     Ok(msg_id) => {
-                      games_lock.insert(ma, (msg_id.id.as_u64().clone(), 0, false));
+                      if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
+                        games_lock.insert(ma, (msg_id.id.as_u64().clone(), 0, false));
+                        info!("step 3");
+                      }
                     }
                     Err(why) => {
                       error!("Failed to post live match {:?}", why);

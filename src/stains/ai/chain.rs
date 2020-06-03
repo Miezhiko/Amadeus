@@ -28,7 +28,7 @@ use rand::{
 
 use std::sync::atomic::{ AtomicU32 };
 
-pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(4);
+pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(5);
 
 pub fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, russian : bool) -> String {
   let mut out = String::new();

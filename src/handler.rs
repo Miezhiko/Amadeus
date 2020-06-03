@@ -74,7 +74,6 @@ impl EventHandler for Handler {
           let ch_clone = channel.clone();
           let ctx_clone = ctx.clone();
           let ch_ud = ch_clone.id.as_u64().clone();
-          info!("step 1");
           std::thread::spawn(move || {
             loop {
               if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {

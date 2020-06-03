@@ -19,14 +19,24 @@ lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, (u64, u32, bool, u64)>> = Mutex::new(HashMap::new());
 }
 
-pub fn check_match(matchid : &str) -> Option<(String, Option<(String, String, String, String)>)> {
+pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String, String, String)>)> {
+  let mut matchid_s : String = String::new();
+  if let Ok(wtf) = reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20") {
+    if let Ok(going) = wtf.json::<Going>() {
+      for mm in going.matches {
+        if mm.startTime == matchid_lol {
+          matchid_s = mm.id;
+        }
+      }
+    }
+  }
+  if matchid_s.is_empty() { return None; }
+  let matchid = matchid_s.as_str();
   let url = format!("https://statistic-service.w3champions.com/api/matches/{}", matchid);
   info!("Trying: {}", url);
   if let Ok(res) = reqwest::blocking::get(url.as_str()) {
-    info!("step x6");
     match res.json::<MD>() {
       Ok(md) => {
-        info!("step x7");
         let m = md.match_data;
         let mstr_o =
         if m.gameMode == 1 {
@@ -36,12 +46,12 @@ pub fn check_match(matchid : &str) -> Option<(String, Option<(String, String, St
           let player1 = if m.teams[0].players[0].won {
             format!("__**{}**__ **+{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
           } else {
-            format!("__*{}*__ **{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
+            format!("__*{}*__ **{}**", m.teams[0].players[0].name, m.teams[1].players[0].mmrGain)
           };
           let player2 = if m.teams[1].players[0].won {
             format!("__**{}**__ **+{}**", m.teams[1].players[0].name, m.teams[0].players[0].mmrGain)
           } else {
-            format!("__*{}*__ **{}**", m.teams[1].players[0].name, m.teams[0].players[0].mmrGain)
+            format!("__*{}*__ **{}**", m.teams[1].players[0].name, m.teams[1].players[0].mmrGain)
           };
           Some(format!("({}) {} [{}] vs ({}) {} [{}] *{}*",
               race1, player1, m.teams[0].players[0].oldMmr
@@ -131,7 +141,8 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                     race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
                   , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
 
-                  if let Some((v1, v2, g, _)) = games_lock.get_mut(m.id.as_str()) {
+                  if let Some((v1, v2, g, _)) = games_lock.get_mut(m.startTime.as_str()) {
+                  //games_lock.get_mut(m.id.as_str()) {
                     *g = true;
                     let minutes = *v2 / 2;
                     let footer = format!("Passed: {} min", minutes);
@@ -150,7 +161,8 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                     }
 
                   } else {
-                    out.push((m.id, mstr, *u));
+                    //m.id
+                    out.push((m.startTime, mstr, *u));
                   }
 
                 }
@@ -178,8 +190,9 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                   let race22 = get_race2(m.teams[1].players[1].race);
                   let mstr = format!("({}+{}) **{}**+**{}** vs ({}+{}) **{}**+**{}** *{}*",
                     race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name
-                  , race2, race22, m.teams[1].players[0].name, m.teams[0].players[1].name, g_map);
-                  if let Some((v1, v2, g, _)) = games_lock.get_mut(m.id.as_str()) {
+                  , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, g_map);
+                  if let Some((v1, v2, g, _)) = games_lock.get_mut(m.startTime.as_str()) {
+                    //games_lock.get_mut(m.id.as_str()) {
                     *g = true;
                     let minutes = *v2 / 2;
                     let footer = format!("Passed: {} min", minutes);
@@ -196,7 +209,8 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                       }
                     }
                   } else {
-                    out.push((m.id, mstr, *u));
+                    //m.id
+                    out.push((m.startTime, mstr, *u));
                   }
                 }
               }
@@ -206,11 +220,8 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
           let mut k_to_del : Vec<String> = Vec::new();
           for (k, (v1, _, v3, u)) in games_lock.iter_mut() {
             if !*v3 {
-              info!("step x1");
               if let Some((new_text, fields)) = check_match(k) {
-                info!("step x2");
                 if let Ok(mut msg) = ctx.http.get_message(channel_id, *v1) {
-                  info!("step x3");
 
                   let mut footer : String = String::from("Passed: some min");
                   if msg.embeds.len() > 0 {

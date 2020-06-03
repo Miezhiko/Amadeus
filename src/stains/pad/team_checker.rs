@@ -63,11 +63,11 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
           let race2 = get_race2(m.teams[1].players[0].race);
           let race22 = get_race2(m.teams[1].players[1].race);
           if m.teams[0].won {
-            Some(format!("({}+{}) __**{}+{}**__ (won) ** vs ({}+{}) _*{}+{}*_ (lose) *{}*",
+            Some(format!("({}+{}) __**{}+{}**__ (won) vs ({}+{}) _*{}+{}*_ (lose) *{}*",
               race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name
             , race2, race22, m.teams[1].players[0].name, m.teams[0].players[1].name, g_map))
           } else {
-            Some(format!("({}+{}) __*{}+{}*__ (lose) ** vs ({}+{}) _**{}+{}**_ (won) *{}*",
+            Some(format!("({}+{}) __*{}+{}*__ (lose) vs ({}+{}) _**{}+{}**_ (won) *{}*",
               race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name
             , race2, race22, m.teams[1].players[0].name, m.teams[0].players[1].name, g_map))
           }

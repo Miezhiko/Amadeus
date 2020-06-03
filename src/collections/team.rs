@@ -17,6 +17,10 @@ pub static DIVISION2: &'static [&'static str] =
     , "PETRUSHQUE#2357"
     , "RavenTT#2656"
     , "Punisher#24744"
-    , "Rearden#21595"
-    , "FINGON#2350"
-    , "DeMiGoD#2105" ];
+    , "Rearden#21595" ];
+
+pub static INTERESTING: &'static [&'static str] =
+   &[ "FINGON#2350"
+   , "MaDFroG#21459"
+   , "РозовыйПони#228941"
+   , "ag3nt#21617" ];

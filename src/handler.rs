@@ -78,6 +78,7 @@ impl EventHandler for Handler {
           std::thread::spawn(move || {
             loop {
               if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
+                info!("step c1");
                 let mut k_to_del : Vec<String> = Vec::new();
                 for (k, (_, v2, v3)) in games_lock.iter_mut() {
                   if *v2 < 666 {
@@ -88,6 +89,7 @@ impl EventHandler for Handler {
                   }
                 }
                 for ktd in k_to_del {
+                  info!("step c2");
                   games_lock.remove(ktd.as_str());
                 }
               }

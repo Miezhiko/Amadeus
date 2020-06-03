@@ -53,8 +53,8 @@ pub_struct!(Player {
 });
 
 pub_struct!(RankingPointsProgress {
-  rankingPoints: u32,
-  mmr: u32,
+  rankingPoints: i32,
+  mmr: i32,
 });
 
 pub_struct!(Search {
@@ -152,7 +152,10 @@ pub_struct!(PlayerScore {
   resourceScore: ResourceScore,
 });
 
-pub_struct!(MD {
-  r#match: Match,
-  playerScores: Vec<PlayerScore>,
-});
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct MD {
+  #[serde(rename = "match")]
+  pub match_data: Match,
+  pub playerScores: Vec<PlayerScore>
+}

@@ -109,8 +109,13 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
         } else {
           format!("*League*: **{}**", league_str)
         };
-        league_info = format!("**Winrate**: **{}%** **MMR**: __**{}**__\n{} *Rank*: **{}**",
-          winrate, gmstat.mmr, league_division.as_str(), gmstat.rank);
+        let progr = if gmstat.rankingPointsProgress.mmr > 0 {
+            format!("+{}", gmstat.rankingPointsProgress.mmr)
+          } else {
+            gmstat.rankingPointsProgress.mmr.to_string()
+          };
+        league_info = format!("**Winrate**: **{}%** **MMR**: __**{}**__ (*{}*)\n{} *Rank*: **{}**",
+          winrate, gmstat.mmr, progr, league_division.as_str(), gmstat.rank);
       }
       if gmstat.gameMode == 5 {
         let lid = gmstat.leagueOrder;

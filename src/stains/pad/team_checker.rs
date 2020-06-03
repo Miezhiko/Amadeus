@@ -53,7 +53,7 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
           } else {
             format!("__*{}*__ **{}**", m.teams[1].players[0].name, m.teams[1].players[0].mmrGain)
           };
-          Some(format!("({}) {} [{}] ***vs*** ({}) {} [{}] *{}*",
+          Some(format!("({}) {} [{}] *vs* ({}) {} [{}] *{}*",
               race1, player1, m.teams[0].players[0].oldMmr
             , race2, player2, m.teams[1].players[0].oldMmr, g_map))
         } else if m.gameMode == 6 {
@@ -63,11 +63,11 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
           let race2 = get_race2(m.teams[1].players[0].race);
           let race22 = get_race2(m.teams[1].players[1].race);
           if m.teams[0].won {
-            Some(format!("({}+{}) __**{}+{}**__ (won) ***vs*** ({}+{}) _*{}+{}*_ (lose) *{}*",
+            Some(format!("({}+{}) __**{}+{}**__ (won) *vs* ({}+{}) _*{}+{}*_ (lose) *{}*",
               race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name
             , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, g_map))
           } else {
-            Some(format!("({}+{}) __*{}+{}*__ (lose) ***vs*** ({}+{}) _**{}+{}**_ (won) *{}*",
+            Some(format!("({}+{}) __*{}+{}*__ (lose) *vs* ({}+{}) _**{}+{}**_ (won) *{}*",
               race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name
             , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, g_map))
           }
@@ -137,7 +137,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                   let g_map = get_map(m.map.as_str());
                   let race1 = get_race2(m.teams[0].players[0].race);
                   let race2 = get_race2(m.teams[1].players[0].race);
-                  let mstr = format!("({}) **{}** [{}] ***vs*** ({}) **{}** [{}] *{}*",
+                  let mstr = format!("({}) **{}** [{}] *vs* ({}) **{}** [{}] *{}*",
                     race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
                   , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
 
@@ -151,6 +151,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                       if let Ok(user) = ctx.http.get_user(*u) {
                         if let Err(why) = msg.edit(ctx, |m| m
                           .embed(|e| e
+                          .title("LIVE")
                           .author(|a| a.icon_url(&user.face()).name(&user.name))
                           .description(mstr)
                           .footer(|f| f.text(footer))
@@ -188,7 +189,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                   let race12 = get_race2(m.teams[0].players[1].race);
                   let race2 = get_race2(m.teams[1].players[0].race);
                   let race22 = get_race2(m.teams[1].players[1].race);
-                  let mstr = format!("({}+{}) **{}**+**{}** ***vs*** ({}+{}) **{}**+**{}** *{}*",
+                  let mstr = format!("({}+{}) **{}**+**{}** *vs* ({}+{}) **{}**+**{}** *{}*",
                     race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name
                   , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, g_map);
                   if let Some((v1, v2, g, _)) = games_lock.get_mut(m.startTime.as_str()) {
@@ -200,6 +201,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                       if let Ok(user) = ctx.http.get_user(*u) {
                         if let Err(why) = msg.edit(ctx, |m| m
                           .embed(|e| e
+                          .title("LIVE")
                           .author(|a| a.icon_url(&user.face()).name(&user.name))
                           .description(mstr)
                           .footer(|f| f.text(footer))

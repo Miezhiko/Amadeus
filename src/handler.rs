@@ -97,6 +97,7 @@ impl EventHandler for Handler {
                   if let Ok(user) = ctx_clone.http.get_user(u) {
                     match ch_clone.send_message(&ctx, |m| m
                       .embed(|e| e
+                      .title("Just started")
                       .author(|a| a.icon_url(&user.face()).name(&user.name))
                       .description(text)
                     )) {

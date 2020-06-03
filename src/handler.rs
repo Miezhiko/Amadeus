@@ -78,7 +78,6 @@ impl EventHandler for Handler {
           std::thread::spawn(move || {
             loop {
               if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
-                info!("step c1");
                 let mut k_to_del : Vec<String> = Vec::new();
                 for (k, (_, v2, v3, _)) in games_lock.iter_mut() {
                   if *v2 < 666 {
@@ -89,11 +88,11 @@ impl EventHandler for Handler {
                   }
                 }
                 for ktd in k_to_del {
-                  info!("step c2");
+                  warn!("match {} out with timeout", ktd);
                   games_lock.remove(ktd.as_str());
                 }
               }
-              { info!("step 2");
+              { info!("check");
                 let our_gsx = pad::team_checker::check(&ctx_clone, ch_ud);
                 for (ma, text, u) in our_gsx {
                   if let Ok(user) = ctx_clone.http.get_user(u) {
@@ -105,7 +104,6 @@ impl EventHandler for Handler {
                       Ok(msg_id) => {
                         if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
                           games_lock.insert(ma, (msg_id.id.as_u64().clone(), 0, false, u));
-                          info!("step 3");
                         }
                       },
                       Err(why) => {

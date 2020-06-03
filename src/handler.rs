@@ -80,7 +80,7 @@ impl EventHandler for Handler {
               if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
                 info!("step c1");
                 let mut k_to_del : Vec<String> = Vec::new();
-                for (k, (_, v2, v3)) in games_lock.iter_mut() {
+                for (k, (_, v2, v3, _)) in games_lock.iter_mut() {
                   if *v2 < 666 {
                     *v2 += 1;
                     *v3 = false;
@@ -95,17 +95,22 @@ impl EventHandler for Handler {
               }
               { info!("step 2");
                 let our_gsx = pad::team_checker::check(&ctx_clone, ch_ud);
-                for (ma,text) in our_gsx {
-                  match ch_clone.send_message(&ctx_clone, |m| {
-                    m.content(text) }) {
-                    Ok(msg_id) => {
-                      if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
-                        games_lock.insert(ma, (msg_id.id.as_u64().clone(), 0, false));
-                        info!("step 3");
+                for (ma, text, u) in our_gsx {
+                  if let Ok(user) = ctx_clone.http.get_user(u) {
+                    match ch_clone.send_message(&ctx, |m| m
+                      .embed(|e| e
+                      .author(|a| a.icon_url(&user.face()).name(&user.name))
+                      .description(text)
+                    )) {
+                      Ok(msg_id) => {
+                        if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
+                          games_lock.insert(ma, (msg_id.id.as_u64().clone(), 0, false, u));
+                          info!("step 3");
+                        }
+                      },
+                      Err(why) => {
+                        error!("Failed to post live match {:?}", why);
                       }
-                    }
-                    Err(why) => {
-                      error!("Failed to post live match {:?}", why);
                     }
                   }
                 }

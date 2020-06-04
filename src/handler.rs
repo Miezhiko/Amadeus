@@ -56,13 +56,13 @@ impl EventHandler for Handler {
               let rndx = rand::thread_rng().gen_range(0, activity_level);
               if rndx == 1 {
                 if let Err(why) = ch_clone.send_message(&ctx_clone, |m| {
-                  let ai_text = chain::generate_english_or_russian(&ctx_clone, &guild_id, 8000);
+                  let ai_text = chain::generate_english_or_russian(&ctx_clone, &guild_id, 9000);
                   m.content(ai_text)
                 }) {
                   error!("Failed to post periodic message {:?}", why);
                 }
               }
-              std::thread::sleep(time::Duration::from_secs(15*60));
+              std::thread::sleep(time::Duration::from_secs(30*60));
             }
           });
         }
@@ -125,7 +125,7 @@ impl EventHandler for Handler {
   }
   fn guild_member_addition(&self, ctx: Context, guild_id: GuildId, /*mut*/ member: Member) {
     if let Ok(channels) = guild_id.channels(&ctx) {
-      let ai_text = chain::generate_with_language(&ctx, &guild_id, 500, false);
+      let ai_text = chain::generate_with_language(&ctx, &guild_id, 666, false);
       let log_channel = channels.iter().find(|&(c, _)|
         if let Some(name) = c.name(&ctx)
           { name == "log" } else { false });
@@ -148,7 +148,7 @@ impl EventHandler for Handler {
   }
   fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user : User, _ : Option<Member>) {
     if let Ok(channels) = guild_id.channels(&ctx) {
-      let ai_text = chain::generate_with_language(&ctx, &guild_id, 500, false);
+      let ai_text = chain::generate_with_language(&ctx, &guild_id, 666, false);
       let log_channel = channels.iter().find(|&(c, _)|
         if let Some(name) = c.name(&ctx)
           { name == "log" } else { false });
@@ -249,7 +249,7 @@ impl EventHandler for Handler {
               ctx.set_activity(Activity::listening(&msg.author.name));
               ctx.online();
             } else {
-              let activity = chain::generate(&ctx, &msg, 400);
+              let activity = chain::generate(&ctx, &msg, 666);
               if !activity.is_empty() {
                 ctx.set_activity(Activity::playing(&activity));
                 ctx.idle();
@@ -263,7 +263,7 @@ impl EventHandler for Handler {
               let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
               let rnd = rand::thread_rng().gen_range(0, activity_level);
               if rnd == 1 {
-                chain::chat(&ctx, &msg, 5000);
+                chain::chat(&ctx, &msg, 7000);
               }
               let rnd2 = rand::thread_rng().gen_range(0, 20);
               if rnd2 == 1 {

@@ -156,11 +156,13 @@ pub fn weekends(ctx: &mut Context, msg: &Message) -> CommandResult {
     tour_internal(ctx, msg, today, true)?;
   } else {
     let is_saturday = today.weekday() == Weekday::Sat;
-    while today.weekday() != Weekday::Sat {
-      today = today + Duration::days(1); 
+    if !is_saturday {
+      while today.weekday() != Weekday::Sat {
+        today = today + Duration::days(1); 
+      }
     }
     tour_internal(ctx, msg, today, is_saturday)?;
-    let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
+    let tomorrow : DateTime<Utc> = today + Duration::days(1); 
     tour(ctx, msg, tomorrow)?;
   }
   if let Err(why) = msg.delete(&ctx) {

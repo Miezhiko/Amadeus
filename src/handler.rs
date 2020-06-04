@@ -265,7 +265,7 @@ impl EventHandler for Handler {
               if rnd == 1 {
                 chain::chat(&ctx, &msg, 7000);
               }
-              let rnd2 = rand::thread_rng().gen_range(0, 20);
+              let rnd2 = rand::thread_rng().gen_range(0, 2);
               if rnd2 == 1 {
                 let mut rng = thread_rng();
                 let (emoji_id, emji_name) = *REACTIONS.choose(&mut rng).unwrap();
@@ -274,9 +274,58 @@ impl EventHandler for Handler {
                   id: EmojiId(emoji_id),
                   name: Some(String::from(emji_name))
                 };
-                if let Err(why) = msg.react(&ctx, reaction) {
-                  error!("Failed to react: {:?}", why);
+
+                if let Some(ch) = msg.channel(&ctx) {
+                  let g = ch.guild().unwrap();
+                  let guild_id = g.read().guild_id;
+                  if let Ok(guild) = guild_id.to_partial_guild(&ctx) {
+                    if let Ok(mut member) = guild.member(&ctx, msg.author.id) {
+                      if let Some(role) = guild.role_by_name("UNBLOCK AMADEUS") {
+
+                        if let Err(why) = msg.react(&ctx, reaction) {
+                          error!("Failed to react: {:?}", why);
+                          if why.to_string().contains("blocked") {
+                            if !member.roles.contains(&role.id) {
+                              if let Err(why) = member.add_role(&ctx, role) {
+                                error!("Failed to assign gay role {:?}", why);
+                              } else {
+                                let repl = format!("Seems like {} doesn't respect me :(", msg.author.name);
+                                channel_message(&ctx, &msg, repl.as_str());
+                              }
+                            }
+                          }
+                        } else {
+                          if member.roles.contains(&role.id) {
+                            if let Err(why) = member.remove_role(&ctx, role) {
+                              error!("Failed to remove gay role {:?}", why);
+                            } else {
+                              let repl = format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name);
+                              channel_message(&ctx, &msg, repl.as_str());
+                            }
+                          }
+                        }
+
+                        if member.roles.contains(&role.id) {
+                          if let Err(why) = &msg.delete(&ctx) {
+                            error!("Error replacing bad people {:?}", why);
+                          }
+                          if !msg.content.is_empty() && !msg.content.starts_with("http") {
+                            let rm = format!("{} says {}", msg.author.name, &msg.content.as_str());
+                            channel_message(&ctx, &msg, rm.as_str());
+                          }
+                        }
+
+                        let rnd3 = rand::thread_rng().gen_range(0, 20);
+                        if rnd3 != 1 {
+                          if let Err(why) = msg.delete_reactions(&ctx) {
+                            error!("Failed to remove all the reactions {:?}", why);
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
+
               }
             }
           }

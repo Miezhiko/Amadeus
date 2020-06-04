@@ -37,7 +37,8 @@ pub static CONFUSION: &'static [&'static str] =
     , "People's feelings are memories that transcend time."
     , "Every brilliant day should be lived for those who passed away."
     , "Everyone is watching someone other than themselves, someone important to them..."
-    , "El Psy Kongroo" ];
+    , "El Psy Kongroo"
+    , "you underestimated me dude" ];
 
 pub static REACTIONS: &'static [(u64, &'static str)] =
   &[ (639041088492929034, "tir")

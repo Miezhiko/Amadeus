@@ -104,7 +104,9 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           _ => ""
         });
         let winrate = (gmstat.winrate * 100.0).round();
-        let league_division = if lid > 1 {
+        let league_division = if gmstat.games < 5 {
+          String::from("Calibrating")
+        } else if lid > 1 {
           format!("*League*: **{}** *Division:* **{}**", league_str, gmstat.division)
         } else {
           format!("*League*: **{}**", league_str)
@@ -121,7 +123,9 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
         let lid = gmstat.leagueOrder;
         let league_str = get_league(lid);
         let winrate = (gmstat.winrate * 100.0).round();
-        let league_division = if lid > 1 {
+        let league_division = if gmstat.games < 5 {
+          String::from("Calibrating")
+        } else if lid > 1 {
           format!("**{}** *Division:* **{}**", league_str, gmstat.division)
         } else {
           format!("**{}**", league_str)
@@ -141,7 +145,9 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
         let lid = gmstat.leagueOrder;
         let league_str = get_league(lid);
         let winrate = (gmstat.winrate * 100.0).round();
-        let league_division = if lid > 1 {
+        let league_division = if gmstat.games < 5 {
+          String::from("Calibrating")
+        } else if lid > 1 {
           format!("**{}** *div:* **{}**", league_str, gmstat.division)
         } else {
           format!("**{}**", league_str)

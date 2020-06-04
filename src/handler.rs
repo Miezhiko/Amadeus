@@ -53,7 +53,7 @@ impl EventHandler for Handler {
           std::thread::spawn(move || {
             loop {
               let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
-              let rndx = rand::thread_rng().gen_range(0, activity_level + 10);
+              let rndx = rand::thread_rng().gen_range(0, activity_level);
               if rndx == 1 {
                 if let Err(why) = ch_clone.send_message(&ctx_clone, |m| {
                   let ai_text = chain::generate_english_or_russian(&ctx_clone, &guild_id, 8000);
@@ -260,15 +260,12 @@ impl EventHandler for Handler {
                 ch.id().name(&ctx).unwrap_or(String::from(""))
               } else { String::from("") };
             if AI_ALLOWED.into_iter().any(|&c| c == channel_name.as_str()) {
-              let mut activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
-              if activity_level > 1 {
-                activity_level -= 1;
-              }
+              let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
               let rnd = rand::thread_rng().gen_range(0, activity_level);
               if rnd == 1 {
                 chain::chat(&ctx, &msg, 5000);
               }
-              let rnd2 = rand::thread_rng().gen_range(0, 5);
+              let rnd2 = rand::thread_rng().gen_range(0, 20);
               if rnd2 == 1 {
                 let mut rng = thread_rng();
                 let (emoji_id, emji_name) = *REACTIONS.choose(&mut rng).unwrap();

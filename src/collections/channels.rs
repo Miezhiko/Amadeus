@@ -12,6 +12,5 @@ pub static AI_LEARN: &'static [&'static str] =
    , "dating"
    , "warcraft"
    , "team-chat"
-   , "division-1"
    , "division-2"
    , "🌈climatestrike" ];

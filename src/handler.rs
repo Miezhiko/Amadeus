@@ -293,7 +293,11 @@ impl EventHandler for Handler {
                                 if let Err(why) = member.add_role(&ctx, role) {
                                   error!("Failed to assign gay role {:?}", why);
                                 } else {
-                                  let repl = format!("Seems like {} doesn't respect me :(", msg.author.name);
+                                  let repl = if lang::is_russian(&msg.content.as_str()) {
+                                    format!("Ну чел {} явно меня не уважает", msg.author.name)
+                                  } else {
+                                    format!("Seems like {} doesn't respect me :(", msg.author.name)
+                                  };
                                   channel_message(&ctx, &msg, repl.as_str());
                                   let new_nick = format!("Hater {}", msg.author.name);
                                   if let Err(why2) = guild.edit_member(&ctx, msg.author.id, |m| m.nickname(new_nick)) {
@@ -307,7 +311,11 @@ impl EventHandler for Handler {
                               if let Err(why) = member.remove_role(&ctx, role) {
                                 error!("Failed to remove gay role {:?}", why);
                               } else {
-                                let repl = format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name);
+                                let repl = if lang::is_russian(&msg.content.as_str()) {
+                                  format!("Ну чел {} извини если что, давай останемся друзьями", msg.author.name)
+                                } else {
+                                  format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name)
+                                };
                                 channel_message(&ctx, &msg, repl.as_str());
                                 if let Err(why2) = guild.edit_member(&ctx, msg.author.id, |m| m.nickname("")) {
                                   error!("Failed to reset user's nick {:?}", why2);

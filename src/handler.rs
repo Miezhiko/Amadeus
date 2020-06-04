@@ -282,27 +282,32 @@ impl EventHandler for Handler {
                     if let Ok(mut member) = guild.member(&ctx, msg.author.id) {
                       if let Some(role) = guild.role_by_name("UNBLOCK AMADEUS") {
 
-                        if let Err(why) = msg.react(&ctx, reaction) {
-                          error!("Failed to react: {:?}", why);
-                          if why.to_string().contains("blocked") {
-                            if !member.roles.contains(&role.id) {
-                              if let Err(why) = member.add_role(&ctx, role) {
-                                error!("Failed to assign gay role {:?}", why);
+                        let normal_people_rnd = rand::thread_rng().gen_range(0, 9);
+                        if normal_people_rnd == 1 || member.roles.contains(&role.id) {
+
+                          if let Err(why) = msg.react(&ctx, reaction) {
+                            error!("Failed to react: {:?}", why);
+                            if why.to_string().contains("blocked") {
+                              if !member.roles.contains(&role.id) {
+                                if let Err(why) = member.add_role(&ctx, role) {
+                                  error!("Failed to assign gay role {:?}", why);
+                                } else {
+                                  let repl = format!("Seems like {} doesn't respect me :(", msg.author.name);
+                                  channel_message(&ctx, &msg, repl.as_str());
+                                }
+                              }
+                            }
+                          } else {
+                            if member.roles.contains(&role.id) {
+                              if let Err(why) = member.remove_role(&ctx, role) {
+                                error!("Failed to remove gay role {:?}", why);
                               } else {
-                                let repl = format!("Seems like {} doesn't respect me :(", msg.author.name);
+                                let repl = format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name);
                                 channel_message(&ctx, &msg, repl.as_str());
                               }
                             }
                           }
-                        } else {
-                          if member.roles.contains(&role.id) {
-                            if let Err(why) = member.remove_role(&ctx, role) {
-                              error!("Failed to remove gay role {:?}", why);
-                            } else {
-                              let repl = format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name);
-                              channel_message(&ctx, &msg, repl.as_str());
-                            }
-                          }
+
                         }
 
                         if member.roles.contains(&role.id) {
@@ -315,7 +320,7 @@ impl EventHandler for Handler {
                           }
                         }
 
-                        let rnd3 = rand::thread_rng().gen_range(0, 20);
+                        let rnd3 = rand::thread_rng().gen_range(0, 9);
                         if rnd3 != 1 {
                           if let Err(why) = msg.delete_reactions(&ctx) {
                             error!("Failed to remove all the reactions {:?}", why);

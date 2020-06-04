@@ -3,7 +3,7 @@ use crate::{
     lang,
     msg::{ reply, channel_message }
   },
-  collections::base::{ CONFUSION, CONFUSION_RU },
+  collections::base::{ CONFUSION, CONFUSION_RU, OBFUSCATION, OBFUSCATION_RU },
   collections::channels::AI_LEARN
 };
 
@@ -121,6 +121,22 @@ pub fn generate(ctx: &Context, msg : &Message, limit: u64) -> String {
     }
   }
   out
+}
+
+pub fn obfuscate(msg_content : &str) -> String {
+  let mut chain = Chain::new();
+  let russian = lang::is_russian(msg_content);
+  if !russian {
+    for confuse in OBFUSCATION {
+      chain.feed_str( confuse );
+    }
+  } else {
+    for confuse in OBFUSCATION_RU {
+      chain.feed_str( confuse );
+    }
+  }
+  chain.feed_str(msg_content);
+  chain.generate_str()
 }
 
 pub fn response(ctx: &Context, msg : &Message, limit: u64) {

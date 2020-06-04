@@ -40,6 +40,22 @@ pub static CONFUSION: &'static [&'static str] =
     , "El Psy Kongroo"
     , "you underestimated me dude" ];
 
+pub static OBFUSCATION_RU: &'static [&'static str] =
+    &[ "Я гей"
+     , "Амадеус лучше всех"
+     , "Я исправлюсь"
+     , "Не обижайте Амадеус"
+     , "Простите меня"
+     , "Я больше так не буду" ];
+
+pub static OBFUSCATION: &'static [&'static str] =
+   &[ "Amadeus best girl"
+    , "I'm gay"
+    , "I'm so stupid"
+    , "I like Amadeus"
+    , "It's past my bedtime. Please don't tell my mommy."
+    , "I feel very, very small... please hold me..." ];
+
 pub static REACTIONS: &'static [(u64, &'static str)] =
   &[ (639041088492929034, "tir")
    , (657178237952327685, "thumb")

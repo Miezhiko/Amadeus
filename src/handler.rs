@@ -3,6 +3,7 @@ use crate::{
   stains::pad,
   conf,
   common::{
+    lang,
     msg::{ channel_message }
   },
   collections::base::REACTIONS,
@@ -294,6 +295,10 @@ impl EventHandler for Handler {
                                 } else {
                                   let repl = format!("Seems like {} doesn't respect me :(", msg.author.name);
                                   channel_message(&ctx, &msg, repl.as_str());
+                                  let new_nick = format!("Hater {}", msg.author.name);
+                                  if let Err(why2) = guild.edit_member(&ctx, msg.author.id, |m| m.nickname(new_nick)) {
+                                    error!("Failed to change user's nick {:?}", why2);
+                                  }
                                 }
                               }
                             }
@@ -304,6 +309,9 @@ impl EventHandler for Handler {
                               } else {
                                 let repl = format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name);
                                 channel_message(&ctx, &msg, repl.as_str());
+                                if let Err(why2) = guild.edit_member(&ctx, msg.author.id, |m| m.nickname("")) {
+                                  error!("Failed to reset user's nick {:?}", why2);
+                                }
                               }
                             }
                           }
@@ -311,11 +319,19 @@ impl EventHandler for Handler {
                         }
 
                         if member.roles.contains(&role.id) {
+                          let new_nick = format!("Hater {}", msg.author.name);
+                          if let Err(why2) = guild.edit_member(&ctx, msg.author.id, |m| m.nickname(new_nick)) {
+                            error!("Failed to change user's nick {:?}", why2);
+                          }
                           if let Err(why) = &msg.delete(&ctx) {
                             error!("Error replacing bad people {:?}", why);
                           }
                           if !msg.content.is_empty() && !msg.content.starts_with("http") {
-                            let rm = format!("{} says {}", msg.author.name, &msg.content.as_str());
+                            let new_words = chain::obfuscate(msg.content.as_str());
+                            let says = if lang::is_russian(new_words.as_str()) {
+                              "говорит"
+                            } else { "says" };
+                            let rm = format!("{} {} {}", msg.author.name, says, new_words);
                             channel_message(&ctx, &msg, rm.as_str());
                           }
                         }

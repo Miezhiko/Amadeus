@@ -63,13 +63,13 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
           let race2 = get_race2(m.teams[1].players[0].race);
           let race22 = get_race2(m.teams[1].players[1].race);
           if m.teams[0].won {
-            Some(format!("({}+{}) __**{} [{}] + {} [{}]**__ (won)\n*vs*\n({}+{}) _*{} [{}] + {} [{}]*_ (lost)\n\nmap: **{}**",
-              race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].mmrGain
-            , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].mmrGain, g_map))
+            Some(format!("({}+{}) __**{} + {} [{}]**__ **+{}** (won)\n*vs*\n({}+{}) _*{} + {} [{}]*_ *{}* (lost)\n\nmap: **{}**",
+              race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
+            , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
           } else {
-            Some(format!("({}+{}) __*{} [{}] + {} [{}]*__ (lost)\n*vs*\n({}+{}) _**{} [{}] + {} [{}]**_ (won)\n\nmap: **{}**",
-              race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].mmrGain
-            , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].mmrGain, g_map))
+            Some(format!("({}+{}) __*{} + {} [{}]*__ *{}* (lost)\n*vs*\n({}+{}) _**{} + {} [{}]**_ **+{}** (won)\n\nmap: **{}**",
+              race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
+            , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
           }
         } else {
           None
@@ -189,9 +189,9 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                   let race12 = get_race2(m.teams[0].players[1].race);
                   let race2 = get_race2(m.teams[1].players[0].race);
                   let race22 = get_race2(m.teams[1].players[1].race);
-                  let mstr = format!("({}+{}) **{}** [{}] +**{}** [{}]\n*vs*\n({}+{}) **{}** [{}] + **{}** [{}]\n\nmap: **{}**",
-                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr
-                  , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, g_map);
+                  let mstr = format!("({}+{}) **{}** + **{}** [{}]\n*vs*\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
+                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr
+                  , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, g_map);
                   if let Some((v1, v2, g, _)) = games_lock.get_mut(m.startTime.as_str()) {
                     //games_lock.get_mut(m.id.as_str()) {
                     *g = true;

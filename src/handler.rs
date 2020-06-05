@@ -94,13 +94,43 @@ impl EventHandler for Handler {
               }
               { info!("check");
                 let our_gsx = pad::team_checker::check(&ctx_clone, ch_ud);
-                for (ma, text, u) in our_gsx {
+                for (ma, text, u, twitch) in our_gsx {
                   if let Ok(user) = ctx_clone.http.get_user(u) {
                     match ch_clone.send_message(&ctx, |m| m
-                      .embed(|e| e
-                      .title("Just started")
-                      .author(|a| a.icon_url(&user.face()).name(&user.name))
-                      .description(text)
+                      .embed(|e| {
+                        let mut e = e
+                          .title("Just started")
+                          .author(|a| a.icon_url(&user.face()).name(&user.name))
+                          .description(text);
+                        if twitch.is_some() {
+                          let client = reqwest::blocking::Client::new();
+                          let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", twitch.unwrap());
+                          if let Ok(res) = client
+                            .get(getq.as_str())
+                            .header("Authorization", "Bearer 8tkm427jzrfmubj1frj93hjzyyjs6u")
+                            .header("Client-ID", "t1nbxfy14cacqc31obgns3lhyf6elp")
+                            .send() {
+                            match res.json::<pad::twitch::Twitch>() {
+                              Ok(t) => {
+                                if t.data.len() > 0 {
+                                  let d = &t.data[0];
+                                  let url = format!("https://www.twitch.tv/{}", d.user_name);
+                                  let pic = d.thumbnail_url.replace("{width}", "800")
+                                                           .replace("{height}", "400");
+                                  if d.type_string == "live" {
+                                    e = e.fields(vec![("Live on twitch", d.title.clone(), false)])
+                                         .image(pic)
+                                         .url(url);
+                                  }
+                                }
+                              }, Err(why) => {
+                                error!("Failed to parse twitch structs {:?}", why);
+                              }
+                            }
+                          }
+                        }
+                        e
+                      }
                     )) {
                       Ok(msg_id) => {
                         if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {

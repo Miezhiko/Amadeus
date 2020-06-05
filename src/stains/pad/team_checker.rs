@@ -112,8 +112,8 @@ hero exp: {}",      p2.unitScore.unitsProduced
   None
 }
 
-pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
-  let mut out : Vec<(String, String, u64)> = Vec::new();
+pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Option<&str>)> {
+  let mut out : Vec<(String, String, u64, Option<&str>)> = Vec::new();
   if let Ok(res) =
     reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20") {
     if let Ok(going) = res.json::<Going>() {
@@ -123,16 +123,16 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
           for m in going.matches {
             if m.gameMode == 1 {
               if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
-                let is_div1 = DIVISION1.into_iter().find(|(u, _)|
+                let is_div1 = DIVISION1.into_iter().find(|(u, _, _)|
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u
                 );
-                let is_div2 = DIVISION2.into_iter().find(|(u, _)|
+                let is_div2 = DIVISION2.into_iter().find(|(u, _, _)|
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u
                 );
-                let is_interesting = INTERESTING.into_iter().find(|(u, _)|
+                let is_interesting = INTERESTING.into_iter().find(|(u, _, _)|
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u
                 );
-                let (s, u) = is_div1.unwrap_or(is_div2.unwrap_or(is_interesting.unwrap_or(&("", 0))));
+                let (s, u, twitch) = is_div1.unwrap_or(is_div2.unwrap_or(is_interesting.unwrap_or(&("", 0, None))));
                 if !s.is_empty() && *u != 0 {
                   let g_map = get_map(m.map.as_str());
                   let race1 = get_race2(m.teams[0].players[0].race);
@@ -149,12 +149,36 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
 
                     if let Ok(mut msg) = ctx.http.get_message(channel_id, *v1) {
                       if let Ok(user) = ctx.http.get_user(*u) {
+
+                        let mut fields = Vec::new();
+                        let mut img = None;
+                        let mut url = None;
+                        if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
+                          for f in msg.embeds[0].fields.clone() {
+                            fields.push((f.name, f.value, f.inline));
+                          }
+                          img = msg.embeds[0].image.clone();
+                          url = msg.embeds[0].url.clone();
+                        };
+
                         if let Err(why) = msg.edit(ctx, |m| m
-                          .embed(|e| e
-                          .title("LIVE")
-                          .author(|a| a.icon_url(&user.face()).name(&user.name))
-                          .description(mstr)
-                          .footer(|f| f.text(footer))
+                          .embed(|e|  {
+                            let mut e = e
+                              .title("LIVE")
+                              .author(|a| a.icon_url(&user.face()).name(&user.name))
+                              .description(mstr)
+                              .footer(|f| f.text(footer));
+                            if fields.len() > 0 {
+                              e = e.fields(fields);
+                            }
+                            if img.is_some() {
+                              e = e.image(img.unwrap().url);
+                            }
+                            if url.is_some() {
+                              e = e.url(url.unwrap());
+                            }
+                            e
+                          }
                         )) {
                           error!("Failed to post live match {:?}", why);
                         }
@@ -163,26 +187,26 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
 
                   } else {
                     //m.id
-                    out.push((m.startTime, mstr, *u));
+                    out.push((m.startTime, mstr, *u, *twitch));
                   }
 
                 }
               }
             } else if m.gameMode == 6 {
               if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
-                let is_div1 = DIVISION1.into_iter().find(|(u, _)|
+                let is_div1 = DIVISION1.into_iter().find(|(u, _, _)|
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u ||
                   m.teams[0].players[1].battleTag == *u || m.teams[1].players[1].battleTag == *u
                 );
-                let is_div2 = DIVISION2.into_iter().find(|(u, _)|
+                let is_div2 = DIVISION2.into_iter().find(|(u, _, _)|
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u ||
                   m.teams[0].players[1].battleTag == *u || m.teams[1].players[1].battleTag == *u
                 );
-                let is_interesting = INTERESTING.into_iter().find(|(u, _)|
+                let is_interesting = INTERESTING.into_iter().find(|(u, _, _)|
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u ||
                   m.teams[0].players[1].battleTag == *u || m.teams[1].players[1].battleTag == *u
                 );
-                let (s, u) = is_div1.unwrap_or(is_div2.unwrap_or(is_interesting.unwrap_or(&("", 0))));
+                let (s, u, twitch) = is_div1.unwrap_or(is_div2.unwrap_or(is_interesting.unwrap_or(&("", 0, None))));
                 if !s.is_empty() && *u != 0 {
                   let g_map = get_map(m.map.as_str());
                   let race1 = get_race2(m.teams[0].players[0].race);
@@ -199,12 +223,36 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                     let footer = format!("Passed: {} min", minutes);
                     if let Ok(mut msg) = ctx.http.get_message(channel_id, *v1) {
                       if let Ok(user) = ctx.http.get_user(*u) {
+
+                        let mut fields = Vec::new();
+                        let mut img = None;
+                        let mut url = None;
+                        if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
+                          for f in msg.embeds[0].fields.clone() {
+                            fields.push((f.name, f.value, f.inline));
+                          }
+                          img = msg.embeds[0].image.clone();
+                          url = msg.embeds[0].url.clone();
+                        };
+
                         if let Err(why) = msg.edit(ctx, |m| m
-                          .embed(|e| e
-                          .title("LIVE")
-                          .author(|a| a.icon_url(&user.face()).name(&user.name))
-                          .description(mstr)
-                          .footer(|f| f.text(footer))
+                          .embed(|e| {
+                            let mut e = e
+                              .title("LIVE")
+                              .author(|a| a.icon_url(&user.face()).name(&user.name))
+                              .description(mstr)
+                              .footer(|f| f.text(footer));
+                            if fields.len() > 0 {
+                              e = e.fields(fields);
+                            }
+                            if img.is_some() {
+                              e = e.image(img.unwrap().url);
+                            }
+                            if url.is_some() {
+                              e = e.url(url.unwrap());
+                            }
+                            e
+                          }
                         )) {
                           error!("Failed to post live match {:?}", why);
                         }
@@ -212,7 +260,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64)> {
                     }
                   } else {
                     //m.id
-                    out.push((m.startTime, mstr, *u));
+                    out.push((m.startTime, mstr, *u, *twitch));
                   }
                 }
               }

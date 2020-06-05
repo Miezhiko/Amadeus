@@ -1,4 +1,5 @@
 use crate::{
+  common::types::AOptions,
   common::msg::{ direct_message, reply },
   conf
 };
@@ -25,8 +26,7 @@ impl Key for VoiceManager {
   type Value = Arc<Mutex<ClientVoiceManager>>;
 }
 
-pub fn rejoin_voice_channel(ctx : &Context) {
-  let conf = conf::parse_config();
+pub fn rejoin_voice_channel(ctx : &Context, conf: &AOptions) {
   if conf.rejoin {
     set!{ last_guild_u64 = conf.last_guild.parse::<u64>().unwrap_or(0)
         , last_channel_u64 = conf.last_channel.parse::<u64>().unwrap_or(0) };

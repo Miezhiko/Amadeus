@@ -1,10 +1,10 @@
 use crate::{
-  types::AOptions,
   stains::ai::chain,
   stains::pad,
   stains::pad::team_checker::TrackingGame,
   conf,
   common::{
+    types::AOptions,
     lang,
     msg::{ channel_message }
   },
@@ -50,9 +50,9 @@ impl Handler {
 impl EventHandler for Handler {
   fn ready(&self, ctx : Context, ready : Ready) {
     info!("Connected as {}", ready.user.name);
-    voice::rejoin_voice_channel(&ctx);
-    let conf = conf::parse_config();
-    let last_guild_u64 = conf.last_guild.parse::<u64>().unwrap_or(0);
+    voice::rejoin_voice_channel(&ctx, &self.options);
+
+    let last_guild_u64 = self.options.last_guild.parse::<u64>().unwrap_or(0);
     if last_guild_u64 != 0 {
       let guild_id = GuildId( last_guild_u64 );
       if let Ok(channels) = guild_id.channels(&ctx) {
@@ -284,6 +284,7 @@ impl EventHandler for Handler {
             } else {false };
           if !is_admin {
             let channel_id = msg.channel_id;
+            // maybe use AtomicU64?
             let mut conf = conf::parse_config();
             let last_channel_conf =
               ChannelId( conf.last_channel_chat.parse::<u64>().unwrap_or(0) );

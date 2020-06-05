@@ -16,6 +16,9 @@ use serenity::{
 
 #[command]
 pub fn quote(ctx: &mut Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx) {
+    error!("Error deleting original command {:?}", why);
+  }
   if msg.mentions.len() > 0 {
     let target = &msg.mentions[0];
     if let Some(q) = chain::make_quote(ctx, msg, target.id, 9000) {

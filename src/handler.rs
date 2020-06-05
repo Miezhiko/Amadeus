@@ -56,6 +56,11 @@ impl EventHandler for Handler {
     if last_guild_u64 != 0 {
       let guild_id = GuildId( last_guild_u64 );
       if let Ok(channels) = guild_id.channels(&ctx) {
+
+        let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());
+        &ctx.set_activity(Activity::listening(version.as_str()));
+        &ctx.idle();
+
         let main_channel = channels.iter().find(|&(c, _)|
           if let Some(name) = c.name(&ctx)
             { name == "main" } else { false });

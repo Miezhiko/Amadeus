@@ -9,5 +9,10 @@ last_guild=0
 last_channel=0
 last_stream=http://ice2.somafm.com/fluid-32-aac
 
+[Twitch]
+oauth=0
+client_id=0
+client_secret=0
+
 [Chat]
 last_channel=0

@@ -15,8 +15,15 @@ use reqwest;
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+pub struct TrackingGame {
+  pub tracking_msg_id : u64,
+  pub passed_time: u32,
+  pub still_live: bool,
+  pub tracking_usr_id: u64
+}
+
 lazy_static! {
-  pub static ref GAMES: Mutex<HashMap<String, (u64, u32, bool, u64)>> = Mutex::new(HashMap::new());
+  pub static ref GAMES: Mutex<HashMap<String, TrackingGame>> = Mutex::new(HashMap::new());
 }
 
 pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String, String, String)>)> {
@@ -141,13 +148,12 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Opti
                     race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
                   , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
 
-                  if let Some((v1, v2, g, _)) = games_lock.get_mut(m.startTime.as_str()) {
-                  //games_lock.get_mut(m.id.as_str()) {
-                    *g = true;
-                    let minutes = *v2 / 2;
+                  if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
+                    track.still_live = true;
+                    let minutes = track.passed_time / 2;
                     let footer = format!("Passed: {} min", minutes);
 
-                    if let Ok(mut msg) = ctx.http.get_message(channel_id, *v1) {
+                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id) {
                       if let Ok(user) = ctx.http.get_user(*u) {
 
                         let mut fields = Vec::new();
@@ -186,7 +192,6 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Opti
                     }
 
                   } else {
-                    //m.id
                     out.push((m.startTime, mstr, *u, *twitch));
                   }
 
@@ -216,14 +221,12 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Opti
                   let mstr = format!("({}+{}) **{}** + **{}** [{}]\n*vs*\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
                     race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr
                   , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, g_map);
-                  if let Some((v1, v2, g, _)) = games_lock.get_mut(m.startTime.as_str()) {
-                    //games_lock.get_mut(m.id.as_str()) {
-                    *g = true;
-                    let minutes = *v2 / 2;
+                  if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
+                    track.still_live = true;
+                    let minutes = track.passed_time / 2;
                     let footer = format!("Passed: {} min", minutes);
-                    if let Ok(mut msg) = ctx.http.get_message(channel_id, *v1) {
+                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id) {
                       if let Ok(user) = ctx.http.get_user(*u) {
-
                         let mut fields = Vec::new();
                         let mut img = None;
                         let mut url = None;
@@ -259,7 +262,6 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Opti
                       }
                     }
                   } else {
-                    //m.id
                     out.push((m.startTime, mstr, *u, *twitch));
                   }
                 }
@@ -268,10 +270,10 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Opti
           }
 
           let mut k_to_del : Vec<String> = Vec::new();
-          for (k, (v1, _, v3, u)) in games_lock.iter_mut() {
-            if !*v3 {
+          for (k, track) in games_lock.iter_mut() {
+            if !track.still_live {
               if let Some((new_text, fields)) = check_match(k) {
-                if let Ok(mut msg) = ctx.http.get_message(channel_id, *v1) {
+                if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id) {
 
                   let mut footer : String = String::from("Passed: some min");
                   if msg.embeds.len() > 0 {
@@ -280,7 +282,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Opti
                     }
                   }
 
-                  if let Ok(user) = ctx.http.get_user(*u) {
+                  if let Ok(user) = ctx.http.get_user(track.tracking_usr_id) {
                     match fields {
                       Some((s1,s2,s3,s4)) => {
                         if let Err(why) = msg.edit(ctx, |m| m

@@ -112,8 +112,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
   info!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
 
   let mut client = serenity::Client::new
-    (&opts.discord, Handler).expect("Error creating serenity client");
-
+    (&opts.discord, Handler::new(&opts)).expect("Error creating serenity client");
   {
     let mut data = client.data.write();
     data.insert::<VoiceManager>(Arc::clone(&client.voice_manager));

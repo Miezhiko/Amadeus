@@ -1,6 +1,8 @@
 use crate::{
+  types::AOptions,
   stains::ai::chain,
   stains::pad,
+  stains::pad::team_checker::TrackingGame,
   conf,
   common::{
     lang,
@@ -33,13 +35,22 @@ use rand::{
 
 use regex::Regex;
 
-pub struct Handler;
+pub struct Handler {
+  options : AOptions
+}
+
+impl Handler {
+  pub fn new(opts: &AOptions) -> Handler {
+    Handler {
+      options: opts.clone()
+    }
+  }
+}
 
 impl EventHandler for Handler {
   fn ready(&self, ctx : Context, ready : Ready) {
     info!("Connected as {}", ready.user.name);
     voice::rejoin_voice_channel(&ctx);
-
     let conf = conf::parse_config();
     let last_guild_u64 = conf.last_guild.parse::<u64>().unwrap_or(0);
     if last_guild_u64 != 0 {
@@ -75,14 +86,15 @@ impl EventHandler for Handler {
           let ch_clone = channel.clone();
           let ctx_clone = ctx.clone();
           let ch_ud = ch_clone.id.as_u64().clone();
+          let options_clone = self.options.clone();
           std::thread::spawn(move || {
             loop {
               if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
                 let mut k_to_del : Vec<String> = Vec::new();
-                for (k, (_, v2, v3, _)) in games_lock.iter_mut() {
-                  if *v2 < 666 {
-                    *v2 += 1;
-                    *v3 = false;
+                for (k, track) in games_lock.iter_mut() {
+                  if track.passed_time < 666 {
+                    track.passed_time += 1;
+                    track.still_live = false;
                   } else {
                     k_to_del.push(k.clone());
                   }
@@ -107,8 +119,8 @@ impl EventHandler for Handler {
                           let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", twitch.unwrap());
                           if let Ok(res) = client
                             .get(getq.as_str())
-                            .header("Authorization", "Bearer 8tkm427jzrfmubj1frj93hjzyyjs6u")
-                            .header("Client-ID", "t1nbxfy14cacqc31obgns3lhyf6elp")
+                            .header("Authorization", options_clone.twitch_oauth.clone())
+                            .header("Client-ID", options_clone.twitch_client_id.clone())
                             .send() {
                             match res.json::<pad::twitch::Twitch>() {
                               Ok(t) => {
@@ -134,7 +146,12 @@ impl EventHandler for Handler {
                     )) {
                       Ok(msg_id) => {
                         if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
-                          games_lock.insert(ma, (msg_id.id.as_u64().clone(), 0, false, u));
+                          games_lock.insert(ma, TrackingGame {
+                            tracking_msg_id: msg_id.id.as_u64().clone(),
+                            passed_time: 0,
+                            still_live: false,
+                            tracking_usr_id: u }
+                          );
                         }
                       },
                       Err(why) => {

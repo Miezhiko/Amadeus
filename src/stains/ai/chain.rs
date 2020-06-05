@@ -44,7 +44,7 @@ pub fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit: u64) 
               r.limit(limit)
             ) {
               for mmm in messages {
-                if msg.author.id == author_id {
+                if mmm.author.id == author_id {
                   let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
                   result = result.replace(": ", "");
                   let is_http = result.starts_with("http") && !result.starts_with("https://images");

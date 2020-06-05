@@ -4,6 +4,7 @@ use crate::{
   handler::Handler,
   commands::{
     meta::*,
+    chat::*,
     voice::*,
     warcraft::*,
     pad::*,
@@ -56,7 +57,11 @@ impl IFlagAction for Version {
 
 #[group]
 #[commands(ping, help)]
-struct General;
+struct Meta;
+
+#[group]
+#[commands(quote)]
+struct Chat;
 
 #[group]
 #[commands(join, leave, play)]
@@ -173,7 +178,8 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
         }
       })
 
-    .group(&GENERAL_GROUP)
+    .group(&META_GROUP)
+    .group(&CHAT_GROUP)
     .group(&VOICE_GROUP)
     .group(&WARCRAFT_GROUP)
     .group(&PAD_GROUP)

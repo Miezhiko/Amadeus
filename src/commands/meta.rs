@@ -38,6 +38,7 @@ pub fn help(ctx: &mut Context, msg: &Message) -> CommandResult {
         ("Version", version.as_str(), true)
         ])
       .field("user commands", "help: shows this
+quote <@user>: something from that user...
 ping: shows shard latency", false)
       .field("music commands", "join: to music channel
 leave: from music channel

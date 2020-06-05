@@ -10,7 +10,7 @@ use crate::{
 use serenity::{
   prelude::*,
   model::{ channel::{ Message }
-         , id::GuildId }
+         , id::GuildId, id::UserId }
 };
 
 use serenity::utils::{
@@ -29,6 +29,48 @@ use rand::{
 use std::sync::atomic::{ AtomicU32 };
 
 pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(50);
+
+pub fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit: u64) -> Option<String> {
+  let mut have_something = false;
+  if let Some(guild) = msg.guild(&ctx) {
+    let mut chain = Chain::new();
+    let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
+    let guild_id = guild.read().id;
+    if let Ok(channels) = guild_id.channels(&ctx) {
+      for (chan, _) in channels {
+        if let Some(c_name) = chan.name(&ctx) {
+          if AI_LEARN.into_iter().any(|&c| c == c_name.as_str()) {
+            if let Ok(messages) = chan.messages(&ctx, |r|
+              r.limit(limit)
+            ) {
+              for mmm in messages {
+                if msg.author.id == author_id {
+                  let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
+                  result = result.replace(": ", "");
+                  let is_http = result.starts_with("http") && !result.starts_with("https://images");
+                  result =
+                    content_safe(&ctx, &result, &ContentSafeOptions::default()
+                      .clean_user(false).clean_channel(true)
+                      .clean_everyone(true).clean_here(true));
+                  if !result.is_empty() && !result.contains("$") && !is_http {
+                    chain.feed_str(result.as_str());
+                    if !have_something {
+                      have_something = true;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if have_something {
+      return Some(chain.generate_str());
+    }
+  }
+  None
+}
 
 pub fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, russian : bool) -> String {
   let mut out = String::new();

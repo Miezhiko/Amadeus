@@ -1,8 +1,8 @@
 use crate::{
   common::{
+    conf,
     msg::{ channel_message }
   },
-  conf,
   stains::ai::chain::ACTIVITY_LEVEL
 };
 

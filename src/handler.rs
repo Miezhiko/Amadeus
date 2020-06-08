@@ -1,17 +1,20 @@
 use crate::{
-  stains::ai::chain,
-  stains::pad,
-  stains::pad::team_checker::TrackingGame,
-  conf,
   common::{
     types::AOptions,
     lang,
+    conf,
     msg::{ channel_message }
   },
-  collections::base::REACTIONS,
-  commands::voice,
-  collections::overwatch::{ OVERWATCH, OVERWATCH_REPLIES },
-  collections::channels::AI_ALLOWED
+  stains::{
+    ai::chain,
+    pad, pad::team_checker::TrackingGame
+  },
+  collections::{
+    base::REACTIONS,
+    overwatch::{ OVERWATCH, OVERWATCH_REPLIES },
+    channels::AI_ALLOWED
+  },
+  commands::voice
 };
 
 use serenity::{
@@ -23,9 +26,11 @@ use serenity::{
   builder::CreateEmbed
 };
 
-use std::borrow::Cow;
-use std::sync::atomic::{ Ordering };
-use std::time;
+use std::{
+  borrow::Cow,
+  sync::atomic::{ Ordering },
+  time
+};
 
 use rand::{
   Rng,
@@ -392,7 +397,7 @@ impl EventHandler for Handler {
                             let says = if lang::is_russian(new_words.as_str()) {
                               "говорит"
                             } else { "says" };
-                            let rm = format!("{} {} {}", msg.author.name, says, new_words);
+                            let rm = format!("{} {} {} {}", msg.author.name, says, new_words, msg.content.as_str());
                             channel_message(&ctx, &msg, rm.as_str());
                           }
                         }

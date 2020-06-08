@@ -9,10 +9,10 @@ use crate::{
     warcraft::*,
     pad::*,
     owner::*,
-    admin::*
+    admin::*,
+    voice::VoiceManager,
+    meta::ShardManagerContainer
   },
-  commands::voice::VoiceManager,
-  commands::meta::ShardManagerContainer,
   collections::base::{ GREETINGS }
 };
 

@@ -1,7 +1,9 @@
 use crate::{
-  common::types::AOptions,
-  common::msg::{ direct_message, reply },
-  conf
+  common::{
+    types::AOptions,
+    msg::{ direct_message, reply },
+    conf
+  }
 };
 
 use serenity::{

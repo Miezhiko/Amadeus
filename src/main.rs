@@ -22,7 +22,6 @@ extern crate comfy_table;
 extern crate serenity;
 
 #[macro_use] pub mod common;
-pub mod conf;
 pub mod collections;
 pub mod commands;
 pub mod stains;
@@ -31,7 +30,7 @@ mod handler;
 mod amadeus;
 
 fn main() {
-  let mut conf = conf::parse_config();
+  let mut conf = common::conf::parse_config();
   if let Err(err) = amadeus::run(&mut conf) {
     panic!("Amadeus died {:?}", err)
   }

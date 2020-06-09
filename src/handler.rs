@@ -116,14 +116,15 @@ impl EventHandler for Handler {
               }
               { info!("check");
                 let our_gsx = pad::team_checker::check(&ctx_clone, ch_ud);
-                for (ma, text, u, twitch) in our_gsx {
-                  if let Ok(user) = ctx_clone.http.get_user(u) {
+                for game in our_gsx {
+                  if let Ok(user) = ctx_clone.http.get_user(game.user) {
                     match ch_clone.send_message(&ctx, |m| m
                       .embed(|e| {
                         let mut e = e
                           .title("Just started")
                           .author(|a| a.icon_url(&user.face()).name(&user.name))
-                          .description(text);
+                          .description(game.description.as_str());
+                        let (ggru, twitch) = &game.stream;
                         if twitch.is_some() {
                           let client = reqwest::blocking::Client::new();
                           let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", twitch.unwrap());
@@ -150,17 +151,27 @@ impl EventHandler for Handler {
                               }
                             }
                           }
+                        } else if ggru.is_some() {
+                          let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.unwrap());
+                          if let Ok(gg) = reqwest::blocking::get(ggru_link.as_str()) {
+                            if let Ok(ggtext) = gg.text() {
+                              if ggtext.contains("\"status\":\"Live\"") {
+                                let url = format!("https://goodgame.ru/channel/{}", ggru.unwrap());
+                                e = e.url(url);
+                              }
+                            }
+                          }
                         }
                         e
                       }
                     )) {
                       Ok(msg_id) => {
                         if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
-                          games_lock.insert(ma, TrackingGame {
+                          games_lock.insert(game.key, TrackingGame {
                             tracking_msg_id: msg_id.id.as_u64().clone(),
                             passed_time: 0,
                             still_live: false,
-                            tracking_usr_id: u }
+                            tracking_usr_id: game.user }
                           );
                         }
                       },

@@ -16,10 +16,17 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 pub struct TrackingGame {
-  pub tracking_msg_id : u64,
+  pub tracking_msg_id: u64,
   pub passed_time: u32,
   pub still_live: bool,
   pub tracking_usr_id: u64
+}
+
+pub struct StartingGame {
+  pub key: String,
+  pub description: String,
+  pub user: u64,
+  pub stream: (Option<&'static str>, Option<&'static str>)
 }
 
 lazy_static! {
@@ -119,8 +126,8 @@ hero exp: {}",      p2.unitScore.unitsProduced
   None
 }
 
-pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Option<&str>)> {
-  let mut out : Vec<(String, String, u64, Option<&str>)> = Vec::new();
+pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
+  let mut out : Vec<StartingGame> = Vec::new();
   if let Ok(res) =
     reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20") {
     if let Ok(going) = res.json::<Going>() {
@@ -139,7 +146,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Opti
                 let is_interesting = INTERESTING.into_iter().find(|(u, _, _)|
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u
                 );
-                let (s, u, twitch) = is_div1.unwrap_or(is_div2.unwrap_or(is_interesting.unwrap_or(&("", 0, None))));
+                let (s, u, twitch) = is_div1.unwrap_or(is_div2.unwrap_or(is_interesting.unwrap_or(&("", 0, (None, None)))));
                 if !s.is_empty() && *u != 0 {
                   let g_map = get_map(m.map.as_str());
                   let race1 = get_race2(m.teams[0].players[0].race);
@@ -192,7 +199,14 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Opti
                     }
 
                   } else {
-                    out.push((m.startTime, mstr, *u, *twitch));
+                    out.push(
+                      StartingGame {
+                        key: m.startTime,
+                        description: mstr,
+                        user: *u,
+                        stream: *twitch
+                      }
+                    );
                   }
 
                 }
@@ -211,7 +225,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Opti
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u ||
                   m.teams[0].players[1].battleTag == *u || m.teams[1].players[1].battleTag == *u
                 );
-                let (s, u, twitch) = is_div1.unwrap_or(is_div2.unwrap_or(is_interesting.unwrap_or(&("", 0, None))));
+                let (s, u, twitch) = is_div1.unwrap_or(is_div2.unwrap_or(is_interesting.unwrap_or(&("", 0, (None, None)))));
                 if !s.is_empty() && *u != 0 {
                   let g_map = get_map(m.map.as_str());
                   let race1 = get_race2(m.teams[0].players[0].race);
@@ -262,7 +276,14 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<(String, String, u64, Opti
                       }
                     }
                   } else {
-                    out.push((m.startTime, mstr, *u, *twitch));
+                    out.push(
+                      StartingGame {
+                        key: m.startTime,
+                        description: mstr,
+                        user: *u,
+                        stream: *twitch
+                      }
+                    );
                   }
                 }
               }

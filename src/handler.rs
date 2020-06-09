@@ -127,6 +127,7 @@ impl EventHandler for Handler {
                           .author(|a| a.icon_url(&user.face()).name(&user.name))
                           .description(game.description.as_str());
                         let (ggru, twitch) = &game.stream;
+                        let mut twitch_live = false;
                         if twitch.is_some() {
                           let client = reqwest::blocking::Client::new();
                           let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", twitch.unwrap());
@@ -146,6 +147,7 @@ impl EventHandler for Handler {
                                     e = e.fields(vec![("Live on twitch", d.title.clone(), false)])
                                          .image(pic)
                                          .url(url);
+                                    twitch_live = true;
                                   }
                                 }
                               }, Err(why) => {
@@ -153,16 +155,23 @@ impl EventHandler for Handler {
                               }
                             }
                           }
-                        } else if ggru.is_some() {
+                        }
+                        if ggru.is_some() {
                           let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.unwrap());
                           if let Ok(gg) = reqwest::blocking::get(ggru_link.as_str()) {
                             match gg.json::<cyber::goodgame::GoodGameData>() {
                               Ok(ggdata) => {
                                 if ggdata.status == "Live" {
                                   let url = format!("https://goodgame.ru/channel/{}", ggru.unwrap());
-                                  e = e.fields(vec![("Live on ggru", ggdata.channel.title.clone(), false)])
-                                      .image(ggdata.channel.thumb.clone())
-                                      .url(url);
+                                  if twitch_live {
+                                    let titurl =
+                                      format!("{}\n{}", ggdata.channel.title.as_str(), url);
+                                    e = e.fields(vec![("Live on ggru", titurl, false)]);
+                                  } else {
+                                    e = e.fields(vec![("Live on ggru", ggdata.channel.title.clone(), false)])
+                                        .image(ggdata.channel.thumb.clone())
+                                        .url(url);
+                                  }
                                 }
                               }, Err(why) => {
                                 error!("Failed to parse good game structs {:?}", why);

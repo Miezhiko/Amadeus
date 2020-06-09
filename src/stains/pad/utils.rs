@@ -45,6 +45,24 @@ pub fn get_map(m: &str) -> String {
     "concealedhill"   => "CH",
     "twistedmeadows"  => "TM",
     "terenasstand"    => "TS",
+    "goldshire"       => "Goldshire",
+    "losttemple"      => "Lost Temple",
+    "turtlerock"      => "Turtle Rock",
+    "hillsbradcreek"  => "Hillsbrad Creek",
+    "gnollwood"       => "Gnoll Wood",
     another_map       => another_map
+  })
+}
+
+pub fn get_league_png(lid: u32) -> String {
+  String::from(match lid {
+    0 => "https://www.w3champions.com/img/0.26f0662f.png",
+    1 => "https://www.w3champions.com/img/1.9730fb2e.png",
+    2 => "https://www.w3champions.com/img/2.48f016c5.png",
+    3 => "https://www.w3champions.com/img/3.0fe1d052.png",
+    4 => "https://www.w3champions.com/img/4.a255b682.png",
+    5 => "https://www.w3champions.com/img/5.7f2f103c.png",
+    6 => "https://www.w3champions.com/img/6.26efd96b.png",
+    _ => ""
   })
 }

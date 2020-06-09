@@ -10,8 +10,6 @@ use crate::{
     pad::*,
     owner::*,
     admin::*,
-    voice::VoiceManager,
-    meta::ShardManagerContainer
   },
   collections::base::{ GREETINGS }
 };
@@ -64,7 +62,7 @@ struct Meta;
 struct Chat;
 
 #[group]
-#[commands(join, leave, play)]
+#[commands(join, leave, play, repeat)]
 struct Voice;
 
 #[group]
@@ -188,9 +186,4 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
   );
 
   client.start()
-}
-
-#[cfg(test)]
-mod tests {
-  // TODO: write tests
 }

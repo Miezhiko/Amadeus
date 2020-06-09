@@ -159,3 +159,17 @@ pub struct MD {
   pub match_data: Match,
   pub playerScores: Vec<PlayerScore>
 }
+
+pub struct TrackingGame {
+  pub tracking_msg_id: u64,
+  pub passed_time: u32,
+  pub still_live: bool,
+  pub tracking_usr_id: u64
+}
+
+pub struct StartingGame {
+  pub key: String,
+  pub description: String,
+  pub user: u64,
+  pub stream: (Option<&'static str>, Option<&'static str>)
+}

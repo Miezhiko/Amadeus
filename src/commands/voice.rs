@@ -14,7 +14,7 @@ use serenity::{
   voice,
   prelude::*,
   framework::standard::{
-    Args, CommandResult,
+    Args, Delimiter, CommandResult,
     macros::command
   }
 };
@@ -35,7 +35,8 @@ pub fn rejoin_voice_channel(ctx : &Context, conf: &AOptions) {
     if last_guild_u64 != 0 && last_channel_u64 != 0 {
       set!{ last_guild_conf = GuildId( last_guild_u64 )
           , last_channel_conf = ChannelId( last_channel_u64 ) };
-      let manager_lock = ctx.data.read().get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
+      let manager_lock =
+        ctx.data.read().get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
       let mut manager = manager_lock.lock();
       if manager.join(last_guild_conf, last_channel_conf).is_some() {
         info!("Rejoined voice channel: {}", last_channel_conf);
@@ -184,4 +185,9 @@ pub fn play(ctx: &mut Context, msg: &Message, mut args: Args) -> CommandResult {
     error!("Error deleting original command {:?}", why);
   }
   Ok(())
+}
+
+#[command]
+pub fn repeat(ctx: &mut Context, msg: &Message) -> CommandResult {
+  play(ctx, msg, Args::new("", &[Delimiter::Single(' ')]))
 }

@@ -42,7 +42,8 @@ quote <@user>: something from that user...
 ping: shows shard latency", false)
       .field("music commands", "join: to music channel
 leave: from music channel
-play <url>: play an radio stream or youtube music", false)
+play <url>: play an radio stream or youtube music
+repeat: plays last stream again", false)
       .field("warcraft commands", "today: show tournaments today (same with tomorrow or yesterday)
 weekends: show tours at weekend
 stats <nick>: shows ladder race stats (nick - battle tag or tag without numbers) (without nick will use discord name)
@@ -67,8 +68,8 @@ pub fn ping(ctx: &mut Context, msg: &Message) -> CommandResult {
       return Ok(());
     },
   };
-  let manager = shard_manager.lock();
-  let runners = manager.runners.lock();
+  set! { manager = shard_manager.lock()
+       , runners = manager.runners.lock() };
   // Shards are backed by a "shard runner" responsible for processing events
   // over the shard, so we'll get the information about the shard runner for
   // the shard this command was sent over.

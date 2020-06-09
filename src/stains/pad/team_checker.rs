@@ -15,20 +15,6 @@ use reqwest;
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-pub struct TrackingGame {
-  pub tracking_msg_id: u64,
-  pub passed_time: u32,
-  pub still_live: bool,
-  pub tracking_usr_id: u64
-}
-
-pub struct StartingGame {
-  pub key: String,
-  pub description: String,
-  pub user: u64,
-  pub stream: (Option<&'static str>, Option<&'static str>)
-}
-
 lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, TrackingGame>> = Mutex::new(HashMap::new());
 }
@@ -54,9 +40,9 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
         let m = md.match_data;
         let mstr_o =
         if m.gameMode == 1 {
-          let g_map = get_map(m.map.as_str());
-          let race1 = get_race2(m.teams[0].players[0].race);
-          let race2 = get_race2(m.teams[1].players[0].race);
+          set!{ g_map = get_map(m.map.as_str())
+              , race1 = get_race2(m.teams[0].players[0].race)
+              , race2 = get_race2(m.teams[1].players[0].race) };
           let player1 = if m.teams[0].players[0].won {
             format!("__**{}**__ **+{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
           } else {
@@ -71,11 +57,11 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
               race1, player1, m.teams[0].players[0].oldMmr
             , race2, player2, m.teams[1].players[0].oldMmr, g_map))
         } else if m.gameMode == 6 {
-          let g_map = get_map(m.map.as_str());
-          let race1 = get_race2(m.teams[0].players[0].race);
-          let race12 = get_race2(m.teams[0].players[1].race);
-          let race2 = get_race2(m.teams[1].players[0].race);
-          let race22 = get_race2(m.teams[1].players[1].race);
+          set!{ g_map = get_map(m.map.as_str())
+              , race1 = get_race2(m.teams[0].players[0].race)
+              , race12 = get_race2(m.teams[0].players[1].race)
+              , race2 = get_race2(m.teams[1].players[0].race)
+              , race22 = get_race2(m.teams[1].players[1].race) };
           if m.teams[0].won {
             Some(format!("({}+{}) __**{} + {} [{}]**__ **+{}** (won)\n*vs*\n({}+{}) _*{} + {} [{}]*_ *{}* (lost)\n\nmap: **{}**",
               race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
@@ -91,21 +77,17 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
         match mstr_o {
           Some(mstr) => {
             if md.playerScores.len() > 1 && m.gameMode == 1 {
-              let p1 = &md.playerScores[0];
-              let p2 = &md.playerScores[1];
-              let s1 = p1.battleTag.clone();
-              let s2 = p2.battleTag.clone();
-              let s3 = format!("produced: {}
-killed: {}
-gold: {}
-hero exp: {}",      p1.unitScore.unitsProduced
+              set! { p1 = &md.playerScores[0]
+                   , p2 = &md.playerScores[1]
+                   , s1 = p1.battleTag.clone()
+                   , s2 = p2.battleTag.clone() };
+              let s3 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+                  , p1.unitScore.unitsProduced
                   , p1.unitScore.unitsKilled
                   , p1.resourceScore.goldCollected
                   , p1.heroScore.expGained);
-              let s4 = format!("produced: {}
-killed: {}
-gold: {}
-hero exp: {}",      p2.unitScore.unitsProduced
+              let s4 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+                  , p2.unitScore.unitsProduced
                   , p2.unitScore.unitsKilled
                   , p2.resourceScore.goldCollected
                   , p2.heroScore.expGained);

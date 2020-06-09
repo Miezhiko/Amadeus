@@ -27,8 +27,8 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
 
   let reader = ical::IcalParser::new(buf);
 
-  let str_date_now = on.format("%Y%m%d").to_string();
-  let str_time_now = on.format("%H%M").to_string();
+  set! { str_date_now = on.format("%Y%m%d").to_string()
+       , str_time_now = on.format("%H%M").to_string() };
 
   let mut eventos : Vec<(String, String, bool)> = Vec::new();
 
@@ -58,8 +58,8 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
                   if str_date_now == str_date && not_passed {
                     is_today = true;
                     if val.len() >= 14 {
-                      let str_hour = &val[9..11];
-                      let str_min = &val[11..13];
+                      set! { str_hour = &val[9..11]
+                           , str_min = &val[11..13] };
                       let msk =
                         if let Ok(str_int) = str_hour.parse::<i32>() {
                           let mut msk_h = str_int + 1;

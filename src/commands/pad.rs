@@ -4,7 +4,8 @@ use crate::{
   },
   stains::pad::{
     types::*,
-    utils::{ get_race, get_race2, get_league, get_map }
+    utils::{ get_race, get_race2
+           , get_league, get_map, get_league_png }
   }
 };
 
@@ -32,11 +33,11 @@ pub fn ongoing(ctx: &mut Context, msg: &Message) -> CommandResult {
   if going.matches.len() > 0 {
     let footer = format!("Requested by {}", msg.author.name);
     let mut description : String = String:: new();
-    for m in going.matches.into_iter().take(10).collect::<Vec<Match>>() {
+    for m in going.matches.into_iter().take(15).collect::<Vec<Match>>() {
       if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
-        let g_map = get_map(m.map.as_str());
-        let race1 = get_race2(m.teams[0].players[0].race);
-        let race2 = get_race2(m.teams[1].players[0].race);
+        set! { g_map = get_map(m.map.as_str())
+             , race1 = get_race2(m.teams[0].players[0].race)
+             , race2 = get_race2(m.teams[1].players[0].race) };
         let mstr = format!("({}) **{}** [{}] vs ({}) **{}** [{}] *{}*",
           race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
         , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
@@ -93,16 +94,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
       if gmstat.gameMode == 1 {
         let lid = gmstat.leagueOrder;
         let league_str = get_league(lid);
-        league_avi = String::from(match lid {
-          0 => "https://www.w3champions.com/img/0.26f0662f.png",
-          1 => "https://www.w3champions.com/img/1.9730fb2e.png",
-          2 => "https://www.w3champions.com/img/2.48f016c5.png",
-          3 => "https://www.w3champions.com/img/3.0fe1d052.png",
-          4 => "https://www.w3champions.com/img/4.a255b682.png",
-          5 => "https://www.w3champions.com/img/5.7f2f103c.png",
-          6 => "https://www.w3champions.com/img/6.26efd96b.png",
-          _ => ""
-        });
+        league_avi = get_league_png(lid);
         let winrate = (gmstat.winrate * 100.0).round();
         let league_division = if gmstat.games < 5 {
           String::from("Calibrating")
@@ -169,7 +161,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
     let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay=20&season=1", user);
     let res = reqwest::blocking::get(uri.as_str())?;
     let stats : Vec<Stats> = res.json()?;
-    
+
     let mut stats_by_races : String = String::new();
     if stats.len() > 0 {
       let name = &userx.split("#").collect::<Vec<&str>>()[0];

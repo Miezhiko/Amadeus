@@ -7,7 +7,7 @@ use crate::{
   },
   stains::{
     ai::chain,
-    pad, pad::team_checker::TrackingGame
+    pad, pad::types::TrackingGame
   },
   collections::{
     base::REACTIONS,
@@ -70,8 +70,8 @@ impl EventHandler for Handler {
           if let Some(name) = c.name(&ctx)
             { name == "main" } else { false });
         if let Some((_, channel)) = main_channel {
-          let ch_clone = channel.clone();
-          let ctx_clone = ctx.clone();
+          set!{ ch_clone = channel.clone()
+              , ctx_clone = ctx.clone() };
           std::thread::spawn(move || {
             loop {
               let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
@@ -93,10 +93,10 @@ impl EventHandler for Handler {
           if let Some(name) = c.name(&ctx)
             { name == "log" } else { false });
         if let Some((_, channel)) = log_channel {
-          let ch_clone = channel.clone();
-          let ctx_clone = ctx.clone();
-          let ch_ud = ch_clone.id.as_u64().clone();
-          let options_clone = self.options.clone();
+          set!{ ch_clone = channel.clone(),
+                ctx_clone = ctx.clone(),
+                ch_ud = ch_clone.id.as_u64().clone(),
+                options_clone = self.options.clone() };
           std::thread::spawn(move || {
             loop {
               if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {

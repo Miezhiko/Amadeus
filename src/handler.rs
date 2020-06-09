@@ -7,7 +7,7 @@ use crate::{
   },
   stains::{
     ai::chain,
-    pad, pad::types::TrackingGame
+    cyber, cyber::types::TrackingGame
   },
   collections::{
     base::REACTIONS,
@@ -19,9 +19,11 @@ use crate::{
 
 use serenity::{
   prelude::*,
-  model::{ event::ResumedEvent, gateway::Ready, guild::Member
-         , channel::Message, channel::ReactionType, id::EmojiId, gateway::Activity
-         , id::GuildId, id::ChannelId, user::User },
+  model::{
+    id::{ EmojiId, GuildId, ChannelId },
+    event::ResumedEvent, gateway::Ready, guild::Member
+         , channel::Message, channel::ReactionType, gateway::Activity
+         , user::User },
   http::AttachmentType,
   builder::CreateEmbed
 };
@@ -99,7 +101,7 @@ impl EventHandler for Handler {
                 options_clone = self.options.clone() };
           std::thread::spawn(move || {
             loop {
-              if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
+              if let Ok(mut games_lock) = cyber::team_checker::GAMES.lock() {
                 let mut k_to_del : Vec<String> = Vec::new();
                 for (k, track) in games_lock.iter_mut() {
                   if track.passed_time < 666 {
@@ -115,7 +117,7 @@ impl EventHandler for Handler {
                 }
               }
               { info!("check");
-                let our_gsx = pad::team_checker::check(&ctx_clone, ch_ud);
+                let our_gsx = cyber::team_checker::check(&ctx_clone, ch_ud);
                 for game in our_gsx {
                   if let Ok(user) = ctx_clone.http.get_user(game.user) {
                     match ch_clone.send_message(&ctx, |m| m
@@ -133,7 +135,7 @@ impl EventHandler for Handler {
                             .header("Authorization", options_clone.twitch_oauth.clone())
                             .header("Client-ID", options_clone.twitch_client_id.clone())
                             .send() {
-                            match res.json::<pad::twitch::Twitch>() {
+                            match res.json::<cyber::twitch::Twitch>() {
                               Ok(t) => {
                                 if t.data.len() > 0 {
                                   let d = &t.data[0];
@@ -154,19 +156,25 @@ impl EventHandler for Handler {
                         } else if ggru.is_some() {
                           let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.unwrap());
                           if let Ok(gg) = reqwest::blocking::get(ggru_link.as_str()) {
-                            if let Ok(ggtext) = gg.text() {
-                              if ggtext.contains("\"status\":\"Live\"") {
-                                let url = format!("https://goodgame.ru/channel/{}", ggru.unwrap());
-                                e = e.url(url);
+                            match gg.json::<cyber::goodgame::GoodGameData>() {
+                              Ok(ggdata) => {
+                                if ggdata.status == "Live" {
+                                  let url = format!("https://goodgame.ru/channel/{}", ggru.unwrap());
+                                  e = e.fields(vec![("Live on ggru", ggdata.channel.title.clone(), false)])
+                                      .image(ggdata.channel.thumb.clone())
+                                      .url(url);
+                                }
+                              }, Err(why) => {
+                                error!("Failed to parse good game structs {:?}", why);
                               }
-                            }
+                            };
                           }
                         }
                         e
                       }
                     )) {
                       Ok(msg_id) => {
-                        if let Ok(mut games_lock) = pad::team_checker::GAMES.lock() {
+                        if let Ok(mut games_lock) = cyber::team_checker::GAMES.lock() {
                           games_lock.insert(game.key, TrackingGame {
                             tracking_msg_id: msg_id.id.as_u64().clone(),
                             passed_time: 0,

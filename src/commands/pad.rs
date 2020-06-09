@@ -2,7 +2,7 @@ use crate::{
   common::{
     msg::{ channel_message }
   },
-  stains::pad::{
+  stains::cyber::{
     types::*,
     utils::{ get_race, get_race2
            , get_league, get_map, get_league_png }

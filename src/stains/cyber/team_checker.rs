@@ -1,6 +1,6 @@
 use crate::{
   collections::team::{ DIVISION1, DIVISION2, INTERESTING },
-  stains::pad::{
+  stains::cyber::{
     types::*,
     utils::{ get_race2, get_map }
   }

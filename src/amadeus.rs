@@ -10,6 +10,7 @@ use crate::{
     pad::*,
     owner::*,
     admin::*,
+    quiz::*
   },
   collections::base::{ GREETINGS }
 };
@@ -83,6 +84,10 @@ struct Owner;
 #[checks(Admin)]
 #[commands(idle, stream)]
 struct Admin;
+
+#[group]
+#[commands(words)]
+struct Quiz;
 
 #[check]
 #[name = "Admin"]
@@ -183,6 +188,7 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
     .group(&PAD_GROUP)
     .group(&OWNER_GROUP)
     .group(&ADMIN_GROUP)
+    .group(&QUIZ_GROUP)
   );
 
   client.start()

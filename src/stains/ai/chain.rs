@@ -28,7 +28,7 @@ use rand::{
 
 use std::sync::atomic::{ AtomicU32 };
 
-pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(50);
+pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(66);
 
 pub fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit: u64) -> Option<String> {
   let mut have_something = false;

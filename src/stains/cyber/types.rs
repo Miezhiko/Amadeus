@@ -26,9 +26,20 @@ pub_struct!(RaceWinsOnMap {
   winLossesOnMap: Vec<WinLossesOnMap>,
 });
 
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct RaceWinsOnMapByPatch {
+  pub All: Vec<RaceWinsOnMap>,
+  #[serde(rename = "1.32.5")]
+  pub p1325: Vec<RaceWinsOnMap>,
+  #[serde(rename = "1.32.6")]
+  pub p1326: Vec<RaceWinsOnMap>
+}
+
 pub_struct!(Stats2 {
   id: String,
   raceWinsOnMap: Vec<RaceWinsOnMap>,
+  raceWinsOnMapByPatch: RaceWinsOnMapByPatch,
   battleTag: String,
   season: u32,
 });

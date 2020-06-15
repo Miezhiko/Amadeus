@@ -200,7 +200,8 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
            .set_table_width(40)
            .set_header(vec!["Map", "vs HU", "vs O", "vs NE", "vs UD"]);
 
-      for s3 in stats2.raceWinsOnMap {
+      let s24 = stats2.raceWinsOnMapByPatch.All;
+      for s3 in s24 { //stats2.raceWinsOnMap {
         if s3.winLossesOnMap.len() > 0 {
           if s3.race == 16 { // max_games_race {
             for s4 in s3.winLossesOnMap {

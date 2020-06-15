@@ -30,7 +30,7 @@ use serenity::{
 
 use std::{
   borrow::Cow,
-  sync::atomic::{ Ordering },
+  sync::atomic::{ Ordering, AtomicBool },
   time
 };
 
@@ -41,8 +41,6 @@ use rand::{
 };
 
 use regex::Regex;
-
-use std::sync::atomic::{ AtomicBool };
 
 pub static THREADS : AtomicBool = AtomicBool::new(false);
 

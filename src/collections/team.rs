@@ -16,13 +16,14 @@ pub static DIVISION2: &'static [(&'static str, u64, (Option<&'static str>, Optio
     , ("PETRUSHQUE#2357", 137402988539936769, (None, Some("PETRUSHQUE")))
     , ("RavenTT#2656", 277555411584942080, (None, None))
     , ("Punisher#24744", 442391445341732864, (None, Some("punisherl_l")))
+    , ("SimbaPower#2413", 442391445341732864, (Some("Simba"), Some("hemosimbapower")))
     , ("Rearden#21595", 622849650847907870, (None, Some("amateurrearden"))) ];
 
 pub static INTERESTING: &'static [(&'static str, u64, (Option<&'static str>, Option<&'static str>))] =
    &[ ("FINGON#2350", 361930230375514112, (None, Some("Skyrimoon")))
-    , ("MaDFroG#21459", 714711512282824755, (None, Some("MaDQFroG")))
     , ("РозовыйПони#228941", 279559886931492865, (Some("JosephStalin"), Some("sqktgw")))
     , ("ag3nt#21617", 293268448212156416, (Some("ag3nt"), Some("ag3ntik"))) ];
 
 //krolu_
 //shahriardemigod
+//("MaDFroG#21459", 714711512282824755, (None, Some("MaDQFroG")))

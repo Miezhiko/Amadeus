@@ -20,7 +20,7 @@ pub static DIVISION2: &'static [(&'static str, u64, (Option<&'static str>, Optio
     , ("Rearden#21595", 622849650847907870, (None, Some("amateurrearden"))) ];
 
 pub static INTERESTING: &'static [(&'static str, u64, (Option<&'static str>, Option<&'static str>))] =
-   &[ ("FINGON#2350", 361930230375514112, (None, Some("Skyrimoon")))
+   &[ ("Fingon#2350", 361930230375514112, (None, Some("Skyrimoon")))
     , ("РозовыйПони#228941", 279559886931492865, (Some("JosephStalin"), Some("sqktgw")))
     , ("ag3nt#21617", 293268448212156416, (Some("ag3nt"), Some("ag3ntik"))) ];
 

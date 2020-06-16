@@ -39,7 +39,8 @@ pub fn help(ctx: &mut Context, msg: &Message) -> CommandResult {
         ])
       .field("user commands", "help: shows this
 quote <@user>: something from that user...
-ping: shows shard latency", false)
+ping: shows shard latency
+words: count must appearing words in attached file", false)
       .field("music commands", "join: to music channel
 leave: from music channel
 play <url>: play an radio stream or youtube music

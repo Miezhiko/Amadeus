@@ -16,6 +16,7 @@ extern crate reqwest;
 extern crate markov;
 extern crate ucd;
 extern crate comfy_table;
+extern crate unicase;
 
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate log;

@@ -102,7 +102,7 @@ fn admin_check(ctx: &mut Context, msg: &Message, _: &mut Args, _: &CommandOption
   false.into()
 }
 
-pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
+pub fn run(opts : &AOptions) -> Result<(), serenity::Error> {
   { // this block limits scope of borrows by ap.refer() method
     let mut ap = ArgumentParser::new();
     let pname = "Amadeus";
@@ -150,37 +150,33 @@ pub fn run(opts : &mut AOptions) -> Result<(), serenity::Error> {
       .prefix("~")
       .delimiters(vec![", ", ","])
       .case_insensitivity(true))
-
-      .on_dispatch_error(|ctx, msg, error| {
-        if let DispatchError::Ratelimited(seconds) = error {
-          let _ = msg.channel_id.say(&ctx.http, &format!("Try this again in {} seconds.", seconds));
+    .on_dispatch_error(|ctx, msg, error| {
+      if let DispatchError::Ratelimited(seconds) = error {
+        let _ = msg.channel_id.say(&ctx.http, &format!("Try this again in {} seconds.", seconds));
+      }
+    })
+    .after(|_ctx, _msg, cmd_name, error| {
+      match error {
+        Ok(()) => trace!("Processed command '{}'", cmd_name),
+        Err(why) => error!("Command '{}' returned error {:?}", cmd_name, why)
+      }
+    })
+    .unrecognised_command(|ctx, msg, _unknown_command_name| {
+      if let Some(_) = GREETINGS.into_iter().find(|&c| {
+        let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
+        let is_greeting = Regex::new(regex.as_str()).unwrap();
+        is_greeting.is_match(msg.content.as_str()) }) 
+      {
+        let mut rng = thread_rng();
+        set! { hi_reply = GREETINGS.choose(&mut rng).unwrap()
+              , reply = format!("{}", hi_reply) };
+        if let Err(why) = msg.reply(&ctx, reply) {
+          error!("Error sending greeting reply: {:?}", why);
         }
-      })
-
-      .after(|_ctx, _msg, cmd_name, error| {
-        match error {
-          Ok(()) => trace!("Processed command '{}'", cmd_name),
-          Err(why) => error!("Command '{}' returned error {:?}", cmd_name, why)
-        }
-      })
-
-      .unrecognised_command(|ctx, msg, _unknown_command_name| {
-        if let Some(_) = GREETINGS.into_iter().find(|&c| {
-          let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
-          let is_greeting = Regex::new(regex.as_str()).unwrap();
-          is_greeting.is_match(msg.content.as_str()) }) 
-        {
-          let mut rng = thread_rng();
-          set! { hi_reply = GREETINGS.choose(&mut rng).unwrap()
-               , reply = format!("{}", hi_reply) };
-          if let Err(why) = msg.reply(&ctx, reply) {
-            error!("Error sending greeting reply: {:?}", why);
-          }
-        } else {
-          chain::response(&ctx, &msg, 7000);
-        }
-      })
-
+      } else {
+        chain::response(&ctx, &msg, 7000);
+      }
+    })
     .group(&META_GROUP)
     .group(&CHAT_GROUP)
     .group(&VOICE_GROUP)

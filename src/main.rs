@@ -30,8 +30,8 @@ mod handler;
 mod amadeus;
 
 fn main() {
-  let mut conf = common::conf::parse_config();
-  if let Err(err) = amadeus::run(&mut conf) {
+  let conf = common::conf::parse_config();
+  if let Err(err) = amadeus::run(&conf) {
     panic!("Amadeus died {:?}", err)
   }
 }

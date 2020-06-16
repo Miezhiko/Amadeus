@@ -20,20 +20,46 @@ lazy_static! {
 }
 
 pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String, String, String)>)> {
+
   let mut matchid_s : String = String::new();
   if let Ok(wtf) = reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20") {
     if let Ok(going) = wtf.json::<Going>() {
-      for mm in going.matches {
+      for mm in &going.matches {
         if mm.startTime == matchid_lol {
-          matchid_s = mm.id;
+          if DIVISION1.into_iter().any(|(u, _, _)|
+            if mm.gameMode == 6 {
+              mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u ||
+              mm.teams[0].players[1].battleTag == *u || mm.teams[1].players[1].battleTag == *u
+            } else {
+              mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u
+            }
+          ) || DIVISION2.into_iter().any(|(u, _, _)|
+            if mm.gameMode == 6 {
+              mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u ||
+              mm.teams[0].players[1].battleTag == *u || mm.teams[1].players[1].battleTag == *u
+            } else {
+              mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u
+            }
+          ) || INTERESTING.into_iter().any(|(u, _, _)|
+            if mm.gameMode == 6 {
+              mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u ||
+              mm.teams[0].players[1].battleTag == *u || mm.teams[1].players[1].battleTag == *u
+            } else {
+              mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u
+            }
+          ) {
+            matchid_s = mm.id.clone();
+            break;
+          }
         }
       }
     }
   }
+
   if matchid_s.is_empty() { return None; }
   let matchid = matchid_s.as_str();
   let url = format!("https://statistic-service.w3champions.com/api/matches/{}", matchid);
-  info!("Trying: {}", url);
+
   if let Ok(res) = reqwest::blocking::get(url.as_str()) {
     match res.json::<MD>() {
       Ok(md) => {

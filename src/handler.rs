@@ -3,7 +3,6 @@ use crate::{
   common::{
     types::AOptions,
     lang,
-    conf,
     msg::{ channel_message }
   },
   stains::ai::chain,
@@ -18,7 +17,7 @@ use crate::{
 use serenity::{
   prelude::*,
   model::{
-    id::{ EmojiId, GuildId, ChannelId },
+    id::{ EmojiId, GuildId },
     event::ResumedEvent, gateway::Ready, guild::Member
          , channel::Message, channel::ReactionType, gateway::Activity
          , user::User },
@@ -179,15 +178,7 @@ impl EventHandler for Handler {
               } else { false }
             } else {false };
           if !is_admin {
-            let channel_id = msg.channel_id;
-            // maybe use AtomicU64?
-            let mut conf = conf::parse_config();
-            let last_channel_conf =
-              ChannelId( conf.last_channel_chat.parse::<u64>().unwrap_or(0) );
-            if last_channel_conf != channel_id {
-              conf.last_channel_chat = format!("{}", channel_id);
-              conf::write_config(&conf);
-            }
+            gate::LAST_CHANNEL.store(msg.channel_id.as_u64().clone(), Ordering::Relaxed);
             // wakes up on any activity
             let rndx = rand::thread_rng().gen_range(0, 5);
             if rndx != 1 {

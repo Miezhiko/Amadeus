@@ -1,8 +1,8 @@
 use crate::{
   common::{
-    conf,
     msg::{ channel_message }
   },
+  stains::gate,
   stains::ai::chain::ACTIVITY_LEVEL
 };
 
@@ -42,8 +42,7 @@ pub fn say(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx) {
     error!("Error deleting original command {:?}", why);
   }
-  let conf = conf::parse_config();
-  let last_channel_u64 = conf.last_channel_chat.parse::<u64>().unwrap_or(0);
+  let last_channel_u64 = gate::LAST_CHANNEL.load(Ordering::Relaxed);
   if last_channel_u64 != 0 {
     let last_channel_conf = ChannelId( last_channel_u64 );
     if msg.guild_id.is_some() {

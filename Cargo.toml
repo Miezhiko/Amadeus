@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "0.6.2"
+version     = "0.6.3"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -11,7 +11,7 @@ edition     = "2018"
 rand          = "0.7.3"
 chrono        = "0.4.11"
 typemap       = "0.3.3"
-rust-ini      = "0.15.2"
+rust-ini      = "0.15.3"
 argparse      = "0.2.2"
 log           = "0.4.8"
 env_logger    = "0.7.1"
@@ -24,7 +24,7 @@ lazy_static   = "1.4.0"
 markov        = "1.0.3"
 ucd           = "0.1.1"
 comfy-table   = "0.1.1"
-unicase       = "*"
+unicase       = "2.6.0"
 
 reqwest = { version = "0.10.6", features = ["json"] }
 ical    = { version = "0.6.0", features = ["ical"] }

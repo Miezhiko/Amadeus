@@ -117,7 +117,12 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
                   , p2.unitScore.unitsKilled
                   , p2.resourceScore.goldCollected
                   , p2.heroScore.expGained);
-              return Some((mstr, Some((s1,s2,s3,s4))));
+              let scores = if m.teams[0].players[0].battleTag == s1 {
+                  Some((s1,s2,s3,s4))
+                } else {
+                  Some((s2,s1,s4,s3))
+                };
+              return Some((mstr, scores));
             }
             return Some((mstr, None));
           },

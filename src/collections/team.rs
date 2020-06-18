@@ -16,7 +16,7 @@ pub static DIVISION2: &'static [(&'static str, u64, (Option<&'static str>, Optio
     , ("PETRUSHQUE#2357", 137402988539936769, (None, Some("PETRUSHQUE")))
     , ("RavenTT#2656", 277555411584942080, (None, None))
     , ("Punisher#24744", 442391445341732864, (None, Some("punisherl_l")))
-    , ("SimbaPower#2413", 308475659775115265, (Some("Simba"), Some("hemosimbapower")))
+    , ("SimbaPower#2413", 308475659775115265, (Some("SimbaPower"), Some("hemosimbapower")))
     , ("Rearden#21595", 622849650847907870, (None, Some("amateurrearden"))) ];
 
 pub static INTERESTING: &'static [(&'static str, u64, (Option<&'static str>, Option<&'static str>))] =

@@ -26,7 +26,9 @@ pub fn help(ctx: &mut Context, msg: &Message) -> CommandResult {
       .url("https://github.com/Qeenon/Amadeus")
       .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
-      .description("memory storage and artificial intelligence system")
+      .description("memory storage and artificial intelligence system
+to execute commands use ~command or @Amadeus command
+note: replace <thing> in help with text without < > quotes")
       .fields(vec![
         ("Age", "18", true),
         ("Birthdate", "July 25th", true),
@@ -39,8 +41,7 @@ pub fn help(ctx: &mut Context, msg: &Message) -> CommandResult {
         ])
       .field("user commands", "help: shows this
 quote <@user>: something from that user...
-ping: shows shard latency
-words: count must appearing words in attached file", false)
+ping: shows shard latency", false)
       .field("music commands", "join: to music channel
 leave: from music channel
 play <url>: play an radio stream or youtube music
@@ -81,6 +82,7 @@ pub fn ping(ctx: &mut Context, msg: &Message) -> CommandResult {
       return Ok(());
     },
   };
-  let _ = msg.reply(&ctx, &format!("The shard latency is {:?}", runner.latency));
+  
+  msg.reply(&ctx, &format!("The shard latency is {:?}", runner.latency))?;
   Ok(())
 }

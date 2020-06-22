@@ -144,7 +144,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
         } else {
           format!("**{}**", league_str)
         };
-        let strnfo = format!("__**{}**__ {} *gmaes* {} *Rank*: {} __**{}%**__ *MMR*: __**{}**__",
+        let strnfo = format!("__**{}**__ {} *games* {} *Rank*: {} __**{}%**__ *MMR*: __**{}**__",
           player_str.as_str(), gmstat.games, league_division, gmstat.rank, winrate, gmstat.mmr);
         at_list.push((gmstat.mmr, strnfo));
       }

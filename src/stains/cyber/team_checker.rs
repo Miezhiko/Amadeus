@@ -27,21 +27,21 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
       for mm in &going.matches {
         if mm.startTime == matchid_lol {
           if DIVISION1.into_iter().any(|(u, _, _)|
-            if mm.gameMode == 6 {
+            if mm.gameMode == 6 || mm.gameMode == 2 {
               mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u ||
               mm.teams[0].players[1].battleTag == *u || mm.teams[1].players[1].battleTag == *u
             } else {
               mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u
             }
           ) || DIVISION2.into_iter().any(|(u, _, _)|
-            if mm.gameMode == 6 {
+            if mm.gameMode == 6 || mm.gameMode == 2 {
               mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u ||
               mm.teams[0].players[1].battleTag == *u || mm.teams[1].players[1].battleTag == *u
             } else {
               mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u
             }
           ) || INTERESTING.into_iter().any(|(u, _, _)|
-            if mm.gameMode == 6 {
+            if mm.gameMode == 6 || mm.gameMode == 2 {
               mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u ||
               mm.teams[0].players[1].battleTag == *u || mm.teams[1].players[1].battleTag == *u
             } else {
@@ -82,7 +82,7 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
           Some(format!("({}) {} [{}] *vs* ({}) {} [{}] *{}*",
               race1, player1, m.teams[0].players[0].oldMmr
             , race2, player2, m.teams[1].players[0].oldMmr, g_map))
-        } else if m.gameMode == 6 {
+        } else if m.gameMode == 6 || m.gameMode == 2 {
           set!{ g_map = get_map(m.map.as_str())
               , race1 = get_race2(m.teams[0].players[0].race)
               , race12 = get_race2(m.teams[0].players[1].race)
@@ -224,7 +224,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
 
                 }
               }
-            } else if m.gameMode == 6 {
+            } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode
               if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
                 let is_div1 = DIVISION1.into_iter().find(|(u, _, _)|
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u ||

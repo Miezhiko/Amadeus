@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 pub_struct!(Stats {
   race: u32,
   gateWay: u32,
@@ -26,20 +28,10 @@ pub_struct!(RaceWinsOnMap {
   winLossesOnMap: Vec<WinLossesOnMap>,
 });
 
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-pub struct RaceWinsOnMapByPatch {
-  pub All: Vec<RaceWinsOnMap>,
-  #[serde(rename = "1.32.5")]
-  pub p1325: Vec<RaceWinsOnMap>,
-  #[serde(rename = "1.32.6")]
-  pub p1326: Vec<RaceWinsOnMap>
-}
-
 pub_struct!(Stats2 {
   id: String,
   raceWinsOnMap: Vec<RaceWinsOnMap>,
-  raceWinsOnMapByPatch: RaceWinsOnMapByPatch,
+  raceWinsOnMapByPatch: HashMap<String, Vec<RaceWinsOnMap>>,
   battleTag: String,
   season: u32,
 });
@@ -171,6 +163,8 @@ pub struct MD {
   pub playerScores: Vec<PlayerScore>
 }
 
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
 pub struct TrackingGame {
   pub tracking_msg_id: u64,
   pub passed_time: u32,
@@ -178,6 +172,7 @@ pub struct TrackingGame {
   pub tracking_usr_id: u64
 }
 
+#[allow(non_snake_case)]
 pub struct StartingGame {
   pub key: String,
   pub description: String,

@@ -200,29 +200,30 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
            .set_table_width(40)
            .set_header(vec!["Map", "vs HU", "vs O", "vs NE", "vs UD"]);
 
-      let s24 = stats2.raceWinsOnMapByPatch.All;
-      for s3 in s24 { //stats2.raceWinsOnMap {
-        if s3.winLossesOnMap.len() > 0 {
-          if s3.race == 16 { // max_games_race {
-            for s4 in s3.winLossesOnMap {
-              let text = get_map(s4.map.as_str());
-              let mut scores : HashMap<u32, String> = HashMap::new();
-              for s5 in s4.winLosses {
-                let vs_winrate = (s5.winrate * 100.0).round();
-                let text = format!("{}%", vs_winrate);
-                scores.insert(s5.race, text);
+      if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
+        for s3 in s24 {
+          if s3.winLossesOnMap.len() > 0 {
+            if s3.race == 16 {
+              for s4 in &s3.winLossesOnMap {
+                let text = get_map(s4.map.as_str());
+                let mut scores : HashMap<u32, String> = HashMap::new();
+                for s5 in &s4.winLosses {
+                  let vs_winrate = (s5.winrate * 100.0).round();
+                  let text = format!("{}%", vs_winrate);
+                  scores.insert(s5.race, text);
+                }
+                table.add_row(vec![
+                  Cell::new(text).set_alignment(CellAlignment::Left),
+                  Cell::new(scores.get(&1).unwrap_or( &String::from("-") ))
+                    .set_alignment(CellAlignment::Center),
+                  Cell::new(scores.get(&2).unwrap_or( &String::from("-") ))
+                    .set_alignment(CellAlignment::Center),
+                  Cell::new(scores.get(&4).unwrap_or( &String::from("-") ))
+                    .set_alignment(CellAlignment::Center),
+                  Cell::new(scores.get(&8).unwrap_or( &String::from("-") ))
+                    .set_alignment(CellAlignment::Center)
+                ]);
               }
-              table.add_row(vec![
-                Cell::new(text).set_alignment(CellAlignment::Left),
-                Cell::new(scores.get(&1).unwrap_or( &String::from("-") ))
-                  .set_alignment(CellAlignment::Center),
-                Cell::new(scores.get(&2).unwrap_or( &String::from("-") ))
-                  .set_alignment(CellAlignment::Center),
-                Cell::new(scores.get(&4).unwrap_or( &String::from("-") ))
-                  .set_alignment(CellAlignment::Center),
-                Cell::new(scores.get(&8).unwrap_or( &String::from("-") ))
-                  .set_alignment(CellAlignment::Center)
-              ]);
             }
           }
         }

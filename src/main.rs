@@ -1,5 +1,3 @@
-#![feature(proc_macro_hygiene)]
-
 #[macro_use] extern crate serde;
 extern crate chrono;
 extern crate typemap;
@@ -16,7 +14,6 @@ extern crate reqwest;
 extern crate markov;
 extern crate ucd;
 extern crate comfy_table;
-extern crate unicase;
 
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate log;

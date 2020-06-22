@@ -104,6 +104,7 @@ pub fn activate(ctx: &Context, options: &AOptions) {
                               if t.data.len() > 0 {
                                 let d = &t.data[0];
                                 let url = format!("https://www.twitch.tv/{}", d.user_name);
+                                // still 800x400 feels very wide
                                 let pic = d.thumbnail_url.replace("{width}", "800")
                                                         .replace("{height}", "400");
                                 if d.type_string == "live" {

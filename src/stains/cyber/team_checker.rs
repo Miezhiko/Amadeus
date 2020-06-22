@@ -19,13 +19,14 @@ lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, TrackingGame>> = Mutex::new(HashMap::new());
 }
 
-pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String, String, String)>)> {
+pub fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String, String, String, String)>)> {
 
   let mut matchid_s : String = String::new();
   if let Ok(wtf) = reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20") {
     if let Ok(going) = wtf.json::<Going>() {
       for mm in &going.matches {
         if mm.startTime == matchid_lol {
+          // TODO: change that hack one day
           if DIVISION1.into_iter().any(|(u, _, _)|
             if mm.gameMode == 6 || mm.gameMode == 2 {
               mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u ||
@@ -102,6 +103,7 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
         };
         match mstr_o {
           Some(mstr) => {
+            let duration_in_minutes = m.durationInSeconds / 60;
             if md.playerScores.len() > 1 && m.gameMode == 1 {
               set! { p1 = &md.playerScores[0]
                    , p2 = &md.playerScores[1]
@@ -122,9 +124,9 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, Option<(String, String
                 } else {
                   Some((s2,s1,s4,s3))
                 };
-              return Some((mstr, scores));
+              return Some((mstr, duration_in_minutes, scores));
             }
-            return Some((mstr, None));
+            return Some((mstr, duration_in_minutes, None));
           },
           None => {
             return None;
@@ -306,16 +308,9 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
           let mut k_to_del : Vec<String> = Vec::new();
           for (k, track) in games_lock.iter_mut() {
             if !track.still_live {
-              if let Some((new_text, fields)) = check_match(k) {
+              if let Some((new_text, duration, fields)) = check_match(k) {
                 if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id) {
-
-                  let mut footer : String = String::from("Passed: some min");
-                  if msg.embeds.len() > 0 {
-                    if let Some(foot) = &msg.embeds[0].footer {
-                      footer = if !foot.text.is_empty() { foot.text.clone() } else { footer };
-                    }
-                  }
-
+                  let footer : String = format!("Passed: {} min", duration);
                   if let Ok(user) = ctx.http.get_user(track.tracking_usr_id) {
                     match fields {
                       Some((s1,s2,s3,s4)) => {
@@ -343,7 +338,6 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                       }
                     };
                   }
-
                 }
                 // we only delete match if it's passed
                 // if not possibly there is a bug and we're waiting for end

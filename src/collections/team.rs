@@ -24,5 +24,9 @@ pub static INTERESTING: &'static [(&'static str, u64, (Option<&'static str>, Opt
     , ("РозовыйПони#228941", 279559886931492865, (Some("JosephStalin"), Some("sqktgw")))
     , ("ag3nt#21617", 293268448212156416, (Some("ag3nt"), Some("ag3ntik"))) ];
 
+pub fn players() -> Vec<(&'static str, u64, (Option<&'static str>, Option<&'static str>))> {
+  [DIVISION1, DIVISION2, INTERESTING].concat()
+}
+
 //krolu_
 //shahriardemigod

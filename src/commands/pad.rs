@@ -23,12 +23,25 @@ use std::collections::HashMap;
 use reqwest;
 use comfy_table::*;
 
+use std::{
+  sync::atomic::Ordering::Relaxed,
+  sync::atomic::AtomicU16
+};
+
+pub static CURRENT_SEASON : AtomicU16 = AtomicU16::new(1);
+
+fn current_season() -> String {
+  let atom = CURRENT_SEASON.load(Relaxed);
+  format!("{}", atom)
+}
+
 #[command]
 pub fn ongoing(ctx: &mut Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx) {
     error!("Error deleting original command {:?}", why);
   }
-  let res = reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&pageSize=50&gameMode=1")?;
+  let url = format!("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&gameMode={}", current_season());
+  let res = reqwest::blocking::get(url.as_str())?;
   let going : Going = res.json()?;
   if going.matches.len() > 0 {
     let footer = format!("Requested by {}", msg.author.name);
@@ -65,9 +78,10 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
   if args_msg.is_empty() {
     args_msg = msg.author.name.as_str();
   }
+  let season = current_season();
   let userx = if args_msg.contains("#") { String::from(args_msg) }
     else {
-      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay=20&searchFor={}&gameMode=1&season=1", args_msg);
+      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay=20&searchFor={}&season={}", args_msg, season);
       let ress = reqwest::blocking::get(search_uri.as_str())?;
       let search : Vec<Search> = ress.json()?;
       if search.len() > 0 {
@@ -78,17 +92,16 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
     };
   if !userx.is_empty() {
     let user = userx.replace("#","%23");
-    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay=20&season=1", user);
+    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay=20&season={}", user, season);
     let game_mode_res = reqwest::blocking::get(game_mode_uri.as_str())?;
     let game_mode_stats : Vec<GMStats> = game_mode_res.json()?;
 
-    let mut league_info : String = String::new();
-    let mut ffa_info : String = String::new();
-
-    let mut at_list : Vec<(u32, String)> = Vec::new();
-    let mut at_info : String = String::new();
-
-    let mut league_avi : String = String::new();
+    let mut league_info: String         = String::new();
+    let mut ffa_info: String            = String::new();
+    let mut rt_string: String           = String::new();
+    let mut at_list: Vec<(u32, String)> = Vec::new();
+    let mut at_info: String             = String::new();
+    let mut league_avi: String          = String::new();
 
     for gmstat in game_mode_stats {
       if gmstat.gameMode == 1 {
@@ -110,8 +123,20 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           };
         league_info = format!("**Winrate**: **{}%** **MMR**: __**{}**__ (*{}*)\n{} *Rank*: **{}**",
           winrate, gmstat.mmr, progr, league_division.as_str(), gmstat.rank);
-      }
-      if gmstat.gameMode == 5 {
+      } else if gmstat.gameMode == 2 {
+        let lid = gmstat.leagueOrder;
+        let league_str = get_league(lid);
+        let winrate = (gmstat.winrate * 100.0).round();
+        let league_division = if gmstat.games < 5 {
+          String::from("Calibrating")
+        } else if lid > 1 {
+          format!("**{}** *div:* **{}**", league_str, gmstat.division)
+        } else {
+          format!("**{}**", league_str)
+        };
+        rt_string = format!("{} *games* {} *Rank*: {} __**{}%**__ *MMR*: __**{}**__",
+          gmstat.games, league_division, gmstat.rank, winrate, gmstat.mmr);
+      } else if gmstat.gameMode == 5 {
         let lid = gmstat.leagueOrder;
         let league_str = get_league(lid);
         let winrate = (gmstat.winrate * 100.0).round();
@@ -124,8 +149,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
         };
         ffa_info = format!("{} *Rank*: **{}** *Winrate*: **{}%** *MMR*: __**{}**__",
           league_division, gmstat.rank, winrate, gmstat.mmr);
-      }
-      if gmstat.gameMode == 6 {
+      } else if gmstat.gameMode == 6 {
         let players = gmstat.playerIds;
         let mut player_str = String::new();
         for p in players {
@@ -158,7 +182,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
       }
     }
 
-    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay=20&season=1", user);
+    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay=20&season={}", user, season);
     let res = reqwest::blocking::get(uri.as_str())?;
     let stats : Vec<Stats> = res.json()?;
 
@@ -190,7 +214,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
 
       let mut description = format!("[{}] {}\n", userx.as_str(), league_info.as_str());
 
-      let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season=1", user);
+      let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
       let res2 = reqwest::blocking::get(uri2.as_str())?;
       let stats2 : Stats2 = res2.json()?;
 
@@ -234,11 +258,14 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
       let footer = format!("Requested by {}", msg.author.name);
 
       let mut additional_info = vec![("Stats by races", stats_by_races.as_str(), false)];
-      if !ffa_info.is_empty() {
-        additional_info.push(("FFA", ffa_info.as_str(), false));
+      if !rt_string.is_empty() {
+        additional_info.push(("RT 2x2", rt_string.as_str(), false));
       }
       if !at_info.is_empty() {
         additional_info.push(("AT 2x2", at_info.as_str(), false));
+      }
+      if !ffa_info.is_empty() {
+        additional_info.push(("FFA", ffa_info.as_str(), false));
       }
 
       if let Err(why) = msg.channel_id.send_message(&ctx, |m| m

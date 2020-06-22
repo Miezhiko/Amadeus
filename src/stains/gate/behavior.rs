@@ -106,7 +106,7 @@ pub fn activate(ctx: &Context, options: &AOptions) {
                                 let url = format!("https://www.twitch.tv/{}", d.user_name);
                                 // still 800x400 feels very wide
                                 let pic = d.thumbnail_url.replace("{width}", "800")
-                                                        .replace("{height}", "400");
+                                                        .replace("{height}", "500");
                                 if d.type_string == "live" {
                                   e = e.fields(vec![("Live on twitch", d.title.clone(), false)])
                                       .image(pic)

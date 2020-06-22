@@ -1,5 +1,5 @@
 use crate::{
-  collections::team::{ DIVISION1, DIVISION2, INTERESTING },
+  collections::team::players,
   stains::cyber::{
     types::*,
     utils::{ get_race2, get_map }
@@ -27,21 +27,7 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String, S
       for mm in &going.matches {
         if mm.startTime == matchid_lol {
           // TODO: change that hack one day
-          if DIVISION1.into_iter().any(|(u, _, _)|
-            if mm.gameMode == 6 || mm.gameMode == 2 {
-              mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u ||
-              mm.teams[0].players[1].battleTag == *u || mm.teams[1].players[1].battleTag == *u
-            } else {
-              mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u
-            }
-          ) || DIVISION2.into_iter().any(|(u, _, _)|
-            if mm.gameMode == 6 || mm.gameMode == 2 {
-              mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u ||
-              mm.teams[0].players[1].battleTag == *u || mm.teams[1].players[1].battleTag == *u
-            } else {
-              mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u
-            }
-          ) || INTERESTING.into_iter().any(|(u, _, _)|
+          if players().into_iter().any(|(u, _, _)|
             if mm.gameMode == 6 || mm.gameMode == 2 {
               mm.teams[0].players[0].battleTag == *u || mm.teams[1].players[0].battleTag == *u ||
               mm.teams[0].players[1].battleTag == *u || mm.teams[1].players[1].battleTag == *u
@@ -89,14 +75,26 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String, S
               , race12 = get_race2(m.teams[0].players[1].race)
               , race2 = get_race2(m.teams[1].players[0].race)
               , race22 = get_race2(m.teams[1].players[1].race) };
-          if m.teams[0].won {
-            Some(format!("({}+{}) __**{} + {} [{}]**__ **+{}** (won)\n*vs*\n({}+{}) _*{} + {} [{}]*_ *{}* (lost)\n\nmap: **{}**",
-              race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
-            , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
+          if m.gameMode == 6 {
+            if m.teams[0].won {
+              Some(format!("({}+{}) __**{} + {} [{}]**__ **+{}** (won)\n*vs*\n({}+{}) __*{} + {} [{}]*__ *{}* (lost)\n\nmap: **{}**",
+                race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
+              , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
+            } else {
+              Some(format!("({}+{}) __*{} + {} [{}]*__ *{}* (lost)\n*vs*\n({}+{}) __**{} + {} [{}]**__ **+{}** (won)\n\nmap: **{}**",
+                race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
+              , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
+            }
           } else {
-            Some(format!("({}+{}) __*{} + {} [{}]*__ *{}* (lost)\n*vs*\n({}+{}) _**{} + {} [{}]**_ **+{}** (won)\n\nmap: **{}**",
-              race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
-            , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
+            if m.teams[0].won {
+              Some(format!("({}+{}) __**{} [{}]**__ **+{}** + __**{} [{}]**__ **+{}** (won)\n*vs*\n({}+{}) __*{} [{}]*__ *{}* + __*{} [{}]*__ *{}* (lost)\n\nmap: **{}**",
+                race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain
+              , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
+            } else {
+              Some(format!("({}+{}) __*{} [{}]*__ *{}* + __*{} [{}]*__ *{}* (lost)\n*vs*\n({}+{}) __**{} [{}]**__ **+{}** + __**{} [{}]**__ **+{}** (won)\n\nmap: **{}**",
+              race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain
+              , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
+            }
           }
         } else {
           None
@@ -144,6 +142,7 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String, S
 pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
   let mut out : Vec<StartingGame> = Vec::new();
   if let Ok(res) =
+    // getaway 20 = Europe
     reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20") {
     if let Ok(going) = res.json::<Going>() {
       if going.matches.len() > 0 {
@@ -152,17 +151,9 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
           for m in going.matches {
             if m.gameMode == 1 {
               if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
-                let is_div1 = DIVISION1.into_iter().find(|(u, _, _)|
+                if let Some((_, u, twitch)) = players().into_iter().find(|(u, _, _)|
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u
-                );
-                let is_div2 = DIVISION2.into_iter().find(|(u, _, _)|
-                  m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u
-                );
-                let is_interesting = INTERESTING.into_iter().find(|(u, _, _)|
-                  m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u
-                );
-                let (s, u, twitch) = is_div1.unwrap_or(is_div2.unwrap_or(is_interesting.unwrap_or(&("", 0, (None, None)))));
-                if !s.is_empty() && *u != 0 {
+                ) {
                   let g_map = get_map(m.map.as_str());
                   let race1 = get_race2(m.teams[0].players[0].race);
                   let race2 = get_race2(m.teams[1].players[0].race);
@@ -176,7 +167,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                     let footer = format!("Passed: {} min", minutes);
 
                     if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id) {
-                      if let Ok(user) = ctx.http.get_user(*u) {
+                      if let Ok(user) = ctx.http.get_user(u) {
 
                         let mut fields = Vec::new();
                         let mut img = None;
@@ -218,44 +209,41 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                       StartingGame {
                         key: m.startTime,
                         description: mstr,
-                        user: *u,
-                        stream: *twitch
+                        user: u,
+                        stream: twitch
                       }
                     );
                   }
-
                 }
               }
             } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode
               if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
-                let is_div1 = DIVISION1.into_iter().find(|(u, _, _)|
+                if let Some((_, u, twitch)) = players().into_iter().find(|(u, _, _)|
                   m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u ||
-                  m.teams[0].players[1].battleTag == *u || m.teams[1].players[1].battleTag == *u
-                );
-                let is_div2 = DIVISION2.into_iter().find(|(u, _, _)|
-                  m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u ||
-                  m.teams[0].players[1].battleTag == *u || m.teams[1].players[1].battleTag == *u
-                );
-                let is_interesting = INTERESTING.into_iter().find(|(u, _, _)|
-                  m.teams[0].players[0].battleTag == *u || m.teams[1].players[0].battleTag == *u ||
-                  m.teams[0].players[1].battleTag == *u || m.teams[1].players[1].battleTag == *u
-                );
-                let (s, u, twitch) = is_div1.unwrap_or(is_div2.unwrap_or(is_interesting.unwrap_or(&("", 0, (None, None)))));
-                if !s.is_empty() && *u != 0 {
+                  m.teams[0].players[1].battleTag == *u || m.teams[1].players[1].battleTag == *u) {
                   let g_map = get_map(m.map.as_str());
+
                   let race1 = get_race2(m.teams[0].players[0].race);
                   let race12 = get_race2(m.teams[0].players[1].race);
                   let race2 = get_race2(m.teams[1].players[0].race);
                   let race22 = get_race2(m.teams[1].players[1].race);
-                  let mstr = format!("({}+{}) **{}** + **{}** [{}]\n*vs*\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
-                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr
-                  , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, g_map);
+
+                  let mstr = if m.gameMode == 6 {
+                    format!("({}+{}) **{}** + **{}** [{}]\n*vs*\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
+                      race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr
+                    , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, g_map)
+                  } else {
+                    format!("({}+{}) **{}** [{}] + **{}** [{}]\n*vs*\n({}+{}) **{}** [{}] + **{}** [{}]\n\nmap: **{}**",
+                      race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr
+                    , race2, race22, m.teams[1].players[0].name, m.teams[0].players[0].oldMmr, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, g_map)
+                  };
+
                   if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
                     track.still_live = true;
                     let minutes = track.passed_time / 2;
                     let footer = format!("Passed: {} min", minutes);
                     if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id) {
-                      if let Ok(user) = ctx.http.get_user(*u) {
+                      if let Ok(user) = ctx.http.get_user(u) {
                         let mut fields = Vec::new();
                         let mut img = None;
                         let mut url = None;
@@ -295,11 +283,12 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                       StartingGame {
                         key: m.startTime,
                         description: mstr,
-                        user: *u,
-                        stream: *twitch
+                        user: u,
+                        stream: twitch
                       }
                     );
                   }
+
                 }
               }
             }

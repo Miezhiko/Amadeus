@@ -1,1 +1,1 @@
-- RT info for ~stats command
+- Something to increment seasons automatically (maybe) [add to pad.rs]

@@ -1,3 +1,4 @@
+use crate::common::types::Streams;
 use std::collections::HashMap;
 
 pub_struct!(Stats {
@@ -177,5 +178,5 @@ pub struct StartingGame {
   pub key: String,
   pub description: String,
   pub user: u64,
-  pub stream: (Option<&'static str>, Option<&'static str>)
+  pub stream: Option<Streams>
 }

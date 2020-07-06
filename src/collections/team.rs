@@ -24,6 +24,7 @@ pub static DIVISION2: &'static [Player] = &
   , streamer("Punisher#24744", 442391445341732864,  twitch("punisherl_l"))
   , streamer("SimbaPower#2413", 308475659775115265, streams("SimbaPower", "hemosimbapower"))
   , streamer("Rearden#21595", 622849650847907870,   twitch("amateurrearden"))
+  , streamer("hhh#2991", 510732278025027596,        twitch("hotwussy"))
   ];
 
 pub static INTERESTING: &'static [Player] = &

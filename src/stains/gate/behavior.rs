@@ -110,7 +110,7 @@ pub fn activate(ctx: &Context, options: &AOptions) {
                                   let d = &t.data[0];
                                   let url = format!("https://www.twitch.tv/{}", d.user_name);
                                   let pic = d.thumbnail_url.replace("{width}", "800")
-                                                          .replace("{height}", "500");
+                                                          .replace("{height}", "450");
                                   if d.type_string == "live" {
                                     e = e.fields(vec![("Live on twitch", d.title.clone(), false)])
                                         .image(pic)

@@ -164,7 +164,7 @@ pub fn run(opts : &AOptions) -> Result<(), serenity::Error> {
       {
         let mut rng = thread_rng();
         set! { hi_reply = GREETINGS.choose(&mut rng).unwrap()
-              , reply = format!("{}", hi_reply) };
+             , reply = format!("{}", hi_reply) };
         if let Err(why) = msg.reply(&ctx, reply) {
           error!("Error sending greeting reply: {:?}", why);
         }

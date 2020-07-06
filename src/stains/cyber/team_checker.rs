@@ -316,8 +316,10 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                       url = msg.embeds[0].url.clone();
                     };
                     if let Err(why) = msg.edit(ctx, |m| m
-                        .embed(|e| { let mut e =
+                        .embed(|e| {
+                        let mut e =
                           e.author(|a| a.icon_url(&user.face()).name(&user.name))
+                          .title("FINISHED")
                           .description(new_text)
                           .footer(|f| f.text(footer));
                         if old_fields.len() > 0 {

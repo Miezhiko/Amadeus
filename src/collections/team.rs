@@ -1,6 +1,5 @@
 use crate::common::types::{ Player, player, streamer, streams, twitch };
 
-//krolu_
 //Schappster#2205
 pub static DIVISION1: &'static [Player] = &
   [ player("Edek#1800", 298003054110965762)
@@ -10,6 +9,7 @@ pub static DIVISION1: &'static [Player] = &
   , streamer("Muffy#2299", 196231768880185344,    twitch("muffy_supergosu"))
   , streamer("Trunks#2116", 297810232254398466,   twitch("trynkzzz"))
   , streamer("Маша#21994", 510368731378089984,    twitch("Qinon"))
+  , streamer("KroLo#11461", 313638735562407937,   twitch("krolu_"))
   , streamer("Reyenir#2169", 287914378513088515,  streams("Cherry-Phoenix", "reyenir"))
   ];
 

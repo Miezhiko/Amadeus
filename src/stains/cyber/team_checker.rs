@@ -305,31 +305,41 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                 if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id) {
                   let footer : String = format!("Passed: {} min", duration);
                   if let Ok(user) = ctx.http.get_user(track.tracking_usr_id) {
-                    match fields {
-                      Some((s1,s2,s3,s4)) => {
-                        if let Err(why) = msg.edit(ctx, |m| m
-                          .embed(|e| e
-                          .author(|a| a.icon_url(&user.face()).name(&user.name))
+                    let mut old_fields = Vec::new();
+                    let mut img = None;
+                    let mut url = None;
+                    if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
+                      for f in msg.embeds[0].fields.clone() {
+                        old_fields.push((f.name, f.value, f.inline));
+                      }
+                      img = msg.embeds[0].image.clone();
+                      url = msg.embeds[0].url.clone();
+                    };
+                    if let Err(why) = msg.edit(ctx, |m| m
+                        .embed(|e| { let mut e =
+                          e.author(|a| a.icon_url(&user.face()).name(&user.name))
                           .description(new_text)
-                          .fields(vec![
+                          .footer(|f| f.text(footer));
+                        if old_fields.len() > 0 {
+                          e = e.fields(old_fields);
+                        }
+                        if fields.is_some() {
+                          let (s1,s2,s3,s4) = fields.unwrap();
+                          e = e.fields(vec![
                             (s1, s3, true),
                             (s2, s4, true)
-                          ])
-                          .footer(|f| f.text(footer))
-                        )) {
-                            error!("Failed to update live match {:?}", why);
+                          ]);
                         }
-                      }, None => {
-                        if let Err(why) = msg.edit(ctx, |m| m
-                          .embed(|e| e
-                          .author(|a| a.icon_url(&user.face()).name(&user.name))
-                          .description(new_text)
-                          .footer(|f| f.text(footer))
-                        )) {
-                            error!("Failed to update live match {:?}", why);
+                        if img.is_some() {
+                          e = e.image(img.unwrap().url);
                         }
-                      }
-                    };
+                        if url.is_some() {
+                          e = e.url(url.unwrap());
+                        }
+                        e
+                      })) {
+                        error!("Failed to update live match {:?}", why);
+                    }
                   }
                 }
                 // we only delete match if it's passed

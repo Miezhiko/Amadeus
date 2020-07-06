@@ -29,4 +29,3 @@ pub fn players() -> Vec<(&'static str, u64, (Option<&'static str>, Option<&'stat
 }
 
 //krolu_
-//shahriardemigod

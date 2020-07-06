@@ -3,6 +3,7 @@ pub static GREETINGS: &'static [&'static str] =
    , "hi"
    , "good time of day"
    , "yo!"
+   , "Hey, hey, wanna play"
    , "howdy"
    , "Hiya!"
    , "Bonjour"
@@ -24,6 +25,8 @@ pub static CONFUSION_RU: &'static [&'static str] =
 
 pub static CONFUSION: &'static [&'static str] =
    &[ "huh?"
+    , "Well baby, I can go and go"
+    , "Well baby, I would throw you if I didn't know you but I'm paying for it"
     , "what do you mean?"
     , "I don't understand"
     , "don't waste my time"

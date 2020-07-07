@@ -188,7 +188,7 @@ impl EventHandler for Handler {
               let activity = chain::generate(&ctx, &msg, 666);
               if !activity.is_empty() {
                 if activity.contains("<") && activity.contains(">") {
-                  let re_ib = Regex::new(r"\<[^>]*\)").unwrap();
+                  let re_ib = Regex::new(r"\<(.*?)\>").unwrap();
                   let replaced = re_ib.replace_all(activity.as_str(), "");
                   if !replaced.is_empty() {
                     ctx.set_activity(Activity::playing(&replaced));

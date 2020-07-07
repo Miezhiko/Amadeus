@@ -27,6 +27,7 @@ pub fn activate(ctx: &Context, options: &AOptions) {
     let guild_id = GuildId( last_guild_u64 );
     if let Ok(channels) = guild_id.channels(&ctx) {
 
+      let mut background_threads_successfully_started = false;
       let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());
       &ctx.set_activity(Activity::listening(version.as_str()));
       &ctx.idle();
@@ -57,7 +58,27 @@ pub fn activate(ctx: &Context, options: &AOptions) {
       let log_channel = channels.iter().find(|&(c, _)|
         if let Some(name) = c.name(&ctx)
           { name == "log" } else { false });
-      if let Some((_, channel)) = log_channel {
+      if let Some((channel_id, channel)) = log_channel {
+
+        // Delete live games from log channel (if some)
+        for vec_msg in channel_id.messages(&ctx, |g| g.limit(50)) {
+          let mut vec_id = Vec::new();
+          for message in vec_msg {
+            for embed in message.embeds {
+              if let Some(title) = embed.title {
+                if title == "LIVE" || title == "JUST STARTED" {
+                  vec_id.push(message.id);
+                  break;
+                }
+              }
+            }
+          }
+          match channel_id.delete_messages(&ctx, vec_id.as_slice()) {
+            Ok(nothing)  => nothing,
+            Err(err) => warn!("Failed to clean live messages {}", err),
+          };
+        }
+
         set!{ ch_clone = channel.clone(),
               ctx_clone = ctx.clone(),
               ch_ud = ch_clone.id.as_u64().clone(),
@@ -79,96 +100,100 @@ pub fn activate(ctx: &Context, options: &AOptions) {
                 games_lock.remove(ktd.as_str());
               }
             }
-            { info!("check");
-              let our_gsx = cyber::team_checker::check(&ctx_clone, ch_ud);
-              for game in our_gsx {
-                set!{ game_key = game.key.clone()
-                    , discord_user = game.user };
-                if let Ok(user) = ctx_clone.http.get_user(discord_user) {
-                  match ch_clone.send_message(&ctx_clone, |m| m
-                    .embed(|e| {
-                      let mut e = e
-                        .title("Just started")
-                        .author(|a| a.icon_url(&user.face()).name(&user.name))
-                        .description(game.description.as_str());
-                      let mut twitch_live = false;
-                      if game.stream.is_some() {
-                        set! { streams = &game.stream.unwrap()
-                             , twitch = &streams.twitch
-                             , ggru = &streams.ggru };
-                        if twitch.is_some() {
-                          let client = reqwest::blocking::Client::new();
-                          let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", twitch.unwrap());
-                          if let Ok(res) = client
-                            .get(getq.as_str())
-                            .header("Authorization", options_clone.twitch_oauth.clone())
-                            .header("Client-ID", options_clone.twitch_client_id.clone())
-                            .send() {
-                            match res.json::<cyber::twitch::Twitch>() {
-                              Ok(t) => {
-                                if t.data.len() > 0 {
-                                  let d = &t.data[0];
-                                  let url = format!("https://www.twitch.tv/{}", d.user_name);
-                                  let pic = d.thumbnail_url.replace("{width}", "800")
-                                                          .replace("{height}", "450");
-                                  if d.type_string == "live" {
-                                    e = e.fields(vec![("Live on twitch", d.title.clone(), false)])
-                                        .image(pic)
-                                        .url(url);
-                                    twitch_live = true;
-                                  }
+            info!("check");
+            if !background_threads_successfully_started {
+              &ctx_clone.set_activity(Activity::playing(version.as_str()));
+              &ctx_clone.online();
+            }
+            background_threads_successfully_started = true;
+            let our_gsx = cyber::team_checker::check(&ctx_clone, ch_ud);
+            for game in our_gsx {
+              set!{ game_key = game.key.clone()
+                  , discord_user = game.user };
+              if let Ok(user) = ctx_clone.http.get_user(discord_user) {
+                match ch_clone.send_message(&ctx_clone, |m| m
+                  .embed(|e| {
+                    let mut e = e
+                      .title("JUST STARTED")
+                      .author(|a| a.icon_url(&user.face()).name(&user.name))
+                      .description(game.description.as_str());
+                    let mut twitch_live = false;
+                    if game.stream.is_some() {
+                      set! { streams = &game.stream.unwrap()
+                            , twitch = &streams.twitch
+                            , ggru = &streams.ggru };
+                      if twitch.is_some() {
+                        let client = reqwest::blocking::Client::new();
+                        let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", twitch.unwrap());
+                        if let Ok(res) = client
+                          .get(getq.as_str())
+                          .header("Authorization", options_clone.twitch_oauth.clone())
+                          .header("Client-ID", options_clone.twitch_client_id.clone())
+                          .send() {
+                          match res.json::<cyber::twitch::Twitch>() {
+                            Ok(t) => {
+                              if t.data.len() > 0 {
+                                let d = &t.data[0];
+                                let url = format!("https://www.twitch.tv/{}", d.user_name);
+                                let pic = d.thumbnail_url.replace("{width}", "800")
+                                                        .replace("{height}", "450");
+                                if d.type_string == "live" {
+                                  e = e.fields(vec![("Live on twitch", d.title.clone(), false)])
+                                      .image(pic)
+                                      .url(url);
+                                  twitch_live = true;
                                 }
-                              }, Err(why) => {
-                                error!("Failed to parse twitch structs {:?}", why);
                               }
+                            }, Err(why) => {
+                              error!("Failed to parse twitch structs {:?}", why);
                             }
                           }
                         }
-                        if ggru.is_some() {
-                          let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.unwrap());
-                          if let Ok(gg) = reqwest::blocking::get(ggru_link.as_str()) {
-                            match gg.json::<cyber::goodgame::GoodGameData>() {
-                              Ok(ggdata) => {
-                                if ggdata.status == "Live" {
-                                  let url = format!("https://goodgame.ru/channel/{}", ggru.unwrap());
-                                  if twitch_live {
-                                    let titurl =
-                                      format!("{}\n{}", ggdata.channel.title.as_str(), url);
-                                    e = e.fields(vec![("Live on ggru", titurl, false)]);
-                                  } else {
-                                    e = e.fields(vec![("Live on ggru", ggdata.channel.title.clone(), false)])
-                                        .image(ggdata.channel.thumb.clone())
-                                        .url(url);
-                                  }
+                      }
+                      if ggru.is_some() {
+                        let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.unwrap());
+                        if let Ok(gg) = reqwest::blocking::get(ggru_link.as_str()) {
+                          match gg.json::<cyber::goodgame::GoodGameData>() {
+                            Ok(ggdata) => {
+                              if ggdata.status == "Live" {
+                                let url = format!("https://goodgame.ru/channel/{}", ggru.unwrap());
+                                if twitch_live {
+                                  let titurl =
+                                    format!("{}\n{}", ggdata.channel.title.as_str(), url);
+                                  e = e.fields(vec![("Live on ggru", titurl, false)]);
+                                } else {
+                                  e = e.fields(vec![("Live on ggru", ggdata.channel.title.clone(), false)])
+                                      .image(ggdata.channel.thumb.clone())
+                                      .url(url);
                                 }
-                              }, Err(why) => {
-                                error!("Failed to parse good game structs {:?}", why);
                               }
-                            };
-                          }
+                            }, Err(why) => {
+                              error!("Failed to parse good game structs {:?}", why);
+                            }
+                          };
                         }
                       }
-                      e
                     }
-                  )) {
-                    Ok(msg_id) => {
-                      if let Ok(mut games_lock) = cyber::team_checker::GAMES.lock() {
-                        games_lock.insert(game_key, TrackingGame {
-                          tracking_msg_id: msg_id.id.as_u64().clone(),
-                          passed_time: 0,
-                          still_live: false,
-                          tracking_usr_id: discord_user }
-                        );
-                      }
-                    },
-                    Err(why) => {
-                      error!("Failed to post live match {:?}", why);
+                    e
+                  }
+                )) {
+                  Ok(msg_id) => {
+                    if let Ok(mut games_lock) = cyber::team_checker::GAMES.lock() {
+                      games_lock.insert(game_key, TrackingGame {
+                        tracking_msg_id: msg_id.id.as_u64().clone(),
+                        passed_time: 0,
+                        still_live: false,
+                        tracking_usr_id: discord_user }
+                      );
                     }
+                  },
+                  Err(why) => {
+                    error!("Failed to post live match {:?}", why);
                   }
                 }
               }
-              std::thread::sleep(time::Duration::from_secs(30));
             }
+            std::thread::sleep(time::Duration::from_secs(30));
           }
         });
       }

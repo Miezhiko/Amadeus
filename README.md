@@ -10,6 +10,7 @@ Preparing
  - generate token here: https://discord.com/developers/applications
  - optionally for twitch support: https://dev.twitch.tv/docs/authentication
  - modify conf.ini and fill `token` and optionally `[Twitch]` section
+ - highly suggested to fill `last_guild` or you will need to restart Amadeus to run background threads (things)
 
 ``` ini
 [Discord]
@@ -35,4 +36,10 @@ cp misc/Amadeus.service /etc/systemd/system/Amadeus.service
 systemctl daemon-reload
 systemctl enable Amadeus
 systemctl start Amadeus
+```
+
+note that you're fully safe to rebuild and restart it whenever you want
+
+``` sh
+systemctl restart Amadeus
 ```

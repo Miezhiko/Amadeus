@@ -76,7 +76,7 @@ struct Pad;
 #[group]
 #[owners_only]
 #[checks(Admin)]
-#[commands(say, set)]
+#[commands(say, set, clear)]
 struct Owner;
 
 #[group]

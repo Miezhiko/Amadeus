@@ -306,13 +306,11 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                   let footer : String = format!("Passed: {} min", duration);
                   if let Ok(user) = ctx.http.get_user(track.tracking_usr_id) {
                     let mut old_fields = Vec::new();
-                    let mut img = None;
                     let mut url = None;
                     if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
                       for f in msg.embeds[0].fields.clone() {
                         old_fields.push((f.name, f.value, f.inline));
                       }
-                      img = msg.embeds[0].image.clone();
                       url = msg.embeds[0].url.clone();
                     };
                     if let Err(why) = msg.edit(ctx, |m| m
@@ -331,9 +329,6 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                             (s1, s3, true),
                             (s2, s4, true)
                           ]);
-                        }
-                        if img.is_some() {
-                          e = e.image(img.unwrap().url);
                         }
                         if url.is_some() {
                           e = e.url(url.unwrap());

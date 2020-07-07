@@ -1,0 +1,12 @@
+[Unit]
+Description=Amadeus
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/contrib/rust/Amadeus
+ExecStart=cargo run --release
+ExecStop=killall Amadeus
+
+[Install]
+WantedBy=multi-user.target

@@ -19,6 +19,7 @@ use serenity::{
 };
 
 use std::collections::HashMap;
+use serde_json::Value;
 
 use reqwest;
 use comfy_table::*;
@@ -188,7 +189,24 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
 
     let mut stats_by_races : String = String::new();
     if stats.len() > 0 {
+
+      let clan_uri = format!("https://statistic-service.w3champions.com/api/clans?battleTag={}", user);
       let name = &userx.split("#").collect::<Vec<&str>>()[0];
+      let mut clanned = String::from(*name);
+      if let Ok(clan_res) = reqwest::blocking::get(clan_uri.as_str()) {
+        if let Ok(clan_text_res) = clan_res.text() {
+          let clan_json_res = serde_json::from_str(clan_text_res.as_str());
+          if clan_json_res.is_ok() {
+            let clan_json : Value = clan_json_res.unwrap();
+            if let Some(clan) = clan_json.pointer("/clanId") {
+              if let Some(clan_str) = clan.as_str() {
+                clanned = format!("[{}] {}", clan_str, name);
+              }
+            }
+          }
+        }
+      }
+
       for stat in &stats {
         let race = get_race(stat.race);
         let winrate = (stat.winrate * 100.0).round();
@@ -254,7 +272,6 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
       }
 
       description = format!("{}```\n{}\n```", description, table);
-
       let footer = format!("Requested by {}", msg.author.name);
 
       let mut additional_info = vec![("Stats by races", stats_by_races.as_str(), false)];
@@ -270,7 +287,7 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
 
       if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
         .embed(|e| e
-          .title(name)
+          .title(clanned.as_str())
           .description(description)
           .thumbnail(if league_avi.is_empty() { main_race_avatar } else { league_avi.as_str() })
           .fields(additional_info)

@@ -1,27 +1,19 @@
+use crate::common::help::channel::channel_by_name;
 use crate::common::msg::{ split_code, split_message, MESSAGE_LIMIT };
 
 use serenity::{
   builder::CreateMessage,
-  model::{ id::GuildId, id::ChannelId, channel::GuildChannel },
+  model::{ id::GuildId, channel::GuildChannel },
   prelude::*
 };
 
-use futures_util::stream::{self, StreamExt};
-
 #[allow(dead_code)]
-async fn log_any<F> ( ctx: &Context
-                  , guild_id: &GuildId
-                  , f: F)
+pub async fn log_any<F> ( ctx: &Context
+                        , guild_id: &GuildId
+                        , f: F)
     where for <'a, 'b> F: FnOnce(&'b mut CreateMessage<'a>) -> &'b mut CreateMessage<'a> {
   if let Ok(channels) = guild_id.channels(ctx).await {
-    let log_channels = stream::iter(channels.iter())
-    .filter_map(|(c, _)| async move {
-      if let Some(name) = c.name(&ctx).await {
-        if name == "log" { Some(c) } else { None }
-      } else { None }
-    }).collect::<Vec<&ChannelId>>().await;
-    if log_channels.len() > 0 {
-      let channel = log_channels[0];
+    if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
       if let Err(why) = channel.send_message(ctx, f).await {
         error!("Failed to log new user {:?}", why);
       }
@@ -58,15 +50,8 @@ async fn channel_message(ctx: &Context, chan : &GuildChannel, text: &str) {
 
 pub async fn log(ctx: &Context, guild_id: &GuildId, text: &str) {
   if let Ok(channels) = guild_id.channels(ctx).await {
-    let log_channels = stream::iter(channels.iter())
-    .filter_map(|(c, gc)| async move {
-      if let Some(name) = c.name(&ctx).await {
-        if name == "log" { Some(gc) } else { None }
-      } else { None }
-    }).collect::<Vec<&GuildChannel>>().await;
-    if log_channels.len() > 0 {
-      let channel = log_channels[0];
-      channel_message(ctx, channel, text).await;
+    if let Some((_, guild_channel)) = channel_by_name(&ctx, &channels, "log").await {
+      channel_message(ctx, guild_channel, text).await;
     }
   }
 }

@@ -56,7 +56,7 @@ impl IFlagAction for Version {
 }
 
 #[group]
-#[commands(ping, help, embed)]
+#[commands(ping, help, embed, qrcode, urban)]
 struct Meta;
 
 #[group]

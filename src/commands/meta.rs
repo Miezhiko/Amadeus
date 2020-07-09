@@ -10,12 +10,13 @@ use serenity::{
   },
 };
 
+use qrcode::{
+  QrCode,
+  render::unicode,
+};
+
 pub struct ShardManagerContainer;
-/*
-impl Key for ShardManagerContainer {
-  type Value = Arc<Mutex<ShardManager>>;
-}
-*/
+
 impl TypeMapKey for ShardManagerContainer {
   type Value = Arc<Mutex<ShardManager>>;
 }
@@ -50,6 +51,8 @@ note: replace <thing> in help with text without < > quotes")
 "help: shows this
 quote <@user>: something from that user
 embed <title> <description>: create embed
+qrcode <something>: creates QR code
+urban <thing>: explains a thing
 ping: shows shard latency", false)
       .field("music commands",
 "join: to music channel
@@ -112,5 +115,74 @@ async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
   };
   
   msg.reply(&ctx, &format!("The shard latency is {:?}", runner.latency)).await?;
+  Ok(())
+}
+
+// Struct used to deserialize the output of the urban dictionary api call...
+#[derive(Deserialize, Clone)]
+struct UrbanDict {
+  definition: String,
+  permalink: String,
+  thumbs_up: u32,
+  thumbs_down: u32,
+  author: String,
+  written_on: String,
+  example: String,
+  word: String,
+}
+
+#[command]
+async fn qrcode(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  let words = args.message();
+  let code = QrCode::new(words).unwrap();
+  let image = code.render::<unicode::Dense1x2>()
+      .dark_color(unicode::Dense1x2::Light)
+      .light_color(unicode::Dense1x2::Dark)
+      .build();
+  msg.channel_id.say(ctx, format!("```{}```", image)).await?;
+  Ok(())
+}
+
+#[command]
+async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  let term = args.message();
+  let url = reqwest::Url::parse_with_params("http://api.urbandictionary.com/v0/define", &[("term", term)])?;
+
+  let reqwest = reqwest::Client::new();
+  let resp = reqwest.get(url)
+      .send().await?.json::<Vec<UrbanDict>>().await?;
+
+  if resp.is_empty() {
+    msg.channel_id.say(ctx, format!("The term '{}' has no Urban Definitions", term)).await?;
+  } else {
+    let choice = &resp[0];
+    let parsed_definition = &choice.definition.replace("[", "").replace("]", "");
+    let parsed_example = &choice.example.replace("[", "").replace("]", "");
+    let mut fields = vec![
+      ("Definition", parsed_definition, false),
+    ];
+    if parsed_example != &"".to_string() {
+      fields.push(("Example", parsed_example, false));
+    }
+    if let Err(why) = msg.channel_id.send_message(ctx, |m| {
+      m.embed(|e| {
+        e.title(&choice.word);
+        e.url(&choice.permalink);
+        e.description(
+          format!("submitted by **{}**\n\n:thumbsup: **{}** ┇ **{}** :thumbsdown:\n",
+                      &choice.author, &choice.thumbs_up, &choice.thumbs_down));
+        e.fields(fields);
+        e.timestamp(choice.clone().written_on);
+        e
+      });
+      m
+    }).await {
+      if "Embed too large." == why.to_string() {
+        msg.channel_id.say(ctx, &choice.permalink).await?;
+      } else {
+        msg.channel_id.say(ctx, why).await?;
+      }
+    };
+  }
   Ok(())
 }

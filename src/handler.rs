@@ -1,8 +1,8 @@
 use crate::{
   stains::gate,
   common::{
+    help::{ lang, channel::channel_by_name },
     types::AOptions,
-    lang,
     msg::{ channel_message }
   },
   stains::ai::chain,
@@ -18,7 +18,7 @@ use serenity::{
   prelude::*,
   async_trait,
   model::{
-    id::{ EmojiId, GuildId, ChannelId },
+    id::{ EmojiId, GuildId },
     event::ResumedEvent, gateway::Ready, guild::Member
          , channel::Message, channel::ReactionType, gateway::Activity
          , user::User },
@@ -39,8 +39,6 @@ use rand::{
 };
 
 use regex::Regex;
-
-use futures_util::stream::{self, StreamExt};
 
 pub static THREADS : AtomicBool = AtomicBool::new(false);
 
@@ -74,15 +72,7 @@ impl EventHandler for Handler {
   async fn guild_member_addition(&self, ctx: Context, guild_id: GuildId, member: Member) {
     if let Ok(channels) = guild_id.channels(&ctx).await {
       let ai_text = chain::generate_with_language(&ctx, &guild_id, 666, false).await;
-      let ctx_ref : &Context = &ctx;
-      let log_channels = stream::iter(channels.iter())
-        .filter_map(|(c, _)| async move {
-          if let Some(name) = c.name(&ctx_ref).await {
-            if name == "log" { Some(c) } else { None }
-          } else { None }
-        }).collect::<Vec<&ChannelId>>().await;
-      if log_channels.len() > 0 {
-        let channel = log_channels[0];
+      if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
         let user = &member.user; // .read().await;
         let title = format!("has joined here, {}", ai_text.as_str());
         if let Err(why) = channel.send_message(&ctx, |m| m
@@ -102,15 +92,7 @@ impl EventHandler for Handler {
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user : User, _ : Option<Member>) {
     if let Ok(channels) = guild_id.channels(&ctx).await {
       let ai_text = chain::generate_with_language(&ctx, &guild_id, 666, false).await;
-      let ctx_ref : &Context = &ctx;
-      let log_channels = stream::iter(channels.iter())
-        .filter_map(|(c, _)| async move {
-          if let Some(name) = c.name(&ctx_ref).await {
-            if name == "log" { Some(c) } else { None }
-          } else { None }
-        }).collect::<Vec<&ChannelId>>().await;
-      if log_channels.len() > 0 {
-        let channel = log_channels[0];
+      if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
         let title = format!("has left, {}", ai_text.as_str());
         if let Err(why) = channel.send_message(&ctx, |m| m
           .embed(|e| {

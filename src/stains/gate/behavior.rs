@@ -1,5 +1,6 @@
 use crate::{
   common::types::AOptions,
+  common::help::channel::channel_by_name,
   stains::{
     ai::chain,
     cyber, cyber::types::TrackingGame,
@@ -9,7 +10,7 @@ use crate::{
 use serenity::{
   prelude::*,
   model::{
-    id::GuildId, id::ChannelId,
+    id::GuildId,
     gateway::Activity
   }
 };
@@ -20,8 +21,6 @@ use std::{
 };
 
 use rand::Rng;
-
-use futures_util::stream::{self, StreamExt};
 
 pub async fn activate(ctx: &Context, options: &AOptions) {
   let last_guild_u64 = options.last_guild.parse::<u64>().unwrap_or(0);
@@ -34,14 +33,7 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
       ctx.set_activity(Activity::listening(version.as_str())).await;
       ctx.idle().await;
 
-      let main_channels = stream::iter(channels.iter())
-      .filter_map(|(c, _)| async move {
-        if let Some(name) = c.name(&ctx).await {
-          if name == "main" { Some(c) } else { None }
-        } else { None }
-      }).collect::<Vec<&ChannelId>>().await;
-      if main_channels.len() > 0 {
-        let channel = main_channels[0];
+      if let Some((channel, _)) = channel_by_name(&ctx, &channels, "main").await {
         set!{ ch_clone = channel.clone()
             , ctx_clone = ctx.clone() };
         tokio::spawn(async move {
@@ -61,14 +53,7 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
         });
       }
 
-      let log_channels = stream::iter(channels.iter())
-      .filter_map(|(c, _)| async move {
-        if let Some(name) = c.name(&ctx).await {
-          if name == "log" { Some(c) } else { None }
-        } else { None }
-      }).collect::<Vec<&ChannelId>>().await;
-      if log_channels.len() > 0 {
-        let channel = log_channels[0];
+      if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
 
         // Delete live games from log channel (if some)
         for vec_msg in channel.messages(&ctx, |g| g.limit(50)).await {

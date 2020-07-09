@@ -1,6 +1,6 @@
 use crate::{
   common::{
-    lang,
+    help::lang,
     msg::{ reply, channel_message }
   },
   collections::base::{ CONFUSION, CONFUSION_RU, OBFUSCATION, OBFUSCATION_RU },

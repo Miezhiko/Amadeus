@@ -1,4 +1,5 @@
 /target/
+/tree/
 conf.ini
 Cargo.lock
 

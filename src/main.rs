@@ -16,6 +16,7 @@ extern crate ucd;
 extern crate comfy_table;
 extern crate futures_util;
 extern crate qrcode;
+extern crate zerocopy;
 
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate log;

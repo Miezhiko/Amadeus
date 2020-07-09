@@ -1,5 +1,6 @@
 use crate::{
   common::{
+    points,
     msg::{ channel_message }
   },
   stains::ai::chain
@@ -15,6 +16,23 @@ use serenity::{
 };
 
 #[command]
+async fn score(ctx: &Context, msg: &Message) -> CommandResult {
+  /*
+  let (target, the_points) =
+    if msg.mentions.len() > 0 {
+      let target_user = &msg.mentions[0];
+      ( &target_user.name
+      , points::get_points(target_user.id.as_u64()) )
+    } else {
+      ( &msg.author.name
+      , points::get_points(msg.author.id.as_u64()) )
+    };
+  let out = format!("{} score: {}", target, the_points);
+  channel_message(ctx, msg, out.as_str()).await;*/
+  Ok(())
+}
+
+#[command]
 async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -24,7 +42,7 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
     if let Some(q) = chain::make_quote(ctx, msg, target.id, 9000).await {
       let footer = format!("Requested by {}", msg.author.name);
       if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
-      .embed(|e| e
+        .embed(|e| e
         .author(|a| a.icon_url(&target.face()).name(&target.name))
         .description(q)
         .footer(|f| f.text(footer))

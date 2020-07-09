@@ -1,6 +1,7 @@
 use crate::{
   stains::gate,
   common::{
+    points,
     help::{ lang, channel::channel_by_name },
     types::AOptions,
     msg::{ channel_message }
@@ -168,6 +169,7 @@ impl EventHandler for Handler {
       if msg.guild(&ctx).await.is_some() {
         let mentioned_bot = (&msg.mentions).into_iter().any(|u| u.bot);
         if !mentioned_bot {
+          //points::add_points(msg.author.id.as_u64(), &1);
           let is_admin =
             if let Some(member) = msg.member(&ctx.cache).await {
               if let Ok(permissions) = member.permissions(&ctx.cache).await {

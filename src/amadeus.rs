@@ -60,7 +60,7 @@ impl IFlagAction for Version {
 struct Meta;
 
 #[group]
-#[commands(quote)]
+#[commands(quote, score)]
 struct Chat;
 
 #[group]
@@ -98,7 +98,6 @@ async fn admin_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOpti
   }
   false.into()
 }
-
 
 #[hook]
 async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {

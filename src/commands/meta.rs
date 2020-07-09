@@ -50,6 +50,7 @@ note: replace <thing> in help with text without < > quotes")
       .field("user commands",
 "help: shows this
 quote <@user>: something from that user
+score <@user>: show user points
 embed <title> <description>: create embed
 qrcode <something>: creates QR code
 urban <thing>: explains a thing

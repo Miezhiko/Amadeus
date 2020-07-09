@@ -1,11 +1,12 @@
 [package]
 name        = "amadeus"
-version     = "0.8.2"
+version     = "2.0.0"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
 keywords    = [ "discord", "bot" ]
 edition     = "2018"
+description = "memory storage and artificial intelligence system"
 
 [dependencies]
 rand          = "0.7.3"
@@ -24,13 +25,20 @@ lazy_static   = "1.4.0"
 markov        = "1.0.3"
 ucd           = "0.1.1"
 comfy-table   = "1.0.0"
+futures-util  = "0.3.5"
 
-reqwest = { version = "0.10.6", features = ["json"] }
-ical    = { version = "0.6.0", features = ["ical"] }
-uuid    = { version = "0.8.1", features = ["serde"] }
+reqwest = { version = "0.10.6", features = ["json", "blocking"] }
+ical    = { version = "0.6.0",  features = ["ical"] }
+uuid    = { version = "0.8.1",  features = ["serde"] }
+
+[dependencies.tokio]
+version = "0.2.21"
+features = ["full", "blocking", "sync"]
 
 [dependencies.serenity]
 default-features = false
+git = "https://github.com/acdenisSK/serenity"
+branch = "await_next"
 features = [ "cache"
            , "builder"
            , "model"
@@ -41,4 +49,4 @@ features = [ "cache"
            , "http"
            , "native_tls_backend"
            , "utils"]
-version = "0.8.6"
+# version = "0.8.6"

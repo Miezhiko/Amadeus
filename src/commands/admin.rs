@@ -1,6 +1,5 @@
 use serenity::{
-  model::{ channel::*
-         , gateway::Activity },
+  model::{ channel::*, gateway::Activity },
   prelude::*,
   framework::standard::{
     Args, CommandResult,
@@ -9,25 +8,25 @@ use serenity::{
 };
 
 #[command]
-pub fn idle(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
+async fn idle(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   let what = args.message();
-  if let Err(why) = msg.delete(&ctx) {
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  ctx.set_activity(Activity::playing(&what));
-  ctx.idle();
+  ctx.set_activity(Activity::playing(&what)).await;
+  ctx.idle().await;
   Ok(())
 }
 
 #[command]
-pub fn stream(ctx: &mut Context, msg: &Message, mut args : Args) -> CommandResult {
+async fn stream(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
   if let Ok(stream_url) = args.single::<String>() {
     let name = args.single::<String>().unwrap_or(String::from("Amadeus"));
-    if let Err(why) = msg.delete(&ctx) {
+    if let Err(why) = msg.delete(&ctx).await {
       error!("Error deleting original command {:?}", why);
     }
-    ctx.set_activity(Activity::streaming(&name, &stream_url));
-    ctx.dnd();
+    ctx.set_activity(Activity::streaming(&name, &stream_url)).await;
+    ctx.dnd().await;
   }
   Ok(())
 }

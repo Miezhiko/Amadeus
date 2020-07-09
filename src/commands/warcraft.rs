@@ -17,15 +17,18 @@ use ical;
 use reqwest;
 
 use std::io::BufReader;
+use tokio::task;
+//use tokio::io::{ self, BufReader, AsyncBufReadExt };
 
 use chrono::prelude::*;
 use chrono::{ Duration, Utc };
 
-pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passed_check : bool) -> CommandResult {
-  let res = reqwest::blocking::get("https://warcraft3.info/ical-events")?;
-  let buf = BufReader::new(res);
-
-  let reader = ical::IcalParser::new(buf);
+async fn tour_internal(ctx: &Context, msg: &Message, on : DateTime<Utc>, passed_check : bool) -> CommandResult {
+  let reader = task::spawn_blocking(move || {
+    let res = reqwest::blocking::get("https://warcraft3.info/ical-events").unwrap();
+    let buf = BufReader::new(res);
+    ical::IcalParser::new(buf)
+  }).await?;
 
   set! { str_date_now = on.format("%Y%m%d").to_string()
        , str_time_now = on.format("%H%M").to_string() };
@@ -105,55 +108,54 @@ pub fn tour_internal(ctx: &mut Context, msg: &Message, on : DateTime<Utc>, passe
         .title(title)
         .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
         .fields(eventos)
-        .colour((255, 192, 203)))) {
+        .colour((255, 192, 203)))).await {
       error!("Error sending help message: {:?}", why);
     }
   } else {
-    channel_message(&ctx, &msg,"I am sorry but I can't find anything at the momenet");
+    channel_message(&ctx, &msg,"I am sorry but I can't find anything at the momenet").await;
   }
   Ok(())
 }
 
-pub fn tour(ctx: &mut Context, msg: &Message, on : DateTime<Utc>) -> CommandResult {
-  tour_internal(ctx, msg, on, false)?;
-  Ok(())
+pub async fn tour(ctx: &Context, msg: &Message, on : DateTime<Utc>) -> CommandResult {
+  tour_internal(ctx, msg, on, false).await
 }
 
 #[command]
-pub fn yesterday(ctx: &mut Context, msg: &Message) -> CommandResult {
+pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
   let yesterday : DateTime<Utc> = Utc::now() - Duration::days(1); 
-  tour(ctx, msg, yesterday)?;
-  if let Err(why) = msg.delete(&ctx) {
+  tour(ctx, msg, yesterday).await?;
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
 
 #[command]
-pub fn today(ctx: &mut Context, msg: &Message) -> CommandResult {
+pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
   let today : DateTime<Utc> = Utc::now(); 
-  tour_internal(ctx, msg, today, true)?;
-  if let Err(why) = msg.delete(&ctx) {
+  tour_internal(ctx, msg, today, true).await?;
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
 
 #[command]
-pub fn tomorrow(ctx: &mut Context, msg: &Message) -> CommandResult {
+pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
   let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
-  tour(ctx, msg, tomorrow)?;
-  if let Err(why) = msg.delete(&ctx) {
+  tour(ctx, msg, tomorrow).await?;
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
 
 #[command]
-pub fn weekends(ctx: &mut Context, msg: &Message) -> CommandResult {
+pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
   let mut today : DateTime<Utc> = Utc::now();
   if today.weekday() == Weekday::Sun {
-    tour_internal(ctx, msg, today, true)?;
+    tour_internal(ctx, msg, today, true).await?;
   } else {
     let is_saturday = today.weekday() == Weekday::Sat;
     if !is_saturday {
@@ -161,18 +163,18 @@ pub fn weekends(ctx: &mut Context, msg: &Message) -> CommandResult {
         today = today + Duration::days(1); 
       }
     }
-    tour_internal(ctx, msg, today, is_saturday)?;
+    tour_internal(ctx, msg, today, is_saturday).await?;
     let tomorrow : DateTime<Utc> = today + Duration::days(1); 
-    tour(ctx, msg, tomorrow)?;
+    tour(ctx, msg, tomorrow).await?;
   }
-  if let Err(why) = msg.delete(&ctx) {
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
 
 #[command]
-pub fn lineup(ctx: &mut Context, msg: &Message, args: Args) -> CommandResult {
+pub async fn lineup(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let mut maps_out : Vec<(String, String, bool)> = Vec::new();
   let text = args.message();
 
@@ -208,10 +210,10 @@ pub fn lineup(ctx: &mut Context, msg: &Message, args: Args) -> CommandResult {
       .fields(maps_out)
       .colour((255,182,193))
       .footer(|f| f.text(footer))
-    )) {
+    )).await {
     error!("Error sending help message: {:?}", why);
   }
-  if let Err(why) = msg.delete(&ctx) {
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   Ok(())

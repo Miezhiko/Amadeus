@@ -5,54 +5,54 @@ use serenity::{
 
 pub static MESSAGE_LIMIT: usize = 2000;
 
-fn serenity_direct_message_single(ctx: &Context, msg : &Message, text: &str) {
-  if let Err(why) = msg.author.dm(ctx, |m| m.content(text)) {
+async fn serenity_direct_message_single(ctx: &Context, msg : &Message, text: &str) {
+  if let Err(why) = msg.author.dm(ctx, |m| m.content(text)).await {
     error!("Error DMing user: {:?}", why);
   }
 }
 
-fn serenity_reply_single(ctx: &Context, msg : &Message, text: &str) {
-  if let Err(why) = msg.reply(ctx, text) {
+async fn serenity_reply_single(ctx: &Context, msg : &Message, text: &str) {
+  if let Err(why) = msg.reply(ctx, text).await {
     error!("Error replieng to user: {:?}", why);
   }
 }
 
-fn serenity_channel_message_single(ctx: &Context, msg : &Message, text: &str) {
-  if let Err(why) = msg.channel_id.say(&ctx, text) {
+async fn serenity_channel_message_single(ctx: &Context, msg : &Message, text: &str) {
+  if let Err(why) = msg.channel_id.say(&ctx, text).await {
     error!("Error sending message to channel: {:?}", why);
   }
 }
 
-fn serenity_direct_message_multi(ctx: &Context, msg : &Message, texts : Vec<&str>) {
+async fn serenity_direct_message_multi(ctx: &Context, msg : &Message, texts : Vec<&str>) {
   for text in texts {
-    serenity_direct_message_single(ctx, msg, text);
+    serenity_direct_message_single(ctx, msg, text).await;
   }
 }
-fn serenity_direct_message_multi2(ctx: &Context, msg : &Message, texts : Vec<String>) {
+async fn serenity_direct_message_multi2(ctx: &Context, msg : &Message, texts : Vec<String>) {
   for text in texts {
-    serenity_direct_message_single(ctx, msg, text.as_str());
-  }
-}
-
-fn serenity_reply_multi(ctx: &Context, msg : &Message, texts : Vec<&str>) {
-  for text in texts {
-    serenity_reply_single(ctx, msg, text);
-  }
-}
-fn serenity_reply_multi2(ctx: &Context, msg : &Message, texts : Vec<String>) {
-  for text in texts {
-    serenity_reply_single(ctx, msg, text.as_str());
+    serenity_direct_message_single(ctx, msg, text.as_str()).await;
   }
 }
 
-fn serenity_channel_message_multi(ctx: &Context, msg : &Message, texts : Vec<&str>) {
+async fn serenity_reply_multi(ctx: &Context, msg : &Message, texts : Vec<&str>) {
   for text in texts {
-    serenity_channel_message_single(ctx, msg, text);
+    serenity_reply_single(ctx, msg, text).await;
   }
 }
-fn serenity_channel_message_multi2(ctx: &Context, msg : &Message, texts : Vec<String>) {
+async fn serenity_reply_multi2(ctx: &Context, msg : &Message, texts : Vec<String>) {
   for text in texts {
-    serenity_channel_message_single(ctx, msg, text.as_str());
+    serenity_reply_single(ctx, msg, text.as_str()).await;
+  }
+}
+
+async fn serenity_channel_message_multi(ctx: &Context, msg : &Message, texts : Vec<&str>) {
+  for text in texts {
+    serenity_channel_message_single(ctx, msg, text).await;
+  }
+}
+async fn serenity_channel_message_multi2(ctx: &Context, msg : &Message, texts : Vec<String>) {
+  for text in texts {
+    serenity_channel_message_single(ctx, msg, text.as_str()).await;
   }
 }
 
@@ -78,38 +78,38 @@ pub fn split_message(text: &str) -> Vec<&str> {
     .collect::<Vec<&str>>()
 }
 
-pub fn direct_message(ctx: &Context, msg : &Message, text: &str) {
+pub async fn direct_message(ctx: &Context, msg : &Message, text: &str) {
   if text.len() > MESSAGE_LIMIT {
     if text.starts_with("```") {
-      serenity_direct_message_multi2(ctx, msg, split_code(text));
+      serenity_direct_message_multi2(ctx, msg, split_code(text)).await;
     } else {
-      serenity_direct_message_multi(ctx, msg, split_message(text));
+      serenity_direct_message_multi(ctx, msg, split_message(text)).await;
     }
   } else {
-    serenity_direct_message_single(ctx, msg, text);
+    serenity_direct_message_single(ctx, msg, text).await;
   }
 }
 
-pub fn reply(ctx: &Context, msg : &Message, text: &str) {
+pub async fn reply(ctx: &Context, msg : &Message, text: &str) {
   if text.len() > MESSAGE_LIMIT {
     if text.starts_with("```") {
-      serenity_reply_multi2(ctx, msg, split_code(text));
+      serenity_reply_multi2(ctx, msg, split_code(text)).await;
     } else {
-      serenity_reply_multi(ctx, msg, split_message(text));
+      serenity_reply_multi(ctx, msg, split_message(text)).await;
     }
   } else {
-    serenity_reply_single(ctx, msg, text);
+    serenity_reply_single(ctx, msg, text).await;
   }
 }
 
-pub fn channel_message(ctx: &Context, msg : &Message, text: &str) {
+pub async fn channel_message(ctx: &Context, msg : &Message, text: &str) {
   if text.len() > MESSAGE_LIMIT {
     if text.starts_with("```") {
-      serenity_channel_message_multi2(ctx, msg, split_code(text));
+      serenity_channel_message_multi2(ctx, msg, split_code(text)).await;
     } else {
-      serenity_channel_message_multi(ctx, msg, split_message(text));
+      serenity_channel_message_multi(ctx, msg, split_message(text)).await;
     }
   } else {
-    serenity_channel_message_single(ctx, msg, text);
+    serenity_channel_message_single(ctx, msg, text).await;
   }
 }

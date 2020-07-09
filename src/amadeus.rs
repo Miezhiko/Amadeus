@@ -19,7 +19,8 @@ use serenity::{
   framework::StandardFramework,
   framework::standard::{
     DispatchError, Args, CommandOptions, CheckResult,
-    macros::{group, check}
+    Reason, CommandResult,
+    macros::{group, check, hook}
   },
   model::{channel::{Message}}
 };
@@ -37,8 +38,9 @@ use std::sync::Arc;
 use regex::Regex;
 
 use rand::{
-  thread_rng,
-  seq::SliceRandom
+  rngs::StdRng,
+  seq::SliceRandom,
+  SeedableRng
 };
 
 pub struct Version();
@@ -54,7 +56,7 @@ impl IFlagAction for Version {
 }
 
 #[group]
-#[commands(ping, help)]
+#[commands(ping, help, embed)]
 struct Meta;
 
 #[group]
@@ -88,16 +90,87 @@ struct Admin;
 #[name = "Admin"]
 #[check_in_help(true)]
 #[display_in_help(true)]
-fn admin_check(ctx: &mut Context, msg: &Message, _: &mut Args, _: &CommandOptions) -> CheckResult {
-  if let Some(member) = msg.member(&ctx.cache) {
-    if let Ok(permissions) = member.permissions(&ctx.cache) {
+async fn admin_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOptions) -> CheckResult {
+  if let Some(member) = msg.member(&ctx.cache).await {
+    if let Ok(permissions) = member.permissions(&ctx.cache).await {
       return permissions.administrator().into();
     }
   }
   false.into()
 }
 
-pub fn run(opts : &AOptions) -> Result<(), serenity::Error> {
+
+#[hook]
+async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
+  match error {
+    // Notify the user if the reason of the command failing to execute was because of
+    // inssufficient arguments.
+    DispatchError::NotEnoughArguments { min, given } => {
+      let s = {
+        if given == 0  && min == 1{
+          format!("I need an argument to run this command")
+        } else if given == 0 {
+          format!("I need atleast {} arguments to run this command", min)
+        } else {
+          format!("I need {} arguments to run this command, but i was only given {}.", min, given)
+        }
+      };
+      // Send the message, but supress any errors that may occur.
+      let _ = msg.channel_id.say(ctx, s).await;
+    },
+    DispatchError::IgnoredBot {} => {
+        return;
+    },
+    DispatchError::CheckFailed(_, reason) => {
+      if let Reason::User(r) = reason {
+        let _ = msg.channel_id.say(ctx, r).await;
+      }
+    },
+    DispatchError::Ratelimited(x) => {
+      let _ = msg.reply(ctx, format!("You can't run this command for {} more seconds.", x)).await;
+    }
+    // eprint prints to stderr rather than stdout.
+    _ => {
+      error!("Unhandled dispatch error: {:?}", error);
+      eprintln!("An unhandled dispatch error has occurred:");
+      eprintln!("{:?}", error);
+    }
+  }
+}
+
+#[hook]
+async fn after(ctx: &Context, msg: &Message, cmd_name: &str, error: CommandResult) {
+  // error is the command result.
+  // inform the user about an error when it happens.
+  if let Err(why) = &error {
+    error!("Error while running command {}", &cmd_name);
+    error!("{:?}", &error);
+
+    if let Err(_) = msg.channel_id.say(ctx, &why).await {
+      error!("Unable to send messages on channel id {}", &msg.channel_id.0);
+    };
+  }
+}
+
+#[hook]
+async fn unrecognised_command(ctx: &Context, msg: &Message, _command_name: &str) {
+  if let Some(_) = GREETINGS.into_iter().find(|&c| {
+    let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
+    let is_greeting = Regex::new(regex.as_str()).unwrap();
+    is_greeting.is_match(msg.content.as_str()) }) 
+  {
+    let mut rng = StdRng::from_entropy();
+    set! { hi_reply = GREETINGS.choose(&mut rng).unwrap()
+        , reply = format!("{}", hi_reply) };
+    if let Err(why) = msg.reply(&ctx, reply).await {
+      error!("Error sending greeting reply: {:?}", why);
+    }
+  } else {
+    chain::response(&ctx, &msg, 7000).await;
+  }
+}
+
+pub async fn run(opts : &AOptions) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
   { // this block limits scope of borrows by ap.refer() method
     let mut ap = ArgumentParser::new();
     let pname = "Amadeus";
@@ -114,72 +187,51 @@ pub fn run(opts : &AOptions) -> Result<(), serenity::Error> {
 
   info!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
 
-  let mut client = serenity::Client::new
-    (&opts.discord, Handler::new(&opts)).expect("Error creating serenity client");
-  {
-    let mut data = client.data.write();
-    data.insert::<VoiceManager>(Arc::clone(&client.voice_manager));
-    data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
-  }
+  let http = serenity::http::Http::new_with_token(&opts.discord);
 
-  let owners = match client.cache_and_http.http.get_current_application_info() {
+  // Obtains and defines the owner/owners of the Bot Application
+  // and the bot id. 
+  let (owners, bot_id) = match http.get_current_application_info().await {
     Ok(info) => {
-      let mut set = HashSet::new();
-      set.insert(info.owner.id);
-      set
-    },
-    Err(why) => panic!("Couldn't get application info: {:?}", why),
-  };
-
-  let bot_id = match client.cache_and_http.http.get_current_application_info() {
-    Ok(info) => {
-      info.id
+      let mut owners = HashSet::new();
+      owners.insert(info.owner.id);
+      (owners, info.id)
     },
     Err(why) => panic!("Could not access application info: {:?}", why),
   };
 
-  client.with_framework(StandardFramework::new()
-    .configure(|c| c
+  let std_framework =
+    StandardFramework::new()
+     .configure(|c| c
       .owners(owners)
       .on_mention(Some(bot_id))
       .prefix("~")
       .delimiters(vec![", ", ","])
       .case_insensitivity(true))
-    .on_dispatch_error(|ctx, msg, error| {
-      if let DispatchError::Ratelimited(seconds) = error {
-        let _ = msg.channel_id.say(&ctx.http, &format!("Try this again in {} seconds.", seconds));
-      }
-    })
-    .after(|_ctx, _msg, cmd_name, error| {
-      match error {
-        Ok(()) => trace!("Processed command '{}'", cmd_name),
-        Err(why) => error!("Command '{}' returned error {:?}", cmd_name, why)
-      }
-    })
-    .unrecognised_command(|ctx, msg, _unknown_command_name| {
-      if let Some(_) = GREETINGS.into_iter().find(|&c| {
-        let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
-        let is_greeting = Regex::new(regex.as_str()).unwrap();
-        is_greeting.is_match(msg.content.as_str()) }) 
-      {
-        let mut rng = thread_rng();
-        set! { hi_reply = GREETINGS.choose(&mut rng).unwrap()
-             , reply = format!("{}", hi_reply) };
-        if let Err(why) = msg.reply(&ctx, reply) {
-          error!("Error sending greeting reply: {:?}", why);
-        }
-      } else {
-        chain::response(&ctx, &msg, 7000);
-      }
-    })
-    .group(&META_GROUP)
-    .group(&CHAT_GROUP)
-    .group(&VOICE_GROUP)
-    .group(&WARCRAFT_GROUP)
-    .group(&PAD_GROUP)
-    .group(&OWNER_GROUP)
-    .group(&ADMIN_GROUP)
-  );
+      .on_dispatch_error(on_dispatch_error)
+      .after(after)
+      .unrecognised_command(unrecognised_command)
+      .group(&META_GROUP)
+      .group(&CHAT_GROUP)
+      .group(&VOICE_GROUP)
+      .group(&WARCRAFT_GROUP)
+      .group(&PAD_GROUP)
+      .group(&OWNER_GROUP)
+      .group(&ADMIN_GROUP);
 
-  client.start()
+  let mut client = serenity::Client::new(&opts.discord)
+                    .event_handler(Handler::new(&opts))
+                    .framework(std_framework).await?;
+  {
+    let mut data = client.data.write().await;
+    data.insert::<VoiceManager>(Arc::clone(&client.voice_manager));
+    data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
+  }
+
+  // start listening for events by starting a single shard
+  if let Err(why) = client.start_autosharded().await {
+    eprintln!("An error occurred while running the client: {:?}", why);
+  }
+
+  Ok(())
 }

@@ -13,17 +13,17 @@ use serenity::{
 use reqwest;
 
 use std::collections::HashMap;
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 
 lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, TrackingGame>> = Mutex::new(HashMap::new());
 }
 
-pub fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String, String, String, String)>)> {
+async fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String, String, String, String)>)> {
 
   let mut matchid_s : String = String::new();
-  if let Ok(wtf) = reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20") {
-    if let Ok(going) = wtf.json::<Going>() {
+  if let Ok(wtf) = reqwest::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20").await {
+    if let Ok(going) = wtf.json::<Going>().await {
       for mm in &going.matches {
         if mm.startTime == matchid_lol {
           // TODO: change that hack one day
@@ -47,8 +47,8 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String, S
   let matchid = matchid_s.as_str();
   let url = format!("https://statistic-service.w3champions.com/api/matches/{}", matchid);
 
-  if let Ok(res) = reqwest::blocking::get(url.as_str()) {
-    match res.json::<MD>() {
+  if let Ok(res) = reqwest::get(url.as_str()).await {
+    match res.json::<MD>().await {
       Ok(md) => {
         let m = md.match_data;
         let mstr_o =
@@ -139,14 +139,14 @@ pub fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String, S
   None
 }
 
-pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
+pub async fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
   let mut out : Vec<StartingGame> = Vec::new();
   if let Ok(res) =
     // getaway 20 = Europe
-    reqwest::blocking::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20") {
-    if let Ok(going) = res.json::<Going>() {
+    reqwest::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20").await {
+    if let Ok(going) = res.json::<Going>().await {
       if going.matches.len() > 0 {
-        if let Ok(mut games_lock) = GAMES.lock() {
+        let mut games_lock = GAMES.lock().await; {
 
           for m in going.matches {
             if m.gameMode == 1 {
@@ -167,8 +167,8 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                     let minutes = track.passed_time / 2;
                     let footer = format!("Passed: {} min", minutes);
 
-                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id) {
-                      if let Ok(user) = ctx.http.get_user(playa.discord) {
+                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                      if let Ok(user) = ctx.http.get_user(playa.discord).await {
 
                         let mut fields = Vec::new();
                         let mut img = None;
@@ -199,7 +199,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                             }
                             e
                           }
-                        )) {
+                        )).await {
                           error!("Failed to post live match {:?}", why);
                         }
                       }
@@ -246,8 +246,8 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                     track.still_live = true;
                     let minutes = track.passed_time / 2;
                     let footer = format!("Passed: {} min", minutes);
-                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id) {
-                      if let Ok(user) = ctx.http.get_user(playa.discord) {
+                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                      if let Ok(user) = ctx.http.get_user(playa.discord).await {
                         let mut fields = Vec::new();
                         let mut img = None;
                         let mut url = None;
@@ -277,7 +277,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                             }
                             e
                           }
-                        )) {
+                        )).await {
                           error!("Failed to post live match {:?}", why);
                         }
                       }
@@ -301,10 +301,10 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
           let mut k_to_del : Vec<String> = Vec::new();
           for (k, track) in games_lock.iter_mut() {
             if !track.still_live {
-              if let Some((new_text, duration, fields)) = check_match(k) {
-                if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id) {
+              if let Some((new_text, duration, fields)) = check_match(k).await {
+                if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
                   let footer : String = format!("Passed: {} min", duration);
-                  if let Ok(user) = ctx.http.get_user(track.tracking_usr_id) {
+                  if let Ok(user) = ctx.http.get_user(track.tracking_usr_id).await {
                     let mut old_fields = Vec::new();
                     let mut url = None;
                     if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
@@ -334,7 +334,7 @@ pub fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
                           e = e.url(url.unwrap());
                         }
                         e
-                      })) {
+                      })).await {
                         error!("Failed to update live match {:?}", why);
                     }
                   }

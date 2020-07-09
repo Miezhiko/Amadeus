@@ -20,15 +20,14 @@ use serenity::{
 };
 
 use std::sync::Arc;
-use typemap::Key;
 
 pub struct VoiceManager;
 
-impl Key for VoiceManager {
+impl TypeMapKey for VoiceManager {
   type Value = Arc<Mutex<ClientVoiceManager>>;
 }
 
-pub fn rejoin_voice_channel(ctx : &Context, conf: &AOptions) {
+pub async fn rejoin_voice_channel(ctx : &Context, conf: &AOptions) {
   if conf.rejoin {
     set!{ last_guild_u64 = conf.last_guild.parse::<u64>().unwrap_or(0)
         , last_channel_u64 = conf.last_channel.parse::<u64>().unwrap_or(0) };
@@ -36,13 +35,14 @@ pub fn rejoin_voice_channel(ctx : &Context, conf: &AOptions) {
       set!{ last_guild_conf = GuildId( last_guild_u64 )
           , last_channel_conf = ChannelId( last_channel_u64 ) };
       let manager_lock =
-        ctx.data.read().get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
-      let mut manager = manager_lock.lock();
+        ctx.data.read().await
+          .get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
+      let mut manager = manager_lock.lock().await;
       if manager.join(last_guild_conf, last_channel_conf).is_some() {
         info!("Rejoined voice channel: {}", last_channel_conf);
         if conf.last_stream != "" {
           if let Some(handler) = manager.get_mut(last_guild_conf) {
-            let source = match voice::ytdl(&conf.last_stream) {
+            let source = match voice::ytdl(&conf.last_stream).await {
               Ok(source) => source,
               Err(why) => {
                 error!("Err starting source: {:?}", why);
@@ -60,28 +60,28 @@ pub fn rejoin_voice_channel(ctx : &Context, conf: &AOptions) {
 }
 
 #[command]
-pub fn join(ctx: &mut Context, msg: &Message) -> CommandResult {
-  let guild = match msg.guild(&ctx) {
+async fn join(ctx: &Context, msg: &Message) -> CommandResult {
+  let guild = match msg.guild(&ctx).await {
     Some(guild) => guild,
     None => {
-      direct_message(ctx, msg, "Groups and DMs not supported");
+      direct_message(ctx, msg, "Groups and DMs not supported").await;
       return Ok(());
     }
   };
-  let guild_id = guild.read().id;
+  let guild_id = guild.id;
   let channel_id = guild
-    .read()
     .voice_states.get(&msg.author.id)
     .and_then(|voice_state| voice_state.channel_id);
   let connect_to = match channel_id {
     Some(channel) => channel,
     None => {
-      reply(ctx, msg, "You're not in a voice channel");
+      reply(ctx, msg, "You're not in a voice channel").await;
       return Ok(());
     }
   };
-  let manager_lock = ctx.data.read().get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
-  let mut manager = manager_lock.lock();
+  let manager_lock = ctx.data.read().await
+    .get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
+  let mut manager = manager_lock.lock().await;
   if manager.join(guild_id, connect_to).is_some() {
     let mut conf = conf::parse_config();
     let last_guild_conf = GuildId( conf.last_guild.parse::<u64>().unwrap_or(0) );
@@ -92,29 +92,30 @@ pub fn join(ctx: &mut Context, msg: &Message) -> CommandResult {
       conf.last_channel = format!("{}", connect_to);
       conf::write_config(&conf);
     }
-    if let Err(why) = msg.channel_id.say(&ctx, &format!("I've joined {}", connect_to.mention())) {
+    if let Err(why) = msg.channel_id.say(&ctx, &format!("I've joined {}", connect_to.mention())).await {
       error!("failed to say joined {:?}", why);
     }
   } else {
-    direct_message(ctx, msg, "Some error joining the channel...");
+    direct_message(ctx, msg, "Some error joining the channel...").await;
   }
-  if let Err(why) = msg.delete(&ctx) {
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
 
 #[command]
-pub fn leave(ctx: &mut Context, msg: &Message) -> CommandResult {
-  let guild_id = match ctx.cache.read().guild_channel(msg.channel_id) {
-    Some(channel) => channel.read().guild_id,
+async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
+  let guild_id = match ctx.cache.guild_channel(msg.channel_id).await {
+    Some(channel) => channel.guild_id,
     None => {
-      direct_message(ctx, msg, "Groups and DMs not supported");
+      direct_message(ctx, msg, "Groups and DMs not supported").await;
       return Ok(());
     },
   };
-  let manager_lock = ctx.data.read().get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
-  let mut manager = manager_lock.lock();
+  let manager_lock = ctx.data.read()
+      .await.get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
+  let mut manager = manager_lock.lock().await;
   let has_handler = manager.get(guild_id).is_some();
   if has_handler {
     manager.remove(guild_id);
@@ -125,22 +126,22 @@ pub fn leave(ctx: &mut Context, msg: &Message) -> CommandResult {
       conf::write_config(&conf);
     }
   } else {
-    reply(ctx, &msg, "I'm not in a voice channel");
+    reply(ctx, &msg, "I'm not in a voice channel").await;
   }
-  if let Err(why) = msg.delete(&ctx) {
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
 
 #[command]
-pub fn play(ctx: &mut Context, msg: &Message, mut args: Args) -> CommandResult {
+async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let url =
     if args.len() > 0 {
       match args.single::<String>() {
         Ok(url) => url,
         Err(_) => {
-          reply(ctx, msg, "You must provide a URL to a video or audio");
+          reply(ctx, msg, "You must provide a URL to a video or audio").await;
           return Ok(());
         }
       }
@@ -149,24 +150,25 @@ pub fn play(ctx: &mut Context, msg: &Message, mut args: Args) -> CommandResult {
       conf.last_stream
     };
   if !url.starts_with("http") {
-    reply(ctx, msg, "You must provide a valid URL");
+    reply(ctx, msg, "You must provide a valid URL").await;
     return Ok(());
   }
-  let guild_id = match ctx.cache.read().guild_channel(msg.channel_id) {
-    Some(channel) => channel.read().guild_id,
+  let guild_id = match ctx.cache.guild_channel(msg.channel_id).await {
+    Some(channel) => channel.guild_id,
     None => {
-      reply(ctx, msg, "Error finding channel info...");
+      reply(ctx, msg, "Error finding channel info...").await;
       return Ok(());
     }
   };
-  let manager_lock = ctx.data.read().get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
-  let mut manager = manager_lock.lock();
+  let manager_lock = ctx.data.read().await
+      .get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
+  let mut manager = manager_lock.lock().await;
   if let Some(handler) = manager.get_mut(guild_id) {
-    let source = match voice::ytdl(&url) {
+    let source = match voice::ytdl(&url).await {
       Ok(source) => source,
       Err(why) => {
         error!("Err starting source: {:?}", why);
-        reply(ctx, msg, &format!("Sorry, error sourcing ffmpeg {:?}", why));
+        reply(ctx, msg, &format!("Sorry, error sourcing ffmpeg {:?}", why)).await;
         return Ok(());
       }
     };
@@ -177,17 +179,17 @@ pub fn play(ctx: &mut Context, msg: &Message, mut args: Args) -> CommandResult {
       conf.last_stream = url.clone();
       conf::write_config(&conf);
     }
-    reply(ctx, msg, &format!("playing stream: {}", url));
+    reply(ctx, msg, &format!("playing stream: {}", url)).await;
   } else {
-    reply(ctx, msg, "Not in a voice channel to play in...");
+    reply(ctx, msg, "Not in a voice channel to play in...").await;
   }
-  if let Err(why) = msg.delete(&ctx) {
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   Ok(())
 }
 
 #[command]
-pub fn repeat(ctx: &mut Context, msg: &Message) -> CommandResult {
-  play(ctx, msg, Args::new("", &[Delimiter::Single(' ')]))
+async fn repeat(ctx: &Context, msg: &Message) -> CommandResult {
+  play(ctx, msg, Args::new("", &[Delimiter::Single(' ')])).await
 }

@@ -14,6 +14,7 @@ extern crate reqwest;
 extern crate markov;
 extern crate ucd;
 extern crate comfy_table;
+extern crate futures_util;
 
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate log;
@@ -27,9 +28,10 @@ pub mod stains;
 mod handler;
 mod amadeus;
 
-fn main() {
+#[tokio::main(core_threads=8)]
+async fn main() {
   let conf = common::conf::parse_config();
-  if let Err(err) = amadeus::run(&conf) {
+  if let Err(err) = amadeus::run(&conf).await {
     panic!("Amadeus died {:?}", err)
   }
 }

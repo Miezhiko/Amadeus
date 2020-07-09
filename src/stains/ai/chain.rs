@@ -30,19 +30,19 @@ use std::sync::atomic::{ AtomicU32 };
 
 pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(66);
 
-pub fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit: u64) -> Option<String> {
+pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit: u64) -> Option<String> {
   let mut have_something = false;
-  if let Some(guild) = msg.guild(&ctx) {
+  if let Some(guild) = msg.guild(&ctx).await {
     let mut chain = Chain::new();
     let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
-    let guild_id = guild.read().id;
-    if let Ok(channels) = guild_id.channels(&ctx) {
+    let guild_id = guild.id;
+    if let Ok(channels) = guild_id.channels(&ctx).await {
       for (chan, _) in channels {
-        if let Some(c_name) = chan.name(&ctx) {
+        if let Some(c_name) = chan.name(&ctx).await {
           if AI_LEARN.into_iter().any(|&c| c == c_name.as_str()) {
             if let Ok(messages) = chan.messages(&ctx, |r|
               r.limit(limit)
-            ) {
+            ).await {
               for mmm in messages {
                 if mmm.author.id == author_id {
                   let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
@@ -51,7 +51,7 @@ pub fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit: u64) 
                   result =
                     content_safe(&ctx, &result, &ContentSafeOptions::default()
                       .clean_user(false).clean_channel(true)
-                      .clean_everyone(true).clean_here(true));
+                      .clean_everyone(true).clean_here(true)).await;
                   if !result.is_empty() && !result.contains("$") && !is_http {
                     chain.feed_str(result.as_str());
                     if !have_something {
@@ -72,17 +72,17 @@ pub fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit: u64) 
   None
 }
 
-pub fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, russian : bool) -> String {
+pub async fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, russian : bool) -> String {
   let mut out = String::new();
-  if let Ok(channels) = guild_id.channels(&ctx) {
+  if let Ok(channels) = guild_id.channels(&ctx).await {
     let mut chain = Chain::new();
     let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
     for (chan, _) in channels {
-      if let Some(c_name) = chan.name(&ctx) {
+      if let Some(c_name) = chan.name(&ctx).await {
         if AI_LEARN.into_iter().any(|&c| c == c_name.as_str()) {
           if let Ok(messages) = chan.messages(&ctx, |r|
             r.limit(limit)
-          ) {
+          ).await {
             for mmm in messages {
               if !mmm.author.bot {
                 let is_to_bot = mmm.mentions.len() > 0 && (&mmm.mentions).into_iter().any(|u| u.bot);
@@ -93,7 +93,7 @@ pub fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, rus
                   result =
                     content_safe(&ctx, &result, &ContentSafeOptions::default()
                       .clean_user(false).clean_channel(true)
-                      .clean_everyone(true).clean_here(true));
+                      .clean_everyone(true).clean_here(true)).await;
                   if !result.is_empty() && !result.contains("$") && !is_http {
                     let is_russian = lang::is_russian(result.as_str());
                     if (russian && is_russian) || (!russian && !is_russian) {
@@ -112,26 +112,26 @@ pub fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, rus
   out
 }
 
-pub fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId, limit: u64) -> String {
+pub async fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId, limit: u64) -> String {
   let rndx = rand::thread_rng().gen_range(0, 2);
-  generate_with_language(&ctx, &guild_id, limit, rndx != 1)
+  generate_with_language(&ctx, &guild_id, limit, rndx != 1).await
 }
 
-pub fn generate(ctx: &Context, msg : &Message, limit: u64) -> String {
+pub async fn generate(ctx: &Context, msg : &Message, limit: u64) -> String {
   let mut out = String::new();
-  if let Some(guild) = msg.guild(&ctx) {
+  if let Some(guild) = msg.guild(&ctx).await {
     let mut chain = Chain::new();
     let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
     let msg_content = &msg.content;
     let russian = lang::is_russian(msg_content);
-    let guild_id = guild.read().id;
-    if let Ok(channels) = guild_id.channels(&ctx) {
+    let guild_id = guild.id;
+    if let Ok(channels) = guild_id.channels(&ctx).await {
       for (chan, _) in channels {
-        if let Some(c_name) = chan.name(&ctx) {
+        if let Some(c_name) = chan.name(&ctx).await {
           if AI_LEARN.into_iter().any(|&c| c == c_name.as_str()) {
             if let Ok(messages) = chan.messages(&ctx, |r|
               r.limit(limit)
-            ) {
+            ).await {
               for mmm in messages {
                 let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
                 result = result.replace(": ", "");
@@ -139,7 +139,7 @@ pub fn generate(ctx: &Context, msg : &Message, limit: u64) -> String {
                 result =
                   content_safe(&ctx, &result, &ContentSafeOptions::default()
                     .clean_user(false).clean_channel(true)
-                    .clean_everyone(true).clean_here(true));
+                    .clean_everyone(true).clean_here(true)).await;
                 if !result.is_empty() && !result.contains("$") && !is_http {
                   let is_russian = lang::is_russian(result.as_str());
                   if (russian && is_russian)
@@ -184,21 +184,21 @@ pub fn obfuscate(msg_content : &str) -> String {
   chain.generate_str()
 }
 
-pub fn response(ctx: &Context, msg : &Message, limit: u64) {
-  let answer = generate(&ctx, &msg, limit);
+pub async fn response(ctx: &Context, msg : &Message, limit: u64) {
+  let answer = generate(&ctx, &msg, limit).await;
   if !answer.is_empty() {
-    reply(&ctx, &msg, answer.as_str());
+    reply(&ctx, &msg, answer.as_str()).await;
   }
 }
 
-pub fn chat(ctx: &Context, msg : &Message, limit: u64) {
-  let answer = generate(&ctx, &msg, limit);
+pub async fn chat(ctx: &Context, msg : &Message, limit: u64) {
+  let answer = generate(&ctx, &msg, limit).await;
   if !answer.is_empty() {
     let rnd = rand::thread_rng().gen_range(0, 3);
     if rnd == 1 {
-      reply(&ctx, &msg, answer.as_str());
+      reply(&ctx, &msg, answer.as_str()).await;
     } else {
-      channel_message(&ctx, &msg, answer.as_str());
+      channel_message(&ctx, &msg, answer.as_str()).await;
     }
   }
 }

@@ -37,13 +37,13 @@ fn current_season() -> String {
 }
 
 #[command]
-pub fn ongoing(ctx: &mut Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx) {
+async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   let url = format!("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&gameMode={}", current_season());
-  let res = reqwest::blocking::get(url.as_str())?;
-  let going : Going = res.json()?;
+  let res = reqwest::get(url.as_str()).await?;
+  let going : Going = res.json().await?;
   if going.matches.len() > 0 {
     let footer = format!("Requested by {}", msg.author.name);
     let mut description : String = String:: new();
@@ -65,7 +65,7 @@ pub fn ongoing(ctx: &mut Context, msg: &Message) -> CommandResult {
           .description(description)
           .thumbnail("https://i.pinimg.com/originals/b4/a0/40/b4a04082647a8505b3991cbaea7d2f86.png")
           .colour((180,40,200))
-          .footer(|f| f.text(footer)))) {
+          .footer(|f| f.text(footer)))).await {
         error!("Error sending ongoing message: {:?}", why);
       }
     }
@@ -74,7 +74,7 @@ pub fn ongoing(ctx: &mut Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
-pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
+async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   let mut args_msg = args.message();
   if args_msg.is_empty() {
     args_msg = msg.author.name.as_str();
@@ -83,8 +83,8 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
   let userx = if args_msg.contains("#") { String::from(args_msg) }
     else {
       let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay=20&searchFor={}&season={}", args_msg, season);
-      let ress = reqwest::blocking::get(search_uri.as_str())?;
-      let search : Vec<Search> = ress.json()?;
+      let ress = reqwest::get(search_uri.as_str()).await?;
+      let search : Vec<Search> = ress.json().await?;
       if search.len() > 0 {
         if search[0].player.playerIds.len() > 0 {
           search[0].player.playerIds[0].battleTag.clone()
@@ -94,8 +94,8 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
   if !userx.is_empty() {
     let user = userx.replace("#","%23");
     let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay=20&season={}", user, season);
-    let game_mode_res = reqwest::blocking::get(game_mode_uri.as_str())?;
-    let game_mode_stats : Vec<GMStats> = game_mode_res.json()?;
+    let game_mode_res = reqwest::get(game_mode_uri.as_str()).await?;
+    let game_mode_stats : Vec<GMStats> = game_mode_res.json().await?;
 
     let mut league_info: String         = String::new();
     let mut ffa_info: String            = String::new();
@@ -184,8 +184,8 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
     }
 
     let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay=20&season={}", user, season);
-    let res = reqwest::blocking::get(uri.as_str())?;
-    let stats : Vec<Stats> = res.json()?;
+    let res = reqwest::get(uri.as_str()).await?;
+    let stats : Vec<Stats> = res.json().await?;
 
     let mut stats_by_races : String = String::new();
     if stats.len() > 0 {
@@ -193,8 +193,8 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
       let clan_uri = format!("https://statistic-service.w3champions.com/api/clans?battleTag={}", user);
       let name = &userx.split("#").collect::<Vec<&str>>()[0];
       let mut clanned = String::from(*name);
-      if let Ok(clan_res) = reqwest::blocking::get(clan_uri.as_str()) {
-        if let Ok(clan_text_res) = clan_res.text() {
+      if let Ok(clan_res) = reqwest::get(clan_uri.as_str()).await {
+        if let Ok(clan_text_res) = clan_res.text().await {
           let clan_json_res = serde_json::from_str(clan_text_res.as_str());
           if clan_json_res.is_ok() {
             let clan_json : Value = clan_json_res.unwrap();
@@ -233,8 +233,8 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
       let mut description = format!("[{}] {}\n", userx.as_str(), league_info.as_str());
 
       let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
-      let res2 = reqwest::blocking::get(uri2.as_str())?;
-      let stats2 : Stats2 = res2.json()?;
+      let res2 = reqwest::get(uri2.as_str()).await?;
+      let stats2 : Stats2 = res2.json().await?;
 
       let mut table = Table::new();
 
@@ -292,18 +292,18 @@ pub fn stats(ctx: &mut Context, msg: &Message, args : Args) -> CommandResult {
           .thumbnail(if league_avi.is_empty() { main_race_avatar } else { league_avi.as_str() })
           .fields(additional_info)
           .colour(main_race_colors)
-          .footer(|f| f.text(footer)))) {
+          .footer(|f| f.text(footer)))).await {
         error!("Error sending stats message: {:?}", why);
       }
     } else {
       let resp = format!("User {} not found", args_msg);
-      channel_message(&ctx, &msg, resp.as_str());
+      channel_message(&ctx, &msg, resp.as_str()).await;
     }
   } else {
     let resp = format!("Search on {} found no users", args_msg);
-    channel_message(&ctx, &msg, resp.as_str());
+    channel_message(&ctx, &msg, resp.as_str()).await;
   }
-  if let Err(why) = msg.delete(&ctx) {
+  if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   Ok(())

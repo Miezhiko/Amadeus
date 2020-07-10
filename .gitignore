@@ -5,3 +5,5 @@ Cargo.lock
 
 # secret commands, tokens and stuff
 secret
+
+*.lusf

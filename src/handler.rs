@@ -44,7 +44,7 @@ use regex::Regex;
 pub static THREADS : AtomicBool = AtomicBool::new(false);
 
 pub struct Handler {
-  options : AOptions
+  options: AOptions
 }
 
 impl Handler {

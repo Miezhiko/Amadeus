@@ -1,11 +1,22 @@
-Amadeus is the name of a memory storage and artificial intelligence system.
-===========================================================================
+Amadeus
+=======
 
-To compile just use `cargo build --release`
+Memory storage and artificial intelligence system.
+
+Features
+--------
+
+ - fully async, runs on tokio https://tokio.rs
+ - chatty (ability to change activity level on runtime)
+ - many small useful commands
+ - user points based on sled db https://github.com/spacejam/sled
+ - live games tracking on w3champoions
+ - some more warcraft 3 related stuff, like player stats and news
 
 Preparing
 ---------
 
+ - to compile just use `cargo build --release`
  - `cp conf.ini.example conf.ini`
  - generate token here: https://discord.com/developers/applications
  - optionally for twitch support: https://dev.twitch.tv/docs/authentication
@@ -43,3 +54,9 @@ note that you're fully safe to rebuild and restart it whenever you want
 ``` sh
 systemctl restart Amadeus
 ```
+
+Note
+====
+
+ - Do not block her
+ - Only will work with server administrator permissions

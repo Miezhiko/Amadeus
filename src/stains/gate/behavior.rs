@@ -79,21 +79,20 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
               ch_ud = ch_clone.as_u64().clone(),
               options_clone = options.clone() };
         tokio::spawn(async move {
+          let mut games_lock = cyber::team_checker::GAMES.lock().await;
           loop {
-            let mut games_lock = cyber::team_checker::GAMES.lock().await; {
-              let mut k_to_del : Vec<String> = Vec::new();
-              for (k, track) in games_lock.iter_mut() {
-                if track.passed_time < 666 {
-                  track.passed_time += 1;
-                  track.still_live = false;
-                } else {
-                  k_to_del.push(k.clone());
-                }
+            let mut k_to_del : Vec<String> = Vec::new();
+            for (k, track) in games_lock.iter_mut() {
+              if track.passed_time < 666 {
+                track.passed_time += 1;
+                track.still_live = false;
+              } else {
+                k_to_del.push(k.clone());
               }
-              for ktd in k_to_del {
-                warn!("match {} out with timeout", ktd);
-                games_lock.remove(ktd.as_str());
-              }
+            }
+            for ktd in k_to_del {
+              warn!("match {} out with timeout", ktd);
+              games_lock.remove(ktd.as_str());
             }
             info!("check");
             if !background_threads_successfully_started {
@@ -191,14 +190,12 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
                   }
                 )).await {
                   Ok(msg_id) => {
-                    let mut games_lock = cyber::team_checker::GAMES.lock().await; {
-                      games_lock.insert(game_key, TrackingGame {
-                        tracking_msg_id: msg_id.id.as_u64().clone(),
-                        passed_time: 0,
-                        still_live: false,
-                        tracking_usr_id: discord_user }
-                      );
-                    }
+                    games_lock.insert(game_key, TrackingGame {
+                      tracking_msg_id: msg_id.id.as_u64().clone(),
+                      passed_time: 0,
+                      still_live: false,
+                      tracking_usr_id: discord_user }
+                    );
                   },
                   Err(why) => {
                     error!("Failed to post live match {:?}", why);

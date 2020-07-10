@@ -1,6 +1,5 @@
 use crate::common::types::{ Player, player, streamer, streams, twitch };
 
-//Schappster#2205
 pub static DIVISION1: &'static [Player] = &
   [ player("Edek#1800", 298003054110965762)
   , player("RiplEy#21126", 137314790769950720)

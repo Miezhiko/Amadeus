@@ -169,7 +169,7 @@ impl EventHandler for Handler {
       if let Some(guild) = msg.guild(&ctx).await {
         let mentioned_bot = (&msg.mentions).into_iter().any(|u| u.bot);
         if !mentioned_bot {
-          points::add_points(guild.id.as_u64(), msg.author.id.as_u64(), &1).await;
+          points::add_points(guild.id.as_u64().clone(), msg.author.id.as_u64().clone(), 1).await;
           let is_admin =
             if let Some(member) = msg.member(&ctx.cache).await {
               if let Ok(permissions) = member.permissions(&ctx.cache).await {

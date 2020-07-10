@@ -21,11 +21,17 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
     let (target, the_points) =
       if msg.mentions.len() > 0 {
         let target_user = &msg.mentions[0];
-        ( &target_user.name
-        , points::get_points( guild.id.as_u64(), target_user.id.as_u64()) )
+        if let Ok(p) = points::get_points( guild.id.as_u64().clone(), target_user.id.as_u64().clone()).await {
+          ( &target_user.name, p )
+        } else {
+          ( &target_user.name, 0 )
+        }
       } else {
-        ( &msg.author.name
-        , points::get_points( guild.id.as_u64(), msg.author.id.as_u64()) )
+        if let Ok(p) = points::get_points( guild.id.as_u64().clone(), msg.author.id.as_u64().clone()).await {
+          ( &msg.author.name, p )
+        } else {
+          ( &msg.author.name, 0 )
+        }
       };
     let out = format!("{} score: {}", target, the_points);
     channel_message(ctx, msg, out.as_str()).await;

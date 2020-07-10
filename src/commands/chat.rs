@@ -17,6 +17,9 @@ use serenity::{
 
 #[command]
 async fn score(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
   if let Some(guild) = msg.guild(&ctx).await {
     let (target, the_points) =
       if msg.mentions.len() > 0 {
@@ -33,8 +36,15 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
           ( &msg.author.name, 0 )
         }
       };
-    let out = format!("{} score: {}", target, the_points);
-    channel_message(ctx, msg, out.as_str()).await;
+    let out = format!("Score for {} : {}", target, the_points);
+    let footer = format!("Requested by {}", msg.author.name);
+    if let Err(why) = msg.channel_id.send_message(ctx, |m| m
+      .embed(|e| e
+      .description(out.as_str())
+      .footer(|f| f.text(footer))
+    )).await {
+      error!("Failed to post score for {}, {:?}", target, why);
+    }
   }
   Ok(())
 }
@@ -48,7 +58,7 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
     let target = &msg.mentions[0];
     if let Some(q) = chain::make_quote(ctx, msg, target.id, 9000).await {
       let footer = format!("Requested by {}", msg.author.name);
-      if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+      if let Err(why) = msg.channel_id.send_message(ctx, |m| m
         .embed(|e| e
         .author(|a| a.icon_url(&target.face()).name(&target.name))
         .description(q)

@@ -44,7 +44,6 @@ pub async fn add_points<'a>( guild_id: u64
         if let Some(mut data) = mbdata {
           let byte_data: &mut [u8] = data.as_bytes_mut();
           let mut points : Points = bincode::deserialize(byte_data).unwrap();
-          info!("current points: {}", points.count);
           points.count += new_points;
           let new_bytes = bincode::serialize(&points).unwrap();
           (*byte_data).copy_from_slice(&new_bytes[..]);

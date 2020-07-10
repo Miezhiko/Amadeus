@@ -11,6 +11,7 @@ Features
  - many small useful commands
  - live games tracking on w3champoions
  - some more warcraft 3 related stuff, like player stats and news
+ - points system on cannyls! https://github.com/frugalos/cannyls/wiki
 
 Preparing
 ---------

@@ -17,18 +17,19 @@ use serenity::{
 
 #[command]
 async fn score(ctx: &Context, msg: &Message) -> CommandResult {
-  /*
-  let (target, the_points) =
-    if msg.mentions.len() > 0 {
-      let target_user = &msg.mentions[0];
-      ( &target_user.name
-      , points::get_points(target_user.id.as_u64()) )
-    } else {
-      ( &msg.author.name
-      , points::get_points(msg.author.id.as_u64()) )
-    };
-  let out = format!("{} score: {}", target, the_points);
-  channel_message(ctx, msg, out.as_str()).await;*/
+  if let Some(guild) = msg.guild(&ctx).await {
+    let (target, the_points) =
+      if msg.mentions.len() > 0 {
+        let target_user = &msg.mentions[0];
+        ( &target_user.name
+        , points::get_points( guild.id.as_u64(), target_user.id.as_u64()) )
+      } else {
+        ( &msg.author.name
+        , points::get_points( guild.id.as_u64(), msg.author.id.as_u64()) )
+      };
+    let out = format!("{} score: {}", target, the_points);
+    channel_message(ctx, msg, out.as_str()).await;
+  }
   Ok(())
 }
 

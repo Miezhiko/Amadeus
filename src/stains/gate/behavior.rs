@@ -48,7 +48,7 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
                 error!("Failed to post periodic message {:?}", why);
               }
             }
-            std::thread::sleep(time::Duration::from_secs(30*60));
+            tokio::time::delay_for(time::Duration::from_secs(30*60)).await;
           }
         });
       }
@@ -101,7 +101,7 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
               ctx_clone.online().await;
             }
             background_threads_successfully_started = true;
-            let our_gsx = cyber::team_checker::check(&ctx_clone, ch_ud).await;
+            let our_gsx = cyber::team_checker::check(&ctx_clone, ch_ud, &mut games_lock).await;
             for game in our_gsx {
               set!{ game_key = game.key.clone()
                   , discord_user = game.user };
@@ -206,7 +206,7 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
                 }
               }
             }
-            std::thread::sleep(time::Duration::from_secs(30));
+            tokio::time::delay_for(time::Duration::from_secs(30)).await;
           }
         });
       }

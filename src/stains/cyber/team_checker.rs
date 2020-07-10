@@ -13,7 +13,7 @@ use serenity::{
 use reqwest;
 
 use std::collections::HashMap;
-use tokio::sync::Mutex;
+use tokio::sync::{ Mutex, MutexGuard };
 
 lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, TrackingGame>> = Mutex::new(HashMap::new());
@@ -139,216 +139,214 @@ async fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String,
   None
 }
 
-pub async fn check(ctx : &Context, channel_id : u64) -> Vec<StartingGame> {
+pub async fn check<'a>( ctx: &Context
+                      , channel_id: u64
+                      , games_lock: &mut MutexGuard<'a, HashMap<String, TrackingGame>>
+                      ) -> Vec<StartingGame> {
   let mut out : Vec<StartingGame> = Vec::new();
   if let Ok(res) =
     // getaway 20 = Europe
     reqwest::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20").await {
     if let Ok(going) = res.json::<Going>().await {
       if going.matches.len() > 0 {
-        let mut games_lock = GAMES.lock().await; {
+        for m in going.matches {
+          if m.gameMode == 1 {
+            if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
+              if let Some(playa) = players().into_iter().find(|p|
+                    m.teams[0].players[0].battleTag == p.battletag
+                || m.teams[1].players[0].battleTag == p.battletag
+              ) {
+                let g_map = get_map(m.map.as_str());
+                let race1 = get_race2(m.teams[0].players[0].race);
+                let race2 = get_race2(m.teams[1].players[0].race);
+                let mstr = format!("({}) **{}** [{}] *vs* ({}) **{}** [{}] *{}*",
+                  race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
+                , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
+                if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
+                  track.still_live = true;
+                  let minutes = track.passed_time / 2;
+                  let footer = format!("Passed: {} min", minutes);
 
-          for m in going.matches {
-            if m.gameMode == 1 {
-              if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
-                if let Some(playa) = players().into_iter().find(|p|
-                     m.teams[0].players[0].battleTag == p.battletag
-                  || m.teams[1].players[0].battleTag == p.battletag
-                ) {
-                  let g_map = get_map(m.map.as_str());
-                  let race1 = get_race2(m.teams[0].players[0].race);
-                  let race2 = get_race2(m.teams[1].players[0].race);
-                  let mstr = format!("({}) **{}** [{}] *vs* ({}) **{}** [{}] *{}*",
-                    race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
-                  , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
+                  if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                    if let Ok(user) = ctx.http.get_user(playa.discord).await {
 
-                  if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
-                    track.still_live = true;
-                    let minutes = track.passed_time / 2;
-                    let footer = format!("Passed: {} min", minutes);
-
-                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
-                      if let Ok(user) = ctx.http.get_user(playa.discord).await {
-
-                        let mut fields = Vec::new();
-                        let mut img = None;
-                        let mut url = None;
-                        if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
-                          for f in msg.embeds[0].fields.clone() {
-                            fields.push((f.name, f.value, f.inline));
-                          }
-                          img = msg.embeds[0].image.clone();
-                          url = msg.embeds[0].url.clone();
-                        };
-
-                        if let Err(why) = msg.edit(ctx, |m| m
-                          .embed(|e|  {
-                            let mut e = e
-                              .title("LIVE")
-                              .author(|a| a.icon_url(&user.face()).name(&user.name))
-                              .description(mstr)
-                              .footer(|f| f.text(footer));
-                            if fields.len() > 0 {
-                              e = e.fields(fields);
-                            }
-                            if img.is_some() {
-                              e = e.image(img.unwrap().url);
-                            }
-                            if url.is_some() {
-                              e = e.url(url.unwrap());
-                            }
-                            e
-                          }
-                        )).await {
-                          error!("Failed to post live match {:?}", why);
+                      let mut fields = Vec::new();
+                      let mut img = None;
+                      let mut url = None;
+                      if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
+                        for f in msg.embeds[0].fields.clone() {
+                          fields.push((f.name, f.value, f.inline));
                         }
+                        img = msg.embeds[0].image.clone();
+                        url = msg.embeds[0].url.clone();
+                      };
+
+                      if let Err(why) = msg.edit(ctx, |m| m
+                        .embed(|e|  {
+                          let mut e = e
+                            .title("LIVE")
+                            .author(|a| a.icon_url(&user.face()).name(&user.name))
+                            .description(mstr)
+                            .footer(|f| f.text(footer));
+                          if fields.len() > 0 {
+                            e = e.fields(fields);
+                          }
+                          if img.is_some() {
+                            e = e.image(img.unwrap().url);
+                          }
+                          if url.is_some() {
+                            e = e.url(url.unwrap());
+                          }
+                          e
+                        }
+                      )).await {
+                        error!("Failed to post live match {:?}", why);
                       }
                     }
-
-                  } else {
-                    out.push(
-                      StartingGame {
-                        key: m.startTime,
-                        description: mstr,
-                        user: playa.discord,
-                        stream: playa.streams
-                      }
-                    );
                   }
-                }
-              }
-            } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode
-              if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
-                if let Some(playa) = players().into_iter().find(|p|
-                     m.teams[0].players[0].battleTag == p.battletag
-                  || m.teams[1].players[0].battleTag == p.battletag
-                  || m.teams[0].players[1].battleTag == p.battletag
-                  || m.teams[1].players[1].battleTag == p.battletag) {
 
-                  let g_map = get_map(m.map.as_str());
-
-                  set! { race1 = get_race2(m.teams[0].players[0].race)
-                       , race12 = get_race2(m.teams[0].players[1].race)
-                       , race2 = get_race2(m.teams[1].players[0].race)
-                       , race22 = get_race2(m.teams[1].players[1].race) };
-
-                  let mstr = if m.gameMode == 6 {
-                    format!("({}+{}) **{}** + **{}** [{}]\n*vs*\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
-                      race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr
-                    , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, g_map)
-                  } else {
-                    format!("({}+{}) **{}** [{}] + **{}** [{}]\n*vs*\n({}+{}) **{}** [{}] + **{}** [{}]\n\nmap: **{}**",
-                      race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr
-                    , race2, race22, m.teams[1].players[0].name, m.teams[0].players[0].oldMmr, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, g_map)
-                  };
-
-                  if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
-                    track.still_live = true;
-                    let minutes = track.passed_time / 2;
-                    let footer = format!("Passed: {} min", minutes);
-                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
-                      if let Ok(user) = ctx.http.get_user(playa.discord).await {
-                        let mut fields = Vec::new();
-                        let mut img = None;
-                        let mut url = None;
-                        if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
-                          for f in msg.embeds[0].fields.clone() {
-                            fields.push((f.name, f.value, f.inline));
-                          }
-                          img = msg.embeds[0].image.clone();
-                          url = msg.embeds[0].url.clone();
-                        };
-
-                        if let Err(why) = msg.edit(ctx, |m| m
-                          .embed(|e| {
-                            let mut e = e
-                              .title("LIVE")
-                              .author(|a| a.icon_url(&user.face()).name(&user.name))
-                              .description(mstr)
-                              .footer(|f| f.text(footer));
-                            if fields.len() > 0 {
-                              e = e.fields(fields);
-                            }
-                            if img.is_some() {
-                              e = e.image(img.unwrap().url);
-                            }
-                            if url.is_some() {
-                              e = e.url(url.unwrap());
-                            }
-                            e
-                          }
-                        )).await {
-                          error!("Failed to post live match {:?}", why);
-                        }
-                      }
+                } else {
+                  out.push(
+                    StartingGame {
+                      key: m.startTime,
+                      description: mstr,
+                      user: playa.discord,
+                      stream: playa.streams
                     }
-                  } else {
-                    out.push(
-                      StartingGame {
-                        key: m.startTime,
-                        description: mstr,
-                        user: playa.discord,
-                        stream: playa.streams
-                      }
-                    );
-                  }
-
+                  );
                 }
               }
             }
-          }
+          } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode
+            if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
+              if let Some(playa) = players().into_iter().find(|p|
+                    m.teams[0].players[0].battleTag == p.battletag
+                || m.teams[1].players[0].battleTag == p.battletag
+                || m.teams[0].players[1].battleTag == p.battletag
+                || m.teams[1].players[1].battleTag == p.battletag) {
 
-          let mut k_to_del : Vec<String> = Vec::new();
-          for (k, track) in games_lock.iter_mut() {
-            if !track.still_live {
-              if let Some((new_text, duration, fields)) = check_match(k).await {
-                if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
-                  let footer : String = format!("Passed: {} min", duration);
-                  if let Ok(user) = ctx.http.get_user(track.tracking_usr_id).await {
-                    let mut old_fields = Vec::new();
-                    let mut url = None;
-                    if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
-                      for f in msg.embeds[0].fields.clone() {
-                        old_fields.push((f.name, f.value, f.inline));
-                      }
-                      url = msg.embeds[0].url.clone();
-                    };
-                    if let Err(why) = msg.edit(ctx, |m| m
+                let g_map = get_map(m.map.as_str());
+
+                set! { race1 = get_race2(m.teams[0].players[0].race)
+                      , race12 = get_race2(m.teams[0].players[1].race)
+                      , race2 = get_race2(m.teams[1].players[0].race)
+                      , race22 = get_race2(m.teams[1].players[1].race) };
+
+                let mstr = if m.gameMode == 6 {
+                  format!("({}+{}) **{}** + **{}** [{}]\n*vs*\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
+                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr
+                  , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, g_map)
+                } else {
+                  format!("({}+{}) **{}** [{}] + **{}** [{}]\n*vs*\n({}+{}) **{}** [{}] + **{}** [{}]\n\nmap: **{}**",
+                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr
+                  , race2, race22, m.teams[1].players[0].name, m.teams[0].players[0].oldMmr, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, g_map)
+                };
+
+                if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
+                  track.still_live = true;
+                  let minutes = track.passed_time / 2;
+                  let footer = format!("Passed: {} min", minutes);
+                  if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                    if let Ok(user) = ctx.http.get_user(playa.discord).await {
+                      let mut fields = Vec::new();
+                      let mut img = None;
+                      let mut url = None;
+                      if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
+                        for f in msg.embeds[0].fields.clone() {
+                          fields.push((f.name, f.value, f.inline));
+                        }
+                        img = msg.embeds[0].image.clone();
+                        url = msg.embeds[0].url.clone();
+                      };
+
+                      if let Err(why) = msg.edit(ctx, |m| m
                         .embed(|e| {
-                        let mut e =
-                          e.author(|a| a.icon_url(&user.face()).name(&user.name))
-                          .title("FINISHED")
-                          .description(new_text)
-                          .footer(|f| f.text(footer));
-                        if old_fields.len() > 0 {
-                          e = e.fields(old_fields);
+                          let mut e = e
+                            .title("LIVE")
+                            .author(|a| a.icon_url(&user.face()).name(&user.name))
+                            .description(mstr)
+                            .footer(|f| f.text(footer));
+                          if fields.len() > 0 {
+                            e = e.fields(fields);
+                          }
+                          if img.is_some() {
+                            e = e.image(img.unwrap().url);
+                          }
+                          if url.is_some() {
+                            e = e.url(url.unwrap());
+                          }
+                          e
                         }
-                        if fields.is_some() {
-                          let (s1,s2,s3,s4) = fields.unwrap();
-                          e = e.fields(vec![
-                            (s1, s3, true),
-                            (s2, s4, true)
-                          ]);
-                        }
-                        if url.is_some() {
-                          e = e.url(url.unwrap());
-                        }
-                        e
-                      })).await {
-                        error!("Failed to update live match {:?}", why);
+                      )).await {
+                        error!("Failed to post live match {:?}", why);
+                      }
                     }
                   }
+                } else {
+                  out.push(
+                    StartingGame {
+                      key: m.startTime,
+                      description: mstr,
+                      user: playa.discord,
+                      stream: playa.streams
+                    }
+                  );
                 }
-                // we only delete match if it's passed
-                // if not possibly there is a bug and we're waiting for end
-                k_to_del.push(k.clone());
+
               }
             }
           }
-          for ktd in k_to_del {
-            games_lock.remove(ktd.as_str());
-          }
+        }
 
+        let mut k_to_del : Vec<String> = Vec::new();
+        for (k, track) in games_lock.iter_mut() {
+          if !track.still_live {
+            if let Some((new_text, duration, fields)) = check_match(k).await {
+              if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                let footer : String = format!("Passed: {} min", duration);
+                if let Ok(user) = ctx.http.get_user(track.tracking_usr_id).await {
+                  let mut old_fields = Vec::new();
+                  let mut url = None;
+                  if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
+                    for f in msg.embeds[0].fields.clone() {
+                      old_fields.push((f.name, f.value, f.inline));
+                    }
+                    url = msg.embeds[0].url.clone();
+                  };
+                  if let Err(why) = msg.edit(ctx, |m| m
+                      .embed(|e| {
+                      let mut e =
+                        e.author(|a| a.icon_url(&user.face()).name(&user.name))
+                        .title("FINISHED")
+                        .description(new_text)
+                        .footer(|f| f.text(footer));
+                      if old_fields.len() > 0 {
+                        e = e.fields(old_fields);
+                      }
+                      if fields.is_some() {
+                        let (s1,s2,s3,s4) = fields.unwrap();
+                        e = e.fields(vec![
+                          (s1, s3, true),
+                          (s2, s4, true)
+                        ]);
+                      }
+                      if url.is_some() {
+                        e = e.url(url.unwrap());
+                      }
+                      e
+                    })).await {
+                      error!("Failed to update live match {:?}", why);
+                  }
+                }
+              }
+              // we only delete match if it's passed
+              // if not possibly there is a bug and we're waiting for end
+              k_to_del.push(k.clone());
+            }
+          }
+        }
+        for ktd in k_to_del {
+          games_lock.remove(ktd.as_str());
         }
       }
     }

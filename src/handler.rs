@@ -166,10 +166,10 @@ impl EventHandler for Handler {
         }
       }
     } else {
-      if msg.guild(&ctx).await.is_some() {
+      if let Some(guild) = msg.guild(&ctx).await {
         let mentioned_bot = (&msg.mentions).into_iter().any(|u| u.bot);
         if !mentioned_bot {
-          //points::add_points(msg.author.id.as_u64(), &1);
+          points::add_points(guild.id.as_u64(), msg.author.id.as_u64(), &1).await;
           let is_admin =
             if let Some(member) = msg.member(&ctx.cache).await {
               if let Ok(permissions) = member.permissions(&ctx.cache).await {
@@ -187,7 +187,7 @@ impl EventHandler for Handler {
               let activity = chain::generate(&ctx, &msg, 666).await;
               if !activity.is_empty() {
                 if activity.contains("<") && activity.contains(">") {
-                  let re_ib = Regex::new(r"\<(.*?)\>").unwrap();
+                  let re_ib = Regex::new(r"<(.*?)>").unwrap();
                   let replaced = re_ib.replace_all(activity.as_str(), "");
                   if !replaced.is_empty() {
                     ctx.set_activity(Activity::playing(&replaced)).await;
@@ -218,9 +218,9 @@ impl EventHandler for Handler {
                   name: Some(String::from(emji_name))
                 };
 
-                if let Some(ch) = msg.channel(&ctx).await {
-                  let g = ch.guild().unwrap();
-                  let guild_id = g.guild_id;
+                if let Some(_ch) = msg.channel(&ctx).await {
+
+                  let guild_id = guild.id;
                   if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
                     if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
                       if let Some(role) = guild.role_by_name("UNBLOCK AMADEUS") {
@@ -242,7 +242,7 @@ impl EventHandler for Handler {
                                   };
                                   channel_message(&ctx, &msg, repl.as_str()).await;
                                   let new_nick : String = format!("Hater {}", msg.author.name);
-                                  if let Err(why2) = guild.id.edit_member(&ctx, msg.author.id, |m|
+                                  if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m|
                                     m.nickname(new_nick)).await {
                                     error!("Failed to change user's nick {:?}", why2);
                                   }
@@ -260,7 +260,7 @@ impl EventHandler for Handler {
                                   format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name)
                                 };
                                 channel_message(&ctx, &msg, repl.as_str()).await;
-                                if let Err(why2) = guild.id.edit_member(&ctx, msg.author.id, |m| m.nickname("")).await {
+                                if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m| m.nickname("")).await {
                                   error!("Failed to reset user's nick {:?}", why2);
                                 }
                               }
@@ -271,7 +271,7 @@ impl EventHandler for Handler {
 
                         if member.roles.contains(&role.id) {
                           let new_nick = format!("Hater {}", msg.author.name);
-                          if let Err(why2) = guild.id.edit_member(&ctx, msg.author.id, |m| m.nickname(new_nick)).await {
+                          if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m| m.nickname(new_nick)).await {
                             error!("Failed to change user's nick {:?}", why2);
                           }
                           if let Err(why) = &msg.delete(&ctx).await {

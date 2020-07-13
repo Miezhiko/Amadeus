@@ -34,7 +34,7 @@ async fn help(ctx: &Context, msg: &Message) -> CommandResult {
       .thumbnail(
 "https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
       .description(
-"memory storage and artificial intelligence system
+"__**memory storage and artificial intelligence system**__
 to execute commands use ~command or @Amadeus command
 note: replace <thing> in help with text without < > quotes")
       .fields(vec![
@@ -48,26 +48,26 @@ note: replace <thing> in help with text without < > quotes")
         ("Version", version.as_str(), true)
         ])
       .field("user commands",
-"• help: shows this
-• quote <@user>: something from that user
-• score <@user>: show user points
-• embed <title> <description>: create embed
-• qrcode <something>: creates QR code
-• urban <thing>: explains a thing
-• ping: shows shard latency", false)
+"• **help**: shows this
+• **quote** *<@user>*: something from that user
+• **score** *<@user>*: show user points
+• **embed** *<title>* *<description>*: create embed
+• **qrcode** *<something>*: creates QR code
+• **urban** *<thing>*: explains a thing
+• **ping**: shows shard latency", false)
       .field("music commands",
-"• join: to music channel
-• leave: from music channel
-• play <url>: play an radio stream or youtube music
-• repeat: plays last stream again", false)
+"• **join**: to your voice channel (you should be there)
+• **leave**: from voice channel
+• **play** *<url>*: play an radio stream or youtube music
+• **repeat**: plays last stream again", false)
       .field("warcraft commands",
-"• today: show tournaments today (same with tomorrow or yesterday)
-• weekends: show tours at weekend
-• stats <nick>: shows ladder race stats (nick - battle tag or tag without numbers) (without nick will use discord name)
-• ongoing: show ongoing solo matches
-• lineup <title>: | map player map2 player2+player3 (title is optional)", false)
+"• **today**: show tournaments today (same with tomorrow or yesterday)
+• **weekends**: show tours at weekend
+• **stats** *<nick>*: shows ladder race stats (nick - battle tag or tag without numbers) (without nick will use discord name)
+• **ongoing**: show ongoing solo matches
+• **lineup** <title>: | map player map2 player2+player3 (title is optional)", false)
       .footer(|f| f.text(
-"As explained by Maho Hiyajo, Amadeus' capabilities of storing memory data make it possible to back-up the data of a person's memories. This could be useful, for example, to fight against memory loss."))
+"*As explained by Maho Hiyajo, Amadeus' capabilities of storing memory data make it possible to back-up the data of a person's memories. This could be useful, for example, to fight against memory loss.*"))
       .colour((246, 111, 0)))).await {
     error!("Error sending help message: {:?}", why);
   }

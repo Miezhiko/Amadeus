@@ -80,6 +80,7 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
               ctx_clone = ctx.clone(),
               ch_ud = ch_clone.as_u64().clone(),
               options_clone = options.clone() };
+
         tokio::spawn(async move {
           let mut games_lock = cyber::team_checker::GAMES.lock().await;
           loop {
@@ -108,10 +109,10 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
                   , discord_user = game.user };
               if let Ok(user) = ctx_clone.http.get_user(discord_user).await {
 
-                let mut twitch_live = false;
-                let mut additional_fields = Vec::new();
-                let mut image : Option<String> = None;
-                let mut em_url : Option<String> = None;
+                setm!{ twitch_live        = false
+                     , additional_fields  = Vec::new()
+                     , image              = None
+                     , em_url             = None };
 
                 if game.stream.is_some() {
                   set! { streams = game.stream.clone().unwrap()

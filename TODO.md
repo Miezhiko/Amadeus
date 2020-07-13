@@ -3,3 +3,4 @@
 - Maybe activity level per server channel
 - Maybe try FrugalOS https://dwango.github.io/articles/frugalos/
 - Cache messages for generation
+- I'd allow team changes on runtime but it's out of my current interests

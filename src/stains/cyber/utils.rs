@@ -37,20 +37,22 @@ pub fn get_league(l: u32) -> String {
 
 pub fn get_map(m: &str) -> String {
   String::from(match m {
-    "Overall"         => "All",
-    "echoisles"       => "EI",
-    "northernisles"   => "NIS",
-    "amazonia"        => "AZ",
-    "lastrefuge"      => "LR",
-    "concealedhill"   => "CH",
-    "twistedmeadows"  => "TM",
-    "terenasstand"    => "TS",
-    "goldshire"       => "Goldshire",
-    "losttemple"      => "Lost Temple",
-    "turtlerock"      => "Turtle Rock",
-    "hillsbradcreek"  => "Hillsbrad Creek",
-    "gnollwood"       => "Gnoll Wood",
-    another_map       => another_map
+    "Overall"               => "All",
+    "echoisles"             => "EI",
+    "northernisles"         => "NIS",
+    "amazonia"              => "AZ",
+    "lastrefuge"            => "LR",
+    "concealedhill"         => "CH",
+    "twistedmeadows"        => "TM",
+    "terenasstand"          => "TS",
+    "goldshire"             => "Goldshire",
+    "losttemple"            => "Lost Temple",
+    "turtlerock"            => "Turtle Rock",
+    "hillsbradcreek"        => "Hillsbrad Creek",
+    "gnollwood"             => "Gnoll Wood",
+    "tidewaterglades"       => "Tide Water Glades",
+    "circleoffallenheroes"  => "Circle of Hate",
+    another_map             => another_map
   })
 }
 

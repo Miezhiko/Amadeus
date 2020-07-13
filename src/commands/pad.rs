@@ -97,19 +97,19 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     let game_mode_res = reqwest::get(game_mode_uri.as_str()).await?;
     let game_mode_stats : Vec<GMStats> = game_mode_res.json().await?;
 
-    let mut league_info: String         = String::new();
-    let mut ffa_info: String            = String::new();
-    let mut rt_string: String           = String::new();
+    setm!{ league_info         = String::new()
+         , ffa_info            = String::new()
+         , rt_string           = String::new()
+         , at_info             = String::new()
+         , league_avi          = String::new() };
     let mut at_list: Vec<(u32, String)> = Vec::new();
-    let mut at_info: String             = String::new();
-    let mut league_avi: String          = String::new();
 
     for gmstat in game_mode_stats {
       if gmstat.gameMode == 1 {
-        let lid = gmstat.leagueOrder;
-        let league_str = get_league(lid);
+        set!{ lid         = gmstat.leagueOrder
+            , league_str  = get_league(lid)
+            , winrate     = (gmstat.winrate * 100.0).round() };
         league_avi = get_league_png(lid);
-        let winrate = (gmstat.winrate * 100.0).round();
         let league_division = if gmstat.games < 5 {
           String::from("Calibrating")
         } else if lid > 1 {
@@ -125,9 +125,9 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
         league_info = format!("**Winrate**: **{}%** **MMR**: __**{}**__ (*{}*)\n{} *Rank*: **{}**",
           winrate, gmstat.mmr, progr, league_division.as_str(), gmstat.rank);
       } else if gmstat.gameMode == 2 {
-        let lid = gmstat.leagueOrder;
-        let league_str = get_league(lid);
-        let winrate = (gmstat.winrate * 100.0).round();
+        set!{ lid         = gmstat.leagueOrder
+            , league_str  = get_league(lid)
+            , winrate     = (gmstat.winrate * 100.0).round() };
         let league_division = if gmstat.games < 5 {
           String::from("Calibrating")
         } else if lid > 1 {
@@ -138,9 +138,9 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
         rt_string = format!("{} *games* {} *Rank*: {} __**{}%**__ *MMR*: __**{}**__",
           gmstat.games, league_division, gmstat.rank, winrate, gmstat.mmr);
       } else if gmstat.gameMode == 5 {
-        let lid = gmstat.leagueOrder;
-        let league_str = get_league(lid);
-        let winrate = (gmstat.winrate * 100.0).round();
+        set!{ lid         = gmstat.leagueOrder
+            , league_str  = get_league(lid)
+            , winrate     = (gmstat.winrate * 100.0).round() };
         let league_division = if gmstat.games < 5 {
           String::from("Calibrating")
         } else if lid > 1 {
@@ -159,9 +159,9 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
             break;
           }
         }
-        let lid = gmstat.leagueOrder;
-        let league_str = get_league(lid);
-        let winrate = (gmstat.winrate * 100.0).round();
+        set!{ lid         = gmstat.leagueOrder
+            , league_str  = get_league(lid)
+            , winrate     = (gmstat.winrate * 100.0).round() };
         let league_division = if gmstat.games < 5 {
           String::from("Calibrating")
         } else if lid > 1 {

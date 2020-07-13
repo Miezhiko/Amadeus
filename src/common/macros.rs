@@ -17,3 +17,13 @@ macro_rules! set {
     )*
   };
 }
+
+#[macro_export]
+macro_rules! setm {
+  ($init:ident = $val:expr, $($lhs:ident = $rhs:expr),*) => {
+      let mut $init = $val;
+    $(
+      let mut $lhs = $rhs;
+    )*
+  };
+}

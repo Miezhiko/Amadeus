@@ -144,7 +144,6 @@ async fn after(ctx: &Context, msg: &Message, cmd_name: &str, error: CommandResul
   if let Err(why) = &error {
     error!("Error while running command {}", &cmd_name);
     error!("{:?}", &error);
-
     if let Err(_) = msg.channel_id.say(ctx, &why).await {
       error!("Unable to send messages on channel id {}", &msg.channel_id.0);
     };

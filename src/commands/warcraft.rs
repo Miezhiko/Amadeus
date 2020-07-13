@@ -38,9 +38,9 @@ async fn tour_internal(ctx: &Context, msg: &Message, on : DateTime<Utc>, passed_
     match line {
       Ok(l) => {
         for e in l.events {
-          let mut is_today = false;
-          let mut tvstr : String = String::new();
-          let mut evstr : String = String::new();
+          setm!{ is_today = false
+               , tvstr = String::new()
+               , evstr = String::new() };
 
           for ep in e.properties {
             if ep.name == "DTSTART" {

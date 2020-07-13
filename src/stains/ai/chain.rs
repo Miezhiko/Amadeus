@@ -121,10 +121,10 @@ pub async fn generate(ctx: &Context, msg : &Message, limit: u64) -> String {
   let mut out = String::new();
   if let Some(guild) = msg.guild(&ctx).await {
     let mut chain = Chain::new();
-    let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
-    let msg_content = &msg.content;
-    let russian = lang::is_russian(msg_content);
-    let guild_id = guild.id;
+    set!{ re = Regex::new(r"<@!?\d{15,20}>").unwrap()
+        , msg_content = &msg.content
+        , russian = lang::is_russian(msg_content)
+        , guild_id = guild.id };
     if let Ok(channels) = guild_id.channels(&ctx).await {
       for (chan, _) in channels {
         if let Some(c_name) = chan.name(&ctx).await {

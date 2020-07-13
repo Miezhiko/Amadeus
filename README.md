@@ -1,6 +1,8 @@
 Amadeus
 =======
 
+[![Build Status](https://travis-ci.org/Qeenon/Amadeus.svg?branch=master)](https://travis-ci.org/Qeenon/Amadeus)
+
 Memory storage and artificial intelligence system.
 
 Features

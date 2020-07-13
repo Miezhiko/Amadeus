@@ -68,10 +68,12 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
               }
             }
           }
-          match channel.delete_messages(&ctx, vec_id.as_slice()).await {
-            Ok(nothing)  => nothing,
-            Err(err) => warn!("Failed to clean live messages {}", err),
-          };
+          if vec_id.len() > 0 {
+            match channel.delete_messages(&ctx, vec_id.as_slice()).await {
+              Ok(nothing)  => nothing,
+              Err(err) => warn!("Failed to clean live messages {}", err),
+            };
+          }
         }
 
         set!{ ch_clone = channel.clone(),

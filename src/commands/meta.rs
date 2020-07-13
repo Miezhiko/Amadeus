@@ -35,8 +35,8 @@ async fn help(ctx: &Context, msg: &Message) -> CommandResult {
 "https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
       .description(
 "__**memory storage and artificial intelligence system**__
-to execute commands use ~command or @Amadeus command
-note: replace <thing> in help with text without < > quotes")
+to execute commands use ~*<command>* or @Amadeus *<command>*
+note: replace *<thing>* in help with text without < > brackets")
       .fields(vec![
         ("Age", "18", true),
         ("Birthdate", "July 25th", true),

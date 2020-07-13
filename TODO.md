@@ -1,5 +1,3 @@
-- Rework help (important)
-- Something to increment seasons automatically (maybe) [add to pad.rs]
 - Units points, points based roles, stufff like that. [WIP]
 - Maybe activity level per server channel
 - Maybe try FrugalOS https://dwango.github.io/articles/frugalos/

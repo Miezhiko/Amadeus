@@ -180,3 +180,7 @@ pub struct StartingGame {
   pub user: u64,
   pub stream: Option<Streams>
 }
+
+pub_struct!(Season {
+  id: u32,
+});

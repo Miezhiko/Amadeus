@@ -26,10 +26,21 @@ use comfy_table::*;
 
 use std::{
   sync::atomic::Ordering::Relaxed,
-  sync::atomic::AtomicU16
+  sync::atomic::AtomicU32
 };
 
-pub static CURRENT_SEASON : AtomicU16 = AtomicU16::new(1);
+pub static CURRENT_SEASON : AtomicU32 = AtomicU32::new(1);
+
+pub async fn update_current_season() {
+  if let Ok(res) = reqwest::get("https://statistic-service.w3champions.com/api/ladder/seasons").await {
+    if let Ok(seasons) = res.json::<Vec<Season>>().await {
+      let seasons_ids = seasons.iter().map(|s| s.id);
+      if let Some(last_season) = seasons_ids.max() {
+        CURRENT_SEASON.store(last_season, Relaxed);
+      }
+    }
+  }
+}
 
 fn current_season() -> String {
   let atom = CURRENT_SEASON.load(Relaxed);

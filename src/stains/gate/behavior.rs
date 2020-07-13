@@ -4,7 +4,8 @@ use crate::{
   stains::{
     ai::chain,
     cyber, cyber::types::TrackingGame,
-  }
+  },
+  commands::pad::update_current_season
 };
 
 use serenity::{
@@ -23,6 +24,9 @@ use std::{
 use rand::Rng;
 
 pub async fn activate(ctx: &Context, options: &AOptions) {
+  // set actual season for pad statistics
+  update_current_season().await;
+
   let last_guild_u64 = options.last_guild.parse::<u64>().unwrap_or(0);
   if last_guild_u64 != 0 {
     let guild_id = GuildId( last_guild_u64 );
@@ -48,6 +52,8 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
                 error!("Failed to post periodic message {:?}", why);
               }
             }
+            update_current_season().await;
+            /* every 30 minutes */
             tokio::time::delay_for(time::Duration::from_secs(30*60)).await;
           }
         });

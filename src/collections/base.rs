@@ -1,3 +1,9 @@
+/*
+* That section contains a lot of weird stuff
+* You better don't read it
+* Mostly used for text generation
+*/
+
 pub static GREETINGS: &'static [&'static str] =
   &[ "hello"
    , "hi"

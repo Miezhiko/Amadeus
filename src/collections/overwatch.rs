@@ -1,3 +1,7 @@
+/*
+* Useless stuff
+*/
+
 pub static OVERWATCH: &'static [&'static str] =
   &[ "tracer"
    , "widowmaker"

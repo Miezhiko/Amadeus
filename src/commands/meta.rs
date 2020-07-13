@@ -35,8 +35,7 @@ async fn help(ctx: &Context, msg: &Message) -> CommandResult {
 "https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
       .description(
 "__**memory storage and artificial intelligence system**__
-to execute commands use ~*<command>* or @Amadeus *<command>*
-note: replace *<thing>* in help with text without < > brackets")
+to execute commands use `~*<command>*` or `@Amadeus *<command>*`, replace *<thing>* in help with text without < > brackets")
       .fields(vec![
         ("Age", "18", true),
         ("Birthdate", "July 25th", true),
@@ -131,6 +130,11 @@ struct UrbanDict {
   example: String,
   word: String,
 }
+
+/*
+* Credits for qrcode and urban commands
+*       are going to nitsuga5124 (original author) actually
+*/
 
 #[command]
 async fn qrcode(ctx: &Context, msg: &Message, args: Args) -> CommandResult {

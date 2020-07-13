@@ -1,5 +1,11 @@
 use crate::common::types::{ Player, player, streamer, streams, twitch };
 
+/*
+* Note all the members of those lists are agreed to share this imformation
+* If someone wants to be excluded please feel free to contact author or do it with PR
+* Don't be toxic
+*/
+
 pub static DIVISION1: &'static [Player] = &
   [ player("Edek#1800",       298003054110965762)
   , player("RiplEy#21126",    137314790769950720)

@@ -90,7 +90,8 @@ impl EventHandler for Handler {
       }
     }
   }
-  async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user : User, _ : Option<Member>) {
+  async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, _: Option<Member>) {
+    let _was_on_chat = points::clear_points(guild_id.as_u64().clone(), user.id.as_u64().clone()).await;
     if let Ok(channels) = guild_id.channels(&ctx).await {
       let ai_text = chain::generate_with_language(&ctx, &guild_id, 666, false).await;
       if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {

@@ -18,7 +18,7 @@ struct Points {
 fn get_storage() -> Storage<FileNvm> {
   let db_name = "tree.lusf";
   if !Path::new(db_name).exists() {
-    let f = FileNvm::create(db_name, 6_666_666).unwrap();
+    let f = FileNvm::create(db_name, 666_666_666).unwrap();
     let storage: Storage<FileNvm> = Storage::create(f).unwrap();
     storage
   } else {
@@ -32,9 +32,9 @@ lazy_static! {
   pub static ref STORAGE: Mutex<Storage<FileNvm>> = Mutex::new(get_storage());
 }
 
-pub async fn add_points<'a>( guild_id: u64
-                           , user_id: u64
-                           , new_points: u64) {
+pub async fn add_points( guild_id: u64
+                       , user_id: u64
+                       , new_points: u64) {
   let mut storage = STORAGE.lock().await;
   let u64_2: u128 = (guild_id as u128) << 64 | user_id as u128; // >
   let lump_id: LumpId = LumpId::new(u64_2);
@@ -80,5 +80,14 @@ pub async fn get_points(guild_id: u64, user_id: u64) -> Result<u64, cannyls::Err
       }
     }
     Ok(0)
+  }).await.unwrap()
+}
+
+pub async fn clear_points(guild_id: u64, user_id: u64) -> Result<bool, cannyls::Error> {
+  let mut storage = STORAGE.lock().await;
+  task::spawn_blocking(move || {
+    let u64_2: u128 = (guild_id as u128) << 64 | user_id as u128; // >
+    let lump_id: LumpId = LumpId::new(u64_2);
+    storage.delete(&lump_id)
   }).await.unwrap()
 }

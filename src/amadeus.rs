@@ -164,7 +164,7 @@ async fn unrecognised_command(ctx: &Context, msg: &Message, _command_name: &str)
       error!("Error sending greeting reply: {:?}", why);
     }
   } else {
-    chain::response(&ctx, &msg, chain::CACHE_MAX).await;
+    chain::response(&ctx, &msg).await;
   }
 }
 

@@ -50,7 +50,7 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
             let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
             let rndx = rand::thread_rng().gen_range(0, activity_level);
             if rndx == 1 {
-              let ai_text = chain::generate_english_or_russian(&ctx_clone, &guild_id, chain::CACHE_MAX).await;
+              let ai_text = chain::generate_english_or_russian(&ctx_clone, &guild_id).await;
               if let Err(why) = ch_clone.send_message(&ctx_clone, |m| {
                 m.content(ai_text)
               }).await {

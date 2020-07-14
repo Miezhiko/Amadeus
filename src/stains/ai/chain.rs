@@ -28,23 +28,26 @@ use rand::{
 
 use std::sync::atomic::{ AtomicU32 };
 use chrono::{ Duration, Utc, DateTime };
-use tokio::sync::{ Mutex };
+use tokio::sync::{ Mutex, MutexGuard };
 
-pub static CACHE_MAX : u64 = 15000;
+static CACHE_MAX : u64 = 15000;
 pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(66);
 
 lazy_static! {
-  pub static ref CACHE_ENG: Mutex<Vec<String>>      = Mutex::new(Vec::new());
-  pub static ref CACHE_RU: Mutex<Vec<String>>       = Mutex::new(Vec::new());
+  pub static ref CACHE_ENG: Mutex<Chain<String>>    = Mutex::new(Chain::new());
+  pub static ref CACHE_RU: Mutex<Chain<String>>     = Mutex::new(Chain::new());
   pub static ref LAST_UPDATE: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
 }
 
 pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
   if let Ok(channels) = guild_id.channels(&ctx).await {
+    info!("updating ai chain has started");
     let mut cache_eng = CACHE_ENG.lock().await;
     let mut cache_ru = CACHE_RU.lock().await;
-    cache_eng.clear();
-    cache_ru.clear();
+    if !cache_eng.is_empty() || !cache_ru.is_empty() {
+      *cache_eng = Chain::new();
+      *cache_ru = Chain::new();
+    }
     let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
     for (chan, _) in channels {
       if let Some(c_name) = chan.name(&ctx).await {
@@ -52,7 +55,7 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
           if let Ok(messages) = chan.messages(&ctx, |r|
             r.limit(CACHE_MAX)
           ).await {
-            info!("updating ai chain from {}", c_name.as_str());
+            trace!("updating ai chain from {}", c_name.as_str());
             for mmm in messages {
               if !mmm.author.bot {
                 let is_to_bot = mmm.mentions.len() > 0 && (&mmm.mentions).into_iter().any(|u| u.bot);
@@ -66,9 +69,9 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
                       .clean_everyone(true).clean_here(true)).await;
                   if !result.is_empty() && !result.contains("$") && !is_http {
                     if lang::is_russian(result.as_str()) {
-                      cache_ru.push(result);
+                      cache_ru.feed_str(result.as_str());
                     } else {
-                      cache_eng.push(result);
+                      cache_eng.feed_str(result.as_str());
                     }
                   }
                 }
@@ -77,6 +80,12 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
           }
         }
       }
+    }
+    for confuse in CONFUSION_RU {
+      cache_ru.feed_str( confuse );
+    }
+    for confuse in CONFUSION {
+      cache_eng.feed_str( confuse );
     }
   }
   info!("updating cache complete");
@@ -134,63 +143,35 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
   None
 }
 
-pub async fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, russian : bool) -> String {
+pub async fn generate_with_language(ctx: &Context, guild_id: &GuildId, russian : bool) -> String {
   actualize_cache(ctx, guild_id).await;
-  let mut chain : Chain<String> = Chain::new();
-  let lim = if limit > CACHE_MAX {
-      CACHE_MAX as usize
+  let chain : MutexGuard<Chain<String>> =
+    if russian {
+      CACHE_RU.lock().await
     } else {
-      limit as usize
+      CACHE_ENG.lock().await
     };
-  if russian {
-    let cache_ru = CACHE_RU.lock().await;
-    for cahced in cache_ru.iter().take(lim) {
-      chain.feed_str(cahced.as_str());
-    }
-  } else {
-    let cache_ru = CACHE_ENG.lock().await;
-    for cahced in cache_ru.iter().take(lim) {
-      chain.feed_str(cahced.as_str());
-    }
-  }
   chain.generate_str()
 }
 
-pub async fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId, limit: u64) -> String {
+pub async fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId) -> String {
   let rndx = rand::thread_rng().gen_range(0, 2);
-  generate_with_language(&ctx, &guild_id, limit, rndx != 1).await
+  generate_with_language(&ctx, &guild_id, rndx != 1).await
 }
 
-pub async fn generate(ctx: &Context, msg : &Message, limit: u64) -> String {
+pub async fn generate(ctx: &Context, msg : &Message) -> String {
   let mut out = String::new();
   if let Some(guild) = msg.guild(&ctx).await {
     set!{ msg_content = &msg.content
         , russian = lang::is_russian(msg_content)
         , guild_id = guild.id };
     actualize_cache(ctx, &guild_id).await;
-    let mut chain : Chain<String> = Chain::new();
-    let lim = if limit > CACHE_MAX {
-        CACHE_MAX as usize
-      } else {
-        limit as usize
-      };
+    let chain : MutexGuard<Chain<String>> =
     if russian {
-      let cache_ru = CACHE_RU.lock().await;
-      for cahced in cache_ru.iter().take(lim) {
-        chain.feed_str(cahced.as_str());
-      }
-      for confuse in CONFUSION_RU {
-        chain.feed_str( confuse );
-      }
-    } else {
-      let cache_ru = CACHE_ENG.lock().await;
-      for cahced in cache_ru.iter().take(lim) {
-        chain.feed_str(cahced.as_str());
-      }
-      for confuse in CONFUSION {
-        chain.feed_str( confuse );
-      }
-    }
+        CACHE_RU.lock().await
+      } else {
+        CACHE_ENG.lock().await
+      };
     out = chain.generate_str();
   }
   out
@@ -212,15 +193,15 @@ pub fn obfuscate(msg_content : &str) -> String {
   chain.generate_str()
 }
 
-pub async fn response(ctx: &Context, msg : &Message, limit: u64) {
-  let answer = generate(&ctx, &msg, limit).await;
+pub async fn response(ctx: &Context, msg : &Message) {
+  let answer = generate(&ctx, &msg).await;
   if !answer.is_empty() {
     reply(&ctx, &msg, answer.as_str()).await;
   }
 }
 
-pub async fn chat(ctx: &Context, msg : &Message, limit: u64) {
-  let answer = generate(&ctx, &msg, limit).await;
+pub async fn chat(ctx: &Context, msg : &Message) {
+  let answer = generate(&ctx, &msg).await;
   if !answer.is_empty() {
     let rnd = rand::thread_rng().gen_range(0, 3);
     if rnd == 1 {

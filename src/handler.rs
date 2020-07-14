@@ -72,7 +72,7 @@ impl EventHandler for Handler {
   }
   async fn guild_member_addition(&self, ctx: Context, guild_id: GuildId, member: Member) {
     if let Ok(channels) = guild_id.channels(&ctx).await {
-      let ai_text = chain::generate_with_language(&ctx, &guild_id, 6666, false).await;
+      let ai_text = chain::generate_with_language(&ctx, &guild_id, false).await;
       if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
         let user = &member.user; // .read().await;
         let title = format!("has joined here, {}", ai_text.as_str());
@@ -93,7 +93,7 @@ impl EventHandler for Handler {
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, _: Option<Member>) {
     let _was_on_chat = points::clear_points(guild_id.as_u64().clone(), user.id.as_u64().clone()).await;
     if let Ok(channels) = guild_id.channels(&ctx).await {
-      let ai_text = chain::generate_with_language(&ctx, &guild_id, 6666, false).await;
+      let ai_text = chain::generate_with_language(&ctx, &guild_id, false).await;
       if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
         let title = format!("has left, {}", ai_text.as_str());
         if let Err(why) = channel.send_message(&ctx, |m| m
@@ -185,7 +185,7 @@ impl EventHandler for Handler {
               ctx.set_activity(Activity::listening(&msg.author.name)).await;
               ctx.online().await;
             } else {
-              let activity = chain::generate(&ctx, &msg, 6666).await;
+              let activity = chain::generate(&ctx, &msg).await;
               if !activity.is_empty() {
                 if activity.contains("<") && activity.contains(">") {
                   let re_ib = Regex::new(r"<(.*?)>").unwrap();
@@ -207,7 +207,7 @@ impl EventHandler for Handler {
               let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
               let rnd = rand::thread_rng().gen_range(0, activity_level);
               if rnd == 1 {
-                chain::chat(&ctx, &msg, chain::CACHE_MAX).await;
+                chain::chat(&ctx, &msg).await;
               }
               let rnd2 : u16 = rand::thread_rng().gen_range(0, 2);
               if rnd2 == 1 {

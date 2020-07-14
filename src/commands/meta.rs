@@ -50,6 +50,7 @@ to execute commands use `~*<command>*` or `@Amadeus *<command>*`, replace *<thin
 "• **help**: shows this
 • **quote** *<@user>*: something from that user
 • **score** *<@user>*: show user points
+• **give** *<@user>*: give user your points
 • **embed** *<title>* *<description>*: create embed
 • **qrcode** *<something>*: creates QR code
 • **urban** *<thing>*: explains a thing

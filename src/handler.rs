@@ -168,7 +168,7 @@ impl EventHandler for Handler {
       }
     } else {
       if let Some(guild) = msg.guild(&ctx).await {
-        let mentioned_bot = (&msg.mentions).into_iter().any(|u| u.bot);
+        let mentioned_bot = (&msg.mentions).into_iter().any(|u| u.bot) || msg.content.starts_with("~");
         if !mentioned_bot {
           points::add_points(guild.id.as_u64().clone(), msg.author.id.as_u64().clone(), 1).await;
           let is_admin =

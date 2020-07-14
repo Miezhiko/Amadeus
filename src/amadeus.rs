@@ -60,7 +60,7 @@ impl IFlagAction for Version {
 struct Meta;
 
 #[group]
-#[commands(quote, score)]
+#[commands(quote, score, give)]
 struct Chat;
 
 #[group]
@@ -204,7 +204,7 @@ pub async fn run(opts : &AOptions) -> Result<(), Box<dyn std::error::Error + Sen
       .owners(owners)
       .on_mention(Some(bot_id))
       .prefix("~")
-      .delimiters(vec![", ", ","])
+      .delimiters(vec![" "])
       .case_insensitivity(true))
       .on_dispatch_error(on_dispatch_error)
       .after(after)

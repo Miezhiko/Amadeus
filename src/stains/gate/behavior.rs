@@ -116,17 +116,16 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
             background_threads_successfully_started = true;
             let our_gsx = cyber::team_checker::check(&ctx_clone, ch_ud, &mut games_lock).await;
             for game in our_gsx {
-              set!{ game_key = game.key.clone()
-                  , discord_user = game.user };
-              if let Ok(user) = ctx_clone.http.get_user(discord_user).await {
+              let game_key = game.key.clone();
+              if let Ok(user) = ctx_clone.http.get_user(game.player.discord).await {
 
                 setm!{ twitch_live        = false
                      , additional_fields  = Vec::new()
                      , image              = None
                      , em_url             = None };
 
-                if game.stream.is_some() {
-                  set! { streams = game.stream.clone().unwrap()
+                if game.player.streams.is_some() {
+                  set! { streams = game.player.streams.clone().unwrap()
                        , twitch = &streams.twitch
                        , ggru = &streams.ggru };
 
@@ -208,7 +207,7 @@ pub async fn activate(ctx: &Context, options: &AOptions) {
                       tracking_msg_id: msg_id.id.as_u64().clone(),
                       passed_time: 0,
                       still_live: false,
-                      tracking_usr_id: discord_user }
+                      player: game.player }
                     );
                   },
                   Err(why) => {

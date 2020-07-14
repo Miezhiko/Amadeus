@@ -1,4 +1,4 @@
-use crate::common::types::Streams;
+use crate::common::types::Player;
 use std::collections::HashMap;
 
 pub_struct!(Stats {
@@ -42,7 +42,7 @@ pub_struct!(PlayerId {
   battleTag: String,
 });
 
-pub_struct!(Player {
+pub_struct!(PadPlayer {
   playerIds: Vec<PlayerId>,
   name: String,
   id: String,
@@ -68,7 +68,7 @@ pub_struct!(Search {
   rankNumber: u32,
   rankingPoints: u32,
   playerId: String,
-  player: Player,
+  player: PadPlayer,
   gameMode: u32,
   season: u32,
 });
@@ -165,20 +165,20 @@ pub struct MD {
 }
 
 #[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
+#[derive(Debug)]
 pub struct TrackingGame {
   pub tracking_msg_id: u64,
   pub passed_time: u32,
   pub still_live: bool,
-  pub tracking_usr_id: u64
+  pub player: Player
 }
 
 #[allow(non_snake_case)]
+#[derive(Debug)]
 pub struct StartingGame {
   pub key: String,
   pub description: String,
-  pub user: u64,
-  pub stream: Option<Streams>
+  pub player: Player
 }
 
 pub_struct!(Season {

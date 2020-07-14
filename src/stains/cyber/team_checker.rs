@@ -19,7 +19,8 @@ lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, TrackingGame>> = Mutex::new(HashMap::new());
 }
 
-async fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String, String, String, String)>)> {
+async fn check_match( matchid_lol : &str
+                    , btag: &str ) -> Option<(String, u32, Option<(String, String, String, String)>)> {
 
   let mut matchid_s : String = String::new();
   if let Ok(wtf) = reqwest::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20").await {
@@ -27,14 +28,14 @@ async fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String,
       for mm in &going.matches {
         if mm.startTime == matchid_lol {
           // TODO: change that hack one day
-          if players().into_iter().any(|playa|
+          if
             if mm.gameMode == 6 || mm.gameMode == 2 {
-              mm.teams[0].players[0].battleTag == playa.battletag || mm.teams[1].players[0].battleTag == playa.battletag ||
-              mm.teams[0].players[1].battleTag == playa.battletag || mm.teams[1].players[1].battleTag == playa.battletag
+              mm.teams[0].players[0].battleTag == btag || mm.teams[1].players[0].battleTag == btag ||
+              mm.teams[0].players[1].battleTag == btag || mm.teams[1].players[1].battleTag == btag
             } else {
-              mm.teams[0].players[0].battleTag == playa.battletag || mm.teams[1].players[0].battleTag == playa.battletag
+              mm.teams[0].players[0].battleTag == btag || mm.teams[1].players[0].battleTag == btag
             }
-          ) {
+          {
             matchid_s = mm.id.clone();
             break;
           }
@@ -125,13 +126,11 @@ async fn check_match(matchid_lol : &str) -> Option<(String, u32, Option<(String,
               return Some((mstr, duration_in_minutes, scores));
             }
             return Some((mstr, duration_in_minutes, None));
-          },
-          None => {
+          }, None => {
             return None;
           }
         }
-      },
-      Err(err) => {
+      }, Err(err) => {
         error!("Failed parse MD {:?}", err);
       }
     }
@@ -153,15 +152,17 @@ pub async fn check<'a>( ctx: &Context
           if m.gameMode == 1 {
             if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
               if let Some(playa) = players().into_iter().find(|p|
-                    m.teams[0].players[0].battleTag == p.battletag
+                   m.teams[0].players[0].battleTag == p.battletag
                 || m.teams[1].players[0].battleTag == p.battletag
               ) {
+
                 let g_map = get_map(m.map.as_str());
                 let race1 = get_race2(m.teams[0].players[0].race);
                 let race2 = get_race2(m.teams[1].players[0].race);
                 let mstr = format!("({}) **{}** [{}] *vs* ({}) **{}** [{}] *{}*",
                   race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
                 , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
+
                 if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
                   track.still_live = true;
                   let minutes = track.passed_time / 2;
@@ -210,8 +211,7 @@ pub async fn check<'a>( ctx: &Context
                     StartingGame {
                       key: m.startTime,
                       description: mstr,
-                      user: playa.discord,
-                      stream: playa.streams
+                      player: playa
                     }
                   );
                 }
@@ -220,17 +220,17 @@ pub async fn check<'a>( ctx: &Context
           } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode
             if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
               if let Some(playa) = players().into_iter().find(|p|
-                    m.teams[0].players[0].battleTag == p.battletag
+                   m.teams[0].players[0].battleTag == p.battletag
                 || m.teams[1].players[0].battleTag == p.battletag
                 || m.teams[0].players[1].battleTag == p.battletag
                 || m.teams[1].players[1].battleTag == p.battletag) {
 
                 let g_map = get_map(m.map.as_str());
 
-                set! { race1 = get_race2(m.teams[0].players[0].race)
-                      , race12 = get_race2(m.teams[0].players[1].race)
-                      , race2 = get_race2(m.teams[1].players[0].race)
-                      , race22 = get_race2(m.teams[1].players[1].race) };
+                set! { race1  = get_race2(m.teams[0].players[0].race)
+                     , race12 = get_race2(m.teams[0].players[1].race)
+                     , race2  = get_race2(m.teams[1].players[0].race)
+                     , race22 = get_race2(m.teams[1].players[1].race) };
 
                 let mstr = if m.gameMode == 6 {
                   format!("({}+{}) **{}** + **{}** [{}]\n*vs*\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
@@ -244,13 +244,13 @@ pub async fn check<'a>( ctx: &Context
 
                 if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
                   track.still_live = true;
-                  let minutes = track.passed_time / 2;
-                  let footer = format!("Passed: {} min", minutes);
+                  set!{ minutes = track.passed_time / 2
+                      , footer = format!("Passed: {} min", minutes) };
                   if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
                     if let Ok(user) = ctx.http.get_user(playa.discord).await {
-                      let mut fields = Vec::new();
-                      let mut img = None;
-                      let mut url = None;
+                      setm!{ fields = Vec::new()
+                           , img    = None
+                           , url    = None };
                       if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
                         for f in msg.embeds[0].fields.clone() {
                           fields.push((f.name, f.value, f.inline));
@@ -287,8 +287,7 @@ pub async fn check<'a>( ctx: &Context
                     StartingGame {
                       key: m.startTime,
                       description: mstr,
-                      user: playa.discord,
-                      stream: playa.streams
+                      player: playa
                     }
                   );
                 }
@@ -301,10 +300,10 @@ pub async fn check<'a>( ctx: &Context
         let mut k_to_del : Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
-            if let Some((new_text, duration, fields)) = check_match(k).await {
+            if let Some((new_text, duration, fields)) = check_match(k, track.player.battletag).await {
               if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
                 let footer : String = format!("Passed: {} min", duration);
-                if let Ok(user) = ctx.http.get_user(track.tracking_usr_id).await {
+                if let Ok(user) = ctx.http.get_user(track.player.discord).await {
                   let mut old_fields = Vec::new();
                   let mut url = None;
                   if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
@@ -345,9 +344,11 @@ pub async fn check<'a>( ctx: &Context
             }
           }
         }
+
         for ktd in k_to_del {
           games_lock.remove(ktd.as_str());
         }
+
       }
     }
   }

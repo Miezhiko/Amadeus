@@ -1,6 +1,5 @@
 - Units points, points based roles, stufff like that. [WIP]
 - Maybe activity level per server channel
 - Maybe try FrugalOS https://dwango.github.io/articles/frugalos/
-- Cache messages for generation
 - I'd allow team changes on runtime but it's out of my current interests
 - conf.rs is shitty (kind of) and should be recoded

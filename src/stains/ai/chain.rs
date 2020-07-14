@@ -27,8 +27,70 @@ use rand::{
 };
 
 use std::sync::atomic::{ AtomicU32 };
+use chrono::{ Duration, Utc, DateTime };
+use tokio::sync::{ Mutex };
 
+pub static CACHE_MAX : u64 = 15000;
 pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(66);
+
+lazy_static! {
+  pub static ref CACHE_ENG: Mutex<Vec<String>>      = Mutex::new(Vec::new());
+  pub static ref CACHE_RU: Mutex<Vec<String>>       = Mutex::new(Vec::new());
+  pub static ref LAST_UPDATE: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
+}
+
+pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
+  if let Ok(channels) = guild_id.channels(&ctx).await {
+    let mut cache_eng = CACHE_ENG.lock().await;
+    let mut cache_ru = CACHE_RU.lock().await;
+    cache_eng.clear();
+    cache_ru.clear();
+    let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
+    for (chan, _) in channels {
+      if let Some(c_name) = chan.name(&ctx).await {
+        if AI_LEARN.into_iter().any(|&c| c == c_name.as_str()) {
+          if let Ok(messages) = chan.messages(&ctx, |r|
+            r.limit(CACHE_MAX)
+          ).await {
+            info!("updating ai chain from {}", c_name.as_str());
+            for mmm in messages {
+              if !mmm.author.bot {
+                let is_to_bot = mmm.mentions.len() > 0 && (&mmm.mentions).into_iter().any(|u| u.bot);
+                if !is_to_bot {
+                  let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
+                  result = result.replace(": ", "");
+                  let is_http = result.starts_with("http") && !result.starts_with("https://images");
+                  result =
+                    content_safe(&ctx, &result, &ContentSafeOptions::default()
+                      .clean_user(false).clean_channel(true)
+                      .clean_everyone(true).clean_here(true)).await;
+                  if !result.is_empty() && !result.contains("$") && !is_http {
+                    if lang::is_russian(result.as_str()) {
+                      cache_ru.push(result);
+                    } else {
+                      cache_eng.push(result);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  info!("updating cache complete");
+}
+
+pub async fn actualize_cache(ctx: &Context, guild_id: &GuildId) {
+  let nao = Utc::now();
+  let mut last_update = LAST_UPDATE.lock().await;
+  let since_last_update : Duration = nao - *last_update;
+  if since_last_update > Duration::hours(2) {
+    update_cache(ctx, guild_id).await;
+    *last_update = nao;
+  }
+}
 
 pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit: u64) -> Option<String> {
   let mut have_something = false;
@@ -73,43 +135,25 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
 }
 
 pub async fn generate_with_language(ctx: &Context, guild_id: &GuildId, limit: u64, russian : bool) -> String {
-  let mut out = String::new();
-  if let Ok(channels) = guild_id.channels(&ctx).await {
-    let mut chain = Chain::new();
-    let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
-    for (chan, _) in channels {
-      if let Some(c_name) = chan.name(&ctx).await {
-        if AI_LEARN.into_iter().any(|&c| c == c_name.as_str()) {
-          if let Ok(messages) = chan.messages(&ctx, |r|
-            r.limit(limit)
-          ).await {
-            for mmm in messages {
-              if !mmm.author.bot {
-                let is_to_bot = mmm.mentions.len() > 0 && (&mmm.mentions).into_iter().any(|u| u.bot);
-                if !is_to_bot {
-                  let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
-                  result = result.replace(": ", "");
-                  let is_http = result.starts_with("http") && !result.starts_with("https://images");
-                  result =
-                    content_safe(&ctx, &result, &ContentSafeOptions::default()
-                      .clean_user(false).clean_channel(true)
-                      .clean_everyone(true).clean_here(true)).await;
-                  if !result.is_empty() && !result.contains("$") && !is_http {
-                    let is_russian = lang::is_russian(result.as_str());
-                    if (russian && is_russian) || (!russian && !is_russian) {
-                      chain.feed_str(result.as_str());
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+  actualize_cache(ctx, guild_id).await;
+  let mut chain : Chain<String> = Chain::new();
+  let lim = if limit > CACHE_MAX {
+      CACHE_MAX as usize
+    } else {
+      limit as usize
+    };
+  if russian {
+    let cache_ru = CACHE_RU.lock().await;
+    for cahced in cache_ru.iter().take(lim) {
+      chain.feed_str(cahced.as_str());
     }
-    out = chain.generate_str();
+  } else {
+    let cache_ru = CACHE_ENG.lock().await;
+    for cahced in cache_ru.iter().take(lim) {
+      chain.feed_str(cahced.as_str());
+    }
   }
-  out
+  chain.generate_str()
 }
 
 pub async fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId, limit: u64) -> String {
@@ -120,50 +164,34 @@ pub async fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId, limi
 pub async fn generate(ctx: &Context, msg : &Message, limit: u64) -> String {
   let mut out = String::new();
   if let Some(guild) = msg.guild(&ctx).await {
-    let mut chain = Chain::new();
-    set!{ re = Regex::new(r"<@!?\d{15,20}>").unwrap()
-        , msg_content = &msg.content
+    set!{ msg_content = &msg.content
         , russian = lang::is_russian(msg_content)
         , guild_id = guild.id };
-    if let Ok(channels) = guild_id.channels(&ctx).await {
-      for (chan, _) in channels {
-        if let Some(c_name) = chan.name(&ctx).await {
-          if AI_LEARN.into_iter().any(|&c| c == c_name.as_str()) {
-            if let Ok(messages) = chan.messages(&ctx, |r|
-              r.limit(limit)
-            ).await {
-              for mmm in messages {
-                let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
-                result = result.replace(": ", "");
-                let is_http = result.starts_with("http") && !result.starts_with("https://images");
-                result =
-                  content_safe(&ctx, &result, &ContentSafeOptions::default()
-                    .clean_user(false).clean_channel(true)
-                    .clean_everyone(true).clean_here(true)).await;
-                if !result.is_empty() && !result.contains("$") && !is_http {
-                  let is_russian = lang::is_russian(result.as_str());
-                  if (russian && is_russian)
-                  || (!russian && !is_russian) {
-                    chain.feed_str(result.as_str());
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      if !russian {
-        for confuse in CONFUSION {
-          chain.feed_str( confuse );
-        }
+    actualize_cache(ctx, &guild_id).await;
+    let mut chain : Chain<String> = Chain::new();
+    let lim = if limit > CACHE_MAX {
+        CACHE_MAX as usize
       } else {
-        for confuse in CONFUSION_RU {
-          chain.feed_str( confuse );
-        }
+        limit as usize
+      };
+    if russian {
+      let cache_ru = CACHE_RU.lock().await;
+      for cahced in cache_ru.iter().take(lim) {
+        chain.feed_str(cahced.as_str());
       }
-      chain.feed_str(msg_content.as_str());
-      out = chain.generate_str();
+      for confuse in CONFUSION_RU {
+        chain.feed_str( confuse );
+      }
+    } else {
+      let cache_ru = CACHE_ENG.lock().await;
+      for cahced in cache_ru.iter().take(lim) {
+        chain.feed_str(cahced.as_str());
+      }
+      for confuse in CONFUSION {
+        chain.feed_str( confuse );
+      }
     }
+    out = chain.generate_str();
   }
   out
 }

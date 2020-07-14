@@ -84,6 +84,7 @@ async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     m.embed(|e| e.title(title)
                  .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
                  .description(description)
+                 
     )
   ).await?;
   Ok(())
@@ -118,26 +119,11 @@ async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
   Ok(())
 }
 
-// Struct used to deserialize the output of the urban dictionary api call...
-#[derive(Deserialize, Clone)]
-struct UrbanDict {
-  definition: String,
-  permalink: String,
-  thumbs_up: u32,
-  thumbs_down: u32,
-  author: String,
-  written_on: String,
-  example: String,
-  word: String,
-}
-
-/*
-* Credits for qrcode and urban commands
-*       are going to nitsuga5124 (original author) actually
-*/
-
 #[command]
 async fn qrcode(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
   let words = args.message();
   let code = QrCode::new(words).unwrap();
   let image = code.render::<unicode::Dense1x2>()
@@ -148,19 +134,43 @@ async fn qrcode(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   Ok(())
 }
 
+#[derive(Debug, Deserialize, Clone)]
+struct Definition {
+  definition: String,
+  permalink: String,
+  thumbs_up: u64,
+  sound_urls: Vec<String>,
+  author: String,
+  word: String,
+  defid: u64,
+  current_vote: String,
+  written_on: String,
+  example: String,
+  thumbs_down: u64
+}
+
+#[derive(Debug, Deserialize)]
+struct ApiResponse {
+  list: Vec<Definition>
+}
+
 #[command]
 async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
   let term = args.message();
-  let url = reqwest::Url::parse_with_params("http://api.urbandictionary.com/v0/define", &[("term", term)])?;
+  let url = reqwest::Url::parse_with_params
+    ("http://api.urbandictionary.com/v0/define", &[("term", term)])?;
 
   let reqwest = reqwest::Client::new();
   let resp = reqwest.get(url)
-      .send().await?.json::<Vec<UrbanDict>>().await?;
+      .send().await?.json::<ApiResponse>().await?;
 
-  if resp.is_empty() {
+  if resp.list.is_empty() {
     msg.channel_id.say(ctx, format!("The term '{}' has no Urban Definitions", term)).await?;
   } else {
-    let choice = &resp[0];
+    let choice = &resp.list[0];
     let parsed_definition = &choice.definition.replace("[", "").replace("]", "");
     let parsed_example = &choice.example.replace("[", "").replace("]", "");
     let mut fields = vec![
@@ -169,17 +179,18 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     if parsed_example != &"".to_string() {
       fields.push(("Example", parsed_example, false));
     }
+    let footer = format!("Requested by {}", msg.author.name);
     if let Err(why) = msg.channel_id.send_message(ctx, |m| {
-      m.embed(|e| {
-        e.title(&choice.word);
-        e.url(&choice.permalink);
-        e.description(
-          format!("submitted by **{}**\n\n:thumbsup: **{}** ┇ **{}** :thumbsdown:\n",
-                      &choice.author, &choice.thumbs_up, &choice.thumbs_down));
-        e.fields(fields);
-        e.timestamp(choice.clone().written_on);
-        e
-      });
+      m.embed(|e|
+        e.title(&choice.word)
+         .url(&choice.permalink)
+         .description(
+           format!("submitted by **{}**\n\n:thumbsup: **{}** ┇ **{}** :thumbsdown:\n",
+                      &choice.author, &choice.thumbs_up, &choice.thumbs_down))
+         .fields(fields)
+         .timestamp(choice.clone().written_on)
+         .footer(|f| f.text(footer))
+      );
       m
     }).await {
       if "Embed too large." == why.to_string() {

@@ -45,6 +45,7 @@ pub fn get_map(m: &str) -> String {
     "concealedhill"         => "CH",
     "twistedmeadows"        => "TM",
     "terenasstand"          => "TS",
+    "avalanche"             => "Avalanche",
     "goldshire"             => "Goldshire",
     "losttemple"            => "Lost Temple",
     "turtlerock"            => "Turtle Rock",

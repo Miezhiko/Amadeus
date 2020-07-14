@@ -1,5 +1,6 @@
 use crate::{
   collections::team::players,
+  common::points,
   stains::cyber::{
     types::*,
     utils::{ get_race2, get_map }
@@ -20,8 +21,9 @@ lazy_static! {
 }
 
 async fn check_match( matchid_lol : &str
-                    , btag: &str ) -> Option<(String, u32, Option<(String, String, String, String)>)> {
+                    , btag: &str ) -> Option<(String, u32, bool, Option<(String, String, String, String)>)> {
 
+  let mut are_you_winning = false;
   let mut matchid_s : String = String::new();
   if let Ok(wtf) = reqwest::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20").await {
     if let Ok(going) = wtf.json::<Going>().await {
@@ -58,6 +60,9 @@ async fn check_match( matchid_lol : &str
               , race1 = get_race2(m.teams[0].players[0].race)
               , race2 = get_race2(m.teams[1].players[0].race) };
           let player1 = if m.teams[0].players[0].won {
+            if m.teams[0].players[0].battleTag == btag {
+              are_you_winning = true;
+            }
             format!("__**{}**__ **+{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
           } else {
             format!("__*{}*__ **{}**", m.teams[0].players[0].name, m.teams[1].players[0].mmrGain)
@@ -76,6 +81,11 @@ async fn check_match( matchid_lol : &str
               , race12 = get_race2(m.teams[0].players[1].race)
               , race2 = get_race2(m.teams[1].players[0].race)
               , race22 = get_race2(m.teams[1].players[1].race) };
+          if m.teams[0].won {
+            if m.teams[0].players[0].battleTag == btag || m.teams[0].players[1].battleTag == btag {
+              are_you_winning = true;
+            }
+          }
           if m.gameMode == 6 {
             if m.teams[0].won {
               Some(format!("({}+{}) __**{} + {} [{}]**__ **+{}** (won)\n*vs*\n({}+{}) __*{} + {} [{}]*__ *{}* (lost)\n\nmap: **{}**",
@@ -123,9 +133,9 @@ async fn check_match( matchid_lol : &str
                 } else {
                   Some((s2,s1,s4,s3))
                 };
-              return Some((mstr, duration_in_minutes, scores));
+              return Some((mstr, duration_in_minutes, are_you_winning, scores));
             }
-            return Some((mstr, duration_in_minutes, None));
+            return Some((mstr, duration_in_minutes, are_you_winning,  None));
           }, None => {
             return None;
           }
@@ -300,7 +310,7 @@ pub async fn check<'a>( ctx: &Context
         let mut k_to_del : Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
-            if let Some((new_text, duration, fields)) = check_match(k, track.player.battletag).await {
+            if let Some((new_text, duration, win, fields)) = check_match(k, track.player.battletag).await {
               if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
                 let footer : String = format!("Passed: {} min", duration);
                 if let Ok(user) = ctx.http.get_user(track.player.discord).await {
@@ -313,7 +323,7 @@ pub async fn check<'a>( ctx: &Context
                     url = msg.embeds[0].url.clone();
                   };
                   if let Err(why) = msg.edit(ctx, |m| m
-                      .embed(|e| {
+                    .embed(|e| {
                       let mut e =
                         e.author(|a| a.icon_url(&user.face()).name(&user.name))
                         .title("FINISHED")
@@ -333,8 +343,16 @@ pub async fn check<'a>( ctx: &Context
                         e = e.url(url.unwrap());
                       }
                       e
-                    })).await {
-                      error!("Failed to update live match {:?}", why);
+                    })
+                  ).await {
+                    error!("Failed to update live match {:?}", why);
+                  } else {
+                    if win {
+                      if let Some(guild_id) = msg.guild_id {
+                        points::add_points( guild_id.as_u64().clone()
+                                          , track.player.discord, 10 ).await;
+                      }
+                    }
                   }
                 }
               }

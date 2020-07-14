@@ -17,9 +17,6 @@ use serenity::{
 
 #[command]
 async fn score(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
   if let Some(guild) = msg.guild(&ctx).await {
     let (target, the_points) =
       if msg.mentions.len() > 0 {
@@ -51,9 +48,6 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
   if let Some(guild) = msg.guild(&ctx).await {
     if msg.mentions.len() > 0 {
       let target_user = &msg.mentions[0];
@@ -97,9 +91,6 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
 #[command]
 async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
   if msg.mentions.len() > 0 {
     let target = &msg.mentions[0];
     if let Some(q) = chain::make_quote(ctx, msg, target.id, 9000).await {

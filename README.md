@@ -10,17 +10,21 @@ Amadeus
 ![Discord](https://img.shields.io/discord/611822838831251466?label=Discord)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_small)
 
-Memory storage and artificial intelligence system.
+Memory storage and Artificial Intelligence system.
+
+Built with Rust and Serenity Framework.
 
 Features
 --------
 
- - fully async, runs on tokio https://tokio.rs
  - chatty (ability to change activity level on runtime)
- - many small useful commands
+ - many small useful commands (use `~help`)
+ - using `Dhall` config files for nearly everything
  - live games tracking on w3champions
  - some more warcraft 3 related stuff, like player stats and news
  - points system on cannyls! https://github.com/frugalos/cannyls/wiki
+ - runs async, using tokio https://tokio.rs
+ - plays music streams (and actually good at it)
 
 Preparing
 ---------
@@ -62,7 +66,7 @@ Note
 ====
 
  - Do not block her
- - Only will work with server administrator permissions
+ - Only will work with server administrator permissions [WIP]
 
 
 ## License

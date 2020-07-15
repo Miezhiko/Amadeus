@@ -76,10 +76,10 @@ async fn check_match( matchid_lol : &str
               race1, player1, m.teams[0].players[0].oldMmr
             , race2, player2, m.teams[1].players[0].oldMmr, g_map))
         } else if m.gameMode == 6 || m.gameMode == 2 {
-          set!{ g_map = get_map(m.map.as_str())
-              , race1 = get_race2(m.teams[0].players[0].race)
+          set!{ g_map  = get_map(m.map.as_str())
+              , race1  = get_race2(m.teams[0].players[0].race)
               , race12 = get_race2(m.teams[0].players[1].race)
-              , race2 = get_race2(m.teams[1].players[0].race)
+              , race2  = get_race2(m.teams[1].players[0].race)
               , race22 = get_race2(m.teams[1].players[1].race) };
           if m.teams[0].won {
             if m.teams[0].players[0].battleTag == btag || m.teams[0].players[1].battleTag == btag {

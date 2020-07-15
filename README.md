@@ -18,7 +18,7 @@ Features
  - fully async, runs on tokio https://tokio.rs
  - chatty (ability to change activity level on runtime)
  - many small useful commands
- - live games tracking on w3champoions
+ - live games tracking on w3champions
  - some more warcraft 3 related stuff, like player stats and news
  - points system on cannyls! https://github.com/frugalos/cannyls/wiki
 

@@ -48,6 +48,7 @@ async fn channel_message(ctx: &Context, chan : &GuildChannel, text: &str) {
   }
 }
 
+#[allow(dead_code)]
 pub async fn log(ctx: &Context, guild_id: &GuildId, text: &str) {
   if let Ok(channels) = guild_id.channels(ctx).await {
     if let Some((_, guild_channel)) = channel_by_name(&ctx, &channels, "log").await {

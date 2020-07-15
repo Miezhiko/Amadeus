@@ -53,6 +53,7 @@ pub const fn twitch(twitch: &'static str) -> Option<Streams> {
   })
 }
 
+#[allow(dead_code)]
 pub const fn ggru(ggru: &'static str) -> Option<Streams> {
   Some(Streams {
     ggru: Some(ggru),

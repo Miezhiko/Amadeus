@@ -12,7 +12,7 @@ use tokio::sync::{ Mutex };
 #[derive(Serialize, Deserialize)]
 struct Points {
   count: u64,
-  role: u64
+  streak: u64
 }
 
 fn get_storage() -> Storage<FileNvm> {
@@ -52,7 +52,7 @@ pub async fn add_points( guild_id: u64
             error!("error updating points");
           }
         } else {
-          let points = Points { count: 0, role: 0 };
+          let points = Points { count: 0, streak: 0 };
           let encoded: Vec<u8> = bincode::serialize(&points).unwrap();
           let lump_data: LumpData = LumpData::new(encoded).unwrap();
           let added: bool = storage.put(&lump_id, &lump_data).unwrap();
@@ -102,7 +102,7 @@ pub async fn give_points( guild_id: u64
                   error!("Some strange error updating receiver points");
                 }
               } else {
-                let tpoints = Points { count: points_count, role: 0 };
+                let tpoints = Points { count: points_count, streak: 0 };
                 let tencoded: Vec<u8> = bincode::serialize(&tpoints).unwrap();
                 let tlump_data: LumpData = LumpData::new(tencoded).unwrap();
                 let tadded: bool = storage.put(&target_lump_id, &tlump_data).unwrap();
@@ -152,4 +152,68 @@ pub async fn clear_points(guild_id: u64, user_id: u64) -> Result<bool, cannyls::
     let lump_id: LumpId = LumpId::new(u64_2);
     storage.delete(&lump_id)
   }).await.unwrap()
+}
+
+pub async fn add_win_points( guild_id: u64
+                           , user_id: u64 ) -> u64 {
+  let mut storage = STORAGE.lock().await;
+  let u64_2: u128 = (guild_id as u128) << 64 | user_id as u128; // >
+  let lump_id: LumpId = LumpId::new(u64_2);
+  task::spawn_blocking(move || {
+    match storage.get(&lump_id) {
+      Ok(mbdata) => {
+        if let Some(mut data) = mbdata {
+          let byte_data: &mut [u8] = data.as_bytes_mut();
+          let mut points : Points = bincode::deserialize(byte_data).unwrap();
+          points.count += 10;
+          points.streak += 1;
+          let new_bytes = bincode::serialize(&points).unwrap();
+          (*byte_data).copy_from_slice(&new_bytes[..]);
+          let added: bool = storage.put(&lump_id, &data).unwrap();
+          if added {
+            error!("error updating points");
+          }
+          points.streak
+        } else {
+          let points = Points { count: 10, streak: 1 };
+          let encoded: Vec<u8> = bincode::serialize(&points).unwrap();
+          let lump_data: LumpData = LumpData::new(encoded).unwrap();
+          let added: bool = storage.put(&lump_id, &lump_data).unwrap();
+          if !added {
+            error!("error on points initialization");
+          }
+          1
+        }
+      }, Err(why) => {
+        error!("Failed to get key: {:?}", why);
+        0
+      }
+    }
+  }).await.unwrap()
+}
+
+pub async fn break_streak( guild_id: u64
+                         , user_id: u64 ) {
+  let mut storage = STORAGE.lock().await;
+  let u64_2: u128 = (guild_id as u128) << 64 | user_id as u128; // >
+  let lump_id: LumpId = LumpId::new(u64_2);
+  task::spawn_blocking(move || {
+    match storage.get(&lump_id) {
+      Ok(mbdata) => {
+      if let Some(mut data) = mbdata {
+          let byte_data: &mut [u8] = data.as_bytes_mut();
+          let mut points : Points = bincode::deserialize(byte_data).unwrap();
+          points.streak = 0;
+          let new_bytes = bincode::serialize(&points).unwrap();
+          (*byte_data).copy_from_slice(&new_bytes[..]);
+          let added: bool = storage.put(&lump_id, &data).unwrap();
+          if added {
+          error!("error updating points");
+          }
+        }
+      }, Err(why) => {
+        error!("Failed to get key: {:?}", why);
+      }
+    }
+  }).await.unwrap();
 }

@@ -348,10 +348,42 @@ pub async fn check<'a>( ctx: &Context
                   ).await {
                     error!("Failed to update live match {:?}", why);
                   } else {
-                    if win {
-                      if let Some(guild_id) = msg.guild_id {
-                        points::add_points( guild_id.as_u64().clone()
-                                          , track.player.discord, 10 ).await;
+                    if let Some(guild_id) = msg.guild_id {
+                      if win {
+                        let streak = points::add_win_points( guild_id.as_u64().clone()
+                                                           , track.player.discord ).await;
+                        
+                        if streak > 3 {
+
+                          let killspree =
+                            match streak {
+                              3 => "Multikill",
+                              4 => "Mega Kill",
+                              5 => "Killing Spree",
+                              6 => "Rampage!",
+                              7 => "Dominating",
+                              8 => "Unstoppable",
+                              9 => "Godlike!",
+                              10 => "Wicked Sick",
+                              11 => "Alpha",
+                              _ => "Frenetic"
+                            };
+
+                          let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
+
+                          if let Err(why) = msg.channel_id.send_message(ctx, |m| m
+                            .embed(|e| e
+                            .author(|a| a.icon_url(&user.face()).name(&user.name))
+                            .title(killspree)
+                            .description(dd.as_str())
+                          )).await {
+                            error!("Failed to post killspree, {:?}", why);
+                          }
+                        }
+
+                      } else {
+                        points::break_streak( guild_id.as_u64().clone()
+                                            , track.player.discord ).await;
                       }
                     }
                   }

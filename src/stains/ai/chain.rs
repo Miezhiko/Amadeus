@@ -51,7 +51,7 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
     let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
     for (chan, _) in channels {
       if let Some(c_name) = chan.name(&ctx).await {
-        if AI_LEARN.into_iter().any(|&c| c == c_name.as_str()) {
+        if AI_LEARN.iter().any(|c| c == c_name.as_str()) {
           if let Ok(messages) = chan.messages(&ctx, |r|
             r.limit(CACHE_MAX)
           ).await {
@@ -81,10 +81,10 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
         }
       }
     }
-    for confuse in CONFUSION_RU {
+    for confuse in CONFUSION_RU.iter() {
       cache_ru.feed_str( confuse );
     }
-    for confuse in CONFUSION {
+    for confuse in CONFUSION.iter() {
       cache_eng.feed_str( confuse );
     }
   }
@@ -110,7 +110,7 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
     if let Ok(channels) = guild_id.channels(&ctx).await {
       for (chan, _) in channels {
         if let Some(c_name) = chan.name(&ctx).await {
-          if AI_LEARN.into_iter().any(|&c| c == c_name.as_str()) {
+          if AI_LEARN.iter().any(|c| c == c_name.as_str()) {
             if let Ok(messages) = chan.messages(&ctx, |r|
               r.limit(limit)
             ).await {
@@ -181,11 +181,11 @@ pub fn obfuscate(msg_content : &str) -> String {
   let mut chain = Chain::new();
   let russian = lang::is_russian(msg_content);
   if !russian {
-    for confuse in OBFUSCATION {
+    for confuse in OBFUSCATION.iter() {
       chain.feed_str( confuse );
     }
   } else {
-    for confuse in OBFUSCATION_RU {
+    for confuse in OBFUSCATION_RU.iter() {
       chain.feed_str( confuse );
     }
   }

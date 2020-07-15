@@ -3,6 +3,7 @@
 #[macro_use] extern crate log;
 
 #[macro_use] mod common;
+
 mod collections;
 mod commands;
 mod stains;

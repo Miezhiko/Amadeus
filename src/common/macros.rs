@@ -27,3 +27,10 @@ macro_rules! setm {
     )*
   };
 }
+
+#[macro_export]
+macro_rules! dhall {
+  ($f:expr) => {
+    serde_dhall::from_file($f).parse().unwrap()
+  }
+}

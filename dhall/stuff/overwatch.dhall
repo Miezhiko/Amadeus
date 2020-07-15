@@ -1,0 +1,11 @@
+[ "tracer"
+, "widowmaker"
+, "bastion"
+, "winston"
+, "genji"
+, "mccree"
+, "ashe"
+, "sombra"
+, "junkrat"
+, "baptiste"
+]

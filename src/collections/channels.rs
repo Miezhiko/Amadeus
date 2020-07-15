@@ -1,22 +1,13 @@
-/*
-* Channels where I can learn
-*/
-pub static AI_ALLOWED: &'static [&'static str] =
-  &[ "main"
-   , "dating"
-   , "warcraft"
-   , "team-chat"
-   , "🚧random"
-   , "💻computers"
-   , "🌈climatestrike" ];
+lazy_static! {
 
 /*
-* Channels where I can spam (well, chat actually)
-*/
-pub static AI_LEARN: &'static [&'static str] =
-  &[ "main"
-   , "dating"
-   , "warcraft"
-   , "team-chat"
-   , "division-2"
-   , "🌈climatestrike" ];
+ * Channels where I can spam (well, chat actually)
+ */
+pub static ref AI_ALLOWED: Vec<String>  = dhall!("dhall/channels/ai_allowed.dhall");
+
+/*
+ * Channels where I can learn
+ */
+pub static ref AI_LEARN: Vec<String>    = dhall!("dhall/channels/ai_learn.dhall");
+
+}

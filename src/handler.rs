@@ -9,7 +9,7 @@ use crate::{
   stains::ai::chain,
   collections::{
     base::REACTIONS,
-    overwatch::{ OVERWATCH, OVERWATCH_REPLIES },
+    stuff::{ OVERWATCH, OVERWATCH_REPLIES },
     channels::AI_ALLOWED
   },
   commands::voice
@@ -205,7 +205,7 @@ impl EventHandler for Handler {
               if let Some(ch) = msg.channel(&ctx).await {
                 ch.id().name(&ctx).await.unwrap_or(String::from(""))
               } else { String::from("") };
-            if AI_ALLOWED.into_iter().any(|&c| c == channel_name.as_str()) {
+            if AI_ALLOWED.iter().any(|c| c == channel_name.as_str()) {
               let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
               let rnd = rand::thread_rng().gen_range(0, activity_level);
               if rnd == 1 {
@@ -214,10 +214,10 @@ impl EventHandler for Handler {
               let rnd2 : u16 = rand::thread_rng().gen_range(0, 2);
               if rnd2 == 1 {
                 let mut rng = StdRng::from_entropy();
-                let (emoji_id, emji_name) = *REACTIONS.choose(&mut rng).unwrap();
+                let (emoji_id, emji_name) = REACTIONS.choose(&mut rng).unwrap();
                 let reaction = ReactionType::Custom {
                   animated: false,
-                  id: EmojiId(emoji_id),
+                  id: EmojiId(*emoji_id),
                   name: Some(String::from(emji_name))
                 };
 
@@ -305,7 +305,7 @@ impl EventHandler for Handler {
             }
           }
         }
-        if let Some(find_char_in_words) = OVERWATCH.into_iter().find(|&c| {
+        if let Some(find_char_in_words) = OVERWATCH.iter().find(|c| {
           let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
           let is_overwatch = Regex::new(regex.as_str()).unwrap();
           is_overwatch.is_match(msg.content.as_str()) }) 

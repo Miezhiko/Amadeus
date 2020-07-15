@@ -152,7 +152,7 @@ async fn after(ctx: &Context, msg: &Message, cmd_name: &str, error: CommandResul
 
 #[hook]
 async fn unrecognised_command(ctx: &Context, msg: &Message, _command_name: &str) {
-  if let Some(_) = GREETINGS.into_iter().find(|&c| {
+  if let Some(_) = GREETINGS.iter().find(|c| {
     let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
     let is_greeting = Regex::new(regex.as_str()).unwrap();
     is_greeting.is_match(msg.content.as_str()) }) 

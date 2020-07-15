@@ -8,6 +8,7 @@ Amadeus
 [![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus)
 ![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.44.1-teal)
 [![License: ISC](https://img.shields.io/badge/License-ISC-teal.svg)](https://opensource.org/licenses/ISC)
+![Discord](https://img.shields.io/discord/611822838831251466?label=Discord)
 
 Memory storage and artificial intelligence system.
 

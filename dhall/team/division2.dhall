@@ -7,12 +7,12 @@ let Player : Type =
   , discord: Text
   , streams: Optional Streams
   }
-let player = \(btag: Text) -> \(disc: Natural) ->
+let player = λ(btag: Text) -> λ(disc: Natural) ->
   { battletag = btag
   , discord   = disc
   , streams   = None Streams
   }
-let streamer = \(btag: Text) -> \(disc: Natural) -> \(st: Streams) ->
+let streamer = λ(btag: Text) -> λ(disc: Natural) -> λ(st: Streams) ->
   { battletag = btag
   , discord   = disc
   , streams   = Some st

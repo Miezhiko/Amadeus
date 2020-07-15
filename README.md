@@ -7,6 +7,7 @@ Amadeus
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Qeenon/Amadeus.svg)](http://isitmaintained.com/project/Qeenon/Amadeus "Average time to resolve an issue")
 [![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus)
 ![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.44.1-teal)
+[![License: ISC](https://img.shields.io/badge/License-ISC-teal.svg)](https://opensource.org/licenses/ISC)
 
 Memory storage and artificial intelligence system.
 

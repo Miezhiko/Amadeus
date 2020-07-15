@@ -310,7 +310,8 @@ pub async fn check<'a>( ctx: &Context
         let mut k_to_del : Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
-            if let Some((new_text, duration, win, fields)) = check_match(k, track.player.battletag).await {
+            if let Some((new_text, duration, win, fields)) =
+                check_match(k, track.player.battletag.as_str()).await {
               if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
                 let footer : String = format!("Passed: {} min", duration);
                 if let Ok(user) = ctx.http.get_user(track.player.discord).await {

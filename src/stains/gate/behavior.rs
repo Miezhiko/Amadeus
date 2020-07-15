@@ -124,13 +124,10 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                      , em_url             = None };
 
                 if game.player.streams.is_some() {
-                  set! { streams = game.player.streams.clone().unwrap()
-                       , twitch = &streams.twitch
-                       , ggru = &streams.ggru };
-
-                  if twitch.is_some() {
+                  let streams = game.player.streams.clone().unwrap();
+                  if streams.twitch.is_some() {
                     let client = reqwest::Client::new();
-                    let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", twitch.unwrap());
+                    let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", streams.twitch.unwrap().as_str());
                     if let Ok(res) = client
                       .get(getq.as_str())
                       .header("Authorization", options_clone.twitch_oauth.clone())
@@ -156,14 +153,14 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                       }
                     }
                   }
-
-                  if ggru.is_some() {
-                    let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.unwrap());
+                  if streams.ggru.is_some() {
+                    let ggru = streams.ggru.clone().unwrap();
+                    let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.as_str());
                     if let Ok(gg) = reqwest::get(ggru_link.as_str()).await {
                       match gg.json::<cyber::goodgame::GoodGameData>().await {
                         Ok(ggdata) => {
                           if ggdata.status == "Live" {
-                            let url = format!("https://goodgame.ru/channel/{}", ggru.unwrap());
+                            let url = format!("https://goodgame.ru/channel/{}", ggru.as_str());
                             if twitch_live {
                               let titurl =
                                 format!("{}\n{}", ggdata.channel.title.as_str(), url);
@@ -180,7 +177,6 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                       };
                     }
                   }
-
                 }
 
                 match ch_clone.send_message(&ctx_clone, |m| m

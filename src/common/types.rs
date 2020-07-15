@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct IOptions {
   pub discord: String,
   pub guild: u64,
@@ -15,53 +15,15 @@ pub struct ROptions {
   pub last_stream: String
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Streams {
-  pub ggru: Option<&'static str>,
-  pub twitch: Option<&'static str>
+  pub ggru: Option<String>,
+  pub twitch: Option<String>
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Player {
-  pub battletag: &'static str,
+  pub battletag: String,
   pub discord: u64,
   pub streams: Option<Streams>
-}
-
-pub const fn player(battletag: &'static str, discord: u64) -> Player {
-  Player {
-    battletag: battletag,
-    discord: discord,
-    streams: None
-  }
-}
-
-pub const fn streamer(battletag: &'static str, discord: u64, streams: Option<Streams>) -> Player {
-  Player {
-    battletag: battletag,
-    discord: discord,
-    streams: streams
-  }
-}
-
-pub const fn streams(ggru: &'static str, twitch: &'static str) -> Option<Streams> {
-  Some(Streams {
-    ggru: Some(ggru),
-    twitch: Some(twitch)
-  })
-}
-
-pub const fn twitch(twitch: &'static str) -> Option<Streams> {
-  Some(Streams {
-    ggru: None,
-    twitch: Some(twitch)
-  })
-}
-
-#[allow(dead_code)]
-pub const fn ggru(ggru: &'static str) -> Option<Streams> {
-  Some(Streams {
-    ggru: Some(ggru),
-    twitch: None
-  })
 }

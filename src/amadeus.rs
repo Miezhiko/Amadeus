@@ -178,7 +178,7 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
   }
 
   let env = Env::default()
-    .filter_or("MY_LOG_LEVEL", "info") // trace
+    .filter_or("MY_LOG_LEVEL", "info")
     .write_style_or("MY_LOG_STYLE", "always");
 
   env_logger::init_from_env(env);
@@ -186,6 +186,8 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
   info!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
 
   let http = serenity::http::Http::new_with_token(&opts.discord);
+
+  info!("http context created");
 
   // Obtains and defines the owner/owners of the Bot Application
   // and the bot id. 
@@ -198,7 +200,11 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
     Err(why) => panic!("Could not access application info: {:?}", why),
   };
 
+  info!("application info loaded");
+
   let runtime_options = options::get_roptions().await?;
+
+  info!("all the options loaded");
 
   let std_framework =
     StandardFramework::new()

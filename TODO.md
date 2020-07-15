@@ -2,4 +2,3 @@
 - Maybe activity level per server channel
 - Maybe try FrugalOS https://dwango.github.io/articles/frugalos/
 - I'd allow team changes on runtime but it's out of my current interests
-- conf.rs is shitty (kind of) and should be recoded

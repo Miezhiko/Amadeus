@@ -1,6 +1,6 @@
 use crate::{
   stains::ai::chain,
-  common::types::AOptions,
+  common::options, common::types::IOptions,
   handler::Handler,
   commands::{
     meta::*,
@@ -168,7 +168,7 @@ async fn unrecognised_command(ctx: &Context, msg: &Message, _command_name: &str)
   }
 }
 
-pub async fn run(opts : &AOptions) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
   { // this block limits scope of borrows by ap.refer() method
     let mut ap = ArgumentParser::new();
     let pname = "Amadeus";
@@ -198,6 +198,8 @@ pub async fn run(opts : &AOptions) -> Result<(), Box<dyn std::error::Error + Sen
     Err(why) => panic!("Could not access application info: {:?}", why),
   };
 
+  let runtime_options = options::get_roptions().await?;
+
   let std_framework =
     StandardFramework::new()
      .configure(|c| c
@@ -218,7 +220,7 @@ pub async fn run(opts : &AOptions) -> Result<(), Box<dyn std::error::Error + Sen
       .group(&ADMIN_GROUP);
 
   let mut client = serenity::Client::new(&opts.discord)
-                    .event_handler(Handler::new(&opts))
+                    .event_handler(Handler::new(opts, runtime_options))
                     .framework(std_framework).await?;
   {
     let mut data = client.data.write().await;

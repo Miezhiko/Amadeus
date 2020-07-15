@@ -26,26 +26,20 @@ Preparing
 ---------
 
  - to compile just use `cargo build --release`
- - `cp conf.ini.example conf.ini`
+ - `cp conf.example.dhall conf.dhall` (initial constant options)
+ - `cp conf.example.json conf.json` (those options may change in runtime)
  - generate token here: https://discord.com/developers/applications
  - optionally for twitch support: https://dev.twitch.tv/docs/authentication
  - modify conf.ini and fill `token` and optionally `[Twitch]` section
  - highly suggested to fill `last_guild` or you will need to restart Amadeus to run background threads (things)
 
-``` ini
-[Discord]
-token=put token here
-
-[Music]
-rejoin=false
-last_guild=0
-last_channel=0
-last_stream=0
-
-[Twitch]
-oauth=Bearer 0
-client_id=0
-client_secret=0
+``` haskell
+{ discord              = "put discord token here"
+, guild                = 0
+, twitch_oauth         = "Bearer AAAAAAAAAAAAAAAAAAAA"
+, twitch_client_id     = "AAAAAAAAAAAAAAAAAAAAAAAA"
+, twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAA"
+}
 ```
 
 Start as service

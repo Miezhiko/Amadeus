@@ -1,8 +1,8 @@
 use crate::{
   common::{
-    types::AOptions,
+    types::ROptions,
     msg::{ direct_message, reply },
-    conf
+    options
   }
 };
 
@@ -27,13 +27,11 @@ impl TypeMapKey for VoiceManager {
   type Value = Arc<Mutex<ClientVoiceManager>>;
 }
 
-pub async fn rejoin_voice_channel(ctx : &Context, conf: &AOptions) {
+pub async fn rejoin_voice_channel(ctx : &Context, conf: &ROptions) {
   if conf.rejoin {
-    set!{ last_guild_u64 = conf.last_guild.parse::<u64>().unwrap_or(0)
-        , last_channel_u64 = conf.last_channel.parse::<u64>().unwrap_or(0) };
-    if last_guild_u64 != 0 && last_channel_u64 != 0 {
-      set!{ last_guild_conf = GuildId( last_guild_u64 )
-          , last_channel_conf = ChannelId( last_channel_u64 ) };
+    if conf.last_guild != 0 && conf.last_channel != 0 {
+      set!{ last_guild_conf = GuildId( conf.last_guild )
+          , last_channel_conf = ChannelId( conf.last_channel ) };
       let manager_lock =
         ctx.data.read().await
           .get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
@@ -83,14 +81,14 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
     .get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
   let mut manager = manager_lock.lock().await;
   if manager.join(guild_id, connect_to).is_some() {
-    let mut conf = conf::parse_config();
-    let last_guild_conf = GuildId( conf.last_guild.parse::<u64>().unwrap_or(0) );
-    let last_channel_conf = ChannelId( conf.last_channel.parse::<u64>().unwrap_or(0) );
-    if last_guild_conf != guild_id || last_channel_conf != connect_to || conf.rejoin == false {
-      conf.rejoin = true;
-      conf.last_guild = format!("{}", guild_id);
-      conf.last_channel = format!("{}", connect_to);
-      conf::write_config(&conf);
+    let mut opts = options::get_roptions().await?;
+    if opts.last_guild != *guild_id.as_u64()
+    || opts.last_channel != *connect_to.as_u64()
+    || opts.rejoin == false {
+      opts.rejoin = true;
+      opts.last_guild = *guild_id.as_u64();
+      opts.last_channel = *connect_to.as_u64();
+      options::put_roptions(&opts).await?;
     }
     if let Err(why) = msg.channel_id.say(&ctx, &format!("I've joined {}", connect_to.mention())).await {
       error!("failed to say joined {:?}", why);
@@ -120,10 +118,10 @@ async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
   if has_handler {
     manager.remove(guild_id);
     let _ = msg.channel_id.say(&ctx, "I left voice channel");
-    let mut conf = conf::parse_config();
+    let mut conf = options::get_roptions().await?;
     if conf.rejoin {
       conf.rejoin = false;
-      conf::write_config(&conf);
+      options::put_roptions(&conf).await?;
     }
   } else {
     reply(ctx, &msg, "I'm not in a voice channel").await;
@@ -146,7 +144,7 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         }
       }
     } else {
-      let conf = conf::parse_config();
+      let conf = options::get_roptions().await?;
       conf.last_stream
     };
   if !url.starts_with("http") {
@@ -173,11 +171,11 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       }
     };
     handler.play_only(source);
-    let mut conf = conf::parse_config();
+    let mut conf = options::get_roptions().await?;
     let last_stream_conf = conf.last_stream;
     if last_stream_conf != url {
       conf.last_stream = url.clone();
-      conf::write_config(&conf);
+      options::put_roptions(&conf).await?;
     }
     reply(ctx, msg, &format!("playing stream: {}", url)).await;
   } else {

@@ -1,6 +1,7 @@
 /target/
 /tree/
-conf.ini
+conf.dhall
+conf.json
 Cargo.lock
 
 # secret commands, tokens and stuff

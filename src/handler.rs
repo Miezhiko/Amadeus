@@ -3,7 +3,7 @@ use crate::{
   common::{
     points,
     help::{ lang, channel::channel_by_name },
-    types::AOptions,
+    types::ROptions, types::IOptions,
     msg::{ channel_message }
   },
   stains::ai::chain,
@@ -44,13 +44,15 @@ use regex::Regex;
 pub static THREADS : AtomicBool = AtomicBool::new(false);
 
 pub struct Handler {
-  options: AOptions
+  ioptions: IOptions,
+  roptions: ROptions
 }
 
 impl Handler {
-  pub fn new(opts: &AOptions) -> Handler {
+  pub fn new(iopts: &IOptions, ropts: ROptions) -> Handler {
     Handler {
-      options: opts.clone()
+      ioptions: iopts.clone(),
+      roptions: ropts
     }
   }
 }
@@ -59,11 +61,11 @@ impl Handler {
 impl EventHandler for Handler {
   async fn ready(&self, ctx: Context, ready: Ready) {
     info!("Connected as {}", ready.user.name);
-    voice::rejoin_voice_channel(&ctx, &self.options).await;
+    voice::rejoin_voice_channel(&ctx, &self.roptions).await;
 
     let threads_check = THREADS.load(Ordering::Relaxed);
     if !threads_check {
-      gate::behavior::activate(&ctx, &self.options).await;
+      gate::behavior::activate(&ctx, &self.ioptions).await;
       THREADS.store(true, Ordering::Relaxed);
     }
   }

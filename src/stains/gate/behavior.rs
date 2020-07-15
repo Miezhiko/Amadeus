@@ -1,5 +1,5 @@
 use crate::{
-  common::types::AOptions,
+  common::types::IOptions,
   common::help::channel::channel_by_name,
   stains::{
     ai::chain,
@@ -23,14 +23,13 @@ use std::{
 
 use rand::Rng;
 
-pub async fn activate(ctx: &Context, options: &AOptions) {
+pub async fn activate(ctx: &Context, options: &IOptions) {
   info!("activation has started");
   // set actual season for pad statistics
   update_current_season().await;
 
-  let last_guild_u64 = options.last_guild.parse::<u64>().unwrap_or(0);
-  if last_guild_u64 != 0 {
-    let guild_id = GuildId( last_guild_u64 );
+  if options.guild != 0 {
+    let guild_id = GuildId( options.guild );
 
     // updating ai:chain cache
     chain::update_cache(&ctx, &guild_id).await;

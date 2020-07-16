@@ -1,7 +1,5 @@
-let Reaction : Type =
-  { id: Natural
-  , name: Text
-  }
+let Reaction : Type = ./types/reaction.dhall
+
 let rList : List Reaction =
   [ { id = 639041088492929034, name ="tir"  }
   , { id = 657178237952327685, name = "thumb" }
@@ -19,4 +17,5 @@ let rList : List Reaction =
   , { id = 641638050945957904, name = "CocoSmug" }
   , { id = 611889889755004936, name = "antifa_heart" }
   ]
+
 in rList

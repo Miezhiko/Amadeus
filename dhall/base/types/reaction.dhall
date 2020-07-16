@@ -1,0 +1,3 @@
+{ id: Natural
+, name: Text
+}

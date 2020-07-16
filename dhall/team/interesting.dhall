@@ -1,19 +1,12 @@
-let Streams : Type =
-  { ggru: Optional Text
-  , twitch: Optional Text
-  }
-let Player : Type =
-  { battletag: Text
-  , discord: Text
-  , streams: Optional Streams
-  }
-let streamer = λ(btag: Text) -> λ(disc: Natural) -> λ(st: Streams) ->
-  { battletag = btag
-  , discord   = disc
-  , streams   = Some st
-  }
+let Playerx : Type = ./types/player_type.dhall
 
-in [ streamer "Fingon#2350"        361930230375514112 { ggru = None Text, twitch = Some "Skyrimoon" }
-   , streamer "РозовыйПони#228941" 279559886931492865 { ggru = Some "JosephStalin", twitch = Some "sqktgw" }
-   , streamer "ag3nt#21617"        293268448212156416 { ggru = Some "ag3nt", twitch = Some "ag3ntik" }
-   ]
+let t = ./functions/t.dhall
+let g = ./functions/g.dhall
+
+let playersList : List Playerx =
+  [ t "Fingon#2350"        361930230375514112 "Skyrimoon"
+  , g "РозовыйПони#228941" 279559886931492865 "sqktgw" "JosephStalin"
+  , g "ag3nt#21617"        293268448212156416 "ag3ntik" "ag3nt"
+  ]
+
+in playersList

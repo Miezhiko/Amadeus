@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use tokio::task;
 use tokio::sync::{ Mutex };
 
+static LSUF: &'static str = "tree.lusf";
+
 #[derive(Serialize, Deserialize)]
 struct Points {
   count: u64,
@@ -16,13 +18,12 @@ struct Points {
 }
 
 fn get_storage() -> Storage<FileNvm> {
-  let db_name = "tree.lusf";
-  if !Path::new(db_name).exists() {
-    let f = FileNvm::create(db_name, 666_666_666).unwrap();
+  if !Path::new(LSUF).exists() {
+    let f = FileNvm::create(LSUF, 666_666_666).unwrap();
     let storage: Storage<FileNvm> = Storage::create(f).unwrap();
     storage
   } else {
-    let f = FileNvm::open(db_name).unwrap();
+    let f = FileNvm::open(LSUF).unwrap();
     let storage: Storage<FileNvm> = Storage::open(f).unwrap();
     storage
   }
@@ -59,6 +60,9 @@ pub async fn add_points( guild_id: u64
           if !added {
             error!("error on points initialization");
           }
+        }
+        if let Err(khm) = storage.journal_sync() {
+          error!("failed to sync {:?}", khm);
         }
       }, Err(why) => {
         error!("Failed to get key: {:?}", why);
@@ -109,6 +113,9 @@ pub async fn give_points( guild_id: u64
                 if !tadded {
                   error!("Some strange error updating receiver points");
                 }
+              }
+              if let Err(khm) = storage.journal_sync() {
+                error!("failed to sync {:?}", khm);
               }
               (true, format!("{} points transfered", points_count))
             }, Err(why) => {
@@ -177,6 +184,9 @@ pub async fn add_win_points( guild_id: u64
           if added {
             error!("error updating points");
           }
+          if let Err(khm) = storage.journal_sync() {
+            error!("failed to sync {:?}", khm);
+          }
           points.streak
         } else {
           let points = Points { count: 10, streak: 1 };
@@ -185,6 +195,9 @@ pub async fn add_win_points( guild_id: u64
           let added: bool = storage.put(&lump_id, &lump_data).unwrap();
           if !added {
             error!("error on points initialization");
+          }
+          if let Err(khm) = storage.journal_sync() {
+            error!("failed to sync {:?}", khm);
           }
           1
         }
@@ -212,7 +225,10 @@ pub async fn break_streak( guild_id: u64
           (*byte_data).copy_from_slice(&new_bytes[..]);
           let added: bool = storage.put(&lump_id, &data).unwrap();
           if added {
-          error!("error updating points");
+            error!("error updating points");
+          }
+          if let Err(khm) = storage.journal_sync() {
+            error!("failed to sync {:?}", khm);
           }
         }
       }, Err(why) => {

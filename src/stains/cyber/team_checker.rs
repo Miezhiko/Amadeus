@@ -350,11 +350,11 @@ pub async fn check<'a>( ctx: &Context
                   } else {
                     if let Some(guild_id) = msg.guild_id {
                       if win {
+                        info!("Registering win for {}", user.name);
                         let streak = points::add_win_points( guild_id.as_u64().clone()
                                                            , track.player.discord ).await;
-                        
-                        if streak > 3 {
 
+                        if streak > 3 {
                           let killspree =
                             match streak {
                               3 => "Multikill",
@@ -368,9 +368,7 @@ pub async fn check<'a>( ctx: &Context
                               11 => "Alpha",
                               _ => "Frenetic"
                             };
-
                           let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
-
                           if let Err(why) = msg.channel_id.send_message(ctx, |m| m
                             .embed(|e| e
                             .author(|a| a.icon_url(&user.face()).name(&user.name))
@@ -382,9 +380,12 @@ pub async fn check<'a>( ctx: &Context
                         }
 
                       } else {
+                        info!("Registering lose for {}", user.name);
                         points::break_streak( guild_id.as_u64().clone()
                                             , track.player.discord ).await;
                       }
+                    } else {
+                      error!("Failed to get guild_id for match registration");
                     }
                   }
                 }

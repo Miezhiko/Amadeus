@@ -1,8 +1,8 @@
 use crate::{
+  types::w3c::*,
   collections::team::players,
   common::points,
   stains::cyber::{
-    types::*,
     utils::{ get_race2, get_map }
   }
 };

@@ -1,4 +1,4 @@
-use crate::common::types::{ IOptions, ROptions };
+use crate::types::options::{ IOptions, ROptions };
 
 use async_std::{ fs, io::Error };
 

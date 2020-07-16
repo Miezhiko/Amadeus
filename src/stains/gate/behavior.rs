@@ -1,9 +1,14 @@
 use crate::{
-  common::types::IOptions,
+  types::{
+    options::IOptions,
+    w3c::TrackingGame,
+    twitch::Twitch,
+    goodgame::GoodGameData
+  },
   common::help::channel::channel_by_name,
   stains::{
     ai::chain,
-    cyber, cyber::types::TrackingGame,
+    cyber
   },
   commands::pad::update_current_season
 };
@@ -133,7 +138,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                       .header("Authorization", options_clone.twitch_oauth.clone())
                       .header("Client-ID", options_clone.twitch_client_id.clone())
                       .send().await {
-                      match res.json::<cyber::twitch::Twitch>().await {
+                      match res.json::<Twitch>().await {
                         Ok(t) => {
                           if t.data.len() > 0 {
                             let d = &t.data[0];
@@ -157,7 +162,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                     let ggru = streams.ggru.clone().unwrap();
                     let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.as_str());
                     if let Ok(gg) = reqwest::get(ggru_link.as_str()).await {
-                      match gg.json::<cyber::goodgame::GoodGameData>().await {
+                      match gg.json::<GoodGameData>().await {
                         Ok(ggdata) => {
                           if ggdata.status == "Live" {
                             let url = format!("https://goodgame.ru/channel/{}", ggru.as_str());

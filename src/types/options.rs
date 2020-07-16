@@ -14,22 +14,3 @@ pub struct ROptions {
   pub last_channel: u64,
   pub last_stream: String
 }
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct Streams {
-  pub ggru: Option<String>,
-  pub twitch: Option<String>
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct Player {
-  pub battletag: String,
-  pub discord: u64,
-  pub streams: Option<Streams>
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct Reaction {
-  pub id: u64,
-  pub name: String
-}

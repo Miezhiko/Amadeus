@@ -1,6 +1,6 @@
 use crate::{
+  types::options::ROptions,
   common::{
-    types::ROptions,
     msg::{ direct_message, reply },
     options
   }

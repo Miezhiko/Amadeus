@@ -1,4 +1,4 @@
-use crate::common::types::Reaction;
+use crate::types::common::Reaction;
 
 static GREETINGSD: &'static str       = "dhall/base/greetings.dhall";
 static CONFUSION_RUD: &'static str    = "dhall/base/confusion_ru.dhall";

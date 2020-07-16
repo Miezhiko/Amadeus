@@ -1,9 +1,9 @@
 use crate::{
+  types::options::*,
   stains::gate,
   common::{
     points,
     help::{ lang, channel::channel_by_name },
-    types::ROptions, types::IOptions,
     msg::{ channel_message }
   },
   stains::ai::chain,

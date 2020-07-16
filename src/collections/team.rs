@@ -1,4 +1,4 @@
-use crate::common::types::Player;
+use crate::types::team::Player;
 
 /*
 * Note all the members of those lists are agreed to share this imformation

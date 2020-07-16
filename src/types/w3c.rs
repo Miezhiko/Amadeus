@@ -1,4 +1,4 @@
-use crate::common::types::Player;
+use crate::types::team::Player;
 use std::collections::HashMap;
 
 pub_struct!(Stats {

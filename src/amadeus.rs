@@ -1,6 +1,7 @@
 use crate::{
+  types::options::IOptions,
   stains::ai::chain,
-  common::options, common::types::IOptions,
+  common::options,
   handler::Handler,
   commands::{
     meta::*,

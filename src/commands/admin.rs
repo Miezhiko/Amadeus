@@ -1,3 +1,5 @@
+use crate::common::{ points, msg::channel_message };
+
 use serenity::{
   model::{ channel::*, gateway::Activity },
   prelude::*,
@@ -27,6 +29,38 @@ async fn stream(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult 
     }
     ctx.set_activity(Activity::streaming(&name, &stream_url)).await;
     ctx.dnd().await;
+  }
+  Ok(())
+}
+
+#[command]
+async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Some(guild) = msg.guild(&ctx).await {
+    if msg.mentions.len() > 0 {
+      let target_user = &msg.mentions[0];
+      let s = points::add_win_points( guild.id.as_u64().clone()
+                                    , target_user.id.as_u64().clone()
+                                    ).await;
+      let out = format!("win registered, {} wins in a row", s);
+      channel_message(ctx, msg, out.as_str()).await;
+    } else {
+      channel_message(ctx, msg, "you need to target points reciever").await;
+    };
+  }
+  Ok(())
+}
+
+#[command]
+async fn register_lose(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Some(guild) = msg.guild(&ctx).await {
+    if msg.mentions.len() > 0 {
+      let target_user = &msg.mentions[0];
+      let _ = points::break_streak( guild.id.as_u64().clone()
+                                  , target_user.id.as_u64().clone()
+                                  ).await;
+    } else {
+      channel_message(ctx, msg, "you need to target points reciever").await;
+    };
   }
   Ok(())
 }

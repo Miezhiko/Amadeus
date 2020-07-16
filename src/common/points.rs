@@ -167,6 +167,10 @@ pub async fn add_win_points( guild_id: u64
           let mut points : Points = bincode::deserialize(byte_data).unwrap();
           points.count += 10;
           points.streak += 1;
+          if points.streak > 3 {
+            let points_multiplier = points.streak - 3;
+            points.count += 5 * points_multiplier;
+          }
           let new_bytes = bincode::serialize(&points).unwrap();
           (*byte_data).copy_from_slice(&new_bytes[..]);
           let added: bool = storage.put(&lump_id, &data).unwrap();

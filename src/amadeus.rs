@@ -83,7 +83,7 @@ struct Owner;
 
 #[group]
 #[checks(Admin)]
-#[commands(idle, stream)]
+#[commands(idle, stream, give_win, register_lose)]
 struct Admin;
 
 #[check]

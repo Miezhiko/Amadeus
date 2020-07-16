@@ -11,15 +11,13 @@ Amadeus
 ![Discord](https://img.shields.io/discord/611822838831251466?label=Discord)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_small)
 
-
-<img align="right" src="https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png">
-
 Memory storage and Artificial Intelligence system.
-
 Built with Rust and Serenity Framework.
 
 Features
 --------
+
+<img align="right" src="https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png">
 
  - chatty (ability to change activity level on runtime)
  - many small useful commands (use `~help`)

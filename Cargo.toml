@@ -1,13 +1,13 @@
 [package]
 name        = "amadeus"
-version     = "2.4.4"
+version     = "2.4.5"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
 keywords    = [ "discord", "bot" ]
 edition     = "2018"
 description = "memory storage and artificial intelligence system"
-license     = "ISC"
+license     = "ISC AND MPL-v2"
 
 [dependencies]
 rand          = "0.7.3"
@@ -50,4 +50,5 @@ features = [ "cache"
            , "client"
            , "http"
            , "native_tls_backend"
-           , "utils"]
+           , "utils"
+           , "collector" ]

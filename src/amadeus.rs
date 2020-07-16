@@ -10,7 +10,8 @@ use crate::{
     warcraft::*,
     pad::*,
     owner::*,
-    admin::*
+    admin::*,
+    tictactoe::*
   },
   collections::base::{ GREETINGS }
 };
@@ -57,7 +58,7 @@ impl IFlagAction for Version {
 }
 
 #[group]
-#[commands(ping, help, embed, qrcode, urban)]
+#[commands(ping, help, embed, qrcode, urban, tic_tac_toe)]
 struct Meta;
 
 #[group]

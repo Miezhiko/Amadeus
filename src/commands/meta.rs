@@ -48,6 +48,7 @@ to execute commands use `~*<command>*` or `@Amadeus *<command>*`, replace *<thin
         ])
       .field("user commands",
 "• **help**: shows this
+• **ttt *<@user>* *<N>*: play tic tac toe for points
 • **quote** *<@user>*: something from that *user*
 • **score** *<@user>*: show *user* points
 • **give** *<@user>* *<N>*: give *user* your *N* points

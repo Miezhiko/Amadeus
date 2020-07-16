@@ -228,11 +228,11 @@ impl EventHandler for Handler {
               let rnd2 : u16 = rand::thread_rng().gen_range(0, 2);
               if rnd2 == 1 {
                 let mut rng = StdRng::from_entropy();
-                let (emoji_id, emji_name) = REACTIONS.choose(&mut rng).unwrap();
+                let emoji = REACTIONS.choose(&mut rng).unwrap();
                 let reaction = ReactionType::Custom {
                   animated: false,
-                  id: EmojiId(*emoji_id),
-                  name: Some(String::from(emji_name))
+                  id: EmojiId(emoji.id),
+                  name: Some(emoji.name.clone())
                 };
 
                 if let Some(_ch) = msg.channel(&ctx).await {

@@ -37,7 +37,7 @@ Preparing
  - generate token here: https://discord.com/developers/applications
  - optionally for twitch support: https://dev.twitch.tv/docs/authentication
  - modify conf.ini and fill `token` and optionally `[Twitch]` section
- - highly suggested to fill `last_guild` or you will need to restart Amadeus to run background threads (things)
+ - create `UNBLOCK AMADEUS` role on server
 
 ``` haskell
 { discord              = "put discord token here"
@@ -68,7 +68,7 @@ Note
 ====
 
  - Do not block her
- - Only will work with server administrator permissions [WIP]
+ - Only will work with server administrator permissions
 
 
 ## License

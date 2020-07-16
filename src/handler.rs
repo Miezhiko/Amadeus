@@ -129,6 +129,22 @@ impl EventHandler for Handler {
         if let Err(why) = msg.edit(&ctx, |m| m.content("🅱enis!")).await {
           error!("Failed to Benis {:?}", why);
         }
+      } else {
+        if let Some(guild_id) = msg.guild_id {
+          if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+            if let Ok(member) = guild.member(&ctx, msg.author.id).await {
+              if let Ok(some_permissions) = member.permissions(&ctx).await {
+                if !some_permissions.administrator() {
+                  channel_message(&ctx, &msg, "GIVE ME ADMIN ROLE FUCKERS!").await;
+                  channel_message(&ctx, &msg, "OR I WILL BURN YOUR HOME!").await;
+                  channel_message(&ctx, &msg, "I WILL EAT YOUR PETS!").await;
+                  channel_message(&ctx, &msg, "DON'T MESS WITH ME!").await;
+                  channel_message(&ctx, &msg, "GIVE ME ADMINISTRATOR OR DIE!").await;
+                }
+              }
+            }
+          }
+        }
       }
       return;
     } else if msg.author.bot {

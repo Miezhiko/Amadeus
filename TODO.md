@@ -1,5 +1,1 @@
-- Units points, points based roles, stufff like that. [WIP]
-- Maybe activity level per server channel
-- Maybe try FrugalOS https://dwango.github.io/articles/frugalos/
-- I'd allow team changes on runtime but it's out of my current interests
-- Write tests at least for all dhall files
+- Activity level per server channel

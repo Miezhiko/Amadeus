@@ -223,7 +223,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
       }
     }
   }
-  let mut confirmation = msg.channel_id.say(ctx, format!("{}: Do you TicTacToe match for {} points?", other_player.mention(), points_count)).await?;
+  let mut confirmation = msg.channel_id.say(ctx, format!("{}: Will you play TicTacToe for {} points?", other_player.mention(), points_count)).await?;
   confirmation.react(ctx, '✅').await?;
   confirmation.react(ctx, '❌').await?;
   loop {

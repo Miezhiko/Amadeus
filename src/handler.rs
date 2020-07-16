@@ -61,6 +61,20 @@ impl Handler {
 impl EventHandler for Handler {
   async fn ready(&self, ctx: Context, ready: Ready) {
     info!("Connected as {}", ready.user.name);
+
+    let guild_id = GuildId( self.ioptions.guild );
+    if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+      if let Ok(member) = guild.member(&ctx,ready.user.id).await {
+        if let Ok(some_permissions) = member.permissions(&ctx).await {
+          if some_permissions.administrator() {
+            info!("Running with Administrator permissions");
+          } else {
+            warn!("Amadeus needs Administrator permissions");
+          }
+        }
+      }
+    }
+
     voice::rejoin_voice_channel(&ctx, &self.roptions).await;
 
     let threads_check = THREADS.load(Ordering::Relaxed);

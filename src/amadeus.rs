@@ -22,7 +22,7 @@ use serenity::{
     Reason, CommandResult,
     macros::{group, check, hook}
   },
-  model::{channel::{Message}}
+  model::{ channel::{Message} }
 };
 
 use argparse::{
@@ -189,9 +189,7 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
 
   info!("http context created");
 
-  // Obtains and defines the owner/owners of the Bot Application
-  // and the bot id. 
-  let (owners, bot_id) = match http.get_current_application_info().await {
+  let (owners, amadeus_id) = match http.get_current_application_info().await {
     Ok(info) => {
       let mut owners = HashSet::new();
       owners.insert(info.owner.id);
@@ -210,7 +208,7 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
     StandardFramework::new()
      .configure(|c| c
       .owners(owners)
-      .on_mention(Some(bot_id))
+      .on_mention(Some(amadeus_id))
       .prefix("~")
       .delimiters(vec![" "])
       .case_insensitivity(true))

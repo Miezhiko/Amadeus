@@ -11,8 +11,8 @@ Amadeus
 ![Discord](https://img.shields.io/discord/611822838831251466?label=Discord)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_small)
 
-Memory storage and Artificial Intelligence system.
-Built with Rust and Serenity Framework.
+Memory storage and Artificial Intelligence system.\
+Built with Rust and Serenity Framework. [![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
 
 Features
 --------

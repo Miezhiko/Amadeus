@@ -20,8 +20,10 @@ lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, TrackingGame>> = Mutex::new(HashMap::new());
 }
 
-async fn check_match( matchid_lol : &str
-                    , btag: &str ) -> Option<(String, u32, bool, Option<(String, String, String, String)>)> {
+// TODO use some structure here
+async fn check_match( matchid_lol: &str
+                    , btag: &str
+                    ) -> Option<(String, u32, bool, Option<(String, String, String, String)>)> {
 
   let mut are_you_winning = false;
   let mut matchid_s : String = String::new();
@@ -150,6 +152,7 @@ async fn check_match( matchid_lol : &str
 
 pub async fn check<'a>( ctx: &Context
                       , channel_id: u64
+                      , guild_id: u64
                       , games_lock: &mut MutexGuard<'a, HashMap<String, TrackingGame>>
                       ) -> Vec<StartingGame> {
   let mut out : Vec<StartingGame> = Vec::new();
@@ -348,44 +351,41 @@ pub async fn check<'a>( ctx: &Context
                   ).await {
                     error!("Failed to update live match {:?}", why);
                   } else {
-                    if let Some(guild_id) = msg.guild_id {
-                      if win {
-                        info!("Registering win for {}", user.name);
-                        let streak = points::add_win_points( guild_id.as_u64().clone()
-                                                           , track.player.discord ).await;
+                    if win {
+                      info!("Registering win for {}", user.name);
+                      let streak = points::add_win_points( guild_id
+                                                         , track.player.discord
+                                                         ).await;
 
-                        if streak > 3 {
-                          let killspree =
-                            match streak {
-                              3 => "Multikill",
-                              4 => "Mega Kill",
-                              5 => "Killing Spree",
-                              6 => "Rampage!",
-                              7 => "Dominating",
-                              8 => "Unstoppable",
-                              9 => "Godlike!",
-                              10 => "Wicked Sick",
-                              11 => "Alpha",
-                              _ => "Frenetic"
-                            };
-                          let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
-                          if let Err(why) = msg.channel_id.send_message(ctx, |m| m
-                            .embed(|e| e
-                            .author(|a| a.icon_url(&user.face()).name(&user.name))
-                            .title(killspree)
-                            .description(dd.as_str())
-                          )).await {
-                            error!("Failed to post killspree, {:?}", why);
-                          }
+                      if streak > 3 {
+                        let killspree =
+                          match streak {
+                            3 => "Multikill",
+                            4 => "Mega Kill",
+                            5 => "Killing Spree",
+                            6 => "Rampage!",
+                            7 => "Dominating",
+                            8 => "Unstoppable",
+                            9 => "Godlike!",
+                            10 => "Wicked Sick",
+                            11 => "Alpha",
+                            _ => "Frenetic"
+                          };
+                        let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
+                        if let Err(why) = msg.channel_id.send_message(ctx, |m| m
+                          .embed(|e| e
+                          .author(|a| a.icon_url(&user.face()).name(&user.name))
+                          .title(killspree)
+                          .description(dd.as_str())
+                        )).await {
+                          error!("Failed to post killspree, {:?}", why);
                         }
-
-                      } else {
-                        info!("Registering lose for {}", user.name);
-                        points::break_streak( guild_id.as_u64().clone()
-                                            , track.player.discord ).await;
                       }
+
                     } else {
-                      error!("Failed to get guild_id for match registration");
+                      info!("Registering lose for {}", user.name);
+                      points::break_streak( guild_id
+                                          , track.player.discord ).await;
                     }
                   }
                 }

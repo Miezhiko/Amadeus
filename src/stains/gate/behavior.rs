@@ -91,9 +91,9 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
           }
         }
 
-        set!{ ch_clone = channel.clone(),
-              ctx_clone = ctx.clone(),
-              ch_ud = ch_clone.as_u64().clone(),
+        set!{ ch_clone      = channel.clone(),
+              ctx_clone     = ctx.clone(),
+              ch_ud         = ch_clone.as_u64().clone(),
               options_clone = options.clone() };
 
         tokio::spawn(async move {
@@ -118,7 +118,11 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
               ctx_clone.online().await;
             }
             background_threads_successfully_started = true;
-            let our_gsx = cyber::team_checker::check(&ctx_clone, ch_ud, &mut games_lock).await;
+            let our_gsx = cyber::team_checker::check( &ctx_clone
+                                                    , ch_ud
+                                                    , options_clone.guild
+                                                    , &mut games_lock
+                                                    ).await;
             for game in our_gsx {
               let game_key = game.key.clone();
               if let Ok(user) = ctx_clone.http.get_user(game.player.discord).await {

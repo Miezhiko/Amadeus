@@ -371,7 +371,7 @@ pub async fn check<'a>( ctx: &Context
                                                          , track.player.discord
                                                          ).await;
 
-                      if streak > 3 {
+                      if streak >= 3 {
                         let killspree =
                           match streak {
                             3 => "Multikill",

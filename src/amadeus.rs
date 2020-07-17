@@ -57,6 +57,19 @@ impl IFlagAction for Version {
   }
 }
 
+#[check]
+#[name = "Admin"]
+#[check_in_help(true)]
+#[display_in_help(true)]
+async fn admin_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOptions) -> CheckResult {
+  if let Some(member) = msg.member(&ctx.cache).await {
+    if let Ok(permissions) = member.permissions(&ctx.cache).await {
+      return permissions.administrator().into();
+    }
+  }
+  false.into()
+}
+
 #[group]
 #[commands(ping, help, embed, qrcode, urban, tic_tac_toe)]
 struct Meta;
@@ -87,19 +100,6 @@ struct Owner;
 #[checks(Admin)]
 #[commands(idle, stream, give_win, register_lose)]
 struct Admin;
-
-#[check]
-#[name = "Admin"]
-#[check_in_help(true)]
-#[display_in_help(true)]
-async fn admin_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOptions) -> CheckResult {
-  if let Some(member) = msg.member(&ctx.cache).await {
-    if let Ok(permissions) = member.permissions(&ctx.cache).await {
-      return permissions.administrator().into();
-    }
-  }
-  false.into()
-}
 
 #[hook]
 async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {

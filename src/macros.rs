@@ -34,3 +34,25 @@ macro_rules! dhall {
     serde_dhall::from_file($f).parse().unwrap()
   }
 }
+
+#[cfg(test)]
+mod macros_tests {
+  pub_struct!(TestStruct {
+    f1: u32,
+    f2: u32,
+  });
+  #[test]
+  fn all_macros() {
+    set!{ v1 = 5
+        , v2 = 6 };
+    setm!{ v3 = 5
+         , v4 = 4 };
+    let ts = TestStruct {
+      f1: v1,
+      f2: v2
+    };
+    v3 += ts.f1;
+    v4 += ts.f2;
+    assert!(v3 + v4 == 20);
+  }
+}

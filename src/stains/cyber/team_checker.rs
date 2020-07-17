@@ -1,5 +1,8 @@
 use crate::{
-  types::w3c::*,
+  types::{
+    tracking::*,
+    w3c::{ Going, MD }
+  },
   collections::team::players,
   common::points,
   stains::cyber::{
@@ -17,14 +20,13 @@ use std::collections::HashMap;
 use tokio::sync::{ Mutex, MutexGuard };
 
 lazy_static! {
-  pub static ref GAMES: Mutex<HashMap<String, TrackingGame>> = Mutex::new(HashMap::new());
+  pub static ref GAMES: Mutex<HashMap<String, TrackingGame>>
+    = Mutex::new(HashMap::new());
 }
 
-// TODO use some structure here
 async fn check_match( matchid_lol: &str
                     , btag: &str
-                    ) -> Option<(String, u32, bool, Option<(String, String, String, String)>)> {
-
+                    ) -> Option<FinishedGame> {
   let mut are_you_winning = false;
   let mut matchid_s : String = String::new();
   if let Ok(wtf) = reqwest::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20").await {
@@ -135,9 +137,19 @@ async fn check_match( matchid_lol: &str
                 } else {
                   Some((s2,s1,s4,s3))
                 };
-              return Some((mstr, duration_in_minutes, are_you_winning, scores));
+              return Some(FinishedGame
+                { desc: mstr
+                , passed_time: duration_in_minutes
+                , win: are_you_winning
+                , additional_fields: scores
+                });
             }
-            return Some((mstr, duration_in_minutes, are_you_winning,  None));
+            return Some(FinishedGame
+              { desc: mstr
+              , passed_time: duration_in_minutes
+              , win: are_you_winning
+              , additional_fields: None
+              });
           }, None => {
             return None;
           }
@@ -313,10 +325,11 @@ pub async fn check<'a>( ctx: &Context
         let mut k_to_del : Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
-            if let Some((new_text, duration, win, fields)) =
+            if let Some(finished_game) =
                 check_match(k, track.player.battletag.as_str()).await {
+              let fgame = &finished_game;
               if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
-                let footer : String = format!("Passed: {} min", duration);
+                let footer : String = format!("Passed: {} min", fgame.passed_time);
                 if let Ok(user) = ctx.http.get_user(track.player.discord).await {
                   let mut old_fields = Vec::new();
                   let mut url = None;
@@ -331,13 +344,14 @@ pub async fn check<'a>( ctx: &Context
                       let mut e =
                         e.author(|a| a.icon_url(&user.face()).name(&user.name))
                         .title("FINISHED")
-                        .description(new_text)
+                        .description(fgame.desc.as_str())
                         .footer(|f| f.text(footer));
                       if old_fields.len() > 0 {
                         e = e.fields(old_fields);
                       }
-                      if fields.is_some() {
-                        let (s1,s2,s3,s4) = fields.unwrap();
+                      if fgame.additional_fields.is_some() {
+                        let (s1,s2,s3,s4) = fgame.additional_fields
+                                                 .clone().unwrap();
                         e = e.fields(vec![
                           (s1, s3, true),
                           (s2, s4, true)
@@ -351,7 +365,7 @@ pub async fn check<'a>( ctx: &Context
                   ).await {
                     error!("Failed to update live match {:?}", why);
                   } else {
-                    if win {
+                    if fgame.win {
                       info!("Registering win for {}", user.name);
                       let streak = points::add_win_points( guild_id
                                                          , track.player.discord

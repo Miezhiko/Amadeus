@@ -1,7 +1,7 @@
 use crate::{
   types::{
     options::IOptions,
-    w3c::TrackingGame,
+    tracking::TrackingGame,
     twitch::Twitch,
     goodgame::GoodGameData
   },
@@ -145,14 +145,14 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                       match res.json::<Twitch>().await {
                         Ok(t) => {
                           if t.data.len() > 0 {
-                            let d = &t.data[0];
-                            let url = format!("https://www.twitch.tv/{}", d.user_name);
-                            let pic = d.thumbnail_url.replace("{width}", "800")
-                                                     .replace("{height}", "450");
-                            if d.type_string == "live" {
-                              additional_fields.push(("Live on twitch", d.title.clone(), false));
-                              image = Some(pic);
-                              em_url = Some(url);
+                            let twd = &t.data[0];
+                            let url = format!("https://www.twitch.tv/{}", twd.user_name);
+                            let pic = twd.thumbnail_url.replace("{width}", "800")
+                                                       .replace("{height}", "450");
+                            if twd.type_string == "live" {
+                              additional_fields.push(("Live on twitch", twd.title.clone(), false));
+                              image       = Some(pic);
+                              em_url      = Some(url);
                               twitch_live = true;
                             }
                           }
@@ -176,7 +176,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                               additional_fields.push(("Live on ggru", titurl, false));
                             } else {
                               additional_fields.push(("Live on ggru", ggdata.channel.title.clone(), false));
-                              image = Some(ggdata.channel.thumb.clone());
+                              image  = Some(ggdata.channel.thumb.clone());
                               em_url = Some(url);
                             }
                           }

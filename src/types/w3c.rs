@@ -1,4 +1,3 @@
-use crate::types::team::Player;
 use std::collections::HashMap;
 
 pub_struct!(Stats {
@@ -162,23 +161,6 @@ pub struct MD {
   #[serde(rename = "match")]
   pub match_data: Match,
   pub playerScores: Vec<PlayerScore>
-}
-
-#[allow(non_snake_case)]
-#[derive(Debug)]
-pub struct TrackingGame {
-  pub tracking_msg_id: u64,
-  pub passed_time: u32,
-  pub still_live: bool,
-  pub player: Player
-}
-
-#[allow(non_snake_case)]
-#[derive(Debug)]
-pub struct StartingGame {
-  pub key: String,
-  pub description: String,
-  pub player: Player
 }
 
 pub_struct!(Season {

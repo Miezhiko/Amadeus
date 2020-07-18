@@ -21,7 +21,6 @@ use serenity::{
 use std::collections::HashMap;
 use serde_json::Value;
 
-use reqwest;
 use comfy_table::*;
 
 use std::{
@@ -55,11 +54,11 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   let url = format!("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&gameMode={}", current_season());
   let res = reqwest::get(url.as_str()).await?;
   let going : Going = res.json().await?;
-  if going.matches.len() > 0 {
+  if !going.matches.is_empty() {
     let footer = format!("Requested by {}", msg.author.name);
     let mut description : String = String:: new();
     for m in going.matches.into_iter().take(15).collect::<Vec<Match>>() {
-      if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
+      if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
         set! { g_map = get_map(m.map.as_str())
              , race1 = get_race2(m.teams[0].players[0].race)
              , race2 = get_race2(m.teams[1].players[0].race) };
@@ -91,13 +90,13 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     args_msg = msg.author.name.as_str();
   }
   let season = current_season();
-  let userx = if args_msg.contains("#") { String::from(args_msg) }
+  let userx = if args_msg.contains('#') { String::from(args_msg) }
     else {
       let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay=20&searchFor={}&season={}", args_msg, season);
       let ress = reqwest::get(search_uri.as_str()).await?;
       let search : Vec<Search> = ress.json().await?;
-      if search.len() > 0 {
-        if search[0].player.playerIds.len() > 0 {
+      if !search.is_empty() {
+        if !search[0].player.playerIds.is_empty() {
           search[0].player.playerIds[0].battleTag.clone()
         } else { String::from("") }
       } else { String::from("") }
@@ -185,11 +184,11 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
         at_list.push((gmstat.mmr, strnfo));
       }
     }
-    if at_list.len() > 0 {
+    if !at_list.is_empty() {
       at_list.sort_by(|(mmra,_), (mmrb, _) | mmra.cmp(mmrb));
       at_list.reverse();
       let map_of_sort : Vec<String> = at_list.into_iter().map(|(_, strx)| strx).take(5).collect();
-      if map_of_sort.len() > 0 {
+      if !map_of_sort.is_empty() {
         at_info = map_of_sort.join("\n");
       }
     }
@@ -199,10 +198,10 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     let stats : Vec<Stats> = res.json().await?;
 
     let mut stats_by_races : String = String::new();
-    if stats.len() > 0 {
+    if !stats.is_empty() {
 
       let clan_uri = format!("https://statistic-service.w3champions.com/api/clans?battleTag={}", user);
-      let name = &userx.split("#").collect::<Vec<&str>>()[0];
+      let name = &userx.split('#').collect::<Vec<&str>>()[0];
       let mut clanned = String::from(*name);
       if let Ok(clan_res) = reqwest::get(clan_uri.as_str()).await {
         if let Ok(clan_text_res) = clan_res.text().await {
@@ -255,28 +254,27 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 
       if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
         for s3 in s24 {
-          if s3.winLossesOnMap.len() > 0 {
-            if s3.race == 16 {
-              for s4 in &s3.winLossesOnMap {
-                let text = get_map(s4.map.as_str());
-                let mut scores : HashMap<u32, String> = HashMap::new();
-                for s5 in &s4.winLosses {
-                  let vs_winrate = (s5.winrate * 100.0).round();
-                  let text = format!("{}%", vs_winrate);
-                  scores.insert(s5.race, text);
-                }
-                table.add_row(vec![
-                  Cell::new(text).set_alignment(CellAlignment::Left),
-                  Cell::new(scores.get(&1).unwrap_or( &String::from("-") ))
-                    .set_alignment(CellAlignment::Center),
-                  Cell::new(scores.get(&2).unwrap_or( &String::from("-") ))
-                    .set_alignment(CellAlignment::Center),
-                  Cell::new(scores.get(&4).unwrap_or( &String::from("-") ))
-                    .set_alignment(CellAlignment::Center),
-                  Cell::new(scores.get(&8).unwrap_or( &String::from("-") ))
-                    .set_alignment(CellAlignment::Center)
-                ]);
+          if !s3.winLossesOnMap.is_empty() &&
+              s3.race == 16 {
+            for s4 in &s3.winLossesOnMap {
+              let text = get_map(s4.map.as_str());
+              let mut scores : HashMap<u32, String> = HashMap::new();
+              for s5 in &s4.winLosses {
+                let vs_winrate = (s5.winrate * 100.0).round();
+                let text = format!("{}%", vs_winrate);
+                scores.insert(s5.race, text);
               }
+              table.add_row(vec![
+                Cell::new(text).set_alignment(CellAlignment::Left),
+                Cell::new(scores.get(&1).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center),
+                Cell::new(scores.get(&2).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center),
+                Cell::new(scores.get(&4).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center),
+                Cell::new(scores.get(&8).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center)
+              ]);
             }
           }
         }

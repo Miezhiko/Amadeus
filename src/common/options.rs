@@ -2,8 +2,8 @@ use crate::types::options::{ IOptions, ROptions };
 
 use async_std::{ fs, io::Error };
 
-const DHALL_FILE_NAME: &'static str = "conf.dhall";
-const JSON_FILE_NAME: &'static str = "conf.json";
+const DHALL_FILE_NAME: &str = "conf.dhall";
+const JSON_FILE_NAME: &str  = "conf.json";
 
 pub fn get_ioptions() -> Result<IOptions, serde_dhall::Error> {
   serde_dhall::from_file(DHALL_FILE_NAME).parse()

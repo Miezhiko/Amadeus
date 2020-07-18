@@ -19,20 +19,18 @@ use serenity::{
 async fn score(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
     let (target, the_points) =
-      if msg.mentions.len() > 0 {
+      if !msg.mentions.is_empty() {
         let target_user = &msg.mentions[0];
-        if let Ok(p) = points::get_points( guild.id.as_u64().clone(), target_user.id.as_u64().clone()).await {
+        if let Ok(p) = points::get_points( *guild.id.as_u64(), *target_user.id.as_u64()).await {
           ( &target_user.name, p )
         } else {
           ( &target_user.name, 0 )
         }
-      } else {
-        if let Ok(p) = points::get_points( guild.id.as_u64().clone(), msg.author.id.as_u64().clone()).await {
+      } else if let Ok(p) = points::get_points( *guild.id.as_u64(), *msg.author.id.as_u64()).await {
           ( &msg.author.name, p )
         } else {
           ( &msg.author.name, 0 )
-        }
-      };
+        };
     let out = format!("Score for {} : {}", target, the_points);
     let footer = format!("Requested by {}", msg.author.name);
     if let Err(why) = msg.channel_id.send_message(ctx, |m| m
@@ -47,9 +45,10 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[min_args(1)] // or 2?
 async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
-    if msg.mentions.len() > 0 {
+    if !msg.mentions.is_empty() {
       let target_user = &msg.mentions[0];
       if target_user.id == msg.author.id {
         channel_message(ctx, msg, "you don't give points to yourself").await;
@@ -59,21 +58,18 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             first
           } else if let Ok(second) = args.advance().single::<u64>() {
             second
-          } else {
-            0
-          };
+          } else { 0 };
         if points_count > 0 {
-          let (succ, rst) = points::give_points( guild.id.as_u64().clone()
-                                               , msg.author.id.as_u64().clone()
-                                               , target_user.id.as_u64().clone()
+          let (succ, rst) = points::give_points( *guild.id.as_u64()
+                                               , *msg.author.id.as_u64()
+                                               , *target_user.id.as_u64()
                                                , points_count).await;
           if succ {
             let out = format!("{} to {}", rst, target_user.name);
-            let footer = format!("{}", msg.author.name);
             if let Err(why) = msg.channel_id.send_message(ctx, |m| m
               .embed(|e| e
               .description(out.as_str())
-              .footer(|f| f.text(footer))
+              .footer(|f| f.text(msg.author.name.as_str()))
             )).await {
               error!("Failed to post give {:?}", why);
             }
@@ -91,7 +87,7 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
 #[command]
 async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
-  if msg.mentions.len() > 0 {
+  if !msg.mentions.is_empty() {
     let target = &msg.mentions[0];
     if let Some(q) = chain::make_quote(ctx, msg, target.id, 9000).await {
       let footer = format!("Requested by {}", msg.author.name);

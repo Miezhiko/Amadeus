@@ -14,8 +14,6 @@ use serenity::{
   prelude::*
 };
 
-use reqwest;
-
 use std::collections::HashMap;
 use tokio::sync::{ Mutex, MutexGuard };
 
@@ -85,10 +83,10 @@ async fn check_match( matchid_lol: &str
               , race12 = get_race2(m.teams[0].players[1].race)
               , race2  = get_race2(m.teams[1].players[0].race)
               , race22 = get_race2(m.teams[1].players[1].race) };
-          if m.teams[0].won {
-            if m.teams[0].players[0].battleTag == btag || m.teams[0].players[1].battleTag == btag {
-              are_you_winning = true;
-            }
+          if m.teams[0].won
+          && ( m.teams[0].players[0].battleTag == btag
+            || m.teams[0].players[1].battleTag == btag ) {
+            are_you_winning = true;
           }
           if m.gameMode == 6 {
             if m.teams[0].won {
@@ -100,16 +98,14 @@ async fn check_match( matchid_lol: &str
                 race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
               , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
             }
-          } else {
-            if m.teams[0].won {
-              Some(format!("({}+{}) __**{} [{}]**__ **+{}** + __**{} [{}]**__ **+{}** (won)\n*vs*\n({}+{}) __*{} [{}]*__ *{}* + __*{} [{}]*__ *{}* (lost)\n\nmap: **{}**",
-                race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain
-              , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
-            } else {
-              Some(format!("({}+{}) __*{} [{}]*__ *{}* + __*{} [{}]*__ *{}* (lost)\n*vs*\n({}+{}) __**{} [{}]**__ **+{}** + __**{} [{}]**__ **+{}** (won)\n\nmap: **{}**",
+          } else if m.teams[0].won {
+            Some(format!("({}+{}) __**{} [{}]**__ **+{}** + __**{} [{}]**__ **+{}** (won)\n*vs*\n({}+{}) __*{} [{}]*__ *{}* + __*{} [{}]*__ *{}* (lost)\n\nmap: **{}**",
               race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain
-              , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
-            }
+            , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
+          } else {
+            Some(format!("({}+{}) __*{} [{}]*__ *{}* + __*{} [{}]*__ *{}* (lost)\n*vs*\n({}+{}) __**{} [{}]**__ **+{}** + __**{} [{}]**__ **+{}** (won)\n\nmap: **{}**",
+            race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain
+            , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
           }
         } else {
           None
@@ -172,18 +168,17 @@ pub async fn check<'a>( ctx: &Context
     // getaway 20 = Europe
     reqwest::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20").await {
     if let Ok(going) = res.json::<Going>().await {
-      if going.matches.len() > 0 {
+      if !going.matches.is_empty() {
         for m in going.matches {
           if m.gameMode == 1 {
-            if m.teams.len() > 1 && m.teams[0].players.len() > 0 && m.teams[1].players.len() > 0 {
+            if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
               if let Some(playa) = players().into_iter().find(|p|
                    m.teams[0].players[0].battleTag == p.battletag
                 || m.teams[1].players[0].battleTag == p.battletag
               ) {
-
-                let g_map = get_map(m.map.as_str());
-                let race1 = get_race2(m.teams[0].players[0].race);
-                let race2 = get_race2(m.teams[1].players[0].race);
+                set!{ g_map = get_map(m.map.as_str())
+                    , race1 = get_race2(m.teams[0].players[0].race)
+                    , race2 = get_race2(m.teams[1].players[0].race) };
                 let mstr = format!("({}) **{}** [{}] *vs* ({}) **{}** [{}] *{}*",
                   race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
                 , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
@@ -199,7 +194,7 @@ pub async fn check<'a>( ctx: &Context
                       let mut fields = Vec::new();
                       let mut img = None;
                       let mut url = None;
-                      if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
+                      if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
                         for f in msg.embeds[0].fields.clone() {
                           fields.push((f.name, f.value, f.inline));
                         }
@@ -214,14 +209,14 @@ pub async fn check<'a>( ctx: &Context
                             .author(|a| a.icon_url(&user.face()).name(&user.name))
                             .description(mstr)
                             .footer(|f| f.text(footer));
-                          if fields.len() > 0 {
+                          if !fields.is_empty() {
                             e = e.fields(fields);
                           }
-                          if img.is_some() {
-                            e = e.image(img.unwrap().url);
+                          if let Some(some_img) = img {
+                            e = e.image(some_img.url);
                           }
-                          if url.is_some() {
-                            e = e.url(url.unwrap());
+                          if let Some(some_url) = url {
+                            e = e.url(some_url);
                           }
                           e
                         }
@@ -276,7 +271,7 @@ pub async fn check<'a>( ctx: &Context
                       setm!{ fields = Vec::new()
                            , img    = None
                            , url    = None };
-                      if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
+                      if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
                         for f in msg.embeds[0].fields.clone() {
                           fields.push((f.name, f.value, f.inline));
                         }
@@ -291,14 +286,14 @@ pub async fn check<'a>( ctx: &Context
                             .author(|a| a.icon_url(&user.face()).name(&user.name))
                             .description(mstr)
                             .footer(|f| f.text(footer));
-                          if fields.len() > 0 {
+                          if !fields.is_empty() {
                             e = e.fields(fields);
                           }
-                          if img.is_some() {
-                            e = e.image(img.unwrap().url);
+                          if let Some(some_img) = img {
+                            e = e.image(some_img.url);
                           }
-                          if url.is_some() {
-                            e = e.url(url.unwrap());
+                          if let Some(some_url) = url {
+                            e = e.url(some_url);
                           }
                           e
                         }
@@ -333,7 +328,7 @@ pub async fn check<'a>( ctx: &Context
                 if let Ok(user) = ctx.http.get_user(track.player.discord).await {
                   let mut old_fields = Vec::new();
                   let mut url = None;
-                  if msg.embeds.len() > 0 && msg.embeds[0].fields.len() > 0 {
+                  if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
                     for f in msg.embeds[0].fields.clone() {
                       old_fields.push((f.name, f.value, f.inline));
                     }
@@ -376,7 +371,7 @@ pub async fn check<'a>( ctx: &Context
                         .title(title)
                         .description(fgame.desc.as_str())
                         .footer(|f| f.text(footer));
-                      if old_fields.len() > 0 {
+                      if !old_fields.is_empty() {
                         e = e.fields(old_fields);
                       }
                       if let Some(streak_data) = streak_fields {
@@ -388,8 +383,8 @@ pub async fn check<'a>( ctx: &Context
                           (s2, s4, true)
                         ]);
                       }
-                      if url.is_some() {
-                        e = e.url(url.unwrap());
+                      if let Some(some_url) = url {
+                        e = e.url(some_url);
                       }
                       e
                     })

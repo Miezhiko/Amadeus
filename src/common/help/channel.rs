@@ -20,9 +20,9 @@ pub async fn channel_by_name<'a>( ctx: &Context
         if name == channel_name { Some((c, cx)) } else { None }
       } else { None }
     }).collect::<Vec<(&ChannelId, &GuildChannel)>>().await;
-  if some_channels.len() > 0 {
-    Some(some_channels[0])
-  } else {
+  if some_channels.is_empty() {
     None
+  } else {
+    Some(some_channels[0])
   }
 }

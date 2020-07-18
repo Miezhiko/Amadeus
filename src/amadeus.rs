@@ -53,7 +53,7 @@ impl IFlagAction for Version {
         , pname = "Amadeus"
         , version_string = format!("{} {}", pname, version) );
     println!("{}", version_string);
-    return ParseResult::Exit;
+    ParseResult::Exit
   }
 }
 
@@ -109,7 +109,7 @@ async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
     DispatchError::NotEnoughArguments { min, given } => {
       let s = {
         if given == 0  && min == 1{
-          format!("I need an argument to run this command")
+          "I need an argument to run this command".to_string()
         } else if given == 0 {
           format!("I need atleast {} arguments to run this command", min)
         } else {
@@ -146,24 +146,24 @@ async fn after(ctx: &Context, msg: &Message, cmd_name: &str, error: CommandResul
   if let Err(why) = &error {
     error!("Error while running command {}", &cmd_name);
     error!("{:?}", &error);
-    if let Err(_) = msg.channel_id.say(ctx, &why).await {
-      error!("Unable to send messages on channel id {}", &msg.channel_id.0);
+    if let Err(why) = msg.channel_id.say(ctx, &why).await {
+      error!("Unable to send messages on channel {} {:?}", &msg.channel_id.0, why);
     };
   }
 }
 
 #[hook]
 async fn unrecognised_command(ctx: &Context, msg: &Message, _command_name: &str) {
-  if let Some(_) = GREETINGS.iter().find(|c| {
+  let is_valid_greeting = |c| {
     let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
     let is_greeting = Regex::new(regex.as_str()).unwrap();
-    is_greeting.is_match(msg.content.as_str()) }) 
-  {
+    is_greeting.is_match(msg.content.as_str()) };
+  if GREETINGS.iter().any(is_valid_greeting) {
     let mut rng = StdRng::from_entropy();
-    set! { hi_reply = GREETINGS.choose(&mut rng).unwrap()
-        , reply = format!("{}", hi_reply) };
-    if let Err(why) = msg.reply(&ctx, reply).await {
-      error!("Error sending greeting reply: {:?}", why);
+    if let Some(hi_reply) = GREETINGS.choose(&mut rng) {
+      if let Err(why) = msg.reply(&ctx, hi_reply).await {
+        error!("Error sending greeting reply: {:?}", why);
+      }
     }
   } else {
     chain::response(&ctx, &msg).await;

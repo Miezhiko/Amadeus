@@ -1,5 +1,5 @@
-static OVERWATCHD: &'static str = "dhall/stuff/overwatch.dhall";
-static OVERWATCH_REPLIESD: &'static str = "dhall/stuff/overwatch_replies.dhall";
+static OVERWATCHD: & str = "dhall/stuff/overwatch.dhall";
+static OVERWATCH_REPLIESD: & str = "dhall/stuff/overwatch_replies.dhall";
 
 lazy_static! {
   pub static ref OVERWATCH: Vec<String>         = dhall!(OVERWATCHD);
@@ -12,10 +12,10 @@ mod stuff_dhall_tests {
   fn dhall_vec(f: &str) -> Result<(), String> {
     match serde_dhall::from_file(f).parse::<Vec<String>>() {
       Ok(some) => {
-        if some.len() > 0 {
-          Ok(())
-        } else {
+        if some.is_empty() {
           Err(String::from("empty structure loaded"))
+        } else {
+          Ok(())
         }
       }, Err(de) => Err(format!("Failed to parse {:?}", de))
     }

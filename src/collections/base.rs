@@ -1,11 +1,11 @@
 use crate::types::common::Reaction;
 
-static GREETINGSD: &'static str       = "dhall/base/greetings.dhall";
-static CONFUSION_RUD: &'static str    = "dhall/base/confusion_ru.dhall";
-static CONFUSIOND: &'static str       = "dhall/base/confusion.dhall";
-static OBFUSCATION_RUD: &'static str  = "dhall/base/obfuscation_ru.dhall";
-static OBFUSCATIOND: &'static str     = "dhall/base/obfuscation.dhall";
-static REACTIONSD: &'static str       = "dhall/base/reactions.dhall";
+static GREETINGSD: &str      = "dhall/base/greetings.dhall";
+static CONFUSION_RUD: &str   = "dhall/base/confusion_ru.dhall";
+static CONFUSIOND: &str      = "dhall/base/confusion.dhall";
+static OBFUSCATION_RUD: &str = "dhall/base/obfuscation_ru.dhall";
+static OBFUSCATIOND: &str    = "dhall/base/obfuscation.dhall";
+static REACTIONSD: &str      = "dhall/base/reactions.dhall";
 
 lazy_static! {
   pub static ref GREETINGS: Vec<String>      = dhall!(GREETINGSD);
@@ -22,7 +22,7 @@ mod base_dhall_tests {
   fn dhall_vec(f: &str) -> Result<(), String> {
     match serde_dhall::from_file(f).parse::<Vec<String>>() {
       Ok(some) => {
-        if some.len() > 0 {
+        if !some.is_empty() {
           Ok(())
         } else {
           Err(String::from("empty structure loaded"))
@@ -44,7 +44,7 @@ mod base_dhall_tests {
   fn reactions() -> Result<(), String> {
     match serde_dhall::from_file(REACTIONSD).parse::<Vec<Reaction>>() {
       Ok(some) => {
-        if some.len() > 0 {
+        if !some.is_empty() {
           Ok(())
         } else {
           Err(String::from("empty structure loaded"))

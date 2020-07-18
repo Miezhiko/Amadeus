@@ -1,11 +1,11 @@
 /*
  * Channels where I can spam (well, chat actually)
  */
-static AI_ALLOWEDD: &'static str = "dhall/channels/ai_allowed.dhall";
+static AI_ALLOWEDD: &str = "dhall/channels/ai_allowed.dhall";
 /*
  * Channels where I can learn
  */
-static AI_LEARND: &'static str   = "dhall/channels/ai_learn.dhall";
+static AI_LEARND: &str   = "dhall/channels/ai_learn.dhall";
 
 lazy_static! {
   pub static ref AI_ALLOWED: Vec<String> = dhall!(AI_ALLOWEDD);
@@ -18,7 +18,7 @@ mod channels_dhall_tests {
   fn dhall_vec(f: &str) -> Result<(), String> {
     match serde_dhall::from_file(f).parse::<Vec<String>>() {
       Ok(some) => {
-        if some.len() > 0 {
+        if !some.is_empty() {
           Ok(())
         } else {
           Err(String::from("empty structure loaded"))

@@ -209,14 +209,14 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
 
   let guild = msg.guild(&ctx).await.unwrap();
   if points_count > 0 {
-    if let Ok(p1) = points::get_points( guild.id.as_u64().clone(), msg.author.id.as_u64().clone()).await {
+    if let Ok(p1) = points::get_points( *guild.id.as_u64(), *msg.author.id.as_u64()).await {
       if p1 < points_count {
         let err = format!("{} only has {}, need {}", msg.author.name, p1, points_count);
         channel_message(ctx, msg, err.as_str()).await;
         return Ok(());
       }
     }
-    if let Ok(p2) = points::get_points( guild.id.as_u64().clone(), other_player.id.as_u64().clone()).await {
+    if let Ok(p2) = points::get_points( *guild.id.as_u64(), *other_player.id.as_u64()).await {
       if p2 < points_count {
         let err = format!("{} only has {}, need {}", other_player.name, p2, points_count);
         channel_message(ctx, msg, err.as_str()).await;
@@ -268,7 +268,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
   board.current_piece = players[0].1;
   let mut m = msg.channel_id.say(ctx, format!(">>> ```{}```", &board)).await?;
   for i in 1..4u8 {
-    let num = ReactionType::Unicode(String::from(format!("{}\u{fe0f}\u{20e3}", i)));
+    let num = ReactionType::Unicode(format!("{}\u{fe0f}\u{20e3}", i));
     m.react(ctx, num).await?;
   }
   let _a = ReactionType::Unicode(String::from("\u{01f1e6}"));
@@ -302,25 +302,23 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
             let _ = m.delete_reactions(ctx).await;
             return Ok(());
           }
-        } else {
-          if !x.is_none() && !y.is_none() {
-            let piece = Piece {
-              pos_x: x.unwrap(),
-              pos_y: y.unwrap(),
-              typ: Some(i.1),
-            };
-            if let Err(_) = board.place_piece(piece) {
-              x = None;
-              y = None;
-            } else {
-              break 'outer
-            }
+        } else if !x.is_none() && !y.is_none() {
+          let piece = Piece {
+            pos_x: x.unwrap(),
+            pos_y: y.unwrap(),
+            typ: Some(i.1),
+          };
+          if board.place_piece(piece).is_err() {
+            x = None;
+            y = None;
+          } else {
+            break 'outer
           }
         }
       }
     }
     board.check_win_condition();
-    if let Some(_) = board.win_condition {
+    if board.win_condition.is_some() {
       m.edit(ctx, |m| m.content(format!("{} WON!\n>>> ```{}```", i.0.mention(), &board))).await?;
       let _ = m.delete_reactions(ctx).await;
       if points_count > 0 {
@@ -330,17 +328,16 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
           } else {
             (&msg.author, other_player)
           };
-        let (succ, rst) = points::give_points( guild.id.as_u64().clone()
-                                             , loser.id.as_u64().clone()
-                                             , winner.id.as_u64().clone()
+        let (succ, rst) = points::give_points( *guild.id.as_u64()
+                                             , *loser.id.as_u64()
+                                             , *winner.id.as_u64()
                                              , points_count).await;
         if succ {
           let out = format!("{} to {}", rst, winner.name);
-          let footer = format!("{}", loser.name);
           if let Err(why) = msg.channel_id.send_message(ctx, |m| m
             .embed(|e| e
             .description(out.as_str())
-            .footer(|f| f.text(footer))
+            .footer(|f| f.text(loser.name.as_str()))
           )).await {
             error!("Failed to post give {:?}", why);
           }

@@ -58,7 +58,7 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
             trace!("updating ai chain from {}", c_name.as_str());
             for mmm in messages {
               if !mmm.author.bot {
-                let is_to_bot = mmm.mentions.len() > 0 && (&mmm.mentions).into_iter().any(|u| u.bot);
+                let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
                 if !is_to_bot {
                   let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
                   result = result.replace(": ", "");
@@ -67,7 +67,7 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
                     content_safe(&ctx, &result, &ContentSafeOptions::default()
                       .clean_user(false).clean_channel(true)
                       .clean_everyone(true).clean_here(true)).await;
-                  if !result.is_empty() && !result.contains("$") && !is_http {
+                  if !result.is_empty() && !result.contains('$') && !is_http {
                     if lang::is_russian(result.as_str()) {
                       cache_ru.feed_str(result.as_str());
                     } else {
@@ -123,7 +123,7 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
                     content_safe(&ctx, &result, &ContentSafeOptions::default()
                       .clean_user(false).clean_channel(true)
                       .clean_everyone(true).clean_here(true)).await;
-                  if !result.is_empty() && !result.contains("$") && !is_http {
+                  if !result.is_empty() && !result.contains('$') && !is_http {
                     chain.feed_str(result.as_str());
                     if !have_something {
                       have_something = true;

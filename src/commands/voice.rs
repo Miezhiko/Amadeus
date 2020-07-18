@@ -28,31 +28,25 @@ impl TypeMapKey for VoiceManager {
 }
 
 pub async fn rejoin_voice_channel(ctx : &Context, conf: &ROptions) {
-  if conf.rejoin {
-    if conf.last_guild != 0 && conf.last_channel != 0 {
-      set!{ last_guild_conf = GuildId( conf.last_guild )
-          , last_channel_conf = ChannelId( conf.last_channel ) };
-      let manager_lock =
-        ctx.data.read().await
-          .get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
-      let mut manager = manager_lock.lock().await;
-      if manager.join(last_guild_conf, last_channel_conf).is_some() {
-        info!("Rejoined voice channel: {}", last_channel_conf);
-        if conf.last_stream != "" {
-          if let Some(handler) = manager.get_mut(last_guild_conf) {
-            let source = match voice::ytdl(&conf.last_stream).await {
-              Ok(source) => source,
-              Err(why) => {
-                error!("Err starting source: {:?}", why);
-                return ();
-              }
-            };
-            handler.play(source);
-          }
+  if conf.rejoin && conf.last_guild != 0 && conf.last_channel != 0 {
+    set!{ last_guild_conf   = GuildId( conf.last_guild )
+        , last_channel_conf = ChannelId( conf.last_channel ) };
+    let manager_lock =
+      ctx.data.read().await
+        .get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
+    let mut manager = manager_lock.lock().await;
+    if manager.join(last_guild_conf, last_channel_conf).is_some() {
+      info!("Rejoined voice channel: {}", last_channel_conf);
+      if conf.last_stream != "" {
+        if let Some(handler) = manager.get_mut(last_guild_conf) {
+          match voice::ytdl(&conf.last_stream).await {
+            Ok(source) => handler.play(source),
+            Err(why)   => error!("Err starting source: {:?}", why)
+          };
         }
-      } else {
-        error!("Failed to rejoin voice channel: {}", last_channel_conf);
       }
+    } else {
+      error!("Failed to rejoin voice channel: {}", last_channel_conf);
     }
   }
 }
@@ -84,7 +78,7 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
     let mut opts = options::get_roptions().await?;
     if opts.last_guild != *guild_id.as_u64()
     || opts.last_channel != *connect_to.as_u64()
-    || opts.rejoin == false {
+    || !opts.rejoin {
       opts.rejoin = true;
       opts.last_guild = *guild_id.as_u64();
       opts.last_channel = *connect_to.as_u64();
@@ -135,7 +129,7 @@ async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let url =
-    if args.len() > 0 {
+    if !args.is_empty() {
       match args.single::<String>() {
         Ok(url) => url,
         Err(_) => {

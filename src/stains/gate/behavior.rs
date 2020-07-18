@@ -47,7 +47,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
       ctx.idle().await;
 
       if let Some((channel, _)) = channel_by_name(&ctx, &channels, "main").await {
-        set!{ ch_clone = channel.clone()
+        set!{ ch_deref  = *channel
             , ctx_clone = ctx.clone() };
         tokio::spawn(async move {
           loop {
@@ -55,7 +55,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
             let rndx = rand::thread_rng().gen_range(0, activity_level);
             if rndx == 1 {
               let ai_text = chain::generate_english_or_russian(&ctx_clone, &guild_id).await;
-              if let Err(why) = ch_clone.send_message(&ctx_clone, |m| {
+              if let Err(why) = ch_deref.send_message(&ctx_clone, |m| {
                 m.content(ai_text)
               }).await {
                 error!("Failed to post periodic message {:?}", why);
@@ -71,7 +71,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
       if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
 
         // Delete live games from log channel (if some)
-        for vec_msg in channel.messages(&ctx, |g| g.limit(50)).await {
+        if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(50)).await {
           let mut vec_id = Vec::new();
           for message in vec_msg {
             for embed in message.embeds {
@@ -83,7 +83,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
               }
             }
           }
-          if vec_id.len() > 0 {
+          if !vec_id.is_empty() {
             match channel.delete_messages(&ctx, vec_id.as_slice()).await {
               Ok(nothing)  => nothing,
               Err(err) => warn!("Failed to clean live messages {}", err),
@@ -91,9 +91,8 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
           }
         }
 
-        set!{ ch_clone      = channel.clone(),
+        set!{ ch_deref      = *channel,
               ctx_clone     = ctx.clone(),
-              ch_ud         = ch_clone.as_u64().clone(),
               options_clone = options.clone() };
 
         tokio::spawn(async move {
@@ -119,7 +118,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
             }
             background_threads_successfully_started = true;
             let our_gsx = cyber::team_checker::check( &ctx_clone
-                                                    , ch_ud
+                                                    , *ch_deref.as_u64()
                                                     , options_clone.guild
                                                     , &mut games_lock
                                                     ).await;
@@ -144,7 +143,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                       .send().await {
                       match res.json::<Twitch>().await {
                         Ok(t) => {
-                          if t.data.len() > 0 {
+                          if !t.data.is_empty() {
                             let twd = &t.data[0];
                             let url = format!("https://www.twitch.tv/{}", twd.user_name);
                             let pic = twd.thumbnail_url.replace("{width}", "800")
@@ -188,27 +187,27 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                   }
                 }
 
-                match ch_clone.send_message(&ctx_clone, |m| m
+                match ch_deref.send_message(&ctx_clone, |m| m
                   .embed(|e| {
                     let mut e = e
                       .title("JUST STARTED")
                       .author(|a| a.icon_url(&user.face()).name(&user.name))
                       .description(game.description.as_str());
-                    if additional_fields.len() > 0 {
+                    if !additional_fields.is_empty() {
                       e = e.fields(additional_fields);
                     }
-                    if image.is_some() {
-                      e = e.image(image.unwrap());
+                    if let Some(some_image) = image {
+                      e = e.image(some_image);
                     }
-                    if em_url.is_some() {
-                      e = e.url(em_url.unwrap());
+                    if let Some(some_url) = em_url {
+                      e = e.url(some_url);
                     }
                     e
                   }
                 )).await {
                   Ok(msg_id) => {
                     games_lock.insert(game_key, TrackingGame {
-                      tracking_msg_id: msg_id.id.as_u64().clone(),
+                      tracking_msg_id: *msg_id.id.as_u64(),
                       passed_time: 0,
                       still_live: false,
                       player: game.player }

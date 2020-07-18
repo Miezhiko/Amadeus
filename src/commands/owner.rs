@@ -24,6 +24,7 @@ async fn set(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
     error!("Error deleting original command {:?}", why);
   }
   if let Ok(property) = args.single::<String>() {
+    #[allow(clippy::single_match)]
     match property.as_str() {
       "activity" =>
         if let Ok(level) = args.single::<u32>() {
@@ -61,7 +62,7 @@ async fn say(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 async fn clear(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if args.len() == 1 {
     let countdown: u64 = args.find().unwrap_or_default();
-    for vec in msg.channel_id.messages(ctx, |g| g.before(msg.id).limit(countdown)).await {
+    if let Ok(vec) = msg.channel_id.messages(ctx, |g| g.before(msg.id).limit(countdown)).await {
       let mut vec_id = Vec::new();
       for message in vec {
         vec_id.push(message.id);
@@ -74,17 +75,15 @@ async fn clear(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     }
     direct_message(ctx, &msg, &format!("Deleted {} messages", countdown)).await;
   } else if args.len() == 2 {
-    let countdown: u64 = args.find().unwrap_or_default();
-    let counter: u64 = args.find().unwrap_or_default();
+    let countdown: usize = args.find().unwrap_or_default();
+    let counter: usize = args.find().unwrap_or_default();
     let full = countdown + counter;
-    for vec in msg.channel_id.messages(ctx, |g| g.before(msg.id).limit(full)).await {
+    if let Ok(vec) = msg.channel_id.messages(ctx, |g| g.before(msg.id).limit(full as u64)).await {
       let mut vec_id = Vec::new();
-      let mut i = 0;
-      for message in vec.iter().rev() {
+      for (i, message) in vec.iter().rev().enumerate() {
         if i < countdown {
           vec_id.push(message.id);
         }
-        i += 1;
       }
       vec_id.push(msg.id);
       match msg.channel_id.delete_messages(ctx, vec_id.as_slice()).await {

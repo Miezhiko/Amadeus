@@ -23,7 +23,7 @@ async fn idle(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 #[command]
 async fn stream(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
   if let Ok(stream_url) = args.single::<String>() {
-    let name = args.single::<String>().unwrap_or(String::from("Amadeus"));
+    let name = args.single::<String>().unwrap_or_else(|_| "Amadeus".to_string());
     if let Err(why) = msg.delete(&ctx).await {
       error!("Error deleting original command {:?}", why);
     }
@@ -36,15 +36,15 @@ async fn stream(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult 
 #[command]
 async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
-    if msg.mentions.len() > 0 {
+    if msg.mentions.is_empty() {
+      channel_message(ctx, msg, "you need to target points reciever").await;
+    } else {
       let target_user = &msg.mentions[0];
-      let s = points::add_win_points( guild.id.as_u64().clone()
-                                    , target_user.id.as_u64().clone()
+      let s = points::add_win_points( *guild.id.as_u64()
+                                    , *target_user.id.as_u64()
                                     ).await;
       let out = format!("win registered, {} wins in a row", s);
       channel_message(ctx, msg, out.as_str()).await;
-    } else {
-      channel_message(ctx, msg, "you need to target points reciever").await;
     };
   }
   Ok(())
@@ -53,13 +53,13 @@ async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 async fn register_lose(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
-    if msg.mentions.len() > 0 {
-      let target_user = &msg.mentions[0];
-      let _ = points::break_streak( guild.id.as_u64().clone()
-                                  , target_user.id.as_u64().clone()
-                                  ).await;
-    } else {
+    if msg.mentions.is_empty() {
       channel_message(ctx, msg, "you need to target points reciever").await;
+    } else {
+      let target_user = &msg.mentions[0];
+      let _ = points::break_streak( *guild.id.as_u64()
+                                  , *target_user.id.as_u64()
+                                  ).await;
     };
   }
   Ok(())

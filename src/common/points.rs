@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use tokio::task;
 use tokio::sync::{ Mutex };
 
-static LSUF: &'static str = "tree.lusf";
+static LSUF: &str = "tree.lusf";
 
 #[derive(Serialize, Deserialize)]
 struct Points {

@@ -13,9 +13,6 @@ use serenity::{
   },
 };
 
-use ical;
-use reqwest;
-
 use std::io::BufReader;
 use tokio::task;
 
@@ -66,7 +63,7 @@ async fn tour_internal(ctx: &Context, msg: &Message, on : DateTime<Utc>, passed_
                         if let Ok(str_int) = str_hour.parse::<i32>() {
                           let mut msk_h = str_int + 1;
                           if msk_h >= 24 {
-                            msk_h = msk_h - 24;
+                            msk_h -= 24;
                           }
                           format!(" ({}:{} MSK)", msk_h.to_string(), str_min)
                         } else { String::from("") };
@@ -75,17 +72,15 @@ async fn tour_internal(ctx: &Context, msg: &Message, on : DateTime<Utc>, passed_
                   }
                 }
               }
-            } else {
-              if is_today {
-                if ep.name == "SUMMARY" {
-                  if let Some(val) = &ep.value {
-                    evstr = format!("{}", val);
-                  }
+            } else if is_today {
+              if ep.name == "SUMMARY" {
+                if let Some(val) = &ep.value {
+                  evstr = val.to_string();
                 }
-                if ep.name == "DESCRIPTION" {
-                  if let Some(val2) = &ep.value {
-                    evstr = format!("{}\n<{}>", evstr, val2);
-                  }
+              }
+              if ep.name == "DESCRIPTION" {
+                if let Some(val2) = &ep.value {
+                  evstr = format!("{}\n<{}>", evstr, val2);
                 }
               }
             }
@@ -99,7 +94,7 @@ async fn tour_internal(ctx: &Context, msg: &Message, on : DateTime<Utc>, passed_
     }
   }
 
-  if eventos.len() > 0 {
+  if !eventos.is_empty() {
     let date_str_x = on.format("%e-%b (%A)").to_string();
     let title = format!("Events on {}", date_str_x);
     if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
@@ -178,7 +173,7 @@ pub async fn lineup(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message();
 
   let check_for_title : Vec<String> =
-    text.split("|").map(str::to_string).collect();
+    text.split('|').map(str::to_string).collect();
 
   let title = if check_for_title.len() > 1 {
     let s = &check_for_title[0];
@@ -194,7 +189,7 @@ pub async fn lineup(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     String::from(text)
   };
 
-  let playermap_split = players.split(" ").filter(|x| !x.is_empty());
+  let playermap_split = players.split(' ').filter(|x| !x.is_empty());
   let playermap : Vec<String> =
     playermap_split.map(str::to_string).collect();
   for i in (0..(playermap.len() -1)).step_by(2) {

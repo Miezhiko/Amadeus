@@ -339,19 +339,50 @@ pub async fn check<'a>( ctx: &Context
                     }
                     url = msg.embeds[0].url.clone();
                   };
+                  let mut title = "FINISHED";
+                  let mut streak_fields = None;
+                  if fgame.win {
+                    info!("Registering win for {}", user.name);
+                    let streak = points::add_win_points( guild_id
+                                                       , track.player.discord
+                                                       ).await;
+                    if streak >= 3 {
+                      title =
+                        match streak {
+                          3  => "MULTIKILL",
+                          4  => "MEGA KILL",
+                          5  => "ULTRAKILL",
+                          6  => "KILLING SPREE",
+                          7  => "RAMPAGE!",
+                          8  => "DOMINATING",
+                          9  => "UNSTOPPABLE",
+                          10 => "GODLIKE!",
+                          11 => "WICKED SICK",
+                          12 => "ALPHA",
+                          _  => "FRENETIC"
+                        };
+                      let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
+                      streak_fields = Some(vec![("Winning streak", dd, false)]);
+                    }
+                  } else {
+                    info!("Registering lose for {}", user.name);
+                    points::break_streak( guild_id
+                                        , track.player.discord ).await;
+                  }
                   if let Err(why) = msg.edit(ctx, |m| m
                     .embed(|e| {
                       let mut e =
                         e.author(|a| a.icon_url(&user.face()).name(&user.name))
-                        .title("FINISHED")
+                        .title(title)
                         .description(fgame.desc.as_str())
                         .footer(|f| f.text(footer));
                       if old_fields.len() > 0 {
                         e = e.fields(old_fields);
                       }
-                      if fgame.additional_fields.is_some() {
-                        let (s1,s2,s3,s4) = fgame.additional_fields
-                                                 .clone().unwrap();
+                      if let Some(streak_data) = streak_fields {
+                        e = e.fields(streak_data);
+                      }
+                      if let Some((s1,s2,s3,s4)) = &fgame.additional_fields {
                         e = e.fields(vec![
                           (s1, s3, true),
                           (s2, s4, true)
@@ -364,43 +395,6 @@ pub async fn check<'a>( ctx: &Context
                     })
                   ).await {
                     error!("Failed to update live match {:?}", why);
-                  } else {
-                    if fgame.win {
-                      info!("Registering win for {}", user.name);
-                      let streak = points::add_win_points( guild_id
-                                                         , track.player.discord
-                                                         ).await;
-
-                      if streak >= 3 {
-                        let killspree =
-                          match streak {
-                            3 => "Multikill",
-                            4 => "Mega Kill",
-                            5 => "Killing Spree",
-                            6 => "Rampage!",
-                            7 => "Dominating",
-                            8 => "Unstoppable",
-                            9 => "Godlike!",
-                            10 => "Wicked Sick",
-                            11 => "Alpha",
-                            _ => "Frenetic"
-                          };
-                        let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
-                        if let Err(why) = msg.channel_id.send_message(ctx, |m| m
-                          .embed(|e| e
-                          .author(|a| a.icon_url(&user.face()).name(&user.name))
-                          .title(killspree)
-                          .description(dd.as_str())
-                        )).await {
-                          error!("Failed to post killspree, {:?}", why);
-                        }
-                      }
-
-                    } else {
-                      info!("Registering lose for {}", user.name);
-                      points::break_streak( guild_id
-                                          , track.player.discord ).await;
-                    }
                   }
                 }
               }

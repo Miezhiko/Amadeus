@@ -199,8 +199,9 @@ impl Board {
 #[aliases(ttt, tictactoe)]
 #[min_args(1)]
 async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  let other_player = parse_member(ctx, &msg, args.single_quoted::<String>()?).await?;
-  let points_count = 
+  let other_player_copy = parse_member(ctx, &msg, args.single_quoted::<String>()?).await?;
+  let other_player = &other_player_copy.user;
+  let points_count =
     if let Ok(first) = args.single::<u64>() { first
     } else if let Ok(second) = args.advance().single::<u64>() { second
     } else { 0
@@ -215,9 +216,9 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
         return Ok(());
       }
     }
-    if let Ok(p2) = points::get_points( guild.id.as_u64().clone(), other_player.user.id.as_u64().clone()).await {
+    if let Ok(p2) = points::get_points( guild.id.as_u64().clone(), other_player.id.as_u64().clone()).await {
       if p2 < points_count {
-        let err = format!("{} only has {}, need {}", other_player.user.name, p2, points_count);
+        let err = format!("{} only has {}, need {}", other_player.name, p2, points_count);
         channel_message(ctx, msg, err.as_str()).await;
         return Ok(());
       }
@@ -227,7 +228,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
   confirmation.react(ctx, '✅').await?;
   confirmation.react(ctx, '❌').await?;
   loop {
-    if let Some(reaction) = other_player.user.await_reaction(ctx).timeout(Duration::from_secs(120)).await {
+    if let Some(reaction) = other_player.await_reaction(ctx).timeout(Duration::from_secs(120)).await {
       let emoji = &reaction.as_inner_ref().emoji;
       match emoji.as_data().as_str() {
         "✅" => {
@@ -257,7 +258,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
   }
   let mut players = [
     Player(msg.author.id, Pieces::Cross),
-    Player(other_player.user.id, Pieces::Circle),
+    Player(other_player.id, Pieces::Circle),
   ].repeat(5);
   if msg.timestamp.timestamp() % 2 == 0 {
     players.reverse();
@@ -325,9 +326,9 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
       if points_count > 0 {
         let (loser, winner) =
           if msg.author.id == i.0 {
-            (&other_player.user, &msg.author)
+            (other_player, &msg.author)
           } else {
-            (&msg.author, &other_player.user)
+            (&msg.author, other_player)
           };
         let (succ, rst) = points::give_points( guild.id.as_u64().clone()
                                              , loser.id.as_u64().clone()

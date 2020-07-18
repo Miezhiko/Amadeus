@@ -3,15 +3,15 @@ Amadeus
 
 [![Build Status](https://travis-ci.org/Qeenon/Amadeus.svg?branch=master)](https://travis-ci.org/Qeenon/Amadeus)
 [![CircleCI](https://circleci.com/gh/Qeenon/Amadeus.svg?style=shield)](https://circleci.com/gh/Qeenon/Amadeus)
+[![Appveyor](https://ci.appveyor.com/api/projects/status/8cd1qi1aykujkyd2?svg=true)](https://ci.appveyor.com/project/Qeenon/amadeus)
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/Qeenon/Amadeus.svg)](http://isitmaintained.com/project/Qeenon/Amadeus "Percentage of issues still open")
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Qeenon/Amadeus.svg)](http://isitmaintained.com/project/Qeenon/Amadeus "Average time to resolve an issue")
-[![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus)
 ![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.44.1-teal)
 [![License: ISC](https://img.shields.io/badge/License-ISC-teal.svg)](https://opensource.org/licenses/ISC)
 ![Discord](https://img.shields.io/discord/611822838831251466?label=Discord)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_small)
 
-Memory storage and Artificial Intelligence system.\
+Memory storage and Artificial Intelligence system. [![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus)\
 Built with Rust and Serenity Framework. [![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
 
 Features

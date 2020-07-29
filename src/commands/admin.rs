@@ -36,10 +36,10 @@ async fn stream(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult 
 #[command]
 async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
-    if msg.mentions.is_empty() {
+    if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
       channel_message(ctx, msg, "you need to target points reciever").await;
     } else {
-      let target_user = &msg.mentions[0];
+      let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
       let s = points::add_win_points( *guild.id.as_u64()
                                     , *target_user.id.as_u64()
                                     ).await;
@@ -53,10 +53,10 @@ async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 async fn register_lose(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
-    if msg.mentions.is_empty() {
+    if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
       channel_message(ctx, msg, "you need to target points reciever").await;
     } else {
-      let target_user = &msg.mentions[0];
+      let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
       let _ = points::break_streak( *guild.id.as_u64()
                                   , *target_user.id.as_u64()
                                   ).await;

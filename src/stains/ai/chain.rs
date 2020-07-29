@@ -26,7 +26,7 @@ use rand::{
   Rng
 };
 
-use std::sync::atomic::{ AtomicU32 };
+use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use tokio::sync::{ Mutex, MutexGuard };
 
@@ -60,18 +60,19 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
               if !mmm.author.bot {
                 let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
                 if !is_to_bot {
-                  let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
-                  result = result.replace(": ", "");
-                  let is_http = result.starts_with("http") && !result.starts_with("https://images");
-                  result =
-                    content_safe(&ctx, &result, &ContentSafeOptions::default()
+                  let mut result_string = re.replace_all(&mmm.content.as_str(), "").to_string();
+                  result_string = result_string.replace(": ", "");
+                  let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
+                  result_string =
+                    content_safe(&ctx, &result_string, &ContentSafeOptions::default()
                       .clean_user(false).clean_channel(true)
                       .clean_everyone(true).clean_here(true)).await;
+                  let result = result_string.trim();
                   if !result.is_empty() && !result.contains('$') && !is_http {
-                    if lang::is_russian(result.as_str()) {
-                      cache_ru.feed_str(result.as_str());
+                    if lang::is_russian(result) {
+                      cache_ru.feed_str(result);
                     } else {
-                      cache_eng.feed_str(result.as_str());
+                      cache_eng.feed_str(result);
                     }
                   }
                 }
@@ -116,15 +117,16 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
             ).await {
               for mmm in messages {
                 if mmm.author.id == author_id {
-                  let mut result = re.replace_all(&mmm.content.as_str(), "").to_string();
-                  result = result.replace(": ", "");
-                  let is_http = result.starts_with("http") && !result.starts_with("https://images");
-                  result =
-                    content_safe(&ctx, &result, &ContentSafeOptions::default()
+                  let mut result_string = re.replace_all(&mmm.content.as_str(), "").to_string();
+                  result_string = result_string.replace(": ", "");
+                  let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
+                  result_string =
+                    content_safe(&ctx, &result_string, &ContentSafeOptions::default()
                       .clean_user(false).clean_channel(true)
                       .clean_everyone(true).clean_here(true)).await;
+                  let result = result_string.trim();
                   if !result.is_empty() && !result.contains('$') && !is_http {
-                    chain.feed_str(result.as_str());
+                    chain.feed_str(result);
                     if !have_something {
                       have_something = true;
                     }

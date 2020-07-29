@@ -71,7 +71,7 @@ async fn admin_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOpti
 }
 
 #[group]
-#[commands(ping, help, embed, qrcode, urban, tic_tac_toe)]
+#[commands(ping, help, version, embed, qrcode, urban, tic_tac_toe)]
 struct Meta;
 
 #[group]

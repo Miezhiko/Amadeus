@@ -22,6 +22,21 @@ impl TypeMapKey for ShardManagerContainer {
 }
 
 #[command]
+async fn version(ctx: &Context, msg: &Message) -> CommandResult {
+  let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());
+  if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+    .embed(|e| e
+      .title("Amadeus")
+      .description(version.as_str())
+      .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
+    )
+   ).await {
+    error!("Error sending version message: {:?}", why);
+  }
+  Ok(())
+}
+
+#[command]
 #[aliases(commands)]
 async fn help(ctx: &Context, msg: &Message) -> CommandResult {
   let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());

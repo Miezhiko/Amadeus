@@ -57,7 +57,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   if !going.matches.is_empty() {
     let footer = format!("Requested by {}", msg.author.name);
     let mut description : String = String:: new();
-    for m in going.matches.into_iter().take(15).collect::<Vec<Match>>() {
+    for m in going.matches.iter().take(15) {
       if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
         set! { g_map = get_map(m.map.as_str())
              , race1 = get_race2(m.teams[0].players[0].race)

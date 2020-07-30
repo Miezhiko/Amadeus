@@ -38,6 +38,7 @@ async fn version(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[aliases(commands)]
+// Note: not fully sure what to do when that list will be too big to show (and how to test it)
 async fn help(ctx: &Context, msg: &Message) -> CommandResult {
   let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
   if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
@@ -66,6 +67,7 @@ to execute commands use `~*<command>*` or `@Amadeus *<command>*`, replace *<thin
 • **ttt *<@user>* *<N>*: play tic tac toe for points
 • **quote** *<@user>*: something from that *user*
 • **score** *<@user>*: show *user* points
+• **top** *<N>*: shows top N users
 • **give** *<@user>* *<N>*: give *user* your *N* points
 • **embed** *<title>* *<description>*: create embed
 • **qrcode** *<something>*: creates QR code

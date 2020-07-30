@@ -1,7 +1,7 @@
 use crate::{
   common::{
     points,
-    msg::{ channel_message }
+    msg::channel_message
   },
   stains::ai::chain
 };
@@ -9,6 +9,7 @@ use crate::{
 use serenity::{
   prelude::*,
   model::channel::*,
+  model::guild::Member,
   framework::standard::{
     CommandResult, Args,
     macros::command
@@ -39,6 +40,45 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
       .footer(|f| f.text(footer))
     )).await {
       error!("Failed to post score for {}, {:?}", target, why);
+    }
+  }
+  Ok(())
+}
+
+#[command]
+async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  let top_x = 
+    if let Ok(first) = args.single::<usize>() {
+        first
+      } else { 10 };
+  if let Some(guild) = msg.guild(&ctx).await {
+    let mut members_with_points : Vec<(Member, u64)> = Vec::new();
+    for (id, mem) in guild.members {
+      if let Ok(p) = points::get_points( *guild.id.as_u64(), *id.as_u64()).await {
+        members_with_points.push( (mem, p) );
+      } else {
+        members_with_points.push( (mem, 0) );
+      }
+    }
+    members_with_points.sort_by(|(_, pa), (_, pb) | pa.cmp(pb));
+    members_with_points.reverse();
+    let mut out = String::new();
+    for (i, (m, p)) in members_with_points.iter().take(top_x).enumerate() {
+      let n = i + 1;
+      out = format!("{}. **{}** : **{}**", n, m.user.name, p);
+    }
+    let title = format!("Top {} points", top_x);
+    let footer = format!("Requested by {}", msg.author.name);
+    if let Err(why) = msg.channel_id.send_message(ctx, |m| m
+      .embed(|e| e
+      .title(title)
+      .description(out.as_str())
+      .footer(|f| f.text(footer))
+    )).await {
+      error!("Failed to post top of users, {:?}", why);
     }
   }
   Ok(())

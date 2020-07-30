@@ -65,20 +65,22 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     }
     members_with_points.sort_by(|(_, pa), (_, pb) | pa.cmp(pb));
     members_with_points.reverse();
-    let mut out = String::new();
+    let mut out : Vec<String> = Vec::new();
     for (i, (m, p)) in members_with_points.iter().take(top_x).enumerate() {
       let n = i + 1;
-      out = format!("{}. **{}** : **{}**", n, m.user.name, p);
+      out.push(format!("{}. **{}** : **{}**\n", n, m.user.name, p));
     }
     let title = format!("Top {} points", top_x);
     let footer = format!("Requested by {}", msg.author.name);
-    if let Err(why) = msg.channel_id.send_message(ctx, |m| m
-      .embed(|e| e
-      .title(title)
-      .description(out.as_str())
-      .footer(|f| f.text(footer))
-    )).await {
-      error!("Failed to post top of users, {:?}", why);
+    if !out.is_empty() {
+      if let Err(why) = msg.channel_id.send_message(ctx, |m| m
+        .embed(|e| e
+        .title(title)
+        .description(out.join("\n"))
+        .footer(|f| f.text(footer))
+      )).await {
+        error!("Failed to post top of users, {:?}", why);
+      }
     }
   }
   Ok(())

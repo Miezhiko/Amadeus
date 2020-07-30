@@ -68,7 +68,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let mut out : Vec<String> = Vec::new();
     for (i, (m, p)) in members_with_points.iter().take(top_x).enumerate() {
       let n = i + 1;
-      out.push(format!("{}. **{}** : **{}**\n", n, m.user.name, p));
+      out.push(format!("{}. **{}** : **{}**", n, m.user.name, p));
     }
     let title = format!("Top {} points", top_x);
     let footer = format!("Requested by {}", msg.author.name);

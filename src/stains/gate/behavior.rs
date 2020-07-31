@@ -235,6 +235,28 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
       }
 
       if let Some((shannel, _)) = channel_by_name(&ctx, &channels, "live-streams").await {
+
+        // Delete streams from live-streams channel (if some)
+        if let Ok(vec_msg) = shannel.messages(&ctx, |g| g.limit(50)).await {
+          let mut vec_id = Vec::new();
+          for message in vec_msg {
+            for embed in message.embeds {
+              if let Some(title) = embed.title {
+                if title != "FINISHED" {
+                  vec_id.push(message.id);
+                  break;
+                }
+              }
+            }
+          }
+          if !vec_id.is_empty() {
+            match shannel.delete_messages(&ctx, vec_id.as_slice()).await {
+              Ok(nothing)  => nothing,
+              Err(err) => warn!("Failed to clean live messages {}", err),
+            };
+          }
+        }
+
         set!{ sh_deref      = *shannel
             , ctx_clone     = ctx.clone()
             , options_clone = options.clone() };
@@ -258,6 +280,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
               if let Ok(user) = ctx_clone.http.get_user(playa.discord).await {
                 setm!{ twitch_live        = false
                      , additional_fields  = Vec::new()
+                     , title              = String::new()
                      , image              = None
                      , em_url             = None };
                 if playa.streams.is_some() {
@@ -278,7 +301,9 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                             let pic = twd.thumbnail_url.replace("{width}", "800")
                                                         .replace("{height}", "450");
                             if twd.type_string == "live" {
-                              additional_fields.push(("Live on twitch", twd.title.clone(), false));
+                              let viewers = format!("viewers: {}", twd.viewer_count);
+                              additional_fields.push(("Live on twitch", viewers, false));
+                              title       = twd.title.clone();
                               image       = Some(pic);
                               em_url      = Some(url);
                               twitch_live = true;
@@ -303,7 +328,9 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                                 format!("{}\n{}", ggdata.channel.title.as_str(), url);
                               additional_fields.push(("Live on ggru", titurl, false));
                             } else {
-                              additional_fields.push(("Live on ggru", ggdata.channel.title.clone(), false));
+                              let viewers = format!("viewers: {}", ggdata.viewers);
+                              additional_fields.push(("Live on ggru", viewers, false));
+                              title  = ggdata.channel.title.clone();
                               image  = Some(ggdata.channel.thumb.clone());
                               em_url = Some(url);
                             }
@@ -316,11 +343,45 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                   }
                 }
                 if !additional_fields.is_empty() {
-                  if streams_lock.get(&playa.discord).is_none() {
+                  if let Some(track) = streams_lock.get(&playa.discord) {
+                    if let Ok(mut msg) = ctx_clone.http.get_message(*sh_deref.as_u64(), track.tracking_msg_id).await {
+                      let footer = format!("Passed: {} min", track.passed_time);
+                      let mut fields = Vec::new();
+                      let mut img = None;
+                      let mut url = None;
+                      if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
+                        for f in msg.embeds[0].fields.clone() {
+                          fields.push((f.name, f.value, f.inline));
+                        }
+                        img = msg.embeds[0].image.clone();
+                        url = msg.embeds[0].url.clone();
+                      };
+                      if let Err(why) = msg.edit(&ctx_clone, |m| m
+                        .embed(|e|  {
+                          let mut e = e
+                            .title(title)
+                            .author(|a| a.icon_url(&user.face()).name(&user.name))
+                            .footer(|f| f.text(footer));
+                          if !fields.is_empty() {
+                            e = e.fields(fields);
+                          }
+                          if let Some(some_img) = img {
+                            e = e.image(some_img.url);
+                          }
+                          if let Some(some_url) = url {
+                            e = e.url(some_url);
+                          }
+                          e
+                        }
+                      )).await {
+                        error!("Failed to edit stream msg {:?}", why);
+                      }
+                    }
+                  } else {
                     match sh_deref.send_message(&ctx_clone, |m| m
                       .embed(|e| {
                         let mut e = e
-                          .title(playa.battletag.as_str())
+                          .title(title)
                           .author(|a| a.icon_url(&user.face()).name(&user.name));
                         if !additional_fields.is_empty() {
                           e = e.fields(additional_fields);
@@ -347,7 +408,40 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                       }
                     }
                   }
-                } else if streams_lock.get(&playa.discord).is_some() {
+                } else if let Some(track) = streams_lock.get(&playa.discord) {
+                  if let Ok(mut msg) = ctx_clone.http.get_message(*sh_deref.as_u64(), track.tracking_msg_id).await {
+                    let footer = format!("Passed: {} min", track.passed_time);
+                    let mut fields = Vec::new();
+                    let mut img = None;
+                    let mut url = None;
+                    if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
+                      for f in msg.embeds[0].fields.clone() {
+                        fields.push((f.name, f.value, f.inline));
+                      }
+                      img = msg.embeds[0].image.clone();
+                      url = msg.embeds[0].url.clone();
+                    };
+                    if let Err(why) = msg.edit(&ctx_clone, |m| m
+                      .embed(|e|  {
+                        let mut e = e
+                          .title("FINISHED")
+                          .author(|a| a.icon_url(&user.face()).name(&user.name))
+                          .footer(|f| f.text(footer));
+                        if !fields.is_empty() {
+                          e = e.fields(fields);
+                        }
+                        if let Some(some_img) = img {
+                          e = e.image(some_img.url);
+                        }
+                        if let Some(some_url) = url {
+                          e = e.url(some_url);
+                        }
+                        e
+                      }
+                    )).await {
+                      error!("Failed to edit stream msg {:?}", why);
+                    }
+                  }
                   streams_lock.remove(&playa.discord);
                 }
               }

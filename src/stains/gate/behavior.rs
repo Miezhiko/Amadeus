@@ -23,11 +23,17 @@ use serenity::{
 };
 
 use std::{
+  collections::HashMap,
   sync::atomic::Ordering,
   time
 };
 
 use rand::Rng;
+
+lazy_static! {
+  pub static ref STREAMS: Mutex<HashMap<u64, TrackingGame>>
+    = Mutex::new(HashMap::new());
+}
 
 pub async fn activate(ctx: &Context, options: &IOptions) {
   info!("activation has started");
@@ -233,7 +239,21 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
             , ctx_clone     = ctx.clone()
             , options_clone = options.clone() };
         tokio::spawn(async move {
+          let mut streams_lock = STREAMS.lock().await;
           loop {
+            let mut k_to_del : Vec<u64> = Vec::new();
+            for (k, track) in streams_lock.iter_mut() {
+              if track.passed_time < (60 * 24) {
+                track.passed_time += 1;
+              } else {
+                k_to_del.push(*k);
+              }
+            }
+            for ktd in k_to_del {
+              warn!("stream {} out with timeout", ktd);
+              streams_lock.remove(&ktd);
+            }
+            info!("streams check");
             for playa in teammates() {
               if let Ok(user) = ctx_clone.http.get_user(playa.discord).await {
                 setm!{ twitch_live        = false
@@ -296,25 +316,39 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                   }
                 }
                 if !additional_fields.is_empty() {
-                  if let Err(why) = sh_deref.send_message(&ctx_clone, |m| m
-                    .embed(|e| {
-                      let mut e = e
-                        .title(playa.battletag)
-                        .author(|a| a.icon_url(&user.face()).name(&user.name));
-                      if !additional_fields.is_empty() {
-                        e = e.fields(additional_fields);
+                  if streams_lock.get(&playa.discord).is_none() {
+                    match sh_deref.send_message(&ctx_clone, |m| m
+                      .embed(|e| {
+                        let mut e = e
+                          .title(playa.battletag.as_str())
+                          .author(|a| a.icon_url(&user.face()).name(&user.name));
+                        if !additional_fields.is_empty() {
+                          e = e.fields(additional_fields);
+                        }
+                        if let Some(some_image) = image {
+                          e = e.image(some_image);
+                        }
+                        if let Some(some_url) = em_url {
+                          e = e.url(some_url);
+                        }
+                        e
                       }
-                      if let Some(some_image) = image {
-                        e = e.image(some_image);
+                    )).await {
+                      Ok(msg_id) => {
+                        streams_lock.insert(playa.discord, TrackingGame {
+                          tracking_msg_id: *msg_id.id.as_u64(),
+                          passed_time: 0,
+                          still_live: true,
+                          player: playa }
+                        );
+                      },
+                      Err(why) => {
+                        error!("Failed to post live match {:?}", why);
                       }
-                      if let Some(some_url) = em_url {
-                        e = e.url(some_url);
-                      }
-                      e
                     }
-                  )).await {
-                    error!("Failed to post live-stream {:?}", why);
                   }
+                } else if streams_lock.get(&playa.discord).is_some() {
+                  streams_lock.remove(&playa.discord);
                 }
               }
             }

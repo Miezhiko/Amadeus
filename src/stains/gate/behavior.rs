@@ -237,7 +237,8 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
       if let Some((shannel, _)) = channel_by_name(&ctx, &channels, "live-streams").await {
 
         // Delete streams from live-streams channel (if some)
-        if let Ok(vec_msg) = shannel.messages(&ctx, |g| g.limit(50)).await {
+        // TODO: change 1 to 50 or something when it will work for long enough time
+        if let Ok(vec_msg) = shannel.messages(&ctx, |g| g.limit(1)).await {
           let mut vec_id = Vec::new();
           for message in vec_msg {
             for embed in message.embeds {
@@ -302,7 +303,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                                                         .replace("{height}", "450");
                             if twd.type_string == "live" {
                               let viewers = format!("viewers: {}", twd.viewer_count);
-                              additional_fields.push(("Live on twitch", viewers, false));
+                              additional_fields.push(("Live on twitch", viewers, true));
                               title       = twd.title.clone();
                               image       = Some(pic);
                               em_url      = Some(url);
@@ -326,10 +327,10 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                             if twitch_live {
                               let titurl =
                                 format!("{}\n{}", ggdata.channel.title.as_str(), url);
-                              additional_fields.push(("Live on ggru", titurl, false));
+                              additional_fields.push(("Live on ggru", titurl, true));
                             } else {
-                              let viewers = format!("viewers: {}", ggdata.viewers);
-                              additional_fields.push(("Live on ggru", viewers, false));
+                              let viewers = format!("viewers: {}\nin chat: {}", ggdata.viewers, ggdata.users_in_chat);
+                              additional_fields.push(("Live on ggru", viewers, true));
                               title  = ggdata.channel.title.clone();
                               image  = Some(ggdata.channel.thumb.clone());
                               em_url = Some(url);
@@ -356,11 +357,12 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                         img = msg.embeds[0].image.clone();
                         url = msg.embeds[0].url.clone();
                       };
+                      let is_now_live = format!("{} is now live!", user.name.as_str());
                       if let Err(why) = msg.edit(&ctx_clone, |m| m
                         .embed(|e|  {
                           let mut e = e
                             .title(title)
-                            .author(|a| a.icon_url(&user.face()).name(&user.name))
+                            .author(|a| a.icon_url(&user.face()).name(is_now_live.as_str()))
                             .footer(|f| f.text(footer));
                           if !fields.is_empty() {
                             e = e.fields(fields);
@@ -378,11 +380,12 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
                       }
                     }
                   } else {
+                    let is_now_live = format!("{} started stream!", user.name.as_str());
                     match sh_deref.send_message(&ctx_clone, |m| m
                       .embed(|e| {
                         let mut e = e
                           .title(title)
-                          .author(|a| a.icon_url(&user.face()).name(&user.name));
+                          .author(|a| a.icon_url(&user.face()).name(is_now_live.as_str()));
                         if !additional_fields.is_empty() {
                           e = e.fields(additional_fields);
                         }

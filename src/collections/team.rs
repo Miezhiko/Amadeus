@@ -16,6 +16,10 @@ lazy_static! {
   pub static ref INTERESTING: Vec<Player> = dhall!(INTERESTINGD);
 }
 
+pub fn teammates() -> Vec<Player> {
+  [&DIVISION1[..], &DIVISION2[..]].concat()
+}
+
 pub fn players() -> Vec<Player> {
   [&DIVISION1[..], &DIVISION2[..], &INTERESTING[..]].concat()
 }

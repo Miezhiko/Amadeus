@@ -5,6 +5,7 @@ use crate::{
     twitch::Twitch,
     goodgame::GoodGameData
   },
+  collections::team::teammates,
   common::help::channel::channel_by_name,
   stains::{
     ai::chain,
@@ -91,9 +92,9 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
           }
         }
 
-        set!{ ch_deref      = *channel,
-              ctx_clone     = ctx.clone(),
-              options_clone = options.clone() };
+        set!{ ch_deref      = *channel
+            , ctx_clone     = ctx.clone()
+            , options_clone = options.clone() };
 
         tokio::spawn(async move {
           let mut games_lock = cyber::team_checker::GAMES.lock().await;
@@ -112,11 +113,14 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
               games_lock.remove(ktd.as_str());
             }
             info!("check");
+
+            // TODO: not sure about that check, it looks bad
             if !background_threads_successfully_started {
               ctx_clone.set_activity(Activity::playing(version.as_str())).await;
               ctx_clone.online().await;
             }
             background_threads_successfully_started = true;
+
             let our_gsx = cyber::team_checker::check( &ctx_clone
                                                     , *ch_deref.as_u64()
                                                     , options_clone.guild
@@ -220,6 +224,101 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
               }
             }
             tokio::time::delay_for(time::Duration::from_secs(30)).await;
+          }
+        });
+      }
+
+      if let Some((shannel, _)) = channel_by_name(&ctx, &channels, "live-streams").await {
+        set!{ sh_deref      = *shannel
+            , ctx_clone     = ctx.clone()
+            , options_clone = options.clone() };
+        tokio::spawn(async move {
+          loop {
+            for playa in teammates() {
+              if let Ok(user) = ctx_clone.http.get_user(playa.discord).await {
+                setm!{ twitch_live        = false
+                     , additional_fields  = Vec::new()
+                     , image              = None
+                     , em_url             = None };
+                if playa.streams.is_some() {
+                  let streams = playa.streams.clone().unwrap();
+                  if streams.twitch.is_some() {
+                    let client = reqwest::Client::new();
+                    let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", streams.twitch.unwrap().as_str());
+                    if let Ok(res) = client
+                      .get(getq.as_str())
+                      .header("Authorization", options_clone.twitch_oauth.clone())
+                      .header("Client-ID", options_clone.twitch_client_id.clone())
+                      .send().await {
+                      match res.json::<Twitch>().await {
+                        Ok(t) => {
+                          if !t.data.is_empty() {
+                            let twd = &t.data[0];
+                            let url = format!("https://www.twitch.tv/{}", twd.user_name);
+                            let pic = twd.thumbnail_url.replace("{width}", "800")
+                                                        .replace("{height}", "450");
+                            if twd.type_string == "live" {
+                              additional_fields.push(("Live on twitch", twd.title.clone(), false));
+                              image       = Some(pic);
+                              em_url      = Some(url);
+                              twitch_live = true;
+                            }
+                          }
+                        }, Err(why) => {
+                          error!("Failed to parse twitch structs {:?}", why);
+                        }
+                      }
+                    }
+                  }
+                  if streams.ggru.is_some() {
+                    let ggru = streams.ggru.clone().unwrap();
+                    let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.as_str());
+                    if let Ok(gg) = reqwest::get(ggru_link.as_str()).await {
+                      match gg.json::<GoodGameData>().await {
+                        Ok(ggdata) => {
+                          if ggdata.status == "Live" {
+                            let url = format!("https://goodgame.ru/channel/{}", ggru.as_str());
+                            if twitch_live {
+                              let titurl =
+                                format!("{}\n{}", ggdata.channel.title.as_str(), url);
+                              additional_fields.push(("Live on ggru", titurl, false));
+                            } else {
+                              additional_fields.push(("Live on ggru", ggdata.channel.title.clone(), false));
+                              image  = Some(ggdata.channel.thumb.clone());
+                              em_url = Some(url);
+                            }
+                          }
+                        }, Err(why) => {
+                          error!("Failed to parse good game structs {:?}", why);
+                        }
+                      };
+                    }
+                  }
+                }
+                if !additional_fields.is_empty() {
+                  if let Err(why) = sh_deref.send_message(&ctx_clone, |m| m
+                    .embed(|e| {
+                      let mut e = e
+                        .title(playa.battletag)
+                        .author(|a| a.icon_url(&user.face()).name(&user.name));
+                      if !additional_fields.is_empty() {
+                        e = e.fields(additional_fields);
+                      }
+                      if let Some(some_image) = image {
+                        e = e.image(some_image);
+                      }
+                      if let Some(some_url) = em_url {
+                        e = e.url(some_url);
+                      }
+                      e
+                    }
+                  )).await {
+                    error!("Failed to post live-stream {:?}", why);
+                  }
+                }
+              }
+            }
+            tokio::time::delay_for(time::Duration::from_secs(60)).await;
           }
         });
       }

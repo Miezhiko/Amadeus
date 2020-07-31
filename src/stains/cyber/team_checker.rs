@@ -259,7 +259,7 @@ pub async fn check<'a>( ctx: &Context
                 } else {
                   format!("({}+{}) **{}** [{}] + **{}** [{}]\n*vs*\n({}+{}) **{}** [{}] + **{}** [{}]\n\nmap: **{}**",
                     race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr
-                  , race2, race22, m.teams[1].players[0].name, m.teams[0].players[0].oldMmr, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, g_map)
+                  , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, g_map)
                 };
 
                 if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {

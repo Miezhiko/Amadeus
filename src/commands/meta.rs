@@ -72,7 +72,7 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace *<thing>* 
 • **embed** *<title>* *<description>*: create embed
 • **qrcode** *<something>*: creates QR code
 • **urban** *<thing>*: explains a thing
-• **gif**, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry", false)
+• **gif**, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance", false)
       .field("music commands",
 "• **join**: to your voice channel (you should be there)
 • **leave**: from voice channel

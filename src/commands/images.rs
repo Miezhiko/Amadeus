@@ -187,6 +187,21 @@ async fn ahegao(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+async fn dance(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  let gifs = fetch_gifs(ctx, "dancing anime", 50, "off").await?;
+  let mut rng = StdRng::from_entropy();
+  let val = rng.gen_range(0, 49);
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0x3252e3)
+                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
+  Ok(())
+}
+
+#[command]
 async fn clap(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);

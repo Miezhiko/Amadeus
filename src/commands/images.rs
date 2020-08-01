@@ -41,6 +41,7 @@ struct Media {
 
 async fn fetch_gifs(ctx: &Context, search: &str, amount: u32, filter: &str)
         -> Result<Vec<GifResult>, Box<dyn std::error::Error + Send + Sync>> {
+
   set!{ data            = ctx.data.read().await
       , reqwest_client  = data.get::<ReqwestClient>().unwrap()
       , tenor_key       = data.get::<PubCreds>().unwrap().get("tenor").unwrap().as_str() };
@@ -71,14 +72,11 @@ async fn hug(ctx: &Context, msg: &Message) -> CommandResult {
     let mut rng = StdRng::from_entropy();
     let val = rng.gen_range(0, 49);
 
-    msg.channel_id.send_message(ctx, |m| {
-      m.embed(|e| {
-        e.color(0xed9e2f);
-        e.description(format!("{} hugs {}", msg.author.name, target_user.name));
-        e.image(&gifs[val].media[0].get("gif").unwrap().url);
-        e
-      })
-    }).await?;
+    msg.channel_id.send_message(ctx, |m|
+      m.embed(|e| e.color(0xed9e2f)
+                   .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                   .description(format!("hugs {}", target_user.name))
+                   .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   } else {
     msg.channel_id.say(ctx, "You want to give a hug? Please mention who you want to hug!").await?;
   }
@@ -97,14 +95,11 @@ async fn pat(ctx: &Context, msg: &Message) -> CommandResult {
     let mut rng = StdRng::from_entropy();
     let val = rng.gen_range(0, 49);
 
-    msg.channel_id.send_message(ctx, |m| {
-      m.embed(|e| {
-        e.color(0x27e6d9);
-        e.description(format!("{} pats {}", msg.author.name, target_user.name));
-        e.image(&gifs[val].media[0].get("gif").unwrap().url);
-        e
-      })
-    }).await?;
+    msg.channel_id.send_message(ctx, |m|
+      m.embed(|e| e.color(0x27e6d9)
+                   .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                   .description(format!("pats {}", target_user.name))
+                  .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   } else {
     msg.channel_id.say(ctx, "I wanna pat someone! Please mention who to pat!").await?;
   }
@@ -123,14 +118,11 @@ async fn slap(ctx: &Context, msg: &Message) -> CommandResult {
     let mut rng = StdRng::from_entropy();
     let val = rng.gen_range(0, 49);
 
-    msg.channel_id.send_message(ctx, |m| {
-      m.embed(|e| {
-        e.color(0xd62929);
-        e.description(format!("{} slaps {}", msg.author.name, target_user.name));
-        e.image(&gifs[val].media[0].get("gif").unwrap().url);
-        e
-      })
-    }).await?;
+    msg.channel_id.send_message(ctx, |m|
+      m.embed(|e| e.color(0xd62929)
+                   .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                   .description(format!("slaps {}", target_user.name))
+                   .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   } else {
     msg.channel_id.say(ctx, "Wait... who do I slap again? Please mention the person!").await?;
   }
@@ -146,15 +138,10 @@ async fn wave(ctx: &Context, msg: &Message) -> CommandResult {
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, 49);
 
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| {
-      e.color(0x3252e3);
-      e.description(format!("{} waves", msg.author.name));
-      e.image(&gifs[val].media[0].get("gif").unwrap().url);
-      e
-    })
-  }).await?;
-
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0x3252e3)
+                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} waves", &msg.author.name) ))
+                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
 
@@ -172,13 +159,9 @@ async fn sex(ctx: &Context, msg: &Message) -> CommandResult {
   let gifs = fetch_gifs(ctx, "sex anime", 50, filter).await?;
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| {
-      e.color(0x3252e3);
-      e.image(&gifs[val].media[0].get("gif").unwrap().url);
-      e
-    })
-  }).await?;
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0x3252e3)
+                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
 
@@ -196,13 +179,10 @@ async fn ahegao(ctx: &Context, msg: &Message) -> CommandResult {
   let gifs = fetch_gifs(ctx, "ahegao", 50, filter).await?;
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| {
-      e.color(0x3252e3);
-      e.image(&gifs[val].media[0].get("gif").unwrap().url);
-      e
-    })
-  }).await?;
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0x3252e3)
+                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
 
@@ -214,13 +194,10 @@ async fn clap(ctx: &Context, msg: &Message) -> CommandResult {
   let gifs = fetch_gifs(ctx, "clap anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| {
-      e.color(0x3252e3);
-      e.image(&gifs[val].media[0].get("gif").unwrap().url);
-      e
-    })
-  }).await?;
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0x3252e3)
+                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
 
@@ -232,13 +209,10 @@ async fn lol(ctx: &Context, msg: &Message) -> CommandResult {
   let gifs = fetch_gifs(ctx, "lol anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| {
-      e.color(0x3252e3);
-      e.image(&gifs[val].media[0].get("gif").unwrap().url);
-      e
-    })
-  }).await?;
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0xa656e3)
+                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
 
@@ -250,14 +224,10 @@ async fn angry(ctx: &Context, msg: &Message) -> CommandResult {
   let gifs = fetch_gifs(ctx, "angry anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| {
-      e.color(0x3252e3);
-      e.description(format!("{} is angry", msg.author.name));
-      e.image(&gifs[val].media[0].get("gif").unwrap().url);
-      e
-    })
-  }).await?;
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0x3252e3)
+                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} is angry", &msg.author.name) ))
+                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
 
@@ -269,14 +239,10 @@ async fn shrug(ctx: &Context, msg: &Message) -> CommandResult {
   let gifs = fetch_gifs(ctx, "shrug anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| {
-      e.color(0x3252e3);
-      e.description(format!("{} shrugs", msg.author.name));
-      e.image(&gifs[val].media[0].get("gif").unwrap().url);
-      e
-    })
-  }).await?;
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0x3252e3)
+                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} waves", &msg.author.name) ))
+                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
 
@@ -288,16 +254,10 @@ async fn cry(ctx: &Context, msg: &Message) -> CommandResult {
   let gifs = fetch_gifs(ctx, "cry anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, 49);
-
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| {
-      e.color(0x3252e3);
-      e.description(format!("{} is crying!", msg.author.name));
-      e.image(&gifs[val].media[0].get("gif").unwrap().url);
-      e
-    })
-  }).await?;
-
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0x3252e3)
+                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} is crying", &msg.author.name) ))
+                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
 
@@ -309,16 +269,10 @@ async fn cringe(ctx: &Context, msg: &Message) -> CommandResult {
   let gifs = fetch_gifs(ctx, "cringe", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, 49);
-
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| {
-      e.color(0x634644);
-      e.description(format!("{} thinks that's cringey", msg.author.name));
-      e.image(&gifs[val].media[0].get("gif").unwrap().url);
-      e
-    })
-  }).await?;
-
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0x3252e3)
+                .author(|a| a.icon_url(&msg.author.face()).name( &msg.author.name ))
+                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
 
@@ -339,13 +293,9 @@ async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let gifs = fetch_gifs(ctx, search_string, 10, filter).await?;
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, 9);
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| {
-      e.color(0x5ed13b);
-      e.image(&gifs[val].media[0].get("gif").unwrap().url);
-      e
-    })
-  }).await?;
+  msg.channel_id.send_message(ctx, |m|
+    m.embed(|e| e.color(0x5ed13b)
+                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
 

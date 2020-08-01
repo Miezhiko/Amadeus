@@ -47,6 +47,7 @@ Preparing
 , twitch_oauth         = "Bearer AAAAAAAAAAAAAAAAAAAA"
 , twitch_client_id     = "AAAAAAAAAAAAAAAAAAAAAAAA"
 , twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAA"
+, tenor_key            = "AAAAAAAAA"
 }
 ```
 

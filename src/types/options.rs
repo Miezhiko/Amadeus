@@ -4,7 +4,8 @@ pub struct IOptions {
   pub guild: u64,
   pub twitch_oauth: String,
   pub twitch_client_id: String,
-  pub twitch_client_secret: String
+  pub twitch_client_secret: String,
+  pub tenor_key: String
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

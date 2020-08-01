@@ -14,7 +14,7 @@ use crate::{
     tictactoe::*,
     images::*
   },
-  collections::base::{ GREETINGS }
+  collections::base::GREETINGS
 };
 
 use serenity::{
@@ -23,9 +23,9 @@ use serenity::{
   framework::standard::{
     DispatchError, Args, CommandOptions, CheckResult,
     Reason, CommandResult,
-    macros::{group, check, hook}
+    macros::{ group, check, hook }
   },
-  model::{ channel::{Message} }
+  model::channel::Message
 };
 
 use argparse::{
@@ -35,10 +35,11 @@ use argparse::{
 
 use env_logger::Env;
 
-use std::collections::HashSet;
+use std::collections::{ HashSet, HashMap };
 use std::sync::Arc;
 
 use regex::Regex;
+use reqwest::Client as Reqwest;
 
 use rand::{
   rngs::StdRng,
@@ -211,6 +212,10 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
 
   info!("all the options loaded");
 
+  // TODO: maybe use it instead of passing options for twitch and things (things)
+  let mut creds = HashMap::new();
+  creds.insert("tenor".to_string(), opts.tenor_key.clone());
+
   let std_framework =
     StandardFramework::new()
      .configure(|c| c
@@ -238,6 +243,8 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
     let mut data = client.data.write().await;
     data.insert::<VoiceManager>(Arc::clone(&client.voice_manager));
     data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
+    data.insert::<ReqwestClient>(Arc::new(Reqwest::new()));
+    data.insert::<PubCreds>(Arc::new(creds));
   }
 
   // start listening for events by starting a single shard

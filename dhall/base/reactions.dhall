@@ -1,7 +1,7 @@
 let Reaction : Type = ./types/reaction.dhall
 
 let rList : List Reaction =
-  [ { id = 639041088492929034, name ="tir"  }
+  [ { id = 639041088492929034, name = "tir"  }
   , { id = 657178237952327685, name = "thumb" }
   , { id = 639088598674833410, name = "sorc" }
   , { id = 657178237243490304, name = "sad" }
@@ -16,6 +16,7 @@ let rList : List Reaction =
   , { id = 679215075092987914, name = "sad" }
   , { id = 641638050945957904, name = "CocoSmug" }
   , { id = 611889889755004936, name = "antifa_heart" }
+  , { id = 633733924773822474, name = "Egolilyal" }
   ]
 
 in rList

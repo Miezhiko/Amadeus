@@ -6,3 +6,4 @@ pub mod admin;
 pub mod pad;
 pub mod chat;
 pub mod tictactoe;
+pub mod images;

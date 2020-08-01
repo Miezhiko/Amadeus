@@ -64,7 +64,7 @@ to execute commands use `~*<command>*` or `@Amadeus *<command>*`, replace *<thin
         ])
       .field("user commands",
 "• **help**: shows this
-• **ttt *<@user>* *<N>*: play tic tac toe for points
+• **ttt** *<@user>* *<N>*: play tic tac toe for points
 • **quote** *<@user>*: something from that *user*
 • **score** *<@user>*: show *user* points
 • **top** *<N>*: shows top N users
@@ -72,7 +72,7 @@ to execute commands use `~*<command>*` or `@Amadeus *<command>*`, replace *<thin
 • **embed** *<title>* *<description>*: create embed
 • **qrcode** *<something>*: creates QR code
 • **urban** *<thing>*: explains a thing
-• **ping**: shows shard latency", false)
+• **gif**, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry", false)
       .field("music commands",
 "• **join**: to your voice channel (you should be there)
 • **leave**: from voice channel

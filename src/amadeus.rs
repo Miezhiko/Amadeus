@@ -11,7 +11,8 @@ use crate::{
     pad::*,
     owner::*,
     admin::*,
-    tictactoe::*
+    tictactoe::*,
+    images::*
   },
   collections::base::{ GREETINGS }
 };
@@ -77,6 +78,10 @@ struct Meta;
 #[group]
 #[commands(quote, score, top, give)]
 struct Chat;
+
+#[group]
+#[commands(cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, gifsearch, lol, angry)]
+struct Images;
 
 #[group]
 #[commands(join, leave, play, repeat)]
@@ -219,6 +224,7 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
       .unrecognised_command(unrecognised_command)
       .group(&META_GROUP)
       .group(&CHAT_GROUP)
+      .group(&IMAGES_GROUP)
       .group(&VOICE_GROUP)
       .group(&WARCRAFT_GROUP)
       .group(&PAD_GROUP)

@@ -81,7 +81,7 @@ struct Meta;
 struct Chat;
 
 #[group]
-#[commands(cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, gifsearch, lol, angry, dance)]
+#[commands(cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, gifsearch, lol, angry, dance, confused, shock, nervous)]
 struct Images;
 
 #[group]

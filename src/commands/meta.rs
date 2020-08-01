@@ -51,7 +51,7 @@ async fn help(ctx: &Context, msg: &Message) -> CommandResult {
 "https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
       .description(
 "__**memory storage and artificial intelligence system**__
-to execute commands use `~<command>` or `@Amadeus <command>`, replace *<thing>* in help with text without < > brackets")
+to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` in help with text without `< >` brackets")
       .fields(vec![
         ("Age", "18", true),
         ("Birthdate", "July 25th", true),
@@ -72,7 +72,8 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace *<thing>* 
 • **embed** *<title>* *<description>*: create embed
 • **qrcode** *<something>*: creates QR code
 • **urban** *<thing>*: explains a thing
-• **gif**, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance", false)
+• **gif**, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous"
+, false)
       .field("music commands",
 "• **join**: to your voice channel (you should be there)
 • **leave**: from voice channel

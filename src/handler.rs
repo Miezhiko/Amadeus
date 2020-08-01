@@ -4,7 +4,7 @@ use crate::{
   common::{
     points,
     help::{ lang, channel::channel_by_name },
-    msg::{ channel_message }
+    msg::channel_message, log::log
   },
   stains::ai::chain,
   collections::{
@@ -19,7 +19,8 @@ use serenity::{
   prelude::*,
   async_trait,
   model::{
-    id::{ EmojiId, GuildId },
+    guild::ActionMessage,
+    id::{ EmojiId, GuildId, MessageId, ChannelId },
     event::ResumedEvent, gateway::Ready, guild::Member
          , channel::Message, channel::ReactionType, gateway::Activity
          , user::User },
@@ -121,6 +122,50 @@ impl EventHandler for Handler {
           error!("Failed to log leaving user {:?}", why);
         }
       }
+    }
+  }
+  async fn message_delete(&self, ctx: Context, channel_id: ChannelId, deleted_message_id: MessageId) {
+    if let Ok(msg) = ctx.http.get_message(*channel_id.as_u64(), *deleted_message_id.as_u64()).await {
+      if msg.is_own(&ctx).await {
+        // Ok, our message was deleted, let see who did it
+        if let Some(guild) = msg.guild(&ctx).await {
+          if let Some(guild_id) = msg.guild_id {
+            if let Ok(audit) = ctx.http.get_audit_logs( *guild_id.as_u64()
+                                                      , Some( ActionMessage::Delete as u8 )
+                                                      , None
+                                                      , None
+                                                      , Some(1)).await {
+              // Here we just hope it's last in Audit log, very unsafe stuff
+              if let Some(entry) = audit.entries.values().next() {
+                // that entry contains target_id: Option<u64> but nobody knows what's that
+                if entry.user_id != guild.owner_id {
+                  if let Ok(deleter) = ctx.http.get_user(*entry.user_id.as_u64()).await {
+                    if !deleter.bot {
+                      let log_text = format!("{} was trying to remove my message", deleter.name);
+                      log(&ctx, &guild_id, log_text.as_str()).await;
+                      // But I don't allow it
+                      if !msg.content.is_empty() {
+                        channel_message(&ctx, &msg, &msg.content.as_str()).await;
+                      }
+                      for embed in &msg.embeds {
+                        if let Err(why) = channel_id.send_message(&ctx, |m| {
+                          m.embed(|e| {
+                            *e = CreateEmbed::from(embed.clone());
+                            e })
+                        }).await {
+                          error!("Error replacing reposting embed {:?}", why);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } else {
+      warn!("Failed to get deleted message");
     }
   }
   async fn message(&self, ctx: Context, mut msg: Message) {

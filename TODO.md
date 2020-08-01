@@ -1,2 +1,1 @@
 - Activity level per server channel
-- Find if someone removed bot message

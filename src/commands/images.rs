@@ -67,9 +67,9 @@ async fn hug(ctx: &Context, msg: &Message) -> CommandResult {
     }
     let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
 
-    let gifs = fetch_gifs(ctx, "hug anime", 100, "off ").await?;
+    let gifs = fetch_gifs(ctx, "hug anime", 50, "off ").await?;
     let mut rng = StdRng::from_entropy();
-    let val = rng.gen_range(0, 99);
+    let val = rng.gen_range(0, 49);
 
     msg.channel_id.send_message(ctx, |m| {
       m.embed(|e| {
@@ -93,9 +93,9 @@ async fn pat(ctx: &Context, msg: &Message) -> CommandResult {
     }
     let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
 
-    let gifs = fetch_gifs(ctx, "pat anime", 100, "off").await?;
+    let gifs = fetch_gifs(ctx, "pat anime", 50, "off").await?;
     let mut rng = StdRng::from_entropy();
-    let val = rng.gen_range(0, 99);
+    let val = rng.gen_range(0, 49);
 
     msg.channel_id.send_message(ctx, |m| {
       m.embed(|e| {
@@ -119,9 +119,9 @@ async fn slap(ctx: &Context, msg: &Message) -> CommandResult {
     }
     let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
 
-    let gifs = fetch_gifs(ctx, "slap anime", 100, "off").await?;
+    let gifs = fetch_gifs(ctx, "slap anime", 50, "off").await?;
     let mut rng = StdRng::from_entropy();
-    let val = rng.gen_range(0, 99);
+    let val = rng.gen_range(0, 49);
 
     msg.channel_id.send_message(ctx, |m| {
       m.embed(|e| {
@@ -142,9 +142,9 @@ async fn wave(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let gifs = fetch_gifs(ctx, "wave anime", 100, "off").await?;
+  let gifs = fetch_gifs(ctx, "wave anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 99);
+  let val = rng.gen_range(0, 49);
 
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| {
@@ -169,9 +169,9 @@ async fn sex(ctx: &Context, msg: &Message) -> CommandResult {
       } else {
         "low"
       };
-  let gifs = fetch_gifs(ctx, "sex anime", 100, filter).await?;
+  let gifs = fetch_gifs(ctx, "sex anime", 50, filter).await?;
   let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 99);
+  let val = rng.gen_range(0, 49);
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| {
       e.color(0x3252e3);
@@ -193,9 +193,9 @@ async fn ahegao(ctx: &Context, msg: &Message) -> CommandResult {
       } else {
         "low"
       };
-  let gifs = fetch_gifs(ctx, "ahegao", 100, filter).await?;
+  let gifs = fetch_gifs(ctx, "ahegao", 50, filter).await?;
   let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 99);
+  let val = rng.gen_range(0, 49);
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| {
       e.color(0x3252e3);
@@ -211,9 +211,9 @@ async fn clap(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let gifs = fetch_gifs(ctx, "clap anime", 100, "off").await?;
+  let gifs = fetch_gifs(ctx, "clap anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 99);
+  let val = rng.gen_range(0, 49);
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| {
       e.color(0x3252e3);
@@ -229,9 +229,9 @@ async fn lol(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let gifs = fetch_gifs(ctx, "lol anime", 100, "off").await?;
+  let gifs = fetch_gifs(ctx, "lol anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 99);
+  let val = rng.gen_range(0, 49);
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| {
       e.color(0x3252e3);
@@ -247,9 +247,9 @@ async fn angry(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let gifs = fetch_gifs(ctx, "angry anime", 100, "off").await?;
+  let gifs = fetch_gifs(ctx, "angry anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 99);
+  let val = rng.gen_range(0, 49);
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| {
       e.color(0x3252e3);
@@ -266,9 +266,9 @@ async fn shrug(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let gifs = fetch_gifs(ctx, "shrug anime", 100, "off").await?;
+  let gifs = fetch_gifs(ctx, "shrug anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 99);
+  let val = rng.gen_range(0, 49);
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| {
       e.color(0x3252e3);
@@ -285,9 +285,9 @@ async fn cry(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let gifs = fetch_gifs(ctx, "cry anime", 100, "off").await?;
+  let gifs = fetch_gifs(ctx, "cry anime", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 99);
+  let val = rng.gen_range(0, 49);
 
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| {
@@ -306,9 +306,9 @@ async fn cringe(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let gifs = fetch_gifs(ctx, "cringe", 100, "off").await?;
+  let gifs = fetch_gifs(ctx, "cringe", 50, "off").await?;
   let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 99);
+  let val = rng.gen_range(0, 49);
 
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| {

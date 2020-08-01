@@ -26,6 +26,8 @@ Features
  - some more warcraft 3 related stuff, like player stats and news
  - points system on cannyls! https://github.com/frugalos/cannyls/wiki
  - runs async, using tokio https://tokio.rs
+ - easily replaces Streamcord
+ - many gifs commands for fun
  - plays music streams!
 
 Preparing

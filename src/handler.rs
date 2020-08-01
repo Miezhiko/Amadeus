@@ -29,7 +29,7 @@ use serenity::{
 };
 
 use std::{
-  borrow::Cow,
+  borrow::Cow, collections::VecDeque,
   sync::atomic::{ Ordering, AtomicBool }
 };
 
@@ -56,6 +56,11 @@ impl Handler {
       roptions: ropts
     }
   }
+}
+
+lazy_static! {
+  pub static ref BACKUP: Mutex<VecDeque<(MessageId, Message)>>
+    = Mutex::new(VecDeque::with_capacity(13));
 }
 
 #[async_trait]
@@ -122,7 +127,10 @@ impl EventHandler for Handler {
     }
   }
   async fn message_delete(&self, ctx: Context, channel_id: ChannelId, deleted_message_id: MessageId) {
-    if let Ok(msg) = ctx.http.get_message(*channel_id.as_u64(), *deleted_message_id.as_u64()).await {
+    let backup_deq = BACKUP.lock().await;
+    // message is deleted already, impossible to get it using http context
+    // if let Ok(msg) = ctx.http.get_message(*channel_id.as_u64(), *deleted_message_id.as_u64()).await {
+    if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
       if msg.is_own(&ctx).await {
         // Ok, our message was deleted, let see who did it
         if let Some(guild) = msg.guild(&ctx).await {
@@ -141,6 +149,17 @@ impl EventHandler for Handler {
                       let log_text = format!("{} was trying to remove my message", deleter.name);
                       log(&ctx, &guild_id, log_text.as_str()).await;
                       // But I don't allow it
+                      for file in &msg.attachments {
+                        if let Ok(bytes) = file.download().await {
+                          let cow = AttachmentType::Bytes {
+                            data: Cow::from(bytes),
+                            filename: String::from(&file.filename)
+                          };
+                          if let Err(why) = channel_id.send_message(&ctx, |m| m.add_file(cow)).await {
+                            error!("Failed to download and post attachment {:?}", why);
+                          }
+                        }
+                      }
                       if !msg.content.is_empty() {
                         if let Err(why) = channel_id.send_message(&ctx, |m|
                           m.content(&msg.content.as_str())).await {
@@ -168,15 +187,11 @@ impl EventHandler for Handler {
       warn!("Failed to get deleted message");
     }
   }
-  async fn message(&self, ctx: Context, mut msg: Message) {
+  async fn message(&self, ctx: Context, msg: Message) {
     if msg.is_own(&ctx).await {
-      if msg.content.to_lowercase() == "pong" {
-        if let Err(why) = msg.edit(&ctx, |m| m.content("🅱enis!")).await {
-          error!("Failed to Benis {:?}", why);
-        }
-      } else if let Some(guild_id) = msg.guild_id {
+      if let Some(guild_id) = msg.guild_id {
         if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-          if let Ok(member) = guild.member(&ctx, msg.author.id).await {
+          if let Ok(member) = guild.member(&ctx, &msg.author.id).await {
             if let Ok(some_permissions) = member.permissions(&ctx).await {
               if !some_permissions.administrator() {
                 channel_message(&ctx, &msg, "GIVE ME ADMIN ROLE FUCKERS!").await;
@@ -188,6 +203,11 @@ impl EventHandler for Handler {
             }
           }
         }
+        let mut backup_deq = BACKUP.lock().await;
+        if backup_deq.len() == backup_deq.capacity() {
+          backup_deq.pop_front();
+        }
+        backup_deq.push_back((msg.id, msg));
       }
     } else if msg.author.bot {
       let mut is_file = false;

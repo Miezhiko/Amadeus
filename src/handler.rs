@@ -328,7 +328,7 @@ impl EventHandler for Handler {
       if let Some(find_char_in_words) = OVERWATCH.iter().find(|c| {
         let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
         let is_overwatch = Regex::new(regex.as_str()).unwrap();
-        is_overwatch.is_match(msg.content.as_str()) }) 
+        is_overwatch.is_match(msg.content.as_str()) })
       {
         let mut rng = StdRng::from_entropy();
         set! { ov_reply = OVERWATCH_REPLIES.choose(&mut rng).unwrap()

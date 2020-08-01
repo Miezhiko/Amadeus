@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.7.2"
+version     = "2.7.3"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"

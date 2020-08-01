@@ -35,7 +35,7 @@ pub fn get_league(l: u32) -> String {
   })
 }
 
-pub fn get_map(m: &str) -> String {
+fn try_get_map(m: &str) -> String {
   String::from(match m {
     "Overall"               => "All",
     "echoisles"             => "EI",
@@ -45,7 +45,7 @@ pub fn get_map(m: &str) -> String {
     "concealedhill"         => "CH",
     "twistedmeadows"        => "TM",
     "terenasstand"          => "TS",
-    "_1v1_autumnleaves_anon"=> "AL",
+    "autumnleaves"          => "AL",
     "avalanche"             => "Avalanche",
     "goldshire"             => "Goldshire",
     "losttemple"            => "Lost Temple",
@@ -54,8 +54,23 @@ pub fn get_map(m: &str) -> String {
     "gnollwood"             => "Gnoll Wood",
     "tidewaterglades"       => "Tide Water Glades",
     "circleoffallenheroes"  => "Circle of Hate",
-    another_map             => another_map
-  })
+    _                       => ""})
+}
+
+pub fn get_map(m: &str) -> String {
+  let mut map = try_get_map(m);
+  if map.is_empty() {
+    let split_ : Vec<String> = m.split('_')
+                                .filter(|x| !x.is_empty())
+                                .map(str::to_string)
+                                .collect();
+    if split_.len() == 3 { // alike _1v1_autumnleaves_anon
+      map = try_get_map(split_[1].as_str())
+    } else if split_.len() == 2 { // alike _gnollwood_anon
+      map = try_get_map(split_[0].as_str())
+    }
+  }
+  if map.is_empty() { m.to_string() } else { map }
 }
 
 pub fn get_league_png(lid: u32) -> String {
@@ -69,4 +84,14 @@ pub fn get_league_png(lid: u32) -> String {
     6 => "https://www.w3champions.com/img/6.26efd96b.png",
     _ => ""
   })
+}
+
+#[cfg(test)]
+mod base_dhall_tests {
+  use super::*;
+  #[test]
+  fn get_map_test() {
+    assert_eq!(get_map("_1v1_autumnleaves_anon"), "AL");
+    assert_eq!(get_map("_gnollwood_anon"), "Gnoll Wood");
+  }
 }

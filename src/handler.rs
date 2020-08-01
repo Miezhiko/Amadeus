@@ -62,7 +62,6 @@ impl Handler {
 impl EventHandler for Handler {
   async fn ready(&self, ctx: Context, ready: Ready) {
     info!("Connected as {}", ready.user.name);
-
     let guild_id = GuildId( self.ioptions.guild );
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       if let Ok(member) = guild.member(&ctx,ready.user.id).await {
@@ -75,9 +74,7 @@ impl EventHandler for Handler {
         }
       }
     }
-
     voice::rejoin_voice_channel(&ctx, &self.roptions).await;
-
     let threads_check = THREADS.load(Ordering::Relaxed);
     if !threads_check {
       gate::behavior::activate(&ctx, &self.ioptions).await;
@@ -145,7 +142,10 @@ impl EventHandler for Handler {
                       log(&ctx, &guild_id, log_text.as_str()).await;
                       // But I don't allow it
                       if !msg.content.is_empty() {
-                        channel_message(&ctx, &msg, &msg.content.as_str()).await;
+                        if let Err(why) = channel_id.send_message(&ctx, |m|
+                          m.content(&msg.content.as_str())).await {
+                          error!("Failed to post my message again, {:?}", why);
+                        };
                       }
                       for embed in &msg.embeds {
                         if let Err(why) = channel_id.send_message(&ctx, |m| {
@@ -153,7 +153,7 @@ impl EventHandler for Handler {
                             *e = CreateEmbed::from(embed.clone());
                             e })
                         }).await {
-                          error!("Error replacing reposting embed {:?}", why);
+                          error!("Error reposting embed {:?}", why);
                         }
                       }
                     }

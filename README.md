@@ -13,6 +13,7 @@ Amadeus
 
 Memory storage and Artificial Intelligence system.  ![mawa](https://github.com/Qeenon/Amadeus/workflows/mawa/badge.svg?branch=mawa)\
 Built with Rust and Serenity Framework.  [![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus) [![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Qeenon/Amadeus)
 
 Features
 --------

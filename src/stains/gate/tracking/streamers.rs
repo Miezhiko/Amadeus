@@ -36,7 +36,7 @@ pub async fn activate_streamers_tracking(
 
     // Delete streams from live-streams channel (if some)
     // TODO: change 1 to 50 or something when it will work for long enough time
-    if let Ok(vec_msg) = shannel.messages(&ctx, |g| g.limit(1)).await {
+    if let Ok(vec_msg) = shannel.messages(&ctx, |g| g.limit(5)).await {
       let mut vec_id = Vec::new();
       for message in vec_msg {
         for embed in message.embeds {
@@ -65,6 +65,7 @@ pub async fn activate_streamers_tracking(
         let mut k_to_del : Vec<u64> = Vec::new();
         for (k, track) in streams_lock.iter_mut() {
           if track.passed_time < (60 * 24) {
+            // for real it's 60 + some time for processing
             track.passed_time += 1;
           } else {
             k_to_del.push(*k);
@@ -109,7 +110,7 @@ pub async fn activate_streamers_tracking(
                         }
                       }
                     }, Err(why) => {
-                      error!("Failed to parse twitch structs {:?}", why);
+                      error!("Failed to parse twitch structs\nrequest: {}\nerror: {:?}", getq.as_str(), why);
                     }
                   }
                 }
@@ -246,6 +247,7 @@ pub async fn activate_streamers_tracking(
               streams_lock.remove(&playa.discord);
             }
           }
+          tokio::time::delay_for(time::Duration::from_millis(100)).await;
         }
         tokio::time::delay_for(time::Duration::from_secs(60)).await;
       }

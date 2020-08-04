@@ -45,7 +45,7 @@ async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
                                     ).await;
       let out = format!("win registered, {} wins in a row", s);
       channel_message(ctx, msg, out.as_str()).await;
-    };
+    }
   }
   Ok(())
 }
@@ -60,7 +60,7 @@ async fn register_lose(ctx: &Context, msg: &Message) -> CommandResult {
       let _ = points::break_streak( *guild.id.as_u64()
                                   , *target_user.id.as_u64()
                                   ).await;
-    };
+    }
   }
   Ok(())
 }
@@ -83,7 +83,7 @@ async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
           }
         }
       }
-    };
+    }
   }
   Ok(())
 }
@@ -106,7 +106,7 @@ async fn unmute(ctx: &Context, msg: &Message) -> CommandResult {
           }
         }
       }
-    };
+    }
   }
   Ok(())
 }

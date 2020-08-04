@@ -87,7 +87,7 @@ pub fn get_league_png(lid: u32) -> String {
 }
 
 #[cfg(test)]
-mod base_dhall_tests {
+mod cyber_utils_tests {
   use super::*;
   #[test]
   fn get_map_test() {

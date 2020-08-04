@@ -20,7 +20,7 @@ use serenity::{
   async_trait,
   model::{
     guild::ActionMessage,
-    id::{ EmojiId, GuildId, MessageId, ChannelId },
+    id::{ EmojiId, GuildId, MessageId, UserId, ChannelId },
     event::ResumedEvent, gateway::Ready, guild::Member
          , channel::Message, channel::ReactionType, gateway::Activity
          , user::User },
@@ -61,6 +61,7 @@ impl Handler {
 lazy_static! {
   pub static ref BACKUP: Mutex<VecDeque<(MessageId, Message)>>
     = Mutex::new(VecDeque::with_capacity(13));
+  pub static ref MUTED: Mutex<Vec<UserId>> = Mutex::new(Vec::new());
 }
 
 #[async_trait]
@@ -90,6 +91,28 @@ impl EventHandler for Handler {
     info!("Resumed");
   }
   async fn guild_member_addition(&self, ctx: Context, guild_id: GuildId, member: Member) {
+    let mut muted_lock = MUTED.lock().await;
+    if muted_lock.contains(&member.user.id) {
+      if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+        if let Ok(mut member) = guild.member(&ctx, member.user.id).await {
+          if let Some(role) = guild.role_by_name("muted") {
+            if let Err(why) = member.add_role(&ctx, role).await {
+              error!("Failed to assign muted role {:?}", why);
+            } else {
+              let mut found_users = vec![];
+              for (i, u) in muted_lock.iter().enumerate() {
+                if *u == member.user.id {
+                  found_users.push(i);
+                }
+              }
+              for i in found_users {
+                muted_lock.remove(i);
+              }
+            }
+          }
+        }
+      }
+    }
     if let Ok(channels) = guild_id.channels(&ctx).await {
       let ai_text = chain::generate_with_language(&ctx, &guild_id, false).await;
       if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
@@ -111,6 +134,18 @@ impl EventHandler for Handler {
   }
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, _: Option<Member>) {
     let _was_on_chat = points::clear_points(*guild_id.as_u64(), *user.id.as_u64()).await;
+    if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+      if let Ok(member) = guild.member(&ctx, user.id).await {
+        if let Some(role) = guild.role_by_name("muted") {
+          if member.roles.contains(&role.id) {
+            let mut muted_lock = MUTED.lock().await;
+            if !muted_lock.contains(&member.user.id) {
+              muted_lock.push(member.user.id);
+            }
+          }
+        }
+      }
+    }
     if let Ok(channels) = guild_id.channels(&ctx).await {
       let ai_text = chain::generate_with_language(&ctx, &guild_id, false).await;
       if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
@@ -326,7 +361,7 @@ impl EventHandler for Handler {
                           if why.to_string().contains("blocked")
                            && !member.roles.contains(&role.id) {
                             if let Err(why) = member.add_role(&ctx, role).await {
-                              error!("Failed to assign gay role {:?}", why);
+                              error!("Failed to assign hater role {:?}", why);
                             } else {
                               let repl = if lang::is_russian(&msg.content.as_str()) {
                                 format!("Ну чел {} явно меня не уважает", msg.author.name)
@@ -414,4 +449,6 @@ impl EventHandler for Handler {
       }
     }
   }
+  async fn guild_ban_addition(&self, _ctx: Context, _guild_id: GuildId, _banned_user: User) {}
+  async fn guild_ban_removal(&self, _ctx: Context, _guild_id: GuildId, _unbanned_user: User) {}
 }

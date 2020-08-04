@@ -1,1 +1,2 @@
 - Activity level per server channel
+- For stream preview pictures: store them! using just links is ok but they eventually disappear.

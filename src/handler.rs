@@ -96,17 +96,19 @@ impl EventHandler for Handler {
       if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
         if let Ok(mut member) = guild.member(&ctx, member.user.id).await {
           if let Some(role) = guild.role_by_name("muted") {
-            if let Err(why) = member.add_role(&ctx, role).await {
-              error!("Failed to assign muted role {:?}", why);
-            } else {
-              let mut found_users = vec![];
-              for (i, u) in muted_lock.iter().enumerate() {
-                if *u == member.user.id {
-                  found_users.push(i);
+            if !member.roles.contains(&role.id) {
+              if let Err(why) = member.add_role(&ctx, role).await {
+                error!("Failed to assign muted role {:?}", why);
+              } else {
+                let mut found_users = vec![];
+                for (i, u) in muted_lock.iter().enumerate() {
+                  if *u == member.user.id {
+                    found_users.push(i);
+                  }
                 }
-              }
-              for i in found_users {
-                muted_lock.remove(i);
+                for i in found_users {
+                  muted_lock.remove(i);
+                }
               }
             }
           }

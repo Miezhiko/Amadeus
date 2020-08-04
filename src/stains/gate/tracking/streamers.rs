@@ -47,7 +47,7 @@ pub async fn activate_streamers_tracking(
 
     // Delete streams from live-streams channel (if some)
     // TODO: change 1 to 50 or something when it will work for long enough time
-    if let Ok(vec_msg) = shannel.messages(&ctx, |g| g.limit(5)).await {
+    if let Ok(vec_msg) = shannel.messages(&ctx, |g| g.limit(10)).await {
       let mut vec_id = Vec::new();
       for message in vec_msg {
         for embed in message.embeds {
@@ -153,29 +153,6 @@ pub async fn activate_streamers_tracking(
                 }
               }
             }
-            if let Some(storage) = &amadeus_storage {
-              if let Some(some_image) = &image {
-                if let Ok(response) = reqwest::get(some_image.as_str()).await {
-                  if let Ok(bytes) = response.bytes().await {
-                    let cow = AttachmentType::Bytes {
-                      data: Cow::from(bytes.as_ref()),
-                      filename: "stream_img.jpg".to_string()
-                    };
-                    match storage.send_message(&ctx_clone, |m| m.add_file(cow)).await {
-                      Ok(msg) => {
-                        if !msg.attachments.is_empty() {
-                          let img_attachment = &msg.attachments[0];
-                          image = Some(img_attachment.url.clone());
-                        }
-                      },
-                      Err(why) => {
-                        error!("Failed to download and post stream img {:?}", why);
-                      }
-                    };
-                  }
-                }
-              }
-            }
             if !additional_fields.is_empty() {
               if let Some(track) = streams_lock.get(&playa.discord) {
                 if let Ok(mut msg) = ctx_clone.http.get_message(*sh_deref.as_u64(), track.tracking_msg_id).await {
@@ -214,6 +191,29 @@ pub async fn activate_streamers_tracking(
                 }
               } else {
                 let is_now_live = format!("{} started stream!", user.name.as_str());
+                if let Some(storage) = &amadeus_storage {
+                  if let Some(some_image) = &image {
+                    if let Ok(response) = reqwest::get(some_image.as_str()).await {
+                      if let Ok(bytes) = response.bytes().await {
+                        let cow = AttachmentType::Bytes {
+                          data: Cow::from(bytes.as_ref()),
+                          filename: "stream_img.jpg".to_string()
+                        };
+                        match storage.send_message(&ctx_clone, |m| m.add_file(cow)).await {
+                          Ok(msg) => {
+                            if !msg.attachments.is_empty() {
+                              let img_attachment = &msg.attachments[0];
+                              image = Some(img_attachment.url.clone());
+                            }
+                          },
+                          Err(why) => {
+                            error!("Failed to download and post stream img {:?}", why);
+                          }
+                        };
+                      }
+                    }
+                  }
+                }
                 match sh_deref.send_message(&ctx_clone, |m| m
                   .embed(|e| {
                     let mut e = e

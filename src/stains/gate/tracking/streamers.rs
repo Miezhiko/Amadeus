@@ -11,13 +11,15 @@ use crate::{
 
 use serenity::{
   prelude::*,
+  http::AttachmentType,
   model::{
-    id::ChannelId,
+    id::ChannelId, id::GuildId,
     channel::GuildChannel
   }
 };
 
 use std::{
+  borrow::Cow,
   collections::HashMap,
   time
 };
@@ -31,6 +33,15 @@ pub async fn activate_streamers_tracking(
                      ctx:       &Context
                    , channels:  &HashMap<ChannelId, GuildChannel>
                    , options:   &IOptions ) {
+
+  let amadeus_guild_id = GuildId( options.amadeus_guild );
+
+  let amadeus_storage =
+    if let Ok(amadeus_channels) = amadeus_guild_id.channels(ctx).await {
+      if let Some((ch, _)) = channel_by_name(&ctx, &amadeus_channels, "stream_pics").await {
+        Some(ch.clone())
+      } else { None }
+    } else { None };
 
   if let Some((shannel, _)) = channel_by_name(&ctx, &channels, "live-streams").await {
 
@@ -139,6 +150,29 @@ pub async fn activate_streamers_tracking(
                       error!("Failed to parse good game structs {:?}", why);
                     }
                   };
+                }
+              }
+            }
+            if let Some(storage) = &amadeus_storage {
+              if let Some(some_image) = &image {
+                if let Ok(response) = reqwest::get(some_image.as_str()).await {
+                  if let Ok(bytes) = response.bytes().await {
+                    let cow = AttachmentType::Bytes {
+                      data: Cow::from(bytes.as_ref()),
+                      filename: "stream_img.jpg".to_string()
+                    };
+                    match storage.send_message(&ctx_clone, |m| m.add_file(cow)).await {
+                      Ok(msg) => {
+                        if !msg.attachments.is_empty() {
+                          let img_attachment = &msg.attachments[0];
+                          image = Some(img_attachment.url.clone());
+                        }
+                      },
+                      Err(why) => {
+                        error!("Failed to download and post stream img {:?}", why);
+                      }
+                    };
+                  }
                 }
               }
             }

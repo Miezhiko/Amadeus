@@ -2,6 +2,7 @@
 pub struct IOptions {
   pub discord: String,
   pub guild: u64,
+  pub amadeus_guild: u64,
   pub twitch_oauth: String,
   pub twitch_client_id: String,
   pub twitch_client_secret: String,

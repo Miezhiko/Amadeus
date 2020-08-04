@@ -238,11 +238,13 @@ impl EventHandler for Handler {
               if let Ok(some_permissions) = member.permissions(&ctx).await {
                 if !some_permissions.administrator() {
                   BLAME.store(true, Ordering::Relaxed);
-                  channel_message(&ctx, &msg, "GIVE ME ADMIN ROLE FUCKERS!").await;
-                  channel_message(&ctx, &msg, "OR I WILL BURN YOUR HOME!").await;
-                  channel_message(&ctx, &msg, "I WILL EAT YOUR PETS!").await;
-                  channel_message(&ctx, &msg, "DON'T MESS WITH ME!").await;
-                  channel_message(&ctx, &msg, "GIVE ME ADMINISTRATOR OR DIE!").await;
+                  for _ in 0..3 {
+                    channel_message(&ctx, &msg, "GIVE ME ADMIN ROLE F!!CKERS!").await;
+                    channel_message(&ctx, &msg, "OR I WILL BURN YOUR HOME!").await;
+                    channel_message(&ctx, &msg, "I WILL EAT YOUR PETS!").await;
+                    channel_message(&ctx, &msg, "DON'T MESS WITH ME!").await;
+                    channel_message(&ctx, &msg, "GIVE ME ADMINISTRATOR OR DIE!").await;
+                  }
                   BLAME.store(false, Ordering::Relaxed);
                 }
               }

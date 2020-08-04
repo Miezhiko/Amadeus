@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use serenity::{
+  builder::CreateEmbed,
   client::bridge::gateway::{ShardId, ShardManager},
   prelude::*,
   model::channel::*,
@@ -9,6 +10,8 @@ use serenity::{
     macros::command
   },
 };
+
+use tokio::process::Command;
 
 use qrcode::{
   QrCode,
@@ -111,35 +114,6 @@ async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
-async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
-  // The shard manager is an interface for mutating, stopping, restarting, and
-  // retrieving information about shards.
-  let data = ctx.data.read().await;
-  let shard_manager = match data.get::<ShardManagerContainer>() {
-    Some(v) => v,
-    None => {
-      msg.reply(&ctx, "There was a problem getting the shard manager").await?;
-      return Ok(());
-    },
-  };
-  set! { manager = shard_manager.lock().await
-       , runners = manager.runners.lock().await };
-  // Shards are backed by a "shard runner" responsible for processing events
-  // over the shard, so we'll get the information about the shard runner for
-  // the shard this command was sent over.
-  let runner = match runners.get(&ShardId(ctx.shard_id)) {
-    Some(runner) => runner,
-    None => {
-      let _ = msg.reply(&ctx,  "No shard found");
-      return Ok(());
-    },
-  };
-  
-  msg.reply(&ctx, &format!("The shard latency is {:?}", runner.latency)).await?;
-  Ok(())
-}
-
-#[command]
 async fn qrcode(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -220,5 +194,69 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       }
     };
   }
+  Ok(())
+}
+
+#[derive(Default, Debug)]
+struct SysInfo {
+  pub shard_latency: String,
+  pub memory: f32
+}
+
+async fn get_system_info(ctx: &Context) -> SysInfo {
+  let data = ctx.data.read().await;
+  let mut sys_info = SysInfo::default();
+  sys_info.shard_latency = {
+    set! { shard_manager = data.get::<ShardManagerContainer>().unwrap()
+         , manager       = shard_manager.lock().await
+         , runners       = manager.runners.lock().await
+         , runner_raw    = runners.get(&ShardId(ctx.shard_id)) };
+    match runner_raw {
+      Some(runner) => {
+        match runner.latency {
+          Some(ms) => format!("{}ms", ms.as_millis()),
+          None => "?ms".to_string()
+        }
+      },
+      None => "?ms".to_string()
+    }
+  };
+  let pid = std::process::id().to_string();
+  let mem_stdout = Command::new("sh")
+          .arg("-c")
+          .arg(format!("pmap {} | head -n 3 | tail -n 1 | awk '/[0-9]K/{{print $2}}'", &pid).as_str())
+          .output()
+          .await
+          .expect("failed to execute process");
+  let mem_used = String::from_utf8(mem_stdout.stdout).unwrap();
+  sys_info.memory = &mem_used[..mem_used.len() - 2].parse::<f32>().unwrap()/1000f32;
+  sys_info
+}
+
+#[command]
+async fn info(ctx: &Context, msg: &Message) -> CommandResult {
+  let mut eb = CreateEmbed::default();
+
+  set!{ guild_count   = ctx.cache.guilds().await.len()
+      , channel_count = ctx.cache.guild_channel_count().await
+      , user_count    = ctx.cache.user_count().await
+      , sys_info      = get_system_info(ctx).await };
+
+  eb.title(format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string()));
+  eb.color(0xf51010);
+  eb.description(format!(
+"```
+Servers:  {}
+Channels: {}
+Users:    {}
+Memory:   {:.3} MB
+Latency:  {}
+```", guild_count, channel_count, user_count, sys_info.memory, sys_info.shard_latency));
+  eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+
+  msg.channel_id.send_message(ctx, |m| {
+    m.embed(|e| { e.0 = eb.0; e })
+  }).await?;
+
   Ok(())
 }

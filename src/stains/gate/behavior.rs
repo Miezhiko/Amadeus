@@ -37,14 +37,14 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
       activate_social_skils(
         ctx, &channels
            , guild_id).await;
+      activate_streamers_tracking(
+        ctx, &channels
+           , options
+           ).await;
       activate_games_tracking(
         ctx, &channels
            , options
            ).await;
-      activate_streamers_tracking(
-       ctx, &channels
-          , options
-          ).await;
 
       let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());
       ctx.set_activity(Activity::playing(version.as_str())).await;

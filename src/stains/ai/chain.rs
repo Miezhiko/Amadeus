@@ -5,7 +5,7 @@ use crate::{
   },
   collections::base::{ CONFUSION, CONFUSION_RU, OBFUSCATION, OBFUSCATION_RU },
   collections::channels::AI_LEARN,
-  stains::ai::{ boris, uwu }
+  stains::ai::{ boris, uwu, bert }
 };
 
 use serenity::{
@@ -40,6 +40,7 @@ pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(50);
 
 lazy_static! {
   pub static ref CACHE_ENG: Mutex<Chain<String>>    = Mutex::new(Chain::new());
+  pub static ref CACHE_ENG_STR: Mutex<Vec<String>>  = Mutex::new(Vec::new());
   pub static ref CACHE_RU: Mutex<Chain<String>>     = Mutex::new(Chain::new());
   pub static ref LAST_UPDATE: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
 }
@@ -47,11 +48,15 @@ lazy_static! {
 pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
   if let Ok(channels) = guild_id.channels(&ctx).await {
     info!("updating ai chain has started");
-    let mut cache_eng = CACHE_ENG.lock().await;
-    let mut cache_ru = CACHE_RU.lock().await;
-    if !cache_eng.is_empty() || !cache_ru.is_empty() {
+
+    setm!{ cache_eng = CACHE_ENG.lock().await
+         , cache_ru = CACHE_RU.lock().await
+         , cache_eng_str = CACHE_ENG_STR.lock().await };
+
+    if !cache_eng.is_empty() || !cache_ru.is_empty() || !cache_eng_str.is_empty() {
       *cache_eng = Chain::new();
       *cache_ru = Chain::new();
+      cache_eng_str.clear();
     }
     let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
     for (chan, _) in channels {
@@ -78,6 +83,7 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
                       cache_ru.feed_str(result);
                     } else {
                       cache_eng.feed_str(result);
+                      cache_eng_str.push(result.to_string());
                     }
                   }
                 }
@@ -223,9 +229,32 @@ pub fn obfuscate(msg_content : &str) -> String {
 }
 
 pub async fn response(ctx: &Context, msg : &Message) {
-  let answer = generate(&ctx, &msg).await;
-  if !answer.is_empty() {
-    reply(&ctx, &msg, answer.as_str()).await;
+  // TODO: don't check if message is russian two times
+  set!{ msg_content = &msg.content
+      , russian = lang::is_russian(msg_content) };
+  if russian {
+    let answer = generate(&ctx, &msg).await;
+    if !answer.is_empty() {
+      reply(&ctx, &msg, answer.as_str()).await;
+    }
+  } else {
+    let rndx : u32 = rand::thread_rng().gen_range(0, 5);
+    if rndx == 1 {
+      let answer = generate(&ctx, &msg).await;
+      if !answer.is_empty() {
+        reply(&ctx, &msg, answer.as_str()).await;
+      }
+    } else {
+      if msg_content.ends_with('?') {
+        if let Ok(answer) = bert::ask(msg_content).await {
+          reply(&ctx, &msg, answer.as_str()).await;
+        }
+      } else {
+        if let Ok(answer) = bert::chat(msg_content) {
+          reply(&ctx, &msg, answer.as_str()).await;
+        }
+      }
+    }
   }
 }
 

@@ -35,6 +35,16 @@ macro_rules! dhall {
   }
 }
 
+macro_rules! bjr {
+  ($from:expr => $to:expr) => {
+    Rule::new_re(Regex::new($from).unwrap(), $to)
+  };
+}
+
+macro_rules! bjf {
+  ($fun:expr) => { Rule::new_fn($fun) };
+}
+
 #[cfg(test)]
 mod macros_tests {
   pub_struct!(TestStruct {

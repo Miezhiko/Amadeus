@@ -3,7 +3,7 @@ use crate::{
     points,
     msg::channel_message
   },
-  stains::ai::chain
+  stains::ai::{ chain, boris }
 };
 
 use serenity::{
@@ -146,5 +146,14 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
       channel_message(ctx, msg, out.as_str()).await;
     }
   }
+  Ok(())
+}
+
+#[command]
+#[min_args(1)]
+async fn boris(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  let text = args.raw().collect::<Vec<&str>>().join(" ");
+  let out = boris::spell(text.as_str());
+  channel_message(ctx, msg, out.as_str()).await;
   Ok(())
 }

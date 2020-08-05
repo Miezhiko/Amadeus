@@ -4,7 +4,8 @@ use crate::{
     msg::{ reply, channel_message }
   },
   collections::base::{ CONFUSION, CONFUSION_RU, OBFUSCATION, OBFUSCATION_RU },
-  collections::channels::AI_LEARN
+  collections::channels::AI_LEARN,
+  stains::ai::boris
 };
 
 use serenity::{
@@ -163,6 +164,7 @@ pub async fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId) -> S
 
 pub async fn generate(ctx: &Context, msg : &Message) -> String {
   let mut out = String::new();
+
   if let Some(guild) = msg.guild(&ctx).await {
     set!{ msg_content = &msg.content
         , russian = lang::is_russian(msg_content)
@@ -175,7 +177,14 @@ pub async fn generate(ctx: &Context, msg : &Message) -> String {
         CACHE_ENG.lock().await
       };
     out = chain.generate_str();
+
+    let rndx = rand::thread_rng().gen_range(0, 10);
+    if rndx == 1 {
+      out = boris::spell(out.as_str());
+    }
+
   }
+
   out
 }
 

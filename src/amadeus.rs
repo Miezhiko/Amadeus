@@ -77,7 +77,7 @@ async fn admin_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOpti
 struct Meta;
 
 #[group]
-#[commands(quote, score, top, give)]
+#[commands(quote, boris, score, top, give)]
 struct Chat;
 
 #[group]

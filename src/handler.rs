@@ -9,7 +9,7 @@ use crate::{
   stains::ai::chain,
   collections::{
     base::REACTIONS,
-    stuff::{ OVERWATCH, OVERWATCH_REPLIES },
+    stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES },
     channels::AI_ALLOWED
   },
   commands::voice

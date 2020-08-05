@@ -7,7 +7,7 @@ lazy_static! {
 }
 
 #[cfg(test)]
-mod stuff_dhall_tests {
+mod overwatch_dhall_tests {
   use super::*;
   fn dhall_vec(f: &str) -> Result<(), String> {
     match serde_dhall::from_file(f).parse::<Vec<String>>() {

@@ -172,13 +172,13 @@ pub async fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId) -> S
   generate_with_language(&ctx, &guild_id, rndx != 1).await
 }
 
-pub async fn generate(ctx: &Context, msg : &Message) -> String {
+pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> String {
   let mut out = String::new();
-
   if let Some(guild) = msg.guild(&ctx).await {
     set!{ msg_content = &msg.content
-        , russian = lang::is_russian(msg_content)
         , guild_id = guild.id };
+    let russian = if let Some(rus) = mbrussian
+      { rus } else { lang::is_russian(msg_content) };
     actualize_cache(ctx, &guild_id).await;
     let chain : MutexGuard<Chain<String>> =
     if russian {
@@ -187,7 +187,6 @@ pub async fn generate(ctx: &Context, msg : &Message) -> String {
         CACHE_ENG.lock().await
       };
     out = chain.generate_str();
-
     let rndx = rand::thread_rng().gen_range(0, 6);
     if rndx == 1 {
       if russian {
@@ -196,9 +195,7 @@ pub async fn generate(ctx: &Context, msg : &Message) -> String {
         out = uwu::spell(out.as_str());
       }
     }
-
   }
-
   out
 }
 
@@ -229,18 +226,17 @@ pub fn obfuscate(msg_content : &str) -> String {
 }
 
 pub async fn response(ctx: &Context, msg : &Message) {
-  // TODO: don't check if message is russian two times
   set!{ msg_content = &msg.content
       , russian = lang::is_russian(msg_content) };
   if russian {
-    let answer = generate(&ctx, &msg).await;
+    let answer = generate(&ctx, &msg, Some(russian)).await;
     if !answer.is_empty() {
       reply(&ctx, &msg, answer.as_str()).await;
     }
   } else {
-    let rndx : u32 = rand::thread_rng().gen_range(0, 5);
+    let rndx : u32 = rand::thread_rng().gen_range(0, 6);
     if rndx == 1 {
-      let answer = generate(&ctx, &msg).await;
+      let answer = generate(&ctx, &msg, Some(russian)).await;
       if !answer.is_empty() {
         reply(&ctx, &msg, answer.as_str()).await;
       }
@@ -259,7 +255,24 @@ pub async fn response(ctx: &Context, msg : &Message) {
 }
 
 pub async fn chat(ctx: &Context, msg : &Message) {
-  let answer = generate(&ctx, &msg).await;
+  let russian = lang::is_russian(&msg.content);
+  let rndx : u32 = rand::thread_rng().gen_range(0, 2);
+  let answer =
+    if rndx == 1 && !russian {
+      if msg.content.ends_with('?') {
+        if let Ok(answer) = bert::ask(&msg.content).await {
+          answer
+        } else {
+          generate(&ctx, &msg, Some(russian)).await
+        }
+      } else if let Ok(answer) = bert::chat(&msg.content) {
+        answer
+      } else {
+        generate(&ctx, &msg, Some(russian)).await
+      }
+    } else {
+      generate(&ctx, &msg, Some(russian)).await
+    };
   if !answer.is_empty() {
     let rnd = rand::thread_rng().gen_range(0, 3);
     if rnd == 1 {

@@ -325,7 +325,7 @@ impl EventHandler for Handler {
             ctx.set_activity(Activity::listening(&msg.author.name)).await;
             ctx.online().await;
           } else {
-            let activity = chain::generate(&ctx, &msg).await;
+            let activity = chain::generate(&ctx, &msg, None).await;
             if !activity.is_empty() {
               if activity.contains('<') && activity.contains('>') {
                 let re_ib = Regex::new(r"<(.*?)>").unwrap();

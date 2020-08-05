@@ -5,4 +5,4 @@ pub mod w3c;
 pub mod tracking;
 pub mod goodgame;
 pub mod twitch;
-pub mod fun;
+pub mod rules;

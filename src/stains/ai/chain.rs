@@ -5,7 +5,7 @@ use crate::{
   },
   collections::base::{ CONFUSION, CONFUSION_RU, OBFUSCATION, OBFUSCATION_RU },
   collections::channels::AI_LEARN,
-  stains::ai::boris
+  stains::ai::{ boris, uwu }
 };
 
 use serenity::{
@@ -31,8 +31,12 @@ use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use tokio::sync::{ Mutex, MutexGuard };
 
+// Note: 15000 is known to be safe value
+// But I'm not sure what's maximal supported by discord limit
 static CACHE_MAX : u64 = 15000;
-pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(66);
+
+// Note: use 66 for low activity/comfortable behavior
+pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(50);
 
 lazy_static! {
   pub static ref CACHE_ENG: Mutex<Chain<String>>    = Mutex::new(Chain::new());
@@ -178,9 +182,13 @@ pub async fn generate(ctx: &Context, msg : &Message) -> String {
       };
     out = chain.generate_str();
 
-    let rndx = rand::thread_rng().gen_range(0, 10);
+    let rndx = rand::thread_rng().gen_range(0, 6);
     if rndx == 1 {
-      out = boris::spell(out.as_str());
+      if russian {
+        out = boris::spell(out.as_str());
+      } else {
+        out = uwu::spell(out.as_str());
+      }
     }
 
   }
@@ -201,7 +209,17 @@ pub fn obfuscate(msg_content : &str) -> String {
     }
   }
   chain.feed_str(msg_content);
-  chain.generate_str()
+  let rndx = rand::thread_rng().gen_range(0, 2);
+  let cahin_string = chain.generate_str();
+  if rndx == 1 {
+    if russian {
+      boris::spell(cahin_string.as_str())
+    } else {
+      uwu::spell(cahin_string.as_str())
+    }
+  } else {
+    cahin_string
+  }
 }
 
 pub async fn response(ctx: &Context, msg : &Message) {

@@ -235,12 +235,17 @@ async fn get_system_info(ctx: &Context) -> SysInfo {
 
 #[command]
 async fn info(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+
   let mut eb = CreateEmbed::default();
 
   set!{ guild_count   = ctx.cache.guilds().await.len()
       , channel_count = ctx.cache.guild_channel_count().await
       , user_count    = ctx.cache.user_count().await
-      , sys_info      = get_system_info(ctx).await };
+      , sys_info      = get_system_info(ctx).await
+      , footer = format!("Requested by {}", msg.author.name) };
 
   eb.title(format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string()));
   eb.color(0xf51010);
@@ -253,6 +258,7 @@ Memory:   {:.3} MB
 Latency:  {}
 ```", guild_count, channel_count, user_count, sys_info.memory, sys_info.shard_latency));
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+  eb.footer(|f| f.text(footer));
 
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| { e.0 = eb.0; e })

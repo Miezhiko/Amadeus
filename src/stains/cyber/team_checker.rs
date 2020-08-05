@@ -3,7 +3,7 @@ use crate::{
     tracking::*,
     w3c::{ Going, MD }
   },
-  collections::team::players,
+  collections::team::teammates,
   common::points,
   stains::cyber::{
     utils::{ get_race2, get_map }
@@ -172,7 +172,7 @@ pub async fn check<'a>( ctx: &Context
         for m in going.matches {
           if m.gameMode == 1 {
             if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
-              if let Some(playa) = players().into_iter().find(|p|
+              if let Some(playa) = teammates().into_iter().find(|p|
                    m.teams[0].players[0].battleTag == p.battletag
                 || m.teams[1].players[0].battleTag == p.battletag
               ) {
@@ -239,7 +239,7 @@ pub async fn check<'a>( ctx: &Context
             }
           } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode
             if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
-              if let Some(playa) = players().into_iter().find(|p|
+              if let Some(playa) = teammates().into_iter().find(|p|
                    m.teams[0].players[0].battleTag == p.battletag
                 || m.teams[1].players[0].battleTag == p.battletag
                 || m.teams[0].players[1].battleTag == p.battletag

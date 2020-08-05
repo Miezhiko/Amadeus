@@ -5,7 +5,7 @@ use crate::{
     twitch::Twitch,
     goodgame::GoodGameData
   },
-  collections::team::teammates,
+  collections::team::players,
   common::help::channel::channel_by_name
 };
 
@@ -87,7 +87,7 @@ pub async fn activate_streamers_tracking(
           streams_lock.remove(&ktd);
         }
         info!("streams check");
-        for playa in teammates() {
+        for playa in players() {
           if let Ok(user) = ctx_clone.http.get_user(playa.discord).await {
             setm!{ twitch_live        = false
                   , additional_fields  = Vec::new()

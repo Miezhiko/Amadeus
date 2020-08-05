@@ -17,6 +17,7 @@ let playersList : List Playerx =
   , t "KroLo#11461"   313638735562407937 "krolu_"
   , t "hhh#2991"      510732278025027596 "hotwussy"
   , g "Reyenir#2169"  287914378513088515 "reyenir" "Cherry-Phoenix"
+  , g "ag3nt#21617"   293268448212156416 "ag3ntik" "ag3nt"
   ]
 
 in playersList

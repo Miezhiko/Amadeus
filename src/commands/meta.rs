@@ -75,7 +75,7 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
 • **embed** *<title>* *<description>*: create embed
 • **qrcode** *<something>*: creates QR code
 • **urban** *<thing>*: explains a thing
-• **gif**, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy
+• **gif** *<thing>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy
 • **ru2en** *<text>*: translation, also **en2ru**"
 , false)
       .field("music commands",
@@ -84,8 +84,7 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
 • **play** *<url>*: play an radio stream or youtube music
 • **repeat**: plays last stream again", false)
       .field("warcraft commands",
-"• **today**: show tournaments today (same with tomorrow or yesterday)
-• **weekends**: show tours at weekend
+"• **today**: show tournaments today (same with **tomorrow**, **yesterday** or **weekends**)
 • **stats** *<nick>*: shows ladder race stats (nick - battle tag or tag without numbers) (without nick will use discord name)
 • **ongoing**: show ongoing solo matches
 • **lineup** *<title> | map player map2 player2+player3* (title is optional)", false)
@@ -231,7 +230,7 @@ async fn get_system_info(ctx: &Context) -> SysInfo {
           .expect("failed to execute process");
   if let Ok(mem_used) = &String::from_utf8(mem_stdout.stdout) {
     let memory_mb = mem_used[..mem_used.len() - 2].parse::<f32>().unwrap()/1024f32;
-    sys_info.memory = if memory_mb < 1024.0 {
+    sys_info.memory = if memory_mb >= 1024.0 {
       let memory_gb = memory_mb / 1024f32;
       format!("{:.3} GB", memory_gb)
       } else { format!("{:.3} MB", memory_mb) };

@@ -171,7 +171,7 @@ async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[min_args(1)]
 async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.raw().collect::<Vec<&str>>().join(" ");
-  match bert::en2ru(text.as_str()) {
+  match bert::en2ru(text).await {
     Ok(out) => {
       channel_message(ctx, msg, out.as_str()).await;
     },
@@ -186,7 +186,7 @@ async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[min_args(1)]
 async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.raw().collect::<Vec<&str>>().join(" ");
-  match bert::ru2en(text.as_str()) {
+  match bert::ru2en(text).await {
     Ok(out) => {
       channel_message(ctx, msg, out.as_str()).await;
     },

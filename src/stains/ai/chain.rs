@@ -242,11 +242,11 @@ pub async fn response(ctx: &Context, msg : &Message) {
       }
     } else {
       if msg_content.ends_with('?') {
-        if let Ok(answer) = bert::ask(msg_content).await {
+        if let Ok(answer) = bert::ask(String::from(msg_content)).await {
           reply(&ctx, &msg, answer.as_str()).await;
         }
       } else {
-        if let Ok(answer) = bert::chat(msg_content) {
+        if let Ok(answer) = bert::chat(String::from(msg_content)).await {
           reply(&ctx, &msg, answer.as_str()).await;
         }
       }
@@ -260,12 +260,12 @@ pub async fn chat(ctx: &Context, msg : &Message) {
   let answer =
     if rndx == 1 && !russian {
       if msg.content.ends_with('?') {
-        if let Ok(answer) = bert::ask(&msg.content).await {
+        if let Ok(answer) = bert::ask(msg.content.clone()).await {
           answer
         } else {
           generate(&ctx, &msg, Some(russian)).await
         }
-      } else if let Ok(answer) = bert::chat(&msg.content) {
+      } else if let Ok(answer) = bert::chat(msg.content.clone()).await {
         answer
       } else {
         generate(&ctx, &msg, Some(russian)).await

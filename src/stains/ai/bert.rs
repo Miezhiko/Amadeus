@@ -8,44 +8,50 @@ use tch::Device;
 
 use failure;
 
-pub fn en2ru(text: &str) -> failure::Fallible<String> {
-  let translation_config =
-    TranslationConfig::new(Language::EnglishToRussian, Device::cuda_if_available());
+use tokio::task;
 
-  let model = TranslationModel::new(translation_config)?;
+pub async fn en2ru(text: String) -> failure::Fallible<String> {
+  task::spawn_blocking(move || {
+    let translation_config =
+      TranslationConfig::new(Language::EnglishToRussian, Device::cuda_if_available());
 
-  let output = model.translate(&[text]);
-  if output.is_empty() {
-    error!("Failed to translate with TranslationConfig EnglishToRussian");
-    Ok(text.to_string())
-  } else {
-    let translation = &output[0];
-    Ok(translation.clone())
-  }
+    let model = TranslationModel::new(translation_config)?;
+
+    let output = model.translate(&[text.as_str()]);
+    if output.is_empty() {
+      error!("Failed to translate with TranslationConfig EnglishToRussian");
+      Ok(text)
+    } else {
+      let translation = &output[0];
+      Ok(translation.clone())
+    }
+  }).await.unwrap()
 }
 
-pub fn ru2en(text: &str) -> failure::Fallible<String> {
-  let translation_config =
-    TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
+pub async fn ru2en(text: String) -> failure::Fallible<String> {
+  task::spawn_blocking(move || {
+    let translation_config =
+      TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
 
-  let model = TranslationModel::new(translation_config)?;
+    let model = TranslationModel::new(translation_config)?;
 
-  let output = model.translate(&[text]);
-  if output.is_empty() {
-    error!("Failed to translate with TranslationConfig RussianToEnglish");
-    Ok(text.to_string())
-  } else {
-    let translation = &output[0];
-    Ok(translation.clone())
-  }
+    let output = model.translate(&[text.as_str()]);
+    if output.is_empty() {
+      error!("Failed to translate with TranslationConfig RussianToEnglish");
+      Ok(text)
+    } else {
+      let translation = &output[0];
+      Ok(translation.clone())
+    }
+  }).await.unwrap()
 }
 
-fn ask_with_cache(question: &str, cache: String) -> failure::Fallible<String> {
+fn ask_with_cache(question: String, cache: String) -> failure::Fallible<String> {
   // Set-up Question Answering model
   let qa_model = QuestionAnsweringModel::new(Default::default())?;
 
   let qa_input = QaInput {
-    question: question.to_string(),
+    question: question,
     context: cache,
   };
 
@@ -64,7 +70,7 @@ fn ask_with_cache(question: &str, cache: String) -> failure::Fallible<String> {
   }
 }
 
-pub async fn ask(question: &str) -> failure::Fallible<String> {
+pub async fn ask(question: String) -> failure::Fallible<String> {
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let cache = 
     if cache_eng_vec.is_empty() {
@@ -72,41 +78,45 @@ pub async fn ask(question: &str) -> failure::Fallible<String> {
     } else {
       cache_eng_vec.join(" ")
     };
-  ask_with_cache(question, cache)
+  task::spawn_blocking(move || {
+    ask_with_cache(question, cache)
+  }).await.unwrap()
 }
 
-pub fn chat(something: &str) -> failure::Fallible<String> {
-  let conversation_model = ConversationModel::new(Default::default())?;
-  let mut conversation_manager = ConversationManager::new();
+pub async fn chat(something: String) -> failure::Fallible<String> {
+  task::spawn_blocking(move || {
+    let conversation_model = ConversationModel::new(Default::default())?;
+    let mut conversation_manager = ConversationManager::new();
 
-  let _conversation_id = conversation_manager.create(something);
+    let _conversation_id = conversation_manager.create(something.as_str());
 
-  let output = conversation_model.generate_responses(&mut conversation_manager);
+    let output = conversation_model.generate_responses(&mut conversation_manager);
 
-  // TODO: follow onversation
-  /*
-  let _ = conversation_manager
-      .get(&conversation_id)
-      .unwrap()
-      .add_user_input(something_else_str);
-  let output = conversation_model.generate_responses(&mut conversation_manager);
-  */
+    // TODO: follow onversation
+    /*
+    let _ = conversation_manager
+        .get(&conversation_id)
+        .unwrap()
+        .add_user_input(something_else_str);
+    let output = conversation_model.generate_responses(&mut conversation_manager);
+    */
 
-  let out_values = output.values()
-                         .cloned()
-                         .map(str::to_string)
-                         .collect::<Vec<String>>();
+    let out_values = output.values()
+                          .cloned()
+                          .map(str::to_string)
+                          .collect::<Vec<String>>();
 
-  if out_values.is_empty() {
-    error!("Failed to chat with ConversationModel");
-    // TODO: error should be here
-    Ok(String::new())
-  } else {
-    // just get first
-    let answer = &out_values[0];
+    if out_values.is_empty() {
+      error!("Failed to chat with ConversationModel");
+      // TODO: error should be here
+      Ok(String::new())
+    } else {
+      // just get first
+      let answer = &out_values[0];
 
-    Ok(answer.clone())
-  }
+      Ok(answer.clone())
+    }
+  }).await.unwrap()
 }
 
 #[cfg(test)]
@@ -115,7 +125,7 @@ mod bert_tests {
   #[test]
   fn spell_test() -> Result<(), String> {
     let cache = String::from("Humba");
-    match ask_with_cache("Humans imba?", cache) {
+    match ask_with_cache(String::from("Humans imba?"), cache) {
       Ok(some) => {
         if !some.is_empty() {
           Ok(())

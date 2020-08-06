@@ -35,6 +35,9 @@ use tokio::sync::{ Mutex, MutexGuard };
 // But I'm not sure what's maximal supported by discord limit
 static CACHE_MAX : u64 = 15000;
 
+// Note: machine based translation is very hard without cuda
+static TRANSLATION_MAX : u32 = 10;
+
 // Note: use 66 for low activity/comfortable behavior
 pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(50);
 
@@ -58,6 +61,7 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
       *cache_ru = Chain::new();
       cache_eng_str.clear();
     }
+    let mut ru_messages_for_translation : Vec<String> = vec![];
     let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
     for (chan, _) in channels {
       if let Some(c_name) = chan.name(&ctx).await {
@@ -66,6 +70,7 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
             r.limit(CACHE_MAX)
           ).await {
             trace!("updating ai chain from {}", c_name.as_str());
+            let mut i : u32 = 0;
             for mmm in messages {
               if !mmm.author.bot {
                 let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
@@ -81,6 +86,10 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
                   if !result.is_empty() && !result.contains('$') && !is_http {
                     if lang::is_russian(result) {
                       cache_ru.feed_str(result);
+                      if i < TRANSLATION_MAX {
+                        ru_messages_for_translation.push(result.to_string());
+                        i += 1;
+                      }
                     } else {
                       cache_eng.feed_str(result);
                       cache_eng_str.push(result.to_string());
@@ -98,6 +107,10 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
     }
     for confuse in CONFUSION.iter() {
       cache_eng.feed_str( confuse );
+    }
+    // Translate cache_ru for big cache_eng_str
+    if let Ok(mut translated) = bert::ru2en_many(ru_messages_for_translation).await {
+      cache_eng_str.append(&mut translated);
     }
   }
   info!("updating cache complete");

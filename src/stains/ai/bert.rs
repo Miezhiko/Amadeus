@@ -46,6 +46,25 @@ pub async fn ru2en(text: String) -> failure::Fallible<String> {
   }).await.unwrap()
 }
 
+pub async fn ru2en_many(texts: Vec<String>) -> failure::Fallible<Vec<String>> {
+  task::spawn_blocking(move || {
+    let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
+
+    let translation_config =
+      TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
+
+    let model = TranslationModel::new(translation_config)?;
+
+    let output = model.translate(&ttt);
+    if output.is_empty() {
+      error!("Failed to translate with TranslationConfig RussianToEnglish");
+      Ok(Vec::new())
+    } else {
+      Ok(output)
+    }
+  }).await.unwrap()
+}
+
 fn ask_with_cache(question: String, cache: String) -> failure::Fallible<String> {
   // Set-up Question Answering model
   let qa_model = QuestionAnsweringModel::new(Default::default())?;

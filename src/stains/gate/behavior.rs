@@ -17,11 +17,20 @@ use serenity::{
   }
 };
 
+use chrono::{ Utc, DateTime };
+use tokio::sync::Mutex;
+
+lazy_static! {
+  pub static ref START_TIME: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
+}
+
 pub async fn activate(ctx: &Context, options: &IOptions) {
   info!("activation has started");
   let loading = format!("Loading {}", env!("CARGO_PKG_VERSION").to_string());
   ctx.set_activity(Activity::listening(loading.as_str())).await;
   ctx.idle().await;
+
+  lazy_static::initialize(&START_TIME);
 
   // set actual season for pad statistics
   update_current_season().await;

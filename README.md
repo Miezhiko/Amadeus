@@ -21,6 +21,8 @@ Features
 <img align="right" src="https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png">
 
  - chatty (ability to change activity level)
+ - transfer learning using chats context
+ - automatic translation with bert models
  - many small commands (use `~help`)
  - using `Dhall` config files for things
  - live games tracking on w3champions
@@ -30,6 +32,14 @@ Features
  - easily replaces Streamcord
  - many gifs commands for fun
  - plays music streams!
+
+Using:
+
+ - DistilBERT model finetuned on SQuAD (Stanford Question Answering Dataset)
+ - MarianMT architecture and pre-trained models from the Opus-MT team from Language Technology at the University of Helsinki
+ - Conversation model based on Microsoft's DialoGPT https://github.com/microsoft/DialoGPT
+
+The human evaluation results indicate that the response generated from DialoGPT is comparable to human response quality under a single-turn conversation Turing test. 
 
 Preparing
 ---------
@@ -52,6 +62,9 @@ Preparing
 }
 ```
 
+Note: will lag at first run due pre-trained models downloading.
+The models will be downloaded to the environment variable RUSTBERT_CACHE if it exists, otherwise to ~/.cache/.rustbert
+
 Start as service
 ----------------
 
@@ -71,8 +84,10 @@ systemctl restart Amadeus
 Note
 ====
 
- - Do not block her
  - Only will work with server administrator permissions
+ - Doesn't like other bots
+ - Punish people for blocking her
+ - Cruel
 
 
 ## License

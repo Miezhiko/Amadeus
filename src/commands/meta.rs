@@ -1,3 +1,5 @@
+use crate::stains::gate::behavior::START_TIME;
+
 use std::sync::Arc;
 
 use serenity::{
@@ -11,6 +13,7 @@ use serenity::{
   },
 };
 
+use chrono::{ Duration, Utc };
 use tokio::process::Command;
 
 use qrcode::{
@@ -271,5 +274,14 @@ Latency:  {}
     m.embed(|e| { e.0 = eb.0; e })
   }).await?;
 
+  Ok(())
+}
+
+#[command]
+async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
+  let nao = Utc::now();
+  let start_time = START_TIME.lock().await;
+  let since_start_time : Duration = nao - *start_time;
+  msg.channel_id.say(ctx, format!("uptime: {:?}", since_start_time)).await?;
   Ok(())
 }

@@ -228,44 +228,57 @@ pub fn obfuscate(msg_content : &str) -> String {
 pub async fn response(ctx: &Context, msg : &Message) {
   set!{ msg_content = &msg.content
       , russian = lang::is_russian(msg_content) };
-  if russian {
+  let rndx : u32 = rand::thread_rng().gen_range(0, 6);
+  if rndx == 1 {
     let answer = generate(&ctx, &msg, Some(russian)).await;
     if !answer.is_empty() {
       reply(&ctx, &msg, answer.as_str()).await;
     }
   } else {
-    let rndx : u32 = rand::thread_rng().gen_range(0, 6);
-    if rndx == 1 {
-      let answer = generate(&ctx, &msg, Some(russian)).await;
-      if !answer.is_empty() {
-        reply(&ctx, &msg, answer.as_str()).await;
-      }
-    } else {
+    let text = if russian {
+      if let Ok(translated) = bert::ru2en(String::from(msg_content)).await {
+        translated
+      } else { String::from(msg_content) }
+      } else { String::from(msg_content) };
+    let mut response =
       if msg_content.ends_with('?') {
-        if let Ok(answer) = bert::ask(String::from(msg_content)).await {
-          reply(&ctx, &msg, answer.as_str()).await;
-        }
+        if let Ok(answer) = bert::ask(text).await {
+          answer
+        } else { String::new() }
       } else {
-        if let Ok(answer) = bert::chat(String::from(msg_content)).await {
-          reply(&ctx, &msg, answer.as_str()).await;
-        }
+        if let Ok(answer) = bert::chat(text).await {
+          answer
+        } else { String::new() }
+      };
+    if russian {
+      if let Ok(translated) = bert::en2ru(response.clone()).await {
+        response = translated
       }
     }
+    reply(&ctx, &msg, response.as_str()).await;
   }
 }
 
 pub async fn chat(ctx: &Context, msg : &Message) {
   let russian = lang::is_russian(&msg.content);
   let rndx : u32 = rand::thread_rng().gen_range(0, 2);
-  let answer =
-    if rndx == 1 && !russian {
+  let mut bert_generated = false;
+  let mut answer =
+    if rndx == 1 {
+      let text = if russian {
+        if let Ok(translated) = bert::ru2en(msg.content.clone()).await {
+          translated
+        } else { msg.content.clone() }
+        } else { msg.content.clone() };
       if msg.content.ends_with('?') {
-        if let Ok(answer) = bert::ask(msg.content.clone()).await {
+        if let Ok(answer) = bert::ask(text).await {
+          bert_generated = true;
           answer
         } else {
           generate(&ctx, &msg, Some(russian)).await
         }
-      } else if let Ok(answer) = bert::chat(msg.content.clone()).await {
+      } else if let Ok(answer) = bert::chat(text).await {
+        bert_generated = true;
         answer
       } else {
         generate(&ctx, &msg, Some(russian)).await
@@ -273,6 +286,11 @@ pub async fn chat(ctx: &Context, msg : &Message) {
     } else {
       generate(&ctx, &msg, Some(russian)).await
     };
+  if rndx == 1 && bert_generated && russian {
+    if let Ok(translated) = bert::en2ru(answer.clone()).await {
+      answer = translated;
+    }
+  }
   if !answer.is_empty() {
     let rnd = rand::thread_rng().gen_range(0, 3);
     if rnd == 1 {

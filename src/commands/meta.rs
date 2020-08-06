@@ -279,9 +279,46 @@ Latency:  {}
 
 #[command]
 async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  let mut eb = CreateEmbed::default();
+  let footer = format!("Requested by {}", msg.author.name);
+
   let nao = Utc::now();
   let start_time = START_TIME.lock().await;
   let since_start_time : Duration = nao - *start_time;
-  msg.channel_id.say(ctx, format!("uptime: {:?}", since_start_time)).await?;
+  let mut uptime_string = String::from("uptime");
+
+  let dd = since_start_time.num_days();
+  if dd > 0 {
+    uptime_string = format!("{} {}d", uptime_string, dd);
+  }
+  let hh = since_start_time.num_hours() - dd*24;
+  if hh > 0 {
+    uptime_string = format!("{} {}h", uptime_string, hh);
+    if dd == 0 {
+      let mm = since_start_time.num_minutes() - hh*60;
+      uptime_string = format!("{} {}m", uptime_string, mm);
+    }
+  } else {
+    let mm = since_start_time.num_minutes();
+    if mm > 0 {
+      uptime_string = format!("{} {}m {}s", uptime_string, mm, since_start_time.num_seconds());
+    } else {
+      uptime_string = format!("{} {}s", uptime_string, since_start_time.num_seconds());
+    }
+  }
+
+  eb.color(0xe535cc);
+  eb.title(uptime_string);
+  eb.description(format!("start time: {}", start_time.to_string()));
+  eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+  eb.footer(|f| f.text(footer));
+
+  msg.channel_id.send_message(ctx, |m| {
+    m.embed(|e| { e.0 = eb.0; e })
+  }).await?;
+
   Ok(())
 }

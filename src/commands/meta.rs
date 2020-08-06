@@ -304,7 +304,8 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
   } else {
     let mm = since_start_time.num_minutes();
     if mm > 0 {
-      uptime_string = format!("{} {}m {}s", uptime_string, mm, since_start_time.num_seconds());
+      uptime_string = format!("{} {}m {}s", uptime_string, mm
+                                          , since_start_time.num_seconds() - mm*60);
     } else {
       uptime_string = format!("{} {}s", uptime_string, since_start_time.num_seconds());
     }

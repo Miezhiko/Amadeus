@@ -5,3 +5,5 @@
 - Store AI chain somewhere
 - Function to get message content
 - meta.rs commands file is too big, split it
+- Better loading progress
+

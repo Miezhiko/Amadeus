@@ -1,17 +1,54 @@
 use crate::stains::ai::chain::CACHE_ENG_STR;
 
-use rust_bert::pipelines::conversation::{ConversationManager, ConversationModel};
-use rust_bert::pipelines::question_answering::{QaInput, QuestionAnsweringModel};
+use rust_bert::pipelines::conversation::{ ConversationManager, ConversationModel };
+use rust_bert::pipelines::question_answering::{ QaInput, QuestionAnsweringModel };
+use rust_bert::pipelines::translation::{ Language, TranslationConfig, TranslationModel };
+
+use tch::Device;
 
 use failure;
+
+pub fn en2ru(text: &str) -> failure::Fallible<String> {
+  let translation_config =
+    TranslationConfig::new(Language::EnglishToRussian, Device::cuda_if_available());
+
+  let model = TranslationModel::new(translation_config)?;
+
+  let output = model.translate(&[text]);
+  if output.is_empty() {
+    error!("Failed to translate with TranslationConfig EnglishToRussian");
+    // TODO: error should be here
+    Ok(String::new())
+  } else {
+    let translation = &output[0];
+    Ok(translation.clone())
+  }
+}
+
+pub fn ru2en(text: &str) -> failure::Fallible<String> {
+  let translation_config =
+    TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
+
+  let model = TranslationModel::new(translation_config)?;
+
+  let output = model.translate(&[text]);
+  if output.is_empty() {
+    error!("Failed to translate with TranslationConfig RussianToEnglish");
+    // TODO: error should be here
+    Ok(String::new())
+  } else {
+    let translation = &output[0];
+    Ok(translation.clone())
+  }
+}
 
 fn ask_with_cache(question: &str, cache: String) -> failure::Fallible<String> {
   // Set-up Question Answering model
   let qa_model = QuestionAnsweringModel::new(Default::default())?;
 
   let qa_input = QaInput {
-      question: question.to_string(),
-      context: cache,
+    question: question.to_string(),
+    context: cache,
   };
 
   // Get answer
@@ -25,7 +62,6 @@ fn ask_with_cache(question: &str, cache: String) -> failure::Fallible<String> {
 
     // we have several answers (hope they sorted by score)
     let answer = &my_answers[0];
-
     Ok(answer.answer.clone())
   }
 }

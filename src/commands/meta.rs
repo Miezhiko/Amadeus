@@ -75,7 +75,8 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
 • **embed** *<title>* *<description>*: create embed
 • **qrcode** *<something>*: creates QR code
 • **urban** *<thing>*: explains a thing
-• **gif**, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy"
+• **gif**, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy
+• **ru2en** *<text>*: translation, also **en2ru**"
 , false)
       .field("music commands",
 "• **join**: to your voice channel (you should be there)
@@ -224,12 +225,15 @@ async fn get_system_info(ctx: &Context) -> SysInfo {
   let pid = std::process::id().to_string();
   let mem_stdout = Command::new("sh")
           .arg("-c")
-          .arg(format!("pmap {} | head -n 3 | tail -n 1 | awk '/[0-9]K/{{print $2}}'", &pid).as_str())
+          .arg(format!("pmap {} | tail -n 1 | awk '/[0-9]K/{{print $2}}'", &pid).as_str())
           .output()
           .await
           .expect("failed to execute process");
-  let mem_used = String::from_utf8(mem_stdout.stdout).unwrap();
-  sys_info.memory = &mem_used[..mem_used.len() - 2].parse::<f32>().unwrap()/1000f32;
+  if let Ok(mem_used) = &String::from_utf8(mem_stdout.stdout) {
+    sys_info.memory = mem_used[..mem_used.len() - 2].parse::<f32>().unwrap()/1024f32;
+  } else {
+    error!("Failed to parse mem stdout");
+  }
   sys_info
 }
 

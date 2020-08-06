@@ -17,8 +17,7 @@ pub fn en2ru(text: &str) -> failure::Fallible<String> {
   let output = model.translate(&[text]);
   if output.is_empty() {
     error!("Failed to translate with TranslationConfig EnglishToRussian");
-    // TODO: error should be here
-    Ok(String::new())
+    Ok(text.to_string())
   } else {
     let translation = &output[0];
     Ok(translation.clone())
@@ -34,8 +33,7 @@ pub fn ru2en(text: &str) -> failure::Fallible<String> {
   let output = model.translate(&[text]);
   if output.is_empty() {
     error!("Failed to translate with TranslationConfig RussianToEnglish");
-    // TODO: error should be here
-    Ok(String::new())
+    Ok(text.to_string())
   } else {
     let translation = &output[0];
     Ok(translation.clone())

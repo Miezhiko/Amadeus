@@ -201,7 +201,7 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[derive(Default, Debug)]
 struct SysInfo {
   pub shard_latency: String,
-  pub memory: f32
+  pub memory: String
 }
 
 async fn get_system_info(ctx: &Context) -> SysInfo {
@@ -230,7 +230,11 @@ async fn get_system_info(ctx: &Context) -> SysInfo {
           .await
           .expect("failed to execute process");
   if let Ok(mem_used) = &String::from_utf8(mem_stdout.stdout) {
-    sys_info.memory = mem_used[..mem_used.len() - 2].parse::<f32>().unwrap()/1024f32;
+    let memory_mb = mem_used[..mem_used.len() - 2].parse::<f32>().unwrap()/1024f32;
+    sys_info.memory = if memory_mb < 1024.0 {
+      let memory_gb = memory_mb / 1024f32;
+      format!("{:.3} GB", memory_gb)
+      } else { format!("{:.3} MB", memory_mb) };
   } else {
     error!("Failed to parse mem stdout");
   }
@@ -258,7 +262,7 @@ async fn info(ctx: &Context, msg: &Message) -> CommandResult {
 Servers:  {}
 Channels: {}
 Users:    {}
-Memory:   {:.3} MB
+Memory:   {}
 Latency:  {}
 ```", guild_count, channel_count, user_count, sys_info.memory, sys_info.shard_latency));
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");

@@ -171,8 +171,13 @@ async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[min_args(1)]
 async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.raw().collect::<Vec<&str>>().join(" ");
-  if let Ok(out) = bert::en2ru(text.as_str()) {
-    channel_message(ctx, msg, out.as_str()).await;
+  match bert::en2ru(text.as_str()) {
+    Ok(out) => {
+      channel_message(ctx, msg, out.as_str()).await;
+    },
+    Err(why) => {
+      error!("Translation failed: {:?}", why);
+    }
   }
   Ok(())
 }
@@ -181,8 +186,13 @@ async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[min_args(1)]
 async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.raw().collect::<Vec<&str>>().join(" ");
-  if let Ok(out) = bert::ru2en(text.as_str()) {
-    channel_message(ctx, msg, out.as_str()).await
+  match bert::ru2en(text.as_str()) {
+    Ok(out) => {
+      channel_message(ctx, msg, out.as_str()).await;
+    },
+    Err(why) => {
+      error!("Translation failed: {:?}", why);
+    }
   }
   Ok(())
 }

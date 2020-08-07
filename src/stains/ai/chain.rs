@@ -37,7 +37,7 @@ use tokio::sync::{ Mutex, MutexGuard };
 static CACHE_MAX : u64 = 15000;
 
 // Note: machine based translation is very hard without cuda
-static TRANSLATION_MAX : u32 = 10;
+static TRANSLATION_MAX : u32 = 9;
 
 // Note: use 66 for low activity/comfortable behavior
 pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(50);
@@ -52,7 +52,7 @@ lazy_static! {
 pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
   if let Ok(channels) = guild_id.channels(&ctx).await {
     info!("updating AI chain has started");
-    ctx.set_activity(Activity::listening("Updating chain cache")).await;
+    ctx.set_activity(Activity::listening("Updating chain")).await;
     ctx.idle().await;
 
     setm!{ cache_eng = CACHE_ENG.lock().await
@@ -112,6 +112,7 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
       cache_eng.feed_str( confuse );
     }
     // Translate cache_ru for big cache_eng_str
+    ctx.set_activity(Activity::listening("Translating cache")).await;
     if let Ok(mut translated) = bert::ru2en_many(ru_messages_for_translation).await {
       cache_eng_str.append(&mut translated);
     }

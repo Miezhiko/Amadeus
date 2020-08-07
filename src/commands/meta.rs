@@ -79,7 +79,7 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
 • **qrcode** *<something>*: creates QR code
 • **urban** *<thing>*: explains a thing
 • **gif** *<thing>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy
-• **ru2en** *<text>*: translation, also **en2ru**"
+• **ru2en** *<text>*: translation, also **en2ru** **en2de** **en2fr** **de2en** **fr2en**"
 , false)
       .field("music commands",
 "• **join**: to your voice channel (you should be there)

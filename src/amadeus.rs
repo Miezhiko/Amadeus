@@ -1,5 +1,10 @@
 use crate::{
-  types::options::IOptions,
+  types::{
+    common::PubCreds,
+    common::CoreGuild,
+    common::CoreGuilds,
+    options::IOptions
+  },
   stains::ai::chain,
   common::options,
   handler::Handler,
@@ -12,7 +17,8 @@ use crate::{
     owner::*,
     admin::*,
     tictactoe::*,
-    images::*
+    images::*,
+    tranlation::*
   },
   collections::base::GREETINGS
 };
@@ -77,8 +83,12 @@ async fn admin_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOpti
 struct Meta;
 
 #[group]
-#[commands(quote, boris, owo, score, top, give, en2ru, ru2en)]
+#[commands(quote, boris, owo, score, top, give)]
 struct Chat;
+
+#[group]
+#[commands(en2ru, ru2en, en2de, de2en, en2fr, fr2en)]
+struct Translate;
 
 #[group]
 #[commands(cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, gifsearch, lol, angry, dance, confused, shock, nervous, sad, happy)]
@@ -216,6 +226,10 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
   let mut creds = HashMap::new();
   creds.insert("tenor".to_string(), opts.tenor_key.clone());
 
+  let mut core_guilds = HashMap::new();
+  core_guilds.insert(CoreGuild::Amadeus, opts.amadeus_guild);
+  core_guilds.insert(CoreGuild::HEmo, opts.guild);
+
   let std_framework =
     StandardFramework::new()
      .configure(|c| c
@@ -229,6 +243,7 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
       .unrecognised_command(unrecognised_command)
       .group(&META_GROUP)
       .group(&CHAT_GROUP)
+      .group(&TRANSLATE_GROUP)
       .group(&IMAGES_GROUP)
       .group(&VOICE_GROUP)
       .group(&WARCRAFT_GROUP)
@@ -245,6 +260,7 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
     data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
     data.insert::<ReqwestClient>(Arc::new(Reqwest::new()));
     data.insert::<PubCreds>(Arc::new(creds));
+    data.insert::<CoreGuilds>(Arc::new(core_guilds));
   }
 
   // start listening for events by starting a single shard

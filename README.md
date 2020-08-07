@@ -9,11 +9,12 @@ Amadeus
 ![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.44.1-teal)
 [![License: ISC](https://img.shields.io/badge/License-ISC-teal.svg)](https://opensource.org/licenses/ISC)
 ![Discord](https://img.shields.io/discord/611822838831251466?label=Discord)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_small)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_small) [![Twitter Follow](https://img.shields.io/twitter/follow/Qeenon.svg?style=social)](https://twitter.com/Qeenon) 
 
-Memory storage and Artificial Intelligence system.  ![mawa](https://github.com/Qeenon/Amadeus/workflows/mawa/badge.svg?branch=mawa)\
-Built with Rust and Serenity Framework.  [![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus) [![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Qeenon/Amadeus)
+Memory storage and Artificial Intelligence system.\
+![mawa](https://github.com/Qeenon/Amadeus/workflows/mawa/badge.svg?branch=mawa) [![Issues](https://img.shields.io/github/issues-raw/Qeenon/Amadeus.svg?maxAge=25000)](https://github.com/tterb/Hyde/issues) [![GitHub contributors](https://img.shields.io/github/contributors/Qeenon/Amadeus.svg?style=flat)]() [![GitHub last commit](https://img.shields.io/github/last-commit/Qeenon/Amadeus.svg?style=flat)]() [![GitHub stars](https://img.shields.io/github/stars/Qeenon/Amadeus.svg?style=social&label=Stars&style=plastic)]() [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Qeenon/Amadeus)\
+Built with Rust and Serenity Framework.   [![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus) [![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
+
 
 Features
 --------

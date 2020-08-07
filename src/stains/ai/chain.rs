@@ -11,7 +11,8 @@ use crate::{
 use serenity::{
   prelude::*,
   model::{ channel::{ Message }
-         , id::GuildId, id::UserId }
+         , id::GuildId, id::UserId
+         , gateway::Activity }
 };
 
 use serenity::utils::{
@@ -50,7 +51,9 @@ lazy_static! {
 
 pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
   if let Ok(channels) = guild_id.channels(&ctx).await {
-    info!("updating ai chain has started");
+    info!("updating AI chain has started");
+    ctx.set_activity(Activity::listening("Updating chain cache")).await;
+    ctx.idle().await;
 
     setm!{ cache_eng = CACHE_ENG.lock().await
          , cache_ru = CACHE_RU.lock().await

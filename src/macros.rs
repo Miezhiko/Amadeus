@@ -37,6 +37,8 @@ macro_rules! dhall {
 
 macro_rules! bjr {
   ($from:expr => $to:expr) => {
+    #[allow(clippy::trivial_regex)]
+    #[allow(clippy::single_component_path_imports)]
     Rule::new_re(Regex::new($from).unwrap(), $to)
   };
 }

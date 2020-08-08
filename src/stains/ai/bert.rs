@@ -5,9 +5,6 @@ use rust_bert::pipelines::question_answering::{ QaInput, QuestionAnsweringModel 
 use rust_bert::pipelines::translation::{ Language, TranslationConfig, TranslationModel };
 
 use tch::Device;
-
-use failure;
-
 use tokio::task;
 
 pub async fn en2ru(text: String) -> failure::Fallible<String> {
@@ -65,17 +62,17 @@ pub async fn ru2en_many(texts: Vec<String>) -> failure::Fallible<Vec<String>> {
   }).await.unwrap()
 }
 
-fn ask_with_cache(question: String, cache: String) -> failure::Fallible<String> {
+fn ask_with_cache(q: String, cache: String) -> failure::Fallible<String> {
   // Set-up Question Answering model
   let qa_model = QuestionAnsweringModel::new(Default::default())?;
 
   let qa_input = QaInput {
-    question: question,
+    question: q,
     context: cache,
   };
 
   // Get answer
-  let answers = qa_model.predict(&vec![qa_input], 1, 32);
+  let answers = qa_model.predict(&[qa_input], 1, 32);
   if answers.is_empty() {
     error!("Failed to ansewer with QuestionAnsweringModel");
     // TODO: error should be here

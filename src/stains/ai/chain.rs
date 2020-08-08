@@ -262,11 +262,9 @@ pub async fn response(ctx: &Context, msg : &Message) {
         if let Ok(answer) = bert::ask(text).await {
           answer
         } else { String::new() }
-      } else {
-        if let Ok(answer) = bert::chat(text).await {
-          answer
-        } else { String::new() }
-      };
+      } else if let Ok(answer) = bert::chat(text).await {
+        answer
+      } else { String::new() };
     if russian {
       if let Ok(translated) = bert::en2ru(response.clone()).await {
         response = translated

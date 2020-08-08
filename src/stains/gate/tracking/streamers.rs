@@ -39,7 +39,7 @@ pub async fn activate_streamers_tracking(
   let amadeus_storage =
     if let Ok(amadeus_channels) = amadeus_guild_id.channels(ctx).await {
       if let Some((ch, _)) = channel_by_name(&ctx, &amadeus_channels, "stream_pics").await {
-        Some(ch.clone())
+        Some(*ch)
       } else { None }
     } else { None };
 

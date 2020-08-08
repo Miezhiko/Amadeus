@@ -16,9 +16,6 @@ use serenity::{
 use rust_bert::pipelines::translation::{ Language, TranslationConfig, TranslationModel };
 
 use tch::Device;
-
-use failure;
-
 use tokio::task;
 
 async fn bert_translate(ctx: &Context, text: String, lang: Language)

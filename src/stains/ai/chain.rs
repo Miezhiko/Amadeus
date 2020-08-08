@@ -117,6 +117,8 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
       cache_eng_str.append(&mut translated);
     }
   }
+  ctx.set_activity(Activity::listening("Update complete")).await;
+  ctx.online().await;
   info!("updating cache complete");
 }
 

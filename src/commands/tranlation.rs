@@ -44,7 +44,7 @@ async fn bert_translate(ctx: &Context, text: String, lang: Language)
 #[command]
 #[min_args(1)]
 async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let text = args.raw().collect::<Vec<&str>>().join(" ");
+  let text = args.message().to_string();
   match bert_translate(ctx, text, Language::EnglishToRussian).await {
     Ok(out) => {
       channel_message(ctx, msg, out.as_str()).await;
@@ -59,7 +59,7 @@ async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[command]
 #[min_args(1)]
 async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let text = args.raw().collect::<Vec<&str>>().join(" ");
+  let text = args.message().to_string();
   match bert_translate(ctx, text, Language::RussianToEnglish).await {
     Ok(out) => {
       channel_message(ctx, msg, out.as_str()).await;
@@ -74,7 +74,7 @@ async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[command]
 #[min_args(1)]
 async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let text = args.raw().collect::<Vec<&str>>().join(" ");
+  let text = args.message().to_string();
   match bert_translate(ctx, text, Language::EnglishToGerman).await {
     Ok(out) => {
       channel_message(ctx, msg, out.as_str()).await;
@@ -89,7 +89,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[command]
 #[min_args(1)]
 async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let text = args.raw().collect::<Vec<&str>>().join(" ");
+  let text = args.message().to_string();
   match bert_translate(ctx, text, Language::GermanToEnglish).await {
     Ok(out) => {
       channel_message(ctx, msg, out.as_str()).await;
@@ -104,7 +104,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[command]
 #[min_args(1)]
 async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let text = args.raw().collect::<Vec<&str>>().join(" ");
+  let text = args.message().to_string();
   match bert_translate(ctx, text, Language::EnglishToFrench).await {
     Ok(out) => {
       channel_message(ctx, msg, out.as_str()).await;
@@ -119,7 +119,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[command]
 #[min_args(1)]
 async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let text = args.raw().collect::<Vec<&str>>().join(" ");
+  let text = args.message().to_string();
   match bert_translate(ctx, text, Language::FrenchToEnglish).await {
     Ok(out) => {
       channel_message(ctx, msg, out.as_str()).await;

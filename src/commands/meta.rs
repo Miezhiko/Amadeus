@@ -99,12 +99,13 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
 }
 
 #[command]
+#[min_args(2)]
 async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
   set!{ title = args.single::<String>()?
-      , description = args.single::<String>()? };
+      , description = args.rest() };
   msg.channel_id.send_message(&ctx.http, |m|
     m.embed(|e| e.title(title)
                  .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))

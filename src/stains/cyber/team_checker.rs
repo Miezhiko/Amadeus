@@ -195,9 +195,11 @@ pub async fn check<'a>( ctx: &Context
                       let mut img = None;
                       let mut url = None;
                       let mut color = (32,32,32);
-                      if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
-                        for f in msg.embeds[0].fields.clone() {
-                          fields.push((f.name, f.value, f.inline));
+                      if !msg.embeds.is_empty() {
+                        if !msg.embeds[0].fields.is_empty() {
+                          for f in msg.embeds[0].fields.clone() {
+                            fields.push((f.name, f.value, f.inline));
+                          }
                         }
                         img = msg.embeds[0].image.clone();
                         url = msg.embeds[0].url.clone();
@@ -275,9 +277,11 @@ pub async fn check<'a>( ctx: &Context
                            , img    = None
                            , url    = None
                            , color = (32,32,32) };
-                      if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
-                        for f in msg.embeds[0].fields.clone() {
-                          fields.push((f.name, f.value, f.inline));
+                      if !msg.embeds.is_empty() {
+                        if !msg.embeds[0].fields.is_empty() {
+                          for f in msg.embeds[0].fields.clone() {
+                            fields.push((f.name, f.value, f.inline));
+                          }
                         }
                         img = msg.embeds[0].image.clone();
                         url = msg.embeds[0].url.clone();
@@ -335,9 +339,11 @@ pub async fn check<'a>( ctx: &Context
                   let mut old_fields = Vec::new();
                   let mut url = None;
                   let mut color = (32,32,32);
-                  if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
-                    for f in msg.embeds[0].fields.clone() {
-                      old_fields.push((f.name, f.value, f.inline));
+                  if !msg.embeds.is_empty() {
+                    if !msg.embeds[0].fields.is_empty() {
+                      for f in msg.embeds[0].fields.clone() {
+                        old_fields.push((f.name, f.value, f.inline));
+                      }
                     }
                     url = msg.embeds[0].url.clone();
                     color = msg.embeds[0].colour.tuple();

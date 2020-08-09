@@ -11,8 +11,7 @@ use crate::{
 };
 
 use serenity::{
-  prelude::*,
-  utils::Colour
+  prelude::*
 };
 
 use std::collections::HashMap;
@@ -195,14 +194,14 @@ pub async fn check<'a>( ctx: &Context
                       let mut fields = Vec::new();
                       let mut img = None;
                       let mut url = None;
-                      let mut color = Colour::new(0);
+                      let mut color = (32,32,32);
                       if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
                         for f in msg.embeds[0].fields.clone() {
                           fields.push((f.name, f.value, f.inline));
                         }
                         img = msg.embeds[0].image.clone();
                         url = msg.embeds[0].url.clone();
-                        color = msg.embeds[0].colour;
+                        color = msg.embeds[0].colour.tuple();
                       };
 
                       if let Err(why) = msg.edit(ctx, |m| m
@@ -275,14 +274,14 @@ pub async fn check<'a>( ctx: &Context
                       setm!{ fields = Vec::new()
                            , img    = None
                            , url    = None
-                           , color = Colour::new(0) };
+                           , color = (32,32,32) };
                       if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
                         for f in msg.embeds[0].fields.clone() {
                           fields.push((f.name, f.value, f.inline));
                         }
                         img = msg.embeds[0].image.clone();
                         url = msg.embeds[0].url.clone();
-                        color = msg.embeds[0].colour;
+                        color = msg.embeds[0].colour.tuple();
                       };
 
                       if let Err(why) = msg.edit(ctx, |m| m
@@ -335,13 +334,13 @@ pub async fn check<'a>( ctx: &Context
                 if let Ok(user) = ctx.http.get_user(track.player.discord).await {
                   let mut old_fields = Vec::new();
                   let mut url = None;
-                  let mut color = Colour::new(0);
+                  let mut color = (32,32,32);
                   if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
                     for f in msg.embeds[0].fields.clone() {
                       old_fields.push((f.name, f.value, f.inline));
                     }
                     url = msg.embeds[0].url.clone();
-                    color = msg.embeds[0].colour;
+                    color = msg.embeds[0].colour.tuple();
                   };
                   let mut title = "FINISHED";
                   let mut streak_fields = None;

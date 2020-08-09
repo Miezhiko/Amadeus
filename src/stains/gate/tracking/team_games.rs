@@ -22,6 +22,10 @@ use std::{
   time
 };
 
+use rand::{
+  Rng
+};
+
 pub async fn activate_games_tracking(
                      ctx:       &Context
                    , channels:  &HashMap<ChannelId, GuildChannel>
@@ -141,11 +145,16 @@ pub async fn activate_games_tracking(
               }
             }
 
+            set! { red   = rand::thread_rng().gen_range(0, 255)
+                 , green = rand::thread_rng().gen_range(0, 255)
+                 , blue  = rand::thread_rng().gen_range(0, 255) };
+
             match ch_deref.send_message(&ctx_clone, |m| m
               .embed(|e| {
                 let mut e = e
                   .title("JUST STARTED")
                   .author(|a| a.icon_url(&user.face()).name(&user.name))
+                  .colour((red, green, blue))
                   .description(game.description.as_str());
                 if !additional_fields.is_empty() {
                   e = e.fields(additional_fields);

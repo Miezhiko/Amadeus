@@ -102,6 +102,9 @@ async fn clear(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
 #[command]
 async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
   let git_fetch = Command::new("sh")
                   .arg("-c")
                   .arg("git fetch origin mawa")
@@ -116,8 +119,15 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
                   .expect("failed to reset on remote branch");
   if let Ok(git_fetch_out) = &String::from_utf8(git_fetch.stdout) {
     if let Ok(git_reset_out) = &String::from_utf8(git_reset.stdout) {
-      direct_message(ctx, &msg, &format!("{}\n{}", git_fetch_out, git_reset_out)).await;
-      channel_message(&ctx, &msg, "Updating complete, recompiling and restarting").await;
+      set! { description = &format!("{}\n{}", git_fetch_out, git_reset_out)
+           , footer = format!("Requested by {}", msg.author.name) };
+      msg.channel_id.send_message(&ctx.http, |m|
+        m.embed(|e| e.title("Updating")
+                    .colour((250, 0, 0))
+                    .description(description)
+                    .footer(|f| f.text(footer))
+        )
+      ).await?;
       let _systemctl = Command::new("sh")
                       .arg("-c")
                       .arg("systemctl restart Amadeus")

@@ -34,10 +34,10 @@ use tokio::sync::{ Mutex, MutexGuard };
 
 // Note: 15000 is known to be safe value
 // But I'm not sure what's maximal supported by discord limit
-static CACHE_MAX : u64 = 15000;
+static CACHE_MAX : u64 = 15_666;
 
 // Note: machine based translation is very hard without cuda
-static TRANSLATION_MAX : u32 = 9;
+static TRANSLATION_MAX : u32 = 5;
 
 // Note: use 66 for low activity/comfortable behavior
 pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(50);

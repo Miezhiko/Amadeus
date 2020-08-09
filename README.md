@@ -45,7 +45,7 @@ The human evaluation results indicate that the response generated from DialoGPT 
 Preparing
 ---------
 
- - to compile just use `cargo build --release` (on Windows you there could be problems with PyTorch, you can install it first and setup paths alike it's done in `build.bat` file)
+ - to compile just use `cargo build --release` (on Windows you there could be problems with PyTorch, you can install it first and setup paths alike it's done in `misc/build.bat` file)
  - `cp conf.example.dhall conf.dhall` (initial constant options)
  - `cp conf.example.json conf.json` (those options may change in runtime)
  - generate token here: https://discord.com/developers/applications

@@ -152,17 +152,19 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 #[min_args(1)]
 async fn boris(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let text = args.raw().collect::<Vec<&str>>().join(" ");
-  let out = boris::spell(text.as_str());
-  channel_message(ctx, msg, out.as_str()).await;
+  channel_message( ctx
+                 , msg
+                 , &boris::spell(args.message())
+                 ).await;
   Ok(())
 }
 
 #[command]
 #[min_args(1)]
 async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let text = args.raw().collect::<Vec<&str>>().join(" ");
-  let out = uwu::spell(text.as_str());
-  channel_message(ctx, msg, out.as_str()).await;
+  channel_message( ctx
+                 , msg
+                 , &uwu::spell(args.message())
+                 ).await;
   Ok(())
 }

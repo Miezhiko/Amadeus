@@ -16,6 +16,10 @@ use serenity::{
 use chrono::{ Duration, Utc };
 use tokio::process::Command;
 
+use rand::{
+  Rng
+};
+
 use qrcode::{
   QrCode,
   render::unicode,
@@ -105,12 +109,15 @@ async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     error!("Error deleting original command {:?}", why);
   }
   set!{ title = args.single::<String>()?
-      , description = args.rest() };
+      , description = args.rest()
+      , red   = rand::thread_rng().gen_range(0, 255)
+      , green = rand::thread_rng().gen_range(0, 255)
+      , blue  = rand::thread_rng().gen_range(0, 255) };
   msg.channel_id.send_message(&ctx.http, |m|
     m.embed(|e| e.title(title)
+                 .colour((red, green, blue))
                  .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
                  .description(description)
-                 
     )
   ).await?;
   Ok(())

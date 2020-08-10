@@ -24,6 +24,10 @@ use std::{
   time
 };
 
+use rand::{
+  Rng
+};
+
 lazy_static! {
   pub static ref STREAMS: Mutex<HashMap<u64, TrackingGame>>
     = Mutex::new(HashMap::new());
@@ -160,18 +164,21 @@ pub async fn activate_streamers_tracking(
                   let mut fields = Vec::new();
                   let mut img = None;
                   let mut url = None;
+                  let mut color = (32, 32, 32);
                   if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
                     for f in msg.embeds[0].fields.clone() {
                       fields.push((f.name, f.value, f.inline));
                     }
                     img = msg.embeds[0].image.clone();
                     url = msg.embeds[0].url.clone();
+                    color = msg.embeds[0].colour.tuple();
                   };
                   let is_now_live = format!("{} is now live!", user.name.as_str());
                   if let Err(why) = msg.edit(&ctx_clone, |m| m
                     .embed(|e|  {
                       let mut e = e
                         .title(title)
+                        .colour(color)
                         .author(|a| a.icon_url(&user.face()).name(is_now_live.as_str()))
                         .footer(|f| f.text(footer));
                       if !fields.is_empty() {
@@ -214,10 +221,14 @@ pub async fn activate_streamers_tracking(
                     }
                   }
                 }
+                set! { red   = rand::thread_rng().gen_range(0, 255)
+                     , green = rand::thread_rng().gen_range(0, 255)
+                     , blue  = rand::thread_rng().gen_range(0, 255) };
                 match sh_deref.send_message(&ctx_clone, |m| m
                   .embed(|e| {
                     let mut e = e
                       .title(title)
+                      .colour((red, green, blue))
                       .author(|a| a.icon_url(&user.face()).name(is_now_live.as_str()));
                     if !additional_fields.is_empty() {
                       e = e.fields(additional_fields);
@@ -250,17 +261,20 @@ pub async fn activate_streamers_tracking(
                 let mut fields = Vec::new();
                 let mut img = None;
                 let mut url = None;
+                let mut color = (32, 32, 32);
                 if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
                   for f in msg.embeds[0].fields.clone() {
                     fields.push((f.name, f.value, f.inline));
                   }
                   img = msg.embeds[0].image.clone();
                   url = msg.embeds[0].url.clone();
+                  color = msg.embeds[0].colour.tuple();
                 };
                 if let Err(why) = msg.edit(&ctx_clone, |m| m
                   .embed(|e|  {
                     let mut e = e
                       .title("FINISHED")
+                      .colour(color)
                       .author(|a| a.icon_url(&user.face()).name(&user.name))
                       .footer(|f| f.text(footer));
                     if !fields.is_empty() {

@@ -187,50 +187,14 @@ pub async fn check<'a>( ctx: &Context
                   track.still_live = true;
                   let minutes = track.passed_time / 2;
                   let footer = format!("Passed: {} min", minutes);
-
                   if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
-                    if let Ok(user) = ctx.http.get_user(playa.discord).await {
-
-                      let mut fields = Vec::new();
-                      let mut img = None;
-                      let mut url = None;
-                      let mut color = (32,32,32);
-                      if !msg.embeds.is_empty() {
-                        if !msg.embeds[0].fields.is_empty() {
-                          for f in msg.embeds[0].fields.clone() {
-                            fields.push((f.name, f.value, f.inline));
-                          }
-                        }
-                        img = msg.embeds[0].image.clone();
-                        url = msg.embeds[0].url.clone();
-                        color = msg.embeds[0].colour.tuple();
-                      };
-
-                      if let Err(why) = msg.edit(ctx, |m| m
-                        .embed(|e|  {
-                          let mut e = e
-                            .title("LIVE")
-                            .author(|a| a.icon_url(&user.face()).name(&user.name))
-                            .description(mstr)
-                            .colour(color)
-                            .footer(|f| f.text(footer));
-                          if !fields.is_empty() {
-                            e = e.fields(fields);
-                          }
-                          if let Some(some_img) = img {
-                            e = e.image(some_img.url);
-                          }
-                          if let Some(some_url) = url {
-                            e = e.url(some_url);
-                          }
-                          e
-                        }
-                      )).await {
-                        error!("Failed to post live match {:?}", why);
-                      }
+                    if let Err(why) = msg.edit(ctx, |m| m
+                      .embed(|e| e.title("LIVE")
+                                  .footer(|f| f.text(footer))
+                    )).await {
+                      error!("Failed to post live match {:?}", why);
                     }
                   }
-
                 } else {
                   out.push(
                     StartingGame {
@@ -272,44 +236,11 @@ pub async fn check<'a>( ctx: &Context
                   set!{ minutes = track.passed_time / 2
                       , footer = format!("Passed: {} min", minutes) };
                   if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
-                    if let Ok(user) = ctx.http.get_user(playa.discord).await {
-                      setm!{ fields = Vec::new()
-                           , img    = None
-                           , url    = None
-                           , color = (32,32,32) };
-                      if !msg.embeds.is_empty() {
-                        if !msg.embeds[0].fields.is_empty() {
-                          for f in msg.embeds[0].fields.clone() {
-                            fields.push((f.name, f.value, f.inline));
-                          }
-                        }
-                        img = msg.embeds[0].image.clone();
-                        url = msg.embeds[0].url.clone();
-                        color = msg.embeds[0].colour.tuple();
-                      };
-
-                      if let Err(why) = msg.edit(ctx, |m| m
-                        .embed(|e| {
-                          let mut e = e
-                            .title("LIVE")
-                            .author(|a| a.icon_url(&user.face()).name(&user.name))
-                            .description(mstr)
-                            .colour(color)
-                            .footer(|f| f.text(footer));
-                          if !fields.is_empty() {
-                            e = e.fields(fields);
-                          }
-                          if let Some(some_img) = img {
-                            e = e.image(some_img.url);
-                          }
-                          if let Some(some_url) = url {
-                            e = e.url(some_url);
-                          }
-                          e
-                        }
-                      )).await {
-                        error!("Failed to post live match {:?}", why);
-                      }
+                    if let Err(why) = msg.edit(ctx, |m| m
+                      .embed(|e| e.title("LIVE")
+                                  .footer(|f| f.text(footer))
+                    )).await {
+                      error!("Failed to post live match {:?}", why);
                     }
                   }
                 } else {
@@ -337,16 +268,10 @@ pub async fn check<'a>( ctx: &Context
                 let footer : String = format!("Passed: {} min", fgame.passed_time);
                 if let Ok(user) = ctx.http.get_user(track.player.discord).await {
                   let mut old_fields = Vec::new();
-                  let mut url = None;
-                  let mut color = (32,32,32);
-                  if !msg.embeds.is_empty() {
-                    if !msg.embeds[0].fields.is_empty() {
-                      for f in msg.embeds[0].fields.clone() {
-                        old_fields.push((f.name, f.value, f.inline));
-                      }
+                  if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
+                    for f in msg.embeds[0].fields.clone() {
+                      old_fields.push((f.name, f.value, f.inline));
                     }
-                    url = msg.embeds[0].url.clone();
-                    color = msg.embeds[0].colour.tuple();
                   };
                   let mut title = "FINISHED";
                   let mut streak_fields = None;
@@ -381,11 +306,9 @@ pub async fn check<'a>( ctx: &Context
                   if let Err(why) = msg.edit(ctx, |m| m
                     .embed(|e| {
                       let mut e =
-                        e.author(|a| a.icon_url(&user.face()).name(&user.name))
-                        .title(title)
-                        .description(fgame.desc.as_str())
-                        .colour(color)
-                        .footer(|f| f.text(footer));
+                        e.title(title)
+                         .description(fgame.desc.as_str())
+                         .footer(|f| f.text(footer));
                       if !old_fields.is_empty() {
                         e = e.fields(old_fields);
                       }
@@ -397,9 +320,6 @@ pub async fn check<'a>( ctx: &Context
                           (s1, s3, true),
                           (s2, s4, true)
                         ]);
-                      }
-                      if let Some(some_url) = url {
-                        e = e.url(some_url);
                       }
                       e
                     })

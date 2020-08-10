@@ -24,6 +24,10 @@ use std::{
   time
 };
 
+use rand::{
+  Rng
+};
+
 lazy_static! {
   pub static ref STREAMS: Mutex<HashMap<u64, TrackingGame>>
     = Mutex::new(HashMap::new());
@@ -214,10 +218,14 @@ pub async fn activate_streamers_tracking(
                     }
                   }
                 }
+                set! { red   = rand::thread_rng().gen_range(0, 255)
+                     , green = rand::thread_rng().gen_range(0, 255)
+                     , blue  = rand::thread_rng().gen_range(0, 255) };
                 match sh_deref.send_message(&ctx_clone, |m| m
                   .embed(|e| {
                     let mut e = e
                       .title(title)
+                      .colour((red, green, blue))
                       .author(|a| a.icon_url(&user.face()).name(is_now_live.as_str()));
                     if !additional_fields.is_empty() {
                       e = e.fields(additional_fields);

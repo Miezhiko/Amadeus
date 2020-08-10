@@ -6,7 +6,7 @@ let g = ./functions/g.dhall
 
 let playersList : List Playerx =
   [ p "RavenTT#2656"      277555411584942080
-  , t "ParadoCS#21514"    458674374044549140 "madqfrog"
+  , p "ParadoCS#21514"    458674374044549140
   , p "Fopogg#2818"       318043743628427269
   , p "KungFuRabbit#2696" 510449365014544414
   , p "sonder#21813"      470291730328190985 -- rav3n

@@ -7,3 +7,4 @@
 - Better loading progress
 - Don't lose chat context or lose with timer (hour or two)
 - Show first hero on logs, maybe
+- Maybe if I don't touch things in embed when edit they don't change?

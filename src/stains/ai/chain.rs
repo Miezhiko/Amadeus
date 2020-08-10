@@ -68,7 +68,7 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
   }
   let mut ru_messages_for_translation : Vec<String> = vec![];
   let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
-  for (chan, _) in channels {
+  for chan in channels.keys() {
     if let Some(c_name) = chan.name(&ctx).await {
       if AI_LEARN.iter().any(|c| c == c_name.as_str()) {
         if let Ok(messages) = chan.messages(&ctx, |r|

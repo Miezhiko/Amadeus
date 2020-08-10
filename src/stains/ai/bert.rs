@@ -5,22 +5,29 @@ use rust_bert::pipelines::question_answering::{ QaInput, QuestionAnsweringModel 
 use rust_bert::pipelines::translation::{ Language, TranslationConfig, TranslationModel };
 
 use tch::Device;
-use tokio::task;
+use tokio::{task, sync::Mutex };
+
+use std::collections::HashMap;
+use uuid::Uuid;
+
+lazy_static! {
+  pub static ref CONV_MANAGER: Mutex<ConversationManager>
+    = Mutex::new(ConversationManager::new());
+  pub static ref CHAT_CONTEXT: Mutex<HashMap<u64, (Uuid, u32)>>
+    = Mutex::new(HashMap::new());
+}
 
 pub async fn en2ru(text: String) -> failure::Fallible<String> {
   task::spawn_blocking(move || {
     let translation_config =
       TranslationConfig::new(Language::EnglishToRussian, Device::cuda_if_available());
-
     let model = TranslationModel::new(translation_config)?;
-
     let output = model.translate(&[text.as_str()]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig EnglishToRussian");
       Ok(text)
     } else {
-      let translation = &output[0];
-      Ok(translation.clone())
+      Ok(output[0].clone())
     }
   }).await.unwrap()
 }
@@ -29,9 +36,7 @@ pub async fn ru2en(text: String) -> failure::Fallible<String> {
   task::spawn_blocking(move || {
     let translation_config =
       TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
-
     let model = TranslationModel::new(translation_config)?;
-
     let output = model.translate(&[text.as_str()]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig RussianToEnglish");
@@ -46,12 +51,9 @@ pub async fn ru2en(text: String) -> failure::Fallible<String> {
 pub async fn ru2en_many(texts: Vec<String>) -> failure::Fallible<Vec<String>> {
   task::spawn_blocking(move || {
     let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
-
     let translation_config =
       TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
-
     let model = TranslationModel::new(translation_config)?;
-
     let output = model.translate(&ttt);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig RussianToEnglish");
@@ -99,28 +101,40 @@ pub async fn ask(question: String) -> failure::Fallible<String> {
   }).await.unwrap()
 }
 
-pub async fn chat(something: String) -> failure::Fallible<String> {
+pub async fn chat(something: String, user_id: u64) -> failure::Fallible<String> {
+  let mut conversation_manager = CONV_MANAGER.lock().await;
+  let mut chat_context = CHAT_CONTEXT.lock().await;
   task::spawn_blocking(move || {
     let conversation_model = ConversationModel::new(Default::default())?;
-    let mut conversation_manager = ConversationManager::new();
 
-    let _conversation_id = conversation_manager.create(something.as_str());
-
-    let output = conversation_model.generate_responses(&mut conversation_manager);
-
-    // TODO: follow onversation
-    /*
-    let _ = conversation_manager
-        .get(&conversation_id)
-        .unwrap()
-        .add_user_input(something_else_str);
-    let output = conversation_model.generate_responses(&mut conversation_manager);
-    */
+    let output =
+      if user_id != 0 {
+        if let Some((tracking_conversation, passed)) = chat_context.get_mut(&user_id) {
+          if let Some(found_conversation) = conversation_manager
+                                        .get(tracking_conversation) {
+            let _ = found_conversation.add_user_input(something.as_str());
+            *passed = 0;
+            conversation_model.generate_responses(&mut conversation_manager)
+          } else {
+            *tracking_conversation = conversation_manager.create(something.as_str());
+            *passed = 0;
+            conversation_model.generate_responses(&mut conversation_manager)
+          }
+        } else {
+          chat_context.insert( user_id
+                             , ( conversation_manager.create(something.as_str()), 0 )
+                             );
+          conversation_model.generate_responses(&mut conversation_manager)
+        }
+      } else {
+        conversation_manager.create(something.as_str());
+        conversation_model.generate_responses(&mut conversation_manager)
+      };
 
     let out_values = output.values()
-                          .cloned()
-                          .map(str::to_string)
-                          .collect::<Vec<String>>();
+                           .cloned()
+                           .map(str::to_string)
+                           .collect::<Vec<String>>();
 
     if out_values.is_empty() {
       error!("Failed to chat with ConversationModel");

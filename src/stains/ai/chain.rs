@@ -1,4 +1,5 @@
 use crate::{
+  types::common::AllGuilds,
   common::{
     help::lang,
     msg::{ reply, channel_message }
@@ -11,7 +12,8 @@ use crate::{
 use serenity::{
   prelude::*,
   model::{ channel::{ Message }
-         , id::GuildId, id::UserId
+         , id::{ GuildId, UserId, ChannelId }
+         , channel::GuildChannel
          , gateway::Activity }
 };
 
@@ -28,6 +30,7 @@ use rand::{
   Rng
 };
 
+use std::collections::HashMap;
 use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use tokio::sync::{ Mutex, MutexGuard };
@@ -49,54 +52,52 @@ lazy_static! {
   pub static ref LAST_UPDATE: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
 }
 
-pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
-  if let Ok(channels) = guild_id.channels(&ctx).await {
-    info!("updating AI chain has started");
-    ctx.set_activity(Activity::listening("Updating chain")).await;
-    ctx.idle().await;
+pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChannel>) {
+  info!("updating AI chain has started");
+  ctx.set_activity(Activity::listening("Updating chain")).await;
+  ctx.idle().await;
 
-    setm!{ cache_eng = CACHE_ENG.lock().await
-         , cache_ru = CACHE_RU.lock().await
-         , cache_eng_str = CACHE_ENG_STR.lock().await };
+  setm!{ cache_eng = CACHE_ENG.lock().await
+        , cache_ru = CACHE_RU.lock().await
+        , cache_eng_str = CACHE_ENG_STR.lock().await };
 
-    if !cache_eng.is_empty() || !cache_ru.is_empty() || !cache_eng_str.is_empty() {
-      *cache_eng = Chain::new();
-      *cache_ru = Chain::new();
-      cache_eng_str.clear();
-    }
-    let mut ru_messages_for_translation : Vec<String> = vec![];
-    let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
-    for (chan, _) in channels {
-      if let Some(c_name) = chan.name(&ctx).await {
-        if AI_LEARN.iter().any(|c| c == c_name.as_str()) {
-          if let Ok(messages) = chan.messages(&ctx, |r|
-            r.limit(CACHE_MAX)
-          ).await {
-            trace!("updating ai chain from {}", c_name.as_str());
-            let mut i : u32 = 0;
-            for mmm in messages {
-              if !mmm.author.bot {
-                let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
-                if !is_to_bot {
-                  let mut result_string = re.replace_all(&mmm.content.as_str(), "").to_string();
-                  result_string = result_string.replace(": ", "");
-                  let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
-                  result_string =
-                    content_safe(&ctx, &result_string, &ContentSafeOptions::default()
-                      .clean_user(false).clean_channel(true)
-                      .clean_everyone(true).clean_here(true)).await;
-                  let result = result_string.trim();
-                  if !result.is_empty() && !result.contains('$') && !is_http {
-                    if lang::is_russian(result) {
-                      cache_ru.feed_str(result);
-                      if i < TRANSLATION_MAX {
-                        ru_messages_for_translation.push(result.to_string());
-                        i += 1;
-                      }
-                    } else {
-                      cache_eng.feed_str(result);
-                      cache_eng_str.push(result.to_string());
+  if !cache_eng.is_empty() || !cache_ru.is_empty() || !cache_eng_str.is_empty() {
+    *cache_eng = Chain::new();
+    *cache_ru = Chain::new();
+    cache_eng_str.clear();
+  }
+  let mut ru_messages_for_translation : Vec<String> = vec![];
+  let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
+  for (chan, _) in channels {
+    if let Some(c_name) = chan.name(&ctx).await {
+      if AI_LEARN.iter().any(|c| c == c_name.as_str()) {
+        if let Ok(messages) = chan.messages(&ctx, |r|
+          r.limit(CACHE_MAX)
+        ).await {
+          trace!("updating ai chain from {}", c_name.as_str());
+          let mut i : u32 = 0;
+          for mmm in messages {
+            if !mmm.author.bot {
+              let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
+              if !is_to_bot {
+                let mut result_string = re.replace_all(&mmm.content.as_str(), "").to_string();
+                result_string = result_string.replace(": ", "");
+                let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
+                result_string =
+                  content_safe(&ctx, &result_string, &ContentSafeOptions::default()
+                    .clean_user(false).clean_channel(true)
+                    .clean_everyone(true).clean_here(true)).await;
+                let result = result_string.trim();
+                if !result.is_empty() && !result.contains('$') && !is_http {
+                  if lang::is_russian(result) {
+                    cache_ru.feed_str(result);
+                    if i < TRANSLATION_MAX {
+                      ru_messages_for_translation.push(result.to_string());
+                      i += 1;
                     }
+                  } else {
+                    cache_eng.feed_str(result);
+                    cache_eng_str.push(result.to_string());
                   }
                 }
               }
@@ -105,17 +106,17 @@ pub async fn update_cache(ctx: &Context, guild_id: &GuildId) {
         }
       }
     }
-    for confuse in CONFUSION_RU.iter() {
-      cache_ru.feed_str( confuse );
-    }
-    for confuse in CONFUSION.iter() {
-      cache_eng.feed_str( confuse );
-    }
-    // Translate cache_ru for big cache_eng_str
-    ctx.set_activity(Activity::listening("Translating cache")).await;
-    if let Ok(mut translated) = bert::ru2en_many(ru_messages_for_translation).await {
-      cache_eng_str.append(&mut translated);
-    }
+  }
+  for confuse in CONFUSION_RU.iter() {
+    cache_ru.feed_str( confuse );
+  }
+  for confuse in CONFUSION.iter() {
+    cache_eng.feed_str( confuse );
+  }
+  // Translate cache_ru for big cache_eng_str
+  ctx.set_activity(Activity::listening("Translating cache")).await;
+  if let Ok(mut translated) = bert::ru2en_many(ru_messages_for_translation).await {
+    cache_eng_str.append(&mut translated);
   }
   ctx.set_activity(Activity::listening("Update complete")).await;
   ctx.online().await;
@@ -127,7 +128,21 @@ pub async fn actualize_cache(ctx: &Context, guild_id: &GuildId) {
   let mut last_update = LAST_UPDATE.lock().await;
   let since_last_update : Duration = nao - *last_update;
   if since_last_update > Duration::hours(2) {
-    update_cache(ctx, guild_id).await;
+    let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
+    set!{ data       = ctx.data.read().await
+        , server_ids = data.get::<AllGuilds>().unwrap() };
+    let servers = server_ids.iter()
+                            .map(|x64| GuildId(*x64))
+                            .collect::<Vec<GuildId>>();
+    for server in servers {
+      if let Ok(serv_channels) = server.channels(ctx).await {
+        all_channels.extend(serv_channels);
+      }
+    }
+    if let Ok(channels) = guild_id.channels(ctx).await {
+      all_channels.extend(channels);
+    }
+    update_cache(ctx, &all_channels).await;
     *last_update = nao;
   }
 }

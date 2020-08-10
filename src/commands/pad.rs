@@ -84,6 +84,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(статистика)]
 async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   let mut args_msg = args.message();
   if args_msg.is_empty() {

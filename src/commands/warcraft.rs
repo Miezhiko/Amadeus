@@ -116,6 +116,7 @@ pub async fn tour(ctx: &Context, msg: &Message, on : DateTime<Utc>) -> CommandRe
 }
 
 #[command]
+#[aliases(вчера)]
 pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
   let yesterday : DateTime<Utc> = Utc::now() - Duration::days(1); 
   tour(ctx, msg, yesterday).await?;
@@ -126,6 +127,7 @@ pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(сегодня)]
 pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
   let today : DateTime<Utc> = Utc::now(); 
   tour_internal(ctx, msg, today, true).await?;
@@ -136,6 +138,7 @@ pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(завтра)]
 pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
   let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
   tour(ctx, msg, tomorrow).await?;

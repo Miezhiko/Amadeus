@@ -6,3 +6,4 @@
 - meta.rs commands file is too big, split it
 - Better loading progress
 - Show first hero on logs, maybe
+- TODO: allow all the channels for AI learn and allow, make exceptions instead, maybe (maybe, don't don't do it)

@@ -364,7 +364,7 @@ async fn cringe(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
-#[aliases("gif")]
+#[aliases(gif)]
 async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if args.is_empty() {
     msg.channel_id.say(ctx, "Please provide a search string after the command!").await?;

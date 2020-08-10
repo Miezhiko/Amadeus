@@ -17,6 +17,7 @@ use serenity::{
 };
 
 #[command]
+#[aliases(счёт, счет)]
 async fn score(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
     let (target, the_points) =
@@ -128,6 +129,7 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
+#[aliases(цитата)]
 async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
   if !msg.mentions.is_empty() && !(msg.mentions.len() == 1 && msg.mentions[0].bot) {
     let target = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
@@ -142,8 +144,10 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
         error!("Failed to quote {}, {:?}", target.name, why);
       }
     } else {
-      let out = format!("No idea about {}", target.name);
-      channel_message(ctx, msg, out.as_str()).await;
+      channel_message( ctx
+                     , msg
+                     , &format!("No idea about {}", target.name)
+                     ).await;
     }
   }
   Ok(())
@@ -151,6 +155,7 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[min_args(1)]
+#[aliases(борис)]
 async fn boris(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   channel_message( ctx
                  , msg

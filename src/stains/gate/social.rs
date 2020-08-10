@@ -53,8 +53,8 @@ pub async fn activate_social_skils(
             trace!("removing conversation {} with timeout", ktd);
             chat_context.remove(&ktd);
           }
+          update_current_season().await;
         }
-        update_current_season().await;
         /* every 30 minutes */
         tokio::time::delay_for(time::Duration::from_secs(30*60)).await;
       }

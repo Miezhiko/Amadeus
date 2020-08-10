@@ -1,8 +1,8 @@
 use crate::{
   types::{
-    common::PubCreds,
-    common::CoreGuild,
-    common::CoreGuilds,
+    common::{
+      PubCreds, CoreGuild, CoreGuilds, AllGuilds
+    },
     options::IOptions
   },
   stains::ai::chain,
@@ -230,6 +230,8 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
   core_guilds.insert(CoreGuild::Amadeus, opts.amadeus_guild);
   core_guilds.insert(CoreGuild::HEmo, opts.guild);
 
+  let all_guilds = &opts.servers;
+
   let std_framework =
     StandardFramework::new()
      .configure(|c| c
@@ -261,6 +263,7 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
     data.insert::<ReqwestClient>(Arc::new(Reqwest::new()));
     data.insert::<PubCreds>(Arc::new(creds));
     data.insert::<CoreGuilds>(Arc::new(core_guilds));
+    data.insert::<AllGuilds>(Arc::new(all_guilds.clone()));
   }
 
   // start listening for events by starting a single shard

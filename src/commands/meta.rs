@@ -32,6 +32,7 @@ impl TypeMapKey for ShardManagerContainer {
 }
 
 #[command]
+#[aliases(версия)]
 async fn version(ctx: &Context, msg: &Message) -> CommandResult {
   let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());
   if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
@@ -47,7 +48,7 @@ async fn version(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
-#[aliases(commands)]
+#[aliases(commands, помощь)]
 // Note: not fully sure what to do when that list will be too big to show (and how to test it)
 async fn help(ctx: &Context, msg: &Message) -> CommandResult {
   let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());

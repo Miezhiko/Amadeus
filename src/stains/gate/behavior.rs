@@ -3,7 +3,8 @@ use crate::{
   stains::{
     gate::social::activate_social_skils,
     gate::tracking::{ team_games::activate_games_tracking
-                    , streamers::activate_streamers_tracking },
+                    , streamers::activate_streamers_tracking
+                    , w3info::activate_w3info_tracking },
     ai::chain
   },
   commands::pad::update_current_season
@@ -75,6 +76,9 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
       activate_games_tracking(
         ctx, &hemo_channels
            , options
+           ).await;
+      activate_w3info_tracking(
+        ctx, &all_channels
            ).await;
 
       let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());

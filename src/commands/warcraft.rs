@@ -1,12 +1,7 @@
-use crate::{
-  common::{
-    msg::{ channel_message }
-  }
-};
-
 use serenity::{
   prelude::*,
-  model::channel::*,
+  model::{ channel::*
+         , id::ChannelId },
   framework::standard::{
     Args, CommandResult,
     macros::command
@@ -19,7 +14,12 @@ use tokio::task;
 use chrono::prelude::*;
 use chrono::{ Duration, Utc };
 
-async fn tour_internal(ctx: &Context, msg: &Message, on : DateTime<Utc>, passed_check : bool) -> CommandResult {
+pub async fn tour_internal( ctx: &Context
+                          , channel_id: &ChannelId
+                          , on : DateTime<Utc>
+                          , passed_check : bool
+                          , report_no_events: bool
+                          ) -> CommandResult {
   let reader = task::spawn_blocking(move || {
     let res = reqwest::blocking::get("https://warcraft3.info/ical-events").unwrap();
     let buf = BufReader::new(res);
@@ -97,22 +97,28 @@ async fn tour_internal(ctx: &Context, msg: &Message, on : DateTime<Utc>, passed_
   if !eventos.is_empty() {
     let date_str_x = on.format("%e-%b (%A)").to_string();
     let title = format!("Events on {}", date_str_x);
-    if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+    if let Err(why) = channel_id.send_message(&ctx, |m| m
       .embed(|e| e
         .title(title)
         .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
         .fields(eventos)
         .colour((255, 192, 203)))).await {
-      error!("Error sending help message: {:?}", why);
+      error!("Error sending w3info events: {:?}", why);
     }
   } else {
-    channel_message(&ctx, &msg,"I am sorry but I can't find anything at the momenet").await;
+    if report_no_events {
+      if let Err(why) = channel_id.send_message(&ctx, |m|
+        m.content("I am sorry but I can't find anything at the momenet")
+      ).await {
+        error!("Error sending w3info error: {:?}", why);
+      }
+    }
   }
   Ok(())
 }
 
 pub async fn tour(ctx: &Context, msg: &Message, on : DateTime<Utc>) -> CommandResult {
-  tour_internal(ctx, msg, on, false).await
+  tour_internal(ctx, &msg.channel_id, on, false, true).await
 }
 
 #[command]
@@ -130,7 +136,7 @@ pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
 #[aliases(сегодня)]
 pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
   let today : DateTime<Utc> = Utc::now(); 
-  tour_internal(ctx, msg, today, true).await?;
+  tour_internal(ctx, &msg.channel_id, today, true, true).await?;
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
@@ -152,7 +158,7 @@ pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
 pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
   let mut today : DateTime<Utc> = Utc::now();
   if today.weekday() == Weekday::Sun {
-    tour_internal(ctx, msg, today, true).await?;
+    tour_internal(ctx, &msg.channel_id, today, true, false).await?;
   } else {
     let is_saturday = today.weekday() == Weekday::Sat;
     if !is_saturday {
@@ -160,7 +166,7 @@ pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
         today = today + Duration::days(1); 
       }
     }
-    tour_internal(ctx, msg, today, is_saturday).await?;
+    tour_internal(ctx, &msg.channel_id, today, is_saturday, true).await?;
     let tomorrow : DateTime<Utc> = today + Duration::days(1); 
     tour(ctx, msg, tomorrow).await?;
   }

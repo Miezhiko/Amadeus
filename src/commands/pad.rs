@@ -116,7 +116,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     let mut at_list: Vec<(u32, String)> = Vec::new();
 
     for gmstat in game_mode_stats {
-      if gmstat.gameMode == 1 {
+      if gmstat.gameMode == 1 && league_info.is_empty() {
         set!{ lid         = gmstat.leagueOrder
             , league_str  = get_league(lid)
             , winrate     = (gmstat.winrate * 100.0).round() };

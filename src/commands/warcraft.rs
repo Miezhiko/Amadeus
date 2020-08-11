@@ -136,13 +136,11 @@ pub async fn tour_internal( ctx: &Context
         error!("Error sending w3info events: {:?}", why);
       }
     }
-  } else {
-    if report_no_events {
-      if let Err(why) = channel_id.send_message(&ctx, |m|
-        m.content("I am sorry but I can't find anything at the momenet")
-      ).await {
-        error!("Error sending w3info error: {:?}", why);
-      }
+  } else if report_no_events {
+    if let Err(why) = channel_id.send_message(&ctx, |m|
+      m.content("I am sorry but I can't find anything at the momenet")
+    ).await {
+      error!("Error sending w3info error: {:?}", why);
     }
   }
   Ok(())

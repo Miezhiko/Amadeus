@@ -106,8 +106,8 @@ pub async fn tour_internal( ctx: &Context
         for message in vec_msg {
           if message.is_own(ctx).await {
             for embed in message.embeds {
-              if let Some(title) = embed.title {
-                if title == title {
+              if let Some(e_title) = embed.title {
+                if title == e_title {
                   vec_id.push(message.id);
                   break;
                 }

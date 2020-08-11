@@ -48,7 +48,7 @@ async fn version(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
-#[aliases(commands, помощь)]
+#[aliases(commands)]
 // Note: not fully sure what to do when that list will be too big to show (and how to test it)
 async fn help(ctx: &Context, msg: &Message) -> CommandResult {
   let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
@@ -97,6 +97,61 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
 • **lineup** *<title> | map player map2 player2+player3* (title is optional)", false)
       .footer(|f| f.text(
 "As explained by Maho Hiyajo, Amadeus' capabilities of storing memory data make it possible to back-up the data of a person's memories. This could be useful, for example, to fight against memory loss."))
+      .colour((246, 111, 0)))).await {
+    error!("Error sending help message: {:?}", why);
+  }
+  Ok(())
+}
+
+#[command]
+#[aliases(помощь)]
+async fn help_ru(ctx: &Context, msg: &Message) -> CommandResult {
+  let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
+  if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+    .embed(|e| e
+      .title("Амадеус")
+      .url("https://github.com/Qeenon/Amadeus")
+      .image(
+"https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
+      .thumbnail(
+"https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
+      .description(
+"__**Система хранения памяти и искусственного интеллекта**__
+Используйте `~<команда>` или `@Amadeus <команда>`, заменити `<параметр>` для доп. параметров без `< >` (Вместо «параметра» может быть другое)")
+      .fields(vec![
+        ("Возраст", "18", true),
+        ("День рождение", "July 25th", true),
+        ("Группа крови", "A", true)
+        ])
+      .fields(vec![
+        ("Высота", "160 cm", true),
+        ("Вес", "45 kg", true),
+        ("Версия", version.as_str(), true)
+        ])
+      .field("Команды пользователя ",
+"• **Крестики_нолики** *<@пользователь>* *<N>*: Игра - камень, ножницы, бумага на очки
+• **Цитата** *<@пользователь>*: Случайная цитата *пользователя*
+• **Счёт** *<@пользователь>*: Посмотреть счёт *пользователя*
+• **top** *<N>*: Топ 10 *пользователей* по очкам
+• **give** *<@пользователь>* *<N>*: Дать give *user* your *N* points
+• **embed** *<Заголовок>* *<Описание>*: Создание выделенного сообщения
+• **qrcode** *<Сообщение>*: Создание QR кода
+• **urban** *<Термин>*: Опеределение термина взятого из «urban»
+• **gif** *<параметр>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy
+• **ru2en** *<text>*: переводчик, также **en2ru** **en2de** **en2fr** **de2en** **fr2en**"
+, false)
+      .field("music commands",
+"• **join**: Подключение к каналу (в котором вы находитесь)
+• **leave**: Выход из канала
+• **play** *<url>*: Включить радиопоток или музыку на YouTube
+• **repeat**: повтор последней *url*", false)
+      .field("warcraft commands",
+"• **Сегодня**: Показать турниры сегодня (Тоже самое для **Завтра**, **Вчера** or **weekends**)
+• **Статистика** *<Никнейм>*: Показывает статистику ладдера (Никнейм - battle tag или tag но без номера)(Без этого будет использовать имя дискорда)
+• **ongoing**: Матчи которые идут прямо сейчас в под ладдере
+• **lineup** *<title> | карта игроков карта2 игрок2+игрок3* (Название не обезательно)", false)
+      .footer(|f| f.text(
+"Как обьяснила Хияджо Махо, возможности Амадеуса по хранению данных в памяти позволяет создать резервную копию воспоминаний человека. Это может быть полезно, например, для борьбы с потерей памяти"))
       .colour((246, 111, 0)))).await {
     error!("Error sending help message: {:?}", why);
   }

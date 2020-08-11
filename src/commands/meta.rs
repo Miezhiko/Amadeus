@@ -82,7 +82,7 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
 • **embed** *<title>* *<description>*: create embed
 • **qrcode** *<something>*: creates QR code
 • **urban** *<thing>*: explains a thing
-• **gif** *<thing>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy
+• **gif** *<thing>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy, annoyed, omg, smile, ew, awkward, oops, lazy, hungry, srtessed, scared, bored, yes, no, bye, sorry, sleepy, wink, whatever
 • **ru2en** *<text>*: translation, also **en2ru** **en2de** **en2fr** **de2en** **fr2en**"
 , false)
       .field("music commands",
@@ -137,7 +137,7 @@ async fn help_ru(ctx: &Context, msg: &Message) -> CommandResult {
 • **embed** *<Заголовок>* *<Описание>*: Создание выделенного сообщения
 • **qrcode** *<Сообщение>*: Создание QR кода
 • **urban** *<Термин>*: Опеределение термина взятого из «urban»
-• **gif** *<параметр>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy
+• **gif** *<параметр>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy, annoyed, omg, smile, ew, awkward, oops, lazy, hungry, srtessed, scared, bored, yes, no, bye, sorry, sleepy, wink, whatever
 • **ru2en** *<text>*: переводчик, также **en2ru** **en2de** **en2fr** **de2en** **fr2en**"
 , false)
       .field("Музыкальные команды",

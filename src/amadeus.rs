@@ -91,7 +91,10 @@ struct Chat;
 struct Translate;
 
 #[group]
-#[commands(cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, gifsearch, lol, angry, dance, confused, shock, nervous, sad, happy)]
+#[commands(cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, gifsearch
+  , lol, angry, dance, confused, shock, nervous, sad, happy, annoyed, omg, smile
+  , ew, awkward, oops, lazy, hungry, srtessed, scared, bored, yes, no, bye, sorry
+  , sleepy, wink, whatever)]
 struct Images;
 
 #[group]

@@ -16,7 +16,7 @@ use std::{
   collections::HashMap
 };
 
-use chrono::{ DateTime, Utc };
+use chrono::{ Duration, DateTime, Utc };
 
 pub async fn activate_w3info_tracking(
                      ctx:       &Context
@@ -32,27 +32,7 @@ pub async fn activate_w3info_tracking(
   }
 
   if !channels_to_process.is_empty() {
-
-    // Delete today news, today news will be reposted
     let today : DateTime<Utc> = Utc::now();
-    let today_date = today.date();
-    for shannel in &channels_to_process {
-      if let Ok(vec_msg) = shannel.messages(&ctx, |g| g.limit(5)).await {
-        let mut vec_id = Vec::new();
-        for message in vec_msg {
-          if message.timestamp.date() == today_date
-          && message.is_own(ctx).await {
-            vec_id.push(message.id);
-          }
-        }
-        if !vec_id.is_empty() {
-          match shannel.delete_messages(&ctx, vec_id.as_slice()).await {
-            Ok(nothing)  => nothing,
-            Err(err) => warn!("Failed to clean live messages {}", err),
-          };
-        }
-      }
-    }
 
     let ctx_clone = ctx.clone();
     let thread_channels = channels_to_process.iter()
@@ -64,9 +44,16 @@ pub async fn activate_w3info_tracking(
           if let Err(why) =
             warcraft::tour_internal( &ctx_clone
                                    , &chan, today
-                                   , true, false
+                                   , false, false
                                    ).await {
-            error!("Failed to post tour events {:?}", why);
+            error!("Failed to post today tour events {:?}", why);
+          }
+          if let Err(why) =
+            warcraft::tour_internal( &ctx_clone
+                                   , &chan, today + Duration::days(1)
+                                   , false, false
+                                   ).await {
+            error!("Failed to post tomorrow tour events {:?}", why);
           }
         }
         // check every day

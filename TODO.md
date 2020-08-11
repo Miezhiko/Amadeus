@@ -9,3 +9,4 @@
 - Automate tournaments information posting (maybe)
 - Add links to finished games (maybe)
 - Fix situation when both players from team play
+- Reply if mentioned (maybe)

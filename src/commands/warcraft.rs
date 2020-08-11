@@ -16,8 +16,8 @@ use chrono::{ Duration, Utc };
 
 pub async fn tour_internal( ctx: &Context
                           , channel_id: &ChannelId
-                          , on : DateTime<Utc>
-                          , passed_check : bool
+                          , on: DateTime<Utc>
+                          , passed_check: bool
                           , report_no_events: bool
                           ) -> CommandResult {
   let reader = task::spawn_blocking(move || {
@@ -97,6 +97,33 @@ pub async fn tour_internal( ctx: &Context
   if !eventos.is_empty() {
     let date_str_x = on.format("%e-%b (%A)").to_string();
     let title = format!("Events on {}", date_str_x);
+
+    // So we have title now, let check if it's posted already or not
+    // In case if that was posted, repost it with updated information
+    if !passed_check && !report_no_events {
+      if let Ok(vec_msg) = channel_id.messages(&ctx, |g| g.limit(10)).await {
+        let mut vec_id = Vec::new();
+        for message in vec_msg {
+          if message.is_own(ctx).await {
+            for embed in message.embeds {
+              if let Some(title) = embed.title {
+                if title == title {
+                  vec_id.push(message.id);
+                  break;
+                }
+              }
+            }
+          }
+        }
+        if !vec_id.is_empty() {
+          match channel_id.delete_messages(&ctx, vec_id.as_slice()).await {
+            Ok(nothing)  => nothing,
+            Err(err) => warn!("Failed to clean tour announces {}", err),
+          };
+        }
+      }
+    }
+
     if let Err(why) = channel_id.send_message(&ctx, |m| m
       .embed(|e| e
         .title(title)

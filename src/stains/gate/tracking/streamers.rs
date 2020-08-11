@@ -51,7 +51,7 @@ pub async fn activate_streamers_tracking(
 
     // Delete streams from live-streams channel (if some)
     // TODO: change 1 to 50 or something when it will work for long enough time
-    if let Ok(vec_msg) = shannel.messages(&ctx, |g| g.limit(10)).await {
+    if let Ok(vec_msg) = shannel.messages(&ctx, |g| g.limit(15)).await {
       let mut vec_id = Vec::new();
       for message in vec_msg {
         for embed in message.embeds {
@@ -116,8 +116,8 @@ pub async fn activate_streamers_tracking(
                         let pic = twd.thumbnail_url.replace("{width}", "800")
                                                     .replace("{height}", "450");
                         if twd.type_string == "live" {
-                          let viewers = format!("viewers: {}", twd.viewer_count);
-                          additional_fields.push(("Live on twitch", viewers, true));
+                          let t_d = format!("{}\nviewers: {}", twd.title, twd.viewer_count);
+                          additional_fields.push(("Live on twitch", t_d, true));
                           title       = twd.title.clone();
                           image       = Some(pic);
                           em_url      = Some(url);
@@ -139,11 +139,14 @@ pub async fn activate_streamers_tracking(
                       if ggdata.status == "Live" {
                         let url = format!("https://goodgame.ru/channel/{}", ggru.as_str());
                         if twitch_live {
+                          let viewers = format!( "viewers: {}\nin chat: {}"
+                                               , ggdata.viewers, ggdata.users_in_chat );
                           let titurl =
-                            format!("{}\n{}", ggdata.channel.title.as_str(), url);
+                            format!("{}\n{}\n{}", ggdata.channel.title.as_str(), url, viewers);
                           additional_fields.push(("Live on ggru", titurl, true));
                         } else {
-                          let viewers = format!("viewers: {}\nin chat: {}", ggdata.viewers, ggdata.users_in_chat);
+                          let viewers = format!( "viewers: {}\nin chat: {}"
+                                               , ggdata.viewers, ggdata.users_in_chat );
                           additional_fields.push(("Live on ggru", viewers, true));
                           title  = ggdata.channel.title.clone();
                           image  = Some(ggdata.channel.thumb.clone());

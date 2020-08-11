@@ -32,6 +32,7 @@ async fn bert_translate(ctx: &Context, text: String, lang: Language)
         Ok(translation.clone())
       }
     }).await.unwrap();
+  ctx.set_activity(Activity::playing("Loxing")).await;
   ctx.online().await;
   result
 }
@@ -43,21 +44,34 @@ async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
+  let fields = vec![
+    ("Text", format!("{}\n", text), false),
+  ];
+  let mmm = msg.channel_id.send_message(ctx, |m|
+            m.embed(|e|
+             e.title("Translating From **English** to **Russian**...")
+              .fields(fields)
+              .author(|a| a.icon_url(&msg.author.face())
+                           .name(msg.author.name.as_str())
+                      )
+            )
+          ).await;
   match bert_translate(ctx, text.clone(), Language::EnglishToRussian).await {
     Ok(out) => {
       let fields = vec![
-        ("Original Text", format!("{}\n", text), false),
+        ("Text", format!("{}\n", text), false),
         ("Translation", out, false)
       ];
-      msg.channel_id.send_message(ctx, |m| {
-        m.content("From **English** to **Russian**");
-        m.embed(|e| {
-          e.fields(fields)
-           .author(|a| a.icon_url(&msg.author.face())
-                        .name(msg.author.name.as_str())
-                  )
-        })
-      }).await?;
+      if let Ok(mut mm) = mmm {
+        mm.edit(ctx, |m|
+          m.embed(|e|
+            e.fields(fields)
+            .author(|a| a.icon_url(&msg.author.face())
+                         .name(msg.author.name.as_str())
+                    )
+          )
+        ).await?;
+      }
     },
     Err(why) => {
       error!("Translation failed: {:?}", why);
@@ -73,21 +87,34 @@ async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
+  let fields = vec![
+    ("Text", format!("{}\n", text), false),
+  ];
+  let mmm = msg.channel_id.send_message(ctx, |m|
+            m.embed(|e|
+             e.title("Translating From **Russian** to **English**...")
+              .fields(fields)
+              .author(|a| a.icon_url(&msg.author.face())
+                           .name(msg.author.name.as_str())
+                      )
+            )
+          ).await;
   match bert_translate(ctx, text.clone(), Language::RussianToEnglish).await {
     Ok(out) => {
       let fields = vec![
-        ("Original Text", format!("{}\n", text), false),
+        ("Text", format!("{}\n", text), false),
         ("Translation", out, false)
       ];
-      msg.channel_id.send_message(ctx, |m| {
-        m.content("From **Russian** to **English**");
-        m.embed(|e| {
-          e.fields(fields)
-           .author(|a| a.icon_url(&msg.author.face())
-                        .name(msg.author.name.as_str())
-                  )
-        })
-      }).await?;
+      if let Ok(mut mm) = mmm {
+        mm.edit(ctx, |m|
+          m.embed(|e|
+            e.fields(fields)
+            .author(|a| a.icon_url(&msg.author.face())
+                         .name(msg.author.name.as_str())
+                    )
+          )
+        ).await?;
+      }
     },
     Err(why) => {
       error!("Translation failed: {:?}", why);
@@ -103,21 +130,34 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
+  let fields = vec![
+    ("Text", format!("{}\n", text), false),
+  ];
+  let mmm = msg.channel_id.send_message(ctx, |m|
+            m.embed(|e|
+             e.title("Translating From **English** to **German**...")
+              .fields(fields)
+              .author(|a| a.icon_url(&msg.author.face())
+                           .name(msg.author.name.as_str())
+                      )
+            )
+          ).await;
   match bert_translate(ctx, text.clone(), Language::EnglishToGerman).await {
     Ok(out) => {
       let fields = vec![
-        ("Original Text", format!("{}\n", text), false),
+        ("Text", format!("{}\n", text), false),
         ("Translation", out, false)
       ];
-      msg.channel_id.send_message(ctx, |m| {
-        m.content("From **English** to **German**");
-        m.embed(|e| {
-          e.fields(fields)
-           .author(|a| a.icon_url(&msg.author.face())
-                        .name(msg.author.name.as_str())
-                  )
-        })
-      }).await?;
+      if let Ok(mut mm) = mmm {
+        mm.edit(ctx, |m|
+          m.embed(|e|
+            e.fields(fields)
+            .author(|a| a.icon_url(&msg.author.face())
+                         .name(msg.author.name.as_str())
+                    )
+          )
+        ).await?;
+      }
     },
     Err(why) => {
       error!("Translation failed: {:?}", why);
@@ -133,21 +173,34 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
+  let fields = vec![
+    ("Text", format!("{}\n", text), false),
+  ];
+  let mmm = msg.channel_id.send_message(ctx, |m|
+            m.embed(|e|
+             e.title("Translating From **German** to **English**...")
+              .fields(fields)
+              .author(|a| a.icon_url(&msg.author.face())
+                           .name(msg.author.name.as_str())
+                      )
+            )
+          ).await;
   match bert_translate(ctx, text.clone(), Language::GermanToEnglish).await {
     Ok(out) => {
       let fields = vec![
-        ("Original Text", format!("{}\n", text), false),
+        ("Text", format!("{}\n", text), false),
         ("Translation", out, false)
       ];
-      msg.channel_id.send_message(ctx, |m| {
-        m.content("From **German** to **English**");
-        m.embed(|e| {
-          e.fields(fields)
-           .author(|a| a.icon_url(&msg.author.face())
-                        .name(msg.author.name.as_str())
-                  )
-        })
-      }).await?;
+      if let Ok(mut mm) = mmm {
+        mm.edit(ctx, |m|
+          m.embed(|e|
+            e.fields(fields)
+            .author(|a| a.icon_url(&msg.author.face())
+                         .name(msg.author.name.as_str())
+                    )
+          )
+        ).await?;
+      }
     },
     Err(why) => {
       error!("Translation failed: {:?}", why);
@@ -163,21 +216,34 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
+  let fields = vec![
+    ("Text", format!("{}\n", text), false),
+  ];
+  let mmm = msg.channel_id.send_message(ctx, |m|
+            m.embed(|e|
+             e.title("Translating From **English** to **French**...")
+              .fields(fields)
+              .author(|a| a.icon_url(&msg.author.face())
+                           .name(msg.author.name.as_str())
+                      )
+            )
+          ).await;
   match bert_translate(ctx, text.clone(), Language::EnglishToFrench).await {
     Ok(out) => {
       let fields = vec![
-        ("Original Text", format!("{}\n", text), false),
+        ("Text", format!("{}\n", text), false),
         ("Translation", out, false)
       ];
-      msg.channel_id.send_message(ctx, |m| {
-        m.content("From **English** to **French**");
-        m.embed(|e| {
-          e.fields(fields)
-           .author(|a| a.icon_url(&msg.author.face())
-                        .name(msg.author.name.as_str())
-                  )
-        })
-      }).await?;
+      if let Ok(mut mm) = mmm {
+        mm.edit(ctx, |m|
+          m.embed(|e|
+            e.fields(fields)
+            .author(|a| a.icon_url(&msg.author.face())
+                         .name(msg.author.name.as_str())
+                    )
+          )
+        ).await?;
+      }
     },
     Err(why) => {
       error!("Translation failed: {:?}", why);
@@ -193,21 +259,34 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
+  let fields = vec![
+    ("Text", format!("{}\n", text), false),
+  ];
+  let mmm = msg.channel_id.send_message(ctx, |m|
+            m.embed(|e|
+             e.title("Translating From **French** to **English**...")
+              .fields(fields)
+              .author(|a| a.icon_url(&msg.author.face())
+                           .name(msg.author.name.as_str())
+                      )
+            )
+          ).await;
   match bert_translate(ctx, text.clone(), Language::FrenchToEnglish).await {
     Ok(out) => {
       let fields = vec![
-        ("Original Text", format!("{}\n", text), false),
+        ("Text", format!("{}\n", text), false),
         ("Translation", out, false)
       ];
-      msg.channel_id.send_message(ctx, |m| {
-        m.content("From **French** to **English**");
-        m.embed(|e| {
-          e.fields(fields)
-           .author(|a| a.icon_url(&msg.author.face())
-                        .name(msg.author.name.as_str())
-                  )
-        })
-      }).await?;
+      if let Ok(mut mm) = mmm {
+        mm.edit(ctx, |m|
+          m.embed(|e|
+            e.fields(fields)
+            .author(|a| a.icon_url(&msg.author.face())
+                         .name(msg.author.name.as_str())
+                    )
+          )
+        ).await?;
+      }
     },
     Err(why) => {
       error!("Translation failed: {:?}", why);

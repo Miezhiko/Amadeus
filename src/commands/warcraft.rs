@@ -100,37 +100,41 @@ pub async fn tour_internal( ctx: &Context
 
     // So we have title now, let check if it's posted already or not
     // In case if that was posted, repost it with updated information
+    // (or alternatively don't post new to not annoy)
+    let mut do_replace = true;
     if !passed_check && !report_no_events {
       if let Ok(vec_msg) = channel_id.messages(&ctx, |g| g.limit(10)).await {
-        let mut vec_id = Vec::new();
+        // let mut vec_id = Vec::new();
         for message in vec_msg {
           if message.is_own(ctx).await {
             for embed in message.embeds {
               if let Some(e_title) = embed.title {
                 if title == e_title {
-                  vec_id.push(message.id);
+                  do_replace = false;
+                  // vec_id.push(message.id);
                   break;
                 }
               }
             }
           }
-        }
+        }/*
         if !vec_id.is_empty() {
           match channel_id.delete_messages(&ctx, vec_id.as_slice()).await {
             Ok(nothing)  => nothing,
             Err(err) => warn!("Failed to clean tour announces {}", err),
           };
-        }
+        }*/
       }
     }
-
-    if let Err(why) = channel_id.send_message(&ctx, |m| m
-      .embed(|e| e
-        .title(title)
-        .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
-        .fields(eventos)
-        .colour((255, 192, 203)))).await {
-      error!("Error sending w3info events: {:?}", why);
+    if do_replace {
+      if let Err(why) = channel_id.send_message(&ctx, |m| m
+        .embed(|e| e
+          .title(title)
+          .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
+          .fields(eventos)
+          .colour((255, 192, 203)))).await {
+        error!("Error sending w3info events: {:?}", why);
+      }
     }
   } else {
     if report_no_events {

@@ -10,4 +10,3 @@
 - Add links to finished games (maybe)
 - Fix situation when both players from team play
 - Reply if mentioned (maybe)
-- For translation use editing

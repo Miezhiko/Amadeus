@@ -26,6 +26,7 @@ async fn check_match( matchid_lol: &str
                     , btag: &str
                     ) -> Option<FinishedGame> {
   let mut are_you_winning = false;
+
   let mut matchid_s : String = String::new();
   if let Ok(wtf) = reqwest::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20").await {
     if let Ok(going) = wtf.json::<Going>().await {

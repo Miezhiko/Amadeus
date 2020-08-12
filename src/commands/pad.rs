@@ -47,12 +47,13 @@ fn current_season() -> String {
 }
 
 #[command]
+//TODO: implement pagination for it
 async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let url = format!("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&gameMode={}", current_season());
-  let res = reqwest::get(url.as_str()).await?;
+  let url = "https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&gameMode=1";
+  let res = reqwest::get(url).await?;
   let going : Going = res.json().await?;
   if !going.matches.is_empty() {
     let footer = format!("Requested by {}", msg.author.name);

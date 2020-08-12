@@ -114,9 +114,10 @@ pub async fn activate_streamers_tracking(
                         let twd = &t.data[0];
                         let url = format!("https://www.twitch.tv/{}", twd.user_name);
                         let pic = twd.thumbnail_url.replace("{width}", "800")
-                                                    .replace("{height}", "450");
+                                                   .replace("{height}", "450");
                         if twd.type_string == "live" {
-                          let t_d = format!("{}\nviewers: {}", twd.title, twd.viewer_count);
+                          let t_d = format!("{}\n{}\nviewers: {}\nstarted: {}",
+                                     twd.title, url, twd.viewer_count, twd.started_at);
                           additional_fields.push(("Live on twitch", t_d, true));
                           title       = twd.title.clone();
                           image       = Some(pic);
@@ -163,7 +164,13 @@ pub async fn activate_streamers_tracking(
             if !additional_fields.is_empty() {
               if let Some(track) = streams_lock.get(&playa.discord) {
                 if let Ok(mut msg) = ctx_clone.http.get_message(*sh_deref.as_u64(), track.tracking_msg_id).await {
-                  let footer = format!("Passed: {} min", track.passed_time);
+                  let footer = if track.passed_time > 60 {
+                      let hours: u32 = track.passed_time / 60;
+                      let minutes = track.passed_time % hours;
+                      format!("Passed: {} hours {} min", hours, minutes)
+                    } else {
+                      format!("Passed: {} min", track.passed_time)
+                    };
                   let mut fields = Vec::new();
                   let mut img = None;
                   let mut url = None;
@@ -260,7 +267,13 @@ pub async fn activate_streamers_tracking(
               }
             } else if let Some(track) = streams_lock.get(&playa.discord) {
               if let Ok(mut msg) = ctx_clone.http.get_message(*sh_deref.as_u64(), track.tracking_msg_id).await {
-                let footer = format!("Passed: {} min", track.passed_time);
+                let footer = if track.passed_time > 60 {
+                    let hours: u32 = track.passed_time / 60;
+                    let minutes = track.passed_time % hours;
+                    format!("Passed: {} hours {} min", hours, minutes)
+                  } else {
+                    format!("Passed: {} min", track.passed_time)
+                  };
                 let mut fields = Vec::new();
                 let mut img = None;
                 let mut url = None;

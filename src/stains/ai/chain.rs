@@ -39,8 +39,9 @@ use tokio::sync::{ Mutex, MutexGuard };
 // But I'm not sure what's maximal supported by discord limit
 static CACHE_MAX : u64 = 15_666;
 
-// Note: machine based translation is very hard without cuda
-static TRANSLATION_MAX : u32 = 5;
+// Note: machine learning based translation is very hard without cuda
+// even 5 from each channel can take hours on high server load
+static TRANSLATION_MAX : u32 = 2;
 
 // Note: use 66 for low activity/comfortable behavior
 pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(50);
@@ -58,8 +59,8 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
   ctx.idle().await;
 
   setm!{ cache_eng = CACHE_ENG.lock().await
-        , cache_ru = CACHE_RU.lock().await
-        , cache_eng_str = CACHE_ENG_STR.lock().await };
+       , cache_ru = CACHE_RU.lock().await
+       , cache_eng_str = CACHE_ENG_STR.lock().await };
 
   if !cache_eng.is_empty() || !cache_ru.is_empty() || !cache_eng_str.is_empty() {
     *cache_eng = Chain::new();

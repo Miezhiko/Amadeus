@@ -37,14 +37,15 @@ use tokio::sync::{ Mutex, MutexGuard };
 
 // Note: 15000 is known to be safe value
 // But I'm not sure what's maximal supported by discord limit
-static CACHE_MAX : u64 = 15_666;
+static CACHE_MAX: u64 = 15_666;
 
 // Note: machine learning based translation is very hard without cuda
 // even 5 from each channel can take hours on high server load
-static TRANSLATION_MAX : u32 = 2;
+// but it's sometimes and I can't understand why exactly it's happening
+static TRANSLATION_MAX: u32 = 10;
 
 // Note: use 66 for low activity/comfortable behavior
-pub static ACTIVITY_LEVEL : AtomicU32 = AtomicU32::new(50);
+pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(50);
 
 lazy_static! {
   pub static ref CACHE_ENG: Mutex<Chain<String>>    = Mutex::new(Chain::new());
@@ -115,13 +116,18 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
     cache_eng.feed_str( confuse );
   }
   // Translate cache_ru for big cache_eng_str
+  // It's long operation so we run it 5 seonds later as separated task
   ctx.set_activity(Activity::listening("Translating cache")).await;
-  if let Ok(mut translated) = bert::ru2en_many(ru_messages_for_translation).await {
-    cache_eng_str.append(&mut translated);
-  }
-  ctx.set_activity(Activity::listening("Update complete")).await;
+  let ctx_clone = ctx.clone();
+  tokio::spawn(async move {
+    tokio::time::delay_for(std::time::Duration::from_secs(5)).await;
+    if let Ok(mut translated) = bert::ru2en_many(ru_messages_for_translation).await {
+      cache_eng_str.append(&mut translated);
+    }
+    ctx_clone.set_activity(Activity::listening("Update complete")).await;
+  });
   ctx.online().await;
-  info!("updating cache complete");
+  info!("Updating cache complete");
 }
 
 pub async fn actualize_cache(ctx: &Context, guild_id: &GuildId) {

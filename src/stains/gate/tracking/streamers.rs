@@ -166,7 +166,7 @@ pub async fn activate_streamers_tracking(
                 if let Ok(mut msg) = ctx_clone.http.get_message(*sh_deref.as_u64(), track.tracking_msg_id).await {
                   let footer = if track.passed_time > 60 {
                       let hours: u32 = track.passed_time / 60;
-                      let minutes = track.passed_time % hours;
+                      let minutes = track.passed_time % 60;
                       format!("Passed: {} hours {} min", hours, minutes)
                     } else {
                       format!("Passed: {} min", track.passed_time)
@@ -269,7 +269,7 @@ pub async fn activate_streamers_tracking(
               if let Ok(mut msg) = ctx_clone.http.get_message(*sh_deref.as_u64(), track.tracking_msg_id).await {
                 let footer = if track.passed_time > 60 {
                     let hours: u32 = track.passed_time / 60;
-                    let minutes = track.passed_time % hours;
+                    let minutes = track.passed_time % 60;
                     format!("Passed: {} hours {} min", hours, minutes)
                   } else {
                     format!("Passed: {} min", track.passed_time)

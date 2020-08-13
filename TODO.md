@@ -4,7 +4,6 @@
 - Store AI chain somewhere
 - Function to get message content for chain
 - meta.rs commands file is too big, split it
-- Better loading progress
 - Automate tournaments information posting (maybe)
 - Add links to finished games (maybe)
 - Fix situation when both players from team play

@@ -1,7 +1,7 @@
 use serenity::{
   prelude::*,
   model::{ channel::*
-         , id::ChannelId },
+         , id::ChannelId, id::MessageId },
   framework::standard::{
     Args, CommandResult,
     macros::command
@@ -99,41 +99,59 @@ pub async fn tour_internal( ctx: &Context
     let title = format!("Events on {}", date_str_x);
 
     // So we have title now, let check if it's posted already or not
-    // In case if that was posted, repost it with updated information
-    // (or alternatively don't post new to not annoy)
-    let mut do_replace = true;
+    // In case if that was posted, check if we need to update it
+    // Then finally update if there is new information
+    let mut edit_old_post = false;
+    let mut do_nothing = false;
+    let mut post_to_edit = MessageId( 0 );
     if !passed_check && !report_no_events {
       if let Ok(vec_msg) = channel_id.messages(&ctx, |g| g.limit(10)).await {
-        // let mut vec_id = Vec::new();
         for message in vec_msg {
           if message.is_own(ctx).await {
             for embed in message.embeds {
               if let Some(e_title) = embed.title {
                 if title == e_title {
-                  do_replace = false;
-                  // vec_id.push(message.id);
+                  if embed.fields.len() == eventos.len() {
+                    do_nothing = true;
+                    for (i, (_,c,_)) in eventos.iter().enumerate() {
+                      let msg_content = &embed.fields[i].value;
+                      if c != msg_content {
+                        do_nothing = false;
+                      }
+                    }
+                  }
+                  if !do_nothing {
+                    edit_old_post = true;
+                    post_to_edit = message.id;
+                  }
                   break;
                 }
               }
             }
           }
-        }/*
-        if !vec_id.is_empty() {
-          match channel_id.delete_messages(&ctx, vec_id.as_slice()).await {
-            Ok(nothing)  => nothing,
-            Err(err) => warn!("Failed to clean tour announces {}", err),
-          };
-        }*/
+        }
       }
     }
-    if do_replace {
+    if !edit_old_post {
       if let Err(why) = channel_id.send_message(&ctx, |m| m
         .embed(|e| e
           .title(title)
           .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
           .fields(eventos)
-          .colour((255, 192, 203)))).await {
+          .colour((240, 160, 203)))).await {
         error!("Error sending w3info events: {:?}", why);
+      }
+    } else {
+      if let Ok(mut msg) = ctx.http.get_message( *channel_id.as_u64()
+                                               , *post_to_edit.as_u64() ).await {
+        if let Err(why) = msg.edit(&ctx, |m| m
+          .embed(|e| e
+            .title(title)
+            .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
+            .fields(eventos)
+            .colour((255, 192, 203)))).await {
+          error!("Error editing w3info event: {:?}", why);
+        }
       }
     }
   } else if report_no_events {

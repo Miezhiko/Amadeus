@@ -266,7 +266,8 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[derive(Default, Debug)]
 struct SysInfo {
   pub shard_latency: String,
-  pub memory: String
+  pub memory: String,
+  pub db_size: String
 }
 
 async fn get_system_info(ctx: &Context) -> SysInfo {
@@ -303,6 +304,21 @@ async fn get_system_info(ctx: &Context) -> SysInfo {
   } else {
     error!("Failed to parse mem stdout");
   }
+  let dbs_stdout = Command::new("sh")
+          .arg("-c")
+          .arg("du tree.lusf | cut -f 1")
+          .output()
+          .await
+          .expect("failed to execute process");
+  if let Ok(db_size_str) = &String::from_utf8(dbs_stdout.stdout) {
+    let db_kb = db_size_str.parse::<f32>().unwrap();
+    sys_info.db_size = if db_kb >= 1024.0 {
+      let db_mb = db_kb / 1024f32;
+      format!("{:.3} MB", db_mb)
+      } else { format!("{:.3} KB", db_kb) };
+  } else {
+    error!("Failed to parse mem stdout");
+  }
   sys_info
 }
 
@@ -328,8 +344,9 @@ Servers:  {}
 Channels: {}
 Users:    {}
 Memory:   {}
+Database: {}
 Latency:  {}
-```", guild_count, channel_count, user_count, sys_info.memory, sys_info.shard_latency));
+```", guild_count, channel_count, user_count, sys_info.memory, sys_info.db_size, sys_info.shard_latency));
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
   eb.footer(|f| f.text(footer));
 

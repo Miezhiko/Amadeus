@@ -98,6 +98,7 @@ pub async fn tour_internal( ctx: &Context
     let date_str_x = on.format("%e-%b (%A)").to_string();
     let title = format!("Events on {}", date_str_x);
 
+    // TODO: recode to Option<Message>
     // So we have title now, let check if it's posted already or not
     // In case if that was posted, check if we need to update it
     // Then finally update if there is new information
@@ -133,13 +134,15 @@ pub async fn tour_internal( ctx: &Context
       }
     }
     if !edit_old_post {
-      if let Err(why) = channel_id.send_message(&ctx, |m| m
-        .embed(|e| e
-          .title(title)
-          .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
-          .fields(eventos)
-          .colour((240, 160, 203)))).await {
-        error!("Error sending w3info events: {:?}", why);
+      if !do_nothing {
+        if let Err(why) = channel_id.send_message(&ctx, |m| m
+          .embed(|e| e
+            .title(title)
+            .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
+            .fields(eventos)
+            .colour((240, 160, 203)))).await {
+          error!("Error sending w3info events: {:?}", why);
+        }
       }
     } else {
       if let Ok(mut msg) = ctx.http.get_message( *channel_id.as_u64()

@@ -68,6 +68,9 @@ async fn check_match( matchid_lol: &str
             }
             format!("__**{}**__ **+{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
           } else {
+            if m.teams[1].players[0].battleTag == btag {
+              are_you_winning = true;
+            }
             format!("__*{}*__ **{}**", m.teams[0].players[0].name, m.teams[1].players[0].mmrGain)
           };
           let player2 = if m.teams[1].players[0].won {
@@ -87,6 +90,9 @@ async fn check_match( matchid_lol: &str
           if m.teams[0].won
           && ( m.teams[0].players[0].battleTag == btag
             || m.teams[0].players[1].battleTag == btag ) {
+            are_you_winning = true;
+          } else if m.teams[1].players[0].battleTag == btag
+                 || m.teams[1].players[1].battleTag == btag {
             are_you_winning = true;
           }
           if m.gameMode == 6 {
@@ -130,21 +136,20 @@ async fn check_match( matchid_lol: &str
                   , p2.unitScore.unitsKilled
                   , p2.resourceScore.goldCollected
                   , p2.heroScore.expGained);
+              let player_scores =
+                if btag == s1 {
+                  &md.playerScores[0]
+                } else {
+                  &md.playerScores[1]
+                };
               let scores = if m.teams[0].players[0].battleTag == s1 {
                   Some((s1,s2,s3,s4))
                 } else {
                   Some((s2,s1,s4,s3))
                 };
-              // Not fully sure to display winner hero or team player hero?
-              let winner_scores =
-                if m.teams[0].won {
-                  &md.playerScores[0]
-                } else {
-                  &md.playerScores[1]
-                };
-              if !winner_scores.heroes.is_empty() {
+              if !player_scores.heroes.is_empty() {
                 maybe_hero_png = Some(get_hero_png(
-                    winner_scores.heroes[0].icon.as_str()
+                  player_scores.heroes[0].icon.as_str()
                   )
                 );
               }
@@ -155,6 +160,23 @@ async fn check_match( matchid_lol: &str
                 , additional_fields: scores
                 , hero_png: maybe_hero_png
                 });
+            } else if (m.gameMode == 6 || m.gameMode == 2) && md.playerScores.len() > 3 {
+              let player_scores =
+                if btag == &md.playerScores[0].battleTag {
+                  &md.playerScores[0]
+                } else if btag == &md.playerScores[1].battleTag {
+                  &md.playerScores[1]
+                } else if btag == &md.playerScores[2].battleTag {
+                  &md.playerScores[2]
+                } else {
+                  &md.playerScores[3]
+                };
+              if !player_scores.heroes.is_empty() {
+                maybe_hero_png = Some(get_hero_png(
+                  player_scores.heroes[0].icon.as_str()
+                  )
+                );
+              }
             }
             return Some(FinishedGame
               { desc: mstr

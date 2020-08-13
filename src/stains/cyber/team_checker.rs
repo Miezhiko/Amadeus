@@ -6,7 +6,7 @@ use crate::{
   collections::team::teammates,
   common::points,
   stains::cyber::{
-    utils::{ get_race2, get_map }
+    utils::{ get_race2, get_map, get_hero_png }
   }
 };
 
@@ -113,6 +113,7 @@ async fn check_match( matchid_lol: &str
         };
         match mstr_o {
           Some(mstr) => {
+            let mut maybe_hero_png = None;
             let duration_in_minutes = m.durationInSeconds / 60;
             if md.playerScores.len() > 1 && m.gameMode == 1 {
               set! { p1 = &md.playerScores[0]
@@ -134,11 +135,25 @@ async fn check_match( matchid_lol: &str
                 } else {
                   Some((s2,s1,s4,s3))
                 };
+              // Not fully sure to display winner hero or team player hero?
+              let winner_scores =
+                if m.teams[0].won {
+                  &md.playerScores[0]
+                } else {
+                  &md.playerScores[1]
+                };
+              if !winner_scores.heroes.is_empty() {
+                maybe_hero_png = Some(get_hero_png(
+                    winner_scores.heroes[0].icon.as_str()
+                  )
+                );
+              }
               return Some(FinishedGame
                 { desc: mstr
                 , passed_time: duration_in_minutes
                 , win: are_you_winning
                 , additional_fields: scores
+                , hero_png: maybe_hero_png
                 });
             }
             return Some(FinishedGame
@@ -146,6 +161,7 @@ async fn check_match( matchid_lol: &str
               , passed_time: duration_in_minutes
               , win: are_you_winning
               , additional_fields: None
+              , hero_png: maybe_hero_png
               });
           }, None => {
             return None;
@@ -401,6 +417,9 @@ pub async fn check<'a>( ctx: &Context
                       }
                       if let Some(some_url) = url {
                         e = e.url(some_url);
+                      }
+                      if let Some(hero) = &fgame.hero_png {
+                        e.thumbnail(hero);
                       }
                       e
                     })

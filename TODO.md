@@ -5,7 +5,6 @@
 - Function to get message content for chain
 - meta.rs commands file is too big, split it
 - Better loading progress
-- Show first hero on logs, maybe
 - Automate tournaments information posting (maybe)
 - Add links to finished games (maybe)
 - Fix situation when both players from team play

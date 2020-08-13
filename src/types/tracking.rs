@@ -6,7 +6,8 @@ pub struct FinishedGame {
   pub desc: String,
   pub passed_time: u32,
   pub win: bool,
-  pub additional_fields: Option<(String, String, String, String)>
+  pub additional_fields: Option<(String, String, String, String)>,
+  pub hero_png: Option<String>
 }
 
 #[allow(non_snake_case)]

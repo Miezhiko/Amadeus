@@ -163,11 +163,11 @@ async fn check_match( matchid_lol: &str
                 });
             } else if (m.gameMode == 6 || m.gameMode == 2) && md.playerScores.len() > 3 {
               let player_scores =
-                if btag == &md.playerScores[0].battleTag {
+                if btag == md.playerScores[0].battleTag {
                   &md.playerScores[0]
-                } else if btag == &md.playerScores[1].battleTag {
+                } else if btag == md.playerScores[1].battleTag {
                   &md.playerScores[1]
-                } else if btag == &md.playerScores[2].battleTag {
+                } else if btag == md.playerScores[2].battleTag {
                   &md.playerScores[2]
                 } else {
                   &md.playerScores[3]

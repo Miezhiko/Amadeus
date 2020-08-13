@@ -75,7 +75,7 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
           trace!("updating ai chain from {}", c_name.as_str());
           let mut i : u32 = 0;
           for mmm in messages {
-            if !mmm.author.bot && !mmm.content.starts_with("~") {
+            if !mmm.author.bot && !mmm.content.starts_with('~') {
               let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
               if !is_to_bot {
                 let mut result_string = re1.replace_all(&mmm.content.as_str(), "").to_string();
@@ -162,7 +162,7 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
               r.limit(limit)
             ).await {
               for mmm in messages {
-                if mmm.author.id == author_id && !mmm.content.starts_with("~") {
+                if mmm.author.id == author_id && !mmm.content.starts_with('~') {
                   let mut result_string = re1.replace_all(&mmm.content.as_str(), "").to_string();
                   result_string = re2.replace_all(result_string.as_str(), "").to_string();
                   result_string = result_string.replace(": ", "");

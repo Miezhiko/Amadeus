@@ -144,17 +144,15 @@ pub async fn tour_internal( ctx: &Context
           error!("Error sending w3info events: {:?}", why);
         }
       }
-    } else {
-      if let Ok(mut msg) = ctx.http.get_message( *channel_id.as_u64()
-                                               , *post_to_edit.as_u64() ).await {
-        if let Err(why) = msg.edit(&ctx, |m| m
-          .embed(|e| e
-            .title(title)
-            .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
-            .fields(eventos)
-            .colour((255, 192, 203)))).await {
-          error!("Error editing w3info event: {:?}", why);
-        }
+    } else if let Ok(mut msg) = ctx.http.get_message( *channel_id.as_u64()
+                                                    , *post_to_edit.as_u64() ).await {
+      if let Err(why) = msg.edit(&ctx, |m| m
+        .embed(|e| e
+          .title(title)
+          .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
+          .fields(eventos)
+          .colour((255, 192, 203)))).await {
+        error!("Error editing w3info event: {:?}", why);
       }
     }
   } else if report_no_events {

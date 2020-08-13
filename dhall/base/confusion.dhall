@@ -16,4 +16,8 @@
 , "Everyone is watching someone other than themselves, someone important to them..."
 , "El Psy Kongroo"
 , "you underestimated me dude"
+, "Flaws are my favorite part of people"
+, "It really helps"
+, "I like to look like a person"
+, "I don't have regrets"
 ]

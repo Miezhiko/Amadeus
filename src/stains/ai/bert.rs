@@ -17,7 +17,7 @@ lazy_static! {
     = Mutex::new(HashMap::new());
 }
 
-pub async fn en2ru(text: String) -> failure::Fallible<String> {
+pub async fn en2ru(text: String) -> anyhow::Result<String> {
   task::spawn_blocking(move || {
     let translation_config =
       TranslationConfig::new(Language::EnglishToRussian, Device::cuda_if_available());
@@ -32,7 +32,7 @@ pub async fn en2ru(text: String) -> failure::Fallible<String> {
   }).await.unwrap()
 }
 
-pub async fn ru2en(text: String) -> failure::Fallible<String> {
+pub async fn ru2en(text: String) -> anyhow::Result<String> {
   task::spawn_blocking(move || {
     let translation_config =
       TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
@@ -48,7 +48,7 @@ pub async fn ru2en(text: String) -> failure::Fallible<String> {
   }).await.unwrap()
 }
 
-pub async fn ru2en_many(texts: Vec<String>) -> failure::Fallible<Vec<String>> {
+pub async fn ru2en_many(texts: Vec<String>) -> anyhow::Result<Vec<String>> {
   task::spawn_blocking(move || {
     let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
     let translation_config =
@@ -64,7 +64,7 @@ pub async fn ru2en_many(texts: Vec<String>) -> failure::Fallible<Vec<String>> {
   }).await.unwrap()
 }
 
-fn ask_with_cache(q: String, cache: String) -> failure::Fallible<String> {
+fn ask_with_cache(q: String, cache: String) -> anyhow::Result<String> {
   // Set-up Question Answering model
   let qa_model = QuestionAnsweringModel::new(Default::default())?;
 
@@ -88,7 +88,7 @@ fn ask_with_cache(q: String, cache: String) -> failure::Fallible<String> {
   }
 }
 
-pub async fn ask(question: String) -> failure::Fallible<String> {
+pub async fn ask(question: String) -> anyhow::Result<String> {
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let cache = 
     if cache_eng_vec.is_empty() {
@@ -101,7 +101,7 @@ pub async fn ask(question: String) -> failure::Fallible<String> {
   }).await.unwrap()
 }
 
-pub async fn chat(something: String, user_id: u64) -> failure::Fallible<String> {
+pub async fn chat(something: String, user_id: u64) -> anyhow::Result<String> {
   let mut conversation_manager = CONV_MANAGER.lock().await;
   let mut chat_context = CHAT_CONTEXT.lock().await;
   task::spawn_blocking(move || {

@@ -311,13 +311,17 @@ async fn get_system_info(ctx: &Context) -> SysInfo {
           .await
           .expect("failed to execute process");
   if let Ok(db_size_str) = &String::from_utf8(dbs_stdout.stdout) {
-    let db_kb = db_size_str.parse::<f32>().unwrap();
-    sys_info.db_size = if db_kb >= 1024.0 {
-      let db_mb = db_kb / 1024f32;
-      format!("{:.3} MB", db_mb)
-      } else { format!("{:.3} KB", db_kb) };
+    if let Ok(db_kb) = db_size_str[..db_size_str.len() - 1].parse::<u32>() {
+      sys_info.db_size = if db_kb >= 1024 {
+        let db_mb = db_kb as f32 / 1024f32;
+        format!("{:.3} MB", db_mb)
+        } else { format!("{:.3} KB", db_kb) };
+    } else {
+      error!("Failed to parse: {}", db_size_str);
+      sys_info.db_size = String::from("?");
+    }
   } else {
-    error!("Failed to parse mem stdout");
+    error!("Failed to parse du stdout");
   }
   sys_info
 }

@@ -394,7 +394,7 @@ impl EventHandler for Handler {
                             error!("Failed to remove gay role {:?}", why);
                           } else {
                             let repl = if lang::is_russian(&msg.content.as_str()) {
-                              format!("Ну чел {} извини если что, давай останемся друзьями", msg.author.name)
+                              format!("Пчел {} извини если что, давай останемся друзьями", msg.author.name)
                             } else {
                               format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name)
                             };

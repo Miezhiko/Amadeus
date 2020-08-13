@@ -17,11 +17,6 @@ use serenity::{
          , gateway::Activity }
 };
 
-use serenity::utils::{
-  content_safe,
-  ContentSafeOptions,
-};
-
 use regex::Regex;
 
 use markov::Chain;
@@ -69,7 +64,8 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
     cache_eng_str.clear();
   }
   let mut ru_messages_for_translation : Vec<String> = vec![];
-  let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
+  let re1 = Regex::new(r"<(.*?)>").unwrap();
+  let re2 = Regex::new(r":(.*?):").unwrap();
   for chan in channels.keys() {
     if let Some(c_name) = chan.name(&ctx).await {
       if AI_LEARN.iter().any(|c| c == c_name.as_str()) {
@@ -79,16 +75,13 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
           trace!("updating ai chain from {}", c_name.as_str());
           let mut i : u32 = 0;
           for mmm in messages {
-            if !mmm.author.bot {
+            if !mmm.author.bot && !mmm.content.starts_with("~") {
               let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
               if !is_to_bot {
-                let mut result_string = re.replace_all(&mmm.content.as_str(), "").to_string();
+                let mut result_string = re1.replace_all(&mmm.content.as_str(), "").to_string();
+                result_string = re2.replace_all(result_string.as_str(), "").to_string();
                 result_string = result_string.replace(": ", "");
                 let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
-                result_string =
-                  content_safe(&ctx, &result_string, &ContentSafeOptions::default()
-                    .clean_user(false).clean_channel(true)
-                    .clean_everyone(true).clean_here(true)).await;
                 let result = result_string.trim();
                 if !result.is_empty() && !result.contains('$') && !is_http {
                   if lang::is_russian(result) {
@@ -158,7 +151,8 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
   let mut have_something = false;
   if let Some(guild) = msg.guild(&ctx).await {
     let mut chain = Chain::new();
-    let re = Regex::new(r"<@!?\d{15,20}>").unwrap();
+    let re1 = Regex::new(r"<(.*?)>").unwrap();
+    let re2 = Regex::new(r":(.*?):").unwrap();
     let guild_id = guild.id;
     if let Ok(channels) = guild_id.channels(&ctx).await {
       for (chan, _) in channels {
@@ -168,14 +162,11 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
               r.limit(limit)
             ).await {
               for mmm in messages {
-                if mmm.author.id == author_id {
-                  let mut result_string = re.replace_all(&mmm.content.as_str(), "").to_string();
+                if mmm.author.id == author_id && !mmm.content.starts_with("~") {
+                  let mut result_string = re1.replace_all(&mmm.content.as_str(), "").to_string();
+                  result_string = re2.replace_all(result_string.as_str(), "").to_string();
                   result_string = result_string.replace(": ", "");
                   let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
-                  result_string =
-                    content_safe(&ctx, &result_string, &ContentSafeOptions::default()
-                      .clean_user(false).clean_channel(true)
-                      .clean_everyone(true).clean_here(true)).await;
                   let result = result_string.trim();
                   if !result.is_empty() && !result.contains('$') && !is_http {
                     chain.feed_str(result);

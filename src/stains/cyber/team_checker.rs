@@ -87,10 +87,11 @@ async fn check_match( matchid_lol: &str
               , race12 = get_race2(m.teams[0].players[1].race)
               , race2  = get_race2(m.teams[1].players[0].race)
               , race22 = get_race2(m.teams[1].players[1].race) };
-          if m.teams[0].won
-          && ( m.teams[0].players[0].battleTag == btag
-            || m.teams[0].players[1].battleTag == btag ) {
-            are_you_winning = true;
+          if m.teams[0].won {
+            if m.teams[0].players[0].battleTag == btag
+            || m.teams[0].players[1].battleTag == btag {
+              are_you_winning = true;
+            }
           } else if m.teams[1].players[0].battleTag == btag
                  || m.teams[1].players[1].battleTag == btag {
             are_you_winning = true;

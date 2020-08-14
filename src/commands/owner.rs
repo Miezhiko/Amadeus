@@ -126,7 +126,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
            , footer = format!("Requested by {}", msg.author.name) };
       let mut mmm = msg.channel_id.send_message(&ctx, |m|
         m.embed(|e| e.title("Updating")
-                     .colour((220, 0, 150))
+                     .colour((220, 20, 100))
                      .description(description)
                      .footer(|f| f.text(&footer))
         )

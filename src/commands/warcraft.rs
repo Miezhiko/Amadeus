@@ -1,7 +1,7 @@
 use serenity::{
   prelude::*,
   model::{ channel::*
-         , id::ChannelId, id::MessageId },
+         , id::ChannelId },
   framework::standard::{
     Args, CommandResult,
     macros::command
@@ -98,13 +98,11 @@ pub async fn tour_internal( ctx: &Context
     let date_str_x = on.format("%e-%b (%A)").to_string();
     let title = format!("Events on {}", date_str_x);
 
-    // TODO: recode to Option<Message>
     // So we have title now, let check if it's posted already or not
     // In case if that was posted, check if we need to update it
     // Then finally update if there is new information
-    let mut edit_old_post = false;
     let mut do_nothing = false;
-    let mut post_to_edit = MessageId( 0 );
+    let mut post_to_edit = None;
     if !passed_check && !report_no_events {
       if let Ok(vec_msg) = channel_id.messages(&ctx, |g| g.limit(10)).await {
         for message in vec_msg {
@@ -122,8 +120,7 @@ pub async fn tour_internal( ctx: &Context
                     }
                   }
                   if !do_nothing {
-                    edit_old_post = true;
-                    post_to_edit = message.id;
+                    post_to_edit = Some( message.id );
                   }
                   break;
                 }
@@ -133,26 +130,26 @@ pub async fn tour_internal( ctx: &Context
         }
       }
     }
-    if !edit_old_post {
-      if !do_nothing {
-        if let Err(why) = channel_id.send_message(&ctx, |m| m
+    if let Some(msg_id) = post_to_edit {
+      if let Ok(mut msg) = ctx.http.get_message( *channel_id.as_u64()
+                                               , *msg_id.as_u64() ).await {
+        if let Err(why) = msg.edit(&ctx, |m| m
           .embed(|e| e
             .title(title)
             .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
             .fields(eventos)
-            .colour((240, 160, 203)))).await {
-          error!("Error sending w3info events: {:?}", why);
+            .colour((255, 192, 203)))).await {
+          error!("Error editing w3info event: {:?}", why);
         }
       }
-    } else if let Ok(mut msg) = ctx.http.get_message( *channel_id.as_u64()
-                                                    , *post_to_edit.as_u64() ).await {
-      if let Err(why) = msg.edit(&ctx, |m| m
+    } else if !do_nothing {
+      if let Err(why) = channel_id.send_message(&ctx, |m| m
         .embed(|e| e
           .title(title)
           .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
           .fields(eventos)
-          .colour((255, 192, 203)))).await {
-        error!("Error editing w3info event: {:?}", why);
+          .colour((240, 160, 203)))).await {
+        error!("Error sending w3info events: {:?}", why);
       }
     }
   } else if report_no_events {

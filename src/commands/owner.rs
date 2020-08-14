@@ -139,7 +139,14 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
                 .await
                 .expect("failed to compile new version");
       if let Ok(cargo_build_out) = &String::from_utf8(cargo_build.stderr) {
-        let new_description = format!("{}\n{}", description, cargo_build_out);
+        let mut cut_paths = cargo_build_out.replace("/root/contrib/rust/", "");
+        // if message is too big, take only last things
+        if cut_paths.len() > 300 {
+          if let Some((i, _)) = cut_paths.char_indices().rev().nth(300) {
+            cut_paths = cut_paths[i..].to_string();
+          }
+        }
+        let new_description = format!("{}\n{}", description, cut_paths);
         mmm.edit(&ctx, |m|
           m.embed(|e| e.title("Upgrading")
                        .colour((250, 0, 0))
@@ -159,4 +166,18 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
     }
   }
   Ok(())
+}
+
+
+#[cfg(test)]
+mod owner_random_tests {
+  #[test]
+  fn if_string_too_big() {
+    let ss = String::from("Humba is so Imba");
+    let to_take = 4;
+    if let Some((i, _)) = ss.char_indices().rev().nth(to_take - 1) {
+      let imba = &ss[i..];
+      assert_eq!(imba, "Imba");
+    }
+  }
 }

@@ -167,17 +167,3 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
   }
   Ok(())
 }
-
-
-#[cfg(test)]
-mod owner_random_tests {
-  #[test]
-  fn if_string_too_big() {
-    let ss = String::from("Humba is so Imba");
-    let to_take = 4;
-    if let Some((i, _)) = ss.char_indices().rev().nth(to_take - 1) {
-      let imba = &ss[i..];
-      assert_eq!(imba, "Imba");
-    }
-  }
-}

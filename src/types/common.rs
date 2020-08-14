@@ -19,8 +19,9 @@ pub struct AllGuilds;
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum CoreGuild {
+  UserId,
   Amadeus,
-  HEmo,
+  HEmo
 }
 
 impl TypeMapKey for CoreGuilds {

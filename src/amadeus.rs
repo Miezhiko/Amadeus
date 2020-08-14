@@ -230,10 +230,9 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
   creds.insert("tenor".to_string(), opts.tenor_key.clone());
 
   let mut core_guilds = HashMap::new();
+  core_guilds.insert(CoreGuild::UserId, *amadeus_id.as_u64());
   core_guilds.insert(CoreGuild::Amadeus, opts.amadeus_guild);
   core_guilds.insert(CoreGuild::HEmo, opts.guild);
-
-  let all_guilds = &opts.servers;
 
   let std_framework =
     StandardFramework::new()
@@ -257,7 +256,11 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
       .group(&ADMIN_GROUP);
 
   let mut client = serenity::Client::new(&opts.discord)
-                    .event_handler(Handler::new(opts, runtime_options))
+                    .event_handler(Handler::new( opts
+                                               , runtime_options
+                                               , amadeus_id
+                                               )
+                                  )
                     .framework(std_framework).await?;
   {
     let mut data = client.data.write().await;
@@ -266,7 +269,7 @@ pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Sen
     data.insert::<ReqwestClient>(Arc::new(Reqwest::new()));
     data.insert::<PubCreds>(Arc::new(creds));
     data.insert::<CoreGuilds>(Arc::new(core_guilds));
-    data.insert::<AllGuilds>(Arc::new(all_guilds.clone()));
+    data.insert::<AllGuilds>(Arc::new(opts.servers.clone()));
   }
 
   // start listening for events by starting a single shard

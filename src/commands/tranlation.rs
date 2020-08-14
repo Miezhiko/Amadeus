@@ -68,7 +68,7 @@ async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
             e.fields(fields)
             .author(|a| a.icon_url(&msg.author.face())
                          .name(msg.author.name.as_str())
-                    )
+                   )
           )
         ).await?;
       }

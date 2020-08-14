@@ -8,6 +8,7 @@ use crate::{
 
 use serenity::{
   model::{ id::ChannelId
+         , gateway::Activity
          , channel::* },
   prelude::*,
   framework::standard::{
@@ -105,6 +106,8 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {:?}", why);
   }
+  ctx.set_activity(Activity::listening("Fetching changes")).await;
+  ctx.idle().await;
   let git_fetch = Command::new("sh")
                   .arg("-c")
                   .arg("git fetch origin mawa")
@@ -121,20 +124,38 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
     if let Ok(git_reset_out) = &String::from_utf8(git_reset.stdout) {
       set! { description = &format!("{}\n{}", git_fetch_out, git_reset_out)
            , footer = format!("Requested by {}", msg.author.name) };
-      msg.channel_id.send_message(&ctx.http, |m|
+      let mut mmm = msg.channel_id.send_message(&ctx, |m|
         m.embed(|e| e.title("Updating")
-                    .colour((250, 0, 0))
-                    .description(description)
-                    .footer(|f| f.text(footer))
+                     .colour((220, 0, 150))
+                     .description(description)
+                     .footer(|f| f.text(&footer))
         )
       ).await?;
-      let _systemctl = Command::new("sh")
-                      .arg("-c")
-                      .arg("systemctl restart Amadeus")
-                      .output()
-                      .await
-                      .expect("failed to restart Amadeus service");
-      // I expect that we die right here
+      ctx.set_activity(Activity::playing("Compiling...")).await;
+      let cargo_build = Command::new("sh")
+                .arg("-c")
+                .arg("cargo build --release")
+                .output()
+                .await
+                .expect("failed to compile new version");
+      if let Ok(cargo_build_out) = &String::from_utf8(cargo_build.stdout) {
+        let new_description = format!("{}\n{}", description, cargo_build_out);
+        mmm.edit(&ctx, |m|
+          m.embed(|e| e.title("Upgrading")
+                       .colour((250, 0, 0))
+                       .description(new_description)
+                       .footer(|f| f.text(&footer))
+          )
+        ).await?;
+        ctx.set_activity(Activity::listening("Restarting")).await;
+        let _systemctl = Command::new("sh")
+                .arg("-c")
+                .arg("systemctl restart Amadeus")
+                .output()
+                .await
+                .expect("failed to restart Amadeus service");
+        // I expect that we die right here
+      }
     }
   }
   Ok(())

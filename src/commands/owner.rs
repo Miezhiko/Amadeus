@@ -138,7 +138,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
                 .output()
                 .await
                 .expect("failed to compile new version");
-      if let Ok(cargo_build_out) = &String::from_utf8(cargo_build.stdout) {
+      if let Ok(cargo_build_out) = &String::from_utf8(cargo_build.stderr) {
         let new_description = format!("{}\n{}", description, cargo_build_out);
         mmm.edit(&ctx, |m|
           m.embed(|e| e.title("Upgrading")

@@ -175,8 +175,8 @@ async fn after(ctx: &Context, msg: &Message, cmd_name: &str, error: CommandResul
 async fn unrecognised_command(ctx: &Context, msg: &Message, _command_name: &str) {
   let is_valid_greeting = |c| {
     let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
-    let is_greeting = Regex::new(regex.as_str()).unwrap();
-    is_greeting.is_match(msg.content.as_str()) };
+    let is_greeting = Regex::new(&regex).unwrap();
+    is_greeting.is_match(&msg.content) };
   if GREETINGS.iter().any(is_valid_greeting) {
     let mut rng = StdRng::from_entropy();
     if let Some(hi_reply) = GREETINGS.choose(&mut rng) {

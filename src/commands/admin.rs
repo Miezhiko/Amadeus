@@ -49,7 +49,7 @@ async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
                                     , *target_user.id.as_u64()
                                     ).await;
       let out = format!("win registered, {} wins in a row", s);
-      channel_message(ctx, msg, out.as_str()).await;
+      channel_message(ctx, msg, &out).await;
     }
   }
   Ok(())

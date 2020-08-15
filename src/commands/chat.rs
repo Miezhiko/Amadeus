@@ -37,7 +37,7 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
     let footer = format!("Requested by {}", msg.author.name);
     if let Err(why) = msg.channel_id.send_message(ctx, |m| m
       .embed(|e| e
-      .description(out.as_str())
+      .description(&out)
       .footer(|f| f.text(footer))
     )).await {
       error!("Failed to post score for {}, {:?}", target, why);
@@ -111,13 +111,13 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             let out = format!("{} to {}", rst, target_user.name);
             if let Err(why) = msg.channel_id.send_message(ctx, |m| m
               .embed(|e| e
-              .description(out.as_str())
-              .footer(|f| f.text(msg.author.name.as_str()))
+              .description(&out)
+              .footer(|f| f.text(&msg.author.name))
             )).await {
               error!("Failed to post give {:?}", why);
             }
           } else {
-            channel_message(ctx, msg, rst.as_str()).await;
+            channel_message(ctx, msg, &rst).await;
           }
         }
       }

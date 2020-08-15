@@ -38,7 +38,7 @@ async fn version(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
     .embed(|e| e
       .title("Amadeus")
-      .description(version.as_str())
+      .description(&version)
       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
     )
    ).await {
@@ -71,7 +71,7 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
       .fields(vec![
         ("Height", "160 cm", true),
         ("Weight", "45 kg", true),
-        ("Version", version.as_str(), true)
+        ("Version", &version, true)
         ])
       .field("user commands",
 "• **ttt** *<@user>* *<N>*: play tic tac toe for points
@@ -126,7 +126,7 @@ async fn help_ru(ctx: &Context, msg: &Message) -> CommandResult {
       .fields(vec![
         ("Рост", "160 cm", true),
         ("Вес", "45 kg", true),
-        ("Версия", version.as_str(), true)
+        ("Версия", &version, true)
         ])
       .field("Пользовательские команды",
 "• **Крестики_нолики** *<@пользователь>* *<N>*: Игра - камень, ножницы, бумага на очки
@@ -291,7 +291,7 @@ async fn get_system_info(ctx: &Context) -> SysInfo {
   let pid = std::process::id().to_string();
   let mem_stdout = Command::new("sh")
           .arg("-c")
-          .arg(format!("pmap {} | tail -n 1 | awk '/[0-9]K/{{print $2}}'", &pid).as_str())
+          .arg(&format!("pmap {} | tail -n 1 | awk '/[0-9]K/{{print $2}}'", &pid))
           .output()
           .await
           .expect("failed to execute process");

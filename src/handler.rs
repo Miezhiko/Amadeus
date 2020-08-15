@@ -341,7 +341,7 @@ impl EventHandler for Handler {
               if !activity.is_empty() {
                 if activity.contains('<') && activity.contains('>') {
                   let re_ib = Regex::new(r"<(.*?)>").unwrap();
-                  let replaced = re_ib.replace_all(activity.as_str(), "");
+                  let replaced = re_ib.replace_all(&activity, "");
                   if !replaced.is_empty() {
                     ctx.set_activity(Activity::playing(&replaced)).await;
                   }
@@ -355,7 +355,7 @@ impl EventHandler for Handler {
               if let Some(ch) = msg.channel(&ctx).await {
                 ch.id().name(&ctx).await.unwrap_or_else(|| "".to_string())
               } else { "".to_string() };
-            if AI_ALLOWED.iter().any(|c| c == channel_name.as_str()) {
+            if AI_ALLOWED.iter().any(|c| c == &channel_name) {
               let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
               let rnd = rand::thread_rng().gen_range(0, activity_level);
               if rnd == 1 {
@@ -389,12 +389,12 @@ impl EventHandler for Handler {
                               if let Err(why) = member.add_role(&ctx, role).await {
                                 error!("Failed to assign hater role {:?}", why);
                               } else {
-                                let repl = if lang::is_russian(&msg.content.as_str()) {
+                                let repl = if lang::is_russian(&msg.content) {
                                   format!("Ну чел {} явно меня не уважает", msg.author.name)
                                 } else {
                                   format!("Seems like {} doesn't respect me :(", msg.author.name)
                                 };
-                                channel_message(&ctx, &msg, repl.as_str()).await;
+                                channel_message(&ctx, &msg, &repl).await;
                                 let new_nick : String = format!("Hater {}", msg.author.name);
                                 if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m|
                                   m.nickname(new_nick)).await {
@@ -406,12 +406,12 @@ impl EventHandler for Handler {
                             if let Err(why) = member.remove_role(&ctx, role).await {
                               error!("Failed to remove gay role {:?}", why);
                             } else {
-                              let repl = if lang::is_russian(&msg.content.as_str()) {
+                              let repl = if lang::is_russian(&msg.content) {
                                 format!("Пчел {} извини если что, давай останемся друзьями", msg.author.name)
                               } else {
                                 format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name)
                               };
-                              channel_message(&ctx, &msg, repl.as_str()).await;
+                              channel_message(&ctx, &msg, &repl).await;
                               if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m| m.nickname("")).await {
                                 error!("Failed to reset user's nick {:?}", why2);
                               }
@@ -428,12 +428,12 @@ impl EventHandler for Handler {
                             error!("Error replacing bad people {:?}", why);
                           }
                           if !msg.content.is_empty() && !msg.content.starts_with("http") {
-                            let new_words = chain::obfuscate(msg.content.as_str());
-                            let says = if lang::is_russian(new_words.as_str()) {
+                            let new_words = chain::obfuscate(&msg.content);
+                            let says = if lang::is_russian(&new_words) {
                               "говорит"
                             } else { "says" };
-                            let rm = format!("{} {} {} {}", msg.author.name, says, new_words, msg.content.as_str());
-                            channel_message(&ctx, &msg, rm.as_str()).await;
+                            let rm = format!("{} {} {} {}", msg.author.name, says, new_words, &msg.content);
+                            channel_message(&ctx, &msg, &rm).await;
                           }
                         }
 
@@ -454,8 +454,8 @@ impl EventHandler for Handler {
       }
       if let Some(find_char_in_words) = OVERWATCH.iter().find(|c| {
         let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
-        let is_overwatch = Regex::new(regex.as_str()).unwrap();
-        is_overwatch.is_match(msg.content.as_str()) })
+        let is_overwatch = Regex::new(&regex).unwrap();
+        is_overwatch.is_match(&msg.content) })
       {
         let mut rng = StdRng::from_entropy();
         set! { ov_reply = OVERWATCH_REPLIES.choose(&mut rng).unwrap()
@@ -465,7 +465,7 @@ impl EventHandler for Handler {
         }
       } else {
         let regex_no_u = Regex::new(r"(^|\W)((?i)no u(?-i))($|\W)").unwrap();
-        if regex_no_u.is_match(msg.content.as_str()) {
+        if regex_no_u.is_match(&msg.content) {
           let rnd = rand::thread_rng().gen_range(0, 2);
           if rnd == 1 {
             if let Err(why) = msg.channel_id.say(&ctx, "No u").await {

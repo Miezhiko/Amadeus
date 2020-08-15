@@ -8,7 +8,7 @@ use crate::{
   },
   stains::ai::chain,
   collections::{
-    base::REACTIONS,
+    base::{ REACTIONS, WHITELIST },
     stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES },
     channels::AI_ALLOWED
   },
@@ -378,7 +378,8 @@ impl EventHandler for Handler {
                       if let Some(role) = guild.role_by_name("UNBLOCK AMADEUS") {
 
                         let normal_people_rnd : u16 = rand::thread_rng().gen_range(0, 9);
-                        if normal_people_rnd == 1 || member.roles.contains(&role.id) {
+                        if (normal_people_rnd == 1 || member.roles.contains(&role.id))
+                        && !WHITELIST.iter().any(|u| *u == *msg.author.id.as_u64()) {
 
                           if let Err(why) = msg.react(&ctx, reaction).await {
                             error!("Failed to react: {:?}", why);

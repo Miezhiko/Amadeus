@@ -5,6 +5,7 @@ static CONFUSION_RUD: &str   = "dhall/base/confusion_ru.dhall";
 static CONFUSIOND: &str      = "dhall/base/confusion.dhall";
 static OBFUSCATION_RUD: &str = "dhall/base/obfuscation_ru.dhall";
 static OBFUSCATIOND: &str    = "dhall/base/obfuscation.dhall";
+static WHITELISTD: &str      = "dhall/base/whitelist.dhall";
 static REACTIONSD: &str      = "dhall/base/reactions.dhall";
 
 lazy_static! {
@@ -13,6 +14,7 @@ lazy_static! {
   pub static ref CONFUSION: Vec<String>      = dhall!(CONFUSIOND);
   pub static ref OBFUSCATION_RU: Vec<String> = dhall!(OBFUSCATION_RUD);
   pub static ref OBFUSCATION: Vec<String>    = dhall!(OBFUSCATIOND);
+  pub static ref WHITELIST: Vec<u64>         = dhall!(WHITELISTD);
   pub static ref REACTIONS: Vec<Reaction>    = dhall!(REACTIONSD);
 }
 
@@ -41,13 +43,25 @@ mod base_dhall_tests {
   #[test]
   fn obfuscati() -> Result<(), String> { dhall_vec(OBFUSCATIOND) }
   #[test]
+  fn whitelist() -> Result<(), String> { 
+    match serde_dhall::from_file(WHITELISTD).parse::<Vec<u64>>() {
+      Ok(some) => {
+        if !some.is_empty() {
+          Ok(())
+        } else {
+          Err(String::from("empty structure loaded for whitelist"))
+        }
+      }, Err(de) => Err(format!("Failed to parse {:?}", de))
+    }
+  }
+  #[test]
   fn reactions() -> Result<(), String> {
     match serde_dhall::from_file(REACTIONSD).parse::<Vec<Reaction>>() {
       Ok(some) => {
         if !some.is_empty() {
           Ok(())
         } else {
-          Err(String::from("empty structure loaded"))
+          Err(String::from("empty structure loaded for reactions"))
         }
       }, Err(de) => Err(format!("Failed to parse {:?}", de))
     }

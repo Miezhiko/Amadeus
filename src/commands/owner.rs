@@ -124,12 +124,12 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
                   .expect("failed to reset on remote branch");
   if let Ok(git_fetch_out) = &String::from_utf8(git_fetch.stdout) {
     if let Ok(git_reset_out) = &String::from_utf8(git_reset.stdout) {
-      set! { description = &format!("{}\n{}", git_fetch_out, git_reset_out)
-           , footer = format!("Requested by {}", msg.author.name) };
+      let mut description = format!("{}\n{}", git_fetch_out, git_reset_out);
+      let footer = format!("Requested by {}", msg.author.name);
       let mut mmm = msg.channel_id.send_message(&ctx, |m|
         m.embed(|e| e.title("Updating")
                      .colour((220, 20, 100))
-                     .description(description)
+                     .description(&description)
                      .footer(|f| f.text(&footer))
         )
       ).await?;
@@ -145,16 +145,20 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
         let updating_git_re = Regex::new(r"(.Updating git.*)").unwrap();
         let mut update_str = links_re.replace_all(cargo_update_out.as_str(), "").to_string();
         update_str = updating_git_re.replace_all(update_str.as_str(), "").to_string();
+        update_str = update_str.lines()
+                               .filter(|l| !l.trim().is_empty())
+                               .collect::<Vec<&str>>()
+                               .join("\n");
         if update_str.len() > 200 {
           if let Some((i, _)) = update_str.char_indices().rev().nth(200) {
             update_str = update_str[i..].to_string();
           }
         }
-        let new_description = format!("{}\n{}", description, update_str);
+        description = format!("{}\n{}", &description, update_str);
         mmm.edit(&ctx, |m|
           m.embed(|e| e.title("Compiling")
                        .colour((230, 10, 50))
-                       .description(new_description)
+                       .description(&description)
                        .footer(|f| f.text(&footer))
           )
         ).await?;
@@ -174,11 +178,11 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
             cut_paths = cut_paths[i..].to_string();
           }
         }
-        let new_description = format!("{}\n{}", description, cut_paths);
+        description = format!("{}\n{}", &description, cut_paths);
         mmm.edit(&ctx, |m|
           m.embed(|e| e.title("Upgrading")
                        .colour((250, 0, 0))
-                       .description(new_description)
+                       .description(&description)
                        .footer(|f| f.text(&footer))
           )
         ).await?;

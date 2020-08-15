@@ -141,8 +141,8 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
       if let Ok(cargo_build_out) = &String::from_utf8(cargo_build.stderr) {
         let mut cut_paths = cargo_build_out.replace("/root/contrib/rust/", "");
         // if message is too big, take only last things
-        if cut_paths.len() > 300 {
-          if let Some((i, _)) = cut_paths.char_indices().rev().nth(300) {
+        if cut_paths.len() > 666 {
+          if let Some((i, _)) = cut_paths.char_indices().rev().nth(666) {
             cut_paths = cut_paths[i..].to_string();
           }
         }

@@ -82,15 +82,16 @@ pub async fn activate_games_tracking(
                                                 ).await;
         for game in our_gsx {
           let game_key = game.key.clone();
-          if let Ok(user) = ctx_clone.http.get_user(game.player.discord).await {
+          let playa = &game.players[0];
+          if let Ok(user) = ctx_clone.http.get_user(playa.discord).await {
 
             setm!{ twitch_live        = false
                   , additional_fields  = Vec::new()
                   , image              = None
                   , em_url             = None };
 
-            if game.player.streams.is_some() {
-              let streams = game.player.streams.clone().unwrap();
+            if playa.streams.is_some() {
+              let streams = playa.streams.clone().unwrap();
               if streams.twitch.is_some() {
                 let client = reqwest::Client::new();
                 let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", &streams.twitch.unwrap());
@@ -173,7 +174,7 @@ pub async fn activate_games_tracking(
                   tracking_msg_id: *msg_id.id.as_u64(),
                   passed_time: 0,
                   still_live: false,
-                  player: game.player }
+                  players: game.players }
                 );
               },
               Err(why) => {

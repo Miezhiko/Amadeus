@@ -1,5 +1,6 @@
 use crate::{
   types::{
+    team::Player,
     tracking::*,
     w3c::{ Going, MD }
   },
@@ -23,9 +24,12 @@ lazy_static! {
 }
 
 async fn check_match( matchid_lol: &str
-                    , btag: &str
+                    , playaz: &Vec<Player>
                     ) -> Option<FinishedGame> {
   let mut are_you_winning = false;
+
+  // TODO: check all players results
+  let btag = playaz[0].battletag.clone();
 
   let mut matchid_s : String = String::new();
   if let Ok(wtf) = reqwest::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20").await {
@@ -212,10 +216,10 @@ pub async fn check<'a>( ctx: &Context
         for m in going.matches {
           if m.gameMode == 1 {
             if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
-              if let Some(playa) = teammates().into_iter().find(|p|
+              let playaz = teammates().into_iter().filter( |p|
                    m.teams[0].players[0].battleTag == p.battletag
-                || m.teams[1].players[0].battleTag == p.battletag
-              ) {
+                || m.teams[1].players[0].battleTag == p.battletag ).collect::<Vec<Player>>();
+              if !playaz.is_empty() {
                 set!{ g_map = get_map(&m.map)
                     , race1 = get_race2(m.teams[0].players[0].race)
                     , race2 = get_race2(m.teams[1].players[0].race) };
@@ -228,8 +232,10 @@ pub async fn check<'a>( ctx: &Context
                   let minutes = track.passed_time / 2;
                   let footer = format!("Passed: {} min", minutes);
 
+                  // use first player for discord operations
+                  let playa = playaz[0].discord;
                   if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
-                    if let Ok(user) = ctx.http.get_user(playa.discord).await {
+                    if let Ok(user) = ctx.http.get_user(playa).await {
 
                       let mut fields = Vec::new();
                       let mut img = None;
@@ -276,7 +282,7 @@ pub async fn check<'a>( ctx: &Context
                     StartingGame {
                       key: m.startTime,
                       description: mstr,
-                      player: playa
+                      players: playaz
                     }
                   );
                 }
@@ -284,12 +290,13 @@ pub async fn check<'a>( ctx: &Context
             }
           } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode
             if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
-              if let Some(playa) = teammates().into_iter().find(|p|
+              let playaz = teammates().into_iter().filter( |p|
                    m.teams[0].players[0].battleTag == p.battletag
                 || m.teams[1].players[0].battleTag == p.battletag
                 || m.teams[0].players[1].battleTag == p.battletag
-                || m.teams[1].players[1].battleTag == p.battletag) {
+                || m.teams[1].players[1].battleTag == p.battletag ).collect::<Vec<Player>>();
 
+              if !playaz.is_empty() {
                 let g_map = get_map(&m.map);
 
                 set! { race1  = get_race2(m.teams[0].players[0].race)
@@ -312,7 +319,9 @@ pub async fn check<'a>( ctx: &Context
                   set!{ minutes = track.passed_time / 2
                       , footer = format!("Passed: {} min", minutes) };
                   if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
-                    if let Ok(user) = ctx.http.get_user(playa.discord).await {
+                    // get first player for discord
+                    let playa = playaz[0].discord;
+                    if let Ok(user) = ctx.http.get_user(playa).await {
                       setm!{ fields = Vec::new()
                            , img    = None
                            , url    = None
@@ -357,7 +366,7 @@ pub async fn check<'a>( ctx: &Context
                     StartingGame {
                       key: m.startTime,
                       description: mstr,
-                      player: playa
+                      players: playaz
                     }
                   );
                 }
@@ -371,11 +380,13 @@ pub async fn check<'a>( ctx: &Context
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
             if let Some(finished_game) =
-                check_match(k, &track.player.battletag).await {
+                check_match(k, &track.players).await {
               let fgame = &finished_game;
               if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
                 let footer : String = format!("Passed: {} min", fgame.passed_time);
-                if let Ok(user) = ctx.http.get_user(track.player.discord).await {
+                // git first player for discord (again, as ususal)
+                let playa = track.players[0].discord;
+                if let Ok(user) = ctx.http.get_user(playa).await {
                   let mut old_fields = Vec::new();
                   let mut url = None;
                   let mut color = (32,32,32);
@@ -393,7 +404,7 @@ pub async fn check<'a>( ctx: &Context
                   if fgame.win {
                     info!("Registering win for {}", user.name);
                     let streak = points::add_win_points( guild_id
-                                                       , track.player.discord
+                                                       , playa
                                                        ).await;
                     if streak >= 3 {
                       title =
@@ -416,7 +427,7 @@ pub async fn check<'a>( ctx: &Context
                   } else {
                     info!("Registering lose for {}", user.name);
                     points::break_streak( guild_id
-                                        , track.player.discord ).await;
+                                        , playa ).await;
                   }
                   if let Err(why) = msg.edit(ctx, |m| m
                     .embed(|e| {

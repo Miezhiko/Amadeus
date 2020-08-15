@@ -16,7 +16,7 @@ pub struct TrackingGame {
   pub tracking_msg_id: u64,
   pub passed_time: u32,
   pub still_live: bool,
-  pub player: Player
+  pub players: Vec<Player>
 }
 
 #[allow(non_snake_case)]
@@ -24,5 +24,5 @@ pub struct TrackingGame {
 pub struct StartingGame {
   pub key: String,
   pub description: String,
-  pub player: Player
+  pub players: Vec<Player>
 }

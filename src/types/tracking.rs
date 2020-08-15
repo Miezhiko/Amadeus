@@ -5,7 +5,7 @@ use crate::types::team::Player;
 pub struct FinishedGame {
   pub desc: String,
   pub passed_time: u32,
-  pub win: bool,
+  pub winners: Vec<(u64, bool)>,
   pub additional_fields: Option<(String, String, String, String)>,
   pub hero_png: Option<String>
 }

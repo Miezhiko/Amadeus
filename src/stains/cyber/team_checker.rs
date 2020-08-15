@@ -26,10 +26,6 @@ lazy_static! {
 async fn check_match( matchid_lol: &str
                     , playaz: &Vec<Player>
                     ) -> Option<FinishedGame> {
-  let mut are_you_winning = false;
-
-  // TODO: check all players results
-  let btag = playaz[0].battletag.clone();
 
   let mut matchid_s : String = String::new();
   if let Ok(wtf) = reqwest::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20").await {
@@ -37,13 +33,13 @@ async fn check_match( matchid_lol: &str
       for mm in &going.matches {
         if mm.startTime == matchid_lol {
           // TODO: change that hack one day
-          if
+          if playaz.iter().any(|p|
             if mm.gameMode == 6 || mm.gameMode == 2 {
-              mm.teams[0].players[0].battleTag == btag || mm.teams[1].players[0].battleTag == btag ||
-              mm.teams[0].players[1].battleTag == btag || mm.teams[1].players[1].battleTag == btag
+              mm.teams[0].players[0].battleTag == p.battletag || mm.teams[1].players[0].battleTag == p.battletag ||
+              mm.teams[0].players[1].battleTag == p.battletag || mm.teams[1].players[1].battleTag == p.battletag
             } else {
-              mm.teams[0].players[0].battleTag == btag || mm.teams[1].players[0].battleTag == btag
-            }
+              mm.teams[0].players[0].battleTag == p.battletag || mm.teams[1].players[0].battleTag == p.battletag
+            })
           {
             matchid_s = mm.id.clone();
             break;
@@ -61,20 +57,21 @@ async fn check_match( matchid_lol: &str
     match res.json::<MD>().await {
       Ok(md) => {
         let m = md.match_data;
+        let mut losers: Vec<(u64, bool)> = vec![];
         let mstr_o =
         if m.gameMode == 1 {
           set!{ g_map = get_map(&m.map)
               , race1 = get_race2(m.teams[0].players[0].race)
               , race2 = get_race2(m.teams[1].players[0].race) };
-          let player1 = if m.teams[0].players[0].won {
-            if m.teams[0].players[0].battleTag == btag {
-              are_you_winning = true;
+          for i in 0..1 {
+            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.battletag) {
+              let won = m.teams[i].players[0].won;
+              losers.push((playa.discord, won));
             }
+          }
+          let player1 = if m.teams[0].players[0].won {
             format!("__**{}**__ **+{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
           } else {
-            if m.teams[1].players[0].battleTag == btag {
-              are_you_winning = true;
-            }
             format!("__*{}*__ **{}**", m.teams[0].players[0].name, m.teams[1].players[0].mmrGain)
           };
           let player2 = if m.teams[1].players[0].won {
@@ -91,14 +88,13 @@ async fn check_match( matchid_lol: &str
               , race12 = get_race2(m.teams[0].players[1].race)
               , race2  = get_race2(m.teams[1].players[0].race)
               , race22 = get_race2(m.teams[1].players[1].race) };
-          if m.teams[0].won {
-            if m.teams[0].players[0].battleTag == btag
-            || m.teams[0].players[1].battleTag == btag {
-              are_you_winning = true;
+          for i in 0..1 {
+            for j in 0..1 {
+              if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
+                let won = m.teams[i].players[j].won;
+                losers.push((playa.discord, won));
+              }
             }
-          } else if m.teams[1].players[0].battleTag == btag
-                 || m.teams[1].players[1].battleTag == btag {
-            are_you_winning = true;
           }
           if m.gameMode == 6 {
             if m.teams[0].won {
@@ -141,8 +137,11 @@ async fn check_match( matchid_lol: &str
                   , p2.unitScore.unitsKilled
                   , p2.resourceScore.goldCollected
                   , p2.heroScore.expGained);
+
+              // To display hero icon / scores we use 1st playa
+              let btag = &playaz[0].battletag;
               let player_scores =
-                if btag == s1 {
+                if btag == &s1 {
                   &md.playerScores[0]
                 } else {
                   &md.playerScores[1]
@@ -161,17 +160,19 @@ async fn check_match( matchid_lol: &str
               return Some(FinishedGame
                 { desc: mstr
                 , passed_time: duration_in_minutes
-                , win: are_you_winning
+                , winners: losers
                 , additional_fields: scores
                 , hero_png: maybe_hero_png
                 });
             } else if (m.gameMode == 6 || m.gameMode == 2) && md.playerScores.len() > 3 {
+              // Again, to display hero icon / scores we use 1st playa
+              let btag = &playaz[0].battletag;
               let player_scores =
-                if btag == md.playerScores[0].battleTag {
+                if btag == &md.playerScores[0].battleTag {
                   &md.playerScores[0]
-                } else if btag == md.playerScores[1].battleTag {
+                } else if btag == &md.playerScores[1].battleTag {
                   &md.playerScores[1]
-                } else if btag == md.playerScores[2].battleTag {
+                } else if btag == &md.playerScores[2].battleTag {
                   &md.playerScores[2]
                 } else {
                   &md.playerScores[3]
@@ -186,7 +187,7 @@ async fn check_match( matchid_lol: &str
             return Some(FinishedGame
               { desc: mstr
               , passed_time: duration_in_minutes
-              , win: are_you_winning
+              , winners: losers
               , additional_fields: None
               , hero_png: maybe_hero_png
               });
@@ -209,7 +210,7 @@ pub async fn check<'a>( ctx: &Context
                       ) -> Vec<StartingGame> {
   let mut out : Vec<StartingGame> = Vec::new();
   if let Ok(res) =
-    // getaway 20 = Europe
+    // getaway 20 = Europe (not sure if we want to play/track players on other regions)
     reqwest::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20").await {
     if let Ok(going) = res.json::<Going>().await {
       if !going.matches.is_empty() {
@@ -401,33 +402,37 @@ pub async fn check<'a>( ctx: &Context
                   };
                   let mut title = "FINISHED";
                   let mut streak_fields = None;
-                  if fgame.win {
-                    info!("Registering win for {}", user.name);
-                    let streak = points::add_win_points( guild_id
-                                                       , playa
-                                                       ).await;
-                    if streak >= 3 {
-                      title =
-                        match streak {
-                          3  => "MULTIKILL",
-                          4  => "MEGA KILL",
-                          5  => "ULTRAKILL",
-                          6  => "KILLING SPREE",
-                          7  => "RAMPAGE!",
-                          8  => "DOMINATING",
-                          9  => "UNSTOPPABLE",
-                          10 => "GODLIKE!",
-                          11 => "WICKED SICK",
-                          12 => "ALPHA",
-                          _  => "FRENETIC"
-                        };
-                      let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
-                      streak_fields = Some(vec![("Winning streak", dd, false)]);
+                  for (pw, is_win) in &fgame.winners {
+                    if *is_win {
+                      trace!("Registering win for {}", pw);
+                      let streak = points::add_win_points( guild_id
+                                                         , *pw
+                                                         ).await;
+                      if playa == *pw {
+                        if streak >= 3 {
+                          title =
+                            match streak {
+                              3  => "MULTIKILL",
+                              4  => "MEGA KILL",
+                              5  => "ULTRAKILL",
+                              6  => "KILLING SPREE",
+                              7  => "RAMPAGE!",
+                              8  => "DOMINATING",
+                              9  => "UNSTOPPABLE",
+                              10 => "GODLIKE!",
+                              11 => "WICKED SICK",
+                              12 => "ALPHA",
+                              _  => "FRENETIC"
+                            };
+                          let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
+                          streak_fields = Some(vec![("Winning streak", dd, false)]);
+                        }
+                      }
+                    } else {
+                      trace!("Registering lose for {}", pw);
+                      points::break_streak( guild_id
+                                          , *pw ).await;
                     }
-                  } else {
-                    info!("Registering lose for {}", user.name);
-                    points::break_streak( guild_id
-                                        , playa ).await;
                   }
                   if let Err(why) = msg.edit(ctx, |m| m
                     .embed(|e| {

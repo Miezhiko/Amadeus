@@ -71,7 +71,7 @@ pub async fn activate_games_tracking(
         }
         for ktd in k_to_del {
           warn!("match {} out with timeout", ktd);
-          games_lock.remove(ktd.as_str());
+          games_lock.remove(&ktd);
         }
         info!("check");
 
@@ -93,9 +93,9 @@ pub async fn activate_games_tracking(
               let streams = game.player.streams.clone().unwrap();
               if streams.twitch.is_some() {
                 let client = reqwest::Client::new();
-                let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", streams.twitch.unwrap().as_str());
+                let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", &streams.twitch.unwrap());
                 if let Ok(res) = client
-                  .get(getq.as_str())
+                  .get(&getq)
                   .header("Authorization", options_clone.twitch_oauth.clone())
                   .header("Client-ID", options_clone.twitch_client_id.clone())
                   .send().await {
@@ -121,15 +121,15 @@ pub async fn activate_games_tracking(
               }
               if streams.ggru.is_some() {
                 let ggru = streams.ggru.clone().unwrap();
-                let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.as_str());
-                if let Ok(gg) = reqwest::get(ggru_link.as_str()).await {
+                let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", &ggru);
+                if let Ok(gg) = reqwest::get(&ggru_link).await {
                   match gg.json::<GoodGameData>().await {
                     Ok(ggdata) => {
                       if ggdata.status == "Live" {
-                        let url = format!("https://goodgame.ru/channel/{}", ggru.as_str());
+                        let url = format!("https://goodgame.ru/channel/{}", &ggru);
                         if twitch_live {
                           let titurl =
-                            format!("{}\n{}", ggdata.channel.title.as_str(), url);
+                            format!("{}\n{}", &ggdata.channel.title, url);
                           additional_fields.push(("Live on ggru", titurl, false));
                         } else {
                           additional_fields.push(("Live on ggru", ggdata.channel.title.clone(), false));
@@ -155,7 +155,7 @@ pub async fn activate_games_tracking(
                   .title("JUST STARTED")
                   .author(|a| a.icon_url(&user.face()).name(&user.name))
                   .colour((red, green, blue))
-                  .description(game.description.as_str());
+                  .description(&game.description);
                 if !additional_fields.is_empty() {
                   e = e.fields(additional_fields);
                 }

@@ -23,7 +23,7 @@ async fn bert_translate(ctx: &Context, text: String, lang: Language)
 
       let model = TranslationModel::new(translation_config)?;
 
-      let output = model.translate(&[text.as_str()]);
+      let output = model.translate(&[&text]);
       if output.is_empty() {
         error!("Failed to translate with TranslationConfig EnglishToRussian");
         Ok(text)
@@ -52,7 +52,7 @@ async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
              e.title("Translating From **English** to **Russian**...")
               .fields(fields)
               .author(|a| a.icon_url(&msg.author.face())
-                           .name(msg.author.name.as_str())
+                           .name(&msg.author.name)
                       )
             )
           ).await;
@@ -67,7 +67,7 @@ async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           m.embed(|e|
             e.fields(fields)
             .author(|a| a.icon_url(&msg.author.face())
-                         .name(msg.author.name.as_str())
+                         .name(&msg.author.name)
                    )
           )
         ).await?;
@@ -95,7 +95,7 @@ async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
              e.title("Translating From **Russian** to **English**...")
               .fields(fields)
               .author(|a| a.icon_url(&msg.author.face())
-                           .name(msg.author.name.as_str())
+                           .name(&msg.author.name)
                       )
             )
           ).await;
@@ -110,7 +110,7 @@ async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           m.embed(|e|
             e.fields(fields)
             .author(|a| a.icon_url(&msg.author.face())
-                         .name(msg.author.name.as_str())
+                         .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -138,7 +138,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
              e.title("Translating From **English** to **German**...")
               .fields(fields)
               .author(|a| a.icon_url(&msg.author.face())
-                           .name(msg.author.name.as_str())
+                           .name(&msg.author.name)
                       )
             )
           ).await;
@@ -153,7 +153,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           m.embed(|e|
             e.fields(fields)
             .author(|a| a.icon_url(&msg.author.face())
-                         .name(msg.author.name.as_str())
+                         .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -181,7 +181,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
              e.title("Translating From **German** to **English**...")
               .fields(fields)
               .author(|a| a.icon_url(&msg.author.face())
-                           .name(msg.author.name.as_str())
+                           .name(&msg.author.name)
                       )
             )
           ).await;
@@ -196,7 +196,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           m.embed(|e|
             e.fields(fields)
             .author(|a| a.icon_url(&msg.author.face())
-                         .name(msg.author.name.as_str())
+                         .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -224,7 +224,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
              e.title("Translating From **English** to **French**...")
               .fields(fields)
               .author(|a| a.icon_url(&msg.author.face())
-                           .name(msg.author.name.as_str())
+                           .name(&msg.author.name)
                       )
             )
           ).await;
@@ -239,7 +239,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           m.embed(|e|
             e.fields(fields)
             .author(|a| a.icon_url(&msg.author.face())
-                         .name(msg.author.name.as_str())
+                         .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -267,7 +267,7 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
              e.title("Translating From **French** to **English**...")
               .fields(fields)
               .author(|a| a.icon_url(&msg.author.face())
-                           .name(msg.author.name.as_str())
+                           .name(&msg.author.name)
                       )
             )
           ).await;
@@ -282,7 +282,7 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           m.embed(|e|
             e.fields(fields)
             .author(|a| a.icon_url(&msg.author.face())
-                         .name(msg.author.name.as_str())
+                         .name(&msg.author.name)
                     )
           )
         ).await?;

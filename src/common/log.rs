@@ -33,7 +33,7 @@ async fn serenity_channel_message_multi(ctx: &Context, chan : &GuildChannel, tex
 }
 async fn serenity_channel_message_multi2(ctx: &Context, chan : &GuildChannel, texts : Vec<String>) {
   for text in texts {
-    serenity_channel_message_single(ctx, chan, text.as_str()).await;
+    serenity_channel_message_single(ctx, chan, &text).await;
   }
 }
 async fn channel_message(ctx: &Context, chan : &GuildChannel, text: &str) {

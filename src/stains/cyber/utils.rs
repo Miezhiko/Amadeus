@@ -65,9 +65,9 @@ pub fn get_map(m: &str) -> String {
                                 .map(str::to_string)
                                 .collect();
     if split_.len() == 3 { // alike _1v1_autumnleaves_anon
-      map = try_get_map(split_[1].as_str())
+      map = try_get_map(&split_[1])
     } else if split_.len() == 2 { // alike _gnollwood_anon
-      map = try_get_map(split_[0].as_str())
+      map = try_get_map(&split_[0])
     }
   }
   if map.is_empty() { m.to_string() } else { map }

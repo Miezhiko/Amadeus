@@ -22,7 +22,7 @@ pub async fn en2ru(text: String) -> anyhow::Result<String> {
     let translation_config =
       TranslationConfig::new(Language::EnglishToRussian, Device::cuda_if_available());
     let model = TranslationModel::new(translation_config)?;
-    let output = model.translate(&[text.as_str()]);
+    let output = model.translate(&[&text]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig EnglishToRussian");
       Ok(text)
@@ -37,7 +37,7 @@ pub async fn ru2en(text: String) -> anyhow::Result<String> {
     let translation_config =
       TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
     let model = TranslationModel::new(translation_config)?;
-    let output = model.translate(&[text.as_str()]);
+    let output = model.translate(&[&text]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig RussianToEnglish");
       Ok(text)
@@ -112,22 +112,22 @@ pub async fn chat(something: String, user_id: u64) -> anyhow::Result<String> {
         if let Some((tracking_conversation, passed)) = chat_context.get_mut(&user_id) {
           if let Some(found_conversation) = conversation_manager
                                         .get(tracking_conversation) {
-            let _ = found_conversation.add_user_input(something.as_str());
+            let _ = found_conversation.add_user_input(&something);
             *passed = 0;
             conversation_model.generate_responses(&mut conversation_manager)
           } else {
-            *tracking_conversation = conversation_manager.create(something.as_str());
+            *tracking_conversation = conversation_manager.create(&something);
             *passed = 0;
             conversation_model.generate_responses(&mut conversation_manager)
           }
         } else {
           chat_context.insert( user_id
-                             , ( conversation_manager.create(something.as_str()), 0 )
+                             , ( conversation_manager.create(&something), 0 )
                              );
           conversation_model.generate_responses(&mut conversation_manager)
         }
       } else {
-        conversation_manager.create(something.as_str());
+        conversation_manager.create(&something);
         conversation_model.generate_responses(&mut conversation_manager)
       };
 

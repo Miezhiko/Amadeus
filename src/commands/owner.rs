@@ -36,7 +36,7 @@ async fn set(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
         if let Ok(level) = args.single::<u32>() {
           ACTIVITY_LEVEL.store(level, Ordering::Relaxed);
           let chan_msg = format!("Activity level is: {} now", level);
-          channel_message(&ctx, &msg, chan_msg.as_str()).await;
+          channel_message(&ctx, &msg, &chan_msg).await;
         },
       _ => ()
     }
@@ -143,8 +143,8 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
       let links_re = Regex::new(r"(.https.*)").unwrap();
       if let Ok(cargo_update_out) = &String::from_utf8(cargo_update.stderr) {
         let updating_git_re = Regex::new(r"(.Updating git.*)").unwrap();
-        let mut update_str = links_re.replace_all(cargo_update_out.as_str(), "").to_string();
-        update_str = updating_git_re.replace_all(update_str.as_str(), "").to_string();
+        let mut update_str = links_re.replace_all(&cargo_update_out, "").to_string();
+        update_str = updating_git_re.replace_all(&update_str, "").to_string();
         update_str = update_str.lines()
                                .filter(|l| !l.trim().is_empty())
                                .collect::<Vec<&str>>()
@@ -171,7 +171,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
                 .expect("failed to compile new version");
       if let Ok(cargo_build_out) = &String::from_utf8(cargo_build.stderr) {
         let mut cut_paths = cargo_build_out.replace("/root/contrib/rust/", "");
-        cut_paths = links_re.replace_all(cut_paths.as_str(), "").to_string();
+        cut_paths = links_re.replace_all(&cut_paths, "").to_string();
         // if message is too big, take only last things
         if cut_paths.len() > 666 {
           if let Some((i, _)) = cut_paths.char_indices().rev().nth(666) {

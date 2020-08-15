@@ -102,9 +102,9 @@ pub async fn activate_streamers_tracking(
               let streams = playa.streams.clone().unwrap();
               if streams.twitch.is_some() {
                 let client = reqwest::Client::new();
-                let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", streams.twitch.unwrap().as_str());
+                let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", &streams.twitch.unwrap());
                 if let Ok(res) = client
-                  .get(getq.as_str())
+                  .get(&getq)
                   .header("Authorization", options_clone.twitch_oauth.clone())
                   .header("Client-ID", options_clone.twitch_client_id.clone())
                   .send().await {
@@ -126,24 +126,24 @@ pub async fn activate_streamers_tracking(
                         }
                       }
                     }, Err(why) => {
-                      error!("Failed to parse twitch structs\nrequest: {}\nerror: {:?}", getq.as_str(), why);
+                      error!("Failed to parse twitch structs\nrequest: {}\nerror: {:?}", &getq, why);
                     }
                   }
                 }
               }
               if streams.ggru.is_some() {
                 let ggru = streams.ggru.clone().unwrap();
-                let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru.as_str());
-                if let Ok(gg) = reqwest::get(ggru_link.as_str()).await {
+                let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", &ggru);
+                if let Ok(gg) = reqwest::get(&ggru_link).await {
                   match gg.json::<GoodGameData>().await {
                     Ok(ggdata) => {
                       if ggdata.status == "Live" {
-                        let url = format!("https://goodgame.ru/channel/{}", ggru.as_str());
+                        let url = format!("https://goodgame.ru/channel/{}", &ggru);
                         if twitch_live {
                           let viewers = format!( "viewers: {}\nin chat: {}"
                                                , ggdata.viewers, ggdata.users_in_chat );
                           let titurl =
-                            format!("{}\n{}\n{}", ggdata.channel.title.as_str(), url, viewers);
+                            format!("{}\n{}\n{}", &ggdata.channel.title, url, viewers);
                           additional_fields.push(("Live on ggru", titurl, true));
                         } else {
                           let viewers = format!( "viewers: {}\nin chat: {}"
@@ -183,13 +183,13 @@ pub async fn activate_streamers_tracking(
                     url = msg.embeds[0].url.clone();
                     color = msg.embeds[0].colour.tuple();
                   };
-                  let is_now_live = format!("{} is now live!", user.name.as_str());
+                  let is_now_live = format!("{} is now live!", &user.name);
                   if let Err(why) = msg.edit(&ctx_clone, |m| m
                     .embed(|e|  {
                       let mut e = e
                         .title(title)
                         .colour(color)
-                        .author(|a| a.icon_url(&user.face()).name(is_now_live.as_str()))
+                        .author(|a| a.icon_url(&user.face()).name(&is_now_live))
                         .footer(|f| f.text(footer));
                       if !fields.is_empty() {
                         e = e.fields(fields);
@@ -207,7 +207,7 @@ pub async fn activate_streamers_tracking(
                   }
                 }
               } else {
-                let is_now_live = format!("{} started stream!", user.name.as_str());
+                let is_now_live = format!("{} started stream!", &user.name);
                 if let Some(storage) = &amadeus_storage {
                   if let Some(some_image) = &image {
                     if let Ok(response) = reqwest::get(some_image.as_str()).await {
@@ -239,7 +239,7 @@ pub async fn activate_streamers_tracking(
                     let mut e = e
                       .title(title)
                       .colour((red, green, blue))
-                      .author(|a| a.icon_url(&user.face()).name(is_now_live.as_str()));
+                      .author(|a| a.icon_url(&user.face()).name(&is_now_live));
                     if !additional_fields.is_empty() {
                       e = e.fields(additional_fields);
                     }

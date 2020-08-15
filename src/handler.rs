@@ -122,7 +122,7 @@ impl EventHandler for Handler {
       let ai_text = chain::generate_with_language(&ctx, &guild_id, false).await;
       if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
         let user = &member.user; // .read().await;
-        let title = format!("has joined here, {}", ai_text.as_str());
+        let title = format!("has joined here, {}", &ai_text);
         if let Err(why) = channel.send_message(&ctx, |m| m
           .embed(|e| {
             let mut e = e
@@ -154,7 +154,7 @@ impl EventHandler for Handler {
     if let Ok(channels) = guild_id.channels(&ctx).await {
       let ai_text = chain::generate_with_language(&ctx, &guild_id, false).await;
       if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
-        let title = format!("has left, {}", ai_text.as_str());
+        let title = format!("has left, {}", &ai_text);
         if let Err(why) = channel.send_message(&ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&user.face()).name(&user.name))
@@ -188,7 +188,7 @@ impl EventHandler for Handler {
                     if let Ok(deleter) = ctx.http.get_user(*entry.user_id.as_u64()).await {
                       if !deleter.bot {
                         let log_text = format!("{} was trying to remove my message", deleter.name);
-                        log(&ctx, &guild_id, log_text.as_str()).await;
+                        log(&ctx, &guild_id, &log_text).await;
                         // But I don't allow it
                         for file in &msg.attachments {
                           if let Ok(bytes) = file.download().await {
@@ -203,7 +203,8 @@ impl EventHandler for Handler {
                         }
                         if !msg.content.is_empty() {
                           if let Err(why) = channel_id.send_message(&ctx, |m|
-                            m.content(&msg.content.as_str())).await {
+                              m.content(&msg.content)
+                            ).await {
                             error!("Failed to post my message again, {:?}", why);
                           };
                         }
@@ -282,7 +283,7 @@ impl EventHandler for Handler {
           r.limit(5)
         ).await {
           for mmm in messages {
-            if mmm.content.as_str().to_lowercase().contains("processing") {
+            if mmm.content.to_lowercase().contains("processing") {
               if let Err(why) = mmm.delete(&ctx).await {
                 error!("Error removing processing message {:?}", why);
               }
@@ -291,7 +292,7 @@ impl EventHandler for Handler {
         }
       }
       if !msg.content.is_empty() && !msg.content.starts_with("http") {
-        channel_message(&ctx, &msg, &msg.content.as_str()).await;
+        channel_message(&ctx, &msg, &msg.content).await;
       }
       for embed in &msg.embeds {
         let mut not_stupid_zephyr = true;

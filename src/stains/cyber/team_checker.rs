@@ -50,16 +50,16 @@ async fn check_match( matchid_lol: &str
   }
 
   if matchid_s.is_empty() { return None; }
-  let matchid = matchid_s.as_str();
+  let matchid = &matchid_s;
   let url = format!("https://statistic-service.w3champions.com/api/matches/{}", matchid);
 
-  if let Ok(res) = reqwest::get(url.as_str()).await {
+  if let Ok(res) = reqwest::get(&url).await {
     match res.json::<MD>().await {
       Ok(md) => {
         let m = md.match_data;
         let mstr_o =
         if m.gameMode == 1 {
-          set!{ g_map = get_map(m.map.as_str())
+          set!{ g_map = get_map(&m.map)
               , race1 = get_race2(m.teams[0].players[0].race)
               , race2 = get_race2(m.teams[1].players[0].race) };
           let player1 = if m.teams[0].players[0].won {
@@ -82,7 +82,7 @@ async fn check_match( matchid_lol: &str
               race1, player1, m.teams[0].players[0].oldMmr
             , race2, player2, m.teams[1].players[0].oldMmr, g_map))
         } else if m.gameMode == 6 || m.gameMode == 2 {
-          set!{ g_map  = get_map(m.map.as_str())
+          set!{ g_map  = get_map(&m.map)
               , race1  = get_race2(m.teams[0].players[0].race)
               , race12 = get_race2(m.teams[0].players[1].race)
               , race2  = get_race2(m.teams[1].players[0].race)
@@ -150,7 +150,7 @@ async fn check_match( matchid_lol: &str
                 };
               if !player_scores.heroes.is_empty() {
                 maybe_hero_png = Some(get_hero_png(
-                  player_scores.heroes[0].icon.as_str()
+                  &player_scores.heroes[0].icon
                   )
                 );
               }
@@ -174,7 +174,7 @@ async fn check_match( matchid_lol: &str
                 };
               if !player_scores.heroes.is_empty() {
                 maybe_hero_png = Some(get_hero_png(
-                  player_scores.heroes[0].icon.as_str()
+                  &player_scores.heroes[0].icon
                   )
                 );
               }
@@ -216,14 +216,14 @@ pub async fn check<'a>( ctx: &Context
                    m.teams[0].players[0].battleTag == p.battletag
                 || m.teams[1].players[0].battleTag == p.battletag
               ) {
-                set!{ g_map = get_map(m.map.as_str())
+                set!{ g_map = get_map(&m.map)
                     , race1 = get_race2(m.teams[0].players[0].race)
                     , race2 = get_race2(m.teams[1].players[0].race) };
                 let mstr = format!("({}) **{}** [{}] *vs* ({}) **{}** [{}] *{}*",
                   race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
                 , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
 
-                if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
+                if let Some(track) = games_lock.get_mut(&m.startTime) {
                   track.still_live = true;
                   let minutes = track.passed_time / 2;
                   let footer = format!("Passed: {} min", minutes);
@@ -290,7 +290,7 @@ pub async fn check<'a>( ctx: &Context
                 || m.teams[0].players[1].battleTag == p.battletag
                 || m.teams[1].players[1].battleTag == p.battletag) {
 
-                let g_map = get_map(m.map.as_str());
+                let g_map = get_map(&m.map);
 
                 set! { race1  = get_race2(m.teams[0].players[0].race)
                      , race12 = get_race2(m.teams[0].players[1].race)
@@ -307,7 +307,7 @@ pub async fn check<'a>( ctx: &Context
                   , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, g_map)
                 };
 
-                if let Some(track) = games_lock.get_mut(m.startTime.as_str()) {
+                if let Some(track) = games_lock.get_mut(&m.startTime) {
                   track.still_live = true;
                   set!{ minutes = track.passed_time / 2
                       , footer = format!("Passed: {} min", minutes) };
@@ -371,7 +371,7 @@ pub async fn check<'a>( ctx: &Context
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
             if let Some(finished_game) =
-                check_match(k, track.player.battletag.as_str()).await {
+                check_match(k, &track.player.battletag).await {
               let fgame = &finished_game;
               if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
                 let footer : String = format!("Passed: {} min", fgame.passed_time);
@@ -423,7 +423,7 @@ pub async fn check<'a>( ctx: &Context
                       let mut e =
                         e.author(|a| a.icon_url(&user.face()).name(&user.name))
                         .title(title)
-                        .description(fgame.desc.as_str())
+                        .description(&fgame.desc)
                         .colour(color)
                         .footer(|f| f.text(footer));
                       if !old_fields.is_empty() {
@@ -459,7 +459,7 @@ pub async fn check<'a>( ctx: &Context
         }
 
         for ktd in k_to_del {
-          games_lock.remove(ktd.as_str());
+          games_lock.remove(&ktd);
         }
 
       }

@@ -31,7 +31,7 @@ lazy_static! {
 pub async fn activate(ctx: &Context, options: &IOptions) {
   info!("activation has started");
   let loading = format!("Loading {}", env!("CARGO_PKG_VERSION").to_string());
-  ctx.set_activity(Activity::listening(loading.as_str())).await;
+  ctx.set_activity(Activity::listening(&loading)).await;
   ctx.idle().await;
 
   lazy_static::initialize(&START_TIME);
@@ -82,7 +82,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
            ).await;
 
       let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());
-      ctx.set_activity(Activity::playing(version.as_str())).await;
+      ctx.set_activity(Activity::playing(&version)).await;
       ctx.online().await;
     }
   }

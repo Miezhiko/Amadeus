@@ -212,14 +212,14 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
     if let Ok(p1) = points::get_points( *guild.id.as_u64(), *msg.author.id.as_u64()).await {
       if p1 < points_count {
         let err = format!("{} only has {}, need {}", msg.author.name, p1, points_count);
-        channel_message(ctx, msg, err.as_str()).await;
+        channel_message(ctx, msg, &err).await;
         return Ok(());
       }
     }
     if let Ok(p2) = points::get_points( *guild.id.as_u64(), *other_player.id.as_u64()).await {
       if p2 < points_count {
         let err = format!("{} only has {}, need {}", other_player.name, p2, points_count);
-        channel_message(ctx, msg, err.as_str()).await;
+        channel_message(ctx, msg, &err).await;
         return Ok(());
       }
     }
@@ -336,13 +336,13 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
           let out = format!("{} to {}", rst, winner.name);
           if let Err(why) = msg.channel_id.send_message(ctx, |m| m
             .embed(|e| e
-            .description(out.as_str())
-            .footer(|f| f.text(loser.name.as_str()))
+            .description(&out)
+            .footer(|f| f.text(&loser.name))
           )).await {
             error!("Failed to post give {:?}", why);
           }
         } else {
-          channel_message(ctx, msg, rst.as_str()).await;
+          channel_message(ctx, msg, &rst).await;
         }
       }
       return Ok(());

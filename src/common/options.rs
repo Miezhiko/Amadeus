@@ -11,7 +11,7 @@ pub fn get_ioptions() -> Result<IOptions, serde_dhall::Error> {
 
 pub async fn get_roptions() -> Result<ROptions, Error> {
   let contents = fs::read_to_string(JSON_FILE_NAME).await?;
-  let j = serde_json::from_str(contents.as_str())?;
+  let j = serde_json::from_str(&contents)?;
   Ok(j)
 }
 

@@ -68,18 +68,18 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
   let re2 = Regex::new(r":(.*?):").unwrap();
   for chan in channels.keys() {
     if let Some(c_name) = chan.name(&ctx).await {
-      if AI_LEARN.iter().any(|c| c == c_name.as_str()) {
+      if AI_LEARN.iter().any(|c| c == &c_name) {
         if let Ok(messages) = chan.messages(&ctx, |r|
           r.limit(CACHE_MAX)
         ).await {
-          trace!("updating ai chain from {}", c_name.as_str());
+          trace!("updating ai chain from {}", &c_name);
           let mut i : u32 = 0;
           for mmm in messages {
             if !mmm.author.bot && !mmm.content.starts_with('~') {
               let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
               if !is_to_bot {
-                let mut result_string = re1.replace_all(&mmm.content.as_str(), "").to_string();
-                result_string = re2.replace_all(result_string.as_str(), "").to_string();
+                let mut result_string = re1.replace_all(&mmm.content, "").to_string();
+                result_string = re2.replace_all(&result_string, "").to_string();
                 result_string = result_string.replace(": ", "");
                 let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
                 let result = result_string.trim();
@@ -157,14 +157,14 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
     if let Ok(channels) = guild_id.channels(&ctx).await {
       for (chan, _) in channels {
         if let Some(c_name) = chan.name(&ctx).await {
-          if AI_LEARN.iter().any(|c| c == c_name.as_str()) {
+          if AI_LEARN.iter().any(|c| c == &c_name) {
             if let Ok(messages) = chan.messages(&ctx, |r|
               r.limit(limit)
             ).await {
               for mmm in messages {
                 if mmm.author.id == author_id && !mmm.content.starts_with('~') {
-                  let mut result_string = re1.replace_all(&mmm.content.as_str(), "").to_string();
-                  result_string = re2.replace_all(result_string.as_str(), "").to_string();
+                  let mut result_string = re1.replace_all(&mmm.content, "").to_string();
+                  result_string = re2.replace_all(&result_string, "").to_string();
                   result_string = result_string.replace(": ", "");
                   let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
                   let result = result_string.trim();
@@ -222,9 +222,9 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
     let rndx = rand::thread_rng().gen_range(0, 6);
     if rndx == 1 {
       if russian {
-        out = boris::spell(out.as_str());
+        out = boris::spell(&out);
       } else {
-        out = uwu::spell(out.as_str());
+        out = uwu::spell(&out);
       }
     }
   }
@@ -248,9 +248,9 @@ pub fn obfuscate(msg_content : &str) -> String {
   let cahin_string = chain.generate_str();
   if rndx == 1 {
     if russian {
-      boris::spell(cahin_string.as_str())
+      boris::spell(&cahin_string)
     } else {
-      uwu::spell(cahin_string.as_str())
+      uwu::spell(&cahin_string)
     }
   } else {
     cahin_string
@@ -264,7 +264,7 @@ pub async fn response(ctx: &Context, msg : &Message) {
   if rndx == 1 {
     let answer = generate(&ctx, &msg, Some(russian)).await;
     if !answer.is_empty() {
-      reply(&ctx, &msg, answer.as_str()).await;
+      reply(&ctx, &msg, &answer).await;
     }
   } else {
     let text = if russian {
@@ -285,7 +285,7 @@ pub async fn response(ctx: &Context, msg : &Message) {
         response = translated
       }
     }
-    reply(&ctx, &msg, response.as_str()).await;
+    reply(&ctx, &msg, &response).await;
   }
 }
 
@@ -324,9 +324,9 @@ pub async fn chat(ctx: &Context, msg : &Message) {
   if !answer.is_empty() {
     let rnd = rand::thread_rng().gen_range(0, 3);
     if rnd == 1 {
-      reply(&ctx, &msg, answer.as_str()).await;
+      reply(&ctx, &msg, &answer).await;
     } else {
-      channel_message(&ctx, &msg, answer.as_str()).await;
+      channel_message(&ctx, &msg, &answer).await;
     }
   }
 }

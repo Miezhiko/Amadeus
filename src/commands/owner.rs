@@ -1,6 +1,6 @@
 use crate::{
-  common::{
-    msg::{ channel_message, direct_message }
+  common::msg::{
+    channel_message, direct_message
   },
   stains::gate,
   stains::ai::chain::ACTIVITY_LEVEL
@@ -18,6 +18,8 @@ use serenity::{
 };
 
 use std::sync::atomic::Ordering;
+
+use regex::Regex;
 
 use tokio::process::Command;
 
@@ -132,6 +134,31 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
         )
       ).await?;
       ctx.set_activity(Activity::playing("Compiling...")).await;
+      let cargo_update = Command::new("sh")
+                .arg("-c")
+                .arg("cargo update")
+                .output()
+                .await
+                .expect("failed to update crates");
+      let links_re = Regex::new(r"(.https.*)").unwrap();
+      if let Ok(cargo_update_out) = &String::from_utf8(cargo_update.stderr) {
+        let updating_git_re = Regex::new(r"(.Updating git.*)").unwrap();
+        let mut update_str = links_re.replace_all(cargo_update_out.as_str(), "").to_string();
+        update_str = updating_git_re.replace_all(update_str.as_str(), "").to_string();
+        if update_str.len() > 200 {
+          if let Some((i, _)) = update_str.char_indices().rev().nth(200) {
+            update_str = update_str[i..].to_string();
+          }
+        }
+        let new_description = format!("{}\n{}", description, update_str);
+        mmm.edit(&ctx, |m|
+          m.embed(|e| e.title("Compiling")
+                       .colour((230, 10, 50))
+                       .description(new_description)
+                       .footer(|f| f.text(&footer))
+          )
+        ).await?;
+      }
       let cargo_build = Command::new("sh")
                 .arg("-c")
                 .arg("cargo build --release")
@@ -140,6 +167,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
                 .expect("failed to compile new version");
       if let Ok(cargo_build_out) = &String::from_utf8(cargo_build.stderr) {
         let mut cut_paths = cargo_build_out.replace("/root/contrib/rust/", "");
+        cut_paths = links_re.replace_all(cut_paths.as_str(), "").to_string();
         // if message is too big, take only last things
         if cut_paths.len() > 666 {
           if let Some((i, _)) = cut_paths.char_indices().rev().nth(666) {

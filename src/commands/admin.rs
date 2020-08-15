@@ -1,4 +1,7 @@
-use crate::common::{ points, msg::channel_message };
+use crate::{
+  types::team::{ Blacklisted, BLACKLIST_JSON },
+  common::{ points, msg::channel_message }
+};
 
 use serenity::{
   model::{ channel::*, gateway::Activity },
@@ -8,6 +11,8 @@ use serenity::{
     macros::command
   }
 };
+
+use async_std::fs;
 
 #[command]
 async fn idle(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
@@ -108,5 +113,20 @@ async fn unmute(ctx: &Context, msg: &Message) -> CommandResult {
       }
     }
   }
+  Ok(())
+}
+
+#[command]
+#[min_args(2)]
+async fn blacklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  let player = args.single::<String>()?;
+  let reason_arg = args.rest();
+  let blacklisted = Blacklisted {
+    battletag: player.clone(),
+    reason: reason_arg.to_string()
+  };
+  let j = serde_json::to_string_pretty(&blacklisted)?;
+  fs::write(BLACKLIST_JSON, j).await?;
+  channel_message(ctx, msg, &format!("{} blacklisted", player)).await;
   Ok(())
 }

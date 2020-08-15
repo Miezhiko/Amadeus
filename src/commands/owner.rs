@@ -145,6 +145,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
         let updating_git_re = Regex::new(r"(.Updating git.*)").unwrap();
         let mut update_str = links_re.replace_all(&cargo_update_out, "").to_string();
         update_str = updating_git_re.replace_all(&update_str, "").to_string();
+        update_str = update_str.replace("/root/contrib/rust/", "");
         update_str = update_str.lines()
                                .filter(|l| !l.trim().is_empty())
                                .collect::<Vec<&str>>()

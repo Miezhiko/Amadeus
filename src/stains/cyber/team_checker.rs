@@ -24,7 +24,7 @@ lazy_static! {
 }
 
 async fn check_match( matchid_lol: &str
-                    , playaz: &Vec<Player>
+                    , playaz: &[Player]
                     ) -> Option<FinishedGame> {
 
   let mut matchid_s : String = String::new();
@@ -63,7 +63,7 @@ async fn check_match( matchid_lol: &str
           set!{ g_map = get_map(&m.map)
               , race1 = get_race2(m.teams[0].players[0].race)
               , race2 = get_race2(m.teams[1].players[0].race) };
-          for i in 0..1 {
+          for i in 0..2 {
             if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.battletag) {
               let won = m.teams[i].players[0].won;
               losers.push((playa.discord, won));
@@ -88,8 +88,8 @@ async fn check_match( matchid_lol: &str
               , race12 = get_race2(m.teams[0].players[1].race)
               , race2  = get_race2(m.teams[1].players[0].race)
               , race22 = get_race2(m.teams[1].players[1].race) };
-          for i in 0..1 {
-            for j in 0..1 {
+          for i in 0..2 {
+            for j in 0..2 {
               if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
                 let won = m.teams[i].players[j].won;
                 losers.push((playa.discord, won));
@@ -408,25 +408,23 @@ pub async fn check<'a>( ctx: &Context
                       let streak = points::add_win_points( guild_id
                                                          , *pw
                                                          ).await;
-                      if playa == *pw {
-                        if streak >= 3 {
-                          title =
-                            match streak {
-                              3  => "MULTIKILL",
-                              4  => "MEGA KILL",
-                              5  => "ULTRAKILL",
-                              6  => "KILLING SPREE",
-                              7  => "RAMPAGE!",
-                              8  => "DOMINATING",
-                              9  => "UNSTOPPABLE",
-                              10 => "GODLIKE!",
-                              11 => "WICKED SICK",
-                              12 => "ALPHA",
-                              _  => "FRENETIC"
-                            };
-                          let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
-                          streak_fields = Some(vec![("Winning streak", dd, false)]);
-                        }
+                      if playa == *pw && streak >= 3 {
+                        title =
+                          match streak {
+                            3  => "MULTIKILL",
+                            4  => "MEGA KILL",
+                            5  => "ULTRAKILL",
+                            6  => "KILLING SPREE",
+                            7  => "RAMPAGE!",
+                            8  => "DOMINATING",
+                            9  => "UNSTOPPABLE",
+                            10 => "GODLIKE!",
+                            11 => "WICKED SICK",
+                            12 => "ALPHA",
+                            _  => "FRENETIC"
+                          };
+                        let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
+                        streak_fields = Some(vec![("Winning streak", dd, false)]);
                       }
                     } else {
                       trace!("Registering lose for {}", pw);

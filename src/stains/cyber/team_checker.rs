@@ -56,6 +56,7 @@ async fn check_match( matchid_lol: &str
   if let Ok(res) = reqwest::get(&url).await {
     match res.json::<MD>().await {
       Ok(md) => {
+        let address = format!("https://www.w3champions.com/match/{}", matchid);
         let m = md.match_data;
         let mut losers: Vec<(u64, bool)> = vec![];
         let mstr_o =
@@ -160,6 +161,7 @@ async fn check_match( matchid_lol: &str
               return Some(FinishedGame
                 { desc: mstr
                 , passed_time: duration_in_minutes
+                , link: address
                 , winners: losers
                 , additional_fields: scores
                 , hero_png: maybe_hero_png
@@ -187,6 +189,7 @@ async fn check_match( matchid_lol: &str
             return Some(FinishedGame
               { desc: mstr
               , passed_time: duration_in_minutes
+              , link: address
               , winners: losers
               , additional_fields: None
               , hero_png: maybe_hero_png
@@ -439,6 +442,7 @@ pub async fn check<'a>( ctx: &Context
                         .title(title)
                         .description(&fgame.desc)
                         .colour(color)
+                        .url(&fgame.link)
                         .footer(|f| f.text(footer));
                       if !old_fields.is_empty() {
                         e = e.fields(old_fields);

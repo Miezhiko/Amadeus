@@ -4,7 +4,6 @@
 - Store AI chain somewhere
 - Function to get message content for chain
 - meta.rs commands file is too big, split it
-- Automate tournaments information posting (maybe)
-- Add links to finished games (maybe)
-- Fix situation when both players from team play
 - Blacklist for pad games
+- Pagination
+- Service logs (alike `journalctl --since today -u Amadeus`)

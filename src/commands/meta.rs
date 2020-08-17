@@ -20,6 +20,8 @@ use rand::{
   Rng
 };
 
+use regex::Regex;
+
 use qrcode::{
   QrCode,
   render::unicode,
@@ -326,49 +328,7 @@ async fn get_system_info(ctx: &Context) -> SysInfo {
   sys_info
 }
 
-#[command]
-async fn info(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-
-  let mut eb = CreateEmbed::default();
-
-  set!{ guild_count   = ctx.cache.guilds().await.len()
-      , channel_count = ctx.cache.guild_channel_count().await
-      , user_count    = ctx.cache.user_count().await
-      , sys_info      = get_system_info(ctx).await
-      , footer = format!("Requested by {}", msg.author.name) };
-
-  eb.title(format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string()));
-  eb.color(0xf51010);
-  eb.description(format!(
-"```
-Servers:  {}
-Channels: {}
-Users:    {}
-Memory:   {}
-Database: {}
-Latency:  {}
-```", guild_count, channel_count, user_count, sys_info.memory, sys_info.db_size, sys_info.shard_latency));
-  eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
-  eb.footer(|f| f.text(footer));
-
-  msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| { e.0 = eb.0; e })
-  }).await?;
-
-  Ok(())
-}
-
-#[command]
-async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let mut eb = CreateEmbed::default();
-  let footer = format!("Requested by {}", msg.author.name);
-
+async fn get_uptime() -> (String, String) {
   let nao = Utc::now();
   let start_time = START_TIME.lock().await;
   let since_start_time : Duration = nao - *start_time;
@@ -395,9 +355,105 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
     }
   }
 
+  ( start_time.format("%Y %b %d %H:%M").to_string(), uptime_string )
+}
+
+#[command]
+#[aliases(about)]
+async fn info(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+
+  let mut eb = CreateEmbed::default();
+  let (_, uptime_string) = get_uptime().await;
+
+  set!{ guild_count   = ctx.cache.guilds().await.len()
+      , channel_count = ctx.cache.guild_channel_count().await
+      , user_count    = ctx.cache.user_count().await
+      , sys_info      = get_system_info(ctx).await
+      , footer = format!("Requested by {}", msg.author.name) };
+
+  eb.title(format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string()));
+  eb.color(0xf51010);
+  eb.description(format!(
+"```
+Servers:  {}
+Channels: {}
+Users:    {}
+Memory:   {}
+Database: {}
+Latency:  {}
+Uptime:   {}
+```", guild_count, channel_count, user_count, sys_info.memory, sys_info.db_size, sys_info.shard_latency
+    , uptime_string ));
+  eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+  eb.footer(|f| f.text(footer));
+
+  msg.channel_id.send_message(ctx, |m| {
+    m.embed(|e| { e.0 = eb.0; e })
+  }).await?;
+
+  Ok(())
+}
+
+#[command]
+async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+
+  let git_log = Command::new("sh")
+        .arg("-c")
+        .arg("git --no-pager log -n 13")
+        .output()
+        .await
+        .expect("failed to execute process");
+  if let Ok(git_log_stdout) = &String::from_utf8(git_log.stdout) {
+
+    let re1 = Regex::new(r"<(.*?)>").unwrap();
+    let re2 = Regex::new(r"Date.*").unwrap();
+    let mut descr = re1.replace_all(&git_log_stdout, "").to_string();
+    descr = re2.replace_all(&descr, "").to_string();
+    descr = descr.lines()
+                 .filter(|l| !l.trim().is_empty())
+                 .collect::<Vec<&str>>()
+                 .join("\n");
+    descr = descr.replace("commit", "**commit**").to_string();
+    descr = descr.replace("Author:", "*author:*").to_string();
+
+    let mut eb = CreateEmbed::default();
+    let footer = format!("Requested by {}", msg.author.name);
+
+    eb.color(0x13fac1);
+    eb.title("Changelog");
+
+    eb.description(descr);
+
+    eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+    eb.footer(|f| f.text(footer));
+
+    msg.channel_id.send_message(ctx, |m| {
+      m.embed(|e| { e.0 = eb.0; e })
+    }).await?;
+  }
+
+  Ok(())
+}
+
+#[command]
+async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  let mut eb = CreateEmbed::default();
+  let footer = format!("Requested by {}", msg.author.name);
+
+  let (start_time, uptime_string) = get_uptime().await;
+
   eb.color(0xe535cc);
   eb.title(uptime_string);
-  eb.description(format!("start time: {}", start_time.to_string()));
+  eb.description(format!("start time: {}", start_time));
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
   eb.footer(|f| f.text(footer));
 

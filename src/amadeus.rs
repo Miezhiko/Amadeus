@@ -79,7 +79,7 @@ async fn admin_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOpti
 }
 
 #[group]
-#[commands(info, help, help_ru, version, embed, qrcode, urban, uptime, tic_tac_toe)]
+#[commands(info, help, help_ru, version, embed, qrcode, urban, uptime, tic_tac_toe, changelog)]
 struct Meta;
 
 #[group]

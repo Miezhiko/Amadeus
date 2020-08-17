@@ -63,7 +63,7 @@ impl Handler {
 
 lazy_static! {
   pub static ref BACKUP: Mutex<VecDeque<(MessageId, Message)>>
-    = Mutex::new(VecDeque::with_capacity(13));
+    = Mutex::new(VecDeque::with_capacity(25));
   pub static ref MUTED: Mutex<Vec<UserId>> = Mutex::new(Vec::new());
 }
 
@@ -172,50 +172,49 @@ impl EventHandler for Handler {
     // if let Ok(msg) = ctx.http.get_message(*channel_id.as_u64(), *deleted_message_id.as_u64()).await {
     if !backup_deq.is_empty() {
       if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
-        if msg.is_own(&ctx).await {
-          // Ok, our message was deleted, let see who did it
-          if let Some(guild) = msg.guild(&ctx).await {
-            if let Some(guild_id) = msg.guild_id {
-              if let Ok(audit) = ctx.http.get_audit_logs( *guild_id.as_u64()
-                                                        , Some( ActionMessage::Delete as u8 )
-                                                        , None
-                                                        , None
-                                                        , Some(1)).await {
-                // Here we just hope it's last in Audit log, very unsafe stuff
-                if let Some(entry) = audit.entries.values().next() {
-                  // that entry contains target_id: Option<u64> but nobody knows what's that
-                  if entry.user_id != guild.owner_id {
-                    if let Ok(deleter) = ctx.http.get_user(*entry.user_id.as_u64()).await {
-                      if !deleter.bot {
-                        let log_text = format!("{} was trying to remove my message", deleter.name);
-                        log(&ctx, &guild_id, &log_text).await;
-                        // But I don't allow it
-                        for file in &msg.attachments {
-                          if let Ok(bytes) = file.download().await {
-                            let cow = AttachmentType::Bytes {
-                              data: Cow::from(bytes),
-                              filename: String::from(&file.filename)
-                            };
-                            if let Err(why) = channel_id.send_message(&ctx, |m| m.add_file(cow)).await {
-                              error!("Failed to download and post attachment {:?}", why);
-                            }
-                          }
-                        }
-                        if !msg.content.is_empty() {
-                          if let Err(why) = channel_id.send_message(&ctx, |m|
-                              m.content(&msg.content)
-                            ).await {
-                            error!("Failed to post my message again, {:?}", why);
+        /* if msg.is_own(&ctx).await  { */
+        // Ok, our message was deleted, let see who did it
+        if let Some(guild) = msg.guild(&ctx).await {
+          if let Some(guild_id) = msg.guild_id {
+            if let Ok(audit) = ctx.http.get_audit_logs( *guild_id.as_u64()
+                                                      , Some( ActionMessage::Delete as u8 )
+                                                      , None
+                                                      , None
+                                                      , Some(1)).await {
+              // Here we just hope it's last in Audit log, very unsafe stuff
+              if let Some(entry) = audit.entries.values().next() {
+                // that entry contains target_id: Option<u64> but nobody knows what's that
+                if entry.user_id != guild.owner_id {
+                  if let Ok(deleter) = ctx.http.get_user(*entry.user_id.as_u64()).await {
+                    if !deleter.bot {
+                      let log_text = format!("{} was trying to remove message", deleter.name);
+                      log(&ctx, &guild_id, &log_text).await;
+                      // But I don't allow it
+                      for file in &msg.attachments {
+                        if let Ok(bytes) = file.download().await {
+                          let cow = AttachmentType::Bytes {
+                            data: Cow::from(bytes),
+                            filename: String::from(&file.filename)
                           };
-                        }
-                        for embed in &msg.embeds {
-                          if let Err(why) = channel_id.send_message(&ctx, |m| {
-                            m.embed(|e| {
-                              *e = CreateEmbed::from(embed.clone());
-                              e })
-                          }).await {
-                            error!("Error reposting embed {:?}", why);
+                          if let Err(why) = channel_id.send_message(&ctx, |m| m.add_file(cow)).await {
+                            error!("Failed to download and post attachment {:?}", why);
                           }
+                        }
+                      }
+                      if !msg.content.is_empty() {
+                        if let Err(why) = channel_id.send_message(&ctx, |m|
+                            m.content(&msg.content)
+                          ).await {
+                          error!("Failed to post my message again, {:?}", why);
+                        };
+                      }
+                      for embed in &msg.embeds {
+                        if let Err(why) = channel_id.send_message(&ctx, |m| {
+                          m.embed(|e| {
+                            *e = CreateEmbed::from(embed.clone());
+                            e })
+                        }).await {
+                          error!("Error reposting embed {:?}", why);
                         }
                       }
                     }
@@ -474,6 +473,11 @@ impl EventHandler for Handler {
           }
         }
       }
+      let mut backup_deq = BACKUP.lock().await;
+      if backup_deq.len() == backup_deq.capacity() {
+        backup_deq.pop_front();
+      }
+      backup_deq.push_back((msg.id, msg));
     }
   }
   async fn guild_ban_addition(&self, _ctx: Context, _guild_id: GuildId, _banned_user: User) {}

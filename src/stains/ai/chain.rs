@@ -219,7 +219,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
         CACHE_ENG.lock().await
       };
     out = chain.generate_str();
-    let rndx = rand::thread_rng().gen_range(0, 6);
+    let rndx = rand::thread_rng().gen_range(0, 13);
     if rndx == 1 {
       if russian {
         out = boris::spell(&out);
@@ -260,7 +260,7 @@ pub fn obfuscate(msg_content : &str) -> String {
 pub async fn response(ctx: &Context, msg : &Message) {
   set!{ msg_content = &msg.content
       , russian = lang::is_russian(msg_content) };
-  let rndx : u32 = rand::thread_rng().gen_range(0, 9);
+  let rndx : u32 = rand::thread_rng().gen_range(0, 15);
   if rndx == 1 {
     let answer = generate(&ctx, &msg, Some(russian)).await;
     if !answer.is_empty() {
@@ -291,7 +291,7 @@ pub async fn response(ctx: &Context, msg : &Message) {
 
 pub async fn chat(ctx: &Context, msg : &Message) {
   let russian = lang::is_russian(&msg.content);
-  let rndx : u32 = rand::thread_rng().gen_range(0, 3);
+  let rndx : u32 = rand::thread_rng().gen_range(0, 9);
   let mut bert_generated = false;
   let mut answer =
     if rndx == 1 {

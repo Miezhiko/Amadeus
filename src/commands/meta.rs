@@ -419,8 +419,8 @@ async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
                  .filter(|l| !l.trim().is_empty())
                  .collect::<Vec<&str>>()
                  .join("\n");
-    descr = descr.replace("commit", "**commit**").to_string();
-    descr = descr.replace("Author:", "*author:*").to_string();
+    descr = descr.replace("commit", "**commit**");
+    descr = descr.replace("Author:", "*author:*");
 
     let mut eb = CreateEmbed::default();
     let footer = format!("Requested by {}", msg.author.name);

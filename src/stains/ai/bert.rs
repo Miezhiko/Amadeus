@@ -153,6 +153,7 @@ pub async fn chat(something: String, user_id: u64) -> anyhow::Result<String> {
 mod bert_tests {
   use super::*;
   #[test]
+  #[ignore]
   fn spell_test() -> Result<(), String> {
     let cache = String::from("Humba");
     match ask_with_cache(String::from("Humans imba?"), cache) {

@@ -11,6 +11,7 @@ use crate::{
 
 use serenity::{
   prelude::*,
+  builder::CreateEmbed,
   model::channel::*,
   framework::standard::{
     Args, CommandResult,
@@ -24,11 +25,13 @@ use serde_json::Value;
 use comfy_table::*;
 
 use std::{
+  time::Duration,
   sync::atomic::Ordering::Relaxed,
   sync::atomic::AtomicU32
 };
 
-pub static CURRENT_SEASON : AtomicU32 = AtomicU32::new(1);
+pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(1);
+static ONGOING_PAGE_SIZE: usize = 15;
 
 pub async fn update_current_season() {
   if let Ok(res) = reqwest::get("https://statistic-service.w3champions.com/api/ladder/seasons").await {
@@ -47,7 +50,6 @@ fn current_season() -> String {
 }
 
 #[command]
-//TODO: implement pagination for it
 async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -57,27 +59,66 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   let going : Going = res.json().await?;
   if !going.matches.is_empty() {
     let footer = format!("Requested by {}", msg.author.name);
-    let mut description : String = String:: new();
-    for m in going.matches.iter().take(15) {
-      if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
-        set! { g_map = get_map(&m.map)
-             , race1 = get_race2(m.teams[0].players[0].race)
-             , race2 = get_race2(m.teams[1].players[0].race) };
-        let mstr = format!("({}) **{}** [{}] vs ({}) **{}** [{}] *{}*",
-          race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
-        , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
-        description = format!("{}\n{}", mstr, description);
+    let mut embeds = vec![];
+    for (i, chunk) in going.matches.chunks(ONGOING_PAGE_SIZE).enumerate() {
+      let mut embed = CreateEmbed::default();
+      let mut description : String = String:: new();
+      for m in chunk {
+        if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
+          set! { g_map = get_map(&m.map)
+               , race1 = get_race2(m.teams[0].players[0].race)
+               , race2 = get_race2(m.teams[1].players[0].race) };
+          let mstr = format!("({}) **{}** [{}] vs ({}) **{}** [{}] *{}*",
+            race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
+          , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
+          description = format!("{}\n{}", mstr, description);
+        }
       }
+      embed.title(&format!("Ongoing matches, page {}", i + 1));
+      embed.description(description);
+      embed.thumbnail("https://i.pinimg.com/originals/b4/a0/40/b4a04082647a8505b3991cbaea7d2f86.png");
+      embed.colour((180,40,200));
+      embed.footer(|f| f.text(&footer));
+      embeds.push(embed);
     }
-    if !description.is_empty() {
-      if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
-        .embed(|e| e
-          .title("Ongoing matches")
-          .description(description)
-          .thumbnail("https://i.pinimg.com/originals/b4/a0/40/b4a04082647a8505b3991cbaea7d2f86.png")
-          .colour((180,40,200))
-          .footer(|f| f.text(footer)))).await {
-        error!("Error sending ongoing message: {:?}", why);
+    if !embeds.is_empty() {
+      let mut page = 0;
+      let mut bot_msg = msg.channel_id.send_message(ctx, |m| m.embed(|mut e| {
+        e.0 = embeds[page].0.clone(); e
+      })).await?;
+      if embeds.len() > 1 {
+        let left = ReactionType::Unicode(String::from("⬅️"));
+        let right = ReactionType::Unicode(String::from("➡️"));
+        let _ = bot_msg.react(ctx, left).await;
+        let _ = bot_msg.react(ctx, right).await;
+        loop {
+          if let Some(reaction) =
+            &bot_msg.await_reaction(ctx)
+                    .author_id(msg.author.id.0)
+                    .timeout(Duration::from_secs(120)).await {
+            let emoji = &reaction.as_inner_ref().emoji;
+            match emoji.as_data().as_str() {
+              "⬅️" => { 
+                if page != 0 {
+                  page -= 1;
+                }
+              },
+              "➡️" => { 
+                if page != embeds.len() - 1 {
+                  page += 1;
+                }
+              },
+              _ => (),
+            }
+            bot_msg.edit(ctx, |m| m.embed(|mut e| {
+              e.0 = embeds[page].0.clone(); e
+            })).await?;
+            let _ = reaction.as_inner_ref().delete(ctx).await;
+          } else {
+            let _ = bot_msg.delete_reactions(ctx).await;
+            break;
+          };
+        }
       }
     }
   }

@@ -1,5 +1,21 @@
-Amadeus
-=======
+<h1 align="center">
+  Amadeus
+  <br>
+</h1>
+
+<h4 align="center">Memory storage and artificial intelligence system.</h4>
+
+<p align="center">
+  <a href="#features">Features</a>
+  •
+  <a href="#cooking">Cooking</a>
+  •
+  <a href="#service">Service</a>
+  •
+  <a href="#notes">Notes</a>
+  •
+  <a href="#license">License</a>
+</p>
 
 [![Build Status](https://travis-ci.org/Qeenon/Amadeus.svg?branch=master)](https://travis-ci.org/Qeenon/Amadeus)
 [![CircleCI](https://circleci.com/gh/Qeenon/Amadeus/tree/mawa.svg?style=shield)](https://circleci.com/gh/Qeenon/Amadeus/tree/mawa)
@@ -8,16 +24,20 @@ Amadeus
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Qeenon/Amadeus.svg)](http://isitmaintained.com/project/Qeenon/Amadeus "Average time to resolve an issue")
 ![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.44.1-teal)
 [![License: ISC](https://img.shields.io/badge/License-ISC-teal.svg)](https://opensource.org/licenses/ISC)
-![Discord](https://img.shields.io/discord/611822838831251466?label=Discord)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_small) [![Twitter Follow](https://img.shields.io/twitter/follow/Qeenon.svg?style=social)](https://twitter.com/Qeenon) 
+[![Discord](https://img.shields.io/discord/611822838831251466?label=Discord)](https://discord.gg/GdzjVvD)
+[![mawa](https://github.com/Qeenon/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Qeenon/Amadeus/workflows/mawa)
+[![Issues](https://img.shields.io/github/issues-raw/Qeenon/Amadeus.svg?maxAge=25000)](https://github.com/tterb/Hyde/issues)
+[![GitHub contributors](https://img.shields.io/github/contributors/Qeenon/Amadeus.svg?style=flat)]()
+[![GitHub last commit](https://img.shields.io/github/last-commit/Qeenon/Amadeus.svg?style=flat)]()
+[![GitHub stars](https://img.shields.io/github/stars/Qeenon/Amadeus.svg?style=social&label=Stars&style=plastic)]()
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Qeenon/Amadeus)
+[![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus)
+[![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_small)
+[![Twitter Follow](https://img.shields.io/twitter/follow/Qeenon.svg?style=social)](https://twitter.com/Qeenon) 
 
-Memory storage and Artificial Intelligence system.\
-![mawa](https://github.com/Qeenon/Amadeus/workflows/mawa/badge.svg?branch=mawa) [![Issues](https://img.shields.io/github/issues-raw/Qeenon/Amadeus.svg?maxAge=25000)](https://github.com/tterb/Hyde/issues) [![GitHub contributors](https://img.shields.io/github/contributors/Qeenon/Amadeus.svg?style=flat)]() [![GitHub last commit](https://img.shields.io/github/last-commit/Qeenon/Amadeus.svg?style=flat)]() [![GitHub stars](https://img.shields.io/github/stars/Qeenon/Amadeus.svg?style=social&label=Stars&style=plastic)]() [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Qeenon/Amadeus)\
-Built with Rust and Serenity Framework.   [![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus) [![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
 
-
-Features
---------
+## Features
 
 <img align="right" src="https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png">
 
@@ -25,25 +45,24 @@ Features
  - transfer learning using chats context
  - automatic translation with bert models
  - many small commands (use `~help`)
- - using `Dhall` config files for things
- - live games tracking on w3champions
+ - using [Dhall](https://dhall-lang.org) config files for things
+ - live games tracking on [w3champions](https://www.w3champions.com)
  - some more warcraft 3 related stuff, like player stats and news
- - points system on cannyls! https://github.com/frugalos/cannyls/wiki
- - runs async, using tokio https://tokio.rs
- - easily replaces Streamcord
+ - points system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
+ - runs async, using [tokio.rs](https://tokio.rs)
  - many gifs commands for fun
  - plays music streams!
+ - stream notifications/trackers for twitch and goodgame.ru
 
 Using:
 
  - DistilBERT model finetuned on SQuAD (Stanford Question Answering Dataset)
  - MarianMT architecture and pre-trained models from the Opus-MT team from Language Technology at the University of Helsinki
- - Conversation model based on Microsoft's DialoGPT https://github.com/microsoft/DialoGPT
+ - Conversation model based on Microsoft's [DialoGPT](https://github.com/microsoft/DialoGPT)
 
 The human evaluation results indicate that the response generated from DialoGPT is comparable to human response quality under a single-turn conversation Turing test. 
 
-Preparing
----------
+## Cooking
 
  - to compile just use `cargo build --release` (on Windows you there could be problems with PyTorch, you can install it first and setup paths alike it's done in `misc/build.bat` file)
  - `cp conf.example.dhall conf.dhall` (initial constant options)
@@ -66,8 +85,7 @@ Preparing
 Note: will lag at first run due pre-trained models downloading.
 The models will be downloaded to the environment variable RUSTBERT_CACHE if it exists, otherwise to ~/.cache/.rustbert
 
-Start as service
-----------------
+## Service
 
 ``` sh
 cp misc/Amadeus.service /etc/systemd/system/Amadeus.service
@@ -82,8 +100,7 @@ note that you're fully safe to rebuild and restart it whenever you want
 systemctl restart Amadeus
 ```
 
-Note
-====
+## Notes
 
  - Only will work with server administrator permissions
  - Doesn't like other bots

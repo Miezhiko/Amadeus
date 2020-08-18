@@ -94,7 +94,7 @@ struct Translate;
 #[commands(cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, gifsearch
   , lol, angry, dance, confused, shock, nervous, sad, happy, annoyed, omg, smile
   , ew, awkward, oops, lazy, hungry, srtessed, scared, bored, yes, no, bye, sorry
-  , sleepy, wink, facepalm, whatever)]
+  , sleepy, wink, facepalm, whatever, pout)]
 struct Images;
 
 #[group]

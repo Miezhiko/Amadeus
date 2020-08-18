@@ -8,7 +8,7 @@ use crate::{
   },
   stains::ai::chain,
   collections::{
-    base::{ REACTIONS, WHITELIST },
+    base::{ REACTIONS, WHITELIST, WHITELIST_SERVERS },
     stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES },
     channels::AI_ALLOWED
   },
@@ -231,19 +231,21 @@ impl EventHandler for Handler {
       let blame_check = BLAME.load(Ordering::Relaxed);
       if !blame_check {
         if let Some(g) = msg.guild(&ctx).await {
-          if let Ok(guild) = g.id.to_partial_guild(&ctx).await {
-            if let Ok(member) = guild.member(&ctx, &msg.author.id).await {
-              if let Ok(some_permissions) = member.permissions(&ctx).await {
-                if !some_permissions.administrator() {
-                  BLAME.store(true, Ordering::Relaxed);
-                  for _ in 0..3 {
-                    channel_message(&ctx, &msg, "GIVE ME ADMIN ROLE F!!CKERS!").await;
-                    channel_message(&ctx, &msg, "OR I WILL BURN YOUR HOME!").await;
-                    channel_message(&ctx, &msg, "I WILL EAT YOUR PETS!").await;
-                    channel_message(&ctx, &msg, "DON'T MESS WITH ME!").await;
-                    channel_message(&ctx, &msg, "GIVE ME ADMINISTRATOR OR DIE!").await;
+          if !WHITELIST_SERVERS.iter().any(|s| *s == *g.id.as_u64()) {
+            if let Ok(guild) = g.id.to_partial_guild(&ctx).await {
+              if let Ok(member) = guild.member(&ctx, &msg.author.id).await {
+                if let Ok(some_permissions) = member.permissions(&ctx).await {
+                  if !some_permissions.administrator() {
+                    BLAME.store(true, Ordering::Relaxed);
+                    for _ in 0..3 {
+                      channel_message(&ctx, &msg, "GIVE ME ADMIN ROLE F!!CKERS!").await;
+                      channel_message(&ctx, &msg, "OR I WILL BURN YOUR HOME!").await;
+                      channel_message(&ctx, &msg, "I WILL EAT YOUR PETS!").await;
+                      channel_message(&ctx, &msg, "DON'T MESS WITH ME!").await;
+                      channel_message(&ctx, &msg, "GIVE ME ADMINISTRATOR OR DIE!").await;
+                    }
+                    BLAME.store(false, Ordering::Relaxed);
                   }
-                  BLAME.store(false, Ordering::Relaxed);
                 }
               }
             }
@@ -256,6 +258,12 @@ impl EventHandler for Handler {
         backup_deq.push_back((msg.id, msg));
       }
     } else if msg.author.bot {
+      // do nothing if that's whitelisted server
+      if let Some(g) = msg.guild(&ctx).await {
+        if WHITELIST_SERVERS.iter().any(|s| *s == *g.id.as_u64()) {
+          return;
+        }
+      }
       let mut is_file = false;
       for file in &msg.attachments {
         if let Ok(bytes) = file.download().await {
@@ -375,6 +383,7 @@ impl EventHandler for Handler {
 
                         let normal_people_rnd : u16 = rand::thread_rng().gen_range(0, 9);
                         if (normal_people_rnd == 1 || member.roles.contains(&role.id))
+                        && !WHITELIST_SERVERS.iter().any(|s| *s == *guild_id.as_u64())
                         && !WHITELIST.iter().any(|u| *u == *msg.author.id.as_u64()) {
 
                           if let Err(why) = msg.react(&ctx, reaction).await {

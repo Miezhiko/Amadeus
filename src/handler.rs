@@ -4,7 +4,7 @@ use crate::{
   common::{
     points,
     help::{ lang, channel::channel_by_name },
-    msg::channel_message, log::log
+    msg::channel_message
   },
   stains::ai::chain,
   collections::{
@@ -185,8 +185,8 @@ impl EventHandler for Handler {
               if let Ok(deleter) = ctx.http.get_user(*entry.user_id.as_u64()).await {
                 if !deleter.bot {
                   // message was removed by admin or by author
-                  let log_text = format!("{} or {} was trying to remove message", deleter.name, msg.author.name);
-                  log(&ctx, &guild_id, &log_text).await;
+                  info!("{} or {} was trying to remove message", deleter.name, msg.author.name);
+                  // log(&ctx, &guild_id, &log_text).await;
                   // But I don't allow it
                   for file in &msg.attachments {
                     if let Ok(bytes) = file.download().await {
@@ -201,7 +201,7 @@ impl EventHandler for Handler {
                   }
                   if !msg.content.is_empty() {
                     if let Err(why) = channel_id.send_message(&ctx, |m|
-                        m.content(&msg.content)
+                        m.content(&format!("{}: {}", msg.author.name, &msg.content))
                       ).await {
                       error!("Failed to post my message again, {:?}", why);
                     };

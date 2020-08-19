@@ -82,22 +82,22 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
     if let Err(why) = msg.delete(&ctx).await {
       error!("Error deleting original command {:?}", why);
     }
-    let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] }
-                                           else { &msg.mentions[0] };
+    let filter = if nsfw {
+        if msg.channel(ctx).await.unwrap().is_nsfw() {
+          "off" 
+        } else {
+          "low"
+        }
+      } else  { "off" };
 
-     let filter = if nsfw {
-          if msg.channel(ctx).await.unwrap().is_nsfw() {
-            "off" 
-          } else {
-            "low"
-          }
-        } else  { "off" };
     let gifs = fetch_gifs(ctx, fetch, 50, filter).await?;
     let mut rng = StdRng::from_entropy();
     let val = rng.gen_range(0, 49);
 
     match target {
       GType::Target(t) => {
+        let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] }
+                                               else { &msg.mentions[0] };
         msg.channel_id.send_message(ctx, |m|
           m.embed(|e| e.color(color)
                       .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))

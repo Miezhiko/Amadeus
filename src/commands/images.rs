@@ -6,7 +6,8 @@ use serenity::{
   framework::standard::{
     CommandResult,
     macros::command, Args
-  }
+  },
+  utils::Colour
 };
 
 use std::{ collections::HashMap, sync::Arc };
@@ -57,611 +58,422 @@ async fn fetch_gifs(ctx: &Context, search: &str, amount: u32, filter: &str)
   Ok(resp.results)
 }
 
-#[command]
-async fn hug(ctx: &Context, msg: &Message) -> CommandResult {
-  if !msg.mentions.is_empty() && !(msg.mentions.len() == 1 && msg.mentions[0].bot) {
+enum GType {
+  Own(String),
+  Target(String),
+  Nothing
+}
+
+fn own(x: &str) -> GType { GType::Own(String::from(x)) }
+fn target(x: &str) -> GType { GType::Target(String::from(x)) }
+
+async fn gifx<C: Into<Colour>>( ctx: &Context
+                              , msg: &Message
+                              , fetch: &str
+                              , color: C
+                              , target: GType
+                              , nsfw: bool
+                              ) -> CommandResult {
+  if match target {
+    GType::Target(_) => !msg.mentions.is_empty() && !(msg.mentions.len() >= 1 && msg.mentions[0].bot),
+    GType::Own(_) => true,
+    GType::Nothing => true
+  } {
     if let Err(why) = msg.delete(&ctx).await {
       error!("Error deleting original command {:?}", why);
     }
-    let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
+    let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] }
+                                           else { &msg.mentions[0] };
 
-    let gifs = fetch_gifs(ctx, "hug anime", 50, "off ").await?;
+     let filter = if nsfw {
+          if msg.channel(ctx).await.unwrap().is_nsfw() {
+            "off" 
+          } else {
+            "low"
+          }
+        } else  { "off" };
+    let gifs = fetch_gifs(ctx, fetch, 50, filter).await?;
     let mut rng = StdRng::from_entropy();
     let val = rng.gen_range(0, 49);
 
-    msg.channel_id.send_message(ctx, |m|
-      m.embed(|e| e.color(0xed9e2f)
-                   .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                   .description(format!("hugs {}", target_user.name))
-                   .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
+    match target {
+      GType::Target(t) => {
+        msg.channel_id.send_message(ctx, |m|
+          m.embed(|e| e.color(color)
+                      .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                      .description(format!("{} {}", t, target_user.name))
+                      .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
+      },
+      GType::Own(o) => {
+        msg.channel_id.send_message(ctx, |m|
+          m.embed(|e| e.color(color)
+                      .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                      .description(format!("{}", o))
+                      .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
+      },
+      GType::Nothing => {
+        msg.channel_id.send_message(ctx, |m|
+          m.embed(|e| e.color(color)
+                       .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                       .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
+      }
+    }
   } else {
-    msg.channel_id.say(ctx, "You want to give a hug? Please mention who you want to hug!").await?;
+    msg.channel_id.say(ctx, "Please mention a person!").await?;
   }
   Ok(())
+}
+
+#[command]
+async fn hug(ctx: &Context, msg: &Message) -> CommandResult {
+  gifx( ctx, msg
+      , "hug anime"
+      , 0xed9e2f
+      , target("hugs")
+      , false ).await
 }
 
 #[command]
 async fn pat(ctx: &Context, msg: &Message) -> CommandResult {
-  if !msg.mentions.is_empty() && !(msg.mentions.len() == 1 && msg.mentions[0].bot) {
-    if let Err(why) = msg.delete(&ctx).await {
-      error!("Error deleting original command {:?}", why);
-    }
-    let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-
-    let gifs = fetch_gifs(ctx, "pat anime", 50, "off").await?;
-    let mut rng = StdRng::from_entropy();
-    let val = rng.gen_range(0, 49);
-
-    msg.channel_id.send_message(ctx, |m|
-      m.embed(|e| e.color(0x27e6d9)
-                   .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                   .description(format!("pats {}", target_user.name))
-                  .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  } else {
-    msg.channel_id.say(ctx, "I wanna pat someone! Please mention who to pat!").await?;
-  }
-  Ok(())
+  gifx( ctx, msg
+      , "pat anime"
+      , 0x27e6d9
+      , target("pats")
+      , false ).await
 }
 
 #[command]
 async fn slap(ctx: &Context, msg: &Message) -> CommandResult {
-  if !msg.mentions.is_empty() && !(msg.mentions.len() == 1 && msg.mentions[0].bot) {
-    if let Err(why) = msg.delete(&ctx).await {
-      error!("Error deleting original command {:?}", why);
-    }
-    let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-
-    let gifs = fetch_gifs(ctx, "slap anime", 50, "off").await?;
-    let mut rng = StdRng::from_entropy();
-    let val = rng.gen_range(0, 49);
-
-    msg.channel_id.send_message(ctx, |m|
-      m.embed(|e| e.color(0xd62929)
-                   .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                   .description(format!("slaps {}", target_user.name))
-                   .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  } else {
-    msg.channel_id.say(ctx, "Wait... who do I slap again? Please mention the person!").await?;
-  }
-  Ok(())
+  gifx( ctx, msg
+      , "slap anime"
+      , 0xd62929
+      , target("slaps")
+      , false ).await
 }
 
 #[command]
 async fn wave(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "wave anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} waves", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "wave anime"
+      , 0x3252e3
+      , own("waves")
+      , false ).await
 }
 
 #[command]
 async fn sex(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let filter = 
-      if msg.channel(ctx).await.unwrap().is_nsfw() {
-        "off" 
-      } else {
-        "low"
-      };
-  let gifs = fetch_gifs(ctx, "sex anime", 50, filter).await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "sex anime"
+      , 0x3252f3
+      , GType::Nothing
+      , true ).await
 }
 
 #[command]
 async fn ahegao(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let filter = 
-      if msg.channel(ctx).await.unwrap().is_nsfw() {
-        "off" 
-      } else {
-        "low"
-      };
-  let gifs = fetch_gifs(ctx, "ahegao", 50, filter).await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "ahegao anime"
+      , 0xf252c1
+      , GType::Nothing
+      , true ).await
 }
 
 #[command]
 async fn dance(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "dancing anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "dancing anime"
+      , 0x22b2c1
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn clap(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "clap anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "clap anime"
+      , 0x22c2c1
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn lol(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "lol anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xa656e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "lol anime"
+      , 0xa656e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn angry(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "angry anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} is angry", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "angry anime"
+      , 0x424203
+      , own("Angry!")
+      , false ).await
 }
 
 #[command]
 async fn sad(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "sad anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} is sad", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "sad anime"
+      , 0x3252e3
+      , own("sad :(")
+      , false ).await
 }
 
 #[command]
 async fn happy(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "happy anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} is happy", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "happy anime"
+      , 0x6252e3
+      , own("happy :)")
+      , false ).await
 }
 
 #[command]
 async fn shrug(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "shrug anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} shrugs", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "shrug anime"
+      , 0x3252e3
+      , own(r"shrugs ¯\_(ツ)_/¯")
+      , false ).await
 }
 
 #[command]
 async fn shock(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "sock anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} is shocked", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "shock anime"
+      , 0x722223
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn nervous(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "nervous anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} is feeling nervous", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "nervous anime"
+      , 0x3252e3
+      , own("feeling nervous")
+      , false ).await
 }
 
 #[command]
 async fn confused(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "confused anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} confused", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "confused anime"
+      , 0x3292e3
+      , own("confused")
+      , false ).await
 }
 
 #[command]
 async fn cry(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "cry anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} is crying", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "cry anime"
+      , 0x126223
+      , own("crying")
+      , false ).await
 }
 
 #[command]
 async fn pout(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "pout anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} is pouting", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "pout anime"
+      , 0x3252e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn cringe(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "cringe", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x3252e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( &msg.author.name ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "cringe"
+      , 0x111111
+      , GType::Nothing
+      , true ).await
 }
 
 #[command]
 async fn annoyed(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "annoyed anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "annoyed anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn omg(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "omg anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "omg anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn smile(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "smile anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
+  gifx( ctx, msg
+      , "smile anime"
+      , 0xafb2e3
+      , own("smiles")
+      , false ).await
+}
 
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xafb2e3)
-                .author(|a| a.icon_url(&msg.author.face()).name( format!("{} smiles", &msg.author.name) ))
-                .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+#[command]
+async fn smug(ctx: &Context, msg: &Message) -> CommandResult {
+  gifx( ctx, msg
+      , "smug anime"
+      , 0xaf2213
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn ew(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "ew anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "ew anime"
+      , 0xaf82e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn awkward(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "awkward anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "awkward anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
+
 
 #[command]
 async fn oops(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "oops anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "oops anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn lazy(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "lazy anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "lazy anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn hungry(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "hungry anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "hungry anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn srtessed(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "srtessed anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "srtessed anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn scared(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "scared anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "scared anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn bored(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "bored anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "bored anime"
+      , 0xad52c3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn yes(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "yes anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "yes anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn no(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "no anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "no anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn bye(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "bye anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "bye anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn sorry(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "sorry anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "sorry anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn sleepy(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "sleepy anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "sleepy anime"
+      , 0x3f22a3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn wink(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "wink anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "wink anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn facepalm(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "facepalm anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "facepalm anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
 async fn whatever(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  let gifs = fetch_gifs(ctx, "whatever anime", 50, "off").await?;
-  let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0, 49);
-  msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0xaf52e3)
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                 .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
-  Ok(())
+  gifx( ctx, msg
+      , "whatever anime"
+      , 0xaf52e3
+      , GType::Nothing
+      , false ).await
 }
 
 #[command]
@@ -686,7 +498,3 @@ async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                  .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }
-
-/*
- * Inpired by: https://github.com/bdashore3/CourtJester/blob/serenity/src/commands/images.rs
- */

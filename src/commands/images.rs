@@ -378,9 +378,9 @@ async fn hungry(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
-async fn srtessed(ctx: &Context, msg: &Message) -> CommandResult {
+async fn stressed(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
-      , "srtessed anime"
+      , "stressed anime"
       , 0xaf52e3
       , GType::Nothing
       , false ).await

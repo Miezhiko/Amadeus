@@ -5,5 +5,4 @@
 - Blacklist for pad games
 - Service logs (alike `journalctl --since today -u Amadeus`)
 - Maybe Lavalink for music instead of https://github.com/ytdl-org/youtube-dl
-- Refactor same short gif functions (like ~cry)
 - Maybe generate help strings by list of structures like {cmdname, helptext, ...}

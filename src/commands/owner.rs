@@ -25,6 +25,7 @@ use tokio::process::Command;
 
 #[command]
 #[min_args(2)]
+#[owners_only]
 async fn set(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -46,6 +47,7 @@ async fn set(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
 
 #[command]
 #[min_args(1)]
+#[owners_only]
 async fn say(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -66,6 +68,7 @@ async fn say(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 }
 
 #[command]
+#[owners_only]
 async fn clear(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if args.len() == 1 {
     let countdown: u64 = args.find().unwrap_or_default();
@@ -104,6 +107,7 @@ async fn clear(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
+#[owners_only]
 async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {:?}", why);

@@ -15,6 +15,7 @@ use serenity::{
 use async_std::fs;
 
 #[command]
+#[required_permissions(ADMINISTRATOR)]
 async fn idle(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   let what = args.message();
   if let Err(why) = msg.delete(&ctx).await {
@@ -26,6 +27,7 @@ async fn idle(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 }
 
 #[command]
+#[required_permissions(ADMINISTRATOR)]
 async fn stream(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
   if let Ok(stream_url) = args.single::<String>() {
     let name = args.single::<String>().unwrap_or_else(|_| "Amadeus".to_string());
@@ -39,6 +41,7 @@ async fn stream(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult 
 }
 
 #[command]
+#[required_permissions(ADMINISTRATOR)]
 async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
     if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
@@ -56,6 +59,7 @@ async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[required_permissions(ADMINISTRATOR)]
 async fn register_lose(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
     if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
@@ -71,6 +75,7 @@ async fn register_lose(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[required_permissions(ADMINISTRATOR)]
 async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(g) = msg.guild(&ctx).await {
     if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
@@ -94,6 +99,7 @@ async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[required_permissions(ADMINISTRATOR)]
 async fn unmute(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(g) = msg.guild(&ctx).await {
     if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {

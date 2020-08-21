@@ -161,7 +161,7 @@ async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
       }
     },
     DispatchError::Ratelimited(x) => {
-      let _ = msg.reply(ctx, format!("You can't run this command for {} more seconds.", x)).await;
+      let _ = msg.reply(ctx, format!("You can't run this command for {:#?} more.", x)).await;
     }
     // eprint prints to stderr rather than stdout.
     _ => {

@@ -392,7 +392,6 @@ pub async fn check<'a>( ctx: &Context
                 let playa = track.players[0].discord;
                 if let Ok(user) = ctx.http.get_user(playa).await {
                   let mut old_fields = Vec::new();
-                  let mut url = None;
                   let mut color = (32,32,32);
                   if !msg.embeds.is_empty() {
                     if !msg.embeds[0].fields.is_empty() {
@@ -400,7 +399,6 @@ pub async fn check<'a>( ctx: &Context
                         old_fields.push((f.name, f.value, f.inline));
                       }
                     }
-                    url = msg.embeds[0].url.clone();
                     color = msg.embeds[0].colour.tuple();
                   };
                   let mut title = "FINISHED";
@@ -455,9 +453,6 @@ pub async fn check<'a>( ctx: &Context
                           (s1, s3, true),
                           (s2, s4, true)
                         ]);
-                      }
-                      if let Some(some_url) = url {
-                        e = e.url(some_url);
                       }
                       if let Some(hero) = &fgame.hero_png {
                         e.thumbnail(hero);

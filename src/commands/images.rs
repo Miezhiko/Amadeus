@@ -75,7 +75,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
                               , nsfw: bool
                               ) -> CommandResult {
   if match target {
-    GType::Target(_) => !msg.mentions.is_empty() && !(msg.mentions.len() >= 1 && msg.mentions[0].bot),
+    GType::Target(_) => !(msg.mentions.is_empty() || (!msg.mentions.is_empty() && msg.mentions[0].bot)),
     GType::Own(_) => true,
     GType::Nothing => true
   } {
@@ -108,7 +108,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
         msg.channel_id.send_message(ctx, |m|
           m.embed(|e| e.color(color)
                       .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                      .description(format!("{}", o))
+                      .description(o)
                       .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
       GType::Nothing => {

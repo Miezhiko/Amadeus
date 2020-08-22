@@ -108,7 +108,8 @@ pub async fn activate_games_tracking(
                         let pic = twd.thumbnail_url.replace("{width}", "800")
                                                     .replace("{height}", "450");
                         if twd.type_string == "live" {
-                          additional_fields.push(("Live on twitch", twd.title.clone(), false));
+                          let titurl = format!("{}\n{}", &twd.title, url);
+                          additional_fields.push(("Live on twitch", titurl, false));
                           image       = Some(pic);
                           em_url      = Some(url);
                           twitch_live = true;

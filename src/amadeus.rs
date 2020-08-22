@@ -265,10 +265,8 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
         .colour((246, 111, 0)))).await {
       error!("Error sending help message: {:?}", why);
     }
-  } else {
-    if help_commands::with_embeds(ctx, msg, args, help_options, groups, owners).await.is_none() {
-      warn!("empty help answer");
-    }
+  } else if help_commands::with_embeds(ctx, msg, args, help_options, groups, owners).await.is_none() {
+    warn!("empty help answer");
   }
   Ok(())
 }

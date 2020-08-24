@@ -85,7 +85,7 @@ async fn admin_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOpti
 #[group("Meta")]
 #[description = "Basic commands"]
 #[commands( info, version, embed, qrcode, urban, uptime, tic_tac_toe, changelog
-          , help_ru)]
+          , help_ru, x3 )]
 struct Meta;
 
 #[group("Chat")]

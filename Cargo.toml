@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.12.17"
+version     = "2.12.18"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -23,7 +23,7 @@ serde_dhall   = "0.6.0"
 lazy_static   = "1.4.0"
 markov        = "1.1.0"
 ucd           = "0.1.1"
-comfy-table   = "1.0.0"
+comfy-table   = "1.1.1"
 async-std     = "1.6.3"
 futures-util  = "0.3.5"
 qrcode        = "0.12.0"

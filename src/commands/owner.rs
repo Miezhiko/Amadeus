@@ -154,8 +154,8 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
                                .filter(|l| !l.trim().is_empty())
                                .collect::<Vec<&str>>()
                                .join("\n");
-        if update_str.len() > 200 {
-          if let Some((i, _)) = update_str.char_indices().rev().nth(200) {
+        if update_str.len() > 666 {
+          if let Some((i, _)) = update_str.char_indices().rev().nth(666) {
             update_str = update_str[i..].to_string();
           }
         }

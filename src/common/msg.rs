@@ -1,5 +1,5 @@
 use serenity::{
-  model::{ channel::Message },
+  model::channel::Message,
   prelude::*
 };
 
@@ -80,7 +80,7 @@ pub fn split_message(text: &str) -> Vec<&str> {
 }
 
 pub async fn direct_message(ctx: &Context, msg : &Message, text: &str) {
-  if text.len() > MESSAGE_LIMIT {
+  if Message::overflow_length(text).is_some() {
     if text.starts_with("```") {
       serenity_direct_message_multi2(ctx, msg, split_code(text)).await;
     } else {
@@ -92,7 +92,7 @@ pub async fn direct_message(ctx: &Context, msg : &Message, text: &str) {
 }
 
 pub async fn reply(ctx: &Context, msg : &Message, text: &str) {
-  if text.len() > MESSAGE_LIMIT {
+  if Message::overflow_length(text).is_some() {
     if text.starts_with("```") {
       serenity_reply_multi2(ctx, msg, split_code(text)).await;
     } else {
@@ -104,7 +104,7 @@ pub async fn reply(ctx: &Context, msg : &Message, text: &str) {
 }
 
 pub async fn channel_message(ctx: &Context, msg : &Message, text: &str) {
-  if text.len() > MESSAGE_LIMIT {
+  if Message::overflow_length(text).is_some() {
     if text.starts_with("```") {
       serenity_channel_message_multi2(ctx, msg, split_code(text)).await;
     } else {

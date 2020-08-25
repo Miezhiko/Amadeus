@@ -1,9 +1,12 @@
-use crate::common::help::channel::channel_by_name;
-use crate::common::msg::{ split_code, split_message, MESSAGE_LIMIT };
+use crate::common::{ help::channel::channel_by_name
+                   , msg::{ split_code, split_message }
+                   };
 
 use serenity::{
   builder::CreateMessage,
-  model::{ id::GuildId, channel::GuildChannel },
+  model::{ id::GuildId
+         , channel::{ Message, GuildChannel }
+         },
   prelude::*
 };
 
@@ -37,7 +40,7 @@ async fn serenity_channel_message_multi2(ctx: &Context, chan : &GuildChannel, te
   }
 }
 async fn channel_message(ctx: &Context, chan : &GuildChannel, text: &str) {
-  if text.len() > MESSAGE_LIMIT {
+  if Message::overflow_length(text).is_some() {
     if text.starts_with("```") {
       serenity_channel_message_multi2(ctx, chan, split_code(text)).await;
     } else {

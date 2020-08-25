@@ -8,7 +8,6 @@ let playersList : List Playerx =
   [ p "RavenTT#2656"      277555411584942080
   , p "ParadoCS#21514"    458674374044549140
   , p "Fopogg#2818"       318043743628427269
-  , p "KungFuRabbit#2696" 510449365014544414
   , p "sonder#21813"      470291730328190985 -- rav3n
   , t "PETRUSHQUE#2357"   137402988539936769 "PETRUSHQUE"
   , t "Rearden#21595"     622849650847907870 "amateurrearden"

@@ -18,6 +18,7 @@ use serenity::{
 
 #[command]
 #[aliases(счёт, счет)]
+#[description("displays user score")]
 async fn score(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
     let (target, the_points) =
@@ -47,6 +48,7 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[description("displays ton N users by score")]
 async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -89,6 +91,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
 #[command]
 #[min_args(1)] // or 2?
+#[description("give mentioned user some own points")]
 async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild) = msg.guild(&ctx).await {
     if !msg.mentions.is_empty() && !(msg.mentions.len() == 1 && msg.mentions[0].bot) {
@@ -130,6 +133,7 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
 #[command]
 #[aliases(цитата)]
+#[description("generate random quote of an user")]
 async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
   if !msg.mentions.is_empty() && !(msg.mentions.len() == 1 && msg.mentions[0].bot) {
     let target = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
@@ -156,6 +160,7 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 #[min_args(1)]
 #[aliases(борис)]
+#[description("metaphone for russian text")]
 async fn boris(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   channel_message( ctx
                  , msg
@@ -166,6 +171,7 @@ async fn boris(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
 #[command]
 #[min_args(1)]
+#[description("uwu")]
 async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   channel_message( ctx
                  , msg

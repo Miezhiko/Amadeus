@@ -12,13 +12,12 @@ pub struct TwitchData {
   pub started_at: String,
   pub language: String,
   pub thumbnail_url: String,
-  pub tag_ids: Vec<String>,
+  pub tag_ids: Vec<String>
 }
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
-pub struct Pagination {
-}
+pub struct Pagination {}
 
 pub_struct!(Twitch {
   data: Vec<TwitchData>,

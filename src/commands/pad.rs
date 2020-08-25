@@ -30,7 +30,7 @@ use std::{
   sync::atomic::AtomicU32
 };
 
-pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(1);
+pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(2);
 static ONGOING_PAGE_SIZE: usize = 15;
 
 pub async fn update_current_season() {
@@ -50,6 +50,7 @@ fn current_season() -> String {
 }
 
 #[command]
+#[description("shows ongoing matches on W3Champions")]
 async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -127,6 +128,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[aliases(статистика)]
+#[description("display statistics on W3Champions")]
 async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   let mut args_msg = args.message();
   if args_msg.is_empty() {

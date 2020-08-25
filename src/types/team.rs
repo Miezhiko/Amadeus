@@ -1,4 +1,4 @@
-pub const BLACKLIST_JSON: &str  = "blacklist.json";
+pub const BLACKLIST_JSON: &str = "blacklist.json";
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Streams {

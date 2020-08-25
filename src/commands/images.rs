@@ -478,6 +478,7 @@ async fn whatever(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[aliases(gif)]
+#[description("search for specific gif")]
 async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if args.is_empty() {
     msg.channel_id.say(ctx, "Please provide a search string after the command!").await?;

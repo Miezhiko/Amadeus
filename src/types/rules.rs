@@ -3,20 +3,20 @@ use regex::Regex;
 #[derive(Clone, Debug)]
 pub struct RuleRe {
   pub from: Regex,
-  pub to: &'static str,
+  pub to: &'static str
 }
 
 pub type RuleFnType = fn(&str) -> String;
 
 #[derive(Clone)]
 pub struct RuleFn {
-  pub function: RuleFnType,
+  pub function: RuleFnType
 }
 
 #[derive(Clone)]
 pub enum Rule {
   Regex(RuleRe),
-  Function(RuleFn),
+  Function(RuleFn)
 }
 
 impl Rule {

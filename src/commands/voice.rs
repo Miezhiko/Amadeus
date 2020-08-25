@@ -52,6 +52,7 @@ pub async fn rejoin_voice_channel(ctx : &Context, conf: &ROptions) {
 }
 
 #[command]
+#[description("join voice channel")]
 async fn join(ctx: &Context, msg: &Message) -> CommandResult {
   let guild = match msg.guild(&ctx).await {
     Some(guild) => guild,
@@ -97,6 +98,7 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[description("leave voice channel")]
 async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
   let guild_id = match ctx.cache.guild_channel(msg.channel_id).await {
     Some(channel) => channel.guild_id,
@@ -127,6 +129,7 @@ async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[description("play some mp3/youtube stream")]
 async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let url =
     if !args.is_empty() {
@@ -182,6 +185,7 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
+#[description("play last stream again")]
 async fn repeat(ctx: &Context, msg: &Message) -> CommandResult {
   play(ctx, msg, Args::new("", &[Delimiter::Single(' ')])).await
 }

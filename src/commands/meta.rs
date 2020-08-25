@@ -389,6 +389,7 @@ async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[description("display shard uptime since last restart")]
 async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);

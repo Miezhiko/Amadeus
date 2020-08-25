@@ -39,6 +39,7 @@ async fn bert_translate(ctx: &Context, text: String, lang: Language)
 
 #[command]
 #[min_args(1)]
+#[description("Translate English to Russian")]
 async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
@@ -82,6 +83,7 @@ async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
 #[command]
 #[min_args(1)]
+#[description("Translate Russian to English")]
 async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
@@ -125,6 +127,7 @@ async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
 #[command]
 #[min_args(1)]
+#[description("Translate English to German")]
 async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
@@ -168,6 +171,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
 #[command]
 #[min_args(1)]
+#[description("Translate German to English")]
 async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
@@ -211,6 +215,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
 #[command]
 #[min_args(1)]
+#[description("Translate English to French")]
 async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
@@ -254,6 +259,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
 #[command]
 #[min_args(1)]
+#[description("Translate French to English")]
 async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {

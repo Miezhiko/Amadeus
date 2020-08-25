@@ -168,6 +168,7 @@ pub async fn tour(ctx: &Context, msg: &Message, on : DateTime<Utc>) -> CommandRe
 
 #[command]
 #[aliases(вчера)]
+#[description("display yesterday events from w3info")]
 pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
   let yesterday : DateTime<Utc> = Utc::now() - Duration::days(1); 
   tour(ctx, msg, yesterday).await?;
@@ -179,6 +180,7 @@ pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[aliases(сегодня)]
+#[description("display today events from w3info")]
 pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
   let today : DateTime<Utc> = Utc::now(); 
   tour_internal(ctx, &msg.channel_id, today, true, true).await?;
@@ -190,6 +192,7 @@ pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[aliases(завтра)]
+#[description("display tomorrow events from w3info")]
 pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
   let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
   tour(ctx, msg, tomorrow).await?;
@@ -200,6 +203,7 @@ pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[description("display weekends events from w3info")]
 pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
   let mut today : DateTime<Utc> = Utc::now();
   if today.weekday() == Weekday::Sun {
@@ -222,6 +226,7 @@ pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[description("ugly useless command")]
 pub async fn lineup(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let mut maps_out : Vec<(String, String, bool)> = Vec::new();
   let text = args.message();

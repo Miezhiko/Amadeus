@@ -12,7 +12,8 @@ async fn serenity_direct_message_single(ctx: &Context, msg : &Message, text: &st
 }
 
 async fn serenity_reply_single(ctx: &Context, msg : &Message, text: &str) {
-  if let Err(why) = msg.reply(ctx, text).await {
+  let gen = format!("{} {}", msg.author.mention(), text);
+  if let Err(why) = msg.channel_id.say(ctx, gen).await {
     error!("Error replieng to user: {:?}", why);
   }
 }

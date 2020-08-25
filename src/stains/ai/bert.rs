@@ -13,7 +13,7 @@ use uuid::Uuid;
 lazy_static! {
   pub static ref CONV_MANAGER: Mutex<ConversationManager>
     = Mutex::new(ConversationManager::new());
-  pub static ref CHAT_CONTEXT: Mutex<HashMap<u64, (Uuid, u32)>>
+  pub static ref CHAT_CONTEXT: Mutex<HashMap<u64, (Uuid, u32, u32)>>
     = Mutex::new(HashMap::new());
 }
 
@@ -109,20 +109,24 @@ pub async fn chat(something: String, user_id: u64) -> anyhow::Result<String> {
 
     let output =
       if user_id != 0 {
-        if let Some((tracking_conversation, passed)) = chat_context.get_mut(&user_id) {
-          if let Some(found_conversation) = conversation_manager
-                                        .get(tracking_conversation) {
+        if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
+          if *x > 3 {
+            *tracking_conversation = conversation_manager.create(&something);
+            *passed = 0; *x = 0;
+            conversation_model.generate_responses(&mut conversation_manager)
+          } else if let Some(found_conversation) = conversation_manager
+                                             .get(tracking_conversation) {
             let _ = found_conversation.add_user_input(&something);
-            *passed = 0;
+            *passed = 0; *x += 1;
             conversation_model.generate_responses(&mut conversation_manager)
           } else {
             *tracking_conversation = conversation_manager.create(&something);
-            *passed = 0;
+            *passed = 0; *x = 0;
             conversation_model.generate_responses(&mut conversation_manager)
           }
         } else {
           chat_context.insert( user_id
-                             , ( conversation_manager.create(&something), 0 )
+                             , ( conversation_manager.create(&something), 0, 0 )
                              );
           conversation_model.generate_responses(&mut conversation_manager)
         }

@@ -42,7 +42,7 @@ pub async fn activate_social_skils(
           // clean up old bert model conversation id-s
           let mut k_to_del : Vec<u64> = Vec::new();
           let mut chat_context = bert::CHAT_CONTEXT.lock().await;
-          for (k, (_, passed_time)) in chat_context.iter_mut() {
+          for (k, (_, passed_time, _)) in chat_context.iter_mut() {
             if *passed_time < 4 {
               *passed_time += 1;
             } else {

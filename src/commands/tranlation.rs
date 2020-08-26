@@ -8,13 +8,15 @@ use serenity::{
   },
 };
 
-use rust_bert::pipelines::translation::{ Language, TranslationConfig, TranslationModel };
+use rust_bert::pipelines::translation::{ Language
+                                       , TranslationConfig
+                                       , TranslationModel };
 
 use tch::Device;
 use tokio::task;
 
 async fn bert_translate(ctx: &Context, text: String, lang: Language)
-          -> anyhow::Result<String> {
+          -> jane_eyre::Result<String> {
   ctx.set_activity(Activity::listening("Translating!")).await;
   ctx.idle().await;
   let result = task::spawn_blocking(move || {

@@ -10,6 +10,8 @@ use tokio::{task, sync::Mutex };
 use std::collections::HashMap;
 use uuid::Uuid;
 
+use jane_eyre::Result;
+
 lazy_static! {
   pub static ref CONV_MANAGER: Mutex<ConversationManager>
     = Mutex::new(ConversationManager::new());
@@ -17,7 +19,7 @@ lazy_static! {
     = Mutex::new(HashMap::new());
 }
 
-pub async fn en2ru(text: String) -> anyhow::Result<String> {
+pub async fn en2ru(text: String) -> Result<String> {
   task::spawn_blocking(move || {
     let translation_config =
       TranslationConfig::new(Language::EnglishToRussian, Device::cuda_if_available());
@@ -32,7 +34,7 @@ pub async fn en2ru(text: String) -> anyhow::Result<String> {
   }).await.unwrap()
 }
 
-pub async fn ru2en(text: String) -> anyhow::Result<String> {
+pub async fn ru2en(text: String) -> Result<String> {
   task::spawn_blocking(move || {
     let translation_config =
       TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
@@ -48,7 +50,7 @@ pub async fn ru2en(text: String) -> anyhow::Result<String> {
   }).await.unwrap()
 }
 
-pub async fn ru2en_many(texts: Vec<String>) -> anyhow::Result<Vec<String>> {
+pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
   task::spawn_blocking(move || {
     let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
     let translation_config =
@@ -64,7 +66,7 @@ pub async fn ru2en_many(texts: Vec<String>) -> anyhow::Result<Vec<String>> {
   }).await.unwrap()
 }
 
-fn ask_with_cache(q: String, cache: String) -> anyhow::Result<String> {
+fn ask_with_cache(q: String, cache: String) -> Result<String> {
   // Set-up Question Answering model
   let qa_model = QuestionAnsweringModel::new(Default::default())?;
 
@@ -88,7 +90,7 @@ fn ask_with_cache(q: String, cache: String) -> anyhow::Result<String> {
   }
 }
 
-pub async fn ask(question: String) -> anyhow::Result<String> {
+pub async fn ask(question: String) -> Result<String> {
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let cache = 
     if cache_eng_vec.is_empty() {
@@ -101,7 +103,7 @@ pub async fn ask(question: String) -> anyhow::Result<String> {
   }).await.unwrap()
 }
 
-pub async fn chat(something: String, user_id: u64) -> anyhow::Result<String> {
+pub async fn chat(something: String, user_id: u64) -> Result<String> {
   let mut conversation_manager = CONV_MANAGER.lock().await;
   let mut chat_context = CHAT_CONTEXT.lock().await;
   task::spawn_blocking(move || {

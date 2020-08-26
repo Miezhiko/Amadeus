@@ -2,6 +2,8 @@ use crate::types::options::{ IOptions, ROptions };
 
 use async_std::{ fs, io::Error };
 
+use jane_eyre::Result;
+
 const DHALL_FILE_NAME: &str = "conf.dhall";
 const JSON_FILE_NAME: &str  = "conf.json";
 

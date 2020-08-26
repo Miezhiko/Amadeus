@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use tokio::task;
 use tokio::sync::{ Mutex };
 
+use jane_eyre::Result;
+
 static LSUF: &str = "tree.lusf";
 
 #[derive(Serialize, Deserialize)]

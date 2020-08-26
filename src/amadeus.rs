@@ -73,7 +73,10 @@ impl IFlagAction for Version {
 #[name = "Admin"]
 #[check_in_help(true)]
 #[display_in_help(true)]
-async fn admin_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOptions) -> CheckResult {
+async fn admin_check( ctx: &Context
+                    , msg: &Message
+                    , _: &mut Args
+                    , _: &CommandOptions ) -> CheckResult {
   if let Some(member) = msg.member(&ctx.cache).await {
     if let Ok(permissions) = member.permissions(&ctx.cache).await {
       return permissions.administrator().into();
@@ -173,9 +176,10 @@ async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
 }
 
 #[hook]
-async fn after(ctx: &Context, msg: &Message, cmd_name: &str, error: CommandResult) {
-  // error is the command result.
-  // inform the user about an error when it happens.
+async fn after( ctx: &Context
+              , msg: &Message
+              , cmd_name: &str
+              , error: CommandResult ) {
   if let Err(why) = &error {
     error!("Error while running command {}", &cmd_name);
     error!("{:?}", &error);
@@ -186,7 +190,9 @@ async fn after(ctx: &Context, msg: &Message, cmd_name: &str, error: CommandResul
 }
 
 #[hook]
-async fn unrecognised_command(ctx: &Context, msg: &Message, _command_name: &str) {
+async fn unrecognised_command( ctx: &Context
+                             , msg: &Message
+                             , _command_name: &str ) {
   let is_valid_greeting = |c| {
     let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
     let is_greeting = Regex::new(&regex).unwrap();
@@ -271,7 +277,8 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
   Ok(())
 }
 
-pub async fn run(opts : &IOptions) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+pub async fn run(opts : &IOptions) ->
+  jane_eyre::Result<(), Box<dyn std::error::Error + Send + Sync>> {
   { // this block limits scope of borrows by ap.refer() method
     let mut ap = ArgumentParser::new();
     let pname = "Amadeus";

@@ -6,7 +6,7 @@ use crate::{
     goodgame::GoodGameData
   },
   common::help::channel::channel_by_name,
-  stains::cyber
+  steins::cyber
 };
 
 use serenity::{

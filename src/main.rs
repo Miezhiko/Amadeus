@@ -7,7 +7,7 @@ mod types;
 mod common;
 mod collections;
 mod commands;
-mod stains;
+mod steins;
 mod handler;
 mod amadeus;
 

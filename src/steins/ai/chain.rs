@@ -6,7 +6,7 @@ use crate::{
   },
   collections::base::{ CONFUSION, CONFUSION_RU, OBFUSCATION, OBFUSCATION_RU },
   collections::channels::AI_LEARN,
-  stains::ai::{ boris, uwu, bert }
+  steins::ai::{ boris, uwu, bert }
 };
 
 use serenity::{

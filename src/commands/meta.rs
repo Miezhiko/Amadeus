@@ -1,5 +1,5 @@
-use crate::stains::gate::behavior::START_TIME;
-use crate::stains::cxx::moth;
+use crate::steins::gate::behavior::START_TIME;
+use crate::steins::cxx::moth;
 
 use std::sync::Arc;
 

@@ -1,4 +1,4 @@
-use crate::stains::ai::chain::CACHE_ENG_STR;
+use crate::steins::ai::chain::CACHE_ENG_STR;
 
 use rust_bert::pipelines::conversation::{ ConversationManager, ConversationModel };
 use rust_bert::pipelines::question_answering::{ QaInput, QuestionAnsweringModel };

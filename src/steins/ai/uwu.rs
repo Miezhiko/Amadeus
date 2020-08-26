@@ -1,6 +1,6 @@
 use crate::types::rules::*;
-use crate::collections::stuff::jonson::*;
-use crate::stains::ai::utils::*;
+use crate::collections::stuff::owo::*;
+use crate::steins::ai::utils::*;
 
 fn spell_word(word: &str) -> String {
   if word.is_empty() { return String::new(); }
@@ -54,17 +54,17 @@ pub fn spell(text: &str) -> String {
 }
 
 #[cfg(test)]
-mod boris_tests {
+mod owo_tests {
   use super::*;
   #[test]
-  fn spell_test() {
+  fn uwu_test() {
     assert_eq!(
-      spell("Вандербраун"),
-        "Вандирбраун"
+      spell("Wanderbraun"),
+        "Wandewbwaun"
     );
     assert_eq!(
-      spell("Фингон затыкал коня Рэйвену"),
-        "Финган затакал кана Ривину"
+      spell("Fingon fingoning"),
+        "Fingon fingonying"
     );
   }
 }

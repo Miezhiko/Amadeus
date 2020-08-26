@@ -3,7 +3,7 @@ use crate::{
     points,
     msg::channel_message
   },
-  stains::ai::{ chain, boris, uwu }
+  steins::ai::{ chain, boris, uwu }
 };
 
 use serenity::{

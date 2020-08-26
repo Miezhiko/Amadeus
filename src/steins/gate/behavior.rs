@@ -1,6 +1,6 @@
 use crate::{
   types::options::IOptions,
-  stains::{
+  steins::{
     gate::social::activate_social_skils,
     gate::tracking::{ team_games::activate_games_tracking
                     , streamers::activate_streamers_tracking

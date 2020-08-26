@@ -6,7 +6,7 @@ use crate::{
   },
   collections::team::teammates,
   common::points,
-  stains::cyber::{
+  steins::cyber::{
     utils::{ get_race2, get_map, get_hero_png }
   }
 };

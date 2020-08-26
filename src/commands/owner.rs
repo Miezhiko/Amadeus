@@ -2,8 +2,8 @@ use crate::{
   common::msg::{
     channel_message, direct_message
   },
-  stains::gate,
-  stains::ai::chain::ACTIVITY_LEVEL
+  steins::gate,
+  steins::ai::chain::ACTIVITY_LEVEL
 };
 
 use serenity::{

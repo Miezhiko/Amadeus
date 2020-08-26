@@ -1,12 +1,12 @@
 use crate::{
   types::options::*,
-  stains::gate,
+  steins::gate,
   common::{
     points,
     help::{ lang, channel::channel_by_name },
     msg::channel_message
   },
-  stains::ai::chain,
+  steins::ai::chain,
   collections::{
     base::{ REACTIONS, WHITELIST, WHITELIST_SERVERS },
     stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES },

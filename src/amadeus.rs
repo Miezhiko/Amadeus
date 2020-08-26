@@ -5,7 +5,7 @@ use crate::{
     },
     options::IOptions
   },
-  stains::ai::chain,
+  steins::ai::chain,
   common::options,
   handler::Handler,
   commands::{

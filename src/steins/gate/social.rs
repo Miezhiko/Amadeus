@@ -1,6 +1,6 @@
 use crate::{
   common::help::channel::channel_by_name,
-  stains::ai::{ chain, bert },
+  steins::ai::{ chain, bert },
   commands::pad::update_current_season
 };
 

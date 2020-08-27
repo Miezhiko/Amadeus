@@ -6,3 +6,4 @@
 - Service logs (alike `journalctl --since today -u Amadeus`)
 - Maybe Lavalink for music instead of https://github.com/ytdl-org/youtube-dl
 - Maybe generate help strings by list of structures like {cmdname, helptext, ...}
+- Check for ngram generators

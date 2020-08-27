@@ -219,7 +219,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
         CACHE_ENG.lock().await
       };
     out = chain.generate_str();
-    let rndx = rand::thread_rng().gen_range(0, 13);
+    let rndx = rand::thread_rng().gen_range(0, 50);
     if rndx == 1 {
       if russian {
         out = boris::spell(&out);
@@ -244,7 +244,7 @@ pub fn obfuscate(msg_content : &str) -> String {
     }
   }
   chain.feed_str(msg_content);
-  let rndx = rand::thread_rng().gen_range(0, 2);
+  let rndx = rand::thread_rng().gen_range(0, 6);
   let cahin_string = chain.generate_str();
   if rndx == 1 {
     if russian {

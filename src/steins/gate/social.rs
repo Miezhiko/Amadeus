@@ -20,6 +20,11 @@ use std::{
 
 use rand::Rng;
 
+/* every 30 minutes */
+static POLL_PERIOD_SECONDS: u64 = 30 * 60;
+/* every ~2 hours, depends on ACTIVITY_LEVEL */
+static PASSED_FOR_CONVERSATION: u32 = 2 * 60 * 60 / POLL_PERIOD_SECONDS as u32;
+
 pub async fn activate_social_skils(
                      ctx:       &Context
                    , channels:  &HashMap<ChannelId, GuildChannel>
@@ -40,10 +45,10 @@ pub async fn activate_social_skils(
           }
         } else {
           // clean up old bert model conversation id-s
-          let mut k_to_del : Vec<u64> = Vec::new();
+          let mut k_to_del: Vec<u64> = Vec::new();
           let mut chat_context = bert::CHAT_CONTEXT.lock().await;
           for (k, (_, passed_time, _)) in chat_context.iter_mut() {
-            if *passed_time < 4 {
+            if *passed_time < PASSED_FOR_CONVERSATION {
               *passed_time += 1;
             } else {
               k_to_del.push(*k);
@@ -55,8 +60,7 @@ pub async fn activate_social_skils(
           }
           update_current_season().await;
         }
-        /* every 30 minutes */
-        tokio::time::delay_for(time::Duration::from_secs(30*60)).await;
+        tokio::time::delay_for(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
       }
     });
   }

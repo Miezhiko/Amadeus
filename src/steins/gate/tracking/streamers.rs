@@ -24,9 +24,7 @@ use std::{
   time
 };
 
-use rand::{
-  Rng
-};
+use rand::Rng;
 
 lazy_static! {
   pub static ref STREAMS: Mutex<HashMap<u64, TrackingGame>>
@@ -313,6 +311,7 @@ pub async fn activate_streamers_tracking(
           }
           tokio::time::delay_for(time::Duration::from_millis(100)).await;
         }
+        /* every minute */
         tokio::time::delay_for(time::Duration::from_secs(60)).await;
       }
     });

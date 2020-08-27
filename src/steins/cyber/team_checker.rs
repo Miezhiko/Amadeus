@@ -170,21 +170,59 @@ async fn check_match( matchid_lol: &str
               // Again, to display hero icon / scores we use 1st playa
               let btag = &playaz[0].battletag;
               let player_scores =
-                if btag == &md.playerScores[0].battleTag {
-                  &md.playerScores[0]
-                } else if btag == &md.playerScores[1].battleTag {
-                  &md.playerScores[1]
-                } else if btag == &md.playerScores[2].battleTag {
-                  &md.playerScores[2]
-                } else {
-                  &md.playerScores[3]
-                };
+                if let Some(scores) = &md.playerScores.iter().find(|s| {
+                  &s.battleTag == btag
+                }) { scores } else { &md.playerScores[0] };
               if !player_scores.heroes.is_empty() {
                 maybe_hero_png = Some(get_hero_png(
                   &player_scores.heroes[0].icon
                   )
                 );
               }
+              // for 2x2 mode display scores of teammate
+              // or if two or more clan players in then clan players
+              let teammate_scores =
+                if playaz.len() > 1 {
+                  if let Some(scores) = &md.playerScores.iter().find(|s| {
+                    &s.battleTag == &playaz[1].battletag
+                  }) { scores } else { &md.playerScores[1] }
+                } else {
+                  if let Some(team) = m.teams.iter().find(|t| {
+                    t.players.iter().any(|p| {
+                        &p.battleTag == btag
+                      })
+                    }) {
+                    if let Some(not_me) = team.players.iter().find(|p| {
+                      &p.battleTag != btag
+                    }) {
+                      if let Some(scores) = &md.playerScores.iter().find(|s| {
+                        s.battleTag == not_me.battleTag
+                      }) {
+                        scores
+                      } else { &md.playerScores[1] }
+                    } else { &md.playerScores[1] }
+                  } else { &md.playerScores[1] }
+                };
+              set! { s1 = player_scores.battleTag.clone()
+                   , s2 = teammate_scores.battleTag.clone() };
+              let s3 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+                  , player_scores.unitScore.unitsProduced
+                  , player_scores.unitScore.unitsKilled
+                  , player_scores.resourceScore.goldCollected
+                  , player_scores.heroScore.expGained);
+              let s4 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+                  , teammate_scores.unitScore.unitsProduced
+                  , teammate_scores.unitScore.unitsKilled
+                  , teammate_scores.resourceScore.goldCollected
+                  , teammate_scores.heroScore.expGained);
+              return Some(FinishedGame
+                { desc: mstr
+                , passed_time: duration_in_minutes
+                , link: address
+                , winners: losers
+                , additional_fields: Some((s1,s2,s3,s4))
+                , hero_png: maybe_hero_png
+                });
             }
             return Some(FinishedGame
               { desc: mstr

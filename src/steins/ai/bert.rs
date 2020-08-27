@@ -72,7 +72,7 @@ fn ask_with_cache(q: String, cache: String) -> Result<String> {
 
   let qa_input = QaInput {
     question: q,
-    context: cache,
+    context: cache
   };
 
   // Get answer

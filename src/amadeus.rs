@@ -1,25 +1,24 @@
 use crate::{
   types::{
-    common::{
-      PubCreds, CoreGuild, CoreGuilds, AllGuilds
-    },
+    common::{ PubCreds
+            , CoreGuild
+            , CoreGuilds
+            , AllGuilds },
     options::IOptions
   },
   steins::ai::chain,
   common::options,
   handler::Handler,
-  commands::{
-    meta::*,
-    chat::*,
-    voice::*,
-    warcraft::*,
-    pad::*,
-    owner::*,
-    admin::*,
-    tictactoe::*,
-    images::*,
-    tranlation::*
-  },
+  commands::{ meta::*
+            , chat::*
+            , voice::*
+            , warcraft::*
+            , pad::*
+            , owner::*
+            , admin::*
+            , tictactoe::*
+            , images::*
+            , tranlation::* },
   collections::base::GREETINGS
 };
 
@@ -51,11 +50,9 @@ use std::sync::Arc;
 use regex::Regex;
 use reqwest::Client as Reqwest;
 
-use rand::{
-  rngs::StdRng,
-  seq::SliceRandom,
-  SeedableRng
-};
+use rand::{ rngs::StdRng
+          , seq::SliceRandom
+          , SeedableRng };
 
 pub struct Version();
 

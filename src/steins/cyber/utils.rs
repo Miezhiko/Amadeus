@@ -1,60 +1,52 @@
 pub fn get_race(r : u32) -> String {
   String::from(
-    match r {
-      1 => "Human",
-      2 => "Orc",
-      4 => "Night Elf",
-      8 => "Undead",
-      _ => "Random"
-    }
-  )
+    match r { 1 => "Human"
+            , 2 => "Orc"
+            , 4 => "Night Elf"
+            , 8 => "Undead"
+            , _ => "Random" })
 }
 
 pub fn get_race2(r : u32) -> String {
   String::from(
-    match r {
-      1 => "H",
-      2 => "O",
-      4 => "NE",
-      8 => "UD",
-      _ => "RND"
-    }
-  )
+    match r { 1 => "H"
+            , 2 => "O"
+            , 4 => "NE"
+            , 8 => "UD"
+            , _ => "RND"})
 }
 
 pub fn get_league(l: u32) -> String {
-  String::from(match l {
-    0 => "GrandMaster",
-    1 => "Master",
-    2 => "Diamond",
-    3 => "Platinum",
-    4 => "Gold",
-    5 => "Silver",
-    6 => "Bronze",
-    _ => ""
-  })
+  String::from(match l { 0 => "GrandMaster"
+                       , 1 => "Master"
+                       , 2 => "Diamond"
+                       , 3 => "Platinum"
+                       , 4 => "Gold"
+                       , 5 => "Silver"
+                       , 6 => "Bronze"
+                       , _ => "" })
 }
 
 fn try_get_map(m: &str) -> String {
-  String::from(match m {
-    "Overall"               => "All",
-    "echoisles"             => "EI",
-    "northernisles"         => "NIS",
-    "amazonia"              => "AZ",
-    "lastrefuge"            => "LR",
-    "concealedhill"         => "CH",
-    "twistedmeadows"        => "TM",
-    "terenasstand"          => "TS",
-    "autumnleaves"          => "AL",
-    "avalanche"             => "Avalanche",
-    "goldshire"             => "Goldshire",
-    "losttemple"            => "Lost Temple",
-    "turtlerock"            => "Turtle Rock",
-    "hillsbradcreek"        => "Hillsbrad Creek",
-    "gnollwood"             => "Gnoll Wood",
-    "tidewaterglades"       => "Tide Water Glades",
-    "circleoffallenheroes"  => "Circle of Hate",
-    _                       => ""})
+  String::from(
+    match m { "Overall"               => "All"
+            , "echoisles"             => "EI"
+            , "northernisles"         => "NIS"
+            , "amazonia"              => "AZ"
+            , "lastrefuge"            => "LR"
+            , "concealedhill"         => "CH"
+            , "twistedmeadows"        => "TM"
+            , "terenasstand"          => "TS"
+            , "autumnleaves"          => "AL"
+            , "avalanche"             => "Avalanche"
+            , "goldshire"             => "Goldshire"
+            , "losttemple"            => "Lost Temple"
+            , "turtlerock"            => "Turtle Rock"
+            , "hillsbradcreek"        => "Hillsbrad Creek"
+            , "gnollwood"             => "Gnoll Wood"
+            , "tidewaterglades"       => "Tide Water Glades"
+            , "circleoffallenheroes"  => "Circle of Hate"
+            , _                       => "" })
 }
 
 pub fn get_map(m: &str) -> String {
@@ -75,16 +67,15 @@ pub fn get_map(m: &str) -> String {
 
 pub fn get_league_png(lid: u32) -> String {
   let base = "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/leagueFlags/";
-  format!("{}{}.png", base, match lid {
-    0 => "grandmaster",
-    1 => "master",
-    2 => "diamond",
-    3 => "platinum",
-    4 => "gold",
-    5 => "silver",
-    6 => "bronze",
-    _ => "unranked"
-  })
+  format!("{}{}.png", base
+    , match lid { 0 => "grandmaster"
+                , 1 => "master"
+                , 2 => "diamond"
+                , 3 => "platinum"
+                , 4 => "gold"
+                , 5 => "silver"
+                , 6 => "bronze"
+                , _ => "unranked" })
 }
 
 pub fn get_hero_png(hero: &str) -> String {

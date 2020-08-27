@@ -4,7 +4,10 @@ use crate::{
     help::lang,
     msg::{ reply, channel_message }
   },
-  collections::base::{ CONFUSION, CONFUSION_RU, OBFUSCATION, OBFUSCATION_RU },
+  collections::base::{ CONFUSION
+                     , CONFUSION_RU
+                     , OBFUSCATION
+                     , OBFUSCATION_RU },
   collections::channels::AI_LEARN,
   steins::ai::{ boris, uwu, bert }
 };
@@ -18,7 +21,6 @@ use serenity::{
 };
 
 use regex::Regex;
-
 use markov::Chain;
 
 use rand::{

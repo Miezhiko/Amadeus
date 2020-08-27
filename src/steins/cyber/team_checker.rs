@@ -7,7 +7,9 @@ use crate::{
   collections::team::teammates,
   common::points,
   steins::cyber::{
-    utils::{ get_race2, get_map, get_hero_png }
+    utils::{ get_race2
+           , get_map
+           , get_hero_png }
   }
 };
 
@@ -99,20 +101,20 @@ async fn check_match( matchid_lol: &str
           }
           if m.gameMode == 6 {
             if m.teams[0].won {
-              Some(format!("({}+{}) __**{} + {} [{}]**__ **+{}** (won)\n*vs*\n({}+{}) __*{} + {} [{}]*__ *{}* (lost)\n\nmap: **{}**",
+              Some(format!("({}+{}) __**{} + {}**__ [{}] **+{}** (won)\n    *vs*\n({}+{}) __*{} + {}*__ [{}] *{}* (lost)\n\nmap: **{}**",
                 race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
               , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
             } else {
-              Some(format!("({}+{}) __*{} + {} [{}]*__ *{}* (lost)\n*vs*\n({}+{}) __**{} + {} [{}]**__ **+{}** (won)\n\nmap: **{}**",
+              Some(format!("({}+{}) __*{} + {}*__ [{}] *{}* (lost)\n    *vs*\n({}+{}) __**{} + {}**__ [{}] **+{}** (won)\n\nmap: **{}**",
                 race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
               , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
             }
           } else if m.teams[0].won {
-            Some(format!("({}+{}) __**{} [{}]**__ **+{}** + __**{} [{}]**__ **+{}** (won)\n*vs*\n({}+{}) __*{} [{}]*__ *{}* + __*{} [{}]*__ *{}* (lost)\n\nmap: **{}**",
+            Some(format!("({}+{}) __**{}**__ [{}] **+{}** + __**{}**__ [{}] **+{}** (won)\n    *vs*\n({}+{}) __*{}*__ [{}] *{}* + __*{}*__ [{}] *{}* (lost)\n\nmap: **{}**",
               race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain
             , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
           } else {
-            Some(format!("({}+{}) __*{} [{}]*__ *{}* + __*{} [{}]*__ *{}* (lost)\n*vs*\n({}+{}) __**{} [{}]**__ **+{}** + __**{} [{}]**__ **+{}** (won)\n\nmap: **{}**",
+            Some(format!("({}+{}) __*{}*__ [{}] *{}* + __*{}*__ [{}] *{}* (lost)\n    *vs*\n({}+{}) __**{}**__ [{}] **+{}** + __**{}**__ [{}] **+{}** (won)\n\nmap: **{}**",
             race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain
             , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
           }
@@ -266,8 +268,8 @@ pub async fn check<'a>( ctx: &Context
                     , race1 = get_race2(m.teams[0].players[0].race)
                     , race2 = get_race2(m.teams[1].players[0].race) };
                 let mstr = format!("({}) **{}** [{}] *vs* ({}) **{}** [{}] *{}*",
-                  race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
-                , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
+                    race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
+                  , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
 
                 if let Some(track) = games_lock.get_mut(&m.startTime) {
                   track.still_live = true;
@@ -321,12 +323,9 @@ pub async fn check<'a>( ctx: &Context
 
                 } else {
                   out.push(
-                    StartingGame {
-                      key: m.startTime,
-                      description: mstr,
-                      players: playaz
-                    }
-                  );
+                    StartingGame { key: m.startTime
+                                 , description: mstr
+                                 , players: playaz });
                 }
               }
             }
@@ -347,11 +346,11 @@ pub async fn check<'a>( ctx: &Context
                      , race22 = get_race2(m.teams[1].players[1].race) };
 
                 let mstr = if m.gameMode == 6 {
-                  format!("({}+{}) **{}** + **{}** [{}]\n*vs*\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
+                  format!("({}+{}) **{}** + **{}** [{}]\n    *vs*\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
                     race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr
                   , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, g_map)
                 } else {
-                  format!("({}+{}) **{}** [{}] + **{}** [{}]\n*vs*\n({}+{}) **{}** [{}] + **{}** [{}]\n\nmap: **{}**",
+                  format!("({}+{}) **{}** [{}] + **{}** [{}]\n    *vs*\n({}+{}) **{}** [{}] + **{}** [{}]\n\nmap: **{}**",
                     race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr
                   , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, g_map)
                 };
@@ -367,7 +366,7 @@ pub async fn check<'a>( ctx: &Context
                       setm!{ fields = Vec::new()
                            , img    = None
                            , url    = None
-                           , color = (32,32,32) };
+                           , color  = (32,32,32) };
                       if !msg.embeds.is_empty() {
                         if !msg.embeds[0].fields.is_empty() {
                           for f in msg.embeds[0].fields.clone() {
@@ -405,14 +404,10 @@ pub async fn check<'a>( ctx: &Context
                   }
                 } else {
                   out.push(
-                    StartingGame {
-                      key: m.startTime,
-                      description: mstr,
-                      players: playaz
-                    }
-                  );
+                    StartingGame { key: m.startTime
+                                 , description: mstr
+                                 , players: playaz });
                 }
-
               }
             }
           }
@@ -449,19 +444,17 @@ pub async fn check<'a>( ctx: &Context
                                                          ).await;
                       if playa == *pw && streak >= 3 {
                         title =
-                          match streak {
-                            3  => "MULTIKILL",
-                            4  => "MEGA KILL",
-                            5  => "ULTRAKILL",
-                            6  => "KILLING SPREE",
-                            7  => "RAMPAGE!",
-                            8  => "DOMINATING",
-                            9  => "UNSTOPPABLE",
-                            10 => "GODLIKE!",
-                            11 => "WICKED SICK",
-                            12 => "ALPHA",
-                            _  => "FRENETIC"
-                          };
+                          match streak { 3  => "MULTIKILL"
+                                       , 4  => "MEGA KILL"
+                                       , 5  => "ULTRAKILL"
+                                       , 6  => "KILLING SPREE"
+                                       , 7  => "RAMPAGE!"
+                                       , 8  => "DOMINATING"
+                                       , 9  => "UNSTOPPABLE"
+                                       , 10 => "GODLIKE!"
+                                       , 11 => "WICKED SICK"
+                                       , 12 => "ALPHA"
+                                       , _  => "FRENETIC" };
                         let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
                         streak_fields = Some(vec![("Winning streak", dd, false)]);
                       }
@@ -475,11 +468,11 @@ pub async fn check<'a>( ctx: &Context
                     .embed(|e| {
                       let mut e =
                         e.author(|a| a.icon_url(&user.face()).name(&user.name))
-                        .title(title)
-                        .description(&fgame.desc)
-                        .colour(color)
-                        .url(&fgame.link)
-                        .footer(|f| f.text(footer));
+                         .title(title)
+                         .description(&fgame.desc)
+                         .colour(color)
+                         .url(&fgame.link)
+                         .footer(|f| f.text(footer));
                       if !old_fields.is_empty() {
                         e = e.fields(old_fields);
                       }

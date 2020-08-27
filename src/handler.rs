@@ -42,8 +42,9 @@ use rand::{
 
 use regex::Regex;
 
-pub static THREADS : AtomicBool = AtomicBool::new(false);
-pub static BLAME : AtomicBool = AtomicBool::new(false);
+pub static THREADS: AtomicBool = AtomicBool::new(false);
+pub static BLAME: AtomicBool = AtomicBool::new(false);
+pub static RESTORE: AtomicBool = AtomicBool::new(false);
 
 pub struct Handler {
   ioptions: IOptions,
@@ -167,52 +168,54 @@ impl EventHandler for Handler {
     }
   }
   async fn message_delete(&self, ctx: Context, channel_id: ChannelId, deleted_message_id: MessageId) {
-    let backup_deq = BACKUP.lock().await;
-    // message is deleted already, impossible to get it using http context
-    // if let Ok(msg) = ctx.http.get_message(*channel_id.as_u64(), *deleted_message_id.as_u64()).await {
-    if !backup_deq.is_empty() {
-      if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
-        if msg.is_own(&ctx).await { // TODO: not sure whether we want to backup ALL
-          if let Some(guild_id) = msg.guild_id {
-            if let Ok(audit) = ctx.http.get_audit_logs( *guild_id.as_u64()
-                                                      , Some( ActionMessage::Delete as u8 )
-                                                      , None
-                                                      , None
-                                                      , Some(1)).await {
-              // Here we just hope it's last in Audit log, very unsafe stuff
-              if let Some(entry) = audit.entries.values().next() {
-                // that entry contains target_id: Option<u64> but nobody knows what's that
-                if let Ok(deleter) = ctx.http.get_user(*entry.user_id.as_u64()).await {
-                  if !deleter.bot {
-                    // message was removed by admin or by author
-                    info!("{} or {} was trying to remove message", deleter.name, msg.author.name);
-                    // log(&ctx, &guild_id, &log_text).await;
-                    // But I don't allow it
-                    for file in &msg.attachments {
-                      if let Ok(bytes) = file.download().await {
-                        let cow = AttachmentType::Bytes {
-                          data: Cow::from(bytes),
-                          filename: String::from(&file.filename)
-                        };
-                        if let Err(why) = channel_id.send_message(&ctx, |m| m.add_file(cow)).await {
-                          error!("Failed to download and post attachment {:?}", why);
+    if RESTORE.load(Ordering::Relaxed) {
+      let backup_deq = BACKUP.lock().await;
+      // message is deleted already, impossible to get it using http context
+      // if let Ok(msg) = ctx.http.get_message(*channel_id.as_u64(), *deleted_message_id.as_u64()).await {
+      if !backup_deq.is_empty() {
+        if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
+          if msg.is_own(&ctx).await { // TODO: not sure whether we want to backup ALL
+            if let Some(guild_id) = msg.guild_id {
+              if let Ok(audit) = ctx.http.get_audit_logs( *guild_id.as_u64()
+                                                        , Some( ActionMessage::Delete as u8 )
+                                                        , None
+                                                        , None
+                                                        , Some(1)).await {
+                // Here we just hope it's last in Audit log, very unsafe stuff
+                if let Some(entry) = audit.entries.values().next() {
+                  // that entry contains target_id: Option<u64> but nobody knows what's that
+                  if let Ok(deleter) = ctx.http.get_user(*entry.user_id.as_u64()).await {
+                    if !deleter.bot {
+                      // message was removed by admin or by author
+                      info!("{} or {} was trying to remove message", deleter.name, msg.author.name);
+                      // log(&ctx, &guild_id, &log_text).await;
+                      // But I don't allow it
+                      for file in &msg.attachments {
+                        if let Ok(bytes) = file.download().await {
+                          let cow = AttachmentType::Bytes {
+                            data: Cow::from(bytes),
+                            filename: String::from(&file.filename)
+                          };
+                          if let Err(why) = channel_id.send_message(&ctx, |m| m.add_file(cow)).await {
+                            error!("Failed to download and post attachment {:?}", why);
+                          }
                         }
                       }
-                    }
-                    if !msg.content.is_empty() {
-                      if let Err(why) = channel_id.send_message(&ctx, |m|
-                          m.content(&msg.content)
-                        ).await {
-                        error!("Failed to post my message again, {:?}", why);
-                      };
-                    }
-                    for embed in &msg.embeds {
-                      if let Err(why) = channel_id.send_message(&ctx, |m| {
-                        m.embed(|e| {
-                          *e = CreateEmbed::from(embed.clone());
-                          e })
-                      }).await {
-                        error!("Error reposting embed {:?}", why);
+                      if !msg.content.is_empty() {
+                        if let Err(why) = channel_id.send_message(&ctx, |m|
+                            m.content(&msg.content)
+                          ).await {
+                          error!("Failed to post my message again, {:?}", why);
+                        };
+                      }
+                      for embed in &msg.embeds {
+                        if let Err(why) = channel_id.send_message(&ctx, |m| {
+                          m.embed(|e| {
+                            *e = CreateEmbed::from(embed.clone());
+                            e })
+                        }).await {
+                          error!("Error reposting embed {:?}", why);
+                        }
                       }
                     }
                   }
@@ -220,9 +223,9 @@ impl EventHandler for Handler {
               }
             }
           }
+        } else {
+          warn!("Failed to get deleted message");
         }
-      } else {
-        warn!("Failed to get deleted message");
       }
     }
   }

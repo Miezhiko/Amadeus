@@ -7,7 +7,8 @@ use crate::{
                     , w3info::activate_w3info_tracking },
     ai::chain
   },
-  commands::pad::update_current_season
+  commands::pad::update_current_season,
+  handler::RESTORE
 };
 
 use serenity::{
@@ -19,7 +20,10 @@ use serenity::{
   }
 };
 
-use std::collections::HashMap;
+use std::{
+  collections::HashMap,
+  sync::atomic::Ordering
+};
 
 use chrono::{ Utc, DateTime };
 use tokio::sync::Mutex;
@@ -80,6 +84,9 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
       activate_w3info_tracking(
         ctx, &all_channels
            ).await;
+
+      // enable backup/restore functionality
+      RESTORE.store(true, Ordering::Relaxed);
 
       let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());
       ctx.set_activity(Activity::playing(&version)).await;

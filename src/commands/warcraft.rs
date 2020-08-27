@@ -5,14 +5,15 @@ use serenity::{
   framework::standard::{
     Args, CommandResult,
     macros::command
-  },
+  }
 };
 
 use std::io::BufReader;
 use tokio::task;
 
-use chrono::prelude::*;
-use chrono::{ Duration, Utc };
+use chrono::{ prelude::*
+            , Duration
+            , Utc };
 
 pub async fn tour_internal( ctx: &Context
                           , channel_id: &ChannelId

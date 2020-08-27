@@ -20,6 +20,8 @@ use serenity::{
 use std::collections::HashMap;
 use tokio::sync::{ Mutex, MutexGuard };
 
+static VS: &str = "★ - - - - - - - - - - - - - - - - ∘ **VS** ∘ - - - - - - - - - - - - - - - - ★";
+
 lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, TrackingGame>>
     = Mutex::new(HashMap::new());
@@ -101,21 +103,21 @@ async fn check_match( matchid_lol: &str
           }
           if m.gameMode == 6 {
             if m.teams[0].won {
-              Some(format!("({}+{}) __**{} + {}**__ [{}] **+{}** (won)\n    *vs*\n({}+{}) __*{} + {}*__ [{}] *{}* (lost)\n\nmap: **{}**",
-                race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
+              Some(format!("({}+{}) __**{} + {}**__ [{}] **+{}** (won)\n{}\n({}+{}) __*{} + {}*__ [{}] *{}* (lost)\n\nmap: **{}**",
+                race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, VS
               , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
             } else {
-              Some(format!("({}+{}) __*{} + {}*__ [{}] *{}* (lost)\n    *vs*\n({}+{}) __**{} + {}**__ [{}] **+{}** (won)\n\nmap: **{}**",
-                race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain
+              Some(format!("({}+{}) __*{} + {}*__ [{}] *{}* (lost)\n{}\n({}+{}) __**{} + {}**__ [{}] **+{}** (won)\n\nmap: **{}**",
+                race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, VS
               , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
             }
           } else if m.teams[0].won {
-            Some(format!("({}+{}) __**{}**__ [{}] **+{}** + __**{}**__ [{}] **+{}** (won)\n    *vs*\n({}+{}) __*{}*__ [{}] *{}* + __*{}*__ [{}] *{}* (lost)\n\nmap: **{}**",
-              race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain
+            Some(format!("({}+{}) __**{}**__ [{}] **+{}** + __**{}**__ [{}] **+{}** (won)\n{}\n({}+{}) __*{}*__ [{}] *{}* + __*{}*__ [{}] *{}* (lost)\n\nmap: **{}**",
+              race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain, VS
             , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
           } else {
-            Some(format!("({}+{}) __*{}*__ [{}] *{}* + __*{}*__ [{}] *{}* (lost)\n    *vs*\n({}+{}) __**{}**__ [{}] **+{}** + __**{}**__ [{}] **+{}** (won)\n\nmap: **{}**",
-            race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain
+            Some(format!("({}+{}) __*{}*__ [{}] *{}* + __*{}*__ [{}] *{}* (lost)\n{}\n({}+{}) __**{}**__ [{}] **+{}** + __**{}**__ [{}] **+{}** (won)\n\nmap: **{}**",
+            race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain, VS
             , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
           }
         } else {
@@ -186,25 +188,23 @@ async fn check_match( matchid_lol: &str
               let teammate_scores =
                 if playaz.len() > 1 {
                   if let Some(scores) = &md.playerScores.iter().find(|s| {
-                    &s.battleTag == &playaz[1].battletag
+                    s.battleTag == playaz[1].battletag
                   }) { scores } else { &md.playerScores[1] }
-                } else {
-                  if let Some(team) = m.teams.iter().find(|t| {
-                    t.players.iter().any(|p| {
-                        &p.battleTag == btag
-                      })
+                } else if let Some(team) = m.teams.iter().find(|t| {
+                  t.players.iter().any(|p| {
+                      &p.battleTag == btag
+                    })
+                  }) {
+                  if let Some(not_me) = team.players.iter().find(|p| {
+                    &p.battleTag != btag
+                  }) {
+                    if let Some(scores) = &md.playerScores.iter().find(|s| {
+                      s.battleTag == not_me.battleTag
                     }) {
-                    if let Some(not_me) = team.players.iter().find(|p| {
-                      &p.battleTag != btag
-                    }) {
-                      if let Some(scores) = &md.playerScores.iter().find(|s| {
-                        s.battleTag == not_me.battleTag
-                      }) {
-                        scores
-                      } else { &md.playerScores[1] }
+                      scores
                     } else { &md.playerScores[1] }
                   } else { &md.playerScores[1] }
-                };
+                } else { &md.playerScores[1] };
               set! { s1 = player_scores.battleTag.clone()
                    , s2 = teammate_scores.battleTag.clone() };
               let s3 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
@@ -346,12 +346,12 @@ pub async fn check<'a>( ctx: &Context
                      , race22 = get_race2(m.teams[1].players[1].race) };
 
                 let mstr = if m.gameMode == 6 {
-                  format!("({}+{}) **{}** + **{}** [{}]\n    *vs*\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
-                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr
+                  format!("({}+{}) **{}** + **{}** [{}]\n{}\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
+                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, VS
                   , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, g_map)
                 } else {
-                  format!("({}+{}) **{}** [{}] + **{}** [{}]\n    *vs*\n({}+{}) **{}** [{}] + **{}** [{}]\n\nmap: **{}**",
-                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr
+                  format!("({}+{}) **{}** [{}] + **{}** [{}]\n{}\n({}+{}) **{}** [{}] + **{}** [{}]\n\nmap: **{}**",
+                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, VS
                   , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, g_map)
                 };
 

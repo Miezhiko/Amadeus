@@ -16,10 +16,8 @@ async fn serenity_reply_single(ctx: &Context, msg: &Message, text: &str) {
     if let Err(why) = msg.reply(ctx, text.trim_start()).await {
       error!("Error replieng to user: {:?}", why);
     }
-  } else {
-    if let Err(why) = msg.reply(ctx, text).await {
-      error!("Error replieng to user: {:?}", why);
-    }
+  } else if let Err(why) = msg.reply(ctx, text).await {
+    error!("Error replieng to user: {:?}", why);
   }
 }
 

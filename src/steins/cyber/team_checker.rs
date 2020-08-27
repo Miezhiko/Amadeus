@@ -20,7 +20,7 @@ use serenity::{
 use std::collections::HashMap;
 use tokio::sync::{ Mutex, MutexGuard };
 
-static VS: &str = "★ - - - - - - - - - - - - - - - - ∘ **VS** ∘ - - - - - - - - - - - - - - - - ★";
+static VS: &str = "∘ - - - - - - - - - - - - - - - ∘ **vs** ∘ - - - - - - - - - - - - - - - ∘";
 
 lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, TrackingGame>>

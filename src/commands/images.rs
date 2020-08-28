@@ -95,7 +95,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
     let val = rng.gen_range(0, 49);
 
     let nickname_maybe =
-      if let Some(guild_id) = msg.guild(ctx).await {
+      if let Some(guild_id) = msg.guild_id {
         msg.author.nick_in(&ctx, &guild_id).await
       } else { None };
 

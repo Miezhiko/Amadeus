@@ -43,12 +43,12 @@ async fn stream(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult 
 #[command]
 #[required_permissions(ADMINISTRATOR)]
 async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Some(guild) = msg.guild(&ctx).await {
+  if let Some(guild_id) = msg.guild_id {
     if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
       channel_message(ctx, msg, "you need to target points reciever").await;
     } else {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-      let s = points::add_win_points( *guild.id.as_u64()
+      let s = points::add_win_points( *guild_id.as_u64()
                                     , *target_user.id.as_u64()
                                     ).await;
       let out = format!("win registered, {} wins in a row", s);
@@ -61,12 +61,12 @@ async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 #[required_permissions(ADMINISTRATOR)]
 async fn register_lose(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Some(guild) = msg.guild(&ctx).await {
+  if let Some(guild_id) = msg.guild_id {
     if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
       channel_message(ctx, msg, "you need to target points reciever").await;
     } else {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-      let _ = points::break_streak( *guild.id.as_u64()
+      let _ = points::break_streak( *guild_id.as_u64()
                                   , *target_user.id.as_u64()
                                   ).await;
     }
@@ -77,12 +77,12 @@ async fn register_lose(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 #[required_permissions(ADMINISTRATOR)]
 async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Some(g) = msg.guild(&ctx).await {
+  if let Some(guild_id) = msg.guild_id {
     if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
       channel_message(ctx, msg, "you need to target who to mute").await;
     } else {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-      if let Ok(guild) = g.id.to_partial_guild(&ctx).await {
+      if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
         if let Ok(mut member) = guild.member(&ctx, target_user.id).await {
           if let Some(role) = guild.role_by_name("muted") {
             if !member.roles.contains(&role.id) {
@@ -101,12 +101,12 @@ async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 #[required_permissions(ADMINISTRATOR)]
 async fn unmute(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Some(g) = msg.guild(&ctx).await {
+  if let Some(guild_id) = msg.guild_id {
     if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
       channel_message(ctx, msg, "you need to target who to unmute").await;
     } else {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-      if let Ok(guild) = g.id.to_partial_guild(&ctx).await {
+      if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
         if let Ok(mut member) = guild.member(&ctx, target_user.id).await {
           if let Some(role) = guild.role_by_name("muted") {
             if member.roles.contains(&role.id) {

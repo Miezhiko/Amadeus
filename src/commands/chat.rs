@@ -20,16 +20,16 @@ use serenity::{
 #[aliases(счёт, счет)]
 #[description("displays user score")]
 async fn score(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Some(guild) = msg.guild(&ctx).await {
+  if let Some(guild_id) = msg.guild_id {
     let (target, the_points) =
       if !msg.mentions.is_empty() && !(msg.mentions.len() == 1 && msg.mentions[0].bot) {
         let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-        if let Ok(p) = points::get_points( *guild.id.as_u64(), *target_user.id.as_u64()).await {
+        if let Ok(p) = points::get_points( *guild_id.as_u64(), *target_user.id.as_u64()).await {
           ( &target_user.name, p )
         } else {
           ( &target_user.name, 0 )
         }
-      } else if let Ok(p) = points::get_points( *guild.id.as_u64(), *msg.author.id.as_u64()).await {
+      } else if let Ok(p) = points::get_points( *guild_id.as_u64(), *msg.author.id.as_u64()).await {
           ( &msg.author.name, p )
         } else {
           ( &msg.author.name, 0 )
@@ -57,7 +57,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     if let Ok(first) = args.single::<usize>() {
         first
       } else { 10 };
-  if let Some(guild) = msg.guild(&ctx).await {
+  if let Some(guild) = msg.guild(ctx).await {
     let mut members_with_points : Vec<(Member, u64)> = Vec::new();
     for (id, mem) in guild.members {
       if let Ok(p) = points::get_points( *guild.id.as_u64(), *id.as_u64()).await {
@@ -93,7 +93,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[min_args(1)] // or 2?
 #[description("give mentioned user some own points")]
 async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  if let Some(guild) = msg.guild(&ctx).await {
+  if let Some(guild_id) = msg.guild_id {
     if !msg.mentions.is_empty() && !(msg.mentions.len() == 1 && msg.mentions[0].bot) {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
       if target_user.id == msg.author.id {
@@ -106,7 +106,7 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             second
           } else { 0 };
         if points_count > 0 {
-          let (succ, rst) = points::give_points( *guild.id.as_u64()
+          let (succ, rst) = points::give_points( *guild_id.as_u64()
                                                , *msg.author.id.as_u64()
                                                , *target_user.id.as_u64()
                                                , points_count).await;

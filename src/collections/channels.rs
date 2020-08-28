@@ -6,10 +6,15 @@ static AI_ALLOWEDD: &str = "dhall/channels/ai_allowed.dhall";
  * Channels where I can learn
  */
 static AI_LEARND: &str   = "dhall/channels/ai_learn.dhall";
+/*
+ * Veto channels
+ */
+static IGNOREDD: &str   = "dhall/channels/ignored.dhall";
 
 lazy_static! {
   pub static ref AI_ALLOWED: Vec<String> = dhall!(AI_ALLOWEDD);
   pub static ref AI_LEARN: Vec<String>   = dhall!(AI_LEARND);
+  pub static ref IGNORED: Vec<String>    = dhall!(IGNOREDD);
 }
 
 #[cfg(test)]
@@ -30,4 +35,6 @@ mod channels_dhall_tests {
   fn ai_allowed() -> Result<(), String> { dhall_vec(AI_ALLOWEDD) }
   #[test]
   fn ai_learn() -> Result<(), String> { dhall_vec(AI_LEARND) }
+  #[test]
+  fn ignored() -> Result<(), String> { dhall_vec(IGNOREDD) }
 }

@@ -10,7 +10,7 @@ use crate::{
   collections::{
     base::{ REACTIONS, WHITELIST, WHITELIST_SERVERS },
     stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES },
-    channels::AI_ALLOWED
+    channels::{ AI_ALLOWED, IGNORED }
   },
   commands::voice
 };
@@ -234,9 +234,9 @@ impl EventHandler for Handler {
       // TODO: no such check for commands
       let blame_check = BLAME.load(Ordering::Relaxed);
       if !blame_check {
-        if let Some(g) = msg.guild(&ctx).await {
-          if !WHITELIST_SERVERS.iter().any(|s| *s == *g.id.as_u64()) {
-            if let Ok(guild) = g.id.to_partial_guild(&ctx).await {
+        if let Some(g) = msg.guild_id {
+          if !WHITELIST_SERVERS.iter().any(|s| *s == *g.as_u64()) {
+            if let Ok(guild) = g.to_partial_guild(&ctx).await {
               if let Ok(member) = guild.member(&ctx, &msg.author.id).await {
                 if let Ok(some_permissions) = member.permissions(&ctx).await {
                   if !some_permissions.administrator() {
@@ -263,8 +263,8 @@ impl EventHandler for Handler {
       }
     } else if msg.author.bot {
       // do nothing if that's whitelisted server
-      if let Some(g) = msg.guild(&ctx).await {
-        if WHITELIST_SERVERS.iter().any(|s| *s == *g.id.as_u64()) {
+      if let Some(g) = msg.guild_id {
+        if WHITELIST_SERVERS.iter().any(|s| *s == *g.as_u64()) {
           return;
         }
       }
@@ -318,7 +318,12 @@ impl EventHandler for Handler {
         }
       }
     } else if !msg.content.starts_with('~') {
-      if let Some(guild) = msg.guild(&ctx).await {
+      if let Some(guild_id) = msg.guild_id {
+        if let Some(channel_name) = msg.channel_id.name(&ctx).await {
+          if IGNORED.iter().any(|i| i == &channel_name) {
+            return;
+          }
+        }
         if (&msg.mentions).iter().any(|u| u.bot) {
           if (&msg.mentions).iter().any(|u| u.bot && u.id == self.amadeus_id) {
             let amention1 = format!("<@{}>", self.amadeus_id);
@@ -329,7 +334,7 @@ impl EventHandler for Handler {
             }
           }
         } else {
-          points::add_points(*guild.id.as_u64(), *msg.author.id.as_u64(), 1).await;
+          points::add_points(*guild_id.as_u64(), *msg.author.id.as_u64(), 1).await;
           let is_admin =
             if let Some(member) = msg.member(&ctx.cache).await {
               if let Ok(permissions) = member.permissions(&ctx.cache).await {
@@ -341,7 +346,7 @@ impl EventHandler for Handler {
             // wakes up on any activity
             let rndx = rand::thread_rng().gen_range(0, 3);
             if rndx != 1 {
-              if let Some(nick) = msg.author.nick_in(&ctx, &guild.id).await {
+              if let Some(nick) = msg.author.nick_in(&ctx, &guild_id).await {
                 ctx.set_activity(Activity::listening(&nick)).await;
               } else {
                 ctx.set_activity(Activity::listening(&msg.author.name)).await;
@@ -384,7 +389,6 @@ impl EventHandler for Handler {
 
                 if let Some(_ch) = msg.channel(&ctx).await {
 
-                  let guild_id = guild.id;
                   if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
                     if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
                       if let Some(role) = guild.role_by_name("UNBLOCK AMADEUS") {

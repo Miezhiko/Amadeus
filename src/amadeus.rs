@@ -19,7 +19,8 @@ use crate::{
             , tictactoe::*
             , images::*
             , tranlation::* },
-  collections::base::GREETINGS
+  collections::{ base::GREETINGS
+               , channels::IGNORED }
 };
 
 use serenity::{
@@ -170,6 +171,19 @@ async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
       eprintln!("{:?}", error);
     }
   }
+}
+
+#[hook]
+async fn before(ctx: &Context, msg: &Message, cmd_name: &str) -> bool {
+  if let Some(channel_name) = msg.channel_id.name(ctx).await {
+    if IGNORED.iter().any(|i| i == &channel_name) {
+      return false;
+    }
+  }
+
+  debug!("Running command: {}, Message: {}", &cmd_name, &msg.content);
+
+  true
 }
 
 #[hook]
@@ -329,6 +343,7 @@ pub async fn run(opts : &IOptions) ->
       .delimiters(vec![" "])
       .case_insensitivity(true))
       .on_dispatch_error(on_dispatch_error)
+      .before(before)
       .after(after)
       .unrecognised_command(unrecognised_command)
       .group(&META_GROUP)

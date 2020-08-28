@@ -114,7 +114,7 @@ async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     error!("Error deleting original command {:?}", why);
   }
   let nickname_maybe =
-    if let Some(guild_id) = msg.guild(ctx).await {
+    if let Some(guild_id) = msg.guild_id {
       msg.author.nick_in(&ctx, &guild_id).await
     } else { None };
   set!{ title = args.single::<String>()?
@@ -280,11 +280,11 @@ async fn get_system_info(ctx: &Context) -> SysInfo {
   sys_info
 }
 
-async fn get_uptime() -> (String, String) {
+async fn get_uptime(start: &str) -> (String, String) {
   let nao = Utc::now();
   let start_time = START_TIME.lock().await;
   let since_start_time : Duration = nao - *start_time;
-  let mut uptime_string = String::from("uptime");
+  let mut uptime_string = String::from(start);
 
   let dd = since_start_time.num_days();
   if dd > 0 {
@@ -318,7 +318,7 @@ async fn info(ctx: &Context, msg: &Message) -> CommandResult {
   }
 
   let mut eb = CreateEmbed::default();
-  let (_, uptime_string) = get_uptime().await;
+  let (_, uptime_string) = get_uptime("Uptime:  ").await;
 
   set!{ guild_count   = ctx.cache.guilds().await.len()
       , channel_count = ctx.cache.guild_channel_count().await
@@ -336,7 +336,7 @@ Users:    {}
 Memory:   {}
 Database: {}
 Latency:  {}
-Uptime:   {}
+{}
 ```", guild_count, channel_count, user_count, sys_info.memory, sys_info.db_size, sys_info.shard_latency
     , uptime_string ));
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
@@ -402,7 +402,7 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
   let mut eb = CreateEmbed::default();
   let footer = format!("Requested by {}", msg.author.name);
 
-  let (start_time, uptime_string) = get_uptime().await;
+  let (start_time, uptime_string) = get_uptime("uptime").await;
 
   eb.color(0xe535cc);
   eb.title(uptime_string);

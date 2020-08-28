@@ -151,11 +151,10 @@ pub async fn actualize_cache(ctx: &Context, guild_id: &GuildId) {
 
 pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit: u64) -> Option<String> {
   let mut have_something = false;
-  if let Some(guild) = msg.guild(&ctx).await {
+  if let Some(guild_id) = msg.guild_id {
     let mut chain = Chain::new();
     let re1 = Regex::new(r"<(.*?)>").unwrap();
     let re2 = Regex::new(r":(.*?):").unwrap();
-    let guild_id = guild.id;
     if let Ok(channels) = guild_id.channels(&ctx).await {
       for (chan, _) in channels {
         if let Some(c_name) = chan.name(&ctx).await {
@@ -208,9 +207,8 @@ pub async fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId) -> S
 
 pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> String {
   let mut out = String::new();
-  if let Some(guild) = msg.guild(&ctx).await {
-    set!{ msg_content = &msg.content
-        , guild_id = guild.id };
+  if let Some(guild_id) = msg.guild_id {
+    let msg_content = &msg.content;
     let russian = if let Some(rus) = mbrussian
       { rus } else { lang::is_russian(msg_content) };
     actualize_cache(ctx, &guild_id).await;

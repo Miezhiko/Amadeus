@@ -18,23 +18,25 @@
 </p>
 
 [![Build Status](https://travis-ci.org/Qeenon/Amadeus.svg?branch=master)](https://travis-ci.org/Qeenon/Amadeus)
+[![mawa](https://github.com/Qeenon/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Qeenon/Amadeus/workflows/mawa)
 [![CircleCI](https://circleci.com/gh/Qeenon/Amadeus/tree/mawa.svg?style=shield)](https://circleci.com/gh/Qeenon/Amadeus/tree/mawa)
 [![Appveyor](https://ci.appveyor.com/api/projects/status/8cd1qi1aykujkyd2?svg=true)](https://ci.appveyor.com/project/Qeenon/amadeus)
+[![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/hemo/Amadeus%2Fmawa?type=cf-1)]( https://g.codefresh.io/public/accounts/hemo/pipelines/new/5f47c6dc6db0ba1ef73c93c8)
+
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/Qeenon/Amadeus.svg)](http://isitmaintained.com/project/Qeenon/Amadeus "Percentage of issues still open")
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Qeenon/Amadeus.svg)](http://isitmaintained.com/project/Qeenon/Amadeus "Average time to resolve an issue")
 ![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.44.1-teal)
 [![License: ISC](https://img.shields.io/badge/License-ISC-teal.svg)](https://opensource.org/licenses/ISC)
-[![Discord](https://img.shields.io/discord/611822838831251466?label=Discord)](https://discord.gg/GdzjVvD)
-[![mawa](https://github.com/Qeenon/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Qeenon/Amadeus/workflows/mawa)
 [![Issues](https://img.shields.io/github/issues-raw/Qeenon/Amadeus.svg?maxAge=25000)](https://github.com/tterb/Hyde/issues)
 [![GitHub contributors](https://img.shields.io/github/contributors/Qeenon/Amadeus.svg?style=flat)]()
 [![GitHub last commit](https://img.shields.io/github/last-commit/Qeenon/Amadeus.svg?style=flat)]()
 [![GitHub stars](https://img.shields.io/github/stars/Qeenon/Amadeus.svg?style=social&label=Stars&style=plastic)]()
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Qeenon/Amadeus)
-[![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus)
 [![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
-[![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/hemo/Amadeus%2Fmawa?type=cf-1)]( https://g.codefresh.io/public/accounts/hemo/pipelines/new/5f47c6dc6db0ba1ef73c93c8)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_small)
+
+[![Discord](https://img.shields.io/discord/611822838831251466?label=Discord)](https://discord.gg/GdzjVvD)
+[![Open Source Helpers](https://www.codetriage.com/qeenon/amadeus/badges/users.svg)](https://www.codetriage.com/qeenon/amadeus)
 [![Twitter Follow](https://img.shields.io/twitter/follow/Qeenon.svg?style=social)](https://twitter.com/Qeenon) 
 
 

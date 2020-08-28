@@ -341,7 +341,11 @@ impl EventHandler for Handler {
             // wakes up on any activity
             let rndx = rand::thread_rng().gen_range(0, 3);
             if rndx != 1 {
-              ctx.set_activity(Activity::listening(&msg.author.name)).await;
+              if let Some(nick) = msg.author.nick_in(&ctx, &guild.id).await {
+                ctx.set_activity(Activity::listening(&nick)).await;
+              } else {
+                ctx.set_activity(Activity::listening(&msg.author.name)).await;
+              }
               ctx.online().await;
             } else {
               let activity = chain::generate(&ctx, &msg, None).await;
@@ -397,13 +401,14 @@ impl EventHandler for Handler {
                               if let Err(why) = member.add_role(&ctx, role).await {
                                 error!("Failed to assign hater role {:?}", why);
                               } else {
+                                let nick = member.nick.unwrap_or(msg.author.name.clone());
                                 let repl = if lang::is_russian(&msg.content) {
-                                  format!("Ну чел {} явно меня не уважает", msg.author.name)
+                                  format!("Ну чел {} явно меня не уважает", &nick)
                                 } else {
-                                  format!("Seems like {} doesn't respect me :(", msg.author.name)
+                                  format!("Seems like {} doesn't respect me :(", &nick)
                                 };
                                 channel_message(&ctx, &msg, &repl).await;
-                                let new_nick : String = format!("Hater {}", msg.author.name);
+                                let new_nick : String = format!("Hater {}", &msg.author.name);
                                 if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m|
                                   m.nickname(new_nick)).await {
                                   error!("Failed to change user's nick {:?}", why2);

@@ -94,27 +94,34 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
     let mut rng = StdRng::from_entropy();
     let val = rng.gen_range(0, 49);
 
+    let nickname_maybe =
+      if let Some(guild_id) = msg.guild(ctx).await {
+        msg.author.nick_in(&ctx, &guild_id).await
+      } else { None };
+
+    let nick = nickname_maybe.unwrap_or(msg.author.name.clone());
+
     match target {
       GType::Target(t) => {
         let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] }
                                                else { &msg.mentions[0] };
         msg.channel_id.send_message(ctx, |m|
           m.embed(|e| e.color(color)
-                      .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                      .author(|a| a.icon_url(&msg.author.face()).name(&nick))
                       .description(format!("{} {}", t, target_user.name))
                       .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
       GType::Own(o) => {
         msg.channel_id.send_message(ctx, |m|
           m.embed(|e| e.color(color)
-                      .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                      .author(|a| a.icon_url(&msg.author.face()).name(&nick))
                       .description(o)
                       .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
       GType::Nothing => {
         msg.channel_id.send_message(ctx, |m|
           m.embed(|e| e.color(color)
-                       .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                       .author(|a| a.icon_url(&msg.author.face()).name(&nick))
                        .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       }
     }

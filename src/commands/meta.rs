@@ -113,15 +113,20 @@ async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
+  let nickname_maybe =
+    if let Some(guild_id) = msg.guild(ctx).await {
+      msg.author.nick_in(&ctx, &guild_id).await
+    } else { None };
   set!{ title = args.single::<String>()?
       , description = args.rest()
+      , nick  = nickname_maybe.unwrap_or(msg.author.name.clone())
       , red   = rand::thread_rng().gen_range(0, 255)
       , green = rand::thread_rng().gen_range(0, 255)
       , blue  = rand::thread_rng().gen_range(0, 255) };
   msg.channel_id.send_message(&ctx.http, |m|
     m.embed(|e| e.title(title)
                  .colour((red, green, blue))
-                 .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                 .author(|a| a.icon_url(&msg.author.face()).name(&nick))
                  .description(description)
     )
   ).await?;

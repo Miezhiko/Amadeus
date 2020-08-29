@@ -6,7 +6,7 @@ pub mod ffi {
     // assertions to ensure our picture of the FFI boundary is accurate.
     include!("cxx/moth.hpp");
 
-    pub fn do_moth(a: u32) -> u32;
+    pub unsafe fn do_moth(a: u32) -> u32;
   }
 }
 

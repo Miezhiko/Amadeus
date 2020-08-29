@@ -99,7 +99,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
         msg.author.nick_in(&ctx, &guild_id).await
       } else { None };
 
-    let nick = nickname_maybe.unwrap_or(msg.author.name.clone());
+    let nick = nickname_maybe.unwrap_or_else(|| msg.author.name.clone());
 
     match target {
       GType::Target(t) => {

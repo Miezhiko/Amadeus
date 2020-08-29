@@ -405,7 +405,7 @@ impl EventHandler for Handler {
                               if let Err(why) = member.add_role(&ctx, role).await {
                                 error!("Failed to assign hater role {:?}", why);
                               } else {
-                                let nick = member.nick.unwrap_or(msg.author.name.clone());
+                                let nick = member.nick.unwrap_or_else(|| msg.author.name.clone());
                                 let repl = if lang::is_russian(&msg.content) {
                                   format!("Ну чел {} явно меня не уважает", &nick)
                                 } else {

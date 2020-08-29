@@ -89,6 +89,6 @@ mod cyber_utils_tests {
   #[test]
   fn get_map_test() {
     assert_eq!(get_map("_1v1_autumnleaves_anon"), "AL");
-    assert_eq!(get_map("_gnollwood_anon"), "Gnoll Wood");
+    assert_eq!(get_map("_gnollwood_anon"), "GW");
   }
 }

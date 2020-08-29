@@ -119,7 +119,7 @@ async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     } else { None };
   set!{ title = args.single::<String>()?
       , description = args.rest()
-      , nick  = nickname_maybe.unwrap_or(msg.author.name.clone())
+      , nick  = nickname_maybe.unwrap_or_else(|| msg.author.name.clone())
       , red   = rand::thread_rng().gen_range(0, 255)
       , green = rand::thread_rng().gen_range(0, 255)
       , blue  = rand::thread_rng().gen_range(0, 255) };

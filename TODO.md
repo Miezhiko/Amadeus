@@ -7,4 +7,4 @@
 - Maybe Lavalink for music instead of https://github.com/ytdl-org/youtube-dl
 - Maybe generate help strings by list of structures like {cmdname, helptext, ...}
 - Check for ngram generators
-- Refactor help really
+- Refactor help really, use fluent https://github.com/entropic-dev/dstopic/pull/2/files

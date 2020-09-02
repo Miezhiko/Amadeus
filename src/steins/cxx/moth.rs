@@ -4,7 +4,7 @@ pub mod ffi {
     // One or more headers with the matching C++ declarations. Our code
     // generators don't read it but it gets #include'd and used in static
     // assertions to ensure our picture of the FFI boundary is accurate.
-    include!("cxx/moth.hpp");
+    include!("amadeus/cxx/moth.hpp");
 
     pub unsafe fn do_moth(a: u32) -> u32;
   }

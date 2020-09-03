@@ -7,4 +7,5 @@ Cargo.lock
 # secret commands, tokens and stuff
 secret
 
+*.w3g
 *.lusf

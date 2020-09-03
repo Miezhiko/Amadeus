@@ -49,6 +49,7 @@
  - using [Dhall](https://dhall-lang.org) config files for things
  - live games tracking on [w3champions](https://www.w3champions.com)
  - some more warcraft 3 related stuff, like player stats and news
+ - w3g replays parsing (early version)
  - points system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
  - runs async, using [tokio.rs](https://tokio.rs)
  - many gifs commands for fun

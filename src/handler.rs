@@ -1,44 +1,44 @@
 use crate::{
   types::options::*,
-  steins::gate,
-  common::{
-    points,
-    help::{ lang, channel::channel_by_name },
-    msg::channel_message
-  },
-  steins::ai::chain,
-  collections::{
-    base::{ REACTIONS, WHITELIST, WHITELIST_SERVERS },
-    stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES },
-    channels::{ AI_ALLOWED, IGNORED }
-  },
+  steins::{ gate
+          , ai::chain
+          , cyber::w3g::analyze
+          },
+  common::{ points
+          , help::{ lang, channel::channel_by_name }
+          , msg::channel_message
+          },
+  collections::{ base::{ REACTIONS, WHITELIST, WHITELIST_SERVERS }
+               , stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES }
+               , channels::{ AI_ALLOWED, IGNORED }
+               },
   commands::voice
 };
 
 use serenity::{
   prelude::*,
   async_trait,
-  model::{
-    guild::ActionMessage,
-    id::{ EmojiId, GuildId, MessageId, UserId, ChannelId },
-    event::ResumedEvent, gateway::Ready, guild::Member
+  model::{ guild::ActionMessage
+         , id::{ EmojiId, GuildId, MessageId, UserId, ChannelId }
+         , event::ResumedEvent, gateway::Ready, guild::Member
          , channel::Message, channel::ReactionType, gateway::Activity
-         , user::User },
+         , user::User
+         },
   http::AttachmentType,
   builder::CreateEmbed
 };
 
-use std::{
-  borrow::Cow, collections::VecDeque,
-  sync::atomic::{ Ordering, AtomicBool }
-};
+use std::{ borrow::Cow, collections::VecDeque
+         , sync::atomic::{ Ordering, AtomicBool }
+         };
 
-use rand::{
-  Rng,
-  seq::SliceRandom,
-  rngs::StdRng,
-  SeedableRng
-};
+use async_std::{ fs::File, fs
+               , prelude::* };
+
+use rand::{ Rng
+          , seq::SliceRandom
+          , rngs::StdRng
+          , SeedableRng };
 
 use regex::Regex;
 
@@ -335,6 +335,61 @@ impl EventHandler for Handler {
           }
         } else {
           points::add_points(*guild_id.as_u64(), *msg.author.id.as_u64(), 1).await;
+          // TODO: move replay stuff in some function
+          for file in &msg.attachments {
+            if file.filename.ends_with("w3g") {
+              if let Ok(bytes) = file.download().await {
+                let mut fw3g = match File::create(&file.filename).await {
+                  Ok(replay) => replay,
+                  Err(why) => {
+                    error!("Error creating file: {:?}", why);
+                    channel_message(&ctx, &msg, "Error getting replay").await;
+                    return;
+                  }
+                };
+                if let Err(why) = fw3g.write_all(&bytes).await {
+                  error!("Error writing to file: {:?}", why);
+                  if let Err(why2) = fs::remove_file(&file.filename).await {
+                    error!("Error removing file: {:?}", why2);
+                  }
+                  return;
+                }
+                let _ = fw3g.sync_data().await;
+                let data_maybe = analyze(&file.filename).await;
+                if let Err(why) = data_maybe {
+                  error!("Corrupted replay file? {:?}", why);
+                  if let Err(why2) = fs::remove_file(&file.filename).await {
+                    error!("Error removing file: {:?}", why2);
+                  }
+                  return;
+                }
+                let (d, flds) = data_maybe.unwrap();
+                let mut eb = CreateEmbed::default();
+                let footer = format!("Uploaded by {}", msg.author.name);
+                eb.color(0xe535cc);
+                eb.title(&file.filename);
+                eb.description(&d);
+                eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+                eb.footer(|f| f.text(footer));
+                if !flds.is_empty() {
+                  let mut fields = vec![];
+                  for (kk, vv) in flds {
+                    fields.push((kk, vv, true))
+                  }
+                  eb.fields(fields);
+                }
+                if let Err(why) = msg.channel_id.send_message(ctx, |m| {
+                                    m.embed(|e| { e.0 = eb.0; e })
+                                  }).await {
+                  error!("Failed to post replay analyze data {:?}", why);
+                }
+                if let Err(why2) = fs::remove_file(&file.filename).await {
+                  error!("Error removing file: {:?}", why2);
+                }
+                return;
+              }
+            }
+          }
           let is_admin =
             if let Some(member) = msg.member(&ctx.cache).await {
               if let Ok(permissions) = member.permissions(&ctx.cache).await {

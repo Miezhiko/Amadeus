@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.14.8"
+version     = "2.15.0"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -11,7 +11,8 @@ license     = "ISC AND MPL-v2"
 
 [features]
 default     = []
-flo         = ["flo-w3replay"]
+w3g_rs      = ["w3grs"]
+flo         = []
 
 [dependencies]
 rand          = "0.7.3"
@@ -43,7 +44,8 @@ reqwest   = { version = "0.10.8", features = ["json", "blocking"] }
 ical      = { version = "0.6.0",  features = ["ical"] }
 rust-bert = { version = "0.8.0" }
 
-flo-w3replay = { path = "../flo/crates/w3replay", optional = true }
+#flo-w3replay = { path = "../flo/crates/w3replay", optional = true }
+w3grs = { git = "https://github.com/Qeenon/w3grs.git", branch = "mawa", optional = true }
 
 [dependencies.tokio]
 version = "0.2.22"

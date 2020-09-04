@@ -1,5 +1,4 @@
 use crate::steins::gate::behavior::START_TIME;
-use crate::steins::cxx::moth;
 
 use std::sync::Arc;
 
@@ -414,16 +413,5 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
     m.embed(|e| { e.0 = eb.0; e })
   }).await?;
 
-  Ok(())
-}
-
-#[command]
-#[min_args(1)]
-#[description("multiply some number by 3!")]
-async fn x3(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  if let Ok(arg) = args.single::<u32>() {
-    let answer = moth::ffi::do_moth(arg);
-    msg.reply(ctx, &format!("{} x3 is {}", arg, answer)).await?;
-  }
   Ok(())
 }

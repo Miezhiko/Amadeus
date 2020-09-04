@@ -1,5 +1,5 @@
-use tokio::process::Command;
-use serde_json::Value;
+#[cfg(not(feature = "w3g_rs"))] use tokio::process::Command;
+#[cfg(not(feature = "w3g_rs"))] use serde_json::Value;
 
 /*
 subheader.replay_length_ms
@@ -32,86 +32,84 @@ async fn analyze_js(path: &str) -> jane_eyre::Result<String> {
 }
 
 #[cfg(not(feature = "w3g_rs"))]
-fn prettify_analyze_js(j: &str) -> (String, Vec<(String, Vec<String>)>) {
-  let j_res = serde_json::from_str(&j);
-  if j_res.is_ok() {
-    let json : Value = j_res.unwrap();
-    let mut out = String::new();
-    let mut pls = vec![];
-    if let Some(map) = json.pointer("/map") {
-      if let Some(file) = map.pointer("/file") {
-        out = format!("**map**: {}\n", file.as_str().unwrap());
-      }
-      if let Some(checksum) = map.pointer("/checksum") {
-        let winner = checksum.as_str().unwrap();
-        if !winner.is_empty() {
-          out = format!("{}**winner**: {}\n", out, winner);
-        }
+#[allow(clippy::type_complexity)]
+fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<String>)>)> {
+  let json : Value = serde_json::from_str(&j)?;
+  let mut out = String::new();
+  let mut pls = vec![];
+  if let Some(map) = json.pointer("/map") {
+    if let Some(file) = map.pointer("/file") {
+      out = format!("**map**: {}\n", file.as_str().unwrap());
+    }
+    if let Some(checksum) = map.pointer("/checksum") { 
+      let winner = checksum.as_str().unwrap();
+      if !winner.is_empty() {
+        out = format!("{}**winner**: {}\n", out, winner);
       }
     }
-    if let Some(players) = json.pointer("/players") {
-      for playa in players.as_array().unwrap().iter() {
-        let mut p = String::new();
-        let mut s = String::new();
-        let mut su = String::new();
-        if let Some(name) = playa.pointer("/name") {
-          p = format!("{}", name.as_str().unwrap());
-        }
-        if let Some(race) = playa.pointer("/race") {
-          s = format!("**race**: {}\n", race.as_str().unwrap());
-        }
-        if let Some(apm) = playa.pointer("/apm") {
-          s = format!("{}**apm**: {}", s, apm.as_u64().unwrap());
-        }
-        if let Some(heroes) = playa.pointer("/heroes") {
-          let heroz = heroes.as_array().unwrap();
-          if !heroz.is_empty() {
-            s = format!("{}\n*heroes*", s);
-            for hero in heroz.iter() {
-              if let Some(id) = hero.pointer("/id") {
-                let her = id.as_str().unwrap().to_uppercase();
-                s = format!("{}\n**{}**", s, &her[1..]);
-              }
-              if let Some(level) = hero.pointer("/level") {
-                s = format!("{} level {}", s, level.as_u64().unwrap());
-              }
-            }
-          }
-        }
-        if let Some(units) = playa.pointer("/units") {
-          if let Some(summary) = units.pointer("/summary") {
-            if let Some(sum) = summary.as_object() {
-              su = format!("{}\n*units*", su);
-              for (k, v) in sum {
-                su = format!("{}\n**{}**: {}", su, k, v);
-              }
-            }
-          }
-        }
-        pls.push((p, vec![s, su]));
-      }
-    }
-    if let Some(duration) = json.pointer("/duration") {
-      let dhuman = duration.as_u64().unwrap()/60/1000;
-      out = format!("{}**duration**: {}min", out, dhuman);
-    }
-    return (out, pls);
   }
-  ( j.to_string(), vec![] )
+  if let Some(players) = json.pointer("/players") {
+    for playa in players.as_array().unwrap().iter() {
+      let mut p = String::new();
+      let mut s = String::new();
+      let mut su = String::new();
+      if let Some(name) = playa.pointer("/name") {
+        p = name.as_str().unwrap().to_string();
+      }
+      if let Some(race) = playa.pointer("/race") {
+        s = format!("**race**: {}\n", race.as_str().unwrap());
+      }
+      if let Some(apm) = playa.pointer("/apm") {
+        s = format!("{}**apm**: {}", s, apm.as_u64().unwrap());
+      }
+      if let Some(heroes) = playa.pointer("/heroes") {
+        let heroz = heroes.as_array().unwrap();
+        if !heroz.is_empty() {
+          s = format!("{}\n*heroes*", s);
+          for hero in heroz.iter() {
+            if let Some(id) = hero.pointer("/id") {
+              let her = id.as_str().unwrap().to_uppercase();
+              s = format!("{}\n**{}**", s, &her[1..]);
+            }
+            if let Some(level) = hero.pointer("/level") {
+              s = format!("{} level {}", s, level.as_u64().unwrap());
+            }
+          }
+        }
+      }
+      if let Some(units) = playa.pointer("/units") {
+        if let Some(summary) = units.pointer("/summary") {
+          if let Some(sum) = summary.as_object() {
+            su = format!("{}\n*units*", su);
+            for (k, v) in sum {
+              su = format!("{}\n**{}**: {}", su, k, v);
+            }
+          }
+        }
+      }
+      pls.push((p, vec![s, su]));
+    }
+  }
+  if let Some(duration) = json.pointer("/duration") {
+    let dhuman = duration.as_u64().unwrap()/60/1000;
+    out = format!("{}**duration**: {}min", out, dhuman);
+  }
+  Ok((out, pls))
 }
 
 #[cfg(feature="w3g_rs")]
 pub async fn analyze(path: &str)
     -> jane_eyre::Result<(String, Vec<(String, Vec<String>)>)> {
   let replay_data = analyze_rs(path)?;
-  Ok(replay_data, vec![])
+  Ok((replay_data, vec![]))
 }
 
 #[cfg(not(feature = "w3g_rs"))]
 pub async fn analyze(path: &str)
     -> jane_eyre::Result<(String, Vec<(String, Vec<String>)>)> {
   let replay_data = analyze_js(path).await?;
-  Ok(prettify_analyze_js(&replay_data))
+  let pretty_daya = prettify_analyze_js(&replay_data)?;
+  Ok(pretty_daya)
 }
 
 #[cfg(test)]
@@ -129,11 +127,14 @@ mod cyber_w3g_tests {
   async fn my_test() -> Result<(), String> {
     if let Ok(replay_data) = analyze_js("example.w3g").await {
       assert!(!replay_data.is_empty());
-      // this is for debug:
-      // print!("{}", replay_data);
-      let (_p, ps) = prettify_analyze_js(&replay_data);
-      assert_eq!(2, ps.len());
-      Ok(())
+      match prettify_analyze_js(&replay_data) {
+        Ok((_p, ps)) => {
+          assert_eq!(2, ps.len());
+          Ok(())
+        }, Err(err) => {
+          Err(format!("Error parsing {:?}", err))
+        }
+      }
     } else {
       Err(String::from("Failed to get node output"))
     }

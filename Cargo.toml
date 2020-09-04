@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.15.0"
+version     = "2.15.1"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -44,16 +44,9 @@ reqwest   = { version = "0.10.8", features = ["json", "blocking"] }
 ical      = { version = "0.6.0",  features = ["ical"] }
 rust-bert = { version = "0.8.0" }
 
-#flo-w3replay = { path = "../flo/crates/w3replay", optional = true }
-w3grs = { git = "https://github.com/Qeenon/w3grs.git", branch = "mawa", optional = true }
-
-[dependencies.tokio]
-version = "0.2.22"
-features = ["full", "blocking", "sync"]
-
 [dependencies.serenity]
 default-features = false
-version = "0.9.0-rc.0"
+version = "0.9.0-rc.1"
 features = [ "cache"
            , "builder"
            , "model"
@@ -65,6 +58,15 @@ features = [ "cache"
            , "native_tls_backend"
            , "utils"
            , "collector" ]
+
+[dependencies.w3grs]
+git = "https://github.com/Qeenon/w3grs.git"
+branch = "mawa"
+optional = true
+
+[dependencies.tokio]
+version = "0.2.22"
+features = ["full", "blocking", "sync"]
 
 [build-dependencies]
 cxx-build = "0.4.2"

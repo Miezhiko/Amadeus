@@ -32,7 +32,7 @@ async fn analyze_js(path: &str) -> jane_eyre::Result<String> {
 }
 
 #[cfg(not(feature = "w3g_rs"))]
-fn prettify_analyze_js(j: &str) -> (String, Vec<(String, String)>) {
+fn prettify_analyze_js(j: &str) -> (String, Vec<(String, Vec<String>)>) {
   let j_res = serde_json::from_str(&j);
   if j_res.is_ok() {
     let json : Value = j_res.unwrap();
@@ -53,6 +53,7 @@ fn prettify_analyze_js(j: &str) -> (String, Vec<(String, String)>) {
       for playa in players.as_array().unwrap().iter() {
         let mut p = String::new();
         let mut s = String::new();
+        let mut su = String::new();
         if let Some(name) = playa.pointer("/name") {
           p = format!("{}", name.as_str().unwrap());
         }
@@ -63,17 +64,31 @@ fn prettify_analyze_js(j: &str) -> (String, Vec<(String, String)>) {
           s = format!("{}**apm**: {}", s, apm.as_u64().unwrap());
         }
         if let Some(heroes) = playa.pointer("/heroes") {
-          for hero in heroes.as_array().unwrap().iter() {
-            if let Some(id) = hero.pointer("/id") {
-              let her = id.as_str().unwrap().to_uppercase();
-              s = format!("{}\n**{}**", s, &her[1..]);
-            }
-            if let Some(level) = hero.pointer("/level") {
-              s = format!("{} level {}", s, level.as_u64().unwrap());
+          let heroz = heroes.as_array().unwrap();
+          if !heroz.is_empty() {
+            s = format!("{}\n*heroes*", s);
+            for hero in heroz.iter() {
+              if let Some(id) = hero.pointer("/id") {
+                let her = id.as_str().unwrap().to_uppercase();
+                s = format!("{}\n**{}**", s, &her[1..]);
+              }
+              if let Some(level) = hero.pointer("/level") {
+                s = format!("{} level {}", s, level.as_u64().unwrap());
+              }
             }
           }
         }
-        pls.push((p, s));
+        if let Some(units) = playa.pointer("/units") {
+          if let Some(summary) = units.pointer("/summary") {
+            if let Some(sum) = summary.as_object() {
+              su = format!("{}\n*units*", su);
+              for (k, v) in sum {
+                su = format!("{}\n**{}**: {}", su, k, v);
+              }
+            }
+          }
+        }
+        pls.push((p, vec![s, su]));
       }
     }
     if let Some(duration) = json.pointer("/duration") {
@@ -87,14 +102,14 @@ fn prettify_analyze_js(j: &str) -> (String, Vec<(String, String)>) {
 
 #[cfg(feature="w3g_rs")]
 pub async fn analyze(path: &str)
-    -> jane_eyre::Result<(String, Vec<(String, String)>)> {
+    -> jane_eyre::Result<(String, Vec<(String, Vec<String>)>)> {
   let replay_data = analyze_rs(path)?;
-  Ok(replay_data)
+  Ok(replay_data, vec![])
 }
 
 #[cfg(not(feature = "w3g_rs"))]
 pub async fn analyze(path: &str)
-    -> jane_eyre::Result<(String, Vec<(String, String)>)> {
+    -> jane_eyre::Result<(String, Vec<(String, Vec<String>)>)> {
   let replay_data = analyze_js(path).await?;
   Ok(prettify_analyze_js(&replay_data))
 }

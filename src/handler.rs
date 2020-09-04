@@ -30,6 +30,7 @@ use serenity::{
 
 use std::{ borrow::Cow, collections::VecDeque
          , sync::atomic::{ Ordering, AtomicBool }
+         , time::Duration
          };
 
 use async_std::{ fs::File, fs
@@ -364,24 +365,69 @@ impl EventHandler for Handler {
                   return;
                 }
                 let (d, flds) = data_maybe.unwrap();
-                let mut eb = CreateEmbed::default();
+                let mut eb1 = CreateEmbed::default();
+                let mut eb2 = CreateEmbed::default();
                 let footer = format!("Uploaded by {}", msg.author.name);
-                eb.color(0xe535cc);
-                eb.title(&file.filename);
-                eb.description(&d);
-                eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
-                eb.footer(|f| f.text(footer));
+                eb1.color(0xe535cc); eb2.color(0xe535cc);
+                eb1.title(&file.filename); eb2.title(&file.filename);
+                eb1.description(&d); eb2.description("units");
+                eb1.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+                eb2.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+                eb1.footer(|f| f.text(&footer));
+                eb2.footer(|f| f.text(&footer));
                 if !flds.is_empty() {
-                  let mut fields = vec![];
+                  let mut fields1 = vec![];
+                  let mut fields2 = vec![];
                   for (kk, vv) in flds {
-                    fields.push((kk, vv, true))
+                    if vv.len() > 1 {
+                      fields1.push((kk.clone(), vv[0].clone(), true));
+                      fields2.push((kk.clone(), vv[1].clone(), true));
+                    }
                   }
-                  eb.fields(fields);
+                  eb1.fields(fields1);
+                  eb2.fields(fields2);
                 }
-                if let Err(why) = msg.channel_id.send_message(ctx, |m| {
-                                    m.embed(|e| { e.0 = eb.0; e })
-                                  }).await {
-                  error!("Failed to post replay analyze data {:?}", why);
+                let embeds = vec![ eb1, eb2 ];
+                if let Ok(mut bot_msg) = msg.channel_id.send_message(&ctx, |m| {
+                                           m.embed(|e| { e.0 = embeds[0].0.clone(); e })
+                                         }).await {
+                  let mut page : usize = 0;
+                  let left = ReactionType::Unicode(String::from("⬅️"));
+                  let right = ReactionType::Unicode(String::from("➡️"));
+                  let _ = bot_msg.react(&ctx, left).await;
+                  let _ = bot_msg.react(&ctx, right).await;
+                  loop {
+                    if let Some(reaction) =
+                      &bot_msg.await_reaction(&ctx)
+                              .author_id(msg.author.id.0)
+                              .timeout(Duration::from_secs(360)).await {
+                      let emoji = &reaction.as_inner_ref().emoji;
+                      match emoji.as_data().as_str() {
+                        "⬅️" => { 
+                          if page != 0 {
+                            page -= 1;
+                          }
+                        },
+                        "➡️" => { 
+                          if page != 1 {
+                            page += 1;
+                          }
+                        },
+                        _ => (),
+                      }
+                      if let Err(err) = bot_msg.edit(&ctx, |m| m.embed(|mut e| {
+                        e.0 = embeds[page].0.clone(); e
+                      })).await {
+                        error!("Shit happens {:?}", err);
+                      }
+                      let _ = reaction.as_inner_ref().delete(&ctx).await;
+                    } else {
+                      let _ = bot_msg.delete_reactions(&ctx).await;
+                      break;
+                    };
+                  }
+                } else {
+                  error!("Failed to post replay analyze data");
                 }
                 if let Err(why2) = fs::remove_file(&file.filename).await {
                   error!("Error removing file: {:?}", why2);

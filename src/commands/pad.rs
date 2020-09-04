@@ -14,9 +14,8 @@ use serenity::{
   builder::CreateEmbed,
   model::channel::*,
   framework::standard::{
-    Args, CommandResult,
-    macros::command
-  },
+    Args, CommandResult
+  , macros::command }
 };
 
 use std::collections::HashMap;
@@ -24,11 +23,9 @@ use serde_json::Value;
 
 use comfy_table::*;
 
-use std::{
-  time::Duration,
-  sync::atomic::Ordering::Relaxed,
-  sync::atomic::AtomicU32
-};
+use std::{ time::Duration
+         , sync::atomic::Ordering::Relaxed
+         , sync::atomic::AtomicU32 };
 
 pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(2);
 static ONGOING_PAGE_SIZE: usize = 15;

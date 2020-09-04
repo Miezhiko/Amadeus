@@ -19,7 +19,8 @@ fn analyze_rs(path: &str) -> jane_eyre::Result<String> {
 async fn analyze_js(path: &str) -> jane_eyre::Result<String> {
   let node_out = Command::new("sh")
         .arg("-c")
-        .arg(&format!("node js/w3gjs_parse.js {}", path))
+      //.arg(&format!("node js/w3gjs_parse.js {}", path))
+        .arg(&format!("ts-node js/w3g_parse.ts {}", path))
         .output()
         .await?;
   let npm_stdout = String::from_utf8(node_out.stdout)?;
@@ -40,6 +41,12 @@ fn prettify_analyze_js(j: &str) -> (String, Vec<(String, String)>) {
     if let Some(map) = json.pointer("/map") {
       if let Some(file) = map.pointer("/file") {
         out = format!("**map**: {}\n", file.as_str().unwrap());
+      }
+      if let Some(checksum) = map.pointer("/checksum") {
+        let winner = checksum.as_str().unwrap();
+        if !winner.is_empty() {
+          out = format!("{}**winner**: {}\n", out, winner);
+        }
       }
     }
     if let Some(players) = json.pointer("/players") {
@@ -70,7 +77,7 @@ fn prettify_analyze_js(j: &str) -> (String, Vec<(String, String)>) {
       }
     }
     if let Some(duration) = json.pointer("/duration") {
-      let dhuman = duration.as_u64().unwrap() / 100000;
+      let dhuman = duration.as_u64().unwrap()/60/1000;
       out = format!("{}**duration**: {}min", out, dhuman);
     }
     return (out, pls);

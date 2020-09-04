@@ -9,14 +9,13 @@ player_records .id .name
 reforged_player_records .id .name .clan
 */
 
-#[allow(dead_code)]
 #[cfg(feature="w3g_rs")]
 fn analyze_rs(path: &str) -> jane_eyre::Result<String> {
   let p = w3grs::parse(String::from(path))?;
   Ok( String::from( p.metadata.map ) )
 }
 
-#[allow(dead_code)]
+#[cfg(not(feature = "w3g_rs"))]
 async fn analyze_js(path: &str) -> jane_eyre::Result<String> {
   let node_out = Command::new("sh")
         .arg("-c")
@@ -31,7 +30,7 @@ async fn analyze_js(path: &str) -> jane_eyre::Result<String> {
   Ok(npm_stdout)
 }
 
-#[allow(dead_code)]
+#[cfg(not(feature = "w3g_rs"))]
 fn prettify_analyze_js(j: &str) -> (String, Vec<(String, String)>) {
   let j_res = serde_json::from_str(&j);
   if j_res.is_ok() {
@@ -79,6 +78,14 @@ fn prettify_analyze_js(j: &str) -> (String, Vec<(String, String)>) {
   ( j.to_string(), vec![] )
 }
 
+#[cfg(feature="w3g_rs")]
+pub async fn analyze(path: &str)
+    -> jane_eyre::Result<(String, Vec<(String, String)>)> {
+  let replay_data = analyze_rs(path)?;
+  Ok(replay_data)
+}
+
+#[cfg(not(feature = "w3g_rs"))]
 pub async fn analyze(path: &str)
     -> jane_eyre::Result<(String, Vec<(String, String)>)> {
   let replay_data = analyze_js(path).await?;
@@ -89,13 +96,14 @@ pub async fn analyze(path: &str)
 mod cyber_w3g_tests {
   use super::*;
   #[ignore]
-  #[cfg(feature="w3g_rs")]
   #[test]
+  #[cfg(feature="w3g_rs")]
   fn parse_replay_test() {
     assert!( analyze_rs("example.w3g").is_ok() );
   }
   #[ignore]
   #[tokio::test(basic_scheduler)]
+  #[cfg(not(feature = "w3g_rs"))]
   async fn my_test() -> Result<(), String> {
     if let Ok(replay_data) = analyze_js("example.w3g").await {
       assert!(!replay_data.is_empty());

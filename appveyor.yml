@@ -1,5 +1,6 @@
-# Based on the "trust" template v0.1.2
-# https://github.com/japaric/trust/tree/v0.1.2
+# Appveyour has 1 hour maximum limit
+# And it's extremely slow
+# Don't do anything here, only minimum!
 
 environment:
   global:
@@ -25,14 +26,10 @@ install:
   - rustc -Vv
   - cargo -V
 
-# TODO This is the "test phase", tweak it as you see fit
 test_script:
   # we don't run the "test phase" when doing deploys
   - if [%APPVEYOR_REPO_TAG%]==[false] (
-      cargo build --target %TARGET% &&
-      cargo build --target %TARGET% --release &&
-      cargo test --target %TARGET% &&
-      cargo test --target %TARGET% --release
+      cargo test --target %TARGET%
     )
 
 cache:

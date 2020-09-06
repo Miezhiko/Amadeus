@@ -1,4 +1,6 @@
 import rep from "/usr/lib64/node_modules/w3gjs";
+//node node_modules/ts-node/dist/bin.js js/w3g_parse.ts LastReplay.w3g
+//import rep from "w3gjs";
 //import { ParserOutput } from "/usr/lib64/node_modules/w3gjs/dist/types/types";
 
 const replay = "./" + process.argv[2];

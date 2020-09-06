@@ -65,7 +65,7 @@ fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<S
       if let Some(heroes) = playa.pointer("/heroes") {
         let heroz = heroes.as_array().unwrap();
         if !heroz.is_empty() {
-          s = format!("{}\n*heroes*", s);
+          s = format!("{}\n\n*heroes*", s);
           for hero in heroz.iter() {
             if let Some(id) = hero.pointer("/id") {
               let her = id.as_str().unwrap().to_uppercase();

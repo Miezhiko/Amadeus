@@ -84,6 +84,14 @@ The human evaluation results indicate that the response generated from DialoGPT 
 }
 ```
 
+installation environment for typescript parsing backend (optional)
+```shell
+npm install -D typescript
+npm install -D ts-node
+npm i @types/node
+npm install w3gjs
+```
+
 Note: will lag at first run due pre-trained models downloading.
 The models will be downloaded to the environment variable RUSTBERT_CACHE if it exists, otherwise to ~/.cache/.rustbert
 

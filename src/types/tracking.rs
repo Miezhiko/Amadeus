@@ -3,7 +3,7 @@ use crate::types::team::Player;
 #[allow(non_snake_case)]
 #[derive(Debug)]
 pub struct FinishedGame {
-  pub desc: String,
+  pub desc: Vec<String>,
   pub passed_time: u32,
   pub link: String,
   pub winners: Vec<(u64, bool)>,
@@ -24,6 +24,6 @@ pub struct TrackingGame {
 #[derive(Debug)]
 pub struct StartingGame {
   pub key: String,
-  pub description: String,
+  pub description: Vec<String>,
   pub players: Vec<Player>
 }

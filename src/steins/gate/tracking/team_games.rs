@@ -156,8 +156,17 @@ pub async fn activate_games_tracking(
                 let mut e = e
                   .title("JUST STARTED")
                   .author(|a| a.icon_url(&user.face()).name(&user.name))
-                  .colour((red, green, blue))
-                  .description(&game.description);
+                  .colour((red, green, blue));
+                if !game.description.is_empty() {
+                  e = e.description(&game.description[0]);
+                  if game.description.len() > 2 {
+                    let d_fields = vec![
+                      ("Team 1", &game.description[1], true)
+                    , ("Team 2", &game.description[2], true)
+                    ];
+                    e = e.fields(d_fields);
+                  }
+                }
                 if !additional_fields.is_empty() {
                   e = e.fields(additional_fields);
                 }

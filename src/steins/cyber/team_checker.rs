@@ -20,8 +20,6 @@ use serenity::{
 use std::collections::HashMap;
 use tokio::sync::{ Mutex, MutexGuard };
 
-static VS: &str = "∘ - - - - - - - - - - - - - - - ∘ **vs** ∘ - - - - - - - - - - - - - - - ∘";
-
 lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, TrackingGame>>
     = Mutex::new(HashMap::new());
@@ -64,65 +62,66 @@ async fn check_match( matchid_lol: &str
         let m = md.match_data;
         let mut losers: Vec<(u64, bool)> = vec![];
         let mstr_o =
-        if m.gameMode == 1 {
-          set!{ g_map = get_map(&m.map)
-              , race1 = get_race2(m.teams[0].players[0].race)
-              , race2 = get_race2(m.teams[1].players[0].race) };
-          for i in 0..2 {
-            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.battletag) {
-              let won = m.teams[i].players[0].won;
-              losers.push((playa.discord, won));
-            }
-          }
-          let player1 = if m.teams[0].players[0].won {
-            format!("__**{}**__ **+{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
-          } else {
-            format!("__*{}*__ **{}**", m.teams[0].players[0].name, m.teams[1].players[0].mmrGain)
-          };
-          let player2 = if m.teams[1].players[0].won {
-            format!("__**{}**__ **+{}**", m.teams[1].players[0].name, m.teams[0].players[0].mmrGain)
-          } else {
-            format!("__*{}*__ **{}**", m.teams[1].players[0].name, m.teams[1].players[0].mmrGain)
-          };
-          Some(format!("({}) {} [{}] *vs* ({}) {} [{}] *{}*",
-              race1, player1, m.teams[0].players[0].oldMmr
-            , race2, player2, m.teams[1].players[0].oldMmr, g_map))
-        } else if m.gameMode == 6 || m.gameMode == 2 {
-          set!{ g_map  = get_map(&m.map)
-              , race1  = get_race2(m.teams[0].players[0].race)
-              , race12 = get_race2(m.teams[0].players[1].race)
-              , race2  = get_race2(m.teams[1].players[0].race)
-              , race22 = get_race2(m.teams[1].players[1].race) };
-          for i in 0..2 {
-            for j in 0..2 {
-              if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
-                let won = m.teams[i].players[j].won;
+          if m.gameMode == 1 {
+            set!{ g_map = get_map(&m.map)
+                , race1 = get_race2(m.teams[0].players[0].race)
+                , race2 = get_race2(m.teams[1].players[0].race) };
+            for i in 0..2 {
+              if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.battletag) {
+                let won = m.teams[i].players[0].won;
                 losers.push((playa.discord, won));
               }
             }
-          }
-          if m.gameMode == 6 {
-            if m.teams[0].won {
-              Some(format!("({}+{}) __**{} + {}**__ [{}] **+{}** (won)\n{}\n({}+{}) __*{} + {}*__ [{}] *{}* (lost)\n\nmap: **{}**",
-                race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, VS
-              , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
+            let player1 = if m.teams[0].players[0].won {
+              format!("__**{}**__ **+{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
             } else {
-              Some(format!("({}+{}) __*{} + {}*__ [{}] *{}* (lost)\n{}\n({}+{}) __**{} + {}**__ [{}] **+{}** (won)\n\nmap: **{}**",
-                race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, VS
-              , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, g_map))
+              format!("__*{}*__ **{}**", m.teams[0].players[0].name, m.teams[1].players[0].mmrGain)
+            };
+            let player2 = if m.teams[1].players[0].won {
+              format!("__**{}**__ **+{}**", m.teams[1].players[0].name, m.teams[0].players[0].mmrGain)
+            } else {
+              format!("__*{}*__ **{}**", m.teams[1].players[0].name, m.teams[1].players[0].mmrGain)
+            };
+            Some(
+              vec![ format!("({}) {} [{}] *vs* ({}) {} [{}] *{}*",
+                    race1, player1, m.teams[0].players[0].oldMmr
+                  , race2, player2, m.teams[1].players[0].oldMmr, g_map) ])
+          } else if m.gameMode == 6 || m.gameMode == 2 {
+            let g_map  = get_map(&m.map);
+            for i in 0..2 {
+              for j in 0..2 {
+                if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
+                  let won = m.teams[i].players[j].won;
+                  losers.push((playa.discord, won));
+                }
+              }
             }
-          } else if m.teams[0].won {
-            Some(format!("({}+{}) __**{}**__ [{}] **+{}** + __**{}**__ [{}] **+{}** (won)\n{}\n({}+{}) __*{}*__ [{}] *{}* + __*{}*__ [{}] *{}* (lost)\n\nmap: **{}**",
-              race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain, VS
-            , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
+            let mstr = format!("map: {}", g_map);
+            let teamx = |x: usize| -> String {
+              if m.gameMode == 6 {
+                if m.teams[0].won {
+                  format!("({}) __**{}**__\n({}) __**{}**__\n[{}] **+{}**"
+                  , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name
+                  , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+                } else {
+                  format!("({}) __*{}*__\n({}) __*{}*__\n[{}] *{}*"
+                  , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name
+                  , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+                }
+              } else if m.teams[0].won {
+                format!("({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**"
+                , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
+                , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+              } else {
+                format!("({}) __*{}*__ [{}] *{}*\n({}) __*{}*__ [{}] *{}*"
+                , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
+                , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+              }
+            };
+            Some( vec![ mstr, teamx(0), teamx(1) ] )
           } else {
-            Some(format!("({}+{}) __*{}*__ [{}] *{}* + __*{}*__ [{}] *{}* (lost)\n{}\n({}+{}) __**{}**__ [{}] **+{}** + __**{}**__ [{}] **+{}** (won)\n\nmap: **{}**",
-            race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[0].mmrGain, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, m.teams[0].players[1].mmrGain, VS
-            , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[0].mmrGain, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, m.teams[1].players[1].mmrGain, g_map))
-          }
-        } else {
-          None
-        };
+            None
+          };
         match mstr_o {
           Some(mstr) => {
             let mut maybe_hero_png = None;
@@ -324,7 +323,7 @@ pub async fn check<'a>( ctx: &Context
                 } else {
                   out.push(
                     StartingGame { key: m.startTime
-                                 , description: mstr
+                                 , description: vec![ mstr ]
                                  , players: playaz });
                 }
               }
@@ -345,15 +344,17 @@ pub async fn check<'a>( ctx: &Context
                      , race2  = get_race2(m.teams[1].players[0].race)
                      , race22 = get_race2(m.teams[1].players[1].race) };
 
-                let mstr = if m.gameMode == 6 {
-                  format!("({}+{}) **{}** + **{}** [{}]\n{}\n({}+{}) **{}** + **{}** [{}]\n\nmap: **{}**",
-                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr, VS
-                  , race2, race22, m.teams[1].players[0].name, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr, g_map)
-                } else {
-                  format!("({}+{}) **{}** [{}] + **{}** [{}]\n{}\n({}+{}) **{}** [{}] + **{}** [{}]\n\nmap: **{}**",
-                    race1, race12, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr, VS
-                  , race2, race22, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr, g_map)
-                };
+                let mstr = format!("map: {}", g_map);
+
+                //TODO: something different for AT
+                //if m.gameMode == 6 {
+                let team1 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
+                  , race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
+                  , race12, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr);
+                let team2 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
+                  , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr
+                  , race22, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr);
+                let mvec = vec![ mstr, team1, team2 ];
 
                 if let Some(track) = games_lock.get_mut(&m.startTime) {
                   track.still_live = true;
@@ -383,7 +384,7 @@ pub async fn check<'a>( ctx: &Context
                           let mut e = e
                             .title("LIVE")
                             .author(|a| a.icon_url(&user.face()).name(&user.name))
-                            .description(mstr)
+                            .description(&mvec[0])
                             .colour(color)
                             .footer(|f| f.text(footer));
                           if !fields.is_empty() {
@@ -405,7 +406,7 @@ pub async fn check<'a>( ctx: &Context
                 } else {
                   out.push(
                     StartingGame { key: m.startTime
-                                 , description: mstr
+                                 , description: mvec
                                  , players: playaz });
                 }
               }
@@ -469,10 +470,19 @@ pub async fn check<'a>( ctx: &Context
                       let mut e =
                         e.author(|a| a.icon_url(&user.face()).name(&user.name))
                          .title(title)
-                         .description(&fgame.desc)
                          .colour(color)
                          .url(&fgame.link)
                          .footer(|f| f.text(footer));
+                      if !fgame.desc.is_empty() {
+                        e = e.description(&fgame.desc[0]);
+                        if fgame.desc.len() > 2 {
+                          let d_fields = vec![
+                            ("Team 1", &fgame.desc[1], true)
+                          , ("Team 2", &fgame.desc[2], true)
+                          ];
+                          e = e.fields(d_fields);
+                        }
+                      }
                       if !old_fields.is_empty() {
                         e = e.fields(old_fields);
                       }

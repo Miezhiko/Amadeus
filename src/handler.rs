@@ -418,7 +418,7 @@ impl EventHandler for Handler {
                         .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)
                         .unwrap();
                       cc.configure_mesh()
-                        .label_style(("monospace", 15).into_font().color(&GREEN))
+                        .label_style(("monospace", 14).into_font().color(&RGBColor(150, 150, 150)))
                         .y_labels(10)
                         .axis_style(&RGBColor(80, 80, 80))
                         .draw().unwrap();
@@ -437,7 +437,10 @@ impl EventHandler for Handler {
                           .label(&k)
                           .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &color));
                       }
-                      cc.configure_series_labels().border_style(&BLACK).draw().unwrap();
+                      cc.configure_series_labels()
+                        .border_style(&BLACK)
+                        .label_font(("monospace", 17).into_font().color(&RGBColor(200, 200, 200)))
+                        .draw().unwrap();
                     }
                     let amadeus_guild_id = GuildId( self.ioptions.amadeus_guild );
                     let amadeus_storage =

@@ -426,10 +426,10 @@ impl EventHandler for Handler {
                              , green = rand::thread_rng().gen_range(0, 255)
                              , blue  = rand::thread_rng().gen_range(0, 255) };
                         let mut color = RGBColor(red, green, blue);
-                        if red < 100 && green < 100 && blue < 100 {
-                          set! { red2   = rand::thread_rng().gen_range(90, 255)
-                               , green2 = rand::thread_rng().gen_range(90, 255)
-                               , blue2  = rand::thread_rng().gen_range(90, 255) };
+                        if red < 150 && green < 150 && blue < 150 {
+                          set! { red2   = rand::thread_rng().gen_range(100, 255)
+                               , green2 = rand::thread_rng().gen_range(100, 255)
+                               , blue2  = rand::thread_rng().gen_range(100, 255) };
                           color = RGBColor(red2, green2, blue2);
                         }
                         cc.draw_series(LineSeries::new(plx, &color)).unwrap()

@@ -15,7 +15,8 @@ use crate::{
 };
 
 use serenity::{
-  prelude::*
+  prelude::*,
+  model::id::GuildId
 };
 
 use std::collections::HashMap;
@@ -469,11 +470,8 @@ pub async fn check<'a>( ctx: &Context
                   }
                   let tip =
                     if old_fields.is_empty() && streak_fields.is_none() {
-                      if let Some(g) = msg.guild_id {
-                        Some(
-                          chain::generate_with_language(ctx, &g, false).await
-                        )
-                      } else { Some(String::from("things")) }
+                      let g = GuildId( guild_id );
+                      Some(chain::generate_with_language(ctx, &g, false).await)
                     } else { None };
                   if let Err(why) = msg.edit(ctx, |m| m
                     .embed(|e| {

@@ -430,7 +430,9 @@ pub async fn check<'a>( ctx: &Context
                   if !msg.embeds.is_empty() {
                     if !msg.embeds[0].fields.is_empty() {
                       for f in msg.embeds[0].fields.clone() {
-                        old_fields.push((f.name, f.value, f.inline));
+                        if f.name != "Team 1" && f.name != "Team 2" {
+                          old_fields.push((f.name, f.value, f.inline));
+                        }
                       }
                     }
                     color = msg.embeds[0].colour.tuple();
@@ -491,7 +493,7 @@ pub async fn check<'a>( ctx: &Context
                       }
                       if let Some((s1,s2,s3,s4)) = &fgame.additional_fields {
                         e = e.fields(vec![
-                          (s1, s3, true),
+                          (s1, s3, false),
                           (s2, s4, true)
                         ]);
                       }

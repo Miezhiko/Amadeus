@@ -132,7 +132,7 @@ pub async fn activate_games_tracking(
                         if twitch_live {
                           let titurl =
                             format!("{}\n{}", &ggdata.channel.title, url);
-                          additional_fields.push(("Live on ggru", titurl, false));
+                          additional_fields.push(("Live on ggru", titurl, true));
                         } else {
                           additional_fields.push(("Live on ggru", ggdata.channel.title.clone(), false));
                           image  = Some(ggdata.channel.thumb.clone());

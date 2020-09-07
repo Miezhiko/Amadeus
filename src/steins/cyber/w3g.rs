@@ -68,8 +68,7 @@ fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<S
           s = format!("{}\n\n*heroes*", s);
           for hero in heroz.iter() {
             if let Some(id) = hero.pointer("/id") {
-              let her = id.as_str().unwrap().to_uppercase();
-              s = format!("{}\n**{}**", s, &her[1..]);
+              s = format!("{}\n**{}**", s, id.as_str().unwrap());
             }
             if let Some(level) = hero.pointer("/level") {
               s = format!("{} level {}", s, level.as_u64().unwrap());

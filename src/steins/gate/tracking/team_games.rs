@@ -29,7 +29,8 @@ use rand::{
 pub async fn activate_games_tracking(
                      ctx:       &Context
                    , channels:  &HashMap<ChannelId, GuildChannel>
-                   , options:   &IOptions ) {
+                   , options:   &IOptions
+                   , token:     String ) {
   if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
 
     // Delete live games from log channel (if some)
@@ -97,7 +98,7 @@ pub async fn activate_games_tracking(
                 let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", &streams.twitch.unwrap());
                 if let Ok(res) = client
                   .get(&getq)
-                  .header("Authorization", options_clone.twitch_oauth.clone())
+                  .header("Authorization", token.clone())
                   .header("Client-ID", options_clone.twitch_client_id.clone())
                   .send().await {
                   match res.json::<Twitch>().await {

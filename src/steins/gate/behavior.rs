@@ -1,5 +1,6 @@
 use crate::{
   types::options::IOptions,
+  common::options,
   steins::{
     gate::social::activate_social_skils,
     gate::tracking::{ team_games::activate_games_tracking
@@ -73,13 +74,17 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
       activate_social_skils(
         ctx, &hemo_channels
            , hemo_guild_id).await;
+
+      let opts = options::get_roptions().await.unwrap();
+      let access_token = opts.twitch;
+
       activate_streamers_tracking(
         ctx, &hemo_channels
-           , options
+           , options, access_token.clone()
            ).await;
       activate_games_tracking(
         ctx, &hemo_channels
-           , options
+           , options, access_token
            ).await;
       activate_w3info_tracking(
         ctx, &all_channels

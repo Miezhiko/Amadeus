@@ -1,6 +1,7 @@
 use serenity::prelude::*;
 
 use std::{ collections::HashMap, sync::Arc };
+use reqwest::Client as Reqwest;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Reaction {
@@ -30,4 +31,10 @@ impl TypeMapKey for CoreGuilds {
 
 impl TypeMapKey for AllGuilds {
   type Value = Arc<Vec<u64>>;
+}
+
+pub struct ReqwestClient;
+
+impl TypeMapKey for ReqwestClient {
+  type Value = Arc<Reqwest>;
 }

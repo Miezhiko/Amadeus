@@ -71,13 +71,13 @@ The human evaluation results indicate that the response generated from DialoGPT 
  - `cp conf.example.json conf.json` (those options may change in runtime)
  - generate token here: https://discord.com/developers/applications
  - optionally for twitch support: https://dev.twitch.tv/docs/authentication
- - modify conf.ini and fill `token` and optionally `[Twitch]` section
+ - modify conf.dhall and fill `tenor_key` and optionally `twitch` client data
+ - conf.json `twitch` value is OAuth access token, you can regenerate it with bot command `~twitch_token_update`
  - create `UNBLOCK AMADEUS` role on server
 
 ``` haskell
 { discord              = "put discord token here"
 , guild                = 0
-, twitch_oauth         = "Bearer AAAAAAAAAAAAAAAAAAAA"
 , twitch_client_id     = "AAAAAAAAAAAAAAAAAAAAAAAA"
 , twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAA"
 , tenor_key            = "AAAAAAAAA"

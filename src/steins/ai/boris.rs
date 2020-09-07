@@ -1,6 +1,6 @@
 use crate::types::rules::*;
 use crate::collections::stuff::jonson::*;
-use crate::steins::ai::utils::*;
+use crate::steins::ai::utils::capital_first;
 
 fn spell_word(word: &str) -> String {
   if word.is_empty() { return String::new(); }
@@ -32,7 +32,7 @@ fn spell_word(word: &str) -> String {
   if whole_word_uppercase {
     result = result.to_uppercase();
   } else if first_char_uppercase {
-    result = captial_first(&result);
+    result = capital_first(&result);
   }
 
   result

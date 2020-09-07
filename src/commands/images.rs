@@ -1,4 +1,4 @@
-use crate::types::common::PubCreds;
+use crate::types::common::{ ReqwestClient, PubCreds };
 
 use serenity::{
   prelude::*,
@@ -10,16 +10,10 @@ use serenity::{
   utils::Colour
 };
 
-use std::{ collections::HashMap, sync::Arc };
+use std::{ collections::HashMap };
 use reqwest::Url;
 use serde::Deserialize;
 use rand::{ prelude::StdRng, Rng, SeedableRng };
-use reqwest::Client as Reqwest;
-
-pub struct ReqwestClient;
-impl TypeMapKey for ReqwestClient {
-  type Value = Arc<Reqwest>;
-}
 
 #[derive(Debug, Deserialize)]
 struct Response {

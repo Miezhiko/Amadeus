@@ -1,6 +1,7 @@
 use crate::{
   types::{
     common::{ PubCreds
+            , ReqwestClient
             , CoreGuild
             , CoreGuilds
             , AllGuilds },
@@ -126,7 +127,7 @@ struct Pad;
 #[help_available(false)]
 #[owners_only]
 #[checks(Admin)]
-#[commands(say, set, clear, upgrade)]
+#[commands(say, set, clear, upgrade, twitch_token_update)]
 struct Owner;
 
 #[group("Admin")]
@@ -325,9 +326,10 @@ pub async fn run(opts : &IOptions) ->
 
   info!("all the options loaded");
 
-  // TODO: maybe use it instead of passing options for twitch and things (things)
   let mut creds = HashMap::new();
   creds.insert("tenor".to_string(), opts.tenor_key.clone());
+  creds.insert("twitch_client".to_string(), opts.twitch_client_id.clone());
+  creds.insert("twitch_secret".to_string(), opts.twitch_client_secret.clone());
 
   let mut core_guilds = HashMap::new();
   core_guilds.insert(CoreGuild::UserId, *amadeus_id.as_u64());

@@ -1,9 +1,12 @@
 use crate::{
-  common::msg::{
-    channel_message, direct_message
+  types::common::PubCreds,
+  common::{ options, msg::{
+      channel_message, direct_message
+    }
   },
-  steins::gate,
-  steins::ai::chain::ACTIVITY_LEVEL
+  steins::{ gate
+          , ai::chain::ACTIVITY_LEVEL
+          , ai::utils::capital_first },
 };
 
 use serenity::{
@@ -16,6 +19,8 @@ use serenity::{
     macros::command
   }
 };
+
+use serde_json::Value;
 
 use std::sync::atomic::Ordering;
 
@@ -199,6 +204,41 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
                 .await
                 .expect("failed to restart Amadeus service");
         // I expect that we die right here
+      }
+    }
+  }
+  Ok(())
+}
+
+#[command]
+#[owners_only]
+async fn twitch_token_update(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  set!{ data            = ctx.data.read().await
+      , client_id       = data.get::<PubCreds>().unwrap().get("twitch_client").unwrap().as_str()
+      , client_secret   = data.get::<PubCreds>().unwrap().get("twitch_secret").unwrap().as_str() };
+  let curl_command = format!(
+    "curl -X POST \"https://id.twitch.tv/oauth2/token?client_id={}&client_secret={}&grant_type=client_credentials\"",
+      client_id, client_secret);
+  //TODO recode to simple request
+  let curl = Command::new("sh")
+    .arg("-c")
+    .arg(&curl_command)
+    .output()
+    .await
+    .expect("failed to run curl");
+  if let Ok(curl_out) = &String::from_utf8(curl.stdout) {
+    let json : Value = serde_json::from_str(&curl_out)?;
+    if let Some(token_type) = json.pointer("/token_type") {
+      let mut out = format!("{}", capital_first(token_type.as_str().unwrap()));
+      if let Some(access_token) = json.pointer("/access_token") {
+        out = format!("{} {}", out, access_token.as_str().unwrap());
+        let mut opts = options::get_roptions().await?;
+        opts.twitch = out;
+        options::put_roptions(&opts).await?;
+        channel_message(&ctx, &msg, "twitch access token updated").await;
       }
     }
   }

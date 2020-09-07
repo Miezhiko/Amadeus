@@ -32,7 +32,7 @@ fn spell_word(word: &str) -> String {
   if whole_word_uppercase {
     result = result.to_uppercase();
   } else if first_char_uppercase {
-    result = captial_first(&result);
+    result = capital_first(&result);
   }
 
   result

@@ -1,4 +1,4 @@
-pub fn captial_first(s: &str) -> String {
+pub fn capital_first(s: &str) -> String {
   let mut c = s.chars();
   match c.next() {
     None => String::new(),

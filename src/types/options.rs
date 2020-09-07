@@ -4,7 +4,6 @@ pub struct IOptions {
   pub guild: u64,
   pub amadeus_guild: u64,
   pub servers: Vec<u64>,
-  pub twitch_oauth: String,
   pub twitch_client_id: String,
   pub twitch_client_secret: String,
   pub tenor_key: String
@@ -15,5 +14,6 @@ pub struct ROptions {
   pub rejoin: bool,
   pub last_guild: u64,
   pub last_channel: u64,
-  pub last_stream: String
+  pub last_stream: String,
+  pub twitch: String
 }

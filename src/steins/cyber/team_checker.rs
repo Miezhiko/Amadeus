@@ -96,10 +96,10 @@ async fn check_match( matchid_lol: &str
                 }
               }
             }
-            let mstr = format!("map: {}", g_map);
+            let mstr = format!("Map: {}", g_map);
             let teamx = |x: usize| -> String {
               if m.gameMode == 6 {
-                if m.teams[0].won {
+                if m.teams[x].won {
                   format!("({}) __**{}**__\n({}) __**{}**__\n[{}] **+{}**"
                   , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name
                   , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
@@ -108,7 +108,7 @@ async fn check_match( matchid_lol: &str
                   , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name
                   , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
                 }
-              } else if m.teams[0].won {
+              } else if m.teams[x].won {
                 format!("({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**"
                 , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
                 , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
@@ -344,7 +344,7 @@ pub async fn check<'a>( ctx: &Context
                      , race2  = get_race2(m.teams[1].players[0].race)
                      , race22 = get_race2(m.teams[1].players[1].race) };
 
-                let mstr = format!("map: {}", g_map);
+                let mstr = format!("Map: {}", g_map);
 
                 //TODO: something different for AT
                 //if m.gameMode == 6 {
@@ -493,8 +493,8 @@ pub async fn check<'a>( ctx: &Context
                       }
                       if let Some((s1,s2,s3,s4)) = &fgame.additional_fields {
                         e = e.fields(vec![
-                          (s1, s3, false),
-                          (s2, s4, true)
+                          (s1, s3, true),
+                          (s2, s4, false)
                         ]);
                       }
                       if let Some(hero) = &fgame.hero_png {

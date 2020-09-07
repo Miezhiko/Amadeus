@@ -418,8 +418,9 @@ impl EventHandler for Handler {
                         .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)
                         .unwrap();
                       cc.configure_mesh()
+                        .label_style(("monospace", 15).into_font().color(&GREEN))
                         .y_labels(10)
-                        .axis_style(&RGBColor(100, 50, 70))
+                        .axis_style(&RGBColor(80, 80, 80))
                         .draw().unwrap();
                       for (k, plx) in fields3 {
                         set! { red   = rand::thread_rng().gen_range(0, 255)

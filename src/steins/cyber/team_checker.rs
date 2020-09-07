@@ -473,7 +473,7 @@ pub async fn check<'a>( ctx: &Context
                         Some(
                           chain::generate_with_language(ctx, &g, false).await
                         )
-                      } else { None }
+                      } else { Some(String::from("things")) }
                     } else { None };
                   if let Err(why) = msg.edit(ctx, |m| m
                     .embed(|e| {

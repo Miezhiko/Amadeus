@@ -411,7 +411,6 @@ impl EventHandler for Handler {
                     { // because of Rc < > in BitMapBackend I need own scope here
                       let root_area = BitMapBackend::new(&fname_apm, (1024, 768)).into_drawing_area();
                       root_area.fill(&RGBColor(47, 49, 54)).unwrap(); //2f3136
-                      let root_area = root_area.titled("APM", ("monospace", 16).into_font()).unwrap();
                       let mut cc = ChartBuilder::on(&root_area)
                         .margin(5)
                         .set_all_label_area_size(50)

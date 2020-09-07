@@ -10,7 +10,8 @@ use crate::{
     utils::{ get_race2
            , get_map
            , get_hero_png }
-  }
+  },
+  steins::ai::chain
 };
 
 use serenity::{
@@ -463,10 +464,17 @@ pub async fn check<'a>( ctx: &Context
                       }
                     } else {
                       trace!("Registering lose for {}", pw);
-                      points::break_streak( guild_id
-                                          , *pw ).await;
+                      points::break_streak(guild_id, *pw).await;
                     }
                   }
+                  let tip =
+                    if old_fields.is_empty() && streak_fields.is_none() {
+                      if let Some(g) = msg.guild_id {
+                        Some(
+                          chain::generate_with_language(ctx, &g, false).await
+                        )
+                      } else { None }
+                    } else { None };
                   if let Err(why) = msg.edit(ctx, |m| m
                     .embed(|e| {
                       let mut e =
@@ -483,6 +491,12 @@ pub async fn check<'a>( ctx: &Context
                           , ("Team 2", &fgame.desc[2], true)
                           ];
                           e = e.fields(d_fields);
+                          // add line breaking something if there is no
+                          if let Some(t) = tip {
+                            e = e.fields(vec![
+                              ("Tip for the day", &t, false)
+                            ]);
+                          }
                         }
                       }
                       if !old_fields.is_empty() {
@@ -494,7 +508,7 @@ pub async fn check<'a>( ctx: &Context
                       if let Some((s1,s2,s3,s4)) = &fgame.additional_fields {
                         e = e.fields(vec![
                           (s1, s3, true),
-                          (s2, s4, false)
+                          (s2, s4, true)
                         ]);
                       }
                       if let Some(hero) = &fgame.hero_png {

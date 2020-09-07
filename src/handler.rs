@@ -414,16 +414,20 @@ impl EventHandler for Handler {
                         .set_all_label_area_size(50)
                         .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)
                         .unwrap();
-                      cc.configure_mesh().y_labels(10).draw().unwrap();
+                      cc.configure_mesh()
+                        .y_labels(10)
+                        .y_desc("APM")
+                        .draw().unwrap();
                       for (k, plx) in fields3 {
                         set! { red   = rand::thread_rng().gen_range(0, 255)
                              , green = rand::thread_rng().gen_range(0, 255)
-                             , blue  = rand::thread_rng().gen_range(0, 255) };
-                        cc.draw_series(LineSeries::new(plx, &RGBColor(red, green, blue))).unwrap()
+                             , blue  = rand::thread_rng().gen_range(0, 255)
+                             , color = RGBColor(red, green, blue) };
+                        cc.draw_series(LineSeries::new(plx, &color)).unwrap()
                           .label(&k)
-                          .legend(|(x, y)| PathElement::new(vec![(x, y), (x, y)], &BLUE));
+                          .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &color));
                       }
-                      cc.configure_series_labels().border_style(&GREEN).draw().unwrap();
+                      cc.configure_series_labels().border_style(&BLACK).draw().unwrap();
                     }
                     let amadeus_guild_id = GuildId( self.ioptions.amadeus_guild );
                     let amadeus_storage =

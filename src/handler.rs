@@ -386,12 +386,14 @@ impl EventHandler for Handler {
                   let mut fields1 = vec![];
                   let mut fields2 = vec![];
                   let mut fields3 = vec![];
-                  for (kk, vv, papm) in flds {
+                  for (kk, vv, mut papm) in flds {
                     if vv.len() > 1 {
                       fields1.push((kk.clone(), vv[0].clone(), true));
                       fields2.push((kk.clone(), vv[1].clone(), true));
                     }
                     if !papm.len() > 1 {
+                      // drop last value of apm, because it's "not full"
+                      papm.truncate(papm.len() - 1);
                       let max = papm.iter().max().unwrap_or_else(|| &0);
                       max_apm = std::cmp::max(max_apm, *max);
                       fields3.push(
@@ -416,7 +418,8 @@ impl EventHandler for Handler {
                         .unwrap();
                       cc.configure_mesh()
                         .y_labels(10)
-                        .y_desc("APM")
+                        //.y_desc("APM")
+                        .axis_style(&GREEN)
                         .draw().unwrap();
                       for (k, plx) in fields3 {
                         set! { red   = rand::thread_rng().gen_range(0, 255)

@@ -33,7 +33,7 @@ async fn analyze_js(path: &str) -> jane_eyre::Result<String> {
 
 #[cfg(not(feature = "w3g_rs"))]
 #[allow(clippy::type_complexity)]
-fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<String>)>)> {
+fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let json : Value = serde_json::from_str(&j)?;
   let mut out = String::new();
   let mut pls = vec![];
@@ -53,6 +53,7 @@ fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<S
       let mut p = String::new();
       let mut s = String::new();
       let mut su = String::new();
+      let mut sapm = vec![];
       if let Some(name) = playa.pointer("/name") {
         p = name.as_str().unwrap().to_string();
       }
@@ -61,6 +62,14 @@ fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<S
       }
       if let Some(apm) = playa.pointer("/apm") {
         s = format!("{}**apm**: {}", s, apm.as_u64().unwrap());
+      }
+      if let Some(actions) = playa.pointer("/actions") {
+        if let Some(timed) = actions.pointer("/timed") {
+          let timed = timed.as_array().unwrap();
+          for tapm in timed.iter() {
+            sapm.push( tapm.as_u64().unwrap() );
+          }
+        }
       }
       if let Some(heroes) = playa.pointer("/heroes") {
         let heroz = heroes.as_array().unwrap();
@@ -86,7 +95,7 @@ fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<S
           }
         }
       }
-      pls.push((p, vec![s, su]));
+      pls.push((p, vec![s, su], sapm));
     }
   }
   if let Some(duration) = json.pointer("/duration") {
@@ -98,14 +107,14 @@ fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<S
 
 #[cfg(feature="w3g_rs")]
 pub async fn analyze(path: &str)
-    -> jane_eyre::Result<(String, Vec<(String, Vec<String>)>)> {
+    -> jane_eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let replay_data = analyze_rs(path)?;
   Ok((replay_data, vec![]))
 }
 
 #[cfg(not(feature = "w3g_rs"))]
 pub async fn analyze(path: &str)
-    -> jane_eyre::Result<(String, Vec<(String, Vec<String>)>)> {
+    -> jane_eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let replay_data = analyze_js(path).await?;
   let pretty_daya = prettify_analyze_js(&replay_data)?;
   Ok(pretty_daya)

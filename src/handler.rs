@@ -407,6 +407,7 @@ impl EventHandler for Handler {
                   if !fields3.is_empty() {
                     let (_, first_amp_list) = &fields3[0];
                     let len: f32 = first_amp_list.len() as f32 - 1_f32;
+                    //TODO: I need different text color here...
                     { // because of Rc < > in BitMapBackend I need own scope here
                       let root_area = BitMapBackend::new(&fname_apm, (1024, 768)).into_drawing_area();
                       root_area.fill(&RGBColor(47, 49, 54)).unwrap(); //2f3136
@@ -418,14 +419,19 @@ impl EventHandler for Handler {
                         .unwrap();
                       cc.configure_mesh()
                         .y_labels(10)
-                        //.y_desc("APM")
-                        .axis_style(&GREEN)
+                        .axis_style(&RGBColor(100, 50, 70))
                         .draw().unwrap();
                       for (k, plx) in fields3 {
                         set! { red   = rand::thread_rng().gen_range(0, 255)
                              , green = rand::thread_rng().gen_range(0, 255)
-                             , blue  = rand::thread_rng().gen_range(0, 255)
-                             , color = RGBColor(red, green, blue) };
+                             , blue  = rand::thread_rng().gen_range(0, 255) };
+                        let mut color = RGBColor(red, green, blue);
+                        if red < 100 && green < 100 && blue < 100 {
+                          set! { red2   = rand::thread_rng().gen_range(90, 255)
+                               , green2 = rand::thread_rng().gen_range(90, 255)
+                               , blue2  = rand::thread_rng().gen_range(90, 255) };
+                          color = RGBColor(red2, green2, blue2);
+                        }
                         cc.draw_series(LineSeries::new(plx, &color)).unwrap()
                           .label(&k)
                           .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &color));

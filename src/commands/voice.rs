@@ -77,12 +77,12 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
   let mut manager = manager_lock.lock().await;
   if manager.join(guild_id, connect_to).is_some() {
     let mut opts = options::get_roptions().await?;
-    if opts.last_guild != *guild_id.as_u64()
-    || opts.last_channel != *connect_to.as_u64()
+    if opts.last_guild != guild_id.0
+    || opts.last_channel != connect_to.0
     || !opts.rejoin {
       opts.rejoin = true;
-      opts.last_guild = *guild_id.as_u64();
-      opts.last_channel = *connect_to.as_u64();
+      opts.last_guild = guild_id.0;
+      opts.last_channel = connect_to.0;
       options::put_roptions(&opts).await?;
     }
     if let Err(why) = msg.channel_id.say(&ctx, &format!("I've joined {}", connect_to.mention())).await {

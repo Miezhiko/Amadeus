@@ -277,7 +277,7 @@ pub async fn response(ctx: &Context, msg : &Message) {
         if let Ok(answer) = bert::ask(text).await {
           answer
         } else { String::new() }
-      } else if let Ok(answer) = bert::chat(text, *msg.author.id.as_u64()).await {
+      } else if let Ok(answer) = bert::chat(text, msg.author.id.0).await {
         answer
       } else { String::new() };
     if russian {
@@ -307,7 +307,7 @@ pub async fn chat(ctx: &Context, msg : &Message) {
         } else {
           generate(&ctx, &msg, Some(russian)).await
         }
-      } else if let Ok(answer) = bert::chat(text, *msg.author.id.as_u64()).await {
+      } else if let Ok(answer) = bert::chat(text, msg.author.id.0).await {
         bert_generated = true;
         answer
       } else {

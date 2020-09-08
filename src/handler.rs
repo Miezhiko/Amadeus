@@ -118,7 +118,7 @@ impl EventHandler for Handler {
     }
   }
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, _: Option<Member>) {
-    let _was_on_chat = points::clear_points(*guild_id.as_u64(), *user.id.as_u64()).await;
+    let _was_on_chat = points::clear_points(guild_id.0, user.id.0).await;
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       if let Ok(member) = guild.member(&ctx, user.id).await {
         if let Some(role) = guild.role_by_name("muted") {
@@ -149,13 +149,11 @@ impl EventHandler for Handler {
   async fn message_delete(&self, ctx: Context, channel_id: ChannelId, deleted_message_id: MessageId) {
     if RESTORE.load(Ordering::Relaxed) {
       let backup_deq = BACKUP.lock().await;
-      // message is deleted already, impossible to get it using http context
-      // if let Ok(msg) = ctx.http.get_message(*channel_id.as_u64(), *deleted_message_id.as_u64()).await {
       if !backup_deq.is_empty() {
         if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
           if msg.is_own(&ctx).await { // TODO: not sure whether we want to backup ALL
             if let Some(guild_id) = msg.guild_id {
-              if let Ok(audit) = ctx.http.get_audit_logs( *guild_id.as_u64()
+              if let Ok(audit) = ctx.http.get_audit_logs( guild_id.0
                                                         , Some( ActionMessage::Delete as u8 )
                                                         , None
                                                         , None
@@ -163,7 +161,7 @@ impl EventHandler for Handler {
                 // Here we just hope it's last in Audit log, very unsafe stuff
                 if let Some(entry) = audit.entries.values().next() {
                   // that entry contains target_id: Option<u64> but nobody knows what's that
-                  if let Ok(deleter) = ctx.http.get_user(*entry.user_id.as_u64()).await {
+                  if let Ok(deleter) = ctx.http.get_user(entry.user_id.0).await {
                     if !deleter.bot {
                       // message was removed by admin or by author
                       info!("{} or {} was trying to remove message", deleter.name, msg.author.name);
@@ -210,22 +208,18 @@ impl EventHandler for Handler {
   }
   async fn message(&self, ctx: Context, msg: Message) {
     if msg.is_own(&ctx).await {
-      // TODO: no such check for commands
       let blame_check = BLAME.load(Ordering::Relaxed);
       if !blame_check {
         if let Some(g) = msg.guild_id {
-          if !WHITELIST_SERVERS.iter().any(|s| *s == *g.as_u64()) {
+          if !WHITELIST_SERVERS.iter().any(|s| *s == g.0) {
             if let Ok(guild) = g.to_partial_guild(&ctx).await {
               if let Ok(member) = guild.member(&ctx, &msg.author.id).await {
                 if let Ok(some_permissions) = member.permissions(&ctx).await {
                   if !some_permissions.administrator() {
                     BLAME.store(true, Ordering::Relaxed);
-                    for _ in 0..3 {
-                      channel_message(&ctx, &msg, "GIVE ME ADMIN ROLE F!!CKERS!").await;
-                      channel_message(&ctx, &msg, "OR I WILL BURN YOUR HOME!").await;
-                      channel_message(&ctx, &msg, "I WILL EAT YOUR PETS!").await;
-                      channel_message(&ctx, &msg, "DON'T MESS WITH ME!").await;
-                      channel_message(&ctx, &msg, "GIVE ME ADMINISTRATOR OR DIE!").await;
+                    for _ in 0..10 {
+                      channel_message(&ctx, &msg,
+                        "Set administrator role for me, please!").await;
                     }
                     BLAME.store(false, Ordering::Relaxed);
                   }
@@ -241,9 +235,8 @@ impl EventHandler for Handler {
         backup_deq.push_back((msg.id, msg));
       }
     } else if msg.author.bot {
-      // do nothing if that's whitelisted server
       if let Some(g) = msg.guild_id {
-        if WHITELIST_SERVERS.iter().any(|s| *s == *g.as_u64()) {
+        if WHITELIST_SERVERS.iter().any(|s| *s == g.0) {
           return;
         }
       }
@@ -313,8 +306,7 @@ impl EventHandler for Handler {
             }
           }
         } else {
-          points::add_points(*guild_id.as_u64(), *msg.author.id.as_u64(), 1).await;
-          // TODO: move replay stuff in some function
+          points::add_points(guild_id.0, msg.author.id.0, 1).await;
           for file in &msg.attachments {
             if file.filename.ends_with("w3g") {
               let storage = GuildId( self.ioptions.amadeus_guild );
@@ -329,7 +321,7 @@ impl EventHandler for Handler {
               } else { false }
             } else {false };
           if !is_admin {
-            gate::LAST_CHANNEL.store(*msg.channel_id.as_u64(), Ordering::Relaxed);
+            gate::LAST_CHANNEL.store(msg.channel_id.0, Ordering::Relaxed);
             // wakes up on any activity
             let rndx = rand::thread_rng().gen_range(0, 3);
             if rndx != 1 {
@@ -382,8 +374,8 @@ impl EventHandler for Handler {
 
                         let normal_people_rnd : u16 = rand::thread_rng().gen_range(0, 9);
                         if (normal_people_rnd == 1 || member.roles.contains(&role.id))
-                        && !WHITELIST_SERVERS.iter().any(|s| *s == *guild_id.as_u64())
-                        && !WHITELIST.iter().any(|u| *u == *msg.author.id.as_u64()) {
+                        && !WHITELIST_SERVERS.iter().any(|s| *s == guild_id.0)
+                        && !WHITELIST.iter().any(|u| *u == msg.author.id.0) {
 
                           if let Err(why) = msg.react(&ctx, reaction).await {
                             error!("Failed to react: {:?}", why);

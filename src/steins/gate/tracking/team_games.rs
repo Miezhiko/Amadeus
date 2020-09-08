@@ -77,7 +77,7 @@ pub async fn activate_games_tracking(
         info!("check");
 
         let our_gsx = cyber::team_checker::check( &ctx_clone
-                                                , *ch_deref.as_u64()
+                                                , ch_deref.0
                                                 , options_clone.guild
                                                 , &mut games_lock
                                                 ).await;
@@ -182,7 +182,7 @@ pub async fn activate_games_tracking(
             )).await {
               Ok(msg_id) => {
                 games_lock.insert(game_key, TrackingGame {
-                  tracking_msg_id: *msg_id.id.as_u64(),
+                  tracking_msg_id: msg_id.id.0,
                   passed_time: 0,
                   still_live: false,
                   players: game.players }

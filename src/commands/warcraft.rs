@@ -132,8 +132,8 @@ pub async fn tour_internal( ctx: &Context
       }
     }
     if let Some(msg_id) = post_to_edit {
-      if let Ok(mut msg) = ctx.http.get_message( *channel_id.as_u64()
-                                               , *msg_id.as_u64() ).await {
+      if let Ok(mut msg) = ctx.http.get_message( channel_id.0
+                                               , msg_id.0 ).await {
         if let Err(why) = msg.edit(&ctx, |m| m
           .embed(|e| e
             .title(title)

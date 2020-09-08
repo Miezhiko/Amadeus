@@ -48,8 +48,8 @@ async fn give_win(ctx: &Context, msg: &Message) -> CommandResult {
       channel_message(ctx, msg, "you need to target points reciever").await;
     } else {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-      let s = points::add_win_points( *guild_id.as_u64()
-                                    , *target_user.id.as_u64()
+      let s = points::add_win_points( guild_id.0
+                                    , target_user.id.0
                                     ).await;
       let out = format!("win registered, {} wins in a row", s);
       channel_message(ctx, msg, &out).await;
@@ -66,8 +66,8 @@ async fn register_lose(ctx: &Context, msg: &Message) -> CommandResult {
       channel_message(ctx, msg, "you need to target points reciever").await;
     } else {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-      let _ = points::break_streak( *guild_id.as_u64()
-                                  , *target_user.id.as_u64()
+      let _ = points::break_streak( guild_id.0
+                                  , target_user.id.0
                                   ).await;
     }
   }

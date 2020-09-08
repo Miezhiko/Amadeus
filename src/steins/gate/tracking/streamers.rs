@@ -162,7 +162,7 @@ pub async fn activate_streamers_tracking(
             }
             if !additional_fields.is_empty() {
               if let Some(track) = streams_lock.get(&playa.discord) {
-                if let Ok(mut msg) = ctx_clone.http.get_message(*sh_deref.as_u64(), track.tracking_msg_id).await {
+                if let Ok(mut msg) = ctx_clone.http.get_message(sh_deref.0, track.tracking_msg_id).await {
                   let footer = if track.passed_time > 60 {
                       let hours: u32 = track.passed_time / 60;
                       let minutes = track.passed_time % 60;
@@ -253,7 +253,7 @@ pub async fn activate_streamers_tracking(
                 )).await {
                   Ok(msg_id) => {
                     streams_lock.insert(playa.discord, TrackingGame {
-                      tracking_msg_id: *msg_id.id.as_u64(),
+                      tracking_msg_id: msg_id.id.0,
                       passed_time: 0,
                       still_live: true,
                       players: vec![playa] }
@@ -265,7 +265,7 @@ pub async fn activate_streamers_tracking(
                 }
               }
             } else if let Some(track) = streams_lock.get(&playa.discord) {
-              if let Ok(mut msg) = ctx_clone.http.get_message(*sh_deref.as_u64(), track.tracking_msg_id).await {
+              if let Ok(mut msg) = ctx_clone.http.get_message(sh_deref.0, track.tracking_msg_id).await {
                 let footer = if track.passed_time > 60 {
                     let hours: u32 = track.passed_time / 60;
                     let minutes = track.passed_time % 60;

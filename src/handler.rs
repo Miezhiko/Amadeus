@@ -116,24 +116,6 @@ impl EventHandler for Handler {
         }
       }
     }
-    if let Ok(channels) = guild_id.channels(&ctx).await {
-      let ai_text = chain::generate_with_language(&ctx, &guild_id, false).await;
-      if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
-        let user = &member.user; // .read().await;
-        let title = format!("has joined here, {}", &ai_text);
-        if let Err(why) = channel.send_message(&ctx, |m| m
-          .embed(|e| {
-            let mut e = e
-              .author(|a| a.icon_url(&user.face()).name(&user.name))
-              .title(title);
-            if let Some(ref joined_at) = member.joined_at {
-              e = e.timestamp(joined_at);
-            } e
-        })).await {
-          error!("Failed to log new user {:?}", why);
-        }
-      }
-    }
   }
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, _: Option<Member>) {
     let _was_on_chat = points::clear_points(*guild_id.as_u64(), *user.id.as_u64()).await;

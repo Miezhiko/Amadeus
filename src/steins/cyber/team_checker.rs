@@ -27,35 +27,11 @@ lazy_static! {
     = Mutex::new(HashMap::new());
 }
 
-async fn check_match( matchid_lol: &str
+async fn check_match( matchid: &str
                     , playaz: &[Player]
                     ) -> Option<FinishedGame> {
-
-  let mut matchid_s : String = String::new();
-  if let Ok(wtf) = reqwest::get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20").await {
-    if let Ok(going) = wtf.json::<Going>().await {
-      for mm in &going.matches {
-        if mm.startTime == matchid_lol {
-          // TODO: change that hack one day
-          if playaz.iter().any(|p|
-            if mm.gameMode == 6 || mm.gameMode == 2 {
-              mm.teams[0].players[0].battleTag == p.battletag || mm.teams[1].players[0].battleTag == p.battletag ||
-              mm.teams[0].players[1].battleTag == p.battletag || mm.teams[1].players[1].battleTag == p.battletag
-            } else {
-              mm.teams[0].players[0].battleTag == p.battletag || mm.teams[1].players[0].battleTag == p.battletag
-            })
-          {
-            matchid_s = mm.id.clone();
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  if matchid_s.is_empty() { return None; }
-  let matchid = &matchid_s;
-  let url = format!("https://statistic-service.w3champions.com/api/matches/{}", matchid);
+  let url =
+    format!("https://statistic-service.w3champions.com/api/matches/by-ongoing-match-id/{}", matchid);
 
   if let Ok(res) = reqwest::get(&url).await {
     match res.json::<MD>().await {
@@ -272,7 +248,7 @@ pub async fn check<'a>( ctx: &Context
                     race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
                   , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
 
-                if let Some(track) = games_lock.get_mut(&m.startTime) {
+                if let Some(track) = games_lock.get_mut(&m.match_id) {
                   track.still_live = true;
                   let minutes = track.passed_time / 2;
                   let footer = format!("Passed: {} min", minutes);
@@ -324,7 +300,7 @@ pub async fn check<'a>( ctx: &Context
 
                 } else {
                   out.push(
-                    StartingGame { key: m.startTime
+                    StartingGame { key: m.match_id
                                  , description: vec![ mstr ]
                                  , players: playaz });
                 }
@@ -358,7 +334,7 @@ pub async fn check<'a>( ctx: &Context
                   , race22, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr);
                 let mvec = vec![ mstr, team1, team2 ];
 
-                if let Some(track) = games_lock.get_mut(&m.startTime) {
+                if let Some(track) = games_lock.get_mut(&m.match_id) {
                   track.still_live = true;
                   set!{ minutes = track.passed_time / 2
                       , footer = format!("Passed: {} min", minutes) };
@@ -407,7 +383,7 @@ pub async fn check<'a>( ctx: &Context
                   }
                 } else {
                   out.push(
-                    StartingGame { key: m.startTime
+                    StartingGame { key: m.match_id
                                  , description: mvec
                                  , players: playaz });
                 }

@@ -106,17 +106,21 @@ pub_struct!(Team {
   won: bool,
 });
 
-pub_struct!(Match {
-  map: String,
-  id: String,
-  durationInSeconds: u32,
-  startTime: String,
-  endTime: String,
-  gameMode: u32,
-  teams: Vec<Team>,
-  gateWay: u32,
-  season: u32,
-});
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct Match {
+  pub map: String,
+  pub id: String,
+  #[serde(rename = "original-ongoing-match-id")]
+  pub match_id: String,
+  pub durationInSeconds: u32,
+  pub startTime: String,
+  pub endTime: String,
+  pub gameMode: u32,
+  pub teams: Vec<Team>,
+  pub gateWay: u32,
+  pub season: u32
+}
 
 pub_struct!(Going {
   matches: Vec<Match>,

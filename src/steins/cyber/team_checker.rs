@@ -36,8 +36,8 @@ async fn check_match( matchid: &str
   if let Ok(res) = reqwest::get(&url).await {
     match res.json::<MD>().await {
       Ok(md) => {
-        let address = format!("https://www.w3champions.com/match/{}", matchid);
         let m = md.match_data;
+        let address = format!("https://www.w3champions.com/match/{}", &m.id);
         let mut losers: Vec<(u64, bool)> = vec![];
         let mstr_o =
           if m.gameMode == 1 {

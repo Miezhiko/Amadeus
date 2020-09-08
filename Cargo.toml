@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.16.8"
+version     = "2.16.9"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -12,7 +12,6 @@ license     = "ISC AND MPL-v2"
 [features]
 default     = []
 w3g_rs      = ["w3grs"]
-flo         = []
 
 [dependencies]
 rand          = "0.7.3"

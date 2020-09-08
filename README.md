@@ -109,13 +109,6 @@ note that you're fully safe to rebuild and restart it whenever you want
 systemctl restart Amadeus
 ```
 
-## Notes
-
- - Only will work with server administrator permissions
- - Doesn't like other bots
- - Punish people for blocking her
- - Cruel
-
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_large)

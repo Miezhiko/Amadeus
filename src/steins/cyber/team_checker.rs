@@ -14,10 +14,7 @@ use crate::{
   steins::ai::chain
 };
 
-use serenity::{
-  prelude::*,
-  model::id::GuildId
-};
+use serenity::prelude::*;
 
 use std::collections::HashMap;
 use tokio::sync::{ Mutex, MutexGuard };
@@ -446,8 +443,7 @@ pub async fn check<'a>( ctx: &Context
                   }
                   let tip =
                     if old_fields.is_empty() && streak_fields.is_none() {
-                      let g = GuildId( guild_id );
-                      Some(chain::generate_with_language(ctx, &g, false).await)
+                      Some(chain::generate_with_language(ctx, false).await)
                     } else { None };
                   if let Err(why) = msg.edit(ctx, |m| m
                     .embed(|e| {

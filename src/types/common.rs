@@ -3,6 +3,21 @@ use serenity::prelude::*;
 use std::{ collections::HashMap, sync::Arc };
 use reqwest::Client as Reqwest;
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+pub enum CoreGuild {
+  HEmo,
+  Storage,
+  Safe,
+  Unsafe
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct IServer {
+  pub id: u64,
+  pub name: String,
+  pub kind: CoreGuild
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Reaction {
   pub id: u64,
@@ -18,19 +33,12 @@ impl TypeMapKey for PubCreds {
 pub struct CoreGuilds;
 pub struct AllGuilds;
 
-#[derive(Debug, PartialEq, Eq, Hash)]
-pub enum CoreGuild {
-  UserId,
-  Amadeus,
-  HEmo
-}
-
 impl TypeMapKey for CoreGuilds {
   type Value = Arc<HashMap<CoreGuild, u64>>;
 }
 
 impl TypeMapKey for AllGuilds {
-  type Value = Arc<Vec<u64>>;
+  type Value = Arc<Vec<IServer>>;
 }
 
 pub struct ReqwestClient;

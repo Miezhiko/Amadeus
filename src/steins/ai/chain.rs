@@ -125,7 +125,7 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
   info!("Updating cache complete");
 }
 
-pub async fn actualize_cache(ctx: &Context, guild_id: &GuildId) {
+pub async fn actualize_cache(ctx: &Context) {
   let nao = Utc::now();
   let mut last_update = LAST_UPDATE.lock().await;
   let since_last_update : Duration = nao - *last_update;
@@ -134,15 +134,12 @@ pub async fn actualize_cache(ctx: &Context, guild_id: &GuildId) {
     set!{ data       = ctx.data.read().await
         , server_ids = data.get::<AllGuilds>().unwrap() };
     let servers = server_ids.iter()
-                            .map(|x64| GuildId(*x64))
+                            .map(|srv| GuildId(srv.id))
                             .collect::<Vec<GuildId>>();
     for server in servers {
       if let Ok(serv_channels) = server.channels(ctx).await {
         all_channels.extend(serv_channels);
       }
-    }
-    if let Ok(channels) = guild_id.channels(ctx).await {
-      all_channels.extend(channels);
     }
     update_cache(ctx, &all_channels).await;
     *last_update = nao;
@@ -189,8 +186,8 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
   None
 }
 
-pub async fn generate_with_language(ctx: &Context, guild_id: &GuildId, russian : bool) -> String {
-  actualize_cache(ctx, guild_id).await;
+pub async fn generate_with_language(ctx: &Context, russian : bool) -> String {
+  actualize_cache(ctx).await;
   let chain : MutexGuard<Chain<String>> =
     if russian {
       CACHE_RU.lock().await
@@ -200,32 +197,29 @@ pub async fn generate_with_language(ctx: &Context, guild_id: &GuildId, russian :
   chain.generate_str()
 }
 
-pub async fn generate_english_or_russian(ctx: &Context, guild_id: &GuildId) -> String {
+pub async fn generate_english_or_russian(ctx: &Context) -> String {
   let rndx = rand::thread_rng().gen_range(0, 2);
-  generate_with_language(&ctx, &guild_id, rndx != 1).await
+  generate_with_language(&ctx, rndx != 1).await
 }
 
 pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> String {
-  let mut out = String::new();
-  if let Some(guild_id) = msg.guild_id {
-    let msg_content = &msg.content;
-    let russian = if let Some(rus) = mbrussian
-      { rus } else { lang::is_russian(msg_content) };
-    actualize_cache(ctx, &guild_id).await;
-    let chain : MutexGuard<Chain<String>> =
+  let msg_content = &msg.content;
+  let russian = if let Some(rus) = mbrussian
+    { rus } else { lang::is_russian(msg_content) };
+  actualize_cache(ctx).await;
+  let chain : MutexGuard<Chain<String>> =
+  if russian {
+      CACHE_RU.lock().await
+    } else {
+      CACHE_ENG.lock().await
+    };
+  let mut out = chain.generate_str();
+  let rndx = rand::thread_rng().gen_range(0, 50);
+  if rndx == 1 {
     if russian {
-        CACHE_RU.lock().await
-      } else {
-        CACHE_ENG.lock().await
-      };
-    out = chain.generate_str();
-    let rndx = rand::thread_rng().gen_range(0, 50);
-    if rndx == 1 {
-      if russian {
-        out = boris::spell(&out);
-      } else {
-        out = uwu::spell(&out);
-      }
+      out = boris::spell(&out);
+    } else {
+      out = uwu::spell(&out);
     }
   }
   out

@@ -7,7 +7,7 @@ use crate::{
 use serenity::{
   prelude::*,
   model::{
-    id::GuildId, id::ChannelId,
+    id::ChannelId,
     channel::GuildChannel,
   }
 };
@@ -27,8 +27,7 @@ static PASSED_FOR_CONVERSATION: u32 = 2 * 60 * 60 / POLL_PERIOD_SECONDS as u32;
 
 pub async fn activate_social_skils(
                      ctx:       &Context
-                   , channels:  &HashMap<ChannelId, GuildChannel>
-                   , guild_id:  GuildId ) {
+                   , channels:  &HashMap<ChannelId, GuildChannel> ) {
   if let Some((channel, _)) = channel_by_name(&ctx, &channels, "main").await {
     set!{ ch_deref  = *channel
         , ctx_clone = ctx.clone() };
@@ -37,7 +36,7 @@ pub async fn activate_social_skils(
         let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
         let rndx = rand::thread_rng().gen_range(0, activity_level);
         if rndx == 1 {
-          let ai_text = chain::generate_english_or_russian(&ctx_clone, &guild_id).await;
+          let ai_text = chain::generate_english_or_russian(&ctx_clone).await;
           if let Err(why) = ch_deref.send_message(&ctx_clone, |m| {
             m.content(ai_text)
           }).await {

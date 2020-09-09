@@ -132,20 +132,33 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     args_msg = &msg.author.name;
   }
   let season = current_season();
+  let mut gateway = "20"; // Europe by default
   let userx = if args_msg.contains('#') { String::from(args_msg) }
     else {
-      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay=20&searchFor={}&season={}", args_msg, season);
+      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
       let ress = reqwest::get(&search_uri).await?;
       let search : Vec<Search> = ress.json().await?;
       if !search.is_empty() {
         if !search[0].player.playerIds.is_empty() {
           search[0].player.playerIds[0].battleTag.clone()
-        } else { String::from("") }
-      } else { String::from("") }
+        } else { String::new() }
+      } else {
+        // If empty results on Europe
+        gateway = "10"; // Go America
+        let search_uri_a = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
+        let ress_a = reqwest::get(&search_uri_a).await?;
+        let search_a : Vec<Search> = ress_a.json().await?;
+        if !search_a.is_empty() {
+          if !search_a[0].player.playerIds.is_empty() {
+            search_a[0].player.playerIds[0].battleTag.clone()
+          } else { String::new() }
+        } else { String::new() }
+      }
     };
+  //TODO: if numbers were passed check for gateway too
   if !userx.is_empty() {
     let user = userx.replace("#","%23");
-    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay=20&season={}", user, season);
+    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay={}&season={}", gateway, user, season);
     let game_mode_res = reqwest::get(&game_mode_uri).await?;
     let game_mode_stats : Vec<GMStats> = game_mode_res.json().await?;
 
@@ -235,7 +248,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
       }
     }
 
-    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay=20&season={}", user, season);
+    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay={}&season={}", gateway, user, season);
     let res = reqwest::get(&uri).await?;
     let stats : Vec<Stats> = res.json().await?;
 

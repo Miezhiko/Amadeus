@@ -1,5 +1,5 @@
 use crate::{
-  types::options::*,
+  types::{ common::CoreGuild, options::* },
   steins::{ gate
           , ai::chain
           , cyber::replay::replay_embed
@@ -8,7 +8,7 @@ use crate::{
           , help::{ lang, channel::channel_by_name }
           , msg::channel_message
           },
-  collections::{ base::{ REACTIONS, WHITELIST, WHITELIST_SERVERS }
+  collections::{ base::{ REACTIONS, WHITELIST }
                , stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES }
                , channels::{ AI_ALLOWED, IGNORED }
                },
@@ -68,11 +68,43 @@ lazy_static! {
 
 #[async_trait]
 impl EventHandler for Handler {
+  async fn cache_ready(&self, ctx: Context, guilds: Vec<GuildId>) {
+    info!("Cache is READY");
+    for guild_id in guilds {
+      if guild_id.0 != self.ioptions.guild {
+        if let Some(serv) = self.ioptions.servers.iter().find(|s| s.id == guild_id.0) {
+          if serv.kind != CoreGuild::Storage {
+            if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+              if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
+                if let Ok(some_permissions) = member.permissions(&ctx).await {
+                  if some_permissions.administrator() {
+                    if guild.role_by_name("UNBLOCK AMADEUS").is_none() {
+                      if let Err(why) =
+                        guild.create_role(&ctx,
+                          |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
+                               .name("UNBLOCK AMADEUS")).await {
+                        error!("Failed to create UNBLOCK role, {:?}", why);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        } else {
+          info!("leaving guild: {:?}", guild_id.0);
+          if let Err(why) = guild_id.leave(&ctx).await {
+            error!("Failed to leave guild {:?}", why);
+          }
+        }
+      }
+    }
+  }
   async fn ready(&self, ctx: Context, ready: Ready) {
     info!("Connected as {}", ready.user.name);
     let guild_id = GuildId( self.ioptions.guild );
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-      if let Ok(member) = guild.member(&ctx,ready.user.id).await {
+      if let Ok(member) = guild.member(&ctx, ready.user.id).await {
         if let Ok(some_permissions) = member.permissions(&ctx).await {
           if some_permissions.administrator() {
             info!("Running with Administrator permissions");
@@ -80,7 +112,7 @@ impl EventHandler for Handler {
               if let Err(why) =
                 guild.create_role(&ctx,
                   |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
-                      .name("UNBLOCK AMADEUS")).await {
+                       .name("UNBLOCK AMADEUS")).await {
                 error!("Failed to create UNBLOCK role, {:?}", why);
               }
             }
@@ -141,7 +173,7 @@ impl EventHandler for Handler {
       }
     }
     if let Ok(channels) = guild_id.channels(&ctx).await {
-      let ai_text = chain::generate_with_language(&ctx, &guild_id, false).await;
+      let ai_text = chain::generate_with_language(&ctx, false).await;
       if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
         let title = format!("has left, {}", &ai_text);
         if let Err(why) = channel.send_message(&ctx, |m| m
@@ -220,7 +252,8 @@ impl EventHandler for Handler {
       let blame_check = BLAME.load(Ordering::Relaxed);
       if !blame_check {
         if let Some(g) = msg.guild_id {
-          if !WHITELIST_SERVERS.iter().any(|s| *s == g.0) {
+          if self.ioptions.servers.iter().any(|s| s.id == g.0
+                                               && s.kind == CoreGuild::Unsafe) {
             if let Ok(guild) = g.to_partial_guild(&ctx).await {
               if let Ok(member) = guild.member(&ctx, &msg.author.id).await {
                 if let Ok(some_permissions) = member.permissions(&ctx).await {
@@ -245,7 +278,9 @@ impl EventHandler for Handler {
       }
     } else if msg.author.bot {
       if let Some(g) = msg.guild_id {
-        if WHITELIST_SERVERS.iter().any(|s| *s == g.0) {
+        if self.ioptions.servers.iter()
+                                .any(|s| s.id == g.0
+                                      && s.kind == CoreGuild::Safe) {
           return;
         }
       }
@@ -383,8 +418,10 @@ impl EventHandler for Handler {
 
                         let normal_people_rnd : u16 = rand::thread_rng().gen_range(0, 9);
                         if (normal_people_rnd == 1 || member.roles.contains(&role.id))
-                        && !WHITELIST_SERVERS.iter().any(|s| *s == guild_id.0)
-                        && !WHITELIST.iter().any(|u| *u == msg.author.id.0) {
+                        && !WHITELIST.iter().any(|u| *u == msg.author.id.0)
+                        && !self.ioptions.servers.iter()
+                                                 .any(|s| s.id == guild_id.0
+                                                       && s.kind == CoreGuild::Safe) {
 
                           if let Err(why) = msg.react(&ctx, reaction).await {
                             error!("Failed to react: {:?}", why);

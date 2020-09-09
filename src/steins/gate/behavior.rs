@@ -48,7 +48,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
   if options.guild != 0 {
     let hemo_guild_id = GuildId( options.guild );
     let servers = options.servers.iter()
-                                 .map(|x64| GuildId(*x64))
+                                 .map(|srv| GuildId(srv.id))
                                  .collect::<Vec<GuildId>>();
 
     let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
@@ -61,7 +61,6 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
 
     let hemo_channels: HashMap<ChannelId, GuildChannel> =
       if let Ok(channels) = hemo_guild_id.channels(ctx).await {
-        all_channels.extend(channels.clone());
         channels
       } else {
         HashMap::new()
@@ -72,8 +71,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
 
     if !hemo_channels.is_empty() {
       activate_social_skils(
-        ctx, &hemo_channels
-           , hemo_guild_id).await;
+        ctx, &hemo_channels).await;
 
       let opts = options::get_roptions().await.unwrap();
       let access_token = opts.twitch;

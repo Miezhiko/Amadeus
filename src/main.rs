@@ -23,3 +23,16 @@ async fn main() -> Result<()> {
   }
   Ok(())
 }
+
+#[cfg(test)]
+mod main_tests {
+  use super::*;
+  #[test]
+  fn conf_dhall() -> Result<(), String> {
+    if let Err(why) = common::options::get_ioptions() {
+      Err(format!("Bad config {:?}", why))
+    } else {
+      Ok(())
+    }
+  }
+}

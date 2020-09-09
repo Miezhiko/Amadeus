@@ -70,17 +70,34 @@ The human evaluation results indicate that the response generated from DialoGPT 
  - `cp conf.example.json conf.json` (those options may change in runtime)
  - generate token here: https://discord.com/developers/applications
  - optionally for twitch support: https://dev.twitch.tv/docs/authentication
- - modify conf.dhall and fill `tenor_key` and optionally `twitch` client data
+ - modify conf.dhall and fill `discord`, `tenor_key` and optionally `twitch` client data
  - conf.json `twitch` value is OAuth access token, you can regenerate it with bot command `~twitch_token_update`
- - create `UNBLOCK AMADEUS` role on server
 
 ``` haskell
-{ discord              = "put discord token here"
-, guild                = 0
-, twitch_client_id     = "AAAAAAAAAAAAAAAAAAAAAAAA"
-, twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAA"
-, tenor_key            = "AAAAAAAAA"
-}
+let SType = < HEmo
+            | Storage
+            | Safe
+            | Unsafe >
+let Server : Type =
+  { id: Natural
+  , name: Text
+  , kind: SType }
+let u = λ(id: Natural)
+      → λ(name: Text) → { id = id, name = name, kind = SType.Unsafe }
+let s = λ(id: Natural)
+      → λ(name: Text) → { id = id, name = name, kind = SType.Safe }
+let serversList : List Server =
+  [ { id = 611822838831251466, name = "HEmo", kind = SType.HEmo }
+  , { id = 740144638375231489, name = "Amadeus", kind = SType.Storage }
+  , u 676119422418550815 "Зарянка"
+  , s 728694826203349072 "Rusty Tools"
+  ]
+in { discord              = "put discord token here"
+   , servers              = serversList
+   , twitch_client_id     = "AAAAAAAAAAAAAAAAAAAAAA"
+   , twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+   , tenor_key            = "AAAAAAAAAA"
+   }
 ```
 
 installation environment for typescript parsing backend (optional)

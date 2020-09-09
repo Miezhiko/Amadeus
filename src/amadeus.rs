@@ -332,9 +332,9 @@ pub async fn run(opts : &IOptions) ->
   creds.insert("twitch_secret".to_string(), opts.twitch_client_secret.clone());
 
   let mut core_guilds = HashMap::new();
-  core_guilds.insert(CoreGuild::UserId, amadeus_id.0);
-  core_guilds.insert(CoreGuild::Amadeus, opts.amadeus_guild);
+  /*core_guilds.insert(CoreGuild::UserId, amadeus_id.0);*/
   core_guilds.insert(CoreGuild::HEmo, opts.guild);
+  core_guilds.insert(CoreGuild::Storage, opts.amadeus_guild);
 
   let std_framework =
     StandardFramework::new()

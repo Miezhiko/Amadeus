@@ -73,6 +73,7 @@ pub_struct!(Search {
 });
 
 pub_struct!(GMStats {
+  race: Option<u32>,
   division: u32,
   gameMode: u32,
   games: u32,

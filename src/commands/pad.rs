@@ -158,10 +158,19 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   //TODO: if numbers were passed check for gateway too
   if !userx.is_empty() {
     let user = userx.replace("#","%23");
-    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay={}&season={}", gateway, user, season);
+    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay={}&season={}", user, gateway, season);
     let game_mode_res = reqwest::get(&game_mode_uri).await?;
-    let game_mode_stats : Vec<GMStats> = game_mode_res.json().await?;
-
+    let game_mode_stats : Vec<GMStats> =
+      match game_mode_res.json().await {
+        Ok(gms) => gms,
+        Err(wha) => {
+          let game_mode_res2 = reqwest::get(&game_mode_uri).await?;
+          if let Ok(text_res) = game_mode_res2.text().await {
+            error!("{:?} on {}", wha, text_res);
+          }
+          vec![]
+        }
+      };
     setm!{ league_info         = String::new()
          , ffa_info            = String::new()
          , rt_string           = String::new()
@@ -248,7 +257,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
       }
     }
 
-    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay={}&season={}", gateway, user, season);
+    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay={}&season={}", user, gateway, season);
     let res = reqwest::get(&uri).await?;
     let stats : Vec<Stats> = res.json().await?;
 

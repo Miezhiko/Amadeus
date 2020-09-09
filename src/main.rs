@@ -27,6 +27,7 @@ async fn main() -> Result<()> {
 #[cfg(test)]
 mod main_tests {
   use super::*;
+  #[ignore]
   #[test]
   fn conf_dhall() -> Result<(), String> {
     if let Err(why) = common::options::get_ioptions() {

@@ -18,6 +18,7 @@ use crate::{
 use serenity::{
   prelude::*,
   async_trait,
+  utils::Colour,
   model::{ guild::ActionMessage
          , id::{ EmojiId, GuildId, MessageId, UserId, ChannelId }
          , event::ResumedEvent, gateway::Ready, guild::Member
@@ -75,6 +76,14 @@ impl EventHandler for Handler {
         if let Ok(some_permissions) = member.permissions(&ctx).await {
           if some_permissions.administrator() {
             info!("Running with Administrator permissions");
+            if guild.role_by_name("UNBLOCK AMADEUS").is_none() {
+              if let Err(why) =
+                guild.create_role(&ctx,
+                  |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
+                      .name("UNBLOCK AMADEUS")).await {
+                error!("Failed to create UNBLOCK role, {:?}", why);
+              }
+            }
           } else {
             warn!("Amadeus needs Administrator permissions");
           }

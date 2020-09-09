@@ -109,6 +109,9 @@ note that you're fully safe to rebuild and restart it whenever you want
 systemctl restart Amadeus
 ```
 
+## Notes
+
+ Work in progress
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_large)

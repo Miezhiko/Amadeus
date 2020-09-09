@@ -143,8 +143,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
           search[0].player.playerIds[0].battleTag.clone()
         } else { String::new() }
       } else {
-        // If empty results on Europe
-        gateway = "10"; // Go America
+        gateway = "10"; // If empty results on Europe Go America
         let search_uri_a = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
         let ress_a = reqwest::get(&search_uri_a).await?;
         let search_a : Vec<Search> = ress_a.json().await?;
@@ -155,14 +154,20 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
         } else { String::new() }
       }
     };
-  //TODO: if numbers were passed check for gateway too
   if !userx.is_empty() {
     let user = userx.replace("#","%23");
     let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay={}&season={}", user, gateway, season);
     let game_mode_res = reqwest::get(&game_mode_uri).await?;
     let game_mode_stats : Vec<GMStats> =
-      match game_mode_res.json().await {
-        Ok(gms) => gms,
+      match game_mode_res.json::<Vec<GMStats>>().await {
+        Ok(gms) => {
+          if gms.is_empty() {
+            gateway = "10"; // Go America!
+            let game_mode_uri2 = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay={}&season={}", user, gateway, season);
+            let game_mode_res2 = reqwest::get(&game_mode_uri2).await?;
+            game_mode_res2.json().await?
+          } else { gms }
+        },
         Err(wha) => {
           let game_mode_res2 = reqwest::get(&game_mode_uri).await?;
           if let Ok(text_res) = game_mode_res2.text().await {

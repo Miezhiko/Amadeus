@@ -31,6 +31,7 @@ use serenity::{
 
 use std::{ borrow::Cow, collections::VecDeque
          , sync::atomic::{ Ordering, AtomicBool }
+         , time::Duration
          };
 
 use rand::{ Rng
@@ -352,8 +353,20 @@ impl EventHandler for Handler {
           points::add_points(guild_id.0, msg.author.id.0, 1).await;
           for file in &msg.attachments {
             if file.filename.ends_with("w3g") {
-              let storage = GuildId( self.ioptions.amadeus_guild );
-              replay_embed(&ctx, &msg, file, &storage).await;
+              let rainbow = ReactionType::Unicode(String::from("🌈"));
+              let _ = msg.react(&ctx, rainbow).await;
+              loop {
+                if let Some(reaction) =
+                  &msg.await_reaction(&ctx)
+                          .timeout(Duration::from_secs(360)).await {
+                  let emoji = &reaction.as_inner_ref().emoji;
+                  if emoji.as_data().as_str() == "🌈" {
+                    let storage = GuildId( self.ioptions.amadeus_guild );
+                    replay_embed(&ctx, &msg, file, &storage).await;
+                    break;
+                  }
+                }
+              }
               return;
             }
           }

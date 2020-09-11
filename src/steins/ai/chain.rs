@@ -35,7 +35,7 @@ use chrono::{ Duration, Utc, DateTime };
 use tokio::sync::{ Mutex, MutexGuard };
 
 // Currently unused properly
-static CACHE_MAX: u64 = 1_000;
+static CHANNEL_CACHE_MAX: u64 = 300;
 
 // Note: machine learning based translation is very hard without cuda
 // even 5 from each channel can take hours on high server load
@@ -58,7 +58,6 @@ pub async fn update_cache( ctx: &Context
 
   info!("updating AI chain has started");
   ctx.set_activity(Activity::listening("Updating chain")).await;
-  ctx.idle().await;
 
   setm!{ cache_eng = CACHE_ENG.lock().await
        , cache_ru = CACHE_RU.lock().await
@@ -73,23 +72,38 @@ pub async fn update_cache( ctx: &Context
   let mut ru_messages_for_translation : Vec<String> = vec![];
   let re1 = Regex::new(r"<(.*?)>").unwrap();
   let re2 = Regex::new(r":(.*?):").unwrap();
+
+  let m_count = CHANNEL_CACHE_MAX * AI_LEARN.len() as u64;
+  let mut m_progress: u64 = 0;
+  let mut i_progress: u64 = 0;
+
   for chan in channels.keys() {
     if let Some(c_name) = chan.name(&ctx).await {
       if AI_LEARN.iter().any(|c| c == &c_name) {
         let mut messages = chan.messages_iter(&ctx).boxed();
+
         // let mut last_stored_message : u64 = 0;
         trace!("updating ai chain from {}", &c_name);
         let mut i_ru_for_translation : u32 = 0;
-        let mut i : u64 = 0;
+        let mut i: u64 = 0;
+
         while let Some(message_result) = messages.next().await {
           if let Ok(mmm) = message_result {
             if !mmm.author.bot && !mmm.content.starts_with('~') {
               let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
               if !is_to_bot {
-                if i > CACHE_MAX {
+                if i > CHANNEL_CACHE_MAX {
                   break;
                 }
-                i += 1;
+                if i_progress > 100 {
+                  let part = ((m_progress as f64/m_count as f64) * 100.0).round();
+                  let status = format!("Learning {}%", part);
+                  ctx.set_activity(Activity::listening(&status)).await;
+                  i_progress = 0;
+                } else {
+                  i_progress += 1;
+                }
+                i += 1; m_progress += 1;
                 let mut result_string = re1.replace_all(&mmm.content, "").to_string();
                 result_string = re2.replace_all(&result_string, "").to_string();
                 result_string = result_string.replace(": ", "");
@@ -126,7 +140,10 @@ pub async fn update_cache( ctx: &Context
   let date_string = dt.format("%Y%m%d%H%M");
   let file_path = format!("csv/{}.csv", date_string);
   info!("Dumping data to {}", &file_path);
-  if let Ok(mut wtr) = csv::Writer::from_path(&file_path) {
+  if let Ok(mut wtr) = csv::WriterBuilder::new()
+                          .flexible(true)
+                          .delimiter(b'\t')
+                          .from_path(&file_path) {
     if let Err(what) = wtr.serialize(cache_eng_str.clone()) {
       error!("CSV dump failed: {:?}", what);
     }
@@ -146,7 +163,7 @@ pub async fn update_cache( ctx: &Context
     }
     ctx_clone.set_activity(Activity::listening("Update complete")).await;
   });
-  ctx.online().await;
+  ctx.idle().await;
   info!("Updating cache complete");
 }
 

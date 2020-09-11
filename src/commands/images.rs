@@ -333,6 +333,7 @@ async fn smug(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(eww, ewww)]
 async fn ew(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "ew anime"
@@ -485,6 +486,9 @@ async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     msg.channel_id.say(ctx, "Please provide a search string after the command!").await?;
     return Ok(())
   }
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
   let search_string = args.message();
   let filter = 
       if msg.channel(ctx).await.unwrap().is_nsfw() {
@@ -495,8 +499,17 @@ async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let gifs = fetch_gifs(ctx, search_string, 10, filter).await?;
   let mut rng = StdRng::from_entropy();
   let val = rng.gen_range(0, gifs.len() - 1);
+
+  let nickname_maybe =
+    if let Some(guild_id) = msg.guild_id {
+      msg.author.nick_in(&ctx, &guild_id).await
+    } else { None };
+
+  let nick = nickname_maybe.unwrap_or_else(|| msg.author.name.clone());
+
   msg.channel_id.send_message(ctx, |m|
-    m.embed(|e| e.color(0x5ed13b)
+    m.embed(|e| e.color(0x8e613b)
+                 .author(|a| a.icon_url(&msg.author.face()).name(&nick))
                  .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }

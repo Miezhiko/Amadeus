@@ -20,6 +20,8 @@ use serenity::{
          , gateway::Activity }
 };
 
+use serenity::futures::StreamExt;
+
 use regex::Regex;
 use markov::Chain;
 
@@ -32,9 +34,8 @@ use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use tokio::sync::{ Mutex, MutexGuard };
 
-// Note: 15000 is known to be safe value
-// But I'm not sure what's maximal supported by discord limit
-static CACHE_MAX: u64 = 15_666;
+// Currently unused properly
+static CACHE_MAX: u64 = 1_000;
 
 // Note: machine learning based translation is very hard without cuda
 // even 5 from each channel can take hours on high server load
@@ -51,7 +52,10 @@ lazy_static! {
   pub static ref LAST_UPDATE: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
 }
 
-pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChannel>) {
+pub async fn update_cache( ctx: &Context
+                         , channels: &HashMap<ChannelId, GuildChannel>
+                         , dt: &DateTime<chrono::Utc> ) {
+
   info!("updating AI chain has started");
   ctx.set_activity(Activity::listening("Updating chain")).await;
   ctx.idle().await;
@@ -65,21 +69,27 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
     *cache_ru = Chain::new();
     cache_eng_str.clear();
   }
+
   let mut ru_messages_for_translation : Vec<String> = vec![];
   let re1 = Regex::new(r"<(.*?)>").unwrap();
   let re2 = Regex::new(r":(.*?):").unwrap();
   for chan in channels.keys() {
     if let Some(c_name) = chan.name(&ctx).await {
       if AI_LEARN.iter().any(|c| c == &c_name) {
-        if let Ok(messages) = chan.messages(&ctx, |r|
-          r.limit(CACHE_MAX)
-        ).await {
-          trace!("updating ai chain from {}", &c_name);
-          let mut i : u32 = 0;
-          for mmm in messages {
+        let mut messages = chan.messages_iter(&ctx).boxed();
+        // let mut last_stored_message : u64 = 0;
+        trace!("updating ai chain from {}", &c_name);
+        let mut i_ru_for_translation : u32 = 0;
+        let mut i : u64 = 0;
+        while let Some(message_result) = messages.next().await {
+          if let Ok(mmm) = message_result {
             if !mmm.author.bot && !mmm.content.starts_with('~') {
               let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
               if !is_to_bot {
+                if i > CACHE_MAX {
+                  break;
+                }
+                i += 1;
                 let mut result_string = re1.replace_all(&mmm.content, "").to_string();
                 result_string = re2.replace_all(&result_string, "").to_string();
                 result_string = result_string.replace(": ", "");
@@ -88,18 +98,20 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
                 if !result.is_empty() && !result.contains('$') && !is_http {
                   if lang::is_russian(result) {
                     cache_ru.feed_str(result);
-                    if i < TRANSLATION_MAX {
+                    if i_ru_for_translation < TRANSLATION_MAX {
                       ru_messages_for_translation.push(result.to_string());
-                      i += 1;
+                      i_ru_for_translation += 1;
                     }
                   } else {
                     cache_eng.feed_str(result);
                     cache_eng_str.push(result.to_string());
+                    // last_stored_message = mmm.id.0;
                   }
                 }
               }
             }
           }
+          // do something with last_stored_message
         }
       }
     }
@@ -110,6 +122,19 @@ pub async fn update_cache(ctx: &Context, channels: &HashMap<ChannelId, GuildChan
   for confuse in CONFUSION.iter() {
     cache_eng.feed_str( confuse );
   }
+
+  let date_string = dt.format("%Y%m%d%H%M");
+  let file_path = format!("csv/{}.csv", date_string);
+  info!("Dumping data to {}", &file_path);
+  if let Ok(mut wtr) = csv::Writer::from_path(&file_path) {
+    if let Err(what) = wtr.serialize(cache_eng_str.clone()) {
+      error!("CSV dump failed: {:?}", what);
+    }
+    if let Err(what) = wtr.flush() {
+      error!("Failed to flush CSV file {:?}", what);
+    }
+  }
+
   // Translate cache_ru for big cache_eng_str
   // It's long operation so we run it 5 seonds later as separated task
   ctx.set_activity(Activity::listening("Translating cache")).await;
@@ -141,12 +166,12 @@ pub async fn actualize_cache(ctx: &Context) {
         all_channels.extend(serv_channels);
       }
     }
-    update_cache(ctx, &all_channels).await;
+    update_cache(ctx, &all_channels, &nao).await;
     *last_update = nao;
   }
 }
 
-pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit: u64) -> Option<String> {
+pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId) -> Option<String> {
   let mut have_something = false;
   if let Some(guild_id) = msg.guild_id {
     let mut chain = Chain::new();
@@ -157,7 +182,7 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId, limit:
         if let Some(c_name) = chan.name(&ctx).await {
           if AI_LEARN.iter().any(|c| c == &c_name) {
             if let Ok(messages) = chan.messages(&ctx, |r|
-              r.limit(limit)
+              r.limit(100) // 100 is max
             ).await {
               for mmm in messages {
                 if mmm.author.id == author_id && !mmm.content.starts_with('~') {

@@ -127,7 +127,7 @@ struct Pad;
 #[help_available(false)]
 #[owners_only]
 #[checks(Admin)]
-#[commands(say, set, clear, upgrade, twitch_token_update)]
+#[commands(say, set, clear, upgrade, update_cache, twitch_token_update)]
 struct Owner;
 
 #[group("Admin")]

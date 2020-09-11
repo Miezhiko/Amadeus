@@ -39,7 +39,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
   ctx.set_activity(Activity::listening(&loading)).await;
   ctx.idle().await;
 
-  lazy_static::initialize(&START_TIME);
+  let start_time = START_TIME.lock().await;
 
   // set actual season for pad statistics
   update_current_season().await;
@@ -67,7 +67,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
       };
 
     // updating ai:chain cache
-    chain::update_cache(&ctx, &all_channels).await;
+    chain::update_cache(&ctx, &all_channels, &start_time).await;
 
     if !hemo_channels.is_empty() {
       activate_social_skils(

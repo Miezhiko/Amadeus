@@ -137,7 +137,7 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
   if !msg.mentions.is_empty() && !(msg.mentions.len() == 1 && msg.mentions[0].bot) {
     let target = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-    if let Some(q) = chain::make_quote(ctx, msg, target.id, 9000).await {
+    if let Some(q) = chain::make_quote(ctx, msg, target.id).await {
       let footer = format!("Requested by {}", msg.author.name);
       if let Err(why) = msg.channel_id.send_message(ctx, |m| m
         .embed(|e| e

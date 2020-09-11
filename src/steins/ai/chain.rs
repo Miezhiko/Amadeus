@@ -105,7 +105,7 @@ pub async fn update_cache( ctx: &Context
   let re2 = Regex::new(r":(.*?):").unwrap();
 
   let m_count = CHANNEL_CACHE_MAX * AI_LEARN.len() as u64;
-  let progress_step = m_count / 4;
+  let progress_step = m_count / 5;
   let mut m_progress: u64 = 0;
   let mut i_progress: u64 = 0;
 

@@ -1,8 +1,8 @@
 use crate::{
   types::common::AllGuilds,
-  common::{
-    help::lang,
-    msg::{ reply, channel_message }
+  common::{ help::lang
+          , msg::{ reply, channel_message }
+          , points::{ register, check_registration }
   },
   collections::base::{ CONFUSION
                      , CONFUSION_RU
@@ -135,21 +135,24 @@ pub async fn update_cache( ctx: &Context
                   i_progress += 1;
                 }
                 i += 1; m_progress += 1;
-                let mut result_string = re1.replace_all(&mmm.content, "").to_string();
-                result_string = re2.replace_all(&result_string, "").to_string();
-                result_string = result_string.replace(": ", "");
-                let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
-                let result = result_string.trim();
-                if !result.is_empty() && !result.contains('$') && !is_http {
-                  if lang::is_russian(result) {
-                    cache_ru.feed_str(result);
-                    if i_ru_for_translation < TRANSLATION_MAX {
-                      ru_messages_for_translation.push(result.to_string());
-                      i_ru_for_translation += 1;
+                if !check_registration(chan.0, mmm.id.0).await {
+                  let mut result_string = re1.replace_all(&mmm.content, "").to_string();
+                  result_string = re2.replace_all(&result_string, "").to_string();
+                  result_string = result_string.replace(": ", "");
+                  let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
+                  let result = result_string.trim();
+                  if !result.is_empty() && !result.contains('$') && !is_http {
+                    if lang::is_russian(result) {
+                      cache_ru.feed_str(result);
+                      if i_ru_for_translation < TRANSLATION_MAX {
+                        ru_messages_for_translation.push(result.to_string());
+                        i_ru_for_translation += 1;
+                      }
+                    } else {
+                      cache_eng.feed_str(result);
+                      cache_eng_str.push(result.to_string());
                     }
-                  } else {
-                    cache_eng.feed_str(result);
-                    cache_eng_str.push(result.to_string());
+                    register(chan.0, mmm.id.0).await;
                   }
                 }
               }
@@ -223,6 +226,10 @@ pub async fn clear_cache() {
         }
       }
     }
+  }
+  // Finally clear ZTREE
+  if fs::metadata("ztree.lusf").await.is_ok() {
+    let _ = fs::remove_file("ztree.lusf").await;
   }
 }
 

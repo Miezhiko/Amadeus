@@ -12,6 +12,7 @@ use tokio::sync::{ Mutex };
 use jane_eyre::Result;
 
 static LSUF: &str = "tree.lusf";
+static ZSUF: &str = "ztree.lusf";
 
 #[derive(Serialize, Deserialize)]
 struct Points {
@@ -19,20 +20,55 @@ struct Points {
   streak: u64
 }
 
-fn get_storage() -> Storage<FileNvm> {
-  if !Path::new(LSUF).exists() {
-    let f = FileNvm::create(LSUF, 666666666).unwrap();
+fn get_storage(tree: &str) -> Storage<FileNvm> {
+  if !Path::new(tree).exists() {
+    let f = FileNvm::create(tree, 666666666).unwrap();
     let storage: Storage<FileNvm> = Storage::create(f).unwrap();
     storage
   } else {
-    let f = FileNvm::open(LSUF).unwrap();
+    let f = FileNvm::open(tree).unwrap();
     let storage: Storage<FileNvm> = Storage::open(f).unwrap();
     storage
   }
 }
 
 lazy_static! {
-  pub static ref STORAGE: Mutex<Storage<FileNvm>> = Mutex::new(get_storage());
+  pub static ref STORAGE: Mutex<Storage<FileNvm>> = Mutex::new(get_storage(LSUF));
+  pub static ref ZTREE: Mutex<Storage<FileNvm>> = Mutex::new(get_storage(ZSUF));
+}
+
+pub async fn register( channel_id: u64
+                     , message_id: u64) {
+  let mut storage = ZTREE.lock().await;
+  let u64_2: u128 = (channel_id as u128) << 64 | message_id as u128; // >
+  let lump_id: LumpId = LumpId::new(u64_2);
+  if storage.get(&lump_id).is_err() {
+    if let Ok(lump_data) = LumpData::new(vec![1]) {
+      match storage.put(&lump_id, &lump_data) {
+        Ok(added) => {
+          if !added {
+            error!("error on msg registration");
+          }
+        }, Err(not_added) => {
+          error!("error on msg registration {:?}", not_added);
+        }
+      }
+      if let Err(khm) = storage.journal_sync() {
+        error!("failed to sync {:?}", khm);
+      }
+    }
+  }
+}
+
+pub async fn check_registration(channel_id: u64, message_id: u64) -> bool {
+  let mut storage = ZTREE.lock().await;
+  let u64_2: u128 = (channel_id as u128) << 64 | message_id as u128; // >
+  let lump_id: LumpId = LumpId::new(u64_2);
+  if let Ok(_) = storage.get(&lump_id) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 pub async fn add_points( guild_id: u64

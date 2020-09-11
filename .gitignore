@@ -12,3 +12,6 @@ secret
 *.png
 *.w3g
 *.lusf
+
+cache_eng.yml
+cache_ru.yml

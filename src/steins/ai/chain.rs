@@ -17,10 +17,11 @@ use serenity::{
   model::{ channel::{ Message }
          , id::{ GuildId, UserId, ChannelId }
          , channel::GuildChannel
-         , gateway::Activity }
+         , gateway::Activity },
+  futures::StreamExt
 };
 
-use serenity::futures::StreamExt;
+use async_std::fs;
 
 use regex::Regex;
 use markov::Chain;
@@ -34,12 +35,13 @@ use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use tokio::sync::{ Mutex, MutexGuard };
 
+static CACHE_ENG_YML: &str = "cache_eng.yml";
+static CACHE_RU_YML: &str = "cache_ru.yml";
+
 // Currently unused properly
-static CHANNEL_CACHE_MAX: u64 = 300;
+static CHANNEL_CACHE_MAX: u64 = 200;
 
 // Note: machine learning based translation is very hard without cuda
-// even 5 from each channel can take hours on high server load
-// but it's sometimes and I can't understand why exactly it's happening
 static TRANSLATION_MAX: u32 = 10;
 
 // Note: use 66 for low activity/comfortable behavior
@@ -57,16 +59,45 @@ pub async fn update_cache( ctx: &Context
                          , dt: &DateTime<chrono::Utc> ) {
 
   info!("updating AI chain has started");
-  ctx.set_activity(Activity::listening("Updating chain")).await;
 
   setm!{ cache_eng = CACHE_ENG.lock().await
        , cache_ru = CACHE_RU.lock().await
        , cache_eng_str = CACHE_ENG_STR.lock().await };
 
-  if !cache_eng.is_empty() || !cache_ru.is_empty() || !cache_eng_str.is_empty() {
-    *cache_eng = Chain::new();
-    *cache_ru = Chain::new();
-    cache_eng_str.clear();
+  if cache_eng.is_empty() || cache_ru.is_empty() {
+    if fs::metadata(CACHE_ENG_YML).await.is_ok() {
+      *cache_eng = Chain::load(CACHE_ENG_YML).unwrap();
+    }
+    if fs::metadata(CACHE_RU_YML).await.is_ok() {
+      *cache_ru = Chain::load(CACHE_RU_YML).unwrap();
+    }
+  }
+
+  if cache_eng_str.is_empty() {
+    if let Ok(mut csvs) = fs::read_dir("csv").await {
+      while let Some(entry_mb) = csvs.next().await {
+        if let Ok(entry) = entry_mb {
+          if let Some(fname) = entry.file_name().to_str() {
+            if fname.ends_with(".csv") {
+              let file_path = format!("csv/{}", &fname);
+              if let Ok(mut rdr)
+                = csv::ReaderBuilder::new()
+                  .flexible(true)
+                  .double_quote(false)
+                  .delimiter(b'\t')
+                  .from_path(&file_path) {
+                for result in rdr.records() {
+                  if let Ok(strx) = result {
+                    cache_eng_str.push(
+                      strx.as_slice().to_string());
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   let mut ru_messages_for_translation : Vec<String> = vec![];
@@ -74,6 +105,7 @@ pub async fn update_cache( ctx: &Context
   let re2 = Regex::new(r":(.*?):").unwrap();
 
   let m_count = CHANNEL_CACHE_MAX * AI_LEARN.len() as u64;
+  let progress_step = m_count / 4;
   let mut m_progress: u64 = 0;
   let mut i_progress: u64 = 0;
 
@@ -82,7 +114,6 @@ pub async fn update_cache( ctx: &Context
       if AI_LEARN.iter().any(|c| c == &c_name) {
         let mut messages = chan.messages_iter(&ctx).boxed();
 
-        // let mut last_stored_message : u64 = 0;
         trace!("updating ai chain from {}", &c_name);
         let mut i_ru_for_translation : u32 = 0;
         let mut i: u64 = 0;
@@ -95,7 +126,7 @@ pub async fn update_cache( ctx: &Context
                 if i > CHANNEL_CACHE_MAX {
                   break;
                 }
-                if i_progress > 100 {
+                if i_progress > progress_step {
                   let part = ((m_progress as f64/m_count as f64) * 100.0).round();
                   let status = format!("Learning {}%", part);
                   ctx.set_activity(Activity::listening(&status)).await;
@@ -119,13 +150,11 @@ pub async fn update_cache( ctx: &Context
                   } else {
                     cache_eng.feed_str(result);
                     cache_eng_str.push(result.to_string());
-                    // last_stored_message = mmm.id.0;
                   }
                 }
               }
             }
           }
-          // do something with last_stored_message
         }
       }
     }
@@ -137,34 +166,65 @@ pub async fn update_cache( ctx: &Context
     cache_eng.feed_str( confuse );
   }
 
-  let date_string = dt.format("%Y%m%d%H%M");
-  let file_path = format!("csv/{}.csv", date_string);
-  info!("Dumping data to {}", &file_path);
-  if let Ok(mut wtr) = csv::WriterBuilder::new()
-                          .flexible(true)
-                          .delimiter(b'\t')
-                          .from_path(&file_path) {
-    if let Err(what) = wtr.serialize(cache_eng_str.clone()) {
-      error!("CSV dump failed: {:?}", what);
-    }
-    if let Err(what) = wtr.flush() {
-      error!("Failed to flush CSV file {:?}", what);
-    }
-  }
+  info!("Dumping chains");
+  let _ = cache_eng.save(CACHE_ENG_YML);
+  let _ = cache_ru.save(CACHE_RU_YML);
 
   // Translate cache_ru for big cache_eng_str
   // It's long operation so we run it 5 seonds later as separated task
   ctx.set_activity(Activity::listening("Translating cache")).await;
   let ctx_clone = ctx.clone();
+  let date_string = dt.format("%Y%m%d%H%M");
   tokio::spawn(async move {
     tokio::time::delay_for(std::time::Duration::from_secs(5)).await;
     if let Ok(mut translated) = bert::ru2en_many(ru_messages_for_translation).await {
       cache_eng_str.append(&mut translated);
     }
+
+    let file_path = format!("csv/{}.csv", date_string);
+    info!("Dumping data to {}", &file_path);
+    if let Ok(mut wtr) = csv::WriterBuilder::new()
+                            .flexible(true)
+                            .double_quote(false)
+                            .delimiter(b'\t')
+                            .from_path(&file_path) {
+      if let Err(what) = wtr.serialize(cache_eng_str.clone()) {
+        error!("CSV dump failed: {:?}", what);
+      }
+      if let Err(what) = wtr.flush() {
+        error!("Failed to flush CSV file {:?}", what);
+      }
+    }
+
     ctx_clone.set_activity(Activity::listening("Update complete")).await;
   });
   ctx.idle().await;
   info!("Updating cache complete");
+}
+
+pub async fn clear_cache() {
+  setm!{ cache_eng = CACHE_ENG.lock().await
+       , cache_ru = CACHE_RU.lock().await
+       , cache_eng_str = CACHE_ENG_STR.lock().await };
+  *cache_eng = Chain::new();
+  *cache_ru = Chain::new();
+  cache_eng_str.clear();
+  if fs::metadata(CACHE_ENG_YML).await.is_ok() {
+    let _ = fs::remove_file(CACHE_ENG_YML).await;
+  }
+  if fs::metadata(CACHE_RU_YML).await.is_ok() {
+    let _ = fs::remove_file(CACHE_RU_YML).await;
+  }
+  if let Ok(mut csvs) = fs::read_dir("csv").await {
+    while let Some(entry_mb) = csvs.next().await {
+      if let Ok(entry) = entry_mb {
+        if let Some(fname) = entry.file_name().to_str() {
+          let file_path = format!("csv/{}", &fname);
+          let _ = fs::remove_file(file_path).await;
+        }
+      }
+    }
+  }
 }
 
 pub async fn actualize_cache(ctx: &Context) {

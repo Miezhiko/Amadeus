@@ -9,3 +9,4 @@
 - Check for ngram generators
 - Refactor help really, use fluent https://github.com/entropic-dev/dstopic/pull/2/files
 - Server based settings for regions on W3C (EU/NA/Both)
+- Hash stored messages ids into lusf!

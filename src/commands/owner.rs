@@ -6,7 +6,8 @@ use crate::{
   },
   steins::{ gate
           , ai::chain::{ ACTIVITY_LEVEL
-                       , actualize_cache }
+                       , actualize_cache
+                       , clear_cache }
           , ai::utils::capital_first },
 };
 
@@ -109,6 +110,17 @@ async fn clear(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     }
     direct_message(ctx, &msg, &format!("Deleted {} messages", countdown)).await;
   }
+  Ok(())
+}
+
+#[command]
+#[owners_only]
+async fn clear_chain_cache(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  clear_cache().await;
+  channel_message(&ctx, &msg, "Cache removed").await;
   Ok(())
 }
 

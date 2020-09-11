@@ -37,7 +37,6 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
   info!("activation has started");
   let loading = format!("Loading {}", env!("CARGO_PKG_VERSION").to_string());
   ctx.set_activity(Activity::listening(&loading)).await;
-  ctx.idle().await;
 
   let start_time = START_TIME.lock().await;
 

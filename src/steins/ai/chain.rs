@@ -197,6 +197,7 @@ pub async fn generate_with_language(ctx: &Context, russian : bool) -> String {
   chain.generate_str()
 }
 
+#[allow(dead_code)]
 pub async fn generate_english_or_russian(ctx: &Context) -> String {
   let rndx = rand::thread_rng().gen_range(0, 2);
   generate_with_language(&ctx, rndx != 1).await

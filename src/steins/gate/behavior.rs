@@ -71,7 +71,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
 
     if !hemo_channels.is_empty() {
       activate_social_skils(
-        ctx, &hemo_channels).await;
+        ctx, &all_channels).await;
 
       let opts = options::get_roptions().await.unwrap();
       let access_token = opts.twitch;

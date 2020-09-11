@@ -198,7 +198,6 @@ pub async fn update_cache( ctx: &Context
 
     ctx_clone.set_activity(Activity::listening("Update complete")).await;
   });
-  ctx.idle().await;
   info!("Updating cache complete");
 }
 

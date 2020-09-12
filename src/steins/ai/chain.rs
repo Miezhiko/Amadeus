@@ -94,6 +94,7 @@ pub async fn update_cache( ctx: &Context
   let mut ru_messages_for_translation : Vec<String> = vec![];
   let re1 = Regex::new(r"<(.*?)>").unwrap();
   let re2 = Regex::new(r":(.*?):").unwrap();
+  let re3 = Regex::new(r"&(.*?);").unwrap();
 
   let m_count = CHANNEL_CACHE_MAX * AI_LEARN.len() as u64;
   let progress_step = m_count / 5;
@@ -129,9 +130,9 @@ pub async fn update_cache( ctx: &Context
                 if !check_registration(chan.0, mmm.id.0).await {
                   let mut result_string = re1.replace_all(&mmm.content, "").to_string();
                   result_string = re2.replace_all(&result_string, "").to_string();
-                  result_string = result_string.replace(": ", "");
-                  let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
+                  result_string = re3.replace_all(&result_string, "").to_string();
                   let result = result_string.trim();
+                  let is_http = result.starts_with("http");
                   if !result.is_empty() && !result.contains('$') && !is_http {
                     if lang::is_russian(result) {
                       cache_ru.feed_str(result);

@@ -1,6 +1,5 @@
 /target/
 /tree/
-/csv/
 /node_modules/
 conf.dhall
 conf.json
@@ -13,5 +12,5 @@ secret
 *.w3g
 *.lusf
 
-cache_eng.yml
-cache_ru.yml
+*.yml
+*.csv

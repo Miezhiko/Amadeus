@@ -37,6 +37,7 @@ use tokio::sync::{ Mutex, MutexGuard };
 
 static CACHE_ENG_YML: &str = "cache_eng.yml";
 static CACHE_RU_YML: &str = "cache_ru.yml";
+static CACHE_CSV: &str = "cache.csv";
 
 // Currently unused properly
 static CHANNEL_CACHE_MAX: u64 = 200;
@@ -56,7 +57,7 @@ lazy_static! {
 
 pub async fn update_cache( ctx: &Context
                          , channels: &HashMap<ChannelId, GuildChannel>
-                         , dt: &DateTime<chrono::Utc> ) {
+                         ) {
 
   info!("updating AI chain has started");
 
@@ -73,28 +74,18 @@ pub async fn update_cache( ctx: &Context
     }
   }
 
-  if cache_eng_str.is_empty() {
-    if let Ok(mut csvs) = fs::read_dir("csv").await {
-      while let Some(entry_mb) = csvs.next().await {
-        if let Ok(entry) = entry_mb {
-          if let Some(fname) = entry.file_name().to_str() {
-            if fname.ends_with(".csv") {
-              let file_path = format!("csv/{}", &fname);
-              if let Ok(mut rdr)
-                = csv::ReaderBuilder::new()
-                  .flexible(true)
-                  .double_quote(false)
-                  .delimiter(b'\t')
-                  .from_path(&file_path) {
-                for result in rdr.records() {
-                  if let Ok(strx) = result {
-                    cache_eng_str.push(
-                      strx.as_slice().to_string());
-                  }
-                }
-              }
-            }
-          }
+  if cache_eng_str.is_empty()
+  && fs::metadata(CACHE_CSV).await.is_ok() {
+    if let Ok(mut rdr)
+      = csv::ReaderBuilder::new()
+        .flexible(true)
+        .double_quote(false)
+        .delimiter(b'\t')
+        .from_path(&CACHE_CSV) {
+      for result in rdr.records() {
+        if let Ok(strx) = result {
+          cache_eng_str.push(
+            strx.as_slice().to_string());
         }
       }
     }
@@ -177,20 +168,17 @@ pub async fn update_cache( ctx: &Context
   // It's long operation so we run it 5 seonds later as separated task
   ctx.set_activity(Activity::listening("Translating cache")).await;
   let ctx_clone = ctx.clone();
-  let date_string = dt.format("%Y%m%d%H%M");
   tokio::spawn(async move {
     tokio::time::delay_for(std::time::Duration::from_secs(5)).await;
     if let Ok(mut translated) = bert::ru2en_many(ru_messages_for_translation).await {
       cache_eng_str.append(&mut translated);
     }
 
-    let file_path = format!("csv/{}.csv", date_string);
-    info!("Dumping data to {}", &file_path);
     if let Ok(mut wtr) = csv::WriterBuilder::new()
                             .flexible(true)
                             .double_quote(false)
                             .delimiter(b'\t')
-                            .from_path(&file_path) {
+                            .from_path(&CACHE_CSV) {
       if let Err(what) = wtr.serialize(cache_eng_str.clone()) {
         error!("CSV dump failed: {:?}", what);
       }
@@ -249,7 +237,7 @@ pub async fn actualize_cache(ctx: &Context) {
         all_channels.extend(serv_channels);
       }
     }
-    update_cache(ctx, &all_channels, &nao).await;
+    update_cache(ctx, &all_channels).await;
     *last_update = nao;
   }
 }

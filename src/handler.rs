@@ -358,13 +358,17 @@ impl EventHandler for Handler {
               loop {
                 if let Some(reaction) =
                   &msg.await_reaction(&ctx)
-                          .timeout(Duration::from_secs(360)).await {
+                          .timeout(Duration::from_secs(3600)).await {
                   let emoji = &reaction.as_inner_ref().emoji;
                   if emoji.as_data().as_str() == "🌈" {
                     let storage = GuildId( self.ioptions.amadeus_guild );
                     replay_embed(&ctx, &msg, file, &storage).await;
+                    let _ = msg.delete_reactions(&ctx).await;
                     break;
                   }
+                } else {
+                  let _ = msg.delete_reactions(&ctx).await;
+                  break;
                 }
               }
               return;

@@ -188,14 +188,16 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
         set!{ lid         = gmstat.leagueOrder
             , league_str  = get_league(lid)
             , winrate     = (gmstat.winrate * 100.0).round() };
-        league_avi = get_league_png(lid);
         let league_division = if gmstat.games < 5 {
-          String::from("Calibrating")
-        } else if lid > 1 {
-          format!("*League*: **{}** *Division:* **{}**", league_str, gmstat.division)
-        } else {
-          format!("*League*: **{}**", league_str)
-        };
+            String::from("Calibrating")
+          } else {
+            league_avi = get_league_png(lid);
+            if lid > 1 {
+              format!("*League*: **{}** *Division:* **{}**", league_str, gmstat.division)
+            } else {
+              format!("*League*: **{}**", league_str)
+            }
+          };
         let progr = if gmstat.rankingPointsProgress.mmr > 0 {
             format!("+{}", gmstat.rankingPointsProgress.mmr)
           } else {
@@ -294,13 +296,15 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 
       let max_games : Option<&Stats> = stats.iter().max_by_key(|s| s.games);
       let max_games_race = if max_games.is_some() { max_games.unwrap().race } else { 0 };
-      let main_race_avatar = match max_games_race {
-          1 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/HUMAN.png",
-          2 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/ORC.png",
-          4 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/NIGHT_ELF.png",
-          8 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/UNDEAD.png",
-          _ => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/RANDOM.png"
-        };
+      if league_avi.is_empty() {
+        league_avi = match max_games_race {
+            1 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/HUMAN.png",
+            2 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/ORC.png",
+            4 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/NIGHT_ELF.png",
+            8 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/UNDEAD.png",
+            _ => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/RANDOM.png"
+          }.to_string();
+      }
       let main_race_colors = match max_games_race {
           1 => (0, 0, 222),
           2 => (222, 0, 0),
@@ -367,7 +371,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
         .embed(|e| e
           .title(&clanned)
           .description(description)
-          .thumbnail(if league_avi.is_empty() { main_race_avatar } else { &league_avi })
+          .thumbnail(&league_avi)
           .fields(additional_info)
           .colour(main_race_colors)
           .footer(|f| f.text(footer)))).await {

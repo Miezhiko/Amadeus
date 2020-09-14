@@ -1,7 +1,6 @@
 use serenity::{
   prelude::*,
   model::channel::*,
-  model::gateway::Activity,
   framework::standard::{
     CommandResult, Args,
     macros::command
@@ -17,7 +16,6 @@ use tokio::task;
 
 async fn bert_translate(ctx: &Context, text: String, lang: Language)
           -> jane_eyre::Result<String> {
-  ctx.set_activity(Activity::listening("Translating!")).await;
   ctx.idle().await;
   let result = task::spawn_blocking(move || {
       let translation_config =
@@ -34,8 +32,6 @@ async fn bert_translate(ctx: &Context, text: String, lang: Language)
         Ok(translation.clone())
       }
     }).await.unwrap();
-  ctx.set_activity(Activity::playing("Loxing")).await;
-  ctx.online().await;
   result
 }
 

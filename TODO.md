@@ -9,4 +9,7 @@
 - Check for ngram generators
 - Refactor help really, use fluent https://github.com/entropic-dev/dstopic/pull/2/files
 - Server based settings for regions on W3C (EU/NA/Both)
-- Hash stored messages ids into lusf!
+- Refactor lsuf module (points), put files on subfolder
+- Replace json with rudano (or yaml)
+- Split chain into 3 mods: cache, chain and possibly move general stuff to lib
+- 

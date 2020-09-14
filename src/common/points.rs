@@ -64,7 +64,11 @@ pub async fn check_registration(channel_id: u64, message_id: u64) -> bool {
   let mut storage = ZTREE.lock().await;
   let u64_2: u128 = (channel_id as u128) << 64 | message_id as u128; // >
   let lump_id: LumpId = LumpId::new(u64_2);
-  storage.get(&lump_id).is_ok()
+  if let Ok(mbdata) = storage.get(&lump_id) {
+    mbdata.is_some()
+  } else {
+    false
+  }
 }
 
 pub async fn add_points( guild_id: u64

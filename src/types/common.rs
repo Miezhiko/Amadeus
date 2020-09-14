@@ -4,6 +4,19 @@ use std::{ collections::HashMap, sync::Arc };
 use reqwest::Client as Reqwest;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+pub enum ChannelLanguage {
+  English,
+  Russian,
+  Bilingual
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct LChannel {
+  pub id: String,
+  pub lang: ChannelLanguage,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 pub enum CoreGuild {
   HEmo,
   Storage,

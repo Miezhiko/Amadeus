@@ -20,6 +20,9 @@ lazy_static! {
 }
 
 pub async fn en2ru(text: String) -> Result<String> {
+  if text.is_empty() {
+    return Ok(String::new());
+  }
   task::spawn_blocking(move || {
     let translation_config =
       TranslationConfig::new(Language::EnglishToRussian, Device::cuda_if_available());
@@ -35,6 +38,9 @@ pub async fn en2ru(text: String) -> Result<String> {
 }
 
 pub async fn ru2en(text: String) -> Result<String> {
+  if text.is_empty() {
+    return Ok(String::new());
+  }
   task::spawn_blocking(move || {
     let translation_config =
       TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
@@ -51,6 +57,9 @@ pub async fn ru2en(text: String) -> Result<String> {
 }
 
 pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
+  if texts.is_empty() {
+    return Ok(vec![]);
+  }
   task::spawn_blocking(move || {
     let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
     let translation_config =

@@ -8,23 +8,18 @@ use crate::{
                     , w3info::activate_w3info_tracking },
     ai::chain
   },
-  commands::pad::update_current_season,
-  handler::RESTORE
+  commands::pad::update_current_season
 };
 
 use serenity::{
   prelude::*,
   model::{
     id::{ GuildId, ChannelId },
-    channel::GuildChannel,
-    gateway::Activity
+    channel::GuildChannel
   }
 };
 
-use std::{
-  collections::HashMap,
-  sync::atomic::Ordering
-};
+use std::collections::HashMap;
 
 use chrono::{ Utc, DateTime };
 use tokio::sync::Mutex;
@@ -84,12 +79,6 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
       activate_w3info_tracking(
         ctx, &all_channels
            ).await;
-
-      // enable backup/restore functionality
-      RESTORE.store(true, Ordering::Relaxed);
-
-      let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());
-      ctx.set_activity(Activity::playing(&version)).await;
     }
   }
 }

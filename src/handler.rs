@@ -10,7 +10,7 @@ use crate::{
           },
   collections::{ base::{ REACTIONS, WHITELIST }
                , stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES }
-               , channels::{ AI_ALLOWED, AI_ENFORCE, IGNORED }
+               , channels::{ AI_ALLOWED, EXCEPTIONS, IGNORED }
                },
   commands::voice
 };
@@ -287,8 +287,7 @@ impl EventHandler for Handler {
       let channel_name = msg.channel_id.name(&ctx)
                                        .await
                                        .unwrap_or_else(|| "".to_string());
-      if AI_ENFORCE.iter().any(|s| s == &channel_name) {
-        chain::chat_to_channel(&ctx, &msg).await;
+      if EXCEPTIONS.iter().any(|s| s == &channel_name) {
         return;
       }
       let mut is_file = false;

@@ -480,6 +480,7 @@ pub async fn chat(ctx: &Context, msg: &Message) {
   }
 }
 
+#[allow(dead_code)]
 pub async fn chat_to_channel(ctx: &Context, msg: &Message) {
   let answer = generate_response(ctx, msg).await;
   if !answer.is_empty() {

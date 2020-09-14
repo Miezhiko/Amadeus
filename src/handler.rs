@@ -10,7 +10,7 @@ use crate::{
           },
   collections::{ base::{ REACTIONS, WHITELIST }
                , stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES }
-               , channels::{ AI_ALLOWED, IGNORED }
+               , channels::{ AI_ALLOWED, AI_ENFORCE, IGNORED }
                },
   commands::voice
 };
@@ -284,6 +284,13 @@ impl EventHandler for Handler {
           return;
         }
       }
+      let channel_name = msg.channel_id.name(&ctx)
+                                       .await
+                                       .unwrap_or_else(|| "".to_string());
+      if AI_ENFORCE.iter().any(|s| s == &channel_name) {
+        chain::chat_to_channel(&ctx, &msg).await;
+        return;
+      }
       let mut is_file = false;
       for file in &msg.attachments {
         if let Ok(bytes) = file.download().await {
@@ -335,10 +342,12 @@ impl EventHandler for Handler {
       }
     } else if !msg.content.starts_with('~') {
       if let Some(guild_id) = msg.guild_id {
-        if let Some(channel_name) = msg.channel_id.name(&ctx).await {
-          if IGNORED.iter().any(|i| i == &channel_name) {
-            return;
-          }
+        let channel_name = msg.channel_id
+                              .name(&ctx)
+                              .await
+                              .unwrap_or_else(|| "".to_string());
+        if IGNORED.iter().any(|i| i == &channel_name) {
+          return;
         }
         if (&msg.mentions).iter().any(|u| u.bot) {
           if (&msg.mentions).iter().any(|u| u.bot && u.id == self.amadeus_id) {
@@ -406,10 +415,6 @@ impl EventHandler for Handler {
                 ctx.idle().await;
               }
             }
-            let channel_name =
-              if let Some(ch) = msg.channel(&ctx).await {
-                ch.id().name(&ctx).await.unwrap_or_else(|| "".to_string())
-              } else { "".to_string() };
             if AI_ALLOWED.iter().any(|c| c == &channel_name) {
               let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
               let rnd = rand::thread_rng().gen_range(0, activity_level);

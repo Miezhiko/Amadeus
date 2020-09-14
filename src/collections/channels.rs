@@ -5,6 +5,10 @@ use crate::types::common::LChannel;
  */
 static AI_ALLOWEDD: &str = "dhall/channels/ai_allowed.dhall";
 /*
+ * Channels where I really spam (well, chat)
+ */
+static AI_ENFORCED: &str = "dhall/channels/ai_enforced.dhall";
+/*
  * Channels where I can learn
  */
 static AI_LEARND: &str   = "dhall/channels/ai_learn.dhall";
@@ -15,7 +19,8 @@ static IGNOREDD: &str   = "dhall/channels/ignored.dhall";
 
 lazy_static! {
   pub static ref AI_ALLOWED: Vec<String> = dhall!(AI_ALLOWEDD);
-  pub static ref AI_LEARN: Vec<LChannel>  = dhall!(AI_LEARND);
+  pub static ref AI_ENFORCE: Vec<String> = dhall!(AI_ENFORCED);
+  pub static ref AI_LEARN: Vec<LChannel> = dhall!(AI_LEARND);
   pub static ref IGNORED: Vec<String>    = dhall!(IGNOREDD);
 }
 
@@ -35,6 +40,8 @@ mod channels_dhall_tests {
   }
   #[test]
   fn ai_allowed() -> Result<(), String> { dhall_vec(AI_ALLOWEDD) }
+  #[test]
+  fn ai_enforced() -> Result<(), String> { dhall_vec(AI_ENFORCED) }
   #[test]
   fn ai_learn() -> Result<(), String> {
     match serde_dhall::from_file(AI_LEARND).parse::<Vec<LChannel>>() {

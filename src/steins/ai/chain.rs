@@ -433,7 +433,7 @@ pub async fn response(ctx: &Context, msg : &Message) {
   }
 }
 
-pub async fn chat(ctx: &Context, msg : &Message) {
+async fn generate_response(ctx: &Context, msg: &Message) -> String {
   let russian = lang::is_russian(&msg.content);
   let rndx : u32 = rand::thread_rng().gen_range(0, 9);
   let mut bert_generated = false;
@@ -465,6 +465,11 @@ pub async fn chat(ctx: &Context, msg : &Message) {
       answer = translated;
     }
   }
+  answer
+}
+
+pub async fn chat(ctx: &Context, msg: &Message) {
+  let answer = generate_response(ctx, msg).await;
   if !answer.is_empty() {
     let rnd = rand::thread_rng().gen_range(0, 3);
     if rnd == 1 {
@@ -472,5 +477,12 @@ pub async fn chat(ctx: &Context, msg : &Message) {
     } else {
       channel_message(&ctx, &msg, &answer).await;
     }
+  }
+}
+
+pub async fn chat_to_channel(ctx: &Context, msg: &Message) {
+  let answer = generate_response(ctx, msg).await;
+  if !answer.is_empty() {
+    channel_message(&ctx, &msg, &answer).await;
   }
 }

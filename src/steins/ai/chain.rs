@@ -163,7 +163,7 @@ pub async fn update_cache( ctx: &Context
                       },
                       ChannelLanguage::English => {
                         cache_eng.feed_str(result);
-                        if result.contains("\n") {
+                        if result.contains('\n') {
                           for line in result.lines() {
                             if !line.is_empty() {
                               cache_eng_str.push(line.to_string());
@@ -182,7 +182,7 @@ pub async fn update_cache( ctx: &Context
                           }
                         } else {
                           cache_eng.feed_str(result);
-                          if result.contains("\n") {
+                          if result.contains('\n') {
                             for line in result.lines() {
                               if !line.is_empty() {
                                 cache_eng_str.push(line.to_string());
@@ -295,7 +295,7 @@ pub async fn actualize_cache(ctx: &Context) {
   }
 }
 
-pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId) -> Option<String> {
+pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Option<String> {
   let mut have_something = false;
   if let Some(guild_id) = msg.guild_id {
     let mut chain = Chain::new();
@@ -335,7 +335,7 @@ pub async fn make_quote(ctx: &Context, msg : &Message, author_id: UserId) -> Opt
   None
 }
 
-pub async fn generate_with_language(ctx: &Context, russian : bool) -> String {
+pub async fn generate_with_language(ctx: &Context, russian: bool) -> String {
   actualize_cache(ctx).await;
   let chain : MutexGuard<Chain<String>> =
     if russian {
@@ -375,7 +375,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
   out
 }
 
-pub fn obfuscate(msg_content : &str) -> String {
+pub fn obfuscate(msg_content: &str) -> String {
   let mut chain = Chain::new();
   let russian = lang::is_russian(msg_content);
   if !russian {
@@ -401,7 +401,7 @@ pub fn obfuscate(msg_content : &str) -> String {
   }
 }
 
-pub async fn response(ctx: &Context, msg : &Message) {
+pub async fn response(ctx: &Context, msg: &Message) {
   set!{ msg_content = &msg.content
       , russian = lang::is_russian(msg_content) };
   let rndx : u32 = rand::thread_rng().gen_range(0, 15);

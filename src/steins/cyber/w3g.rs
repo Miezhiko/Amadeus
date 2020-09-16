@@ -10,13 +10,13 @@ reforged_player_records .id .name .clan
 */
 
 #[cfg(feature="w3g_rs")]
-fn analyze_rs(path: &str) -> jane_eyre::Result<String> {
+fn analyze_rs(path: &str) -> eyre::Result<String> {
   let p = w3grs::parse(String::from(path))?;
   Ok( String::from( p.metadata.map ) )
 }
 
 #[cfg(not(feature = "w3g_rs"))]
-async fn analyze_js(path: &str) -> jane_eyre::Result<String> {
+async fn analyze_js(path: &str) -> eyre::Result<String> {
   let node_out = Command::new("sh")
         .arg("-c")
       //.arg(&format!("node js/w3gjs_parse.js {}", path))
@@ -33,7 +33,7 @@ async fn analyze_js(path: &str) -> jane_eyre::Result<String> {
 
 #[cfg(not(feature = "w3g_rs"))]
 #[allow(clippy::type_complexity)]
-fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
+fn prettify_analyze_js(j: &str) -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let json : Value = serde_json::from_str(&j)?;
   let mut out = String::new();
   let mut pls = vec![];
@@ -107,14 +107,14 @@ fn prettify_analyze_js(j: &str) -> jane_eyre::Result<(String, Vec<(String, Vec<S
 
 #[cfg(feature="w3g_rs")]
 pub async fn analyze(path: &str)
-    -> jane_eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
+    -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let replay_data = analyze_rs(path)?;
   Ok((replay_data, vec![]))
 }
 
 #[cfg(not(feature = "w3g_rs"))]
 pub async fn analyze(path: &str)
-    -> jane_eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
+    -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let replay_data = analyze_js(path).await?;
   let pretty_daya = prettify_analyze_js(&replay_data)?;
   Ok(pretty_daya)

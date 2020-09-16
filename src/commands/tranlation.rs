@@ -15,7 +15,7 @@ use tch::Device;
 use tokio::task;
 
 async fn bert_translate(ctx: &Context, text: String, lang: Language)
-          -> jane_eyre::Result<String> {
+          -> eyre::Result<String> {
   ctx.idle().await;
   let result = task::spawn_blocking(move || {
       let translation_config =

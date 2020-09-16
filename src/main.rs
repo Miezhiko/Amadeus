@@ -11,11 +11,10 @@ mod steins;
 mod handler;
 mod amadeus;
 
-use jane_eyre::{ eyre::WrapErr, Result };
+use eyre::{ WrapErr, Result };
 
 #[tokio::main(core_threads=8)]
 async fn main() -> Result<()> {
-  jane_eyre::install()?;
   let iopts = common::options::get_ioptions()
                 .wrap_err("Failed to parse Dhall condig")?;
   if let Err(err) = amadeus::run(&iopts).await {

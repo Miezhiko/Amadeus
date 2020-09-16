@@ -2,7 +2,7 @@
 /tree/
 /node_modules/
 conf.dhall
-conf.json
+conf.rs
 Cargo.lock
 
 # secret commands, tokens and stuff

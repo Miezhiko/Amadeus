@@ -292,7 +292,7 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
 }
 
 pub async fn run(opts : &IOptions) ->
-  jane_eyre::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+  eyre::Result<(), Box<dyn std::error::Error + Send + Sync>> {
   { // this block limits scope of borrows by ap.refer() method
     let mut ap = ArgumentParser::new();
     let pname = "Amadeus";

@@ -10,7 +10,7 @@ use tokio::{task, sync::Mutex };
 use std::collections::HashMap;
 use uuid::Uuid;
 
-use jane_eyre::Result;
+use eyre::Result;
 
 lazy_static! {
   pub static ref CONV_MANAGER: Mutex<ConversationManager>

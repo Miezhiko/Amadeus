@@ -12,4 +12,3 @@
 - Refactor lsuf module (points), put files on subfolder
 - Replace json with rudano (or yaml)
 - Split chain into 3 mods: cache, chain and possibly move general stuff to lib
-- 

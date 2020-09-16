@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use tokio::task;
 use tokio::sync::{ Mutex };
 
-use jane_eyre::Result;
+use eyre::Result;
 
 static LSUF: &str = "tree.lusf";
 static ZSUF: &str = "ztree.lusf";

@@ -45,7 +45,6 @@
  - transfer learning using chats context
  - automatic translation with bert models
  - many small commands (use `~help`)
- - using [Dhall](https://dhall-lang.org) config files for things
  - live games tracking on [w3champions](https://www.w3champions.com)
  - some more warcraft 3 related stuff, like player stats and news
  - w3g replays parsing (early version)
@@ -53,6 +52,7 @@
  - runs async, using [tokio.rs](https://tokio.rs)
  - many gifs commands for fun
  - plays music streams!
+ - using [Dhall](https://dhall-lang.org) and [rudano](https://github.com/pheki/rudano) config files for things
  - stream notifications/trackers for twitch and goodgame.ru
 
 Using:
@@ -67,11 +67,11 @@ The human evaluation results indicate that the response generated from DialoGPT 
 
  - to compile just use `cargo build --release` (on Windows you there could be problems with PyTorch, you can install it first and setup paths alike it's done in `misc/build.bat` file)
  - `cp conf.example.dhall conf.dhall` (initial constant options)
- - `cp conf.example.json conf.json` (those options may change in runtime)
+ - `cp conf.example.rs conf.rs` (those options may change in runtime)
  - generate token here: https://discord.com/developers/applications
  - optionally for twitch support: https://dev.twitch.tv/docs/authentication
  - modify conf.dhall and fill `discord`, `tenor_key` and optionally `twitch` client data
- - conf.json `twitch` value is OAuth access token, you can regenerate it with bot command `~twitch_token_update`
+ - conf.rs `twitch` value is OAuth access token, you can regenerate it with bot command `~twitch_token_update`
 
 ``` haskell
 let SType = < HEmo

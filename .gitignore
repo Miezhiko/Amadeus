@@ -12,5 +12,7 @@ secret
 *.w3g
 *.lusf
 
-*.yml
+cache_eng.yml
+cache_ru.yml
+
 *.csv

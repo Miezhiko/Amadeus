@@ -7,26 +7,8 @@ jobs:
 
 - template: 'azure-template-unix.yml'
   parameters:
-    name: 'macOS_beta'
-    vmImage: 'macOS-latest'
-    toolchain: 'beta'
-
-- template: 'azure-template-unix.yml'
-  parameters:
-    name: 'macOS_nightly'
-    vmImage: 'macOS-latest'
-    toolchain: 'nightly'
-
-- template: 'azure-template-unix.yml'
-  parameters:
     name: 'Linux_stable'
     vmImage: 'ubuntu-latest'
-    toolchain: 'stable'
-
-- template: 'azure-template-unix.yml'
-  parameters:
-    name: 'macOS_no_gateway'
-    vmImage: 'macOS-latest'
     toolchain: 'stable'
 
 - template: 'azure-template-win.yml'

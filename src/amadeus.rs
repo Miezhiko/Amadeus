@@ -135,7 +135,7 @@ struct Owner;
 #[group("Admin")]
 #[checks(Admin)]
 #[help_available(false)]
-#[commands(idle, stream, give_win, register_lose, mute, unmute, blacklist)]
+#[commands(idle, stream, give_win, register_lose, mute, unmute)]
 struct Admin;
 
 #[hook]

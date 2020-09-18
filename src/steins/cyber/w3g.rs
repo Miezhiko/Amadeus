@@ -88,7 +88,7 @@ fn prettify_analyze_js(j: &str) -> eyre::Result<(String, Vec<(String, Vec<String
       if let Some(units) = playa.pointer("/units") {
         if let Some(summary) = units.pointer("/summary") {
           if let Some(sum) = summary.as_object() {
-            su = format!("{}\n*units*", su);
+            su = String::from("\n");
             for (k, v) in sum {
               su = format!("{}\n**{}**: {}", su, k, v);
             }

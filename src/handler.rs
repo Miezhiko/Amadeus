@@ -189,6 +189,12 @@ impl EventHandler for Handler {
   }
   async fn message_delete(&self, ctx: Context, channel_id: ChannelId, deleted_message_id: MessageId) {
     if RESTORE.load(Ordering::Relaxed) {
+      let channel_name = channel_id.name(&ctx)
+                                   .await
+                                   .unwrap_or_else(|| "".to_string());
+      if !AI_ALLOWED.iter().any(|c| c == &channel_name) {
+        return;
+      }
       let backup_deq = BACKUP.lock().await;
       if !backup_deq.is_empty() {
         if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
@@ -270,11 +276,16 @@ impl EventHandler for Handler {
             }
           }
         }
-        let mut backup_deq = BACKUP.lock().await;
-        if backup_deq.len() == backup_deq.capacity() {
-          backup_deq.pop_front();
+        let channel_name = msg.channel_id.name(&ctx)
+                                         .await
+                                         .unwrap_or_else(|| "".to_string());
+        if AI_ALLOWED.iter().any(|c| c == &channel_name) {
+          let mut backup_deq = BACKUP.lock().await;
+          if backup_deq.len() == backup_deq.capacity() {
+            backup_deq.pop_front();
+          }
+          backup_deq.push_back((msg.id, msg));
         }
-        backup_deq.push_back((msg.id, msg));
       }
     } else if msg.author.bot {
       if let Some(g) = msg.guild_id {

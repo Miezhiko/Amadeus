@@ -49,7 +49,7 @@ static CHANNEL_CACHE_MAX: u64 = 199;
 static TRANSLATION_MAX: u32 = 5;
 
 // Note: use 66 for low activity/comfortable behavior
-pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(50);
+pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(66);
 
 lazy_static! {
   pub static ref CACHE_ENG: Mutex<Chain<String>>    = Mutex::new(Chain::new());

@@ -5,7 +5,7 @@ use crate::{
     w3c::{ Going, MD }
   },
   collections::team::teammates,
-  common::points,
+  common::trees,
   steins::cyber::{
     utils::{ get_race2
            , get_map
@@ -421,9 +421,9 @@ pub async fn check<'a>( ctx: &Context
                   for (pw, is_win) in &fgame.winners {
                     if *is_win {
                       trace!("Registering win for {}", pw);
-                      let streak = points::add_win_points( guild_id
-                                                         , *pw
-                                                         ).await;
+                      let streak = trees::add_win_points( guild_id
+                                                        , *pw
+                                                        ).await;
                       if playa == *pw && streak >= 3 {
                         title =
                           match streak { 3  => "MULTIKILL"
@@ -442,7 +442,7 @@ pub async fn check<'a>( ctx: &Context
                       }
                     } else {
                       trace!("Registering lose for {}", pw);
-                      points::break_streak(guild_id, *pw).await;
+                      trees::break_streak(guild_id, *pw).await;
                     }
                   }
                   let tip =

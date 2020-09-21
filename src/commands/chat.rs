@@ -1,6 +1,6 @@
 use crate::{
   common::{
-    points,
+    trees,
     msg::channel_message
   },
   steins::ai::{ chain, boris, uwu }
@@ -24,12 +24,12 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
     let (target, the_points) =
       if !msg.mentions.is_empty() && !(msg.mentions.len() == 1 && msg.mentions[0].bot) {
         let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-        if let Ok(p) = points::get_points( guild_id.0, target_user.id.0 ).await {
+        if let Ok(p) = trees::get_points( guild_id.0, target_user.id.0 ).await {
           ( &target_user.name, p )
         } else {
           ( &target_user.name, 0 )
         }
-      } else if let Ok(p) = points::get_points( guild_id.0, msg.author.id.0 ).await {
+      } else if let Ok(p) = trees::get_points( guild_id.0, msg.author.id.0 ).await {
           ( &msg.author.name, p )
         } else {
           ( &msg.author.name, 0 )
@@ -60,7 +60,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild) = msg.guild(ctx).await {
     let mut members_with_points : Vec<(Member, u64)> = Vec::new();
     for (id, mem) in guild.members {
-      if let Ok(p) = points::get_points( guild.id.0, id.0 ).await {
+      if let Ok(p) = trees::get_points( guild.id.0, id.0 ).await {
         members_with_points.push( (mem, p) );
       } else {
         members_with_points.push( (mem, 0) );
@@ -106,10 +106,10 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             second
           } else { 0 };
         if points_count > 0 {
-          let (succ, rst) = points::give_points( guild_id.0
-                                               , msg.author.id.0
-                                               , target_user.id.0
-                                               , points_count ).await;
+          let (succ, rst) = trees::give_points( guild_id.0
+                                              , msg.author.id.0
+                                              , target_user.id.0
+                                              , points_count ).await;
           if succ {
             let out = format!("{} to {}", rst, target_user.name);
             if let Err(why) = msg.channel_id.send_message(ctx, |m| m

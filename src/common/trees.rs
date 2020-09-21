@@ -11,8 +11,8 @@ use tokio::sync::{ Mutex };
 
 use eyre::Result;
 
-static LSUF: &str = "tree.lusf";
-static ZSUF: &str = "ztree.lusf";
+static LSUF: &str = "trees/tree.lusf";
+static ZSUF: &str = "trees/ztree.lusf";
 
 #[derive(Serialize, Deserialize)]
 struct Points {

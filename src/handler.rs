@@ -4,7 +4,7 @@ use crate::{
           , ai::chain
           , cyber::replay::replay_embed
           },
-  common::{ points
+  common::{ trees
           , help::{ lang, channel::channel_by_name }
           , msg::channel_message
           },
@@ -159,7 +159,7 @@ impl EventHandler for Handler {
     }
   }
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, _: Option<Member>) {
-    let _was_on_chat = points::clear_points(guild_id.0, user.id.0).await;
+    let _was_on_chat = trees::clear_points(guild_id.0, user.id.0).await;
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       if let Ok(member) = guild.member(&ctx, user.id).await {
         if let Some(role) = guild.role_by_name("muted") {
@@ -369,7 +369,7 @@ impl EventHandler for Handler {
             }
           }
         } else {
-          points::add_points(guild_id.0, msg.author.id.0, 1).await;
+          trees::add_points(guild_id.0, msg.author.id.0, 1).await;
           for file in &msg.attachments {
             if file.filename.ends_with("w3g") {
               let rainbow = ReactionType::Unicode(String::from("🌈"));

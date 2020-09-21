@@ -1,18 +1,13 @@
 /target/
-/tree/
+/trees/
+/cache/
 /node_modules/
 conf.dhall
 conf.rs
 Cargo.lock
 
 # secret commands, tokens and stuff
-secret
+misc/secret
 
 *.png
 *.w3g
-*.lusf
-
-cache_eng.yml
-cache_ru.yml
-
-*.csv

@@ -2,7 +2,7 @@ use crate::{
   types::common::{ AllGuilds, ChannelLanguage },
   common::{ help::lang
           , msg::{ reply, channel_message }
-          , points::{ register, check_registration }
+          , trees::{ register, check_registration }
   },
   collections::base::{ CONFUSION
                      , CONFUSION_RU
@@ -37,9 +37,9 @@ use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use tokio::sync::{ Mutex, MutexGuard };
 
-static CACHE_ENG_YML: &str = "cache_eng.yml";
-static CACHE_RU_YML: &str = "cache_ru.yml";
-static CACHE_CSV: &str = "cache.csv";
+static CACHE_ENG_YML: &str = "cache/cache_eng.yml";
+static CACHE_RU_YML: &str = "cache/cache_ru.yml";
+static CACHE_CSV: &str = "cache/cache.csv";
 
 // WILL NOT WORK WITH ANYTHING MORE THAN 200
 // NO IDEA WHY...

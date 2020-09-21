@@ -481,7 +481,7 @@ pub async fn check<'a>( ctx: &Context
                                   }
                                 }
                               }
-                              let title = format!("best coefficient: {}", k);
+                              let title = format!("Bets coefficient: {}", k);
                               bet_fields = Some(vec![(title
                                                     , output.join("\n")
                                                     , false)]);

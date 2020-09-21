@@ -509,7 +509,7 @@ pub async fn check<'a>( ctx: &Context
                     }
                   }
                   let tip =
-                    if old_fields.is_empty() && streak_fields.is_none() {
+                    if old_fields.is_empty() && streak_fields.is_none() && bet_fields.is_none() {
                       Some(chain::generate_with_language(ctx, false).await)
                     } else { None };
                   if let Err(why) = msg.edit(ctx, |m| m

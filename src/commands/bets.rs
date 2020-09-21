@@ -74,6 +74,9 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                                                     , points_count ).await;
                 if succ {
                   track.bets.push(bet);
+                  if let Err(why) = msg.delete(&ctx).await {
+                    error!("Error deleting original command {:?}", why);
+                  }
                   let out = format!("bet **{}** on **{}**", points_count, meme.user.name);
                   let nickname_maybe =
                     if let Some(guild_id) = msg.guild_id {

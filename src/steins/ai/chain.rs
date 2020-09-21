@@ -89,24 +89,29 @@ pub async fn update_cache( ctx: &Context
     }
   }
 
-  if cache_eng_str.is_empty()
-  && fs::metadata(CACHE_CSV).await.is_ok() {
-    if let Ok(mut rdr)
-      = csv::ReaderBuilder::new()
-        .flexible(true)
-        .double_quote(false)
-        .delimiter(b'\t')
-        .from_path(&CACHE_CSV) {
-      for result in rdr.records() {
-        if let Ok(strx) = result {
-          cache_eng_str.push(
-            strx.as_slice().to_string());
+  if cache_eng_str.is_empty() {
+    if fs::metadata(CACHE_CSV).await.is_ok() {
+      match csv::ReaderBuilder::new()
+                .flexible(true)
+                .double_quote(false)
+                .delimiter(b'\t')
+                .from_path(&CACHE_CSV) {
+        Ok(mut rdr) => {
+          info!("restoring cahce from csv");
+          for result in rdr.records() {
+            if let Ok(strx) = result {
+              cache_eng_str.push(
+                strx.as_slice().to_string());
+            }
+          }
+        }, Err(err) => {
+          error!("Failed to parse cache csv {:?}", err);
         }
       }
-    }
-  } else {
-    for confuse in CONFUSION.iter() {
-      cache_eng_str.push( confuse.to_string() );
+    } else {
+      for confuse in CONFUSION.iter() {
+        cache_eng_str.push( confuse.to_string() );
+      }
     }
   }
 
@@ -125,7 +130,7 @@ pub async fn update_cache( ctx: &Context
       if let Some(ch_lang) = AI_LEARN.iter().find(|c| c.id == c_name) {
         let mut messages = chan.messages_iter(&ctx).boxed();
 
-        trace!("updating ai chain from {}", &c_name);
+        info!("updating ai chain from {}", &c_name);
         let mut i_ru_for_translation : u32 = 0;
         let mut i: u64 = 0;
 
@@ -280,11 +285,11 @@ pub async fn actualize_cache(ctx: &Context) {
   if since_last_update > Duration::hours(2) {
     let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
     let data = ctx.data.read().await;
-    if let Some(server_ids) = data.get::<AllGuilds>() {
-      let servers = server_ids.iter()
+    if let Some(servers) = data.get::<AllGuilds>() {
+      let server_ids = servers.iter()
                               .map(|srv| GuildId(srv.id))
                               .collect::<Vec<GuildId>>();
-      for server in servers {
+      for server in server_ids {
         if let Ok(serv_channels) = server.channels(ctx).await {
           all_channels.extend(serv_channels);
         }

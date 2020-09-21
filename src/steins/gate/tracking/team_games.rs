@@ -1,10 +1,9 @@
 use crate::{
-  types::{
-    options::IOptions,
-    tracking::TrackingGame,
-    twitch::Twitch,
-    goodgame::GoodGameData
-  },
+  types::{ common::ReqwestClient
+         , options::IOptions
+         , tracking::TrackingGame
+         , twitch::Twitch
+         , goodgame::GoodGameData },
   common::help::channel::channel_by_name,
   steins::cyber
 };
@@ -60,6 +59,8 @@ pub async fn activate_games_tracking(
 
     tokio::spawn(async move {
       let mut games_lock = cyber::team_checker::GAMES.lock().await;
+      let data = ctx_clone.data.read().await;
+      let rqcl = data.get::<ReqwestClient>().unwrap();
       loop {
         let mut k_to_del : Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
@@ -80,6 +81,7 @@ pub async fn activate_games_tracking(
                                                 , ch_deref.0
                                                 , options_clone.guild
                                                 , &mut games_lock
+                                                , rqcl
                                                 ).await;
         for game in our_gsx {
           let game_key = game.key.clone();
@@ -94,9 +96,8 @@ pub async fn activate_games_tracking(
             if playa.streams.is_some() {
               let streams = playa.streams.clone().unwrap();
               if streams.twitch.is_some() {
-                let client = reqwest::Client::new();
                 let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", &streams.twitch.unwrap());
-                if let Ok(res) = client
+                if let Ok(res) = rqcl
                   .get(&getq)
                   .header("Authorization", token.clone())
                   .header("Client-ID", options_clone.twitch_client_id.clone())

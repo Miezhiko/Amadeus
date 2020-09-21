@@ -34,7 +34,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
   lazy_static::initialize(&START_TIME);
 
   // set actual season for pad statistics
-  update_current_season().await;
+  update_current_season(ctx).await;
 
   // Now there are several lists of channels and several Guilds
   if options.guild != 0 {
@@ -53,6 +53,7 @@ pub async fn activate(ctx: &Context, options: &IOptions) {
 
     let hemo_channels: HashMap<ChannelId, GuildChannel> =
       if let Ok(channels) = hemo_guild_id.channels(ctx).await {
+        all_channels.extend(channels.clone());
         channels
       } else {
         HashMap::new()

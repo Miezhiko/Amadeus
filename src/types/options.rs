@@ -1,6 +1,6 @@
 use crate::types::common::IServer;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct IOptions {
   pub discord: String,
   pub guild: u64,
@@ -11,7 +11,7 @@ pub struct IOptions {
   pub tenor_key: String
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ROptions {
   pub rejoin: bool,
   pub last_guild: u64,

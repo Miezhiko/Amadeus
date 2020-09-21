@@ -1,5 +1,8 @@
 use crate::{
-  types::w3c::*,
+  types::{
+    common::ReqwestClient,
+    w3c::*
+  },
   common::{
     msg::{ channel_message }
   },
@@ -30,8 +33,12 @@ use std::{ time::Duration
 pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(3);
 static ONGOING_PAGE_SIZE: usize = 15;
 
-pub async fn update_current_season() {
-  if let Ok(res) = reqwest::get("https://statistic-service.w3champions.com/api/ladder/seasons").await {
+pub async fn update_current_season(ctx: &Context) {
+  set!{ data = ctx.data.read().await
+      , rqcl = data.get::<ReqwestClient>().unwrap() };
+  if let Ok(res) = rqcl.get("https://statistic-service.w3champions.com/api/ladder/seasons")
+                       .send()
+                       .await {
     if let Ok(seasons) = res.json::<Vec<Season>>().await {
       let seasons_ids = seasons.iter().map(|s| s.id);
       if let Some(last_season) = seasons_ids.max() {
@@ -52,8 +59,10 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
+  set!{ data = ctx.data.read().await
+      , rqcl = data.get::<ReqwestClient>().unwrap() };
   let url = "https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&gameMode=1";
-  let res = reqwest::get(url).await?;
+  let res = rqcl.get(url).send().await?;
   let going : Going = res.json().await?;
   if !going.matches.is_empty() {
     let footer = format!("Requested by {}", msg.author.name);
@@ -131,12 +140,14 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   if args_msg.is_empty() {
     args_msg = &msg.author.name;
   }
+  set!{ data = ctx.data.read().await
+      , rqcl = data.get::<ReqwestClient>().unwrap() };
   let season = current_season();
   let mut gateway = "20"; // Europe by default
   let userx = if args_msg.contains('#') { String::from(args_msg) }
     else {
       let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
-      let ress = reqwest::get(&search_uri).await?;
+      let ress = rqcl.get(&search_uri).send().await?;
       let search : Vec<Search> = ress.json().await?;
       if !search.is_empty() {
         if !search[0].player.playerIds.is_empty() {
@@ -145,7 +156,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
       } else {
         gateway = "10"; // If empty results on Europe Go America
         let search_uri_a = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
-        let ress_a = reqwest::get(&search_uri_a).await?;
+        let ress_a = rqcl.get(&search_uri_a).send().await?;
         let search_a : Vec<Search> = ress_a.json().await?;
         if !search_a.is_empty() {
           if !search_a[0].player.playerIds.is_empty() {
@@ -157,19 +168,19 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   if !userx.is_empty() {
     let user = userx.replace("#","%23");
     let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay={}&season={}", user, gateway, season);
-    let game_mode_res = reqwest::get(&game_mode_uri).await?;
+    let game_mode_res = rqcl.get(&game_mode_uri).send().await?;
     let game_mode_stats : Vec<GMStats> =
       match game_mode_res.json::<Vec<GMStats>>().await {
         Ok(gms) => {
           if gms.is_empty() {
             gateway = "10"; // Go America!
             let game_mode_uri2 = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay={}&season={}", user, gateway, season);
-            let game_mode_res2 = reqwest::get(&game_mode_uri2).await?;
+            let game_mode_res2 = rqcl.get(&game_mode_uri2).send().await?;
             game_mode_res2.json().await?
           } else { gms }
         },
         Err(wha) => {
-          let game_mode_res2 = reqwest::get(&game_mode_uri).await?;
+          let game_mode_res2 = rqcl.get(&game_mode_uri).send().await?;
           if let Ok(text_res) = game_mode_res2.text().await {
             error!("{:?} on {}", wha, text_res);
           }
@@ -265,7 +276,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     }
 
     let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay={}&season={}", user, gateway, season);
-    let res = reqwest::get(&uri).await?;
+    let res = rqcl.get(&uri).send().await?;
     let stats : Vec<Stats> = res.json().await?;
 
     let mut stats_by_races : String = String::new();
@@ -274,7 +285,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
       let clan_uri = format!("https://statistic-service.w3champions.com/api/clans?battleTag={}", user);
       let name = &userx.split('#').collect::<Vec<&str>>()[0];
       let mut clanned = String::from(*name);
-      if let Ok(clan_res) = reqwest::get(&clan_uri).await {
+      if let Ok(clan_res) = rqcl.get(&clan_uri).send().await {
         if let Ok(clan_text_res) = clan_res.text().await {
           let clan_json_res = serde_json::from_str(&clan_text_res);
           if clan_json_res.is_ok() {
@@ -316,7 +327,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
       let mut description = format!("[{}] {}\n", &userx, &league_info);
 
       let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
-      let res2 = reqwest::get(&uri2).await?;
+      let res2 = rqcl.get(&uri2).send().await?;
       let stats2 : Stats2 = res2.json().await?;
 
       let mut table = Table::new();

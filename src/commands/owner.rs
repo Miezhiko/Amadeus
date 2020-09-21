@@ -131,7 +131,7 @@ async fn update_cache(ctx: &Context, msg: &Message) -> CommandResult {
     error!("Error deleting original command {:?}", why);
   }
   actualize_cache(ctx).await;
-  channel_message(&ctx, &msg, "Cache updated").await;
+  channel_message(ctx, msg, "Cache updated").await;
   Ok(())
 }
 

@@ -1,4 +1,7 @@
-use crate::steins::gate::behavior::START_TIME;
+use crate::{
+  types::common::ReqwestClient,
+  steins::gate::behavior::START_TIME
+};
 
 use std::sync::Arc;
 
@@ -168,16 +171,21 @@ struct ApiResponse {
 }
 
 #[command]
+#[description("Find term in Urban Dictionary")]
+#[min_args(1)]
 async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let term = args.message();
+
+  set!{ term            = args.message()
+      , data            = ctx.data.read().await
+      , reqwest_client  = data.get::<ReqwestClient>().unwrap() };
+
   let url = reqwest::Url::parse_with_params
     ("http://api.urbandictionary.com/v0/define", &[("term", term)])?;
 
-  let reqwest = reqwest::Client::new();
-  let resp = reqwest.get(url)
+  let resp = reqwest_client.get(url)
       .send().await?.json::<ApiResponse>().await?;
 
   if resp.list.is_empty() {

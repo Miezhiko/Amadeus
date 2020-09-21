@@ -3,35 +3,34 @@ use serenity::prelude::*;
 use std::{ collections::HashMap, sync::Arc };
 use reqwest::Client as Reqwest;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Hash, Deserialize)]
 pub enum ChannelLanguage {
   English,
   Russian,
   Bilingual
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct LChannel {
   pub id: String,
   pub lang: ChannelLanguage,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 pub enum CoreGuild {
-  HEmo,
-  Storage,
   Safe,
-  Unsafe
+  Unsafe,
+  HEmo,
+  Storage
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Copy, Deserialize)]
 pub struct IServer {
   pub id: u64,
-  pub name: String,
   pub kind: CoreGuild
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct Reaction {
   pub id: u64,
   pub name: String

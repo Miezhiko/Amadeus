@@ -26,11 +26,12 @@ lazy_static! {
 
 async fn check_match( matchid: &str
                     , playaz: &[Player]
+                    , rqcl: &reqwest::Client
                     ) -> Option<FinishedGame> {
   let url =
     format!("https://statistic-service.w3champions.com/api/matches/by-ongoing-match-id/{}", matchid);
 
-  if let Ok(res) = reqwest::get(&url).await {
+  if let Ok(res) = rqcl.get(&url).send().await {
     match res.json::<MD>().await {
       Ok(md) => {
         let m = md.match_data;
@@ -224,11 +225,14 @@ pub async fn check<'a>( ctx: &Context
                       , channel_id: u64
                       , guild_id: u64
                       , games_lock: &mut MutexGuard<'a, HashMap<String, TrackingGame>>
+                      , rqcl: &reqwest::Client
                       ) -> Vec<StartingGame> {
   let mut out : Vec<StartingGame> = Vec::new();
   if let Ok(res) =
     // getaway 20 = Europe (not sure if we want to play/track players on other regions)
-    reqwest::get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20").await {
+    rqcl.get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20")
+        .send()
+        .await {
     if let Ok(going) = res.json::<Going>().await {
       if !going.matches.is_empty() {
         for m in going.matches {
@@ -393,7 +397,7 @@ pub async fn check<'a>( ctx: &Context
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
             if let Some(finished_game) =
-                check_match(k, &track.players).await {
+                check_match(k, &track.players, rqcl).await {
               let fgame = &finished_game;
               if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
                 let footer : String = format!("Passed: {} min", fgame.passed_time);

@@ -72,9 +72,9 @@ impl EventHandler for Handler {
   async fn cache_ready(&self, ctx: Context, guilds: Vec<GuildId>) {
     info!("Cache is READY");
     for guild_id in guilds {
-      if guild_id.0 != self.ioptions.guild {
+      if guild_id.0 != self.ioptions.guild && guild_id.0 != self.ioptions.amadeus_guild {
         if let Some(serv) = self.ioptions.servers.iter().find(|s| s.id == guild_id.0) {
-          if serv.kind != CoreGuild::Storage {
+          if serv.kind == CoreGuild::Unsafe {
             if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
               if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
                 if let Ok(some_permissions) = member.permissions(&ctx).await {
@@ -83,7 +83,7 @@ impl EventHandler for Handler {
                     if let Err(why) =
                       guild.create_role(&ctx,
                         |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
-                              .name("UNBLOCK AMADEUS")).await {
+                            .name("UNBLOCK AMADEUS")).await {
                       error!("Failed to create UNBLOCK role, {:?}", why);
                     }
                   }

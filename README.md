@@ -36,27 +36,20 @@
 
 <img align="right" src="https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png">
 
- - chatty (ability to change activity level)
+ - many small commands (use `~help`)
+ - chatty (`set activity 66` is default)
  - transfer learning using chats context
  - automatic translation with bert models
- - many small commands (use `~help`)
  - live games tracking on [w3champions](https://www.w3champions.com)
- - some more warcraft 3 related stuff, like player stats and news
- - w3g replays parsing (early version)
+ - warcraft 3 commands `~stats`, `~today` and more
+ - w3info news tracking using calendar
+ - replays parsing (click emoji to get report)
  - points system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
- - runs async, using [tokio.rs](https://tokio.rs)
- - many gifs commands for fun
+ - async [tokio.rs](https://tokio.rs)
+ - gifs commands
  - plays music streams!
- - using [Dhall](https://dhall-lang.org) and [rudano](https://github.com/pheki/rudano) config files for things
+ - [Dhall](https://dhall-lang.org) and [rudano](https://github.com/pheki/rudano) config files
  - stream notifications/trackers for twitch and goodgame.ru
-
-Using:
-
- - DistilBERT model finetuned on SQuAD (Stanford Question Answering Dataset)
- - MarianMT architecture and pre-trained models from the Opus-MT team from Language Technology at the University of Helsinki
- - Conversation model based on Microsoft's [DialoGPT](https://github.com/microsoft/DialoGPT)
-
-The human evaluation results indicate that the response generated from DialoGPT is comparable to human response quality under a single-turn conversation Turing test. 
 
 ## Cooking
 
@@ -69,29 +62,23 @@ The human evaluation results indicate that the response generated from DialoGPT 
  - conf.rs `twitch` value is OAuth access token, you can regenerate it with bot command `~twitch_token_update`
 
 ``` haskell
-let SType = < HEmo
-            | Storage
-            | Safe
+let SType = < Safe
             | Unsafe >
 let Server : Type =
-  { id: Natural
-  , name: Text
-  , kind: SType }
-let u = λ(id: Natural)
-      → λ(name: Text) → { id = id, name = name, kind = SType.Unsafe }
-let s = λ(id: Natural)
-      → λ(name: Text) → { id = id, name = name, kind = SType.Safe }
-let serversList : List Server =
-  [ { id = 611822838831251466, name = "HEmo", kind = SType.HEmo }
-  , { id = 740144638375231489, name = "Amadeus", kind = SType.Storage }
-  , u 676119422418550815 "Зарянка"
-  , s 728694826203349072 "Rusty Tools"
+  { id: Natural, kind: SType }
+let u = λ(id: Natural) → { id = id, kind = SType.Unsafe }
+let s = λ(id: Natural) → { id = id, kind = SType.Safe }
+let additional_servers : List Server =
+  [ u 676119422418550815 -- "Зарянка"
+  , s 728694826203349072 -- "Rusty Tools"
   ]
-in { discord              = "put discord token here"
-   , servers              = serversList
-   , twitch_client_id     = "AAAAAAAAAAAAAAAAAAAAAA"
-   , twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-   , tenor_key            = "AAAAAAAAAA"
+in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
+   , guild                = 611822838831251466
+   , amadeus_guild        = 740144638375231489
+   , servers              = additional_servers
+   , twitch_client_id     = "AAAAAA"
+   , twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAAAAA"
+   , tenor_key            = "AAAA"
    }
 ```
 
@@ -104,26 +91,27 @@ npm install w3gjs
 ```
 
 Note: will lag at first run due pre-trained models downloading.
-The models will be downloaded to the environment variable RUSTBERT_CACHE if it exists, otherwise to ~/.cache/.rustbert
+The models will be downloaded to the environment variable `RUSTBERT_CACHE` if it exists, otherwise to `~/.cache/.rustbert`
 
 ## Service
 
-``` sh
+```shell
 cp misc/Amadeus.service /etc/systemd/system/Amadeus.service
 systemctl daemon-reload
 systemctl enable Amadeus
 systemctl start Amadeus
 ```
 
-note that you're fully safe to rebuild and restart it whenever you want
+it's safe to rebuild and restart it
 
-``` sh
+```shell
 systemctl restart Amadeus
 ```
 
 ## Notes
 
- Work in progress
+ - Work in progress
+ - Check TODO.md
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQeenon%2FAmadeus.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FQeenon%2FAmadeus?ref=badge_large)

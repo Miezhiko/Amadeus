@@ -4,6 +4,7 @@ use crate::{
             , ReqwestClient
             , CoreGuild
             , CoreGuilds
+            , IServer
             , AllGuilds },
     options::IOptions
   },
@@ -334,9 +335,12 @@ pub async fn run(opts : &IOptions) ->
   creds.insert("twitch_secret".to_string(), opts.twitch_client_secret.clone());
 
   let mut core_guilds = HashMap::new();
-  /*core_guilds.insert(CoreGuild::UserId, amadeus_id.0);*/
   core_guilds.insert(CoreGuild::HEmo, opts.guild);
   core_guilds.insert(CoreGuild::Storage, opts.amadeus_guild);
+
+  let mut all_guilds = opts.servers.clone();
+  all_guilds.push( IServer { id: opts.guild, kind: CoreGuild::HEmo } );
+  all_guilds.push( IServer { id: opts.amadeus_guild, kind: CoreGuild::Storage } );
 
   let std_framework =
     StandardFramework::new()
@@ -375,7 +379,7 @@ pub async fn run(opts : &IOptions) ->
     data.insert::<ReqwestClient>(Arc::new(Reqwest::new()));
     data.insert::<PubCreds>(Arc::new(creds));
     data.insert::<CoreGuilds>(Arc::new(core_guilds));
-    data.insert::<AllGuilds>(Arc::new(opts.servers.clone()));
+    data.insert::<AllGuilds>(Arc::new(all_guilds));
   }
 
   // start listening for events by starting a single shard

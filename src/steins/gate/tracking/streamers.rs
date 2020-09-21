@@ -256,7 +256,7 @@ pub async fn activate_streamers_tracking(
                       tracking_msg_id: msg_id.id.0,
                       passed_time: 0,
                       still_live: true,
-                      players: vec![playa] }
+                      players: vec![playa], bets: vec![] }
                     );
                   },
                   Err(why) => {

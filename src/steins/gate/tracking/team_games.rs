@@ -186,7 +186,7 @@ pub async fn activate_games_tracking(
                   tracking_msg_id: msg_id.id.0,
                   passed_time: 0,
                   still_live: false,
-                  players: game.players }
+                  players: game.players, bets: vec![] }
                 );
               },
               Err(why) => {

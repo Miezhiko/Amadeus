@@ -13,7 +13,7 @@ use serenity::{
   framework::standard::{
     CommandResult, Args,
     macros::command
-  },
+  }
 };
 
 #[command]
@@ -90,7 +90,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
-#[min_args(1)] // or 2?
+#[min_args(1)]
 #[description("give mentioned user some own points")]
 async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {

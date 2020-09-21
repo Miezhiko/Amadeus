@@ -8,3 +8,4 @@ pub mod chat;
 pub mod tictactoe;
 pub mod images;
 pub mod tranlation;
+pub mod bets;

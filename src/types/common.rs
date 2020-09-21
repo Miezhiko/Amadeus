@@ -21,7 +21,8 @@ pub enum CoreGuild {
   Safe,
   Unsafe,
   HEmo,
-  Storage
+  Storage,
+  Amadeus
 }
 
 #[derive(Clone, Copy, Deserialize)]

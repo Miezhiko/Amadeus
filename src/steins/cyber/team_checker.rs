@@ -1,9 +1,8 @@
 use crate::{
-  types::{
-    team::Player,
-    tracking::*,
-    w3c::{ Going, MD }
-  },
+  types::{ common::{ CoreGuild, CoreGuilds }
+         , team::Player
+         , tracking::*
+         , w3c::{ Going, MD } },
   collections::team::teammates,
   common::trees,
   steins::cyber::{
@@ -15,6 +14,7 @@ use crate::{
 };
 
 use serenity::prelude::*;
+use serenity::model::id::UserId;
 
 use std::collections::HashMap;
 use tokio::sync::{ Mutex, MutexGuard };
@@ -418,6 +418,7 @@ pub async fn check<'a>( ctx: &Context
                   };
                   let mut title = "FINISHED";
                   let mut streak_fields = None;
+                  let mut bet_fields = None;
                   for (pw, is_win) in &fgame.winners {
                     if *is_win {
                       trace!("Registering win for {}", pw);
@@ -439,6 +440,54 @@ pub async fn check<'a>( ctx: &Context
                                        , _  => "FRENETIC" };
                         let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
                         streak_fields = Some(vec![("Winning streak", dd, false)]);
+                      }
+                      if track.bets.len() > 0 {
+                        trace!("Paying for bets");
+                        let data = ctx.data.read().await;
+                        if let Some(core_guilds) = data.get::<CoreGuilds>() {
+                          if let Some(amadeus) = core_guilds.get(&CoreGuild::Amadeus) {
+                            if let Ok(p) = trees::get_points( guild_id, *amadeus ).await {
+                              let mut win_calculation = HashMap::new();
+                              let mut waste = 0;
+                              let mut k : f32 = 2.0;
+                              for bet in &track.bets {
+                                let best_win = (bet.points as f32 * k).round() as u64;
+                                win_calculation.insert(bet.member, best_win);
+                                waste = waste + best_win;
+                              }
+                              while waste > p {
+                                k = k - 0.1;
+                                waste = 0;
+                                for (_, wpp) in win_calculation.iter_mut() {
+                                  *wpp = (*wpp as f32 * k).round() as u64;
+                                  waste = waste + *wpp;
+                                }
+                              }
+                              let mut output = vec![];
+                              for (mpp, wpp) in win_calculation.iter() {
+                                let (succ, rst) =
+                                  trees::give_points( guild_id
+                                                    , *amadeus
+                                                    , *mpp
+                                                    , *wpp ).await;
+                                if !succ {
+                                  error!("failed to give bet win points: {}", rst);
+                                } else {
+                                  let user_id = UserId( *mpp );
+                                  if let Ok(user) = user_id.to_user(&ctx).await {
+                                    output.push(
+                                      format!("**{}** wins **{}**", user.name, *wpp)
+                                    );
+                                  }
+                                }
+                              }
+                              let title = format!("best coefficient: {}", k);
+                              bet_fields = Some(vec![(title
+                                                    , output.join("\n")
+                                                    , false)]);
+                            }
+                          }
+                        }
                       }
                     } else {
                       trace!("Registering lose for {}", pw);
@@ -478,6 +527,9 @@ pub async fn check<'a>( ctx: &Context
                       }
                       if let Some(streak_data) = streak_fields {
                         e = e.fields(streak_data);
+                      }
+                      if let Some(bet_data) = bet_fields {
+                        e = e.fields(bet_data);
                       }
                       if let Some((s1,s2,s3,s4)) = &fgame.additional_fields {
                         e = e.fields(vec![

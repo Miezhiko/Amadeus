@@ -20,7 +20,8 @@ use crate::{
             , admin::*
             , tictactoe::*
             , images::*
-            , tranlation::* },
+            , tranlation::*
+            , bets::* },
   collections::{ base::GREETINGS
                , channels::IGNORED }
 };
@@ -88,7 +89,7 @@ async fn admin_check( ctx: &Context
 #[group("Meta")]
 #[description = "Basic commands"]
 #[commands( info, version, embed, qrcode, urban, uptime, tic_tac_toe, changelog
-          , help_ru )]
+          , help_ru, bet )]
 struct Meta;
 
 #[group("Chat")]
@@ -337,6 +338,7 @@ pub async fn run(opts : &IOptions) ->
   let mut core_guilds = HashMap::new();
   core_guilds.insert(CoreGuild::HEmo, opts.guild);
   core_guilds.insert(CoreGuild::Storage, opts.amadeus_guild);
+  core_guilds.insert(CoreGuild::Amadeus, amadeus_id.0);
 
   let mut all_guilds = opts.servers.clone();
   all_guilds.push( IServer { id: opts.guild, kind: CoreGuild::HEmo } );

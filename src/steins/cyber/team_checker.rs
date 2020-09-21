@@ -441,7 +441,7 @@ pub async fn check<'a>( ctx: &Context
                         let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
                         streak_fields = Some(vec![("Winning streak", dd, false)]);
                       }
-                      if track.bets.len() > 0 {
+                      if !track.bets.is_empty() && bet_fields.is_none() {
                         trace!("Paying for bets");
                         let data = ctx.data.read().await;
                         if let Some(core_guilds) = data.get::<CoreGuilds>() {
@@ -492,6 +492,20 @@ pub async fn check<'a>( ctx: &Context
                     } else {
                       trace!("Registering lose for {}", pw);
                       trees::break_streak(guild_id, *pw).await;
+                      if bet_fields.is_none() && !track.bets.is_empty() {
+                        let mut output = vec![];
+                        for bet in &track.bets {
+                          let user_id = UserId( bet.member );
+                          if let Ok(user) = user_id.to_user(&ctx).await {
+                            output.push(
+                              format!("**{}** loses **{}**", user.name, bet.points)
+                            );
+                          }
+                        }
+                        bet_fields = Some(vec![("Betting losers".to_string()
+                                              , output.join("\n")
+                                              , false)]);
+                      }
                     }
                   }
                   let tip =

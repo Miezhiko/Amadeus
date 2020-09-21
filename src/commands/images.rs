@@ -101,16 +101,16 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
                                                else { &msg.mentions[0] };
         msg.channel_id.send_message(ctx, |m|
           m.embed(|e| e.color(color)
-                      .author(|a| a.icon_url(&msg.author.face()).name(&nick))
-                      .description(format!("{} {}", t, target_user.name))
-                      .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
+                       .author(|a| a.icon_url(&msg.author.face()).name(&nick))
+                       .description(format!("{} {}", t, target_user.name))
+                       .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
       GType::Own(o) => {
         msg.channel_id.send_message(ctx, |m|
           m.embed(|e| e.color(color)
-                      .author(|a| a.icon_url(&msg.author.face()).name(&nick))
-                      .description(o)
-                      .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
+                       .author(|a| a.icon_url(&msg.author.face()).name(&nick))
+                       .description(o)
+                       .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
       GType::Nothing => {
         msg.channel_id.send_message(ctx, |m|

@@ -74,11 +74,17 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                                                     , points_count ).await;
                 if succ {
                   track.bets.push(bet);
-                  let out = format!("bet {} on {}", points_count, meme.user.name);
+                  let out = format!("bet **{}** on **{}**", points_count, meme.user.name);
+                  let nickname_maybe =
+                    if let Some(guild_id) = msg.guild_id {
+                      msg.author.nick_in(&ctx, &guild_id).await
+                    } else { None };
+                  let nick = nickname_maybe.unwrap_or_else(|| msg.author.name.clone());
                   if let Err(why) = msg.channel_id.send_message(ctx, |m| m
                     .embed(|e| e
                     .description(&out)
-                    .footer(|f| f.text(&msg.author.name))
+                    .color(0xed9e2f)
+                    .author(|a| a.icon_url(&msg.author.face()).name(&nick))
                   )).await {
                     error!("Failed to post give {:?}", why);
                   }

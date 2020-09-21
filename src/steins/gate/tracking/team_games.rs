@@ -58,10 +58,11 @@ pub async fn activate_games_tracking(
         , options_clone = options.clone() };
 
     tokio::spawn(async move {
-      let mut games_lock = cyber::team_checker::GAMES.lock().await;
       let data = ctx_clone.data.read().await;
       let rqcl = data.get::<ReqwestClient>().unwrap();
       loop {
+        { // this is scope of GAMES lock live
+        let mut games_lock = cyber::team_checker::GAMES.lock().await;
         let mut k_to_del : Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
           if track.passed_time < 666 {
@@ -195,6 +196,9 @@ pub async fn activate_games_tracking(
             }
           }
         }
+        } // There we are releasing games lock!
+          // Making it possible to use it elsewhere (bets)
+          // Hopefully it will work
         tokio::time::delay_for(time::Duration::from_secs(30)).await;
       }
     });

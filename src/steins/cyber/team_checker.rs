@@ -31,190 +31,220 @@ async fn check_match( matchid: &str
   let url =
     format!("https://statistic-service.w3champions.com/api/matches/by-ongoing-match-id/{}", matchid);
 
+  let mut if_md : Option<MD> = None;
+
   if let Ok(res) = rqcl.get(&url).send().await {
     match res.json::<MD>().await {
       Ok(md) => {
-        let m = md.match_data;
-        let address = format!("https://www.w3champions.com/match/{}", &m.id);
-        let mut losers: Vec<(u64, bool)> = vec![];
-        let mstr_o =
-          if m.gameMode == 1 {
-            set!{ g_map = get_map(&m.map)
-                , race1 = get_race2(m.teams[0].players[0].race)
-                , race2 = get_race2(m.teams[1].players[0].race) };
-            for i in 0..2 {
-              if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.battletag) {
-                let won = m.teams[i].players[0].won;
-                losers.push((playa.discord, won));
-              }
-            }
-            let player1 = if m.teams[0].players[0].won {
-              format!("__**{}**__ **+{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
-            } else {
-              format!("__*{}*__ **{}**", m.teams[0].players[0].name, m.teams[1].players[0].mmrGain)
-            };
-            let player2 = if m.teams[1].players[0].won {
-              format!("__**{}**__ **+{}**", m.teams[1].players[0].name, m.teams[0].players[0].mmrGain)
-            } else {
-              format!("__*{}*__ **{}**", m.teams[1].players[0].name, m.teams[1].players[0].mmrGain)
-            };
-            Some(
-              vec![ format!("({}) {} [{}] *vs* ({}) {} [{}] *{}*",
-                    race1, player1, m.teams[0].players[0].oldMmr
-                  , race2, player2, m.teams[1].players[0].oldMmr, g_map) ])
-          } else if m.gameMode == 6 || m.gameMode == 2 {
-            let g_map  = get_map(&m.map);
-            for i in 0..2 {
-              for j in 0..2 {
-                if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
-                  let won = m.teams[i].players[j].won;
-                  losers.push((playa.discord, won));
-                }
-              }
-            }
-            let mstr = format!("Map: {}", g_map);
-            let teamx = |x: usize| -> String {
-              if m.gameMode == 6 {
-                if m.teams[x].won {
-                  format!("({}) __**{}**__\n({}) __**{}**__\n[{}] **+{}**"
-                  , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name
-                  , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
-                } else {
-                  format!("({}) __*{}*__\n({}) __*{}*__\n[{}] *{}*"
-                  , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name
-                  , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
-                }
-              } else if m.teams[x].won {
-                format!("({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**"
-                , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
-                , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
-              } else {
-                format!("({}) __*{}*__ [{}] *{}*\n({}) __*{}*__ [{}] *{}*"
-                , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
-                , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
-              }
-            };
-            Some( vec![ mstr, teamx(0), teamx(1) ] )
-          } else {
-            None
-          };
-        match mstr_o {
-          Some(mstr) => {
-            let mut maybe_hero_png = None;
-            let duration_in_minutes = m.durationInSeconds / 60;
-            if md.playerScores.len() > 1 && m.gameMode == 1 {
-              set! { p1 = &md.playerScores[0]
-                   , p2 = &md.playerScores[1]
-                   , s1 = p1.battleTag.clone()
-                   , s2 = p2.battleTag.clone() };
-              let s3 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
-                  , p1.unitScore.unitsProduced
-                  , p1.unitScore.unitsKilled
-                  , p1.resourceScore.goldCollected
-                  , p1.heroScore.expGained);
-              let s4 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
-                  , p2.unitScore.unitsProduced
-                  , p2.unitScore.unitsKilled
-                  , p2.resourceScore.goldCollected
-                  , p2.heroScore.expGained);
+        if_md = Some(md);
+      }, Err(err) => {
+        warn!("Failed parse by-ongoing-match {:?}", err);
+      }
+    }
+  }
 
-              // To display hero icon / scores we use 1st playa
-              let btag = &playaz[0].battletag;
-              let player_scores =
-                if btag == &s1 {
-                  &md.playerScores[0]
-                } else {
-                  &md.playerScores[1]
-                };
-              let scores = if m.teams[0].players[0].battleTag == s1 {
-                  Some((s1,s2,s3,s4))
-                } else {
-                  Some((s2,s1,s4,s3))
-                };
-              if !player_scores.heroes.is_empty() {
-                maybe_hero_png = Some(get_hero_png(
-                  &player_scores.heroes[0].icon
-                  )
-                );
+  if if_md.is_none() {
+    if let Ok(wtf) = rqcl.get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20")
+                         .send()
+                         .await {
+      if let Ok(going) = wtf.json::<Going>().await {
+        for mm in &going.matches {
+          if mm.match_id == matchid {
+            let url = format!("https://statistic-service.w3champions.com/api/matches/{}", mm.id);
+            if let Ok(res) = rqcl.get(&url).send().await {
+              match res.json::<MD>().await {
+                Ok(md) => {
+                  if_md = Some(md);
+                  break;
+                }, Err(err) => {
+                  error!("Failed parse match/id result {:?}", err);
+                }
               }
-              return Some(FinishedGame
-                { desc: mstr
-                , passed_time: duration_in_minutes
-                , link: address
-                , winners: losers
-                , additional_fields: scores
-                , hero_png: maybe_hero_png
-                });
-            } else if (m.gameMode == 6 || m.gameMode == 2) && md.playerScores.len() > 3 {
-              // Again, to display hero icon / scores we use 1st playa
-              let btag = &playaz[0].battletag;
-              let player_scores =
-                if let Some(scores) = &md.playerScores.iter().find(|s| {
-                  &s.battleTag == btag
-                }) { scores } else { &md.playerScores[0] };
-              if !player_scores.heroes.is_empty() {
-                maybe_hero_png = Some(get_hero_png(
-                  &player_scores.heroes[0].icon
-                  )
-                );
-              }
-              // for 2x2 mode display scores of teammate
-              // or if two or more clan players in then clan players
-              let teammate_scores =
-                if playaz.len() > 1 {
-                  if let Some(scores) = &md.playerScores.iter().find(|s| {
-                    s.battleTag == playaz[1].battletag
-                  }) { scores } else { &md.playerScores[1] }
-                } else if let Some(team) = m.teams.iter().find(|t| {
-                  t.players.iter().any(|p| {
-                      &p.battleTag == btag
-                    })
-                  }) {
-                  if let Some(not_me) = team.players.iter().find(|p| {
-                    &p.battleTag != btag
-                  }) {
-                    if let Some(scores) = &md.playerScores.iter().find(|s| {
-                      s.battleTag == not_me.battleTag
-                    }) {
-                      scores
-                    } else { &md.playerScores[1] }
-                  } else { &md.playerScores[1] }
-                } else { &md.playerScores[1] };
-              set! { s1 = player_scores.battleTag.clone()
-                   , s2 = teammate_scores.battleTag.clone() };
-              let s3 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
-                  , player_scores.unitScore.unitsProduced
-                  , player_scores.unitScore.unitsKilled
-                  , player_scores.resourceScore.goldCollected
-                  , player_scores.heroScore.expGained);
-              let s4 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
-                  , teammate_scores.unitScore.unitsProduced
-                  , teammate_scores.unitScore.unitsKilled
-                  , teammate_scores.resourceScore.goldCollected
-                  , teammate_scores.heroScore.expGained);
-              return Some(FinishedGame
-                { desc: mstr
-                , passed_time: duration_in_minutes
-                , link: address
-                , winners: losers
-                , additional_fields: Some((s1,s2,s3,s4))
-                , hero_png: maybe_hero_png
-                });
             }
-            return Some(FinishedGame
-              { desc: mstr
-              , passed_time: duration_in_minutes
-              , link: address
-              , winners: losers
-              , additional_fields: None
-              , hero_png: maybe_hero_png
-              });
-          }, None => {
-            return None;
           }
         }
-      }, Err(err) => {
-        error!("Failed parse MD {:?}", err);
+      }
+    }
+  }
+
+  if let Some(md) = if_md {
+    let m = md.match_data;
+    let address = format!("https://www.w3champions.com/match/{}", &m.id);
+    let mut losers: Vec<(u64, bool)> = vec![];
+    let mstr_o =
+      if m.gameMode == 1 {
+        set!{ g_map = get_map(&m.map)
+            , race1 = get_race2(m.teams[0].players[0].race)
+            , race2 = get_race2(m.teams[1].players[0].race) };
+        for i in 0..2 {
+          if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.battletag) {
+            let won = m.teams[i].players[0].won;
+            losers.push((playa.discord, won));
+          }
+        }
+        let player1 = if m.teams[0].players[0].won {
+          format!("__**{}**__ **+{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
+        } else {
+          format!("__*{}*__ **{}**", m.teams[0].players[0].name, m.teams[1].players[0].mmrGain)
+        };
+        let player2 = if m.teams[1].players[0].won {
+          format!("__**{}**__ **+{}**", m.teams[1].players[0].name, m.teams[0].players[0].mmrGain)
+        } else {
+          format!("__*{}*__ **{}**", m.teams[1].players[0].name, m.teams[1].players[0].mmrGain)
+        };
+        Some(
+          vec![ format!("({}) {} [{}] *vs* ({}) {} [{}] *{}*",
+                race1, player1, m.teams[0].players[0].oldMmr
+              , race2, player2, m.teams[1].players[0].oldMmr, g_map) ])
+      } else if m.gameMode == 6 || m.gameMode == 2 {
+        let g_map  = get_map(&m.map);
+        for i in 0..2 {
+          for j in 0..2 {
+            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
+              let won = m.teams[i].players[j].won;
+              losers.push((playa.discord, won));
+            }
+          }
+        }
+        let mstr = format!("Map: {}", g_map);
+        let teamx = |x: usize| -> String {
+          if m.gameMode == 6 {
+            if m.teams[x].won {
+              format!("({}) __**{}**__\n({}) __**{}**__\n[{}] **+{}**"
+              , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name
+              , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+            } else {
+              format!("({}) __*{}*__\n({}) __*{}*__\n[{}] *{}*"
+              , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name
+              , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+            }
+          } else if m.teams[x].won {
+            format!("({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**"
+            , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
+            , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+          } else {
+            format!("({}) __*{}*__ [{}] *{}*\n({}) __*{}*__ [{}] *{}*"
+            , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
+            , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+          }
+        };
+        Some( vec![ mstr, teamx(0), teamx(1) ] )
+      } else {
+        None
+      };
+    match mstr_o {
+      Some(mstr) => {
+        let mut maybe_hero_png = None;
+        let duration_in_minutes = m.durationInSeconds / 60;
+        if md.playerScores.len() > 1 && m.gameMode == 1 {
+          set! { p1 = &md.playerScores[0]
+                , p2 = &md.playerScores[1]
+                , s1 = p1.battleTag.clone()
+                , s2 = p2.battleTag.clone() };
+          let s3 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+              , p1.unitScore.unitsProduced
+              , p1.unitScore.unitsKilled
+              , p1.resourceScore.goldCollected
+              , p1.heroScore.expGained);
+          let s4 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+              , p2.unitScore.unitsProduced
+              , p2.unitScore.unitsKilled
+              , p2.resourceScore.goldCollected
+              , p2.heroScore.expGained);
+
+          // To display hero icon / scores we use 1st playa
+          let btag = &playaz[0].battletag;
+          let player_scores =
+            if btag == &s1 {
+              &md.playerScores[0]
+            } else {
+              &md.playerScores[1]
+            };
+          let scores = if m.teams[0].players[0].battleTag == s1 {
+              Some((s1,s2,s3,s4))
+            } else {
+              Some((s2,s1,s4,s3))
+            };
+          if !player_scores.heroes.is_empty() {
+            maybe_hero_png = Some(get_hero_png(
+              &player_scores.heroes[0].icon
+              )
+            );
+          }
+          return Some(FinishedGame
+            { desc: mstr
+            , passed_time: duration_in_minutes
+            , link: address
+            , winners: losers
+            , additional_fields: scores
+            , hero_png: maybe_hero_png
+            });
+        } else if (m.gameMode == 6 || m.gameMode == 2) && md.playerScores.len() > 3 {
+          // Again, to display hero icon / scores we use 1st playa
+          let btag = &playaz[0].battletag;
+          let player_scores =
+            if let Some(scores) = &md.playerScores.iter().find(|s| {
+              &s.battleTag == btag
+            }) { scores } else { &md.playerScores[0] };
+          if !player_scores.heroes.is_empty() {
+            maybe_hero_png = Some(get_hero_png(
+              &player_scores.heroes[0].icon
+              )
+            );
+          }
+          // for 2x2 mode display scores of teammate
+          // or if two or more clan players in then clan players
+          let teammate_scores =
+            if playaz.len() > 1 {
+              if let Some(scores) = &md.playerScores.iter().find(|s| {
+                s.battleTag == playaz[1].battletag
+              }) { scores } else { &md.playerScores[1] }
+            } else if let Some(team) = m.teams.iter().find(|t| {
+              t.players.iter().any(|p| {
+                  &p.battleTag == btag
+                })
+              }) {
+              if let Some(not_me) = team.players.iter().find(|p| {
+                &p.battleTag != btag
+              }) {
+                if let Some(scores) = &md.playerScores.iter().find(|s| {
+                  s.battleTag == not_me.battleTag
+                }) {
+                  scores
+                } else { &md.playerScores[1] }
+              } else { &md.playerScores[1] }
+            } else { &md.playerScores[1] };
+          set! { s1 = player_scores.battleTag.clone()
+                , s2 = teammate_scores.battleTag.clone() };
+          let s3 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+              , player_scores.unitScore.unitsProduced
+              , player_scores.unitScore.unitsKilled
+              , player_scores.resourceScore.goldCollected
+              , player_scores.heroScore.expGained);
+          let s4 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+              , teammate_scores.unitScore.unitsProduced
+              , teammate_scores.unitScore.unitsKilled
+              , teammate_scores.resourceScore.goldCollected
+              , teammate_scores.heroScore.expGained);
+          return Some(FinishedGame
+            { desc: mstr
+            , passed_time: duration_in_minutes
+            , link: address
+            , winners: losers
+            , additional_fields: Some((s1,s2,s3,s4))
+            , hero_png: maybe_hero_png
+            });
+        }
+        return Some(FinishedGame
+          { desc: mstr
+          , passed_time: duration_in_minutes
+          , link: address
+          , winners: losers
+          , additional_fields: None
+          , hero_png: maybe_hero_png
+          });
+      }, None => {
+        return None;
       }
     }
   }

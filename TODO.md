@@ -12,3 +12,5 @@
 - Replace json with rudano (or yaml)
 - Split chain into 3 mods: cache, chain and possibly move general stuff to lib
 - Reactions currently set for one server, need: per server reactions/emoji
+- Cure some copypaste code on bet_fields
+- Team checker: something different for AT on Live

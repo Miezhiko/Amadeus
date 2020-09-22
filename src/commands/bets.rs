@@ -27,7 +27,7 @@ async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> eyre::Result<Me
     let member = msg.guild_id.unwrap().member(
       ctx, UserId(member_id.parse::<u64>().unwrap())).await;
     match member {
-      Ok(m) => Ok(m.to_owned()),
+      Ok(m) => Ok(m),
       Err(why) => Err(eyre!(why))
     }
   } else {
@@ -62,6 +62,10 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         if track.still_live {
           for playa in &track.players {
             if playa.discord == meme.user.id.0 {
+              if track.bets.iter().any(|b| b.member == msg.author.id.0) {
+                channel_message(ctx, msg, "you already have bet on this match").await;
+                return Ok(());
+              }
               let data = ctx.data.read().await;
               if let Some(core_guilds) = data.get::<CoreGuilds>() {
                 let amadeus = core_guilds.get(&CoreGuild::Amadeus).unwrap();
@@ -77,19 +81,20 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                   if let Err(why) = msg.delete(&ctx).await {
                     error!("Error deleting original command {:?}", why);
                   }
-                  let out = format!("bet **{}** on **{}**", points_count, meme.user.name);
+                  let out = format!("bets **{}** on **{}**", points_count, meme.user.name);
                   let nickname_maybe =
                     if let Some(guild_id) = msg.guild_id {
                       msg.author.nick_in(&ctx, &guild_id).await
                     } else { None };
                   let nick = nickname_maybe.unwrap_or_else(|| msg.author.name.clone());
+                  // not really sure if there should be response on bet
                   if let Err(why) = msg.channel_id.send_message(ctx, |m| m
                     .embed(|e| e
                     .description(&out)
-                    .color(0xed9e2f)
+                    .color(0xed3e7f)
                     .author(|a| a.icon_url(&msg.author.face()).name(&nick))
                   )).await {
-                    error!("Failed to post give {:?}", why);
+                    error!("Failed to post bet {:?}", why);
                   }
                 } else {
                   channel_message(ctx, msg, &rst).await;

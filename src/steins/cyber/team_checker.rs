@@ -266,13 +266,31 @@ pub async fn check<'a>( ctx: &Context
                       if !msg.embeds.is_empty() {
                         if !msg.embeds[0].fields.is_empty() {
                           for f in msg.embeds[0].fields.clone() {
-                            fields.push((f.name, f.value, f.inline));
+                            if f.name != "Bets" {
+                              fields.push((f.name, f.value, f.inline));
+                            }
                           }
                         }
                         img = msg.embeds[0].image.clone();
                         url = msg.embeds[0].url.clone();
                         color = msg.embeds[0].colour.tuple();
                       };
+
+                      let mut bet_fields = None;
+                      if !track.bets.is_empty() {
+                        let mut output = vec![];
+                        for bet in &track.bets {
+                          let user_id = UserId( bet.member );
+                          if let Ok(user) = user_id.to_user(&ctx).await {
+                            output.push(
+                              format!("**{}**: {}", user.name, bet.points)
+                            );
+                          }
+                        }
+                        bet_fields = Some(vec![("Bets".to_string()
+                                              , output.join("\n")
+                                              , false)]);
+                      }
 
                       if let Err(why) = msg.edit(ctx, |m| m
                         .embed(|e|  {
@@ -284,6 +302,9 @@ pub async fn check<'a>( ctx: &Context
                             .footer(|f| f.text(footer));
                           if !fields.is_empty() {
                             e = e.fields(fields);
+                          }
+                          if let Some(bet_data) = bet_fields {
+                            e = e.fields(bet_data);
                           }
                           if let Some(some_img) = img {
                             e = e.image(some_img.url);
@@ -350,13 +371,31 @@ pub async fn check<'a>( ctx: &Context
                       if !msg.embeds.is_empty() {
                         if !msg.embeds[0].fields.is_empty() {
                           for f in msg.embeds[0].fields.clone() {
-                            fields.push((f.name, f.value, f.inline));
+                            if f.name != "Bets" {
+                              fields.push((f.name, f.value, f.inline));
+                            }
                           }
                         }
                         img = msg.embeds[0].image.clone();
                         url = msg.embeds[0].url.clone();
                         color = msg.embeds[0].colour.tuple();
                       };
+
+                      let mut bet_fields = None;
+                      if !track.bets.is_empty() {
+                        let mut output = vec![];
+                        for bet in &track.bets {
+                          let user_id = UserId( bet.member );
+                          if let Ok(user) = user_id.to_user(&ctx).await {
+                            output.push(
+                              format!("**{}**: {}", user.name, bet.points)
+                            );
+                          }
+                        }
+                        bet_fields = Some(vec![("Bets".to_string()
+                                              , output.join("\n")
+                                              , false)]);
+                      }
 
                       if let Err(why) = msg.edit(ctx, |m| m
                         .embed(|e| {
@@ -368,6 +407,9 @@ pub async fn check<'a>( ctx: &Context
                             .footer(|f| f.text(footer));
                           if !fields.is_empty() {
                             e = e.fields(fields);
+                          }
+                          if let Some(bet_data) = bet_fields {
+                            e = e.fields(bet_data);
                           }
                           if let Some(some_img) = img {
                             e = e.image(some_img.url);
@@ -409,7 +451,9 @@ pub async fn check<'a>( ctx: &Context
                   if !msg.embeds.is_empty() {
                     if !msg.embeds[0].fields.is_empty() {
                       for f in msg.embeds[0].fields.clone() {
-                        if f.name != "Team 1" && f.name != "Team 2" {
+                        if f.name != "Team 1"
+                        && f.name != "Team 2"
+                        && f.name != "Bets" {
                           old_fields.push((f.name, f.value, f.inline));
                         }
                       }
@@ -453,14 +497,14 @@ pub async fn check<'a>( ctx: &Context
                               for bet in &track.bets {
                                 let best_win = (bet.points as f32 * k).round() as u64;
                                 win_calculation.insert(bet.member, best_win);
-                                waste = waste + best_win;
+                                waste += best_win;
                               }
                               while waste > p {
-                                k = k - 0.1;
+                                k -= 0.1;
                                 waste = 0;
                                 for (_, wpp) in win_calculation.iter_mut() {
                                   *wpp = (*wpp as f32 * k).round() as u64;
-                                  waste = waste + *wpp;
+                                  waste += *wpp;
                                 }
                               }
                               let mut output = vec![];

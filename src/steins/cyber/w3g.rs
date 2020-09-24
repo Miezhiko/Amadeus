@@ -58,7 +58,15 @@ fn prettify_analyze_js(j: &str) -> eyre::Result<(String, Vec<(String, Vec<String
         p = name.as_str().unwrap().to_string();
       }
       if let Some(race) = playa.pointer("/race") {
-        s = format!("**race**: {}\n", race.as_str().unwrap());
+        let race_pretty = match race.as_str().unwrap() {
+          "N" => "Night Elf",
+          "H" => "Human",
+          "O" => "Orc",
+          "U" => "Undead",
+          "R" => "Reptile",
+          _   => "Dog"
+        };
+        s = format!("**race**: {}\n", race_pretty);
       }
       if let Some(apm) = playa.pointer("/apm") {
         s = format!("{}**apm**: {}", s, apm.as_u64().unwrap());

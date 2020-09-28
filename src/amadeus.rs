@@ -46,7 +46,9 @@ use argparse::{
   action::{IFlagAction, ParseResult}
 };
 
-use env_logger::Env;
+use tracing::{ Level, instrument };
+use tracing_subscriber::FmtSubscriber;
+use tracing_log::LogTracer;
 
 use std::collections::{ HashSet, HashMap };
 use std::sync::Arc;
@@ -290,6 +292,7 @@ to execute commands use `~<command>` or `@Amadeus <command>`, replace `<thing>` 
   Ok(())
 }
 
+#[instrument]
 pub async fn run(opts : &IOptions) ->
   eyre::Result<(), Box<dyn std::error::Error + Send + Sync>> {
   { // this block limits scope of borrows by ap.refer() method
@@ -300,11 +303,11 @@ pub async fn run(opts : &IOptions) ->
     ap.parse_args_or_exit();
   }
 
-  let env = Env::default()
-    .filter_or("MY_LOG_LEVEL", "info")
-    .write_style_or("MY_LOG_STYLE", "always");
-
-  env_logger::init_from_env(env);
+  LogTracer::init()?;
+  let subscriber = FmtSubscriber::builder()
+    .with_max_level(Level::INFO)
+    .finish();
+  tracing::subscriber::set_global_default(subscriber)?;
 
   info!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
 

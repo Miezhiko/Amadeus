@@ -1,9 +1,9 @@
-#![type_length_limit="1463554"]
+#![type_length_limit="2792949"]
 
 #[macro_use] extern crate serde;
 #[macro_use] extern crate lazy_static;
-#[macro_use] extern crate log;
 #[macro_use] extern crate eyre;
+#[macro_use] extern crate tracing;
 #[macro_use] mod macros;
 
 mod types;

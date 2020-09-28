@@ -1,6 +1,6 @@
 use crate::types::common::IServer;
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct IOptions {
   pub discord: String,
   pub guild: u64,

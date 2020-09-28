@@ -16,7 +16,7 @@ pub struct LChannel {
   pub lang: ChannelLanguage,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Deserialize, Debug)]
 pub enum CoreGuild {
   Safe,
   Unsafe,
@@ -25,7 +25,7 @@ pub enum CoreGuild {
   Amadeus
 }
 
-#[derive(Clone, Copy, Deserialize)]
+#[derive(Clone, Copy, Deserialize, Debug)]
 pub struct IServer {
   pub id: u64,
   pub kind: CoreGuild

@@ -78,7 +78,7 @@ async fn admin_check( ctx: &Context
                     , msg: &Message
                     , _: &mut Args
                     , _: &CommandOptions ) -> CheckResult {
-  if let Some(member) = msg.member(&ctx.cache).await {
+  if let Ok(member) = msg.member(ctx).await {
     if let Ok(permissions) = member.permissions(&ctx.cache).await {
       return permissions.administrator().into();
     }
@@ -157,9 +157,6 @@ async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
       };
       // Send the message, but supress any errors that may occur.
       let _ = msg.channel_id.say(ctx, s).await;
-    },
-    DispatchError::IgnoredBot {} => {
-        return;
     },
     DispatchError::CheckFailed(_, reason) => {
       if let Reason::User(r) = reason {

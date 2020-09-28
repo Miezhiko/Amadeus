@@ -34,8 +34,11 @@ pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(3);
 static ONGOING_PAGE_SIZE: usize = 15;
 
 pub async fn update_current_season(ctx: &Context) {
-  set!{ data = ctx.data.read().await
-      , rqcl = data.get::<ReqwestClient>().unwrap() };
+  let rqcl = {
+    set!{ data = ctx.data.read().await
+        , rqcl = data.get::<ReqwestClient>().unwrap() };
+    rqcl.clone()
+  };
   if let Ok(res) = rqcl.get("https://statistic-service.w3champions.com/api/ladder/seasons")
                        .send()
                        .await {
@@ -59,8 +62,11 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  set!{ data = ctx.data.read().await
-      , rqcl = data.get::<ReqwestClient>().unwrap() };
+  let rqcl = {
+    set!{ data = ctx.data.read().await
+        , rqcl = data.get::<ReqwestClient>().unwrap() };
+    rqcl.clone()
+  };
   let url = "https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&gameMode=1";
   let res = rqcl.get(url).send().await?;
   let going : Going = res.json().await?;
@@ -140,8 +146,11 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   if args_msg.is_empty() {
     args_msg = &msg.author.name;
   }
-  set!{ data = ctx.data.read().await
-      , rqcl = data.get::<ReqwestClient>().unwrap() };
+  let rqcl = {
+    set!{ data = ctx.data.read().await
+        , rqcl = data.get::<ReqwestClient>().unwrap() };
+    rqcl.clone()
+  };
   let season = current_season();
   let mut gateway = "20"; // Europe by default
   let userx = if args_msg.contains('#') { String::from(args_msg) }

@@ -34,13 +34,16 @@ struct Media {
 async fn fetch_gifs(ctx: &Context, search: &str, amount: u32, filter: &str)
         -> Result<Vec<GifResult>, Box<dyn std::error::Error + Send + Sync>> {
 
-  set!{ data            = ctx.data.read().await
-      , reqwest_client  = data.get::<ReqwestClient>().unwrap()
-      , tenor_key       = data.get::<PubCreds>().unwrap().get("tenor").unwrap().as_str() };
+  let (reqwest_client, tenor_key) = {
+    set!{ data            = ctx.data.read().await
+        , reqwest_client  = data.get::<ReqwestClient>().unwrap().clone()
+        , tenor_key       = data.get::<PubCreds>().unwrap().get("tenor").unwrap().as_str().to_string() };
+    (reqwest_client, tenor_key)
+  };
 
   let url = Url::parse_with_params("https://api.tenor.com/v1/search",
             &[ ("q", search)
-             , ("key", tenor_key)
+             , ("key", &tenor_key)
              , ("limit", &format!("{}", amount))
              , ("contentfilter", filter)
              ])?;

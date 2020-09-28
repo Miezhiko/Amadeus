@@ -517,49 +517,54 @@ pub async fn check<'a>( ctx: &Context
                       }
                       if !track.bets.is_empty() && bet_fields.is_none() {
                         trace!("Paying for bets");
-                        let data = ctx.data.read().await;
-                        if let Some(core_guilds) = data.get::<CoreGuilds>() {
-                          if let Some(amadeus) = core_guilds.get(&CoreGuild::Amadeus) {
-                            if let Ok(p) = trees::get_points( guild_id, *amadeus ).await {
-                              let mut win_calculation = HashMap::new();
-                              let mut waste = 0;
-                              let mut k : f32 = 2.0;
-                              for bet in &track.bets {
-                                let best_win = (bet.points as f32 * k).round() as u64;
-                                win_calculation.insert(bet.member, best_win);
-                                waste += best_win;
-                              }
-                              while waste > p {
-                                k -= 0.1;
-                                waste = 0;
-                                for (_, wpp) in win_calculation.iter_mut() {
-                                  *wpp = (*wpp as f32 * k).round() as u64;
-                                  waste += *wpp;
-                                }
-                              }
-                              let mut output = vec![];
-                              for (mpp, wpp) in win_calculation.iter() {
-                                let (succ, rst) =
-                                  trees::give_points( guild_id
-                                                    , *amadeus
-                                                    , *mpp
-                                                    , *wpp ).await;
-                                if !succ {
-                                  error!("failed to give bet win points: {}", rst);
-                                } else {
-                                  let user_id = UserId( *mpp );
-                                  if let Ok(user) = user_id.to_user(&ctx).await {
-                                    output.push(
-                                      format!("**{}** wins **{}**", user.name, *wpp)
-                                    );
-                                  }
-                                }
-                              }
-                              let title = format!("Bets coefficient: {}", k);
-                              bet_fields = Some(vec![(title
-                                                    , output.join("\n")
-                                                    , false)]);
+                        let amadeus_maybe = {
+                          let data = ctx.data.read().await;
+                          if let Some(core_guilds) = data.get::<CoreGuilds>() {
+                            if let Some(amadeus) = core_guilds.get(&CoreGuild::Amadeus) {
+                              Some(*amadeus)
+                            } else { None }
+                          } else { None }
+                        };
+                        if let Some(amadeus) = amadeus_maybe {
+                          if let Ok(p) = trees::get_points( guild_id, amadeus ).await {
+                            let mut win_calculation = HashMap::new();
+                            let mut waste = 0;
+                            let mut k : f32 = 2.0;
+                            for bet in &track.bets {
+                              let best_win = (bet.points as f32 * k).round() as u64;
+                              win_calculation.insert(bet.member, best_win);
+                              waste += best_win;
                             }
+                            while waste > p {
+                              k -= 0.1;
+                              waste = 0;
+                              for (_, wpp) in win_calculation.iter_mut() {
+                                *wpp = (*wpp as f32 * k).round() as u64;
+                                waste += *wpp;
+                              }
+                            }
+                            let mut output = vec![];
+                            for (mpp, wpp) in win_calculation.iter() {
+                              let (succ, rst) =
+                                trees::give_points( guild_id
+                                                  , amadeus
+                                                  , *mpp
+                                                  , *wpp ).await;
+                              if !succ {
+                                error!("failed to give bet win points: {}", rst);
+                              } else {
+                                let user_id = UserId( *mpp );
+                                if let Ok(user) = user_id.to_user(&ctx).await {
+                                  output.push(
+                                    format!("**{}** wins **{}**", user.name, *wpp)
+                                  );
+                                }
+                              }
+                            }
+                            let title = format!("Bets coefficient: {}", k);
+                            bet_fields = Some(vec![(title
+                                                  , output.join("\n")
+                                                  , false)]);
                           }
                         }
                       }

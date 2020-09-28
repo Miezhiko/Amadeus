@@ -177,10 +177,12 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-
-  set!{ term            = args.message()
-      , data            = ctx.data.read().await
-      , reqwest_client  = data.get::<ReqwestClient>().unwrap() };
+  let term = args.message();
+  let reqwest_client = {
+    set!{ data            = ctx.data.read().await
+        , reqwest_client  = data.get::<ReqwestClient>().unwrap() };
+    reqwest_client.clone()
+  };
 
   let url = reqwest::Url::parse_with_params
     ("http://api.urbandictionary.com/v0/define", &[("term", term)])?;

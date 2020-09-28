@@ -394,7 +394,7 @@ impl EventHandler for Handler {
             }
           }
           let is_admin =
-            if let Some(member) = msg.member(&ctx.cache).await {
+            if let Ok(member) = msg.member(&ctx).await {
               if let Ok(permissions) = member.permissions(&ctx.cache).await {
                 permissions.administrator()
               } else { false }
@@ -420,7 +420,7 @@ impl EventHandler for Handler {
                     ctx.set_activity(Activity::playing(&replaced)).await;
                   }
                 } else {
-                  ctx.set_activity(Activity::playing(&activity)).await;
+                  ctx.set_activity(Activity::competing(&activity)).await;
                 }
                 ctx.idle().await;
               }

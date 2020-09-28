@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.20.5"
+version     = "2.20.6"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -15,7 +15,7 @@ w3g_rs      = ["w3grs"]
 
 [dependencies]
 rand          = "0.7.3"
-chrono        = "0.4.15"
+chrono        = "0.4.18"
 argparse      = "0.2.2"
 log           = "0.4.11"
 env_logger    = "0.7.1"
@@ -47,7 +47,7 @@ markov    = { version = "1.1.0",  features = ["yaml"] }
 
 [dependencies.serenity]
 default-features = false
-version = "0.9.0-rc.1"
+version = "0.9.0-rc.2"
 features = [ "cache"
            , "builder"
            , "model"

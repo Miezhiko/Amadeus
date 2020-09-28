@@ -66,15 +66,22 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                 channel_message(ctx, msg, "you already have bet on this match").await;
                 return Ok(());
               }
-              let data = ctx.data.read().await;
-              if let Some(core_guilds) = data.get::<CoreGuilds>() {
-                let amadeus = core_guilds.get(&CoreGuild::Amadeus).unwrap();
+              let mut amadeus_guild = None;
+              { // trying to hold ctx data for minimum time
+                let data = ctx.data.read().await;
+                if let Some(core_guilds) = data.get::<CoreGuilds>() {
+                  if let Some(amadeus) = core_guilds.get(&CoreGuild::Amadeus) {
+                    amadeus_guild = Some(*amadeus);
+                  }
+                }
+              }
+              if let Some(amadeus) = amadeus_guild {
                 let bet = Bet { guild: guild_id.0
                               , member: msg.author.id.0
                               , points: points_count };
                 let (succ, rst) = trees::give_points( guild_id.0
                                                     , msg.author.id.0
-                                                    , *amadeus
+                                                    , amadeus
                                                     , points_count ).await;
                 if succ {
                   track.bets.push(bet);

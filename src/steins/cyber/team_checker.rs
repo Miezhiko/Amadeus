@@ -43,6 +43,7 @@ async fn check_match( matchid: &str
     }
   }
 
+  // fallback mode when by-ongoing-match-id fails
   if if_md.is_none() {
     if let Ok(wtf) = rqcl.get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20")
                          .send()

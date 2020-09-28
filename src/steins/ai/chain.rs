@@ -15,7 +15,7 @@ use crate::{
 
 use serenity::{
   prelude::*,
-  model::{ channel::{ Message }
+  model::{ channel::Message
          , id::{ GuildId, UserId, ChannelId }
          , channel::GuildChannel
          , gateway::Activity },
@@ -28,9 +28,7 @@ use async_std::fs;
 use regex::Regex;
 use markov::Chain;
 
-use rand::{
-  Rng
-};
+use rand::Rng;
 
 use std::collections::HashMap;
 use std::sync::atomic::AtomicU32;
@@ -262,19 +260,12 @@ pub async fn clear_cache() {
   if fs::metadata(CACHE_RU_YML).await.is_ok() {
     let _ = fs::remove_file(CACHE_RU_YML).await;
   }
-  if let Ok(mut csvs) = fs::read_dir("csv").await {
-    while let Some(entry_mb) = csvs.next().await {
-      if let Ok(entry) = entry_mb {
-        if let Some(fname) = entry.file_name().to_str() {
-          let file_path = format!("csv/{}", &fname);
-          let _ = fs::remove_file(file_path).await;
-        }
-      }
-    }
+  if fs::metadata(CACHE_CSV).await.is_ok() {
+    let _ = fs::remove_file(CACHE_CSV).await;
   }
   // Finally clear ZTREE
-  if fs::metadata("ztree.lusf").await.is_ok() {
-    let _ = fs::remove_file("ztree.lusf").await;
+  if fs::metadata("trees/ztree.lusf").await.is_ok() {
+    let _ = fs::remove_file("trees/ztree.lusf").await;
   }
 }
 

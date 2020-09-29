@@ -35,6 +35,8 @@ use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use tokio::sync::{ Mutex, MutexGuard };
 
+use async_recursion::async_recursion;
+
 static CACHE_ENG_YML: &str = "cache/cache_eng.yml";
 static CACHE_RU_YML: &str = "cache/cache_ru.yml";
 static CACHE_CSV: &str = "cache/cache.csv";
@@ -342,12 +344,6 @@ pub async fn generate_with_language(ctx: &Context, russian: bool) -> String {
   chain.generate_str()
 }
 
-#[allow(dead_code)]
-pub async fn generate_english_or_russian(ctx: &Context) -> String {
-  let rndx = rand::thread_rng().gen_range(0, 2);
-  generate_with_language(&ctx, rndx != 1).await
-}
-
 pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> String {
   let msg_content = &msg.content;
   let russian = if let Some(rus) = mbrussian
@@ -397,38 +393,7 @@ pub fn obfuscate(msg_content: &str) -> String {
   }
 }
 
-pub async fn response(ctx: &Context, msg: &Message) {
-  set!{ msg_content = &msg.content
-      , russian = lang::is_russian(msg_content) };
-  let rndx : u32 = rand::thread_rng().gen_range(0, 15);
-  if rndx == 1 {
-    let answer = generate(&ctx, &msg, Some(russian)).await;
-    if !answer.is_empty() {
-      reply(&ctx, &msg, &answer).await;
-    }
-  } else {
-    let text = if russian {
-      if let Ok(translated) = bert::ru2en(String::from(msg_content)).await {
-        translated
-      } else { String::from(msg_content) }
-      } else { String::from(msg_content) };
-    let mut response =
-      if msg_content.ends_with('?') {
-        if let Ok(answer) = bert::ask(text).await {
-          answer
-        } else { String::new() }
-      } else if let Ok(answer) = bert::chat(text, msg.author.id.0).await {
-        answer
-      } else { String::new() };
-    if russian {
-      if let Ok(translated) = bert::en2ru(response.clone()).await {
-        response = translated
-      }
-    }
-    reply(&ctx, &msg, &response).await;
-  }
-}
-
+#[async_recursion]
 async fn generate_response(ctx: &Context, msg: &Message) -> String {
   let russian = lang::is_russian(&msg.content);
   let rndx : u32 = rand::thread_rng().gen_range(0, 9);
@@ -461,7 +426,11 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
       answer = translated;
     }
   }
-  answer
+  if answer.as_str().trim().is_empty() {
+    generate_response(ctx, msg).await
+  } else {
+    answer
+  }
 }
 
 pub async fn chat(ctx: &Context, msg: &Message) {
@@ -476,10 +445,9 @@ pub async fn chat(ctx: &Context, msg: &Message) {
   }
 }
 
-#[allow(dead_code)]
-pub async fn chat_to_channel(ctx: &Context, msg: &Message) {
+pub async fn response(ctx: &Context, msg: &Message) {
   let answer = generate_response(ctx, msg).await;
   if !answer.is_empty() {
-    channel_message(&ctx, &msg, &answer).await;
+    reply(&ctx, &msg, &answer).await;
   }
 }

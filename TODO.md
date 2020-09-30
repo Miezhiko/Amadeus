@@ -5,8 +5,7 @@
 - Service logs (alike `journalctl --since today -u Amadeus`)
 - Maybe Lavalink for music instead of https://github.com/ytdl-org/youtube-dl
 - Maybe generate help strings by list of structures like {cmdname, helptext, ...}
-- Check for ngram generators
-- Refactor help really, use fluent https://github.com/entropic-dev/dstopic/pull/2/files
+- Check for ngram generators?
 - Server based settings for regions on W3C (EU/NA/Both)
 - Refactor lsuf module (points), put files on subfolder
 - Replace json with rudano (or yaml)
@@ -16,3 +15,4 @@
 - Team checker: something different for AT on Live
 - Ability to attach replays to #log games maybe
 - Saving cache is not working properly (feels so) and I don't know why
+

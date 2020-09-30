@@ -1,5 +1,6 @@
 use crate::{
   types::common::ReqwestClient,
+  common::i18n::{ help_i18n, RU },
   steins::gate::behavior::START_TIME
 };
 
@@ -55,57 +56,8 @@ async fn version(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[aliases(помощь)]
-// TODO: move to help with .lang for translation
 async fn help_ru(ctx: &Context, msg: &Message) -> CommandResult {
-  let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
-  if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
-    .embed(|e| e
-      .title("Амадеус")
-      .url("https://github.com/Qeenon/Amadeus")
-      .image(
-"https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
-      .thumbnail(
-"https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
-      .description(
-"__**Система хранения памяти и искусственного интеллекта**__
-Используйте `~<команда>` или `@Amadeus <команда>`, замените `<параметр>` на своё сообщение без `< >`, оно нужно для доп. параметров (Вместо «<параметр>» может быть другое)")
-      .fields(vec![
-        ("Возраст", "18", true),
-        ("День рождения", "July 25th", true),
-        ("Группа крови", "A", true)
-        ])
-      .fields(vec![
-        ("Рост", "160 cm", true),
-        ("Вес", "45 kg", true),
-        ("Версия", &version, true)
-        ])
-      .field("Пользовательские команды",
-"• **Крестики_нолики** *<@пользователь>* *<N>*: Игра - камень, ножницы, бумага на очки
-• **Цитата** *<@пользователь>*: Случайная цитата *пользователя*
-• **Счёт** *<@пользователь>*: Посмотреть счёт *пользователя*
-• **top** *<N>*: Топ 10 *пользователей* по очкам
-• **give** *<@пользователь>* *<N>*: Дать *пользователю* *N*(ое) - количество очков
-• **embed** *<Заголовок>* *<Описание>*: Создание выделенного сообщения
-• **qrcode** *<Сообщение>*: Создание QR кода
-• **urban** *<Термин>*: Опеределение термина взятого из «urban»
-• **gif** *<параметр>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy, annoyed, omg, smile, ew, awkward, oops, lazy, hungry, stressed, scared, bored, yes, no, bye, sorry, sleepy, wink, facepalm, whatever, pout, smug
-• **ru2en** *<text>*: переводчик, также **en2ru** **en2de** **en2fr** **de2en** **fr2en**"
-, false)
-      .field("Музыкальные команды",
-"• **join**: Подключение к каналу (в котором вы находитесь)
-• **leave**: Выход из канала
-• **play** *<url>*: Включить радиопоток или музыку на YouTube
-• **repeat**: повтор последней *url*", false)
-      .field("Warcraft команды",
-"• **Сегодня**: Показать турниры сегодня (Тоже самое для **Завтра**, **Вчера** или **Weekends**)
-• **Статистика** *<Никнейм>*: Показывает статистику ладдера (Никнейм - battle tag или tag но без номера)(Без этого будет использовать имя дискорда)
-• **ongoing**: Матчи которые идут прямо сейчас в под ладдере
-• **lineup** *<title> | карта игроков карта2 игрок2+игрок3* (Название не обезательно)", false)
-      .footer(|f| f.text(
-"Как обьяснила Хияджо Махо, возможности Амадеуса по хранению данных в памяти позволяет создать резервную копию воспоминаний человека. Это может быть полезно, например, для борьбы с потерей памяти"))
-      .colour((246, 111, 0)))).await {
-    error!("Error sending help message: {:?}", why);
-  }
+  help_i18n(ctx, msg, &RU).await;
   Ok(())
 }
 

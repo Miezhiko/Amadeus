@@ -50,6 +50,7 @@
  - plays music streams!
  - [Dhall](https://dhall-lang.org) and [rudano](https://github.com/pheki/rudano) config files
  - stream notifications/trackers for twitch and goodgame.ru
+ - using [Fluent](https://www.projectfluent.org/) for localization
 
 ## Cooking
 

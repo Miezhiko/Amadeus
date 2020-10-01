@@ -17,7 +17,6 @@ let channels : List Channel =
   , bi "dating"
   , bi "warcraft"
   , bi "team-chat"
-  , bi "division-1"
   , bi "division-2"
   , bi "🌈climatestrike"
   , bi "🇯🇵日本語"

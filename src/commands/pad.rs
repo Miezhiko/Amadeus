@@ -142,6 +142,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
 #[aliases(статистика)]
 #[description("display statistics on W3Champions")]
 async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
+  let start_typing = ctx.http.start_typing(msg.channel_id.0);
   let mut args_msg = args.message();
   if args_msg.is_empty() {
     args_msg = &msg.author.name;
@@ -407,6 +408,9 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   }
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
+  }
+  if let Ok(typing) = start_typing {
+    typing.stop();
   }
   Ok(())
 }

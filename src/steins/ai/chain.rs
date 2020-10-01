@@ -277,6 +277,7 @@ pub async fn actualize_cache(ctx: &Context) {
 }
 
 pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Option<String> {
+  let start_typing = ctx.http.start_typing(msg.channel_id.0);
   let mut have_something = false;
   if let Some(guild_id) = msg.guild_id {
     let mut chain = Chain::new();
@@ -310,8 +311,14 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
       }
     }
     if have_something {
+      if let Ok(typing) = start_typing {
+        typing.stop();
+      }
       return Some(chain.generate_str());
     }
+  }
+  if let Ok(typing) = start_typing {
+    typing.stop();
   }
   None
 }
@@ -378,6 +385,7 @@ pub fn obfuscate(msg_content: &str) -> String {
 
 #[async_recursion]
 async fn generate_response(ctx: &Context, msg: &Message) -> String {
+  let start_typing = ctx.http.start_typing(msg.channel_id.0);
   let russian = lang::is_russian(&msg.content);
   let rndx : u32 = rand::thread_rng().gen_range(0, 9);
   let mut bert_generated = false;
@@ -408,6 +416,9 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
     if let Ok(translated) = bert::en2ru(answer.clone()).await {
       answer = translated;
     }
+  }
+  if let Ok(typing) = start_typing {
+    typing.stop();
   }
   if answer.as_str().trim().is_empty() {
     generate_response(ctx, msg).await

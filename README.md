@@ -41,6 +41,7 @@
  - transfer learning using chats context
  - automatic translation with bert models
  - live games tracking on [w3champions](https://www.w3champions.com)
+ - bets on live games with `~bet` command
  - warcraft 3 commands `~stats`, `~today` and more
  - w3info news tracking using calendar
  - replays parsing (click emoji to get report)

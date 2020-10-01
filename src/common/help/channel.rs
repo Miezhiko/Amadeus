@@ -8,7 +8,7 @@ use serenity::{
 
 use std::collections::HashMap;
 
-use futures_util::stream::{self, StreamExt};
+use futures_util::stream::{ self, StreamExt };
 
 pub async fn channel_by_name<'a>( ctx: &Context
                                 , channels: &'a HashMap<ChannelId, GuildChannel>

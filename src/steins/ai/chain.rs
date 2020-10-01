@@ -116,14 +116,14 @@ pub async fn update_cache( ctx: &Context
   }
 
   let mut ru_messages_for_translation : Vec<String> = vec![];
-  let re1 = Regex::new(r"<(.*?)>").unwrap();
-  let re2 = Regex::new(r":(.*?):").unwrap();
-  let re3 = Regex::new(r"&(.*?);").unwrap();
+  set! { re1 = Regex::new(r"<(.*?)>").unwrap()
+       , re2 = Regex::new(r":(.*?):").unwrap()
+       , re3 = Regex::new(r"&(.*?);").unwrap() };
 
   let m_count = CHANNEL_CACHE_MAX * AI_LEARN.len() as u64;
   let progress_step = m_count / 5;
-  let mut m_progress: u64 = 0;
-  let mut i_progress: u64 = 0;
+  let mut m_progress: u64 = 0; // progress for all channels
+  let mut i_progress: u64 = 0; // progress for single channel
 
   for chan in channels.keys() {
     if let Some(c_name) = chan.name(&ctx).await {

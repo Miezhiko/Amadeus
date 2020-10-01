@@ -39,7 +39,7 @@ use async_recursion::async_recursion;
 
 static CACHE_ENG_YML: &str = "cache/cache_eng.yml";
 static CACHE_RU_YML: &str = "cache/cache_ru.yml";
-static CACHE_CSV: &str = "cache/cache.csv";
+static CACHE_RDN: &str = "cache/cache.rs";
 
 // WILL NOT WORK WITH ANYTHING MORE THAN 200
 // NO IDEA WHY...
@@ -90,22 +90,10 @@ pub async fn update_cache( ctx: &Context
   }
 
   if cache_eng_str.is_empty() {
-    if fs::metadata(CACHE_CSV).await.is_ok() {
-      match csv::ReaderBuilder::new()
-                .flexible(true)
-                .double_quote(false)
-                .delimiter(b'\t')
-                .from_path(&CACHE_CSV) {
-        Ok(mut rdr) => {
-          info!("restoring cahce from csv");
-          for result in rdr.records() {
-            if let Ok(strx) = result {
-              cache_eng_str.push(
-                strx.as_slice().to_string());
-            }
-          }
-        }, Err(err) => {
-          error!("Failed to parse cache csv {:?}", err);
+    if let Ok(contents) = fs::read_to_string(CACHE_RDN).await {
+      if let Ok(rdn) = rudano::from_str::<Vec<String>>(&contents) {
+        for res in rdn {
+          cache_eng_str.push(res);
         }
       }
     } else {
@@ -214,17 +202,12 @@ pub async fn update_cache( ctx: &Context
   let _ = cache_eng.save(CACHE_ENG_YML);
   let _ = cache_ru.save(CACHE_RU_YML);
 
-  if let Ok(mut wtr) = csv::WriterBuilder::new()
-                          .flexible(true)
-                          .double_quote(false)
-                          .delimiter(b'\t')
-                          .from_path(&CACHE_CSV) {
-    if let Err(what) = wtr.serialize(cache_eng_str.clone()) {
-      error!("CSV dump failed: {:?}", what);
+  if let Ok(rdn) = rudano::to_string_compact(&cache_eng_str.clone()) {
+    if let Err(why) = fs::write(CACHE_RDN, rdn).await {
+      error!("failed save rudano cache {:?}", why);
     }
-    if let Err(what) = wtr.flush() {
-      error!("Failed to flush CSV file {:?}", what);
-    }
+  } else {
+    error!("failed to serialize cache to rudano");
   }
 
   if !ru_messages_for_translation.is_empty() {
@@ -262,8 +245,8 @@ pub async fn clear_cache() {
   if fs::metadata(CACHE_RU_YML).await.is_ok() {
     let _ = fs::remove_file(CACHE_RU_YML).await;
   }
-  if fs::metadata(CACHE_CSV).await.is_ok() {
-    let _ = fs::remove_file(CACHE_CSV).await;
+  if fs::metadata(CACHE_RDN).await.is_ok() {
+    let _ = fs::remove_file(CACHE_RDN).await;
   }
   // Finally clear ZTREE
   if fs::metadata("trees/ztree.lusf").await.is_ok() {

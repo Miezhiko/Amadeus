@@ -14,4 +14,3 @@
 - Cure some copypaste code on bet_fields
 - Team checker: something different for AT on Live
 - Ability to attach replays to #log games maybe
-- Saving cache is not working properly (feels so) and I don't know why

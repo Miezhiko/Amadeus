@@ -71,6 +71,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
                               , target: GType
                               , nsfw: bool
                               ) -> CommandResult {
+  let start_typing = ctx.http.start_typing(msg.channel_id.0);
   if match target {
     GType::Target(_) => !(msg.mentions.is_empty() || (!msg.mentions.is_empty() && msg.mentions[0].bot)),
     GType::Own(_) => true,
@@ -124,6 +125,9 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
     }
   } else {
     msg.channel_id.say(ctx, "Please mention a person!").await?;
+  }
+  if let Ok(typing) = start_typing {
+    typing.stop();
   }
   Ok(())
 }

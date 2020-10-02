@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.21.5"
+version     = "2.21.6"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -36,7 +36,7 @@ cannyls             = "0.10.0"
 bincode             = "1.3.1"
 itertools           = "0.9.0"
 uuid                = "0.8.1"
-tch                 = "0.2.0"
+tch                 = "0.2.1"
 plotters            = "0.3.0"
 rust-bert           = "0.9.0"
 rudano              = "0.1.0"
@@ -51,7 +51,6 @@ markov    = { version = "1.1.0",  features = ["yaml"] }
 
 [dependencies.serenity]
 default-features = false
-#version = "0.9.0-rc.2"
 git = "https://github.com/Qeenon/serenity.git"
 branch = "mawa"
 features = [ "cache"

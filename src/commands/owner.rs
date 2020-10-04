@@ -138,6 +138,7 @@ async fn update_cache(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 #[owners_only]
 async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
+  let start_typing = ctx.http.start_typing(msg.channel_id.0);
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {:?}", why);
   }
@@ -230,6 +231,9 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
         // I expect that we die right here
       }
     }
+  }
+  if let Ok(typing) = start_typing {
+    typing.stop();
   }
   Ok(())
 }

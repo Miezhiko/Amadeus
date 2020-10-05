@@ -31,6 +31,8 @@ use qrcode::{
   render::unicode,
 };
 
+use chrono::Timelike;
+
 pub struct ShardManagerContainer;
 
 impl TypeMapKey for ShardManagerContainer {
@@ -389,17 +391,53 @@ async fn time(ctx: &Context, msg: &Message) -> CommandResult {
   let utc = chrono::Utc::now();
   let time_format = "%k:%M";
 
-  let cet_time = utc.with_timezone(&chrono_tz::CET);
-  let msk_time = utc.with_timezone(&chrono_tz::Europe::Moscow);
+  let cet_time = utc.with_timezone(&chrono_tz::CET).time();
+  let msk_time = utc.with_timezone(&chrono_tz::Europe::Moscow).time();
 
   let cet = cet_time.format(time_format);
   let msk = msk_time.format(time_format);
-  
+
+  let cet_pattern = (cet_time.hour12().1, cet_time.minute() < 30);
+  let msk_pattern = (cet_time.hour12().1, cet_time.minute() < 30);
+
+  let get_emoji = |pattern: (u32, bool)| -> char {
+    match pattern {
+      (1, true)   => '🕐',
+      (1, false)  => '🕜',
+      (2, true)   => '🕑',
+      (2, false)  => '🕝',
+      (3, true)   => '🕒',
+      (3, false)  => '🕞',
+      (4, true)   => '🕓',
+      (4, false)  => '🕟',
+      (5, true)   => '🕔',
+      (5, false)  => '🕠',
+      (6, true)   => '🕕',
+      (6, false)  => '🕡',
+      (7, true)   => '🕖',
+      (7, false)  => '🕢',
+      (8, true)   => '🕗',
+      (8, false)  => '🕣',
+      (9, true)   => '🕘',
+      (9, false)  => '🕣',
+      (10, true)  => '🕙',
+      (10, false) => '🕣',
+      (11, true)  => '🕚',
+      (11, false) => '🕦',
+      (12, true)  => '🕛',
+      (12, false) => '🕧',
+      _           => '?'
+    }
+  };
+
+  let cet_emoji = get_emoji(cet_pattern);
+  let msk_emoji = get_emoji(msk_pattern);
+
   let mut eb = CreateEmbed::default();
   let footer = format!("Requested by {}", msg.author.name);
   eb.color(0xe735cc);
   eb.title("Time");
-  eb.description(format!("CET: {}\nMSK: {}", cet, msk));
+  eb.description(format!("**CET**: {} {}\n**MSK**: {} {}", cet, cet_emoji, msk, msk_emoji));
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
   eb.footer(|f| f.text(footer));
 

@@ -21,7 +21,8 @@ use serenity::{
 use std::{
   borrow::Cow,
   collections::HashMap,
-  time
+  time,
+  sync::Arc
 };
 
 use rand::Rng;
@@ -32,7 +33,7 @@ lazy_static! {
 }
 
 pub async fn activate_streamers_tracking(
-                     ctx:       &Context
+                     ctx:       &Arc<Context>
                    , channels:  &HashMap<ChannelId, GuildChannel>
                    , options:   &IOptions
                    , token:     String ) {
@@ -71,7 +72,7 @@ pub async fn activate_streamers_tracking(
     }
 
     set!{ sh_deref      = *shannel
-        , ctx_clone     = ctx.clone()
+        , ctx_clone     = Arc::clone(&ctx)
         , options_clone = options.clone() };
     tokio::spawn(async move {
       let mut streams_lock = STREAMS.lock().await;
@@ -183,7 +184,7 @@ pub async fn activate_streamers_tracking(
                     color = msg.embeds[0].colour.tuple();
                   };
                   let is_now_live = format!("{} is now live!", &user.name);
-                  if let Err(why) = msg.edit(&ctx_clone, |m| m
+                  if let Err(why) = msg.edit(&ctx_clone.http, |m| m
                     .embed(|e|  {
                       let mut e = e
                         .title(title)
@@ -285,7 +286,7 @@ pub async fn activate_streamers_tracking(
                   url = msg.embeds[0].url.clone();
                   color = msg.embeds[0].colour.tuple();
                 };
-                if let Err(why) = msg.edit(&ctx_clone, |m| m
+                if let Err(why) = msg.edit(&ctx_clone.http, |m| m
                   .embed(|e|  {
                     let mut e = e
                       .title("FINISHED")

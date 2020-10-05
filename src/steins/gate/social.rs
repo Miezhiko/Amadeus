@@ -15,7 +15,8 @@ use serenity::{
 use std::{
   collections::HashMap,
   sync::atomic::Ordering,
-  time
+  time,
+  sync::Arc
 };
 
 use rand::Rng;
@@ -26,11 +27,12 @@ static POLL_PERIOD_SECONDS: u64 = 30 * 60;
 static PASSED_FOR_CONVERSATION: u32 = 2 * 60 * 60 / POLL_PERIOD_SECONDS as u32;
 
 pub async fn activate_social_skils(
-                     ctx:       &Context
+                     ctx:       &Arc<Context>
                    , channels:  &HashMap<ChannelId, GuildChannel> ) {
+
   if let Some((channel, _)) = channel_by_name(&ctx, &channels, "main").await {
     set!{ ch_deref  = *channel
-        , ctx_clone = ctx.clone() };
+        , ctx_clone = Arc::clone(&ctx) };
     tokio::spawn(async move {
       loop {
         let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
@@ -63,9 +65,10 @@ pub async fn activate_social_skils(
       }
     });
   }
+
   if let Some((channel, _)) = channel_by_name(&ctx, &channels, "💬главный-зал💬").await {
     set!{ ch_deref  = *channel
-        , ctx_clone = ctx.clone() };
+        , ctx_clone = Arc::clone(&ctx) };
     tokio::spawn(async move {
       loop {
         let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
@@ -82,4 +85,5 @@ pub async fn activate_social_skils(
       }
     });
   }
+
 }

@@ -321,13 +321,14 @@ pub async fn run(opts : &IOptions) ->
       .group(&ADMIN_GROUP)
       .help(&HELP_COMMAND);
 
-  let mut client = serenity::Client::new(&opts.discord)
-                    .event_handler(Handler::new( opts
-                                               , runtime_options
-                                               , amadeus_id
-                                               )
+  let mut client =
+    serenity::Client::builder(&opts.discord)
+      .event_handler(Handler::new( opts
+                                  , runtime_options
+                                  , amadeus_id
                                   )
-                    .framework(std_framework).await?;
+                    )
+      .framework(std_framework).await?;
   {
     let mut data = client.data.write().await;
     data.insert::<VoiceManager>(Arc::clone(&client.voice_manager));

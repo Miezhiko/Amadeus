@@ -13,13 +13,14 @@ use serenity::{
 
 use std::{
   time,
-  collections::HashMap
+  collections::HashMap,
+  sync::Arc
 };
 
 use chrono::{ Duration, DateTime, Utc };
 
 pub async fn activate_w3info_tracking(
-                     ctx:       &Context
+                     ctx:       &Arc<Context>
                    , channels:  &HashMap<ChannelId, GuildChannel> ) {
 
   let mut channels_to_process = vec![];
@@ -34,7 +35,7 @@ pub async fn activate_w3info_tracking(
   if !channels_to_process.is_empty() {
     let today : DateTime<Utc> = Utc::now();
 
-    let ctx_clone = ctx.clone();
+    let ctx_clone = Arc::clone(&ctx);
     let thread_channels = channels_to_process.iter()
                                              .map(|ch| **ch)
                                              .collect::<Vec<ChannelId>>();

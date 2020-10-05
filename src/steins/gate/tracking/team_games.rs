@@ -18,7 +18,8 @@ use serenity::{
 
 use std::{
   collections::HashMap,
-  time
+  time,
+  sync::Arc
 };
 
 use rand::{
@@ -26,7 +27,7 @@ use rand::{
 };
 
 pub async fn activate_games_tracking(
-                     ctx:       &Context
+                     ctx:       &Arc<Context>
                    , channels:  &HashMap<ChannelId, GuildChannel>
                    , options:   &IOptions
                    , token:     String ) {
@@ -54,7 +55,7 @@ pub async fn activate_games_tracking(
     }
 
     set!{ ch_deref      = *channel
-        , ctx_clone     = ctx.clone()
+        , ctx_clone     = Arc::clone(&ctx)
         , options_clone = options.clone() };
 
     tokio::spawn(async move {

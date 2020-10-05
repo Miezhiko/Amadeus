@@ -99,35 +99,15 @@ impl EventHandler for Handler {
         }
       }
     }
+    let threads_check = THREADS.load(Ordering::Relaxed);
+    if !threads_check {
+      gate::behavior::activate(ctx, &self.ioptions).await;
+      THREADS.store(true, Ordering::Relaxed);
+    }
   }
   async fn ready(&self, ctx: Context, ready: Ready) {
     info!("Connected as {}", ready.user.name);
-    let guild_id = GuildId( self.ioptions.guild );
-    if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-      if let Ok(member) = guild.member(&ctx, ready.user.id).await {
-        if let Ok(some_permissions) = member.permissions(&ctx).await {
-          if some_permissions.administrator() {
-            info!("Running with Administrator permissions");
-            if guild.role_by_name("UNBLOCK AMADEUS").is_none() {
-              if let Err(why) =
-                guild.create_role(&ctx,
-                  |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
-                       .name("UNBLOCK AMADEUS")).await {
-                error!("Failed to create UNBLOCK role, {:?}", why);
-              }
-            }
-          } else {
-            warn!("Amadeus needs Administrator permissions");
-          }
-        }
-      }
-    }
     voice::rejoin_voice_channel(&ctx, &self.roptions).await;
-    let threads_check = THREADS.load(Ordering::Relaxed);
-    if !threads_check {
-      gate::behavior::activate(&ctx, &self.ioptions).await;
-      THREADS.store(true, Ordering::Relaxed);
-    }
   }
   async fn resume(&self, _ctx : Context, _ : ResumedEvent) {
     info!("Resumed");

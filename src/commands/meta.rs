@@ -398,7 +398,7 @@ async fn time(ctx: &Context, msg: &Message) -> CommandResult {
   let msk = msk_time.format(time_format);
 
   let cet_pattern = (cet_time.hour12().1, cet_time.minute() < 30);
-  let msk_pattern = (cet_time.hour12().1, cet_time.minute() < 30);
+  let msk_pattern = (msk_time.hour12().1, msk_time.minute() < 30);
 
   let get_emoji = |pattern: (u32, bool)| -> char {
     match pattern {

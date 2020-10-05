@@ -36,6 +36,10 @@ pub async fn activate(ctx: Context, options: &IOptions) {
   // set actual season for pad statistics
   update_current_season(&ctx).await;
 
+  info!("loading Kathoey");
+  lazy_static::initialize(&chain::KATHOEY);
+
+  info!("starting background threads");
   // Now there are several lists of channels and several Guilds
   if options.guild != 0 {
     let hemo_guild_id = GuildId( options.guild );

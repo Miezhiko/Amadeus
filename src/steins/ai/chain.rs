@@ -37,6 +37,8 @@ use tokio::sync::{ Mutex, MutexGuard };
 
 use async_recursion::async_recursion;
 
+use kathoey::Kathoey;
+
 static CACHE_ENG_YML: &str = "cache/cache_eng.yml";
 static CACHE_RU_YML: &str = "cache/cache_ru.yml";
 static CACHE_RDN: &str = "cache/cache.rs";
@@ -56,6 +58,8 @@ lazy_static! {
   pub static ref CACHE_ENG_STR: Mutex<Vec<String>>  = Mutex::new(Vec::new());
   pub static ref CACHE_RU: Mutex<Chain<String>>     = Mutex::new(Chain::new());
   pub static ref LAST_UPDATE: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
+  // TODO: Kathoey load is not safe
+  pub static ref KATHOEY: Mutex<Kathoey> = Mutex::new(Kathoey::from_rs("../Kathoey/dict.rs").unwrap());
 }
 
 pub async fn update_cache( ctx: &Context
@@ -394,7 +398,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
   let rndx : u32 = rand::thread_rng().gen_range(0, 9);
   let mut bert_generated = false;
   let mut answer =
-    if rndx == 1 {
+    if rndx != 1 {
       let text = if russian {
         if let Ok(translated) = bert::ru2en(msg.content.clone()).await {
           translated
@@ -416,9 +420,31 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
     } else {
       generate(&ctx, &msg, Some(russian)).await
     };
-  if rndx == 1 && bert_generated && russian {
-    if let Ok(translated) = bert::en2ru(answer.clone()).await {
-      answer = translated;
+  if russian {
+    if bert_generated {
+      if let Ok(translated) = bert::en2ru(answer.clone()).await {
+        // feminize translated text
+        let kathoey = KATHOEY.lock().await;
+        let rndy : u32 = rand::thread_rng().gen_range(0, 15);
+        answer =
+          if rndy == 1 {
+            kathoey.extreme_feminize(&translated)
+          } else {
+            kathoey.feminize(&translated)
+          };
+      }
+    } else {
+      let rndxx : u32 = rand::thread_rng().gen_range(0, 2);
+      if rndxx == 1 {
+        let kathoey = KATHOEY.lock().await;
+        let rndxxx : u32 = rand::thread_rng().gen_range(0, 15);
+        answer =
+          if rndxxx == 1 {
+            kathoey.extreme_feminize(&answer)
+          } else {
+            kathoey.feminize(&answer)
+          };
+      }
     }
   }
   if let Ok(typing) = start_typing {

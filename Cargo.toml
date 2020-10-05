@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.21.10"
+version     = "2.22.1"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -10,8 +10,8 @@ description = "memory storage and artificial intelligence system"
 license     = "ISC AND MPL-v2"
 
 [features]
-default     = []
-w3g_rs      = ["w3grs"]
+default = []
+w3g_rs  = ["w3grs"]
 
 [dependencies]
 rand                = "0.7.3"
@@ -70,6 +70,10 @@ features = [ "cache"
 git = "https://github.com/Qeenon/w3grs.git"
 branch = "mawa"
 optional = true
+
+[dependencies.kathoey]
+git = "https://github.com/Qeenon/Kathoey"
+branch = "mawa"
 
 [dependencies.tokio]
 version = "0.2.22"

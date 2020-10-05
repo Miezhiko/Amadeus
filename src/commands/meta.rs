@@ -377,3 +377,34 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
 
   Ok(())
 }
+
+#[command]
+#[aliases(время)]
+#[description("display current time")]
+async fn time(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+
+  let utc = chrono::Utc::now();
+  let time_format = "%k:%M";
+
+  let cet_time = utc.with_timezone(&chrono_tz::CET);
+  let msk_time = utc.with_timezone(&chrono_tz::Europe::Moscow);
+
+  let cet = cet_time.format(time_format);
+  let msk = msk_time.format(time_format);
+  
+  let mut eb = CreateEmbed::default();
+  let footer = format!("Requested by {}", msg.author.name);
+  eb.color(0xe735cc);
+  eb.title("Time");
+  eb.description(format!("CET: {}\nMSK: {}", cet, msk));
+  eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+  eb.footer(|f| f.text(footer));
+
+  msg.channel_id.send_message(ctx, |m| {
+    m.embed(|e| { e.0 = eb.0; e })
+  }).await?;
+  Ok(())
+}

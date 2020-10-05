@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.21.8"
+version     = "2.21.9"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -16,6 +16,7 @@ w3g_rs      = ["w3grs"]
 [dependencies]
 rand                = "0.7.3"
 chrono              = "0.4.19"
+chrono-tz           = "0.5.3"
 argparse            = "0.2.2"
 tracing             = "0.1.21"
 tracing-log         = "0.1.1"

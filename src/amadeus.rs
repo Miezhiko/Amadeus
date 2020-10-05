@@ -93,7 +93,7 @@ async fn admin_check( ctx: &Context
 #[group("Meta")]
 #[description = "Basic commands"]
 #[commands( info, version, embed, qrcode, urban, uptime, tic_tac_toe, changelog
-          , help_ru, bet )]
+          , help_ru, time )]
 struct Meta;
 
 #[group("Chat")]
@@ -126,7 +126,7 @@ struct Warcraft;
 
 #[group("W3C")]
 #[description = "w3champions commands"]
-#[commands(stats, ongoing)]
+#[commands(stats, ongoing, bet)]
 struct Pad;
 
 #[group("Owner")]

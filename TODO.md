@@ -1,7 +1,6 @@
 - Activity level per server
 - Possibly automatic twitch OAuth token regeneration every month (or better on error)
     alike curl -X POST "https://id.twitch.tv/oauth2/token?client_id=AAAAAAA&client_secret=QAAAAAA&grant_type=client_credentials"
-- Store AI chain somewhere
 - Service logs (alike `journalctl --since today -u Amadeus`)
 - Maybe Lavalink for music instead of https://github.com/ytdl-org/youtube-dl
 - Maybe generate help strings by list of structures like {cmdname, helptext, ...}

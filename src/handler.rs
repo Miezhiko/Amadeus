@@ -41,13 +41,13 @@ use rand::{ Rng
 
 use regex::Regex;
 
-pub static THREADS: AtomicBool = AtomicBool::new(false);
-pub static BLAME: AtomicBool = AtomicBool::new(false);
-pub static RESTORE: AtomicBool = AtomicBool::new(false);
+pub static THREADS: AtomicBool  = AtomicBool::new(false);
+pub static BLAME: AtomicBool    = AtomicBool::new(false);
+pub static RESTORE: AtomicBool  = AtomicBool::new(false);
 
 pub struct Handler {
-  ioptions: IOptions,
-  roptions: ROptions,
+  ioptions:   IOptions,
+  roptions:   ROptions,
   amadeus_id: UserId
 }
 

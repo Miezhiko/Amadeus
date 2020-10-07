@@ -58,8 +58,8 @@ lazy_static! {
   pub static ref CACHE_ENG_STR: Mutex<Vec<String>>  = Mutex::new(Vec::new());
   pub static ref CACHE_RU: Mutex<Chain<String>>     = Mutex::new(Chain::new());
   pub static ref LAST_UPDATE: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
-  // TODO: Kathoey load is not safe
-  pub static ref KATHOEY: Mutex<Kathoey> = Mutex::new(Kathoey::from_rs("../Kathoey/dict.rs").unwrap());
+  pub static ref KATHOEY: Mutex<Kathoey> =
+    Mutex::new(Kathoey::from_rs("../Kathoey/dict.rs").unwrap());
 }
 
 pub async fn update_cache( ctx: &Context

@@ -324,9 +324,9 @@ pub async fn run(opts : &IOptions) ->
   let mut client =
     serenity::Client::builder(&opts.discord)
       .event_handler(Handler::new( opts
-                                  , runtime_options
-                                  , amadeus_id
-                                  )
+                                 , runtime_options
+                                 , amadeus_id
+                                 )
                     )
       .framework(std_framework).await?;
   {

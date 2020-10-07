@@ -3,8 +3,8 @@ use serenity::{
   model::channel::*
 };
 
-use unic_langid::{LanguageIdentifier, langid};
-use fluent_templates::{Loader, static_loader};
+use unic_langid::{ LanguageIdentifier, langid };
+use fluent_templates::{ Loader, static_loader };
 
 pub const US_ENG: LanguageIdentifier = langid!("en-US");
 pub const RU: LanguageIdentifier = langid!("ru-RU");

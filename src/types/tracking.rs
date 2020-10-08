@@ -24,6 +24,7 @@ pub struct TrackingGame {
   pub still_live: bool,
   pub players: Vec<Player>,
   pub bets: Vec<Bet>,
+  pub fails: u32
 }
 
 #[allow(non_snake_case)]

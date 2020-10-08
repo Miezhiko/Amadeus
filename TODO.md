@@ -13,4 +13,3 @@
 - Cure some copypaste code on bet_fields
 - Team checker: something different for AT on Live
 - Ability to attach replays to #log games maybe
-- -badping games

@@ -244,9 +244,7 @@ async fn check_match( matchid: &str
           , additional_fields: None
           , hero_png: maybe_hero_png
           });
-      }, None => {
-        return None;
-      }
+      }, None => {}
     }
   }
   None
@@ -644,6 +642,14 @@ pub async fn check<'a>( ctx: &Context
               // we only delete match if it's passed
               // if not possibly there is a bug and we're waiting for end
               k_to_del.push(k.clone());
+            } else {
+              // game is not finished but not live
+              if track.fails < 3 {
+                track.fails += 1;
+              } else {
+                // mark tracking game for removal after 3 fails
+                k_to_del.push(k.clone());
+              }
             }
           }
         }

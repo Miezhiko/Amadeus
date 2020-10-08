@@ -37,7 +37,7 @@ use tokio::sync::{ Mutex, MutexGuard };
 
 use async_recursion::async_recursion;
 
-use kathoey::Kathoey;
+use kathoey::types::Kathoey;
 
 static CACHE_ENG_YML: &str = "cache/cache_eng.yml";
 static CACHE_RU_YML: &str = "cache/cache_ru.yml";

@@ -179,3 +179,16 @@ async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                  ).await;
   Ok(())
 }
+
+#[command]
+#[min_args(1)]
+#[aliases(fem)]
+#[description("feminize text")]
+async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  let kathoey = chain::KATHOEY.lock().await;
+  channel_message( ctx
+                 , msg
+                 , &kathoey.feminize(args.message())
+                 ).await;
+  Ok(())
+}

@@ -647,6 +647,11 @@ pub async fn check<'a>( ctx: &Context
               } else {
                 // mark tracking game for removal after 3 fails
                 k_to_del.push(k.clone());
+                if let Ok(msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                  if let Err(wtf) = msg.delete(ctx).await {
+                    error!("Failed to clean up dropped Live game {:?}", wtf);
+                  }
+                }
               }
             }
           }

@@ -61,7 +61,7 @@ pub async fn activate_social_skils(
           }
           update_current_season(&ctx_clone).await;
         }
-        tokio::time::delay_for(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
+        tokio::time::delay_for(time::Duration::from_secs(POLL_PERIOD_SECONDS * 2)).await;
       }
     });
   }
@@ -75,8 +75,12 @@ pub async fn activate_social_skils(
         let rndx = rand::thread_rng().gen_range(0, activity_level);
         if rndx == 1 {
           let ai_text = chain::generate_with_language(&ctx_clone, true).await;
+          let message = {
+            let kathoey = chain::KATHOEY.lock().await;
+            kathoey.feminize(&ai_text)
+          };
           if let Err(why) = ch_deref.send_message(&ctx_clone, |m| {
-            m.content(ai_text)
+            m.content(message)
           }).await {
             error!("Failed to post periodic message {:?}", why);
           }

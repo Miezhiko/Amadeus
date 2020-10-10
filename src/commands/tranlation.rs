@@ -17,22 +17,21 @@ use tokio::task;
 async fn bert_translate(ctx: &Context, text: String, lang: Language)
           -> eyre::Result<String> {
   ctx.idle().await;
-  let result = task::spawn_blocking(move || {
-      let translation_config =
-        TranslationConfig::new(lang, Device::cuda_if_available());
+  task::spawn_blocking(move || {
+    let translation_config =
+      TranslationConfig::new(lang, Device::cuda_if_available());
 
-      let model = TranslationModel::new(translation_config)?;
+    let model = TranslationModel::new(translation_config)?;
 
-      let output = model.translate(&[&text]);
-      if output.is_empty() {
-        error!("Failed to translate with TranslationConfig EnglishToRussian");
-        Ok(text)
-      } else {
-        let translation = &output[0];
-        Ok(translation.clone())
-      }
-    }).await.unwrap();
-  result
+    let output = model.translate(&[&text]);
+    if output.is_empty() {
+      error!("Failed to translate with TranslationConfig EnglishToRussian");
+      Ok(text)
+    } else {
+      let translation = &output[0];
+      Ok(translation.clone())
+    }
+  }).await.unwrap()
 }
 
 #[command]

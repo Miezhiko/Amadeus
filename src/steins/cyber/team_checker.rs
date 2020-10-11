@@ -45,7 +45,7 @@ async fn check_match( matchid: &str
 
   // fallback mode when by-ongoing-match-id fails
   if if_md.is_none() {
-    if let Ok(wtf) = rqcl.get("https://statistic-service.w3champions.com/api/matches?offset=0&gateway=20")
+    if let Ok(wtf) = rqcl.get("https://statistic-service.w3champions.com/api/matches?offset=0")
                          .send()
                          .await {
       if let Ok(going) = wtf.json::<Going>().await {
@@ -256,8 +256,7 @@ pub async fn check<'a>( ctx: &Context
                       ) -> Vec<StartingGame> {
   let mut out : Vec<StartingGame> = Vec::new();
   if let Ok(res) =
-    // getaway 20 = Europe (not sure if we want to play/track players on other regions)
-    rqcl.get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20")
+    rqcl.get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0")
         .send()
         .await {
     if let Ok(going) = res.json::<Going>().await {
@@ -373,15 +372,24 @@ pub async fn check<'a>( ctx: &Context
 
                 let mstr = format!("Map: {}", g_map);
 
-                //TODO: something different for AT
-                //if m.gameMode == 6 {
-                let team1 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
-                  , race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
-                  , race12, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr);
-                let team2 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
-                  , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr
-                  , race22, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr);
-                let mvec = vec![ mstr, team1, team2 ];
+                let mvec =
+                  if m.gameMode == 6 {
+                    let team1 = format!("({}) **{}**\n({}) **{}**\n{} MMR"
+                      , race1, m.teams[0].players[0].name
+                      , race12, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr);
+                    let team2 = format!("({}) **{}**\n({}) **{}**\n{} MMR"
+                      , race2, m.teams[1].players[0].name
+                      , race22, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr);
+                    vec![ mstr, team1, team2 ]
+                  } else {
+                    let team1 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
+                      , race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
+                      , race12, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr);
+                    let team2 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
+                      , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr
+                      , race22, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr);
+                    vec![ mstr, team1, team2 ]
+                  };
 
                 if let Some(track) = games_lock.get_mut(&m.match_id) {
                   track.still_live = true;

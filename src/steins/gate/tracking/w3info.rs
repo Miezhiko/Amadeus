@@ -57,8 +57,8 @@ pub async fn activate_w3info_tracking(
             error!("Failed to post tomorrow tour events {:?}", why);
           }
         }
-        // check every day
-        tokio::time::delay_for(time::Duration::from_secs(60*60*24)).await;
+        // check every 12 hours
+        tokio::time::delay_for(time::Duration::from_secs(60*60*12)).await;
       }
     });
   }

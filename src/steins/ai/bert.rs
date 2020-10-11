@@ -121,7 +121,7 @@ pub async fn chat(something: String, user_id: u64) -> Result<String> {
     let output =
       if user_id != 0 {
         if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
-          if *x > 3 {
+          if *x > 5 {
             *tracking_conversation = conversation_manager.create(&something);
             *passed = 0; *x = 0;
             conversation_model.generate_responses(&mut conversation_manager)

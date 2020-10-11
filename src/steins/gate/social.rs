@@ -35,7 +35,7 @@ pub async fn activate_social_skils(
         , ctx_clone = Arc::clone(&ctx) };
     tokio::spawn(async move {
       loop {
-        let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
+        let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 10;
         let rndx = rand::thread_rng().gen_range(0, activity_level);
         if rndx == 1 {
           let ai_text = chain::generate_with_language(&ctx_clone, false).await;
@@ -61,7 +61,7 @@ pub async fn activate_social_skils(
           }
           update_current_season(&ctx_clone).await;
         }
-        tokio::time::delay_for(time::Duration::from_secs(POLL_PERIOD_SECONDS * 2)).await;
+        tokio::time::delay_for(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
       }
     });
   }

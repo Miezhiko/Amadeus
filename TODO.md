@@ -7,3 +7,4 @@
 - Split chain into 3 mods: cache, chain and possibly move general stuff to lib
 - Ability to attach replays to #log games maybe
 - Show region (EU/NA) on live matches
+- Replace argparse to something less boring

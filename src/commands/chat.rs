@@ -192,3 +192,16 @@ async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                  ).await;
   Ok(())
 }
+
+#[command]
+#[min_args(1)]
+#[aliases(ffem)]
+#[description("feminize text with extreme mode!")]
+async fn extreme_feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  let kathoey = chain::KATHOEY.lock().await;
+  channel_message( ctx
+                 , msg
+                 , &kathoey.extreme_feminize(args.message())
+                 ).await;
+  Ok(())
+}

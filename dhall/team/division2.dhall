@@ -13,7 +13,6 @@ let playersList : List Playerx =
   , t "ParadoCS#21514"      458674374044549140 "paradocs12"
   , t "Rearden#21595"       622849650847907870 "amateurrearden"
   , g "Лилуал#2400"         367722659590569994 "lilyal_" "lilyal"
-  , g "SimbaPower#2413"     308475659775115265 "hemosimbapower" "SimbaPower"
   ]
 
 in playersList

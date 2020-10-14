@@ -2,6 +2,7 @@ use crate::{
   common::{ help::channel::channel_by_name
           , msg::channel_message
           },
+  collections::team::teammates,
   steins::cyber::w3g::analyze
 };
 
@@ -94,7 +95,6 @@ pub async fn replay_embed( ctx: &Context
       if !fields3.is_empty() {
         let (_, first_amp_list) = &fields3[0];
         let len: f32 = first_amp_list.len() as f32 - 1_f32;
-        //TODO: I need different text color here...
         { // because of Rc < > in BitMapBackend I need own scope here
           let root_area = BitMapBackend::new(&fname_apm, (1024, 768)).into_drawing_area();
           root_area.fill(&RGBColor(47, 49, 54)).unwrap(); //2f3136
@@ -110,13 +110,13 @@ pub async fn replay_embed( ctx: &Context
             .draw().unwrap();
           for (k, plx) in fields3 {
             set! { red   = rand::thread_rng().gen_range(0, 255)
-                  , green = rand::thread_rng().gen_range(0, 255)
-                  , blue  = rand::thread_rng().gen_range(0, 255) };
+                 , green = rand::thread_rng().gen_range(0, 255)
+                 , blue  = rand::thread_rng().gen_range(0, 255) };
             let mut color = RGBColor(red, green, blue);
             if red < 150 && green < 150 && blue < 150 {
               set! { red2   = rand::thread_rng().gen_range(100, 255)
-                    , green2 = rand::thread_rng().gen_range(100, 255)
-                    , blue2  = rand::thread_rng().gen_range(100, 255) };
+                   , green2 = rand::thread_rng().gen_range(100, 255)
+                   , blue2  = rand::thread_rng().gen_range(100, 255) };
               color = RGBColor(red2, green2, blue2);
             }
             cc.draw_series(LineSeries::new(plx, &color)).unwrap()
@@ -205,4 +205,111 @@ pub async fn replay_embed( ctx: &Context
       error!("Error removing file: {:?}", why2);
     }
   }
+}
+
+pub async fn attach_replay( ctx: &Context
+                          , msg: &Message
+                          , file: &Attachment ) -> bool {
+  // this is only for teammates
+  if let Some(playa) = teammates().into_iter().find(|p|
+    p.discord == msg.author.id.0) {
+    let battletag = playa.battletag;
+    if let Ok(bytes) = file.download().await {
+      let mut fw3g = match File::create(&file.filename).await {
+        Ok(replay) => replay,
+        Err(why) => {
+          error!("Error creating file: {:?}", why);
+          channel_message(ctx, msg, "Error getting replay").await;
+          return false;
+        }
+      };
+      if let Err(why) = fw3g.write_all(&bytes).await {
+        error!("Error writing to file: {:?}", why);
+        if let Err(why2) = fs::remove_file(&file.filename).await {
+          error!("Error removing file: {:?}", why2);
+        }
+        return false;
+      }
+      let _ = fw3g.sync_data().await;
+      let data_maybe = analyze(&file.filename).await;
+      if let Err(why) = data_maybe {
+        error!("Corrupted replay file? {:?}", why);
+        if let Err(why2) = fs::remove_file(&file.filename).await {
+          error!("Error removing file: {:?}", why2);
+        }
+        return false;
+      }
+      let (_, flds) = data_maybe.unwrap();
+      // only 2x2 and solo games
+      if flds.len() == 2 || flds.len() == 4 {
+        let mut found = false;
+        let mut players = vec![];
+        for (btag, _, _) in flds {
+          if battletag == btag {
+            // so we see this player is indeed there
+            found = true;
+          }
+          if btag.contains('#') {
+            players.push(btag);
+          }
+        }
+        if found {
+          // get log channel
+          if let Some(guild_id) = msg.guild_id {
+            if let Ok(channels) = guild_id.channels(ctx).await {
+              if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
+                // get last 10 games
+                if let Ok(messages) = channel.messages(&ctx, |r|
+                  r.limit(10)
+                ).await {
+                  for mmm in messages {
+                    if !mmm.embeds.is_empty()
+                    && !mmm.embeds[0].fields.is_empty()
+                     && mmm.attachments.is_empty() {
+                      // start counting, we need two!
+                      let mut same_count = 0;
+                      for f in mmm.embeds[0].fields.clone() {
+                        for pf in players.iter() {
+                          if f.name == *pf {
+                            same_count += 1;
+                          }
+                        }
+                      }
+                      // we've found some game which looks alike replay
+                      if same_count == 2 {
+                        if let Err(why) = channel.send_message(ctx, |m| {
+                          let mut m =
+                            m.embed(|e| {
+                              *e = CreateEmbed::from(mmm.embeds[0].clone());
+                               e });
+                          m = m.add_file(AttachmentType::Path(std::path::Path::new(&file.filename)));
+                          m
+                        }).await {
+                          error!("Failed to attach replay {:?}", why);
+                        } else {
+                          // Success
+                          if let Err(why) = mmm.delete(ctx).await {
+                            error!("Failed to remove replaced message {:?}", why);
+                          }
+                          if let Err(why3) = fs::remove_file(&file.filename).await {
+                            error!("Error removing file: {:?}", why3);
+                          }
+                          return true;
+                        }
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if let Err(why4) = fs::remove_file(&file.filename).await {
+    error!("Error removing file: {:?}", why4);
+  }
+  false
 }

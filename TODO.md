@@ -8,3 +8,4 @@
 - Ability to attach replays to #log games maybe
 - Show region (EU/NA) on live matches
 - Replace argparse to something less boring
+- Bets against players (Lilyal request)

@@ -2,7 +2,7 @@ use crate::{
   types::{ common::CoreGuild, options::* },
   steins::{ gate
           , ai::chain
-          , cyber::replay::replay_embed
+          , cyber::replay::{ replay_embed, attach_replay }
           },
   common::{ trees
           , help::{ lang, channel::channel_by_name }
@@ -300,7 +300,7 @@ impl EventHandler for Handler {
       }
       if is_file {
         if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-          r.limit(5)
+          r.limit(3)
         ).await {
           for mmm in messages {
             if mmm.content.to_lowercase().contains("processing") {
@@ -353,18 +353,29 @@ impl EventHandler for Handler {
           for file in &msg.attachments {
             if file.filename.ends_with("w3g") {
               let rainbow = ReactionType::Unicode(String::from("🌈"));
+              let recycle = ReactionType::Unicode(String::from("♻"));
               let _ = msg.react(&ctx, rainbow).await;
+              let _ = msg.react(&ctx, recycle).await;
               loop {
                 if let Some(reaction) =
                   &msg.await_reaction(&ctx)
-                          .timeout(Duration::from_secs(3600)).await {
+                      .timeout(Duration::from_secs(3600)).await {
                   let emoji = &reaction.as_inner_ref().emoji;
-                  if emoji.as_data().as_str() == "🌈" {
-                    let storage = GuildId( self.ioptions.amadeus_guild );
-                    replay_embed(&ctx, &msg, file, &storage).await;
-                    let _ = msg.delete_reactions(&ctx).await;
-                    break;
-                  }
+                  match emoji.as_data().as_str() {
+                    "🌈" => {
+                      let storage = GuildId( self.ioptions.amadeus_guild );
+                      replay_embed(&ctx, &msg, file, &storage).await;
+                      let _ = msg.delete_reactions(&ctx).await;
+                      break;
+                    }
+                    "♻" => {
+                      if attach_replay(&ctx, &msg, file).await {
+                        let _ = msg.delete_reactions(&ctx).await;
+                        break;
+                      }
+                    }
+                    _ => {}
+                  };
                 } else {
                   let _ = msg.delete_reactions(&ctx).await;
                   break;

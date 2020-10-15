@@ -33,18 +33,21 @@ async fn analyze_js(path: &str) -> eyre::Result<String> {
 
 #[cfg(not(feature = "w3g_rs"))]
 #[allow(clippy::type_complexity)]
-fn prettify_analyze_js(j: &str) -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
+fn prettify_analyze_js(j: &str, minimal: bool)
+  -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let json : Value = serde_json::from_str(&j)?;
   let mut out = String::new();
   let mut pls = vec![];
-  if let Some(map) = json.pointer("/map") {
-    if let Some(file) = map.pointer("/file") {
-      out = format!("**map**: {}\n", file.as_str().unwrap());
-    }
-    if let Some(checksum) = map.pointer("/checksum") { 
-      let winner = checksum.as_str().unwrap();
-      if !winner.is_empty() {
-        out = format!("{}**winner**: {}\n", out, winner);
+  if !minimal {
+    if let Some(map) = json.pointer("/map") {
+      if let Some(file) = map.pointer("/file") {
+        out = format!("**map**: {}\n", file.as_str().unwrap());
+      }
+      if let Some(checksum) = map.pointer("/checksum") { 
+        let winner = checksum.as_str().unwrap();
+        if !winner.is_empty() {
+          out = format!("{}**winner**: {}\n", out, winner);
+        }
       }
     }
   }
@@ -57,16 +60,18 @@ fn prettify_analyze_js(j: &str) -> eyre::Result<(String, Vec<(String, Vec<String
       if let Some(name) = playa.pointer("/name") {
         p = name.as_str().unwrap().to_string();
       }
-      if let Some(race) = playa.pointer("/race") {
-        let race_pretty = match race.as_str().unwrap() {
-          "N" => "Night Elf",
-          "H" => "Human",
-          "O" => "Orc",
-          "U" => "Undead",
-          "R" => "Reptile",
-          _   => "Dog"
-        };
-        s = format!("**race**: {}\n", race_pretty);
+      if !minimal {
+        if let Some(race) = playa.pointer("/race") {
+          let race_pretty = match race.as_str().unwrap() {
+            "N" => "Night Elf",
+            "H" => "Human",
+            "O" => "Orc",
+            "U" => "Undead",
+            "R" => "Reptile",
+            _   => "Dog"
+          };
+          s = format!("**race**: {}\n", race_pretty);
+        }
       }
       if let Some(apm) = playa.pointer("/apm") {
         s = format!("{}**apm**: {}", s, apm.as_u64().unwrap());
@@ -93,12 +98,14 @@ fn prettify_analyze_js(j: &str) -> eyre::Result<(String, Vec<(String, Vec<String
           }
         }
       }
-      if let Some(units) = playa.pointer("/units") {
-        if let Some(summary) = units.pointer("/summary") {
-          if let Some(sum) = summary.as_object() {
-            su = String::from("\n");
-            for (k, v) in sum {
-              su = format!("{}\n**{}**: {}", su, k, v);
+      if !minimal {
+        if let Some(units) = playa.pointer("/units") {
+          if let Some(summary) = units.pointer("/summary") {
+            if let Some(sum) = summary.as_object() {
+              su = String::from("\n");
+              for (k, v) in sum {
+                su = format!("{}\n**{}**: {}", su, k, v);
+              }
             }
           }
         }
@@ -106,25 +113,27 @@ fn prettify_analyze_js(j: &str) -> eyre::Result<(String, Vec<(String, Vec<String
       pls.push((p, vec![s, su], sapm));
     }
   }
-  if let Some(duration) = json.pointer("/duration") {
-    let dhuman = duration.as_u64().unwrap()/60/1000;
-    out = format!("{}**duration**: {}min", out, dhuman);
+  if !minimal {
+    if let Some(duration) = json.pointer("/duration") {
+      let dhuman = duration.as_u64().unwrap()/60/1000;
+      out = format!("{}**duration**: {}min", out, dhuman);
+    }
   }
   Ok((out, pls))
 }
 
 #[cfg(feature="w3g_rs")]
-pub async fn analyze(path: &str)
+pub async fn analyze(path: &str, _minimal: bool)
     -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let replay_data = analyze_rs(path)?;
   Ok((replay_data, vec![]))
 }
 
 #[cfg(not(feature = "w3g_rs"))]
-pub async fn analyze(path: &str)
+pub async fn analyze(path: &str, minimal: bool)
     -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let replay_data = analyze_js(path).await?;
-  let pretty_daya = prettify_analyze_js(&replay_data)?;
+  let pretty_daya = prettify_analyze_js(&replay_data, minimal)?;
   Ok(pretty_daya)
 }
 
@@ -143,7 +152,7 @@ mod cyber_w3g_tests {
   async fn my_test() -> Result<(), String> {
     if let Ok(replay_data) = analyze_js("example.w3g").await {
       assert!(!replay_data.is_empty());
-      match prettify_analyze_js(&replay_data) {
+      match prettify_analyze_js(&replay_data, false) {
         Ok((_p, ps)) => {
           assert_eq!(2, ps.len());
           Ok(())

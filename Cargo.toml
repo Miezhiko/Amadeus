@@ -76,5 +76,5 @@ git = "https://github.com/Qeenon/Kathoey"
 branch = "mawa"
 
 [dependencies.tokio]
-version = "0.3.0"
-features = ["full"]
+version = "0.2.22"
+features = ["full", "blocking", "sync"]

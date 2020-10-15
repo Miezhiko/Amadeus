@@ -61,7 +61,7 @@ pub async fn activate_social_skils(
           }
           update_current_season(&ctx_clone).await;
         }
-        tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
+        tokio::time::delay_for(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
       }
     });
   }
@@ -85,7 +85,7 @@ pub async fn activate_social_skils(
             error!("Failed to post periodic message {:?}", why);
           }
         }
-        tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
+        tokio::time::delay_for(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
       }
     });
   }

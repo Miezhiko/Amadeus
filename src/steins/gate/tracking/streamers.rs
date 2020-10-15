@@ -311,10 +311,10 @@ pub async fn activate_streamers_tracking(
               streams_lock.remove(&playa.discord);
             }
           }
-          tokio::time::sleep(time::Duration::from_millis(100)).await;
+          tokio::time::delay_for(time::Duration::from_millis(100)).await;
         }
         /* every minute */
-        tokio::time::sleep(time::Duration::from_secs(60)).await;
+        tokio::time::delay_for(time::Duration::from_secs(60)).await;
       }
     });
   }

@@ -57,7 +57,7 @@ pub async fn activate_w3info_tracking(
           }
         }
         // check every 12 hours
-        tokio::time::delay_for(time::Duration::from_secs(60*60*12)).await;
+        tokio::time::sleep(time::Duration::from_secs(60*60*12)).await;
       }
     });
   }

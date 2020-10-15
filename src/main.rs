@@ -16,7 +16,7 @@ mod amadeus;
 
 use eyre::{ WrapErr, Result };
 
-#[tokio::main(core_threads=8)]
+#[tokio::main(worker_threads=8)]
 async fn main() -> Result<()> {
   let iopts = common::options::get_ioptions()
                 .wrap_err("Failed to parse Dhall condig")?;

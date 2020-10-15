@@ -147,7 +147,7 @@ mod cyber_w3g_tests {
     assert!( analyze_rs("example.w3g").is_ok() );
   }
   #[ignore]
-  #[tokio::test(basic_scheduler)]
+  #[tokio::test]
   #[cfg(not(feature = "w3g_rs"))]
   async fn my_test() -> Result<(), String> {
     if let Ok(replay_data) = analyze_js("example.w3g").await {

@@ -223,7 +223,7 @@ pub async fn update_cache( ctx: &Context
   if !ru_messages_for_translation.is_empty() {
     info!("Translating cache");
     tokio::spawn(async move {
-      tokio::time::delay_for(std::time::Duration::from_secs(5)).await;
+      tokio::time::sleep(std::time::Duration::from_secs(5)).await;
       if let Ok(mut translated) = bert::ru2en_many(ru_messages_for_translation).await {
         if !translated.is_empty() {
           cache_eng_str.append(&mut translated);

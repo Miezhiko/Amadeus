@@ -83,9 +83,7 @@ pub async fn activate(ctx: Context, options: &IOptions) {
         &ac, &hemo_channels
            , options, access_token
            ).await;
-      activate_w3info_tracking(
-        &ac, &all_channels
-           ).await;
+      activate_w3info_tracking(&ac).await;
     }
   }
 }

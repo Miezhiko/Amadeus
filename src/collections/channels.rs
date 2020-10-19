@@ -30,7 +30,7 @@ mod channels_dhall_tests {
   fn dhall_vec(f: &str) -> Result<(), String> {
     match serde_dhall::from_file(f).parse::<Vec<u64>>() {
       Ok(some) => {
-        if some.is_empty() {
+        if !some.is_empty() {
           Ok(())
         } else {
           Err(String::from("empty structure loaded"))

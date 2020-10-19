@@ -180,11 +180,9 @@ async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
 }
 
 #[hook]
-async fn before(ctx: &Context, msg: &Message, cmd_name: &str) -> bool {
-  if let Some(channel_name) = msg.channel_id.name(ctx).await {
-    if IGNORED.iter().any(|i| i == &channel_name) {
-      return false;
-    }
+async fn before(_ctx: &Context, msg: &Message, cmd_name: &str) -> bool {
+  if IGNORED.contains(&msg.channel_id.0) {
+    return false;
   }
 
   debug!("Running command: {}, Message: {}", &cmd_name, &msg.content);

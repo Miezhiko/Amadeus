@@ -169,10 +169,7 @@ impl EventHandler for Handler {
   }
   async fn message_delete(&self, ctx: Context, channel_id: ChannelId, deleted_message_id: MessageId) {
     if RESTORE.load(Ordering::Relaxed) {
-      let channel_name = channel_id.name(&ctx)
-                                   .await
-                                   .unwrap_or_else(|| "".to_string());
-      if !AI_ALLOWED.iter().any(|c| c == &channel_name) {
+      if !AI_ALLOWED.contains(&channel_id.0) {
         return;
       }
       let backup_deq = BACKUP.lock().await;
@@ -256,10 +253,7 @@ impl EventHandler for Handler {
             }
           }
         }
-        let channel_name = msg.channel_id.name(&ctx)
-                                         .await
-                                         .unwrap_or_else(|| "".to_string());
-        if AI_ALLOWED.iter().any(|c| c == &channel_name) {
+        if AI_ALLOWED.contains(&msg.channel_id.0) {
           let mut backup_deq = BACKUP.lock().await;
           if backup_deq.len() == backup_deq.capacity() {
             backup_deq.pop_front();
@@ -275,10 +269,7 @@ impl EventHandler for Handler {
           return;
         }
       }
-      let channel_name = msg.channel_id.name(&ctx)
-                                       .await
-                                       .unwrap_or_else(|| "".to_string());
-      if EXCEPTIONS.iter().any(|s| s == &channel_name) {
+      if EXCEPTIONS.contains(&msg.channel_id.0) {
         return;
       }
       let mut is_file = false;
@@ -332,11 +323,7 @@ impl EventHandler for Handler {
       }
     } else if !msg.content.starts_with('~') {
       if let Some(guild_id) = msg.guild_id {
-        let channel_name = msg.channel_id
-                              .name(&ctx)
-                              .await
-                              .unwrap_or_else(|| "".to_string());
-        if IGNORED.iter().any(|i| i == &channel_name) {
+        if IGNORED.contains(&msg.channel_id.0) {
           return;
         }
         if (&msg.mentions).iter().any(|u| u.bot) {
@@ -416,7 +403,7 @@ impl EventHandler for Handler {
                 ctx.idle().await;
               }
             }
-            if AI_ALLOWED.iter().any(|c| c == &channel_name) {
+            if AI_ALLOWED.contains(&msg.channel_id.0) {
               let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
               let rnd = rand::thread_rng().gen_range(0, activity_level);
               if rnd == 1 {

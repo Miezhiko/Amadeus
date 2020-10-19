@@ -18,19 +18,19 @@ static AI_LEARND: &str   = "dhall/channels/ai_learn.dhall";
 static IGNOREDD: &str   = "dhall/channels/ignored.dhall";
 
 lazy_static! {
-  pub static ref AI_ALLOWED: Vec<String> = dhall!(AI_ALLOWEDD);
-  pub static ref EXCEPTIONS: Vec<String> = dhall!(EXCEPTIONSD);
+  pub static ref AI_ALLOWED: Vec<u64>    = dhall!(AI_ALLOWEDD);
+  pub static ref EXCEPTIONS: Vec<u64>    = dhall!(EXCEPTIONSD);
   pub static ref AI_LEARN: Vec<LChannel> = dhall!(AI_LEARND);
-  pub static ref IGNORED: Vec<String>    = dhall!(IGNOREDD);
+  pub static ref IGNORED: Vec<u64>       = dhall!(IGNOREDD);
 }
 
 #[cfg(test)]
 mod channels_dhall_tests {
   use super::*;
   fn dhall_vec(f: &str) -> Result<(), String> {
-    match serde_dhall::from_file(f).parse::<Vec<String>>() {
+    match serde_dhall::from_file(f).parse::<Vec<u64>>() {
       Ok(some) => {
-        if !some.is_empty() {
+        if some.is_empty() {
           Ok(())
         } else {
           Err(String::from("empty structure loaded"))

@@ -12,7 +12,7 @@ pub enum ChannelLanguage {
 
 #[derive(Clone, Deserialize)]
 pub struct LChannel {
-  pub id: String,
+  pub id: u64,
   pub lang: ChannelLanguage,
 }
 

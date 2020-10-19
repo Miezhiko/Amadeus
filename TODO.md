@@ -9,4 +9,3 @@
 - Show region (EU/NA) on live matches
 - Replace argparse to something less boring
 - Bets against players (Lilyal request)
-- Use channels IDs, not names!

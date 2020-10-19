@@ -121,7 +121,7 @@ pub async fn update_cache( ctx: &Context
 
   for chan in channels.keys() {
     if let Some(c_name) = chan.name(&ctx).await {
-      if let Some(ch_lang) = AI_LEARN.iter().find(|c| c.id == c_name) {
+      if let Some(ch_lang) = AI_LEARN.iter().find(|c| c.id == chan.0) {
         let start_typing = ctx.http.start_typing(chan.0);
         let mut messages = chan.messages_iter(&ctx).boxed();
 
@@ -295,23 +295,21 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
     let re2 = Regex::new(r":(.*?):").unwrap();
     if let Ok(channels) = guild_id.channels(&ctx).await {
       for (chan, _) in channels {
-        if let Some(c_name) = chan.name(&ctx).await {
-          if AI_LEARN.iter().any(|c| c.id == c_name) {
-            if let Ok(messages) = chan.messages(&ctx, |r|
-              r.limit(100) // 100 is max
-            ).await {
-              for mmm in messages {
-                if mmm.author.id == author_id && !mmm.content.starts_with('~') {
-                  let mut result_string = re1.replace_all(&mmm.content, "").to_string();
-                  result_string = re2.replace_all(&result_string, "").to_string();
-                  result_string = result_string.replace(": ", "");
-                  let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
-                  let result = result_string.trim();
-                  if !result.is_empty() && !result.contains('$') && !is_http {
-                    chain.feed_str(result);
-                    if !have_something {
-                      have_something = true;
-                    }
+        if AI_LEARN.iter().any(|c| c.id == chan.0) {
+          if let Ok(messages) = chan.messages(&ctx, |r|
+            r.limit(100) // 100 is max
+          ).await {
+            for mmm in messages {
+              if mmm.author.id == author_id && !mmm.content.starts_with('~') {
+                let mut result_string = re1.replace_all(&mmm.content, "").to_string();
+                result_string = re2.replace_all(&result_string, "").to_string();
+                result_string = result_string.replace(": ", "");
+                let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
+                let result = result_string.trim();
+                if !result.is_empty() && !result.contains('$') && !is_http {
+                  chain.feed_str(result);
+                  if !have_something {
+                    have_something = true;
                   }
                 }
               }

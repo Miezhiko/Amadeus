@@ -4,9 +4,9 @@ let L = < English
 let Channel : Type =
   { id: Natural
   , lang: L }
-let ru = λ(id: Text) → { id = id, lang = L.Russian }
-let en = λ(id: Text) → { id = id, lang = L.English }
-let bi = λ(id: Text) → { id = id, lang = L.Bilingual }
+let ru = λ(id: Natural) → { id = id, lang = L.Russian }
+let en = λ(id: Natural) → { id = id, lang = L.English }
+let bi = λ(id: Natural) → { id = id, lang = L.Bilingual }
 let channels : List Channel =
   [ bi 611822932897038341 -- "main"
   , en 316390574808760322 -- "gym"

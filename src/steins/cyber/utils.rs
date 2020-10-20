@@ -41,6 +41,7 @@ fn try_get_map(m: &str) -> String {
             , "avalanche"             => "AVLV"
             , "losttemple"            => "LT"
             , "turtlerock"            => "TR"
+            , "ruinsofazsharaw3c"     => "ROA"
             , "gnollwood"             => "Gnoll Wood"
             , "hillsbradcreek"        => "Hillsbrad Creek"
             , "goldshire"             => "Goldshire"
@@ -52,14 +53,22 @@ fn try_get_map(m: &str) -> String {
 pub fn get_map(m: &str) -> String {
   let mut map = try_get_map(m);
   if map.is_empty() {
-    let split_ : Vec<String> = m.split('_')
+    if map.contains("w3c") {
+      let splitw: Vec<String> = m.split("w3c")
+                                 .filter(|x| !x.is_empty())
+                                 .map(str::to_string)
+                                 .collect();
+      map = try_get_map(&splitw[0]);
+    } else {
+      let split_: Vec<String> = m.split('_')
                                 .filter(|x| !x.is_empty())
                                 .map(str::to_string)
                                 .collect();
-    if split_.len() == 3 { // alike _1v1_autumnleaves_anon
-      map = try_get_map(&split_[1])
-    } else if split_.len() == 2 { // alike _gnollwood_anon
-      map = try_get_map(&split_[0])
+      if split_.len() == 3 { // alike _1v1_autumnleaves_anon
+        map = try_get_map(&split_[1])
+      } else if split_.len() == 2 { // alike _gnollwood_anon
+        map = try_get_map(&split_[0])
+      }
     }
   }
   if map.is_empty() { m.to_string() } else { map }

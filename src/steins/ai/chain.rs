@@ -59,7 +59,7 @@ lazy_static! {
   pub static ref CACHE_RU: Mutex<Chain<String>>     = Mutex::new(Chain::new());
   pub static ref LAST_UPDATE: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
   pub static ref KATHOEY: Mutex<Kathoey> =
-    Mutex::new(Kathoey::new("../Kathoey/dict.opcorpora.xml").unwrap());
+    Mutex::new(Kathoey::from_xml("../Kathoey/dict.opcorpora.xml").unwrap());
     // TODO: use rudano format when it will be stable enough
     // Mutex::new(Kathoey::from_rs("../Kathoey/dict.rs").unwrap());
 }

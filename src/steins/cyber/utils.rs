@@ -59,7 +59,7 @@ pub fn get_map(m: &str) -> String {
                                  .map(str::to_string)
                                  .collect();
       map = try_get_map(&splitw[0]);
-    } else if map.contains(".") {
+    } else if map.contains('.') {
       let splitd: Vec<String> = m.split('.')
                                  .filter(|x| !x.is_empty())
                                  .map(str::to_string)

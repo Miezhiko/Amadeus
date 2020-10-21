@@ -304,17 +304,31 @@ pub async fn check<'a>( ctx: &Context
 
                       let mut bet_fields = None;
                       if !track.bets.is_empty() {
-                        let mut output = vec![];
+                        let mut woutput = vec![];
+                        let mut loutput = vec![];
                         for bet in &track.bets {
                           let user_id = UserId( bet.member );
                           if let Ok(user) = user_id.to_user(&ctx).await {
-                            output.push(
-                              format!("**{}**: {}", user.name, bet.points)
-                            );
+                            if bet.positive {
+                              woutput.push(
+                                format!("**{}**: {}", user.name, bet.points)
+                              );
+                            } else {
+                              loutput.push(
+                                format!("**{}**: {}", user.name, bet.points)
+                              );
+                            }
                           }
                         }
+                        let mut fstring = woutput.join("\n");
+                        if !loutput.is_empty() {
+                          let need_space = if woutput.is_empty() { "" } else { "\n" };
+                          fstring = format!("{}{}*bets for lose:*\n{}", fstring
+                                                                      , need_space
+                                                                      , loutput.join("\n"));
+                        }
                         bet_fields = Some(vec![("Bets".to_string()
-                                              , output.join("\n")
+                                              , fstring
                                               , false)]);
                       }
 
@@ -418,17 +432,31 @@ pub async fn check<'a>( ctx: &Context
 
                       let mut bet_fields = None;
                       if !track.bets.is_empty() {
-                        let mut output = vec![];
+                        let mut woutput = vec![];
+                        let mut loutput = vec![];
                         for bet in &track.bets {
                           let user_id = UserId( bet.member );
                           if let Ok(user) = user_id.to_user(&ctx).await {
-                            output.push(
-                              format!("**{}**: {}", user.name, bet.points)
-                            );
+                            if bet.positive {
+                              woutput.push(
+                                format!("**{}**: {}", user.name, bet.points)
+                              );
+                            } else {
+                              loutput.push(
+                                format!("**{}**: {}", user.name, bet.points)
+                              );
+                            }
                           }
                         }
+                        let mut fstring = woutput.join("\n");
+                        if !loutput.is_empty() {
+                          let need_space = if woutput.is_empty() { "" } else { "\n" };
+                          fstring = format!("{}{}*bets for lose:*\n{}", fstring
+                                                                      , need_space
+                                                                      , loutput.join("\n"));
+                        }
                         bet_fields = Some(vec![("Bets".to_string()
-                                              , output.join("\n")
+                                              , fstring
                                               , false)]);
                       }
 
@@ -520,75 +548,85 @@ pub async fn check<'a>( ctx: &Context
                         let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
                         streak_fields = Some(vec![("Winning streak", dd, false)]);
                       }
-                      if !track.bets.is_empty() && bet_fields.is_none() {
-                        trace!("Paying for bets");
-                        let amadeus_maybe = {
-                          let data = ctx.data.read().await;
-                          if let Some(core_guilds) = data.get::<CoreGuilds>() {
-                            if let Some(amadeus) = core_guilds.get(&CoreGuild::Amadeus) {
-                              Some(*amadeus)
-                            } else { None }
-                          } else { None }
-                        };
-                        if let Some(amadeus) = amadeus_maybe {
-                          if let Ok(p) = trees::get_points( guild_id, amadeus ).await {
-                            let mut win_calculation = HashMap::new();
-                            let mut waste = 0;
-                            let mut k : f32 = 2.0;
-                            for bet in &track.bets {
-                              let best_win = (bet.points as f32 * k).round() as u64;
-                              win_calculation.insert(bet.member, best_win);
-                              waste += best_win;
-                            }
-                            while waste > p {
-                              k -= 0.1;
-                              waste = 0;
-                              for (_, wpp) in win_calculation.iter_mut() {
-                                *wpp = (*wpp as f32 * k).round() as u64;
-                                waste += *wpp;
-                              }
-                            }
-                            let mut output = vec![];
-                            for (mpp, wpp) in win_calculation.iter() {
-                              let (succ, rst) =
-                                trees::give_points( guild_id
-                                                  , amadeus
-                                                  , *mpp
-                                                  , *wpp ).await;
-                              if !succ {
-                                error!("failed to give bet win points: {}", rst);
-                              } else {
-                                let user_id = UserId( *mpp );
-                                if let Ok(user) = user_id.to_user(&ctx).await {
-                                  output.push(
-                                    format!("**{}** wins **{}**", user.name, *wpp)
-                                  );
-                                }
-                              }
-                            }
-                            let title = format!("Bets coefficient: {}", k);
-                            bet_fields = Some(vec![(title
-                                                  , output.join("\n")
-                                                  , false)]);
-                          }
-                        }
-                      }
                     } else {
                       trace!("Registering lose for {}", pw);
                       trees::break_streak(guild_id, *pw).await;
-                      if bet_fields.is_none() && !track.bets.is_empty() {
-                        let mut output = vec![];
-                        for bet in &track.bets {
-                          let user_id = UserId( bet.member );
-                          if let Ok(user) = user_id.to_user(&ctx).await {
-                            output.push(
-                              format!("**{}** loses **{}**", user.name, bet.points)
-                            );
+                    }
+                    if !track.bets.is_empty() && bet_fields.is_none() {
+                      trace!("Paying for bets");
+                      let amadeus_maybe = {
+                        let data = ctx.data.read().await;
+                        if let Some(core_guilds) = data.get::<CoreGuilds>() {
+                          if let Some(amadeus) = core_guilds.get(&CoreGuild::Amadeus) {
+                            Some(*amadeus)
+                          } else { None }
+                        } else { None }
+                      };
+                      if let Some(amadeus) = amadeus_maybe {
+                        if let Ok(p) = trees::get_points( guild_id, amadeus ).await {
+                          let mut win_calculation = HashMap::new();
+                          let mut waste = 0;
+                          let mut k : f32 = 2.0;
+                          let mut losers_output = vec![];
+                          for bet in &track.bets {
+                            if *is_win && bet.positive {
+                              let best_win = (bet.points as f32 * k).round() as u64;
+                              win_calculation.insert(bet.member, best_win);
+                              waste += best_win;
+                            } else {
+                              let user_id = UserId( bet.member );
+                              if let Ok(user) = user_id.to_user(&ctx).await {
+                                losers_output.push(
+                                  format!("**{}** loses **{}**", user.name, bet.points)
+                                );
+                              }
+                            }
+                          }
+                          while waste > p {
+                            k -= 0.1;
+                            waste = 0;
+                            for (_, wpp) in win_calculation.iter_mut() {
+                              *wpp = (*wpp as f32 * k).round() as u64;
+                              waste += *wpp;
+                            }
+                          }
+                          let mut output = vec![];
+                          for (mpp, wpp) in win_calculation.iter() {
+                            let (succ, rst) =
+                              trees::give_points( guild_id
+                                                , amadeus
+                                                , *mpp
+                                                , *wpp ).await;
+                            if !succ {
+                              error!("failed to give bet win points: {}", rst);
+                            } else {
+                              let user_id = UserId( *mpp );
+                              if let Ok(user) = user_id.to_user(&ctx).await {
+                                output.push(
+                                  format!("**{}** wins **{}**", user.name, *wpp)
+                                );
+                              }
+                            }
+                          }
+                          let title = format!("Bets coefficient: {}", k);
+                          if !output.is_empty() || !losers_output.is_empty() {
+                            let mut out_fields = vec![];
+                            if !output.is_empty() {
+                              out_fields.push(
+                                (title, output.join("\n")
+                                      , false)
+                              );
+                            }
+                            if !losers_output.is_empty() {
+                              out_fields.push(
+                                ("Betting losers".to_string()
+                                      , losers_output.join("\n")
+                                      , false)
+                              );
+                            }
+                            bet_fields = Some(out_fields);
                           }
                         }
-                        bet_fields = Some(vec![("Betting losers".to_string()
-                                              , output.join("\n")
-                                              , false)]);
                       }
                     }
                   }

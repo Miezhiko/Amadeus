@@ -78,7 +78,8 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
               if let Some(amadeus) = amadeus_guild {
                 let bet = Bet { guild: guild_id.0
                               , member: msg.author.id.0
-                              , points: points_count };
+                              , points: points_count
+                              , positive: true };
                 let (succ, rst) = trees::give_points( guild_id.0
                                                     , msg.author.id.0
                                                     , amadeus

@@ -209,7 +209,9 @@ pub async fn activate_games_tracking(
                           if let Some(g) = inref.guild_id {
                             if let Ok(p) = trees::get_points( g.0, u.0 ).await {
                               if p > 100 {
-                                if emoji.as_data().as_str() == "👍🏻" {
+                                let emoji_data = emoji.as_data();
+                                if emoji_data.as_str() == "👍🏻" || emoji_data.as_str() == "👎🏻" {
+                                  let is_positive = emoji_data.as_str() == "👍🏻";
                                   let mut gl = cyber::team_checker::GAMES.lock().await;
                                   if let Some(track) = gl.get_mut(&game_key) {
                                     if track.still_live {
@@ -217,9 +219,9 @@ pub async fn activate_games_tracking(
                                       if !track.bets.iter().any(|b| b.member == u.0) {
                                         let bet = Bet { guild: g.0
                                                       , member: u.0
-                                                      , points: 100 };
-                                        let (succ, rst) = trees::give_points( g.0
-                                                                            , u.0
+                                                      , points: 100
+                                                      , positive: is_positive };
+                                        let (succ, rst) = trees::give_points( g.0, u.0
                                                                             , amadeus
                                                                             , 100 ).await;
                                         if succ {
@@ -231,16 +233,6 @@ pub async fn activate_games_tracking(
                                     }
                                   }
                                 }
-                                /*
-                                match emoji.as_data().as_str() {
-                                  "👍🏻" => {
-                                    // TODO: bet for player
-                                  },
-                                  "👎🏻" => {
-                                    // TODO: bet against player
-                                  },
-                                  _ => {}
-                                }*/
                               }
                             }
                           }

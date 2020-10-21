@@ -14,7 +14,8 @@ pub struct FinishedGame {
 pub struct Bet {
   pub guild: u64,
   pub member: u64,
-  pub points: u64
+  pub points: u64,
+  pub positive: bool
 }
 
 #[allow(non_snake_case)]

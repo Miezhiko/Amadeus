@@ -13,7 +13,6 @@ let playersList : List Playerx =
   , t "PriesT#12658"      180213339111161856 "PriesTwc3"
   , t "LosThopeLFT#2202"  313638735562407937 "krolu_"
   , t "ENA1337#2702"      138315254378659840 "ena1337"
-  , t "Soulful#2300"      147805125824610304 "soulful85"
   , t "Muffy#2299"        196231768880185344 "muffy_supergosu"
   , t "Trunks#2116"       297810232254398466 "trynkzzz"
   , t "Маша#21994"        510368731378089984 "Qinon"

@@ -47,6 +47,7 @@ fn try_get_map(m: &str) -> String {
             , "goldshire"             => "Goldshire"
             , "tidewaterglades"       => "Tide Water Glades"
             , "circleoffallenheroes"  => "Circle of Hate"
+            , "phantomgrove"          => "Phantom Grove"
             , _                       => "" })
 }
 

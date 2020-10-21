@@ -2,35 +2,33 @@ use crate::{
   types::{ common::ReqwestClient
          , options::IOptions
          , tracking::TrackingGame
+         , tracking::Bet
          , twitch::Twitch
          , goodgame::GoodGameData },
+  common::trees,
   common::help::channel::channel_by_name,
   steins::cyber
 };
 
 use serenity::{
   prelude::*,
-  model::{
-    id::ChannelId,
-    channel::GuildChannel
-  }
+  model::{ id::ChannelId
+         , channel::GuildChannel
+         , channel::ReactionType }
 };
 
-use std::{
-  collections::HashMap,
-  time,
-  sync::Arc
-};
+use std::{ collections::HashMap
+         , time
+         , sync::Arc };
 
-use rand::{
-  Rng
-};
+use rand::Rng;
 
 pub async fn activate_games_tracking(
                      ctx:       &Arc<Context>
                    , channels:  &HashMap<ChannelId, GuildChannel>
                    , options:   &IOptions
-                   , token:     String ) {
+                   , token:     String
+                   , amadeus:   u64 ) {
   if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
 
     // Delete live games from log channel (if some)
@@ -80,14 +78,15 @@ pub async fn activate_games_tracking(
             warn!("match {} out with timeout", ktd);
             games_lock.remove(&ktd);
           }
-          info!("check");
 
+          info!("check");
           let our_gsx = cyber::team_checker::check( &ctx_clone
                                                   , ch_deref.0
                                                   , options_clone.guild
                                                   , &mut games_lock
                                                   , &rqcl
                                                   ).await;
+
           for game in our_gsx {
             let game_key = game.key.clone();
             let playa = &game.players[0];
@@ -185,12 +184,73 @@ pub async fn activate_games_tracking(
                 }
               )).await {
                 Ok(msg_id) => {
-                  games_lock.insert(game_key, TrackingGame {
+                  games_lock.insert(game_key.clone(), TrackingGame {
                     tracking_msg_id: msg_id.id.0,
                     passed_time: 0,
                     still_live: false,
                     players: game.players, bets: vec![], fails: 0 }
                   );
+                  let up = ReactionType::Unicode(String::from("👍🏻"));
+                  let dw = ReactionType::Unicode(String::from("👎🏻"));
+                  let _ = msg_id.react(&ctx_clone.http, up).await;
+                  let _ = msg_id.react(&ctx_clone.http, dw).await;
+                  // run thread inside thread for reactions
+                  // we're cloning ctx yet another time here!
+                  let xtx_clone = Arc::clone(&ctx_clone);
+                  tokio::spawn(async move {
+                    loop {
+                      // 30 minutes for each game
+                      if let Some(reaction) =
+                        &msg_id.await_reaction(&xtx_clone.shard)
+                               .timeout(time::Duration::from_secs(1800)).await {
+                        let inref = reaction.as_inner_ref();
+                        let emoji = &inref.emoji;
+                        if let Some(u) = inref.user_id {
+                          if let Some(g) = inref.guild_id {
+                            if let Ok(p) = trees::get_points( g.0, u.0 ).await {
+                              if p > 100 {
+                                if emoji.as_data().as_str() == "👍🏻" {
+                                  let mut gl = cyber::team_checker::GAMES.lock().await;
+                                  if let Some(track) = gl.get_mut(&game_key) {
+                                    if track.still_live {
+                                      // you bet only once
+                                      if !track.bets.iter().any(|b| b.member == u.0) {
+                                        let bet = Bet { guild: g.0
+                                                      , member: u.0
+                                                      , points: 100 };
+                                        let (succ, rst) = trees::give_points( g.0
+                                                                            , u.0
+                                                                            , amadeus
+                                                                            , 100 ).await;
+                                        if succ {
+                                          track.bets.push(bet);
+                                        } else {
+                                          error!("Error on bet {:?}", rst);
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                /*
+                                match emoji.as_data().as_str() {
+                                  "👍🏻" => {
+                                    // TODO: bet for player
+                                  },
+                                  "👎🏻" => {
+                                    // TODO: bet against player
+                                  },
+                                  _ => {}
+                                }*/
+                              }
+                            }
+                          }
+                        }
+                      } else {
+                        let _ = msg_id.delete_reactions(&xtx_clone.http).await;
+                        break;
+                      }
+                    }
+                  });
                 },
                 Err(why) => {
                   error!("Failed to post live match {:?}", why);

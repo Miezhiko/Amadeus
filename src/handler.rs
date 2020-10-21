@@ -101,7 +101,7 @@ impl EventHandler for Handler {
     }
     let threads_check = THREADS.load(Ordering::Relaxed);
     if !threads_check {
-      gate::behavior::activate(ctx, &self.ioptions).await;
+      gate::behavior::activate(ctx, &self.ioptions, &self.amadeus_id).await;
       THREADS.store(true, Ordering::Relaxed);
     }
   }

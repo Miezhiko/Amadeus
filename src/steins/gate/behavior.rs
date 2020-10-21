@@ -14,7 +14,7 @@ use crate::{
 use serenity::{
   prelude::*,
   model::{
-    id::{ GuildId, ChannelId },
+    id::{ GuildId, ChannelId, UserId },
     channel::GuildChannel
   }
 };
@@ -28,7 +28,7 @@ lazy_static! {
   pub static ref START_TIME: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
 }
 
-pub async fn activate(ctx: Context, options: &IOptions) {
+pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   info!("activation has started");
 
   lazy_static::initialize(&START_TIME);
@@ -82,6 +82,7 @@ pub async fn activate(ctx: Context, options: &IOptions) {
       activate_games_tracking(
         &ac, &hemo_channels
            , options, access_token
+           , amadeus.0
            ).await;
       activate_w3info_tracking(&ac).await;
     }

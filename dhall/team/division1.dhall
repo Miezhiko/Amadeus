@@ -11,7 +11,6 @@ let playersList : List Playerx =
   , p "SasoRii#21896"     714711512282824755
   , p "sockpuppet#21397"  204753768523235329
   , t "PriesT#12658"      180213339111161856 "PriesTwc3"
-  , t "LosThopeLFT#2202"  313638735562407937 "krolu_"
   , t "ENA1337#2702"      138315254378659840 "ena1337"
   , t "Muffy#2299"        196231768880185344 "muffy_supergosu"
   , t "Trunks#2116"       297810232254398466 "trynkzzz"

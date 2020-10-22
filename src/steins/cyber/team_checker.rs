@@ -322,7 +322,7 @@ pub async fn check<'a>( ctx: &Context
                         }
                         let mut fstring = woutput.join("\n");
                         if !loutput.is_empty() {
-                          let need_space = if woutput.is_empty() { "" } else { "\n" };
+                          let need_space = if woutput.is_empty() { "" } else { "\n\n" };
                           fstring = format!("{}{}*bets for lose:*\n{}", fstring
                                                                       , need_space
                                                                       , loutput.join("\n"));
@@ -450,7 +450,7 @@ pub async fn check<'a>( ctx: &Context
                         }
                         let mut fstring = woutput.join("\n");
                         if !loutput.is_empty() {
-                          let need_space = if woutput.is_empty() { "" } else { "\n" };
+                          let need_space = if woutput.is_empty() { "" } else { "\n\n" };
                           fstring = format!("{}{}*bets for lose:*\n{}", fstring
                                                                       , need_space
                                                                       , loutput.join("\n"));
@@ -569,7 +569,7 @@ pub async fn check<'a>( ctx: &Context
                           let mut k : f32 = 2.0;
                           let mut losers_output = vec![];
                           for bet in &track.bets {
-                            if *is_win && bet.positive {
+                            if *is_win == bet.positive {
                               let best_win = (bet.points as f32 * k).round() as u64;
                               win_calculation.insert(bet.member, best_win);
                               waste += best_win;

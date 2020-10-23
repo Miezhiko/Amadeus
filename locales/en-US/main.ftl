@@ -20,7 +20,7 @@ user-commands = • **ttt** *<@user>* *<N>*: play tic tac toe for points
   • **embed** *<title>* *<description>*: create embed
   • **qrcode** *<something>*: creates QR code
   • **urban** *<thing>*: explains a thing
-  • **gif** *<thing>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy, annoyed, omg, smile, ew, awkward, oops, lazy, hungry, stressed, scared, bored, yes, no, bye, sorry, sleepy, wink, facepalm, whatever, pout, smug
+  • **gif** *<thing>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy, annoyed, omg, smile, ew, awkward, oops, lazy, hungry, stressed, scared, bored, yes, no, bye, sorry, sleepy, wink, facepalm, whatever, pout, smug, smirk
   • **ru2en** *<text>*: translation, also **en2ru** **en2de** **en2fr** **de2en** **fr2en**
 
 music-commands-title = music commands

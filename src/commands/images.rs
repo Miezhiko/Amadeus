@@ -331,6 +331,15 @@ async fn smile(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+async fn smirk(ctx: &Context, msg: &Message) -> CommandResult {
+  gifx( ctx, msg
+      , "smirk anime"
+      , 0xafb2e3
+      , own("smirks")
+      , false ).await
+}
+
+#[command]
 async fn smug(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "smug anime"

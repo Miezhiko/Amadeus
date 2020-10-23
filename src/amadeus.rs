@@ -111,7 +111,7 @@ struct Translate;
 #[commands(cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, gifsearch
   , lol, angry, dance, confused, shock, nervous, sad, happy, annoyed, omg, smile
   , ew, awkward, oops, lazy, hungry, stressed, scared, bored, yes, no, bye, sorry
-  , sleepy, wink, facepalm, whatever, pout, smug)]
+  , sleepy, wink, facepalm, whatever, pout, smug, smirk)]
 struct Images;
 
 #[group("Voice")]

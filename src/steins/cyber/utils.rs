@@ -54,19 +54,19 @@ fn try_get_map(m: &str) -> String {
 pub fn get_map(m: &str) -> String {
   let mut map = try_get_map(m);
   if map.is_empty() {
-    if map.contains("w3c") {
+    if m.contains("w3c") {
       let splitw: Vec<String> = m.split("w3c")
                                  .filter(|x| !x.is_empty())
                                  .map(str::to_string)
                                  .collect();
       map = try_get_map(&splitw[0]);
-    } else if map.contains('.') {
+    } else if m.contains('.') {
       let splitd: Vec<String> = m.split('.')
                                  .filter(|x| !x.is_empty())
                                  .map(str::to_string)
                                  .collect();
       map = try_get_map(&splitd[0]);
-    } else if map.contains('2') {
+    } else if m.contains('2') {
       let split2: Vec<String> = m.split('2')
                                  .filter(|x| !x.is_empty())
                                  .map(str::to_string)
@@ -74,9 +74,9 @@ pub fn get_map(m: &str) -> String {
       map = try_get_map(&split2[0]);
     } else {
       let split_: Vec<String> = m.split('_')
-                                .filter(|x| !x.is_empty())
-                                .map(str::to_string)
-                                .collect();
+                                 .filter(|x| !x.is_empty())
+                                 .map(str::to_string)
+                                 .collect();
       if split_.len() == 3 { // alike _1v1_autumnleaves_anon
         map = try_get_map(&split_[1])
       } else if split_.len() == 2 { // alike _gnollwood_anon
@@ -110,6 +110,7 @@ mod cyber_utils_tests {
   use super::*;
   #[test]
   fn get_map_test() {
+    assert_eq!(get_map("autumnleaves201016"), "AL");
     assert_eq!(get_map("_1v1_autumnleaves_anon"), "AL");
     assert_eq!(get_map("_gnollwood_anon"), "Gnoll Wood");
   }

@@ -9,7 +9,6 @@ let rList : List Reaction =
   , { id = 657178237515989012, name = "niko3" }
   , { id = 657178237444554762, name = "niko2" }
   , { id = 657178237234839592, name = "niko1" }
-  , { id = 657178236882649099, name = "hi" }
   , { id = 641635941756174355, name = "HestiaNo" }
   , { id = 657178236937043968, name = "evul" }
   , { id = 657179213056704522, name = "eee" }
@@ -17,6 +16,7 @@ let rList : List Reaction =
   , { id = 641638050945957904, name = "CocoSmug" }
   , { id = 611889889755004936, name = "antifa_heart" }
   , { id = 633733924773822474, name = "Egolilyal" }
+  , { id = 763653216754860052, name = "daijoubu" }
   ]
 
 in rList

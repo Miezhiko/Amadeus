@@ -270,7 +270,11 @@ pub async fn run(opts : &IOptions) ->
   let (owners, amadeus_id) = match http.get_current_application_info().await {
     Ok(info) => {
       let mut owners = HashSet::new();
-      owners.insert(info.owner.id);
+      if let Some(team) = info.team {
+        owners.insert(team.owner_user_id);
+      } else {
+        owners.insert(info.owner.id);
+      }
       (owners, info.id)
     },
     Err(why) => panic!("Could not access application info: {:?}", why),

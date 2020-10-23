@@ -41,7 +41,7 @@ fn try_get_map(m: &str) -> String {
             , "avalanche"             => "AVLV"
             , "losttemple"            => "LT"
             , "turtlerock"            => "TR"
-            , "ruinsofazsharaw3c"     => "ROA"
+            , "ruinsofazshara"        => "ROA"
             , "gnollwood"             => "Gnoll Wood"
             , "hillsbradcreek"        => "Hillsbrad Creek"
             , "goldshire"             => "Goldshire"
@@ -66,6 +66,12 @@ pub fn get_map(m: &str) -> String {
                                  .map(str::to_string)
                                  .collect();
       map = try_get_map(&splitd[0]);
+    } else if map.contains('2') {
+      let split2: Vec<String> = m.split('2')
+                                 .filter(|x| !x.is_empty())
+                                 .map(str::to_string)
+                                 .collect();
+      map = try_get_map(&split2[0]);
     } else {
       let split_: Vec<String> = m.split('_')
                                 .filter(|x| !x.is_empty())

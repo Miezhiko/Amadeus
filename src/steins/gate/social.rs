@@ -66,28 +66,26 @@ pub async fn activate_social_skils(
     });
   }
 
-  if let Some((channel, _)) = channel_by_name(&ctx, &channels, "💬главный-зал💬").await {
-    set!{ ch_deref  = *channel
-        , ctx_clone = Arc::clone(&ctx) };
-    tokio::spawn(async move {
-      loop {
-        let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
-        let rndx = rand::thread_rng().gen_range(0, activity_level);
-        if rndx == 1 {
-          let ai_text = chain::generate_with_language(&ctx_clone, true).await;
-          let message = {
-            let kathoey = chain::KATHOEY.lock().await;
-            kathoey.feminize(&ai_text)
-          };
-          if let Err(why) = ch_deref.send_message(&ctx_clone, |m| {
-            m.content(message)
-          }).await {
-            error!("Failed to post periodic message {:?}", why);
-          }
+  set!{ ch_deref  = ChannelId( 766697158245089310 )
+      , ctx_clone = Arc::clone(&ctx) };
+  tokio::spawn(async move {
+    loop {
+      let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
+      let rndx = rand::thread_rng().gen_range(0, activity_level);
+      if rndx == 1 {
+        let ai_text = chain::generate_with_language(&ctx_clone, true).await;
+        let message = {
+          let kathoey = chain::KATHOEY.lock().await;
+          kathoey.feminize(&ai_text)
+        };
+        if let Err(why) = ch_deref.send_message(&ctx_clone, |m| {
+          m.content(message)
+        }).await {
+          error!("Failed to post periodic message {:?}", why);
         }
-        tokio::time::delay_for(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
       }
-    });
-  }
+      tokio::time::delay_for(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
+    }
+  });
 
 }

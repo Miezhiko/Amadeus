@@ -169,7 +169,7 @@ impl EventHandler for Handler {
   }
   async fn message_delete(&self, ctx: Context, channel_id: ChannelId, deleted_message_id: MessageId) {
     if RESTORE.load(Ordering::Relaxed) {
-      if !AI_ALLOWED.contains(&channel_id.0) {
+      if !AI_ALLOWED.iter().any(|c| c.id == channel_id.0) {
         return;
       }
       let backup_deq = BACKUP.lock().await;
@@ -253,7 +253,7 @@ impl EventHandler for Handler {
             }
           }
         }
-        if AI_ALLOWED.contains(&msg.channel_id.0) {
+        if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
           let mut backup_deq = BACKUP.lock().await;
           if backup_deq.len() == backup_deq.capacity() {
             backup_deq.pop_front();
@@ -403,7 +403,7 @@ impl EventHandler for Handler {
                 ctx.idle().await;
               }
             }
-            if AI_ALLOWED.contains(&msg.channel_id.0) {
+            if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
               let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
               let rnd = rand::thread_rng().gen_range(0, activity_level);
               if rnd == 1 {

@@ -8,7 +8,7 @@ use crate::{
                      , CONFUSION_RU
                      , OBFUSCATION
                      , OBFUSCATION_RU },
-  collections::channels::AI_LEARN,
+  collections::channels::{ AI_LEARN, AI_ALLOWED },
   steins::ai::{ boris, uwu, bert },
   handler::RESTORE
 };
@@ -394,7 +394,22 @@ pub fn obfuscate(msg_content: &str) -> String {
 #[async_recursion]
 async fn generate_response(ctx: &Context, msg: &Message) -> String {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
-  let russian = lang::is_russian(&msg.content);
+  let russian =
+    if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0) {
+      match ch_lang.lang {
+        ChannelLanguage::English => {
+          false
+        },
+        ChannelLanguage::Russian => {
+          true
+        },
+        ChannelLanguage::Bilingual => {
+          lang::is_russian(&msg.content)
+        }
+      }
+    } else {
+      lang::is_russian(&msg.content)
+    };
   let rndx : u32 = rand::thread_rng().gen_range(0, 9);
   let mut bert_generated = false;
   let mut answer =

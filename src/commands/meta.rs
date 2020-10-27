@@ -326,10 +326,12 @@ async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
         .expect("failed to execute process");
   if let Ok(git_log_stdout) = &String::from_utf8(git_log.stdout) {
 
-    let re1 = Regex::new(r"<(.*?)>").unwrap();
-    let re2 = Regex::new(r"Date.*").unwrap();
-    let mut descr = re1.replace_all(&git_log_stdout, "").to_string();
-    descr = re2.replace_all(&descr, "").to_string();
+    lazy_static! {
+      static ref RE1: Regex = Regex::new(r"<(.*?)>").unwrap();
+      static ref RE2: Regex = Regex::new(r"Date.*").unwrap();
+    }
+    let mut descr = RE1.replace_all(&git_log_stdout, "").to_string();
+    descr = RE2.replace_all(&descr, "").to_string();
     descr = descr.lines()
                  .filter(|l| !l.trim().is_empty())
                  .collect::<Vec<&str>>()

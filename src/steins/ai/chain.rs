@@ -62,6 +62,10 @@ lazy_static! {
     Mutex::new(Kathoey::from_xml("../Kathoey/dict.opcorpora.xml").unwrap());
     // TODO: use rudano format when it will be stable enough
     // Mutex::new(Kathoey::from_rs("../Kathoey/dict.rs").unwrap());
+
+  static ref RE1: Regex = Regex::new(r"<(.*?)>").unwrap();
+  static ref RE2: Regex = Regex::new(r":(.*?):").unwrap();
+  static ref RE3: Regex = Regex::new(r"&(.*?);").unwrap();
 }
 
 pub async fn update_cache( ctx: &Context
@@ -110,9 +114,6 @@ pub async fn update_cache( ctx: &Context
   }
 
   let mut ru_messages_for_translation : Vec<String> = vec![];
-  set! { re1 = Regex::new(r"<(.*?)>").unwrap()
-       , re2 = Regex::new(r":(.*?):").unwrap()
-       , re3 = Regex::new(r"&(.*?);").unwrap() };
 
   let m_count = CHANNEL_CACHE_MAX * AI_LEARN.len() as u64;
   let progress_step = m_count / 5;
@@ -147,9 +148,9 @@ pub async fn update_cache( ctx: &Context
                 }
                 i += 1; m_progress += 1;
                 if !check_registration(chan.0, mmm.id.0).await {
-                  let mut result_string = re1.replace_all(&mmm.content, "").to_string();
-                  result_string = re2.replace_all(&result_string, "").to_string();
-                  result_string = re3.replace_all(&result_string, "").to_string();
+                  let mut result_string = RE1.replace_all(&mmm.content, "").to_string();
+                  result_string = RE2.replace_all(&result_string, "").to_string();
+                  result_string = RE3.replace_all(&result_string, "").to_string();
                   let result = result_string.trim();
                   let is_http = result.starts_with("http");
                   if !result.is_empty() && !result.contains('$') && !is_http {
@@ -291,8 +292,6 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
   let mut have_something = false;
   if let Some(guild_id) = msg.guild_id {
     let mut chain = Chain::new();
-    let re1 = Regex::new(r"<(.*?)>").unwrap();
-    let re2 = Regex::new(r":(.*?):").unwrap();
     if let Ok(channels) = guild_id.channels(&ctx).await {
       for (chan, _) in channels {
         if AI_LEARN.iter().any(|c| c.id == chan.0) {
@@ -301,8 +300,9 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
           ).await {
             for mmm in messages {
               if mmm.author.id == author_id && !mmm.content.starts_with('~') {
-                let mut result_string = re1.replace_all(&mmm.content, "").to_string();
-                result_string = re2.replace_all(&result_string, "").to_string();
+                let mut result_string = RE1.replace_all(&mmm.content, "").to_string();
+                result_string = RE2.replace_all(&result_string, "").to_string();
+                result_string = RE3.replace_all(&result_string, "").to_string();
                 result_string = result_string.replace(": ", "");
                 let is_http = result_string.starts_with("http") && !result_string.starts_with("https://images");
                 let result = result_string.trim();

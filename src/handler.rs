@@ -392,8 +392,11 @@ impl EventHandler for Handler {
               let activity = chain::generate(&ctx, &msg, None).await;
               if !activity.is_empty() {
                 if activity.contains('<') && activity.contains('>') {
-                  let re_ib = Regex::new(r"<(.*?)>").unwrap();
-                  let replaced = re_ib.replace_all(&activity, "");
+                  lazy_static! {
+                    static ref RE_IB: Regex
+                      = Regex::new(r"<(.*?)>").unwrap();
+                  }
+                  let replaced = RE_IB.replace_all(&activity, "");
                   if !replaced.is_empty() {
                     ctx.set_activity(Activity::playing(&replaced)).await;
                   }
@@ -512,8 +515,11 @@ impl EventHandler for Handler {
           error!("Error sending overwatch reply: {:?}", why);
         }
       } else {
-        let regex_no_u = Regex::new(r"(^|\W)((?i)no u(?-i))($|\W)").unwrap();
-        if regex_no_u.is_match(&msg.content) {
+        lazy_static! {
+          static ref RE_NO_U: Regex =
+            Regex::new(r"(^|\W)((?i)no u(?-i))($|\W)").unwrap();
+        }
+        if RE_NO_U.is_match(&msg.content) {
           let rnd = rand::thread_rng().gen_range(0, 2);
           if rnd == 1 {
             if let Err(why) = msg.channel_id.say(&ctx, "No u").await {

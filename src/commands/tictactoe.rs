@@ -45,8 +45,11 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
       Err(why) => Err(why.to_string()),
     }
   } else if member_name.starts_with("<@") && member_name.ends_with('>') {
-    let re = Regex::new("[<@!>]").unwrap();
-    let member_id = re.replace_all(&member_name, "").into_owned();
+    lazy_static! {
+      static ref RE: Regex =
+        Regex::new("[<@!>]").unwrap();
+    }
+    let member_id = RE.replace_all(&member_name, "").into_owned();
     let member = &msg.guild_id.unwrap().member(ctx, UserId(member_id.parse::<u64>().unwrap())).await;
     match member {
       Ok(m) => Ok(m.to_owned()),

@@ -54,11 +54,12 @@ fn try_get_map(m: &str) -> String {
 }
 
 pub fn get_map(m: &str) -> String {
-  let map_regex = Regex::new(
+  lazy_static! {
+  static ref MAP_REGEX: Regex = Regex::new(
     r"^(?:_)?(?:[0-4]{1}v[0-4]{1}_)?([A-z._']+?)(?:[0-9]+)?(?:_lv)?(?:_|\.)?(?:anon)?(?:_|\.)?(?:w3c|w3x)?$")
-      .unwrap();
+      .unwrap(); }
   let mut map = String::new();
-  if let Some(caps) = map_regex.captures(m) {
+  if let Some(caps) = MAP_REGEX.captures(m) {
     if let Some(group1) = caps.get(1) {
       map = try_get_map(group1.as_str());
     }

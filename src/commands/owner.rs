@@ -174,11 +174,17 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
                 .output()
                 .await
                 .expect("failed to update crates");
-      let links_re = Regex::new(r"(.https.*)").unwrap();
+      lazy_static! {
+        static ref LINKS_RE: Regex =
+          Regex::new(r"(.https.*)").unwrap();
+      }
       if let Ok(cargo_update_out) = &String::from_utf8(cargo_update.stderr) {
-        let updating_git_re = Regex::new(r"(.Updating git.*)").unwrap();
-        let mut update_str = links_re.replace_all(&cargo_update_out, "").to_string();
-        update_str = updating_git_re.replace_all(&update_str, "").to_string();
+        lazy_static! {
+          static ref GIT_RE: Regex =
+            Regex::new(r"(.Updating git.*)").unwrap();
+        }
+        let mut update_str = LINKS_RE.replace_all(&cargo_update_out, "").to_string();
+        update_str = GIT_RE.replace_all(&update_str, "").to_string();
         update_str = update_str.replace("/root/contrib/rust/", "");
         update_str = update_str.lines()
                                .filter(|l| !l.trim().is_empty())
@@ -206,7 +212,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
                 .expect("failed to compile new version");
       if let Ok(cargo_build_out) = &String::from_utf8(cargo_build.stderr) {
         let mut cut_paths = cargo_build_out.replace("/root/contrib/rust/", "");
-        cut_paths = links_re.replace_all(&cut_paths, "").to_string();
+        cut_paths = LINKS_RE.replace_all(&cut_paths, "").to_string();
         // if message is too big, take only last things
         if cut_paths.len() > 666 {
           if let Some((i, _)) = cut_paths.char_indices().rev().nth(666) {

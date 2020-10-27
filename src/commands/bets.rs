@@ -22,8 +22,11 @@ use regex::Regex;
 
 async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> eyre::Result<Member> {
   if meme.starts_with("<@") && meme.ends_with('>') {
-    let re = Regex::new("[<@!>]").unwrap();
-    let member_id = re.replace_all(&meme, "").into_owned();
+    lazy_static! {
+      static ref RE: Regex =
+        Regex::new("[<@!>]").unwrap();
+    }
+    let member_id = RE.replace_all(&meme, "").into_owned();
     let member = msg.guild_id.unwrap().member(
       ctx, UserId(member_id.parse::<u64>().unwrap())).await;
     match member {

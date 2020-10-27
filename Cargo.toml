@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.23.10"
+version     = "2.23.11"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -26,7 +26,7 @@ regex               = "1.4.1"
 serde               = "1.0.117"
 serde_derive        = "1.0.117"
 serde_json          = "1.0.59"
-serde_dhall         = "0.7.3"
+serde_dhall         = "0.7.4"
 lazy_static         = "1.4.0"
 ucd                 = "0.1.1"
 comfy-table         = "1.1.1"

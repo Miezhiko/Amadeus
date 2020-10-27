@@ -8,3 +8,4 @@
 - Replace argparse to something less boring
 - Bets against players (Lilyal request)
 - amadeus rs: greeting check needs optimization
+- automate Summer time!

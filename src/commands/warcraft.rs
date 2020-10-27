@@ -62,13 +62,13 @@ pub async fn tour_internal( ctx: &Context
                            , str_min = &val[11..13] };
                       let msk =
                         if let Ok(str_int) = str_hour.parse::<i32>() {
-                          let mut msk_h = str_int + 1;
+                          let mut msk_h = str_int + 2;
                           if msk_h >= 24 {
                             msk_h -= 24;
                           }
                           format!(" ({}:{} MSK)", msk_h.to_string(), str_min)
                         } else { String::from("") };
-                      tvstr = format!("• {}:{} CEST {}", str_hour, str_min, msk);
+                      tvstr = format!("• {}:{} CET {}", str_hour, str_min, msk);
                     }
                   }
                 }

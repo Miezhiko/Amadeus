@@ -6,6 +6,7 @@
 - Split chain into 3 mods: cache, chain and possibly move general stuff to lib
 - Show region (EU/NA) on live matches
 - Replace argparse to something less boring
-- Bets against players (Lilyal request)
 - amadeus rs: greeting check needs optimization
 - automate Summer time!
+- Custom bets maybe (really not sure)
+- Bet wins shows a bit wrong, it includes original bet

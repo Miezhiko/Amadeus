@@ -322,7 +322,7 @@ pub async fn check<'a>( ctx: &Context
                         }
                         let mut fstring = woutput.join("\n");
                         if !loutput.is_empty() {
-                          let need_space = if woutput.is_empty() { "" } else { "\n\n" };
+                          let need_space = if woutput.is_empty() { "" } else { "\n" };
                           fstring = format!("{}{}*bets for lose:*\n{}", fstring
                                                                       , need_space
                                                                       , loutput.join("\n"));

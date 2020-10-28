@@ -392,6 +392,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
         .embed(|e| e
           .title(&clanned)
           .description(description)
+          .url(&format!("https://www.w3champions.com/player/{}", user))
           .thumbnail(&league_avi)
           .fields(additional_info)
           .colour(main_race_colors)

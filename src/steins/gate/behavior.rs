@@ -69,8 +69,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
     let ac = std::sync::Arc::new(ctx);
 
     if !hemo_channels.is_empty() {
-      activate_social_skils(
-        &ac, &all_channels).await;
+      activate_social_skils(&ac).await;
 
       let opts = options::get_roptions().await.unwrap();
       let access_token = opts.twitch;

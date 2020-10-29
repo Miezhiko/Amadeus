@@ -10,3 +10,4 @@
 - automate Summer time!
 - Custom bets maybe (really not sure)
 - Bet wins shows a bit wrong, it includes original bet
+- Implement users services marketplace

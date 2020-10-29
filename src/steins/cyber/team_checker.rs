@@ -568,6 +568,7 @@ pub async fn check<'a>( ctx: &Context
                           } else { None }
                         } else { None }
                       };
+                      // There is complicated bet win calculation
                       if let Some(amadeus) = amadeus_maybe {
                         if let Ok(p) = trees::get_points( guild_id, amadeus ).await {
                           let mut win_calculation = HashMap::new();
@@ -577,7 +578,7 @@ pub async fn check<'a>( ctx: &Context
                           for bet in &track.bets {
                             if *is_win == bet.positive {
                               let best_win = (bet.points as f32 * k).round() as u64;
-                              win_calculation.insert(bet.member, best_win);
+                              win_calculation.insert(bet.member, (bet.points, best_win));
                               waste += best_win;
                             } else {
                               let user_id = UserId( bet.member );
@@ -591,13 +592,13 @@ pub async fn check<'a>( ctx: &Context
                           while waste > p {
                             k -= 0.1;
                             waste = 0;
-                            for (_, wpp) in win_calculation.iter_mut() {
+                            for (_, (_, wpp)) in win_calculation.iter_mut() {
                               *wpp = (*wpp as f32 * k).round() as u64;
                               waste += *wpp;
                             }
                           }
                           let mut output = vec![];
-                          for (mpp, wpp) in win_calculation.iter() {
+                          for (mpp, (ppp, wpp)) in win_calculation.iter() {
                             let (succ, rst) =
                               trees::give_points( guild_id
                                                 , amadeus
@@ -608,8 +609,9 @@ pub async fn check<'a>( ctx: &Context
                             } else {
                               let user_id = UserId( *mpp );
                               if let Ok(user) = user_id.to_user(&ctx).await {
+                                let pure_win = *wpp - *ppp;
                                 output.push(
-                                  format!("**{}** wins **{}**", user.name, *wpp)
+                                  format!("**{}** wins **{}**", user.name, pure_win)
                                 );
                               }
                             }

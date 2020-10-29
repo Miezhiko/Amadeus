@@ -17,7 +17,7 @@ use serenity::prelude::*;
 use serenity::model::id::UserId;
 
 use std::collections::HashMap;
-use tokio::sync::{ Mutex, MutexGuard };
+use tokio::sync::Mutex;
 
 lazy_static! {
   pub static ref GAMES: Mutex<HashMap<String, TrackingGame>>
@@ -251,7 +251,6 @@ async fn check_match( matchid: &str
 pub async fn check<'a>( ctx: &Context
                       , channel_id: u64
                       , guild_id: u64
-                      , games_lock: &mut MutexGuard<'a, HashMap<String, TrackingGame>>
                       , rqcl: &reqwest::Client
                       ) -> Vec<StartingGame> {
   let mut out : Vec<StartingGame> = Vec::new();
@@ -275,96 +274,99 @@ pub async fn check<'a>( ctx: &Context
                     race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
                   , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
 
-                if let Some(track) = games_lock.get_mut(&m.match_id) {
-                  track.still_live = true;
-                  let minutes = track.passed_time / 2;
-                  let footer = format!("Passed: {} min", minutes);
+                { // games lock scope
+                  let mut games_lock = GAMES.lock().await;
+                  if let Some(track) = games_lock.get_mut(&m.match_id) {
+                    track.still_live = true;
+                    let minutes = track.passed_time / 2;
+                    let footer = format!("Passed: {} min", minutes);
 
-                  // use first player for discord operations
-                  let playa = playaz[0].discord;
-                  if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
-                    if let Ok(user) = ctx.http.get_user(playa).await {
+                    // use first player for discord operations
+                    let playa = playaz[0].discord;
+                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                      if let Ok(user) = ctx.http.get_user(playa).await {
 
-                      let mut fields = Vec::new();
-                      let mut img = None;
-                      let mut url = None;
-                      let mut color = (32,32,32);
-                      if !msg.embeds.is_empty() {
-                        if !msg.embeds[0].fields.is_empty() {
-                          for f in msg.embeds[0].fields.clone() {
-                            if f.name != "Bets" {
-                              fields.push((f.name, f.value, f.inline));
+                        let mut fields = Vec::new();
+                        let mut img = None;
+                        let mut url = None;
+                        let mut color = (32,32,32);
+                        if !msg.embeds.is_empty() {
+                          if !msg.embeds[0].fields.is_empty() {
+                            for f in msg.embeds[0].fields.clone() {
+                              if f.name != "Bets" {
+                                fields.push((f.name, f.value, f.inline));
+                              }
                             }
                           }
-                        }
-                        img = msg.embeds[0].image.clone();
-                        url = msg.embeds[0].url.clone();
-                        color = msg.embeds[0].colour.tuple();
-                      };
+                          img = msg.embeds[0].image.clone();
+                          url = msg.embeds[0].url.clone();
+                          color = msg.embeds[0].colour.tuple();
+                        };
 
-                      let mut bet_fields = None;
-                      if !track.bets.is_empty() {
-                        let mut woutput = vec![];
-                        let mut loutput = vec![];
-                        for bet in &track.bets {
-                          let user_id = UserId( bet.member );
-                          if let Ok(user) = user_id.to_user(&ctx).await {
-                            if bet.positive {
-                              woutput.push(
-                                format!("**{}**: {}", user.name, bet.points)
-                              );
-                            } else {
-                              loutput.push(
-                                format!("**{}**: {}", user.name, bet.points)
-                              );
+                        let mut bet_fields = None;
+                        if !track.bets.is_empty() {
+                          let mut woutput = vec![];
+                          let mut loutput = vec![];
+                          for bet in &track.bets {
+                            let user_id = UserId( bet.member );
+                            if let Ok(user) = user_id.to_user(&ctx).await {
+                              if bet.positive {
+                                woutput.push(
+                                  format!("**{}**: {}", user.name, bet.points)
+                                );
+                              } else {
+                                loutput.push(
+                                  format!("**{}**: {}", user.name, bet.points)
+                                );
+                              }
                             }
                           }
+                          let mut fstring = woutput.join("\n");
+                          if !loutput.is_empty() {
+                            let need_space = if woutput.is_empty() { "" } else { "\n" };
+                            fstring = format!("{}{}*on lose:*\n{}", fstring
+                                                                  , need_space
+                                                                  , loutput.join("\n"));
+                          }
+                          bet_fields = Some(vec![("Bets".to_string()
+                                                , fstring
+                                                , false)]);
                         }
-                        let mut fstring = woutput.join("\n");
-                        if !loutput.is_empty() {
-                          let need_space = if woutput.is_empty() { "" } else { "\n" };
-                          fstring = format!("{}{}*bets for lose:*\n{}", fstring
-                                                                      , need_space
-                                                                      , loutput.join("\n"));
-                        }
-                        bet_fields = Some(vec![("Bets".to_string()
-                                              , fstring
-                                              , false)]);
-                      }
 
-                      if let Err(why) = msg.edit(ctx, |m| m
-                        .embed(|e|  {
-                          let mut e = e
-                            .title("LIVE")
-                            .author(|a| a.icon_url(&user.face()).name(&user.name))
-                            .description(mstr)
-                            .colour(color)
-                            .footer(|f| f.text(footer));
-                          if !fields.is_empty() {
-                            e = e.fields(fields);
+                        if let Err(why) = msg.edit(ctx, |m| m
+                          .embed(|e|  {
+                            let mut e = e
+                              .title("LIVE")
+                              .author(|a| a.icon_url(&user.face()).name(&user.name))
+                              .description(mstr)
+                              .colour(color)
+                              .footer(|f| f.text(footer));
+                            if !fields.is_empty() {
+                              e = e.fields(fields);
+                            }
+                            if let Some(bet_data) = bet_fields {
+                              e = e.fields(bet_data);
+                            }
+                            if let Some(some_img) = img {
+                              e = e.image(some_img.url);
+                            }
+                            if let Some(some_url) = url {
+                              e = e.url(some_url);
+                            }
+                            e
                           }
-                          if let Some(bet_data) = bet_fields {
-                            e = e.fields(bet_data);
-                          }
-                          if let Some(some_img) = img {
-                            e = e.image(some_img.url);
-                          }
-                          if let Some(some_url) = url {
-                            e = e.url(some_url);
-                          }
-                          e
+                        )).await {
+                          error!("Failed to post live match {:?}", why);
                         }
-                      )).await {
-                        error!("Failed to post live match {:?}", why);
                       }
                     }
-                  }
 
-                } else {
-                  out.push(
-                    StartingGame { key: m.match_id
-                                 , description: vec![ mstr ]
-                                 , players: playaz });
+                  } else {
+                    out.push(
+                      StartingGame { key: m.match_id
+                                  , description: vec![ mstr ]
+                                  , players: playaz });
+                  }
                 }
               }
             }
@@ -405,93 +407,96 @@ pub async fn check<'a>( ctx: &Context
                     vec![ mstr, team1, team2 ]
                   };
 
-                if let Some(track) = games_lock.get_mut(&m.match_id) {
-                  track.still_live = true;
-                  set!{ minutes = track.passed_time / 2
-                      , footer = format!("Passed: {} min", minutes) };
-                  if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
-                    // get first player for discord
-                    let playa = playaz[0].discord;
-                    if let Ok(user) = ctx.http.get_user(playa).await {
-                      setm!{ fields = Vec::new()
-                           , img    = None
-                           , url    = None
-                           , color  = (32,32,32) };
-                      if !msg.embeds.is_empty() {
-                        if !msg.embeds[0].fields.is_empty() {
-                          for f in msg.embeds[0].fields.clone() {
-                            if f.name != "Bets" {
-                              fields.push((f.name, f.value, f.inline));
+                { // games lock scope
+                  let mut games_lock = GAMES.lock().await;
+                  if let Some(track) = games_lock.get_mut(&m.match_id) {
+                    track.still_live = true;
+                    set!{ minutes = track.passed_time / 2
+                        , footer = format!("Passed: {} min", minutes) };
+                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                      // get first player for discord
+                      let playa = playaz[0].discord;
+                      if let Ok(user) = ctx.http.get_user(playa).await {
+                        setm!{ fields = Vec::new()
+                            , img    = None
+                            , url    = None
+                            , color  = (32,32,32) };
+                        if !msg.embeds.is_empty() {
+                          if !msg.embeds[0].fields.is_empty() {
+                            for f in msg.embeds[0].fields.clone() {
+                              if f.name != "Bets" {
+                                fields.push((f.name, f.value, f.inline));
+                              }
                             }
                           }
-                        }
-                        img = msg.embeds[0].image.clone();
-                        url = msg.embeds[0].url.clone();
-                        color = msg.embeds[0].colour.tuple();
-                      };
+                          img = msg.embeds[0].image.clone();
+                          url = msg.embeds[0].url.clone();
+                          color = msg.embeds[0].colour.tuple();
+                        };
 
-                      let mut bet_fields = None;
-                      if !track.bets.is_empty() {
-                        let mut woutput = vec![];
-                        let mut loutput = vec![];
-                        for bet in &track.bets {
-                          let user_id = UserId( bet.member );
-                          if let Ok(user) = user_id.to_user(&ctx).await {
-                            if bet.positive {
-                              woutput.push(
-                                format!("**{}**: {}", user.name, bet.points)
-                              );
-                            } else {
-                              loutput.push(
-                                format!("**{}**: {}", user.name, bet.points)
-                              );
+                        let mut bet_fields = None;
+                        if !track.bets.is_empty() {
+                          let mut woutput = vec![];
+                          let mut loutput = vec![];
+                          for bet in &track.bets {
+                            let user_id = UserId( bet.member );
+                            if let Ok(user) = user_id.to_user(&ctx).await {
+                              if bet.positive {
+                                woutput.push(
+                                  format!("**{}**: {}", user.name, bet.points)
+                                );
+                              } else {
+                                loutput.push(
+                                  format!("**{}**: {}", user.name, bet.points)
+                                );
+                              }
                             }
                           }
+                          let mut fstring = woutput.join("\n");
+                          if !loutput.is_empty() {
+                            let need_space = if woutput.is_empty() { "" } else { "\n" };
+                            fstring = format!("{}{}*on lose:*\n{}", fstring
+                                                                  , need_space
+                                                                  , loutput.join("\n"));
+                          }
+                          bet_fields = Some(vec![("Bets".to_string()
+                                                , fstring
+                                                , false)]);
                         }
-                        let mut fstring = woutput.join("\n");
-                        if !loutput.is_empty() {
-                          let need_space = if woutput.is_empty() { "" } else { "\n\n" };
-                          fstring = format!("{}{}*bets for lose:*\n{}", fstring
-                                                                      , need_space
-                                                                      , loutput.join("\n"));
-                        }
-                        bet_fields = Some(vec![("Bets".to_string()
-                                              , fstring
-                                              , false)]);
-                      }
 
-                      if let Err(why) = msg.edit(ctx, |m| m
-                        .embed(|e| {
-                          let mut e = e
-                            .title("LIVE")
-                            .author(|a| a.icon_url(&user.face()).name(&user.name))
-                            .description(&mvec[0])
-                            .colour(color)
-                            .footer(|f| f.text(footer));
-                          if !fields.is_empty() {
-                            e = e.fields(fields);
+                        if let Err(why) = msg.edit(ctx, |m| m
+                          .embed(|e| {
+                            let mut e = e
+                              .title("LIVE")
+                              .author(|a| a.icon_url(&user.face()).name(&user.name))
+                              .description(&mvec[0])
+                              .colour(color)
+                              .footer(|f| f.text(footer));
+                            if !fields.is_empty() {
+                              e = e.fields(fields);
+                            }
+                            if let Some(bet_data) = bet_fields {
+                              e = e.fields(bet_data);
+                            }
+                            if let Some(some_img) = img {
+                              e = e.image(some_img.url);
+                            }
+                            if let Some(some_url) = url {
+                              e = e.url(some_url);
+                            }
+                            e
                           }
-                          if let Some(bet_data) = bet_fields {
-                            e = e.fields(bet_data);
-                          }
-                          if let Some(some_img) = img {
-                            e = e.image(some_img.url);
-                          }
-                          if let Some(some_url) = url {
-                            e = e.url(some_url);
-                          }
-                          e
+                        )).await {
+                          error!("Failed to post live match {:?}", why);
                         }
-                      )).await {
-                        error!("Failed to post live match {:?}", why);
                       }
                     }
+                  } else {
+                    out.push(
+                      StartingGame { key: m.match_id
+                                  , description: mvec
+                                  , players: playaz });
                   }
-                } else {
-                  out.push(
-                    StartingGame { key: m.match_id
-                                 , description: mvec
-                                 , players: playaz });
                 }
               }
             }
@@ -499,6 +504,7 @@ pub async fn check<'a>( ctx: &Context
         }
 
         let mut k_to_del : Vec<String> = Vec::new();
+        let mut games_lock = GAMES.lock().await;
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
             if let Some(finished_game) =

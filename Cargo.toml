@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.23.17"
+version     = "2.23.18"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -74,6 +74,7 @@ optional = true
 git = "https://github.com/Qeenon/Kathoey"
 branch = "mawa"
 
+# wait for serenity, hyper, reqwest support for 0.3
 [dependencies.tokio]
 version = "0.2.22"
 features = ["full", "blocking", "sync"]

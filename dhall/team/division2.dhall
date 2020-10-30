@@ -13,7 +13,7 @@ let playersList : List Playerx =
   , t "Ps1xoZ#21765"        404546426161332224 "ps1xoz_human"
   , t "Rays#2344"           212657754584645633 "raystv"
   , t "Soulful#2300"        147805125824610304 "soulful85"
-  , t "Rearden#21595"       622849650847907870 "amateurrearden"
+  , t "Avernus#2393"        247774118798295041 "ghost_17"
   , g "Лилуал#2400"         367722659590569994 "lilyal_" "lilyal"
   ]
 

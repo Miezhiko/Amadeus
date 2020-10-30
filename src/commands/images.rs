@@ -96,7 +96,6 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
       if let Some(guild_id) = msg.guild_id {
         msg.author.nick_in(&ctx, &guild_id).await
       } else { None };
-
     let nick = nickname_maybe.unwrap_or_else(|| msg.author.name.clone());
 
     match target {

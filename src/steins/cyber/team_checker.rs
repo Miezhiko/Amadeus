@@ -14,7 +14,8 @@ use crate::{
 };
 
 use serenity::prelude::*;
-use serenity::model::id::UserId;
+use serenity::model::id::{ UserId
+                         , GuildId };
 
 use std::collections::HashMap;
 use tokio::sync::Mutex;
@@ -333,11 +334,15 @@ pub async fn check<'a>( ctx: &Context
                                                 , false)]);
                         }
 
+                        let guild = GuildId( guild_id );
+                        let nickname_maybe = user.nick_in(&ctx.http, guild).await;
+                        let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
+
                         if let Err(why) = msg.edit(ctx, |m| m
                           .embed(|e|  {
                             let mut e = e
                               .title("LIVE")
-                              .author(|a| a.icon_url(&user.face()).name(&user.name))
+                              .author(|a| a.icon_url(&user.face()).name(&nick))
                               .description(mstr)
                               .colour(color)
                               .footer(|f| f.text(footer));
@@ -464,11 +469,15 @@ pub async fn check<'a>( ctx: &Context
                                                 , false)]);
                         }
 
+                        let guild = GuildId( guild_id );
+                        let nickname_maybe = user.nick_in(&ctx.http, guild).await;
+                        let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
+
                         if let Err(why) = msg.edit(ctx, |m| m
                           .embed(|e| {
                             let mut e = e
                               .title("LIVE")
-                              .author(|a| a.icon_url(&user.face()).name(&user.name))
+                              .author(|a| a.icon_url(&user.face()).name(&nick))
                               .description(&mvec[0])
                               .colour(color)
                               .footer(|f| f.text(footer));
@@ -642,10 +651,15 @@ pub async fn check<'a>( ctx: &Context
                     if old_fields.is_empty() && streak_fields.is_none() && bet_fields.is_none() {
                       Some(chain::generate_with_language(ctx, false).await)
                     } else { None };
+
+                  let guild = GuildId( guild_id );
+                  let nickname_maybe = user.nick_in(&ctx.http, guild).await;
+                  let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
+
                   if let Err(why) = msg.edit(ctx, |m| m
                     .embed(|e| {
                       let mut e =
-                        e.author(|a| a.icon_url(&user.face()).name(&user.name))
+                        e.author(|a| a.icon_url(&user.face()).name(&nick))
                          .title(title)
                          .colour(color)
                          .url(&fgame.link)

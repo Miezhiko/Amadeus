@@ -10,3 +10,4 @@
 - automate Summer time!
 - Custom bets maybe (really not sure)
 - Implement users services marketplace
+- Too much code duplications on team_checker

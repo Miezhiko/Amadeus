@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.23.23"
+version     = "2.24.0"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -52,7 +52,7 @@ markov    = { version = "1.1.0",  features = ["yaml"] }
 
 [dependencies.serenity]
 default-features = false
-version = "0.9.0-rc.4"
+version = "0.9.0"
 features = [ "cache"
            , "builder"
            , "model"

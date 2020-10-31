@@ -260,6 +260,7 @@ pub async fn check<'a>( ctx: &Context
         .send()
         .await {
     if let Ok(going) = res.json::<Going>().await {
+      let guild = GuildId( guild_id );
       if !going.matches.is_empty() {
         for m in going.matches {
           if m.gameMode == 1 {
@@ -334,9 +335,8 @@ pub async fn check<'a>( ctx: &Context
                                                 , false)]);
                         }
 
-                        let guild = GuildId( guild_id );
-                        let nickname_maybe = user.nick_in(&ctx.http, guild).await;
-                        let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
+                        let nick = user.nick_in(&ctx.http, guild)
+                                       .await.unwrap_or_else(|| user.name.clone());
 
                         if let Err(why) = msg.edit(ctx, |m| m
                           .embed(|e|  {
@@ -469,9 +469,8 @@ pub async fn check<'a>( ctx: &Context
                                                 , false)]);
                         }
 
-                        let guild = GuildId( guild_id );
-                        let nickname_maybe = user.nick_in(&ctx.http, guild).await;
-                        let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
+                        let nick = user.nick_in(&ctx.http, guild)
+                                       .await.unwrap_or_else(|| user.name.clone());
 
                         if let Err(why) = msg.edit(ctx, |m| m
                           .embed(|e| {
@@ -652,9 +651,8 @@ pub async fn check<'a>( ctx: &Context
                       Some(chain::generate_with_language(ctx, false).await)
                     } else { None };
 
-                  let guild = GuildId( guild_id );
-                  let nickname_maybe = user.nick_in(&ctx.http, guild).await;
-                  let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
+                  let nick = user.nick_in(&ctx.http, guild)
+                                 .await.unwrap_or_else(|| user.name.clone());
 
                   if let Err(why) = msg.edit(ctx, |m| m
                     .embed(|e| {

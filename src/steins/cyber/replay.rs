@@ -282,7 +282,7 @@ pub async fn attach_replay( ctx: &Context
                     && !mmm.embeds[0].fields.is_empty()
                      && mmm.attachments.is_empty() {
                       // start counting, we need two!
-                      let mut same_count : u32 = 0;
+                      let mut same_count: u32 = 0;
                       for f in mmm.embeds[0].fields.clone() {
                         for (pf, _) in fields1.iter() {
                           if f.name == *pf {
@@ -364,12 +364,16 @@ pub async fn attach_replay( ctx: &Context
                             };
                           }
                         }
+
+                        let nick = msg.author.nick_in(ctx, guild_id)
+                                             .await.unwrap_or_else(|| msg.author.name.clone());
+
                         if let Err(why) = channel.send_message(ctx, |m| {
                           let mut m =
                             m.embed(|e| {
                               let mut e = e
                                 .title(&mmm.embeds[0].title.clone().unwrap())
-                                .author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                                .author(|a| a.icon_url(&msg.author.face()).name(&nick))
                                 .description(&mmm.embeds[0].description.clone().unwrap())
                                 .colour(mmm.embeds[0].colour)
                                 .footer(|f| f.text( mmm.embeds[0].footer.clone().unwrap().text ));
@@ -400,9 +404,6 @@ pub async fn attach_replay( ctx: &Context
                           }
                           if let Err(why) = fs::remove_file(&file.filename).await {
                             error!("Error removing file: {:?}", why);
-                          }
-                          if let Err(why) = msg.delete(&ctx).await {
-                            error!("Error deleting original replay {:?}", why);
                           }
                           return true;
                         }

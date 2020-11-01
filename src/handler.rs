@@ -358,6 +358,7 @@ impl EventHandler for Handler {
                     "♻" => {
                       let storage = GuildId( self.ioptions.amadeus_guild );
                       if attach_replay(&ctx, &msg, file, &storage).await {
+                        let _ = msg.delete_reactions(&ctx).await;
                         break;
                       }
                     }

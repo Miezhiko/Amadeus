@@ -249,6 +249,41 @@ async fn check_match( matchid: &str
   None
 }
 
+async fn generate_bet_fields( ctx: &Context
+                            , track: &TrackingGame
+                            ) -> Option<Vec<(String, String, bool)>> {
+  let mut bet_fields = None;
+  if !track.bets.is_empty() {
+    let mut woutput = vec![];
+    let mut loutput = vec![];
+    for bet in &track.bets {
+      let user_id = UserId( bet.member );
+      if let Ok(user) = user_id.to_user(ctx).await {
+        if bet.positive {
+          woutput.push(
+            format!("**{}**: {}", user.name, bet.points)
+          );
+        } else {
+          loutput.push(
+            format!("**{}**: {}", user.name, bet.points)
+          );
+        }
+      }
+    }
+    let mut fstring = woutput.join("\n");
+    if !loutput.is_empty() {
+      let need_space = if woutput.is_empty() { "" } else { "\n" };
+      fstring = format!("{}{}*on lose:*\n{}", fstring
+                                            , need_space
+                                            , loutput.join("\n"));
+    }
+    bet_fields = Some(vec![("Bets".to_string()
+                          , fstring
+                          , false)]);
+  }
+  bet_fields
+}
+
 pub async fn check<'a>( ctx: &Context
                       , channel_id: u64
                       , guild_id: u64
@@ -305,36 +340,7 @@ pub async fn check<'a>( ctx: &Context
                           color = msg.embeds[0].colour.tuple();
                         };
 
-                        let mut bet_fields = None;
-                        if !track.bets.is_empty() {
-                          let mut woutput = vec![];
-                          let mut loutput = vec![];
-                          for bet in &track.bets {
-                            let user_id = UserId( bet.member );
-                            if let Ok(user) = user_id.to_user(&ctx).await {
-                              if bet.positive {
-                                woutput.push(
-                                  format!("**{}**: {}", user.name, bet.points)
-                                );
-                              } else {
-                                loutput.push(
-                                  format!("**{}**: {}", user.name, bet.points)
-                                );
-                              }
-                            }
-                          }
-                          let mut fstring = woutput.join("\n");
-                          if !loutput.is_empty() {
-                            let need_space = if woutput.is_empty() { "" } else { "\n" };
-                            fstring = format!("{}{}*on lose:*\n{}", fstring
-                                                                  , need_space
-                                                                  , loutput.join("\n"));
-                          }
-                          bet_fields = Some(vec![("Bets".to_string()
-                                                , fstring
-                                                , false)]);
-                        }
-
+                        let bet_fields = generate_bet_fields(ctx, track).await;
                         let nick = user.nick_in(&ctx.http, guild)
                                        .await.unwrap_or_else(|| user.name.clone());
 
@@ -439,36 +445,7 @@ pub async fn check<'a>( ctx: &Context
                           color = msg.embeds[0].colour.tuple();
                         };
 
-                        let mut bet_fields = None;
-                        if !track.bets.is_empty() {
-                          let mut woutput = vec![];
-                          let mut loutput = vec![];
-                          for bet in &track.bets {
-                            let user_id = UserId( bet.member );
-                            if let Ok(user) = user_id.to_user(&ctx).await {
-                              if bet.positive {
-                                woutput.push(
-                                  format!("**{}**: {}", user.name, bet.points)
-                                );
-                              } else {
-                                loutput.push(
-                                  format!("**{}**: {}", user.name, bet.points)
-                                );
-                              }
-                            }
-                          }
-                          let mut fstring = woutput.join("\n");
-                          if !loutput.is_empty() {
-                            let need_space = if woutput.is_empty() { "" } else { "\n" };
-                            fstring = format!("{}{}*on lose:*\n{}", fstring
-                                                                  , need_space
-                                                                  , loutput.join("\n"));
-                          }
-                          bet_fields = Some(vec![("Bets".to_string()
-                                                , fstring
-                                                , false)]);
-                        }
-
+                        let bet_fields = generate_bet_fields(ctx, track).await;
                         let nick = user.nick_in(&ctx.http, guild)
                                        .await.unwrap_or_else(|| user.name.clone());
 

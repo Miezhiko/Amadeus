@@ -10,4 +10,3 @@
 - Automate Summer time!
 - Custom bets maybe (really not sure)
 - Implement users services marketplace
-- Change conf.dhall structure

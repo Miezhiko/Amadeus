@@ -398,10 +398,10 @@ impl EventHandler for Handler {
                   }
                   let replaced = RE_IB.replace_all(&activity, "");
                   if !replaced.is_empty() {
-                    ctx.set_activity(Activity::playing(&replaced)).await;
+                    ctx.set_activity(Activity::competing(&replaced)).await;
                   }
                 } else {
-                  ctx.set_activity(Activity::competing(&activity)).await;
+                  ctx.set_activity(Activity::playing(&activity)).await;
                 }
                 ctx.idle().await;
               }

@@ -22,6 +22,7 @@ user-commands = • **Крестики_нолики** *<@пользовател�
   • **urban** *<Термин>*: Опеределение термина взятого из «urban»
   • **gif** *<параметр>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy, annoyed, omg, smile, ew, awkward, oops, lazy, hungry, stressed, scared, bored, yes, no, bye, sorry, sleepy, wink, facepalm, whatever, pout, smug, smirk
   • **ru2en** *<text>*: переводчик, также **en2ru** **en2de** **en2fr** **de2en** **fr2en**
+  • **fem** *<text>*: феминизация текста
 
 music-commands-title = Музыкальные команды
 music-commands = • **join**: Подключение к каналу (в котором вы находитесь)

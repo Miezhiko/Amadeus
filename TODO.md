@@ -6,7 +6,8 @@
 - Split chain into 3 mods: cache, chain and possibly move general stuff to lib
 - Show region (EU/NA) on live matches
 - Replace argparse to something less boring
-- amadeus rs: greeting check needs optimization
-- automate Summer time!
+- Amadeus rs: greeting check needs optimization
+- Automate Summer time!
 - Custom bets maybe (really not sure)
 - Implement users services marketplace
+- Change conf.dhall structure

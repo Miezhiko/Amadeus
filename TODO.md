@@ -10,3 +10,4 @@
 - Automate Summer time!
 - Custom bets maybe (really not sure)
 - Implement users services marketplace
+- Write test to ensure that fluent translation of help will not be too big for discord!

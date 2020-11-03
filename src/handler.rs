@@ -9,10 +9,9 @@ use crate::{
           , msg::channel_message
           },
   collections::{ base::{ REACTIONS, WHITELIST }
-               , stuff::overwatch::{ OVERWATCH, OVERWATCH_REPLIES }
                , channels::{ AI_ALLOWED, EXCEPTIONS, IGNORED }
                },
-  commands::voice
+  commands::meta::rejoin_voice_channel
 };
 
 use serenity::{
@@ -107,7 +106,7 @@ impl EventHandler for Handler {
   }
   async fn ready(&self, ctx: Context, ready: Ready) {
     info!("Connected as {}", ready.user.name);
-    voice::rejoin_voice_channel(&ctx, &self.roptions).await;
+    rejoin_voice_channel(&ctx, &self.roptions).await;
   }
   async fn resume(&self, _ctx : Context, _ : ResumedEvent) {
     info!("Resumed");
@@ -500,31 +499,6 @@ impl EventHandler for Handler {
                   }
                 }
               }
-            }
-          }
-        }
-      }
-      if let Some(find_char_in_words) = OVERWATCH.iter().find(|c| {
-        let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
-        let is_overwatch = Regex::new(&regex).unwrap();
-        is_overwatch.is_match(&msg.content) })
-      {
-        let mut rng = StdRng::from_entropy();
-        set! { ov_reply = OVERWATCH_REPLIES.choose(&mut rng).unwrap()
-              , reply = format!("{} {}", ov_reply, find_char_in_words) };
-        if let Err(why) = msg.channel_id.say(&ctx, reply).await {
-          error!("Error sending overwatch reply: {:?}", why);
-        }
-      } else {
-        lazy_static! {
-          static ref RE_NO_U: Regex =
-            Regex::new(r"(^|\W)((?i)no u(?-i))($|\W)").unwrap();
-        }
-        if RE_NO_U.is_match(&msg.content) {
-          let rnd = rand::thread_rng().gen_range(0, 2);
-          if rnd == 1 {
-            if let Err(why) = msg.channel_id.say(&ctx, "No u").await {
-              error!("Error sending no u reply: {:?}", why);
             }
           }
         }

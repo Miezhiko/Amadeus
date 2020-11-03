@@ -15,7 +15,6 @@ use crate::{
   handler::Handler,
   commands::{ meta::*
             , chat::*
-            , voice::*
             , warcraft::*
             , pad::*
             , owner::*
@@ -93,7 +92,7 @@ async fn admin_check( ctx: &Context
 #[group("Meta")]
 #[description = "Basic commands"]
 #[commands( info, version, embed, qrcode, urban, uptime, tic_tac_toe, changelog
-          , help_ru, time )]
+          , join, leave, play, repeat , help_ru, time )]
 struct Meta;
 
 #[group("Chat")]
@@ -113,11 +112,6 @@ struct Translate;
   , ew, awkward, oops, lazy, hungry, stressed, scared, bored, yes, no, bye, sorry
   , sleepy, wink, facepalm, whatever, pout, smug, smirk)]
 struct Images;
-
-#[group("Voice")]
-#[description = "Music/Voice commands"]
-#[commands(join, leave, play, repeat)]
-struct Voice;
 
 #[group("Warcraft")]
 #[description = "Warcraft events"]
@@ -316,7 +310,6 @@ pub async fn run(opts : &IOptions) ->
       .group(&CHAT_GROUP)
       .group(&TRANSLATE_GROUP)
       .group(&IMAGES_GROUP)
-      .group(&VOICE_GROUP)
       .group(&WARCRAFT_GROUP)
       .group(&PAD_GROUP)
       .group(&OWNER_GROUP)

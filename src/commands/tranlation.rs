@@ -23,7 +23,7 @@ async fn bert_translate(ctx: &Context, text: String, lang: Language)
 
     let model = TranslationModel::new(translation_config)?;
 
-    let output = model.translate(&[&text]);
+    let output = model.translate(&[text.as_str()]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig EnglishToRussian");
       Ok(text)

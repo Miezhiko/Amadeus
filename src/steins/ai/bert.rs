@@ -27,7 +27,7 @@ pub async fn en2ru(text: String) -> Result<String> {
     let translation_config =
       TranslationConfig::new(Language::EnglishToRussian, Device::cuda_if_available());
     let model = TranslationModel::new(translation_config)?;
-    let output = model.translate(&[&text]);
+    let output = model.translate(&[text.as_str()]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig EnglishToRussian");
       Ok(text)
@@ -45,7 +45,7 @@ pub async fn ru2en(text: String) -> Result<String> {
     let translation_config =
       TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
     let model = TranslationModel::new(translation_config)?;
-    let output = model.translate(&[&text]);
+    let output = model.translate(&[text.as_str()]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig RussianToEnglish");
       Ok(text)

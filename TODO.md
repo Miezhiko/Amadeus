@@ -7,7 +7,6 @@
 - Show region (EU/NA) on live matches
 - Replace argparse to something less boring
 - Amadeus rs: greeting check needs optimization
-- Automate Summer time!
 - Custom bets maybe (really not sure)
 - Implement users services marketplace
 - Write test to ensure that fluent translation of help will not be too big for discord!

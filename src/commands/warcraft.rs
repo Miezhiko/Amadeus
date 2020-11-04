@@ -32,6 +32,11 @@ pub async fn tour_internal( ctx: &Context
 
   let mut eventos : Vec<(String, String, bool)> = Vec::new();
 
+  set!{ utc       = chrono::Utc::now()
+      , cet_time  = utc.with_timezone(&chrono_tz::CET).time()
+      , msk_time = utc.with_timezone(&chrono_tz::Europe::Moscow).time()
+      , h_offset = msk_time.hour() - cet_time.hour() };
+
   for line in reader {
     match line {
       Ok(l) => {
@@ -61,8 +66,8 @@ pub async fn tour_internal( ctx: &Context
                       set! { str_hour = &val[9..11]
                            , str_min = &val[11..13] };
                       let msk =
-                        if let Ok(str_int) = str_hour.parse::<i32>() {
-                          let mut msk_h = str_int + 2;
+                        if let Ok(str_int) = str_hour.parse::<u32>() {
+                          let mut msk_h = str_int + h_offset;
                           if msk_h >= 24 {
                             msk_h -= 24;
                           }

@@ -13,8 +13,6 @@
   <a href="#service">Service</a>
   •
   <a href="#notes">Notes</a>
-  •
-  <a href="#license">License</a>
 </p>
 
 ![Azure DevOps builds](https://img.shields.io/azure-devops/build/qeenon/0dcb863b-80ca-4465-a7f2-a8cb387865f9/1?color=blue&label=Azure)
@@ -84,11 +82,19 @@ in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
 ```
 
 installation environment for typescript parsing backend (optional)
+typescript replay parsing will be replaced in future.
+
 ```shell
 npm install -D typescript
 npm install -D ts-node
 npm i @types/node
 npm install w3gjs
+```
+
+to test typescript code you may run
+
+```shell
+node node_modules/ts-node/dist/bin.js .\js\w3g_parse.ts .\LastReplay.w3g > gg.out
 ```
 
 Note: will lag at first run due pre-trained models downloading.

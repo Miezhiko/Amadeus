@@ -56,24 +56,25 @@ pub async fn replay_embed( ctx: &Context
       return;
     }
     let (d, flds) = data_maybe.unwrap();
-    let mut eb1 = CreateEmbed::default();
-    let mut eb2 = CreateEmbed::default();
-    let mut eb3 = CreateEmbed::default();
+    setm!{ eb1 = CreateEmbed::default()
+         , eb2 = CreateEmbed::default()
+         , eb3 = CreateEmbed::default() };
     let footer = format!("Uploaded by {}", msg.author.name);
-    eb1.color(0xe535cc); eb2.color(0xe535cc); eb3.color(0xe535cc);
-    eb1.title(&file.filename); eb2.title(&file.filename); eb3.title(&file.filename);
-    eb1.description(&d); eb2.description("units"); eb3.description("apm");
-    eb1.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
-    eb2.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
-    eb3.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+    eb1.color(0xe535cc);        eb2.color(0xe535cc);        eb3.color(0xe535cc);
+    eb1.title(&file.filename);  eb2.title(&file.filename);  eb3.title(&file.filename);
+    eb1.description(&d);        eb2.description("units");   eb3.description("apm");
+    static AMADEUS_LOGO: &str = "https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png";
+    eb1.thumbnail(AMADEUS_LOGO);
+    eb2.thumbnail(AMADEUS_LOGO);
+    eb3.thumbnail(AMADEUS_LOGO);
     eb1.footer(|f| f.text(&footer));
     eb2.footer(|f| f.text(&footer));
     eb3.footer(|f| f.text(&footer));
     let mut max_apm = 0;
     if !flds.is_empty() {
-      let mut fields1 = vec![];
-      let mut fields2 = vec![];
-      let mut fields3 = vec![];
+      setm!{ fields1 = vec![]
+           , fields2 = vec![]
+           , fields3 = vec![] };
       for (kk, vv, mut papm) in flds {
         if vv.len() > 1 {
           fields1.push((kk.clone(), vv[0].clone(), true));

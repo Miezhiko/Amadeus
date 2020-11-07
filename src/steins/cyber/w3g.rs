@@ -118,6 +118,30 @@ fn prettify_analyze_js(j: &str, minimal: bool)
       let dhuman = duration.as_u64().unwrap()/60/1000;
       out = format!("{}**duration**: {}min", out, dhuman);
     }
+    if let Some(chat_object) = json.pointer("/chat") {
+      let chat = chat_object.as_array().unwrap();
+      if !chat.is_empty() {
+        out = format!("{}\n__**chat:**__", out);
+        let mut chat_part_previous = String::new();
+        for chat_o in chat.iter() {
+          let mut chat_p = String::new();
+          let mut chat_m = String::new();
+          if let Some(chat_player) = chat_o.pointer("/playerName") {
+            chat_p = chat_player.as_str().unwrap().to_string();
+          }
+          if let Some(chat_message) = chat_o.pointer("/message") {
+            chat_m = chat_message.as_str().unwrap().to_string();
+          }
+          if !chat_p.is_empty() && !chat_m.is_empty() {
+            let chat_part = format!("**{}**: {}", chat_p, chat_m);
+            if chat_part_previous != chat_part {
+              out = format!("{}\n{}",out, chat_part);
+              chat_part_previous = chat_part;
+            }
+          }
+        }
+      }
+    }
   }
   Ok((out, pls))
 }

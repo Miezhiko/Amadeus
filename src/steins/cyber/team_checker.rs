@@ -131,6 +131,33 @@ async fn check_match( matchid: &str
           }
         };
         Some( vec![ mstr, teamx(0), teamx(1) ] )
+      } else if m.gameMode == 4 {
+        let g_map  = get_map(&m.map);
+        for i in 0..4 {
+          for j in 0..4 {
+            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
+              let won = m.teams[i].players[j].won;
+              losers.push((playa.discord, won));
+            }
+          }
+        }
+        let mstr = format!("Map: {}", g_map);
+        let teamx = |x: usize| -> String {
+          if m.teams[x].won {
+            format!("({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**"
+            , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
+            , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain
+            , get_race2(m.teams[x].players[2].race), m.teams[x].players[2].name, m.teams[x].players[2].oldMmr, m.teams[x].players[2].mmrGain
+            , get_race2(m.teams[x].players[3].race), m.teams[x].players[3].name, m.teams[x].players[3].oldMmr, m.teams[x].players[3].mmrGain)
+          } else {
+            format!("({}) __*{}*__ [{}] *{}*\n({}) __*{}*__ [{}] *{}*\n({}) __*{}*__ [{}] *{}*\n({}) __*{}*__ [{}] *{}*"
+            , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
+            , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain
+            , get_race2(m.teams[x].players[2].race), m.teams[x].players[2].name, m.teams[x].players[2].oldMmr, m.teams[x].players[2].mmrGain
+            , get_race2(m.teams[x].players[3].race), m.teams[x].players[3].name, m.teams[x].players[3].oldMmr, m.teams[x].players[3].mmrGain)
+          }
+        };
+        Some( vec![ mstr, teamx(0), teamx(1) ] )
       } else {
         None
       };
@@ -216,7 +243,7 @@ async fn check_match( matchid: &str
             } else { &md.playerScores[1] }
           } else { &md.playerScores[1] };
         set! { s1 = player_scores.battleTag.clone()
-              , s2 = teammate_scores.battleTag.clone() };
+             , s2 = teammate_scores.battleTag.clone() };
         let s3 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
             , player_scores.unitScore.unitsProduced
             , player_scores.unitScore.unitsKilled
@@ -479,9 +506,108 @@ pub async fn check<'a>( ctx: &Context
                   } else {
                     out.push(
                       StartingGame { key: m.match_id
-                                  , description: mvec
-                                  , players: playaz });
+                                   , description: mvec
+                                   , players: playaz });
                   }
+                }
+              }
+            }
+          } else if m.gameMode == 4 && // 4x4
+            m.teams.len() > 1 && m.teams[0].players.len() > 3 && m.teams[1].players.len() > 3 {
+            let playaz = teammates().into_iter().filter( |p|
+                 m.teams[0].players[0].battleTag == p.battletag || m.teams[0].players[2].battleTag == p.battletag
+              || m.teams[1].players[0].battleTag == p.battletag || m.teams[1].players[2].battleTag == p.battletag
+              || m.teams[0].players[1].battleTag == p.battletag || m.teams[0].players[3].battleTag == p.battletag
+              || m.teams[1].players[1].battleTag == p.battletag || m.teams[1].players[3].battleTag == p.battletag
+              ).collect::<Vec<Player>>();
+
+            if !playaz.is_empty() {
+              let g_map = get_map(&m.map);
+
+              set! { race1  = get_race2(m.teams[0].players[0].race), race13 = get_race2(m.teams[0].players[2].race)
+                   , race12 = get_race2(m.teams[0].players[1].race), race14 = get_race2(m.teams[0].players[3].race)
+                   , race2  = get_race2(m.teams[1].players[0].race), race23 = get_race2(m.teams[1].players[2].race)
+                   , race22 = get_race2(m.teams[1].players[1].race), race24 = get_race2(m.teams[1].players[3].race) };
+
+              let mstr = format!("Map: {}", g_map);
+
+              let mvec = {
+                  let team1 = format!("({}) **{}** [{}]\n({}) **{}** [{}]\n({}) **{}** [{}]\n({}) **{}** [{}]"
+                    , race1,  m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
+                    , race12, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr
+                    , race13, m.teams[0].players[2].name, m.teams[0].players[2].oldMmr
+                    , race14, m.teams[0].players[3].name, m.teams[0].players[3].oldMmr);
+                  let team2 = format!("({}) **{}** [{}]\n({}) **{}** [{}]\n({}) **{}** [{}]\n({}) **{}** [{}]"
+                    , race2,  m.teams[1].players[0].name, m.teams[1].players[0].oldMmr
+                    , race22, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr
+                    , race23, m.teams[1].players[2].name, m.teams[1].players[2].oldMmr
+                    , race24, m.teams[1].players[3].name, m.teams[1].players[3].oldMmr);
+                  vec![ mstr, team1, team2 ]
+                };
+
+              { // games lock scope
+                let mut games_lock = GAMES.lock().await;
+                if let Some(track) = games_lock.get_mut(&m.match_id) {
+                  track.still_live = true;
+                  set!{ minutes = track.passed_time / 2
+                      , footer = format!("Passed: {} min", minutes) };
+                  if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                    // get first player for discord
+                    let playa = playaz[0].discord;
+                    if let Ok(user) = ctx.http.get_user(playa).await {
+                      setm!{ fields = Vec::new()
+                           , img    = None
+                           , url    = None
+                           , color  = (32,32,32) };
+                      if !msg.embeds.is_empty() {
+                        if !msg.embeds[0].fields.is_empty() {
+                          for f in msg.embeds[0].fields.clone() {
+                            if f.name != "Bets" {
+                              fields.push((f.name, f.value, f.inline));
+                            }
+                          }
+                        }
+                        img   = msg.embeds[0].image.clone();
+                        url   = msg.embeds[0].url.clone();
+                        color = msg.embeds[0].colour.tuple();
+                      };
+
+                      let bet_fields = generate_bet_fields(ctx, track).await;
+                      let nick = user.nick_in(&ctx.http, guild)
+                                     .await.unwrap_or_else(|| user.name.clone());
+
+                      if let Err(why) = msg.edit(ctx, |m| m
+                        .embed(|e| {
+                          let mut e = e
+                            .title("LIVE")
+                            .author(|a| a.icon_url(&user.face()).name(&nick))
+                            .description(&mvec[0])
+                            .colour(color)
+                            .footer(|f| f.text(footer));
+                          if !fields.is_empty() {
+                            e = e.fields(fields);
+                          }
+                          if let Some(bet_data) = bet_fields {
+                            e = e.fields(bet_data);
+                          }
+                          if let Some(some_img) = img {
+                            e = e.image(some_img.url);
+                          }
+                          if let Some(some_url) = url {
+                            e = e.url(some_url);
+                          }
+                          e
+                        }
+                      )).await {
+                        error!("Failed to post live match {:?}", why);
+                      }
+                    }
+                  }
+                } else {
+                  out.push(
+                    StartingGame { key: m.match_id
+                                 , description: mvec
+                                 , players: playaz });
                 }
               }
             }

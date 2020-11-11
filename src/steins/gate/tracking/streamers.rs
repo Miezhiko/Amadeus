@@ -360,27 +360,29 @@ pub async fn activate_streamers_tracking(
               )).await {
                 error!("Failed to edit stream msg {:?}", why);
               }
-              if user.id.0 == lilyal_id {
-                if let Err(why) = msg.edit(&ctx_clone.http, |m| m
-                  .embed(|e|  {
-                    let mut e = e
-                      .title("FINISHED")
-                      .colour(color)
-                      .author(|a| a.icon_url(&user.face()).name(&user.name))
-                      .footer(|f| f.text(&footer));
-                    if !fields.is_empty() {
-                      e = e.fields(fields);
+              if user.id.0 == lilyal_id && track.tracking_msg_id.len() > 1 {
+                if let Ok(mut msgl) = ctx_clone.http.get_message(lilyal.0, track.tracking_msg_id[1]).await {
+                  if let Err(why) = msgl.edit(&ctx_clone.http, |m| m
+                    .embed(|e|  {
+                      let mut e = e
+                        .title("FINISHED")
+                        .colour(color)
+                        .author(|a| a.icon_url(&user.face()).name(&user.name))
+                        .footer(|f| f.text(&footer));
+                      if !fields.is_empty() {
+                        e = e.fields(fields);
+                      }
+                      if let Some(some_img) = img {
+                        e = e.image(some_img.url);
+                      }
+                      if let Some(some_url) = url {
+                        e = e.url(some_url);
+                      }
+                      e
                     }
-                    if let Some(some_img) = img {
-                      e = e.image(some_img.url);
-                    }
-                    if let Some(some_url) = url {
-                      e = e.url(some_url);
-                    }
-                    e
+                  )).await {
+                    error!("Failed to edit stream msg on lilyal {:?}", why);
                   }
-                )).await {
-                  error!("Failed to edit stream msg on lilyal {:?}", why);
                 }
               }
             }

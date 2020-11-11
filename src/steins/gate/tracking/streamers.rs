@@ -133,13 +133,13 @@ pub async fn activate_streamers_tracking(
                       let url = format!("https://goodgame.ru/channel/{}", &ggru);
                       if twitch_live {
                         let viewers = format!( "viewers: {}\nin chat: {}"
-                                              , ggdata.viewers, ggdata.users_in_chat );
+                                             , ggdata.viewers, ggdata.users_in_chat );
                         let titurl =
                           format!("{}\n{}\n{}", &ggdata.channel.title, url, viewers);
                         additional_fields.push(("Live on ggru", titurl, true));
                       } else {
                         let viewers = format!( "viewers: {}\nin chat: {}"
-                                              , ggdata.viewers, ggdata.users_in_chat );
+                                             , ggdata.viewers, ggdata.users_in_chat );
                         additional_fields.push(("Live on ggru", viewers, true));
                         title  = ggdata.channel.title.clone();
                         image  = Some(ggdata.channel.thumb.clone());
@@ -224,8 +224,8 @@ pub async fn activate_streamers_tracking(
                 }
               }
               set! { red   = rand::thread_rng().gen_range(0, 255)
-                    , green = rand::thread_rng().gen_range(0, 255)
-                    , blue  = rand::thread_rng().gen_range(0, 255) };
+                   , green = rand::thread_rng().gen_range(0, 255)
+                   , blue  = rand::thread_rng().gen_range(0, 255) };
               match sh_deref.send_message(&ctx_clone, |m| m
                 .embed(|e| {
                   let mut e = e

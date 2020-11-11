@@ -88,9 +88,9 @@ pub async fn activate_games_tracking(
         if let Ok(user) = ctx_clone.http.get_user(playa.discord).await {
 
           setm!{ twitch_live        = false
-                , additional_fields  = Vec::new()
-                , image              = None
-                , em_url             = None };
+               , additional_fields  = Vec::new()
+               , image              = None
+               , em_url             = None };
 
           if playa.streams.is_some() {
             let streams = playa.streams.clone().unwrap();
@@ -107,7 +107,7 @@ pub async fn activate_games_tracking(
                       let twd = &t.data[0];
                       let url = format!("https://www.twitch.tv/{}", twd.user_name);
                       let pic = twd.thumbnail_url.replace("{width}", "800")
-                                                  .replace("{height}", "450");
+                                                 .replace("{height}", "450");
                       if twd.type_string == "live" {
                         let titurl = format!("{}\n{}", &twd.title, url);
                         additional_fields.push(("Live on twitch", titurl, false));

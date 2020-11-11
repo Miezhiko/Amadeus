@@ -75,12 +75,10 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
       let access_token = opts.twitch;
 
       activate_streamers_tracking(
-        &ac, &hemo_channels
-           , options, access_token.clone()
+        &ac, options, access_token.clone()
            ).await;
       activate_games_tracking(
-        &ac, &hemo_channels
-           , options, access_token
+        &ac, options, access_token
            , amadeus.0
            ).await;
       activate_w3info_tracking(&ac).await;

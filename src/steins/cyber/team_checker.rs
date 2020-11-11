@@ -347,7 +347,7 @@ pub async fn check<'a>( ctx: &Context
 
                     // use first player for discord operations
                     let playa = playaz[0].discord;
-                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id[0]).await {
                       if let Ok(user) = ctx.http.get_user(playa).await {
 
                         let mut fields = Vec::new();
@@ -402,8 +402,8 @@ pub async fn check<'a>( ctx: &Context
                   } else {
                     out.push(
                       StartingGame { key: m.match_id
-                                  , description: vec![ mstr ]
-                                  , players: playaz });
+                                   , description: vec![ mstr ]
+                                   , players: playaz });
                   }
                 }
               }
@@ -451,7 +451,7 @@ pub async fn check<'a>( ctx: &Context
                     track.still_live = true;
                     set!{ minutes = track.passed_time / 2
                         , footer = format!("Passed: {} min", minutes) };
-                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                    if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id[0]).await {
                       // get first player for discord
                       let playa = playaz[0].discord;
                       if let Ok(user) = ctx.http.get_user(playa).await {
@@ -551,7 +551,7 @@ pub async fn check<'a>( ctx: &Context
                   track.still_live = true;
                   set!{ minutes = track.passed_time / 2
                       , footer = format!("Passed: {} min", minutes) };
-                  if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                  if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id[0]).await {
                     // get first player for discord
                     let playa = playaz[0].discord;
                     if let Ok(user) = ctx.http.get_user(playa).await {
@@ -621,7 +621,7 @@ pub async fn check<'a>( ctx: &Context
             if let Some(finished_game) =
                 check_match(k, &track.players, rqcl).await {
               let fgame = &finished_game;
-              if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+              if let Ok(mut msg) = ctx.http.get_message(channel_id, track.tracking_msg_id[0]).await {
                 let footer : String = format!("Passed: {} min", fgame.passed_time);
                 // git first player for discord (again, as ususal)
                 let playa = track.players[0].discord;
@@ -816,7 +816,7 @@ pub async fn check<'a>( ctx: &Context
               } else {
                 // mark tracking game for removal after 3 fails
                 k_to_del.push(k.clone());
-                if let Ok(msg) = ctx.http.get_message(channel_id, track.tracking_msg_id).await {
+                if let Ok(msg) = ctx.http.get_message(channel_id, track.tracking_msg_id[0]).await {
                   if let Err(wtf) = msg.delete(ctx).await {
                     error!("Failed to clean up dropped Live game {:?}", wtf);
                   }

@@ -43,28 +43,34 @@ pub async fn activate_streamers_tracking(
     } else { None };
 
   set!{ sh_deref      = ChannelId( 698766464420937768 )
+      , lilyal_id     = 367722659590569994u64
+      , lilyal        = ChannelId( 775757970822397963 )
       , ctx_clone     = Arc::clone(&ctx)
       , options_clone = options.clone() };
 
-  if let Ok(vec_msg) = sh_deref.messages(&ctx, |g| g.limit(25)).await {
-    let mut vec_id = Vec::new();
-    for message in vec_msg {
-      for embed in message.embeds {
-        if let Some(title) = embed.title {
-          if title != "FINISHED" {
-            vec_id.push(message.id);
-            break;
+  let clear_channel = async move |channel: ChannelId| {
+    if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(25)).await {
+      let mut vec_id = Vec::new();
+      for message in vec_msg {
+        for embed in message.embeds {
+          if let Some(title) = embed.title {
+            if title != "FINISHED" {
+              vec_id.push(message.id);
+              break;
+            }
           }
         }
       }
+      if !vec_id.is_empty() {
+        match channel.delete_messages(&ctx, vec_id.as_slice()).await {
+          Ok(nothing)  => nothing,
+          Err(err) => warn!("Failed to clean live messages {}", err),
+        };
+      }
     }
-    if !vec_id.is_empty() {
-      match sh_deref.delete_messages(&ctx, vec_id.as_slice()).await {
-        Ok(nothing)  => nothing,
-        Err(err) => warn!("Failed to clean live messages {}", err),
-      };
-    }
-  }
+  };
+  clear_channel(sh_deref).await;
+  clear_channel(lilyal).await;
 
   tokio::spawn(async move {
     let mut streams_lock = STREAMS.lock().await;
@@ -86,10 +92,10 @@ pub async fn activate_streamers_tracking(
       for playa in players() {
         if let Ok(user) = ctx_clone.http.get_user(playa.discord).await {
           setm!{ twitch_live        = false
-                , additional_fields  = Vec::new()
-                , title              = String::new()
-                , image              = None
-                , em_url             = None };
+               , additional_fields  = Vec::new()
+               , title              = String::new()
+               , image              = None
+               , em_url             = None };
           if playa.streams.is_some() {
             let streams = playa.streams.clone().unwrap();
             if streams.twitch.is_some() {
@@ -106,7 +112,7 @@ pub async fn activate_streamers_tracking(
                       let twd = &t.data[0];
                       let url = format!("https://www.twitch.tv/{}", twd.user_name);
                       let pic = twd.thumbnail_url.replace("{width}", "800")
-                                                  .replace("{height}", "450");
+                                                 .replace("{height}", "450");
                       if twd.type_string == "live" {
                         let t_d = format!("{}\n{}\nviewers: {}\nstarted: {}",
                                     twd.title, url, twd.viewer_count, twd.started_at);
@@ -155,7 +161,7 @@ pub async fn activate_streamers_tracking(
           }
           if !additional_fields.is_empty() {
             if let Some(track) = streams_lock.get(&playa.discord) {
-              if let Ok(mut msg) = ctx_clone.http.get_message(sh_deref.0, track.tracking_msg_id).await {
+              if let Ok(mut msg) = ctx_clone.http.get_message(sh_deref.0, track.tracking_msg_id[0]).await {
                 let footer = if track.passed_time > 60 {
                     let hours: u32 = track.passed_time / 60;
                     let minutes = track.passed_time % 60;
@@ -179,23 +185,48 @@ pub async fn activate_streamers_tracking(
                 if let Err(why) = msg.edit(&ctx_clone.http, |m| m
                   .embed(|e|  {
                     let mut e = e
-                      .title(title)
+                      .title(&title)
                       .colour(color)
                       .author(|a| a.icon_url(&user.face()).name(&is_now_live))
-                      .footer(|f| f.text(footer));
+                      .footer(|f| f.text(&footer));
                     if !fields.is_empty() {
-                      e = e.fields(fields);
+                      e = e.fields(fields.clone());
                     }
-                    if let Some(some_img) = img {
+                    if let Some(some_img) = img.clone() {
                       e = e.image(some_img.url);
                     }
-                    if let Some(some_url) = url {
+                    if let Some(some_url) = url.clone() {
                       e = e.url(some_url);
                     }
                     e
                   }
                 )).await {
                   error!("Failed to edit stream msg {:?}", why);
+                }
+                if user.id.0 == lilyal_id && track.tracking_msg_id.len() > 1 {
+                  if let Ok(mut msg_lil) = ctx_clone.http.get_message(lilyal.0, track.tracking_msg_id[1]).await {
+                    if let Err(why) = msg_lil.edit(&ctx_clone.http, |m| m
+                      .embed(|e|  {
+                        let mut e = e
+                          .title(&title)
+                          .colour(color)
+                          .author(|a| a.icon_url(&user.face()).name(&is_now_live))
+                          .footer(|f| f.text(&footer));
+                        if !fields.is_empty() {
+                          e = e.fields(fields);
+                        }
+                        if let Some(some_img) = img {
+                          e = e.image(some_img.url);
+                        }
+                        if let Some(some_url) = url {
+                          e = e.url(some_url);
+                        }
+                        e
+                      }
+                    )).await {
+                      error!("Failed to edit stream msg on lilyal {:?}", why);
+                    }
+                  }
                 }
               }
             } else {
@@ -229,28 +260,58 @@ pub async fn activate_streamers_tracking(
               match sh_deref.send_message(&ctx_clone, |m| m
                 .embed(|e| {
                   let mut e = e
-                    .title(title)
+                    .title(&title)
                     .colour((red, green, blue))
                     .author(|a| a.icon_url(&user.face()).name(&is_now_live));
                   if !additional_fields.is_empty() {
-                    e = e.fields(additional_fields);
+                    e = e.fields(additional_fields.clone());
                   }
-                  if let Some(some_image) = image {
+                  if let Some(some_image) = image.clone() {
                     e = e.image(some_image);
                   }
-                  if let Some(some_url) = em_url {
+                  if let Some(some_url) = em_url.clone() {
                     e = e.url(some_url);
                   }
                   e
                 }
               )).await {
                 Ok(msg_id) => {
-                  streams_lock.insert(playa.discord, TrackingGame {
-                    tracking_msg_id: msg_id.id.0,
+                  let playa_for_stream = playa.clone();
+                  streams_lock.insert(playa_for_stream.discord, TrackingGame {
+                    tracking_msg_id: vec![msg_id.id.0],
                     passed_time: 0,
                     still_live: true,
-                    players: vec![playa], bets: vec![], fails: 0 }
+                    players: vec![playa_for_stream], bets: vec![], fails: 0 }
                   );
+                  if user.id.0 == lilyal_id {
+                    match lilyal.send_message(&ctx_clone, |m| m
+                      .embed(|e| {
+                        let mut e = e
+                          .title(&title)
+                          .colour((red, green, blue))
+                          .author(|a| a.icon_url(&user.face()).name(&is_now_live));
+                        if !additional_fields.is_empty() {
+                          e = e.fields(additional_fields);
+                        }
+                        if let Some(some_image) = image {
+                          e = e.image(some_image);
+                        }
+                        if let Some(some_url) = em_url {
+                          e = e.url(some_url);
+                        }
+                        e
+                      }
+                    )).await {
+                      Ok(msg_id_l) => {
+                        if let Some(track) = streams_lock.get_mut(&playa.discord) {
+                          track.tracking_msg_id.push(msg_id_l.id.0);
+                        }
+                      },
+                      Err(why) => {
+                        error!("Failed to post live match to lilyal {:?}", why);
+                      }
+                    }
+                  }
                 },
                 Err(why) => {
                   error!("Failed to post live match {:?}", why);
@@ -258,7 +319,7 @@ pub async fn activate_streamers_tracking(
               }
             }
           } else if let Some(track) = streams_lock.get(&playa.discord) {
-            if let Ok(mut msg) = ctx_clone.http.get_message(sh_deref.0, track.tracking_msg_id).await {
+            if let Ok(mut msg) = ctx_clone.http.get_message(sh_deref.0, track.tracking_msg_id[0]).await {
               let footer = if track.passed_time > 60 {
                   let hours: u32 = track.passed_time / 60;
                   let minutes = track.passed_time % 60;
@@ -284,20 +345,43 @@ pub async fn activate_streamers_tracking(
                     .title("FINISHED")
                     .colour(color)
                     .author(|a| a.icon_url(&user.face()).name(&user.name))
-                    .footer(|f| f.text(footer));
+                    .footer(|f| f.text(&footer));
                   if !fields.is_empty() {
-                    e = e.fields(fields);
+                    e = e.fields(fields.clone());
                   }
-                  if let Some(some_img) = img {
+                  if let Some(some_img) = img.clone() {
                     e = e.image(some_img.url);
                   }
-                  if let Some(some_url) = url {
+                  if let Some(some_url) = url.clone() {
                     e = e.url(some_url);
                   }
                   e
                 }
               )).await {
                 error!("Failed to edit stream msg {:?}", why);
+              }
+              if user.id.0 == lilyal_id {
+                if let Err(why) = msg.edit(&ctx_clone.http, |m| m
+                  .embed(|e|  {
+                    let mut e = e
+                      .title("FINISHED")
+                      .colour(color)
+                      .author(|a| a.icon_url(&user.face()).name(&user.name))
+                      .footer(|f| f.text(&footer));
+                    if !fields.is_empty() {
+                      e = e.fields(fields);
+                    }
+                    if let Some(some_img) = img {
+                      e = e.image(some_img.url);
+                    }
+                    if let Some(some_url) = url {
+                      e = e.url(some_url);
+                    }
+                    e
+                  }
+                )).await {
+                  error!("Failed to edit stream msg on lilyal {:?}", why);
+                }
               }
             }
             streams_lock.remove(&playa.discord);

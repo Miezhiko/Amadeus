@@ -20,7 +20,7 @@ pub struct Bet {
 
 #[allow(non_snake_case)]
 pub struct TrackingGame {
-  pub tracking_msg_id: u64,
+  pub tracking_msg_id: Vec<u64>,
   pub passed_time: u32,
   pub still_live: bool,
   pub players: Vec<Player>,

@@ -186,7 +186,7 @@ pub async fn activate_games_tracking(
               { // scope for games_lock
                 let mut games_lock = cyber::team_checker::GAMES.lock().await;
                 games_lock.insert(game_key.clone(), TrackingGame {
-                  tracking_msg_id: msg_id.id.0,
+                  tracking_msg_id: vec![msg_id.id.0],
                   passed_time: 0,
                   still_live: false,
                   players: game.players, bets: vec![], fails: 0 }

@@ -480,6 +480,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
     }
 
     let mut winrate_maps = vec![];
+    let mut all_score: f64 = 0.0;
 
     if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
       for s3 in s24 {
@@ -489,8 +490,13 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
             let text_map = get_map(&s4.map);
             for s5 in &s4.winLosses {
               if s5.race == race_vs_num {
-                let vs_winrate = (s5.winrate * 100.0).round();
-                winrate_maps.push((vs_winrate, text_map.clone()));
+                if text_map == "All" {
+                  all_score = (s5.winrate * 100.0).round();
+                } else {
+                  let vs_winrate = (s5.winrate * 100.0).round();
+                  winrate_maps.push(( vs_winrate, text_map.clone()
+                                    , s5.wins, s5.losses ));
+                }
               }
             }
           }
@@ -498,16 +504,29 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
       }
     }
 
-    winrate_maps.sort_by(|(a,_), (b,_)| b.partial_cmp(a).unwrap());
+    winrate_maps.sort_by(|(a,_,_,_), (b,_,_,_)| b.partial_cmp(a).unwrap());
 
     let mut out = String::new();
-    for (w, m) in winrate_maps {
-      out = format!("{}**{}**({}%) ", out, m, w);
+    for (w, m, ww, ll) in winrate_maps {
+      out = format!("{}{}\t({}% **{}**W - **{}**L)\n", out, m, w, ww, ll);
     }
-    channel_message(&ctx, &msg, &out).await;
+    out = format!("{}\n*total: {}%*", out, all_score);
+
+    let footer = format!("Requested by {}", msg.author.name);
+    if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+        .embed(|e| e
+        .title(&format!("{} vs {}", &userx, &race_vs))
+        .description(out)
+        .url(&format!("https://www.w3champions.com/player/{}/statistics", user))
+        .footer(|f| f.text(footer)))).await {
+      error!("Error sending veto message: {:?}", why);
+    }
 
   } else {
     channel_message(&ctx, &msg, "Search found no users with that nickname").await;
+  }
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
   }
   if let Ok(typing) = start_typing {
     typing.stop();

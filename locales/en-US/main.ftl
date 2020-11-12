@@ -32,6 +32,7 @@ music-commands = • **join**: to your voice channel (you should be there)
 warcraft-commands-title = warcraft commands
 warcraft-commands = • **today**: show tournaments today (same with **tomorrow**, **yesterday** or **weekends**)
   • **stats** *<nick>*: shows ladder race stats (nick - battle tag or tag without numbers) (without nick will use discord name)
+  • **veto** *<nick>* *<race>*: veto helper
   • **ongoing**: show ongoing solo matches
   • **lineup** *<title> | map player map2 player2+player3* (title is optional)
 

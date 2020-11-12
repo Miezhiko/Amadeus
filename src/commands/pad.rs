@@ -415,3 +415,102 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   }
   Ok(())
 }
+
+#[command]
+#[min_args(2)]
+#[description("Generates ideal veto based on W3C statistics")]
+async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
+  let start_typing = ctx.http.start_typing(msg.channel_id.0);
+  let args_msg = args.single::<String>()?;
+  let race_vs = args.single::<String>()?;
+  let rqcl = {
+    set!{ data = ctx.data.read().await
+        , rqcl = data.get::<ReqwestClient>().unwrap() };
+    rqcl.clone()
+  };
+  let season = current_season();
+  let mut gateway = "20"; // Europe by default
+  let userx = if args_msg.contains('#') { args_msg }
+    else {
+      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
+      let ress = rqcl.get(&search_uri).send().await?;
+      let search : Vec<Search> = ress.json().await?;
+      if !search.is_empty() {
+        if !search[0].player.playerIds.is_empty() {
+          search[0].player.playerIds[0].battleTag.clone()
+        } else { String::new() }
+      } else {
+        gateway = "10"; // If empty results on Europe Go America
+        let search_uri_a = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
+        let ress_a = rqcl.get(&search_uri_a).send().await?;
+        let search_a : Vec<Search> = ress_a.json().await?;
+        if !search_a.is_empty() {
+          if !search_a[0].player.playerIds.is_empty() {
+            search_a[0].player.playerIds[0].battleTag.clone()
+          } else { String::new() }
+        } else { String::new() }
+      }
+    };
+  if !userx.is_empty() {
+    let user = userx.replace("#","%23");
+    let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
+    let res2 = rqcl.get(&uri2).send().await?;
+    let stats2 : Stats2 = res2.json().await?;
+
+    let race_vs_lower = race_vs.to_lowercase();
+    let race_vs_num: u32 =
+      if race_vs_lower.starts_with('h') {
+        1
+      } else if race_vs_lower.starts_with('o') {
+        2
+      } else if race_vs_lower.starts_with('n') {
+        4
+      } else if race_vs_lower.starts_with('u') {
+        8
+      } else {
+        0
+      };
+
+    if race_vs_num == 0 {
+      channel_message(&ctx, &msg, "Can't parse that race").await;
+      if let Ok(typing) = start_typing {
+        typing.stop();
+      }
+      return Ok(());
+    }
+
+    let mut winrate_maps = vec![];
+
+    if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
+      for s3 in s24 {
+        if !s3.winLossesOnMap.is_empty() &&
+            s3.race == 16 {
+          for s4 in &s3.winLossesOnMap {
+            let text_map = get_map(&s4.map);
+            for s5 in &s4.winLosses {
+              if s5.race == race_vs_num {
+                let vs_winrate = (s5.winrate * 100.0).round();
+                winrate_maps.push((vs_winrate, text_map.clone()));
+              }
+            }
+          }
+        }
+      }
+    }
+
+    winrate_maps.sort_by(|(a,_), (b,_)| b.partial_cmp(a).unwrap());
+
+    let mut out = String::new();
+    for (w, m) in winrate_maps {
+      out = format!("{}**{}**({}%) ", out, m, w);
+    }
+    channel_message(&ctx, &msg, &out).await;
+
+  } else {
+    channel_message(&ctx, &msg, "Search found no users with that nickname").await;
+  }
+  if let Ok(typing) = start_typing {
+    typing.stop();
+  }
+  Ok(())
+}

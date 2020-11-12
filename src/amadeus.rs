@@ -120,7 +120,7 @@ struct Warcraft;
 
 #[group("W3C")]
 #[description = "w3champions commands"]
-#[commands(stats, ongoing, bet)]
+#[commands(stats, ongoing, veto, bet)]
 struct Pad;
 
 #[group("Owner")]

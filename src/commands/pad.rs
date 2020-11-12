@@ -453,6 +453,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
     };
   if !userx.is_empty() {
     let user = userx.replace("#","%23");
+
     let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
     let res2 = rqcl.get(&uri2).send().await?;
     let stats2 : Stats2 = res2.json().await?;
@@ -480,37 +481,54 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
     }
 
     let mut winrate_maps = vec![];
-    let mut all_score: f64 = 0.0;
-
-    if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
-      for s3 in s24 {
-        if !s3.winLossesOnMap.is_empty() &&
-            s3.race == 16 {
-          for s4 in &s3.winLossesOnMap {
-            let text_map = get_map(&s4.map);
-            for s5 in &s4.winLosses {
-              if s5.race == race_vs_num {
-                if text_map == "All" {
-                  all_score = (s5.winrate * 100.0).round();
-                } else {
-                  let vs_winrate = (s5.winrate * 100.0).round();
-                  winrate_maps.push(( vs_winrate, text_map.clone()
-                                    , s5.wins, s5.losses ));
+    let mut process_stats2 = |stats2: Stats2| {
+      if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
+        for s3 in s24 {
+          if !s3.winLossesOnMap.is_empty() &&
+              s3.race == 16 {
+            for s4 in &s3.winLossesOnMap {
+              let text_map = get_map(&s4.map);
+              for s5 in &s4.winLosses {
+                if s5.race == race_vs_num {
+                  if text_map != "All" {
+                    if let Some(fwm) =
+                      winrate_maps.iter_mut().find(|(_, m, _, _)|
+                      m == &text_map
+                    ) {
+                      let (_, _, ww, ll) = fwm;
+                      let aw = *ww + s5.wins;
+                      let al = *ll + s5.losses;
+                      let wr: f64 = (aw as f64/(al as f64+aw as f64) * 100.0).round();
+                      *fwm = (wr, text_map.clone(), aw, al);
+                    } else {
+                      let vs_winrate = (s5.winrate * 100.0).round();
+                      winrate_maps.push(( vs_winrate, text_map.clone()
+                                        , s5.wins, s5.losses ));
+                    }
+                  }
                 }
               }
             }
           }
         }
       }
-    }
+    };
+
+    process_stats2(stats2);
+
+    let previous_season = season.parse::<u32>().unwrap() - 1;
+    let uri3 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, previous_season);
+    let res3 = rqcl.get(&uri3).send().await?;
+    let stats3 : Stats2 = res3.json().await?;
+
+    process_stats2(stats3);
 
     winrate_maps.sort_by(|(a,_,_,_), (b,_,_,_)| b.partial_cmp(a).unwrap());
 
     let mut out = String::new();
     for (w, m, ww, ll) in winrate_maps {
-      out = format!("{}{}\t({}% **{}**W - **{}**L)\n", out, m, w, ww, ll);
+      out = format!("{}**{}**\t\t{}% **{}**W - **{}**L\n", out, m, w, ww, ll);
     }
-    out = format!("{}\n*total: {}%*", out, all_score);
 
     let footer = format!("Requested by {}", msg.author.name);
     if let Err(why) = msg.channel_id.send_message(&ctx, |m| m

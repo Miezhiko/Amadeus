@@ -28,6 +28,28 @@ lazy_static! {
     = Mutex::new(HashMap::new());
 }
 
+async fn clear_channel(channel: ChannelId, ctx: &Context) {
+  if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(25)).await {
+    let mut vec_id = Vec::new();
+    for message in vec_msg {
+      for embed in message.embeds {
+        if let Some(title) = embed.title {
+          if title != "FINISHED" {
+            vec_id.push(message.id);
+            break;
+          }
+        }
+      }
+    }
+    if !vec_id.is_empty() {
+      match channel.delete_messages(&ctx, vec_id.as_slice()).await {
+        Ok(nothing)  => nothing,
+        Err(err) => warn!("Failed to clean live messages {}", err),
+      };
+    }
+  }
+}
+
 pub async fn activate_streamers_tracking(
                      ctx:       &Arc<Context>
                    , options:   &IOptions
@@ -48,29 +70,8 @@ pub async fn activate_streamers_tracking(
       , ctx_clone     = Arc::clone(&ctx)
       , options_clone = options.clone() };
 
-  let clear_channel = async move |channel: ChannelId| {
-    if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(25)).await {
-      let mut vec_id = Vec::new();
-      for message in vec_msg {
-        for embed in message.embeds {
-          if let Some(title) = embed.title {
-            if title != "FINISHED" {
-              vec_id.push(message.id);
-              break;
-            }
-          }
-        }
-      }
-      if !vec_id.is_empty() {
-        match channel.delete_messages(&ctx, vec_id.as_slice()).await {
-          Ok(nothing)  => nothing,
-          Err(err) => warn!("Failed to clean live messages {}", err),
-        };
-      }
-    }
-  };
-  clear_channel(sh_deref).await;
-  clear_channel(lilyal).await;
+  clear_channel(sh_deref, &ctx).await;
+  clear_channel(lilyal, &ctx).await;
 
   tokio::spawn(async move {
     let mut streams_lock = STREAMS.lock().await;

@@ -464,7 +464,8 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
         1
       } else if race_vs_lower.starts_with('o') {
         2
-      } else if race_vs_lower.starts_with('n') {
+      } else if race_vs_lower.starts_with('n')
+             || race_vs_lower.starts_with('e') {
         4
       } else if race_vs_lower.starts_with('u') {
         8
@@ -498,7 +499,10 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
                       let (_, _, ww, ll) = fwm;
                       let aw = *ww + s5.wins;
                       let al = *ll + s5.losses;
-                      let wr: f64 = (aw as f64/(al as f64+aw as f64) * 100.0).round();
+                      let wr: f64 =
+                        if al + aw > 0 {
+                          (aw as f64/(al as f64+aw as f64) * 100.0).round()
+                        } else { 0.0 };
                       *fwm = (wr, text_map.clone(), aw, al);
                     } else {
                       let vs_winrate = (s5.winrate * 100.0).round();
@@ -523,7 +527,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
 
     process_stats2(stats3);
 
-    winrate_maps.sort_by(|(a,_,_,_), (b,_,_,_)| b.partial_cmp(a).unwrap());
+    winrate_maps.sort_by(|(a,_,_,_), (b,_,_,_)| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Less));
 
     let mut out = String::new();
     for (w, m, ww, ll) in winrate_maps {

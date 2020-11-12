@@ -423,12 +423,21 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
   let args_msg = args.single::<String>()?;
   let race_vs = args.single::<String>()?;
+  let mut seasons = 2;
+  let season = current_season();
+  if let Ok(opt) = args.single::<String>() {
+    let lower = opt.to_lowercase();
+    if lower == "all" {
+      seasons = season.parse::<u32>().unwrap() - 1;
+    } else if lower == "last" {
+      seasons = 1;
+    }
+  }
   let rqcl = {
     set!{ data = ctx.data.read().await
         , rqcl = data.get::<ReqwestClient>().unwrap() };
     rqcl.clone()
   };
-  let season = current_season();
   let mut gateway = "20"; // Europe by default
   let userx = if args_msg.contains('#') { args_msg }
     else {
@@ -520,12 +529,15 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
 
     process_stats2(stats2);
 
-    let previous_season = season.parse::<u32>().unwrap() - 1;
-    let uri3 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, previous_season);
-    let res3 = rqcl.get(&uri3).send().await?;
-    let stats3 : Stats2 = res3.json().await?;
-
-    process_stats2(stats3);
+    for sx in 1..seasons {
+      let previous_season = season.parse::<u32>().unwrap() - sx;
+      let uri3 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, previous_season);
+      if let Ok(res3) = rqcl.get(&uri3).send().await {
+        if let Ok(stats3) = res3.json::<Stats2>().await {
+          process_stats2(stats3);
+        }
+      }
+    }
 
     winrate_maps.sort_by(|(a,_,_,_), (b,_,_,_)| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Less));
 

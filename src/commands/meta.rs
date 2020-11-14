@@ -1,45 +1,41 @@
 use crate::{
   types::common::ReqwestClient,
-  common::i18n::{ help_i18n, RU },
-  steins::gate::behavior::START_TIME
-};
-use crate::{
   types::options::ROptions,
   common::{
     msg::{ direct_message, reply },
+    i18n::{ help_i18n, RU },
     options
-  }
+  },
+  steins::gate::behavior::START_TIME
 };
 
 use std::sync::Arc;
 
 use serenity::{
   builder::CreateEmbed,
-  client::bridge::gateway::{ShardId, ShardManager},
+  client::{
+    bridge::gateway::{ShardId, ShardManager},
+    bridge::voice::ClientVoiceManager
+  },
   prelude::*,
-  model::channel::*,
+  model::{
+    misc::Mentionable,
+    id::GuildId,
+    id::ChannelId,
+    channel::*
+  },
   framework::standard::{
     CommandResult, Args,
-    macros::command
-  },
-};
-use serenity::{
-  model::{ misc::Mentionable
-         , id::GuildId, id::ChannelId },
-  client::{ bridge::voice::ClientVoiceManager },
-  voice,
-  framework::standard::{
+    macros::command,
     Delimiter
-  }
+  },
+  voice
 };
 
 use chrono::{ Duration, Utc };
 use tokio::process::Command;
 
-use rand::{
-  Rng
-};
-
+use rand::Rng;
 use regex::Regex;
 
 use qrcode::{
@@ -586,8 +582,6 @@ async fn time(ctx: &Context, msg: &Message) -> CommandResult {
   let est = est_time.format(time_format);
 
   let cet_pattern = (cet_time.hour12().1, cet_time.minute() < 30);
-  let msk_pattern = (msk_time.hour12().1, msk_time.minute() < 30);
-  let est_pattern = (est_time.hour12().1, msk_time.minute() < 30);
 
   let get_emoji = |pattern: (u32, bool)| -> char {
     match pattern {
@@ -620,8 +614,8 @@ async fn time(ctx: &Context, msg: &Message) -> CommandResult {
   };
 
   let cet_emoji = get_emoji(cet_pattern);
-  let msk_emoji = get_emoji(msk_pattern);
-  let est_emoji = get_emoji(est_pattern);
+  let msk_emoji = get_emoji(cet_pattern);
+  let est_emoji = get_emoji(cet_pattern);
 
   let mut eb = CreateEmbed::default();
   let footer = format!("Requested by {}", msg.author.name);

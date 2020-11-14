@@ -499,25 +499,23 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
             for s4 in &s3.winLossesOnMap {
               let text_map = get_map(&s4.map);
               for s5 in &s4.winLosses {
-                if s5.race == race_vs_num {
-                  if text_map != "All" {
-                    if let Some(fwm) =
-                      winrate_maps.iter_mut().find(|(_, m, _, _)|
-                      m == &text_map
-                    ) {
-                      let (_, _, ww, ll) = fwm;
-                      let aw = *ww + s5.wins;
-                      let al = *ll + s5.losses;
-                      let wr: f64 =
-                        if al + aw > 0 {
-                          (aw as f64/(al as f64+aw as f64) * 100.0).round()
-                        } else { 0.0 };
-                      *fwm = (wr, text_map.clone(), aw, al);
-                    } else {
-                      let vs_winrate = (s5.winrate * 100.0).round();
-                      winrate_maps.push(( vs_winrate, text_map.clone()
-                                        , s5.wins, s5.losses ));
-                    }
+                if s5.race == race_vs_num && text_map != "All" {
+                  if let Some(fwm) =
+                    winrate_maps.iter_mut().find(|(_, m, _, _)|
+                    m == &text_map
+                  ) {
+                    let (_, _, ww, ll) = fwm;
+                    let aw = *ww + s5.wins;
+                    let al = *ll + s5.losses;
+                    let wr: f64 =
+                      if al + aw > 0 {
+                        (aw as f64/(al as f64+aw as f64) * 100.0).round()
+                      } else { 0.0 };
+                    *fwm = (wr, text_map.clone(), aw, al);
+                  } else {
+                    let vs_winrate = (s5.winrate * 100.0).round();
+                    winrate_maps.push(( vs_winrate, text_map.clone()
+                                      , s5.wins, s5.losses ));
                   }
                 }
               }

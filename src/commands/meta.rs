@@ -579,12 +579,15 @@ async fn time(ctx: &Context, msg: &Message) -> CommandResult {
 
   let cet_time = utc.with_timezone(&chrono_tz::CET).time();
   let msk_time = utc.with_timezone(&chrono_tz::Europe::Moscow).time();
+  let est_time = utc.with_timezone(&chrono_tz::EST).time();
 
   let cet = cet_time.format(time_format);
   let msk = msk_time.format(time_format);
+  let est = est_time.format(time_format);
 
   let cet_pattern = (cet_time.hour12().1, cet_time.minute() < 30);
   let msk_pattern = (msk_time.hour12().1, msk_time.minute() < 30);
+  let est_pattern = (est_time.hour12().1, msk_time.minute() < 30);
 
   let get_emoji = |pattern: (u32, bool)| -> char {
     match pattern {
@@ -618,12 +621,13 @@ async fn time(ctx: &Context, msg: &Message) -> CommandResult {
 
   let cet_emoji = get_emoji(cet_pattern);
   let msk_emoji = get_emoji(msk_pattern);
+  let est_emoji = get_emoji(est_pattern);
 
   let mut eb = CreateEmbed::default();
   let footer = format!("Requested by {}", msg.author.name);
   eb.color(0xe735cc);
   eb.title("Time");
-  eb.description(format!("**CET**: {} {}\n**MSK**: {} {}", cet, cet_emoji, msk, msk_emoji));
+  eb.description(format!("**CET**: {} {}\n**MSK**: {} {}\n**EST**: {} {}", cet, cet_emoji, msk, msk_emoji, est, est_emoji));
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
   eb.footer(|f| f.text(footer));
 

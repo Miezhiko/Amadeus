@@ -56,7 +56,7 @@ fn try_get_map(m: &str) -> String {
 pub fn get_map(m: &str) -> String {
   lazy_static! {
   static ref MAP_REGEX: Regex = Regex::new(
-    r"^(?:_)?(?:[0-4]{1}v[0-4]{1}_)?([a-zA-Z._']+?)(?:w3c|w3x)?(?:[0-9]+)?(?:_lv)?(?:_|\.)?(?:anon)?(?:_|\.)?$")
+    r"^(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([a-zA-Z._']+?)(?:w3c|w3x)?(?:[0-9]+)?(?:_lv)?(?:_|\.)?(?:anon)?(?:_|\.)?$")
       .unwrap(); }
   let mut map = String::new();
   if let Some(caps) = MAP_REGEX.captures(m) {

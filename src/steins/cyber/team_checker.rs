@@ -13,9 +13,11 @@ use crate::{
   steins::ai::chain
 };
 
-use serenity::prelude::*;
-use serenity::model::id::{ UserId
-                         , GuildId };
+use serenity::{
+  prelude::*,
+  model::id::{ UserId
+             , GuildId }
+};
 
 use std::collections::HashMap;
 use tokio::sync::Mutex;
@@ -133,7 +135,7 @@ async fn check_match( matchid: &str
         Some( vec![ mstr, teamx(0), teamx(1) ] )
       } else if m.gameMode == 4 {
         let g_map  = get_map(&m.map);
-        for i in 0..4 {
+        for i in 0..2 {
           for j in 0..4 {
             if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
               let won = m.teams[i].players[j].won;

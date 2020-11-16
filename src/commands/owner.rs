@@ -244,12 +244,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
   Ok(())
 }
 
-#[command]
-#[owners_only]
-async fn twitch_token_update(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
+pub async fn twitch_update(ctx: &Context) -> eyre::Result<()> {
   set!{ data            = ctx.data.read().await
       , client_id       = data.get::<PubCreds>().unwrap().get("twitch_client").unwrap().as_str()
       , client_secret   = data.get::<PubCreds>().unwrap().get("twitch_secret").unwrap().as_str() };
@@ -272,9 +267,21 @@ async fn twitch_token_update(ctx: &Context, msg: &Message) -> CommandResult {
         let mut opts = options::get_roptions().await?;
         opts.twitch = out;
         options::put_roptions(&opts).await?;
-        channel_message(&ctx, &msg, "twitch access token updated").await;
+        return Ok(());
       }
     }
+  }
+  Err(eyre!("Failed to update twitch token"))
+}
+
+#[command]
+#[owners_only]
+async fn twitch_token_update(ctx: &Context, msg: &Message) -> CommandResult {
+  if let Err(why) = msg.delete(ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  if twitch_update(ctx).await.is_ok() {
+    channel_message(&ctx, &msg, "twitch access token updated").await;
   }
   Ok(())
 }

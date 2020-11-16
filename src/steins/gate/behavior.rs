@@ -8,7 +8,8 @@ use crate::{
                     , w3info::activate_w3info_tracking },
     ai::chain
   },
-  commands::pad::update_current_season
+  commands::pad::update_current_season,
+  commands::owner::twitch_update
 };
 
 use serenity::{
@@ -35,6 +36,11 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
 
   // set actual season for pad statistics
   update_current_season(&ctx).await;
+
+  // generate new twitch toke
+  if let Err(why) = twitch_update(&ctx).await {
+    error!("Twitch token update failed {:?}", why);
+  }
 
   info!("loading Kathoey");
   lazy_static::initialize(&chain::KATHOEY);

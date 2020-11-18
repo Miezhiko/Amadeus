@@ -1,6 +1,9 @@
-use crate::types::rules::*;
-use crate::collections::stuff::owo::*;
-use crate::steins::ai::utils::*;
+use crate::{
+  types::rules::*,
+  collections::stuff::owo::*
+};
+
+use kathoey::utils::capital_first;
 
 fn spell_word(word: &str) -> String {
   if word.is_empty() { return String::new(); }

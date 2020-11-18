@@ -8,7 +8,7 @@ use crate::{
           , ai::chain::{ ACTIVITY_LEVEL
                        , actualize_cache
                        , clear_cache }
-          , ai::utils::capital_first },
+          }
 };
 
 use serenity::{
@@ -29,6 +29,8 @@ use std::sync::atomic::Ordering;
 use regex::Regex;
 
 use tokio::process::Command;
+
+use kathoey::utils::capital_first;
 
 #[command]
 #[min_args(2)]

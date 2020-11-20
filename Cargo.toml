@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.27.3"
+version     = "2.28.0"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -46,9 +46,14 @@ async-recursion     = "0.3.1"
 unic-langid         = "0.9.0"
 fluent-templates    = "0.5.16"
 
-reqwest   = { version = "0.10.8", features = ["json", "blocking"] }
+reqwest   = { version = "0.10.9", features = ["json", "blocking"] }
 ical      = { version = "0.7.0",  features = ["ical"] }
 markov    = { version = "1.1.0",  features = ["yaml"] }
+
+[dependencies.sled]
+default-features = false
+version = "0.34.6"
+features = []
 
 [dependencies.serenity]
 default-features = false

@@ -35,7 +35,7 @@ use kathoey::utils::capital_first;
 #[command]
 #[min_args(2)]
 #[owners_only]
-async fn set(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
+async fn set(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {:?}", why);
   }
@@ -57,7 +57,7 @@ async fn set(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
 #[command]
 #[min_args(1)]
 #[owners_only]
-async fn say(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
+async fn say(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {:?}", why);
   }

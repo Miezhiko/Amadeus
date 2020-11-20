@@ -4,3 +4,4 @@ pub mod options;
 pub mod trees;
 pub mod i18n;
 pub mod help;
+pub mod sled;

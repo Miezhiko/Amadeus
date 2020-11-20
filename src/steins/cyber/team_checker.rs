@@ -197,8 +197,7 @@ async fn check_match( matchid: &str
           };
         if !player_scores.heroes.is_empty() {
           maybe_hero_png = Some(get_hero_png(
-            &player_scores.heroes[0].icon
-            )
+            &player_scores.heroes[0].icon)
           );
         }
         return Some(FinishedGame
@@ -218,8 +217,7 @@ async fn check_match( matchid: &str
           }) { scores } else { &md.playerScores[0] };
         if !player_scores.heroes.is_empty() {
           maybe_hero_png = Some(get_hero_png(
-            &player_scores.heroes[0].icon
-            )
+            &player_scores.heroes[0].icon)
           );
         }
         // for 2x2 mode display scores of teammate
@@ -264,6 +262,17 @@ async fn check_match( matchid: &str
           , additional_fields: Some((s1,s2,s3,s4))
           , hero_png: maybe_hero_png
           });
+      } else if m.gameMode == 4 {
+        let btag = &playaz[0].battletag;
+        let player_scores =
+          if let Some(scores) = &md.playerScores.iter().find(|s| {
+            &s.battleTag == btag
+          }) { scores } else { &md.playerScores[0] };
+        if !player_scores.heroes.is_empty() {
+          maybe_hero_png = Some(get_hero_png(
+            &player_scores.heroes[0].icon)
+          );
+        }
       }
       return Some(FinishedGame
         { desc: mstr
@@ -752,7 +761,8 @@ pub async fn check<'a>( ctx: &Context
                     }
                   }
                   let tip =
-                    if old_fields.is_empty() && streak_fields.is_none() && bet_fields.is_none() {
+                    if old_fields.is_empty() && streak_fields.is_none() && bet_fields.is_none()
+                                             && fgame.additional_fields.is_some() {
                       Some(chain::generate_with_language(ctx, false).await)
                     } else { None };
 

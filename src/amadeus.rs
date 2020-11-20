@@ -306,7 +306,7 @@ pub async fn run(opts : &IOptions) ->
       .owners(owners)
       .on_mention(Some(amadeus_id))
       .prefix("~")
-      .delimiters(vec![" "])
+      .delimiters(vec![" ", "\n"])
       .case_insensitivity(true))
       .on_dispatch_error(on_dispatch_error)
       .before(before)

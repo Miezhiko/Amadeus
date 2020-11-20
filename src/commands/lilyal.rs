@@ -17,16 +17,15 @@ use serenity::{
 #[command]
 #[min_args(2)]
 async fn register(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
+  //if let Err(why) = msg.delete(ctx).await {
+  //  error!("Error deleting original command {:?}", why);
+  //}
+  let key = &args.single::<String>()?;
+  let value = args.rest();
+  if let Err(why) = sled::store(key, value) {
+    error!("Failed to register {}, {:?}", key, why);
   } else {
-    let key = &args.single::<String>()?;
-    let value = args.rest();
-    if let Err(why) = sled::store(key, value) {
-      error!("Failed to register {}, {:?}", key, why);
-    } else {
-      channel_message(&ctx, &msg, &format!("Registered {}", key)).await;
-    }
+    channel_message(&ctx, &msg, &format!("Registered {}", key)).await;
   }
   Ok(())
 }
@@ -34,9 +33,9 @@ async fn register(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
 #[command]
 #[min_args(1)]
 async fn show(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
+  //if let Err(why) = msg.delete(ctx).await {
+  //  error!("Error deleting original command {:?}", why);
+  //}
   let key = &args.single::<String>()?;
   match sled::read(key) {
     Ok(val) => {
@@ -51,9 +50,9 @@ async fn show(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[command]
 #[min_args(1)]
 async fn delete(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
+  //if let Err(why) = msg.delete(ctx).await {
+  //  error!("Error deleting original command {:?}", why);
+  //}
   let key = &args.single::<String>()?;
   match sled::delete(key) {
     Ok(_) => {

@@ -21,6 +21,8 @@ use std::{
   sync::Arc
 };
 
+use chrono::DateTime;
+
 use rand::Rng;
 
 lazy_static! {
@@ -115,8 +117,17 @@ pub async fn activate_streamers_tracking(
                       let pic = twd.thumbnail_url.replace("{width}", "800")
                                                  .replace("{height}", "450");
                       if twd.type_string == "live" {
-                        let t_d = format!("{}\n{}\nviewers: {}\nstarted: {}",
-                                    twd.title, url, twd.viewer_count, twd.started_at);
+                        let start =
+                          if let Ok(tws) = DateTime::parse_from_rfc3339(&twd.started_at) {
+                            // maybe MSK time?
+                            let cet_time = tws.with_timezone(&chrono_tz::CET).time();
+                            let time_format = "%k:%M";
+                            cet_time.format(time_format).to_string()
+                          } else {
+                            twd.started_at.clone()
+                          };
+                        let t_d = format!("{}\n{}\nviewers: {}\nstarted: {} CET",
+                                    twd.title, url, twd.viewer_count, start);
                         additional_fields.push(("Live on twitch", t_d, true));
                         title       = twd.title.clone();
                         image       = Some(pic);

@@ -48,6 +48,21 @@ async fn show(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
+async fn list(ctx: &Context, msg: &Message) -> CommandResult {
+  //if let Err(why) = msg.delete(ctx).await {
+  //  error!("Error deleting original command {:?}", why);
+  //}
+  match sled::list() {
+    Ok(val) => {
+      channel_message(&ctx, &msg, &val).await;
+    }, Err(why) => {
+      error!("Failed to show info list {:?}", why);
+    }
+  }
+  Ok(())
+}
+
+#[command]
 #[min_args(1)]
 async fn delete(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   //if let Err(why) = msg.delete(ctx).await {

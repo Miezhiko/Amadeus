@@ -126,7 +126,7 @@ struct Pad;
 
 #[group("Database")]
 #[description = "Information storage commands"]
-#[commands(register, show, delete)]
+#[commands(register, show, delete, list)]
 struct Lilyal;
 
 #[group("Owner")]

@@ -573,15 +573,18 @@ async fn time(ctx: &Context, msg: &Message) -> CommandResult {
   let utc = chrono::Utc::now();
   let time_format = "%k:%M";
 
-  let cet_time = utc.with_timezone(&chrono_tz::CET).time();
-  let msk_time = utc.with_timezone(&chrono_tz::Europe::Moscow).time();
-  let est_time = utc.with_timezone(&chrono_tz::EST).time();
+  set!{ cet_time = utc.with_timezone(&chrono_tz::CET).time()
+      , msk_time = utc.with_timezone(&chrono_tz::Europe::Moscow).time()
+      , est_time = utc.with_timezone(&chrono_tz::EST).time() };
 
-  let cet = cet_time.format(time_format);
-  let msk = msk_time.format(time_format);
-  let est = est_time.format(time_format);
+  set!{ cet = cet_time.format(time_format)
+      , msk = msk_time.format(time_format)
+      , est = est_time.format(time_format) };
 
-  let cet_pattern = (cet_time.hour12().1, cet_time.minute() < 30);
+  set!{ munutes_first_half = cet_time.minute() < 30
+      , cet_pattern = (cet_time.hour12().1, munutes_first_half)
+      , msk_pattern = (msk_time.hour12().1, munutes_first_half)
+      , est_pattern = (est_time.hour12().1, munutes_first_half) };
 
   let get_emoji = |pattern: (u32, bool)| -> char {
     match pattern {
@@ -613,9 +616,9 @@ async fn time(ctx: &Context, msg: &Message) -> CommandResult {
     }
   };
 
-  let cet_emoji = get_emoji(cet_pattern);
-  let msk_emoji = get_emoji(cet_pattern);
-  let est_emoji = get_emoji(cet_pattern);
+  set!{ cet_emoji = get_emoji(cet_pattern)
+      , msk_emoji = get_emoji(msk_pattern)
+      , est_emoji = get_emoji(est_pattern) };
 
   let mut eb = CreateEmbed::default();
   let footer = format!("Requested by {}", msg.author.name);

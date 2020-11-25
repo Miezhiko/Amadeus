@@ -1,7 +1,5 @@
-use serenity::{
-  model::channel::Message,
-  prelude::*
-};
+use serenity::{ model::channel::Message
+              , prelude::* };
 
 pub static MESSAGE_LIMIT: usize = 2000;
 

@@ -1,13 +1,13 @@
-use cannyls::lump::{LumpData, LumpId};
-use cannyls::nvm::FileNvm;
-use cannyls::storage::Storage;
+use cannyls::{ lump::{LumpData, LumpId}
+             , nvm::FileNvm
+             , storage::Storage };
 
 use std::path::Path;
 
 use serde::{Deserialize, Serialize};
-
-use tokio::task;
-use tokio::sync::{ Mutex };
+use tokio::{ task
+           , sync::{ Mutex }
+           };
 
 use eyre::Result;
 

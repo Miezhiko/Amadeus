@@ -52,11 +52,9 @@ pub struct Handler {
 
 impl Handler {
   pub fn new(iopts: &IOptions, ropts: ROptions, amadeus: UserId) -> Handler {
-    Handler {
-      ioptions: iopts.clone(),
-      roptions: ropts,
-      amadeus_id: amadeus
-    }
+    Handler { ioptions: iopts.clone()
+            , roptions: ropts
+            , amadeus_id: amadeus }
   }
 }
 

@@ -1,11 +1,8 @@
 use crate::{
   types::{
-    common::{ PubCreds
-            , ReqwestClient
-            , CoreGuild
-            , CoreGuilds
-            , IServer
-            , AllGuilds },
+    common::{ PubCreds, ReqwestClient
+            , CoreGuild, CoreGuilds
+            , IServer, AllGuilds },
     options::IOptions
   },
   steins::ai::chain,
@@ -13,16 +10,11 @@ use crate::{
     i18n::{ help_i18n, US_ENG }
   },
   handler::Handler,
-  commands::{ meta::*
-            , chat::*
-            , warcraft::*
-            , pad::*
-            , owner::*
-            , admin::*
-            , tictactoe::*
-            , images::*
-            , tranlation::*
-            , lilyal::*
+  commands::{ meta::*, chat::*
+            , warcraft::*, pad::*
+            , owner::*, admin::*
+            , tictactoe::*, images::*
+            , tranlation::*, lilyal::*
             , bets::* },
   collections::{ base::GREETINGS
                , channels::IGNORED }
@@ -31,22 +23,15 @@ use crate::{
 use serenity::{
   prelude::*,
   framework::StandardFramework,
-  framework::standard::{
-    DispatchError, Args, CommandOptions, CheckResult,
-    Reason, CommandResult,
-    macros::{ group, check, hook, help },
-    HelpOptions, CommandGroup, help_commands
-  },
-  model::{
-    channel::Message,
-    id::UserId
-  }
+  framework::standard::{ DispatchError, Args, CommandOptions
+                       , CheckResult, Reason, CommandResult
+                       , macros::{ group, check, hook, help }
+                       , HelpOptions, CommandGroup, help_commands },
+  model::{ channel::Message, id::UserId }
 };
 
-use argparse::{
-  ArgumentParser,
-  action::{IFlagAction, ParseResult}
-};
+use argparse::{ ArgumentParser
+              , action::{IFlagAction, ParseResult} };
 
 use tracing::{ Level, instrument };
 use tracing_subscriber::FmtSubscriber;

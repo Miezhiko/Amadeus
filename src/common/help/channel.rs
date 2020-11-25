@@ -1,9 +1,7 @@
 use serenity::{
   prelude::*,
-  model::{
-    channel::GuildChannel,
-    id::ChannelId
-  }
+  model::{ channel::GuildChannel
+         , id::ChannelId }
 };
 
 use std::collections::HashMap;

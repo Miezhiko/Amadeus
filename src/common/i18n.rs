@@ -1,7 +1,5 @@
-use serenity::{
-  prelude::*,
-  model::channel::*
-};
+use serenity::{ prelude::*
+              , model::channel::* };
 
 use unic_langid::{ LanguageIdentifier, langid };
 use fluent_templates::{ Loader, static_loader };

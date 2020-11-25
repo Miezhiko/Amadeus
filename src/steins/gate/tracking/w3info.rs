@@ -16,7 +16,8 @@ pub async fn activate_w3info_tracking(ctx: &Arc<Context> ) {
 
   // TODO: move to dhall config
   let thread_channels = vec![ ChannelId ( 635912696675565608 ) // Fake News
-                            , ChannelId ( 742643130096156672 ) // Zaryanka
+                            , ChannelId ( 742643130096156672 ) // Lilualia
+                            , ChannelId ( 781139361423949884 ) // Korchma
                             ];
 
   let ctx_clone = Arc::clone(&ctx);

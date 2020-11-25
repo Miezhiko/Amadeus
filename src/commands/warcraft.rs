@@ -209,6 +209,7 @@ pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(выходные)]
 #[description("display weekends events from w3info")]
 pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
   let mut today : DateTime<Utc> = Utc::now();

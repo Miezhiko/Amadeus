@@ -512,12 +512,10 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
                         (aw as f64/(al as f64+aw as f64) * 100.0).round()
                       } else { 0.0 };
                     *fwm = (wr, text_map.clone(), aw, al);
-                  } else {
-                    if s5.wins != 0 && s5.losses != 0 {
-                      let vs_winrate = (s5.winrate * 100.0).round();
-                      winrate_maps.push(( vs_winrate, text_map.clone()
-                                        , s5.wins, s5.losses ));
-                    }
+                  } else if !(s5.wins == 0 && s5.losses == 0) {
+                    let vs_winrate = (s5.winrate * 100.0).round();
+                    winrate_maps.push(( vs_winrate, text_map.clone()
+                                      , s5.wins, s5.losses ));
                   }
                 }
               }

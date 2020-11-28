@@ -650,7 +650,7 @@ const heroes: { [key: string]: string } = {
   Hblm: "Blood Mage",
   Edem: "Demon Hunter",
   Ekee: "Keeper",
-  Emoo: "Pristress",
+  Emoo: "Priestress",
   Ewar: "Warden",
   Obla: "Blademaster",
   Ofar: "FarSeer",

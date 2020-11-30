@@ -83,7 +83,7 @@ pub async fn replay_embed( ctx: &Context
         if !papm.len() > 1 {
           // drop last value of apm, because it's "not full"
           papm.truncate(papm.len() - 1);
-          let max = papm.iter().max().unwrap_or_else(|| &0);
+          let max = papm.iter().max().unwrap_or(&0u64);
           max_apm = std::cmp::max(max_apm, *max);
           fields3.push(
             ( kk.clone()
@@ -260,7 +260,7 @@ pub async fn attach_replay( ctx: &Context
           if !papm.len() > 1 {
             // drop last value of apm, because it's "not full"
             papm.truncate(papm.len() - 1);
-            let max = papm.iter().max().unwrap_or_else(|| &0);
+            let max = papm.iter().max().unwrap_or(&0);
             max_apm = std::cmp::max(max_apm, *max);
             fields3.push(
               ( btag.clone()

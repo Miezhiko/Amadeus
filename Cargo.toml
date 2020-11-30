@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.29.3"
+version     = "2.29.4"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -82,7 +82,7 @@ version = "0.3.1"
 optional = true
 
 [dependencies.flo-grpc]
-git = "https://Qeenon@github.com/wc3tools/flo-grpc.git"
+path = "flo-grpc"
 branch = "main"
 optional = true
 

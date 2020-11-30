@@ -18,11 +18,6 @@ use flo_grpc::Channel;
 use flo_grpc::controller::*;
 use flo_grpc::player::*;
 
-//use flo_grpc::game::*;
-
-//use tonic::Request;
-//const MAP: &str = r#"maps\frozenthrone\(4)twistedmeadows.w3x"#;
-
 async fn get_grpc_client(flo_secret: String) -> flo_controller_client::FloControllerClient<Channel> {
   let channel = Channel::from_static("tcp://service.w3flo.com:3549")
     .connect()
@@ -60,7 +55,7 @@ async fn register_player(ctx: &Context, msg: &Message, mut args: Args) -> Comman
   let mut rpc = get_grpc_client(flo_secret).await;
   let res = rpc
     .update_and_get_player(UpdateAndGetPlayerRequest {
-      source: 2, // PlayerSource::Api as i32,
+      source: PlayerSource::Api as i32,
       name: meme.user.name,
       source_id: meme.user.id.0.to_string(),
       ..Default::default()

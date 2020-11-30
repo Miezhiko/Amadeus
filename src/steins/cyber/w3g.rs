@@ -121,7 +121,7 @@ fn prettify_analyze_js(j: &str, minimal: bool)
     if let Some(chat_object) = json.pointer("/chat") {
       let chat = chat_object.as_array().unwrap();
       if !chat.is_empty() {
-        out = format!("{}\n**chat:**```", out);
+        let mut chat_string = String::new();
         let mut chat_part_previous = String::new();
         for chat_o in chat.iter() {
           let mut chat_p = String::new();
@@ -138,12 +138,17 @@ fn prettify_analyze_js(j: &str, minimal: bool)
             }
             let chat_part = format!("{}: {}", chat_p, chat_m);
             if chat_part_previous != chat_part {
-              out = format!("{}\n{}",out, chat_part);
+              chat_string = format!("{}\n{}",chat_string, chat_part);
               chat_part_previous = chat_part;
             }
           }
         }
-        out = format!("{}```", out);
+        if chat_string.len() > 1500 {
+          if let Some((i, _)) = chat_string.char_indices().rev().nth(1500) {
+            chat_string = chat_string[i..].to_string();
+          }
+        }
+        out = format!("{}\n**chat:**```{}```", out, chat_string);
       }
     }
   }

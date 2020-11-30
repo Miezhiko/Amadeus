@@ -4,8 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
+Environment=DEFAULT_NODE_PATH=/usr/lib64/node_modules
 WorkingDirectory=/root/contrib/rust/Amadeus
-ExecStart=cargo run --release --features flo
+ExecStart=/bin/bash -c 'NODE_PATH=$DEFAULT_NODE_PATH cargo run --release --features flo'
 ExecStop=killall Amadeus
 
 [Install]

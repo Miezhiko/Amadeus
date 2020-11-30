@@ -136,7 +136,7 @@ struct Admin;
 #[group("Flo")]
 #[checks(Admin)]
 #[help_available(false)]
-#[commands(flo_nodes)]
+#[commands(flo_nodes, register_player)]
 struct Flo;
 
 #[hook]
@@ -296,6 +296,8 @@ pub async fn run(opts : &IOptions) ->
   all_guilds.push( IServer { id: opts.guild, kind: CoreGuild::HEmo } );
   all_guilds.push( IServer { id: opts.amadeus_guild, kind: CoreGuild::Storage } );
 
+  // mut is used in cfg flo
+  #[allow(unused_mut)]
   let mut std_framework =
     StandardFramework::new()
      .configure(|c| c

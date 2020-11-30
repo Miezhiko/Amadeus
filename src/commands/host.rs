@@ -130,7 +130,7 @@ async fn create_game(ctx: &Context, msg: &Message, mut _args: Args) -> CommandRe
     })
     .await?;
 
-  channel_message(ctx, msg, &format!("Game created, id: {}, token sent via "
+  channel_message(ctx, msg, &format!("Game created, id: {}"
                  , res.into_inner().game.unwrap().id)).await;
   Ok(())
 }

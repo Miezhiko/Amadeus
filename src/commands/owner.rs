@@ -208,7 +208,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
       }
       let cargo_build = Command::new("sh")
                 .arg("-c")
-                .arg("cargo build --release")
+                .arg("cargo build --release --features flo")
                 .output()
                 .await
                 .expect("failed to compile new version");

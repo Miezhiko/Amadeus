@@ -10,7 +10,7 @@ description = "memory storage and artificial intelligence system"
 license     = "ISC AND MPL-v2"
 
 [features]
-default = ["flo"]
+default = []
 w3g_rs  = ["w3grs"]
 flo = ["flo-grpc", "tonic"]
 

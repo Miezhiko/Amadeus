@@ -20,6 +20,9 @@ use crate::{
                , channels::IGNORED }
 };
 
+#[cfg(feature = "flo")]
+use crate::commands::host::*;
+
 use serenity::{
   prelude::*,
   framework::StandardFramework,
@@ -128,6 +131,13 @@ struct Owner;
 #[help_available(false)]
 #[commands(idle, stream, give_win, register_lose, mute, unmute)]
 struct Admin;
+
+#[cfg(feature = "flo")]
+#[group("Flo")]
+#[checks(Admin)]
+#[help_available(false)]
+#[commands(flo_nodes)]
+struct Flo;
 
 #[hook]
 async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
@@ -275,6 +285,7 @@ pub async fn run(opts : &IOptions) ->
   creds.insert("tenor".to_string(), opts.tenor_key.clone());
   creds.insert("twitch_client".to_string(), opts.twitch_client_id.clone());
   creds.insert("twitch_secret".to_string(), opts.twitch_client_secret.clone());
+  creds.insert("flo".to_string(), opts.flo_secret.clone());
 
   let mut core_guilds = HashMap::new();
   core_guilds.insert(CoreGuild::HEmo, opts.guild);
@@ -285,13 +296,13 @@ pub async fn run(opts : &IOptions) ->
   all_guilds.push( IServer { id: opts.guild, kind: CoreGuild::HEmo } );
   all_guilds.push( IServer { id: opts.amadeus_guild, kind: CoreGuild::Storage } );
 
-  let std_framework =
+  let mut std_framework =
     StandardFramework::new()
      .configure(|c| c
       .owners(owners)
       .on_mention(Some(amadeus_id))
       .prefix("~")
-      .delimiters(vec![" ", "\n"])
+      .delimiters(vec![" ", "\n", "\t"])
       .case_insensitivity(true))
       .on_dispatch_error(on_dispatch_error)
       .before(before)
@@ -307,6 +318,11 @@ pub async fn run(opts : &IOptions) ->
       .group(&OWNER_GROUP)
       .group(&ADMIN_GROUP)
       .help(&HELP_COMMAND);
+
+  #[cfg(feature = "flo")]
+  {
+    std_framework = std_framework.group(&FLO_GROUP)
+  }
 
   let mut client =
     serenity::Client::builder(&opts.discord)

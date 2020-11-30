@@ -8,7 +8,8 @@ pub struct IOptions {
   pub servers: Vec<IServer>,
   pub twitch_client_id: String,
   pub twitch_client_secret: String,
-  pub tenor_key: String
+  pub tenor_key: String,
+  pub flo_secret: String
 }
 
 #[derive(Clone, Serialize, Deserialize)]

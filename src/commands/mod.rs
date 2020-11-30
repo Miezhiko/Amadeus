@@ -9,3 +9,6 @@ pub mod images;
 pub mod tranlation;
 pub mod bets;
 pub mod lilyal;
+
+#[cfg(feature = "flo")]
+pub mod host;

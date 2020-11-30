@@ -79,6 +79,7 @@ in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
    , twitch_client_id     = "AAAAAA"
    , twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAAAAA"
    , tenor_key            = "AAAA"
+   , flo_secret           = "AAAAAAAAAAAAAAA"
    }
 ```
 

@@ -136,7 +136,7 @@ struct Admin;
 #[group("Flo")]
 #[checks(Admin)]
 #[help_available(false)]
-#[commands(flo_nodes, register_player)]
+#[commands(flo_nodes, register_player, create_game)]
 struct Flo;
 
 #[hook]

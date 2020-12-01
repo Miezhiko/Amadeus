@@ -13,7 +13,8 @@ jobs:
     os: ${{ parameters.vmImage }}
     features: ${{ parameters.features }}
   steps:
-  - bash: bash eat-some-dirt.sh
+  - bash: |
+      bash eat-some-dirt.sh
     displayName: 'Dirt Eating'
 
   - bash: |

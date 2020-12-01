@@ -12,6 +12,9 @@ jobs:
     toolchain: ${{ parameters.toolchain }}
     features: ${{ parameters.features }}
   steps:
+  - bash: |
+      bash eat-some-dirt.sh
+    displayName: 'Dirt Eating'
   - powershell: |
       #Invoke-WebRequest -Uri "https://win.rustup.rs" -OutFile "rustup-init.exe"
       #&".\rustup-init.exe" --default-toolchain $(toolchain) -y

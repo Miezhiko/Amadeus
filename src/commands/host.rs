@@ -94,7 +94,7 @@ fn get_map() -> eyre::Result<Map> {
 }
 
 #[command]
-#[min_args(1)]
+//#[min_args(1)]
 #[owners_only]
 async fn create_game(ctx: &Context, msg: &Message, mut _args: Args) -> CommandResult {
   //let meme = get_player(&args.single_quoted::<String>()?, ctx, msg).await?;
@@ -130,7 +130,14 @@ async fn create_game(ctx: &Context, msg: &Message, mut _args: Args) -> CommandRe
     })
     .await?;
 
-  channel_message(ctx, msg, &format!("Game created, id: {}"
-                 , res.into_inner().game.unwrap().id)).await;
+  let id = res.into_inner().game.unwrap().id;
+
+  let game_start = rpc
+    .start_game_as_bot(StartGameAsBotRequest { game_id: id })
+    .await?
+    .into_inner();
+
+  channel_message(ctx, msg, &format!("Game {} started: {:?}", id, game_start)).await;
+
   Ok(())
 }

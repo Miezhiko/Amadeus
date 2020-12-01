@@ -3,24 +3,12 @@ version: 2.1
 orbs:
   rust: brownjohnf/rust@volatile
 
-jobs:
-  prepare:
-    machine: true
-    steps:
-      - checkout
-      - run:
-          command: bash eat-some-dirt.sh
-
 workflows:
   default:
     jobs:
-      - prepare:
-          name: source_prepare
       - rust/build:
           name: build_debug
           version: latest
-          requires:
-            - source_prepare
       - rust/test:
           version: latest
           requires:

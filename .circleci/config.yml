@@ -14,7 +14,7 @@ jobs:
 workflows:
   default:
     jobs:
-      - prepare
+      - prepare:
           name: source_prepare
       - rust/build:
           name: build_debug

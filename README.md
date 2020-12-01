@@ -43,13 +43,15 @@
  - w3info news tracking using calendar
  - replays parsing (click emoji to get report)
  - points system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
- - async [tokio.rs](https://tokio.rs)
- - gifs commands
- - plays music streams!
+ - almost everything async [tokio.rs](https://tokio.rs)
+ - many different gifs commands
+ - plays music streams! (`~join, ~play <link>`)
  - [Dhall](https://dhall-lang.org) and [rudano](https://github.com/pheki/rudano) config files
  - stream notifications/trackers for twitch and goodgame.ru
  - using [Fluent](https://www.projectfluent.org/) for localization
  - [sled](https://github.com/spacejam/sled) for editable info archive
+ - wc3 hostbot API integration (creating games) [WIP]
+ - MMR system for hosted games alike on [W3C](https://github.com/Qeenon/w3champions-mmr-service) [WIP]
 
 ## Cooking
 

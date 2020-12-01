@@ -50,6 +50,18 @@ fn try_get_map(m: &str) -> String {
             , "tidewaterglades"       => "Tide Water Glades"
             , "circleoffallenheroes"  => "Circle of Hate"
             , "phantomgrove"          => "Phantom Grove"
+            , "fullscaleassault"      => "Assault"
+            , "northshire"            => "North Shire"
+            , "golemsinthemist"       => "Gay Golems"
+            , "wellspringtemple"      => "Well Spring"
+            , "marketsquare"          => "Базарная площадь"
+            , "deadlock"              => "Deadlock"
+            , "northernfelwood"       => "Northen Gay Wood"
+            , "dragonfalls"           => "Dragon Balls"
+            , "ferocity201016"        => "Ferocity"
+            , "murguloasis"           => "Murgul Oasis"
+            , "twilightruins"         => "Twilight Ruins"
+            , "goldrush"              => "Gold Rush"
             , _                       => "" })
 }
 

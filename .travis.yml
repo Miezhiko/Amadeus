@@ -23,6 +23,9 @@ addons:
       - libiberty-dev
       - libopus-dev
 
+before_script:
+  bash eat-some-dirt.sh
+
 after_success: |
   wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
   tar xzf master.tar.gz &&

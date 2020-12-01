@@ -1,21 +1,17 @@
 version: 2.1
 
-orbs:
-  rust: brownjohnf/rust@volatile
+jobs:
+  test:
+    docker:
+      - image: cimg/rust:1.48.0
+    steps:
+      - checkout
+      - run: bash eat-some-dirt.sh
+      - run: cargo --version
+      - run: cargo test
 
 workflows:
   default:
     jobs:
-      - rust/build:
-          name: build_debug
-          version: latest
-      - rust/test:
-          version: latest
-          requires:
-            - build_debug
-      - rust/build:
-          name: build_release
-          version: latest
-          release: true
-          requires:
-            - rust/test
+      - test:
+          name: build_test_debug

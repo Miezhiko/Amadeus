@@ -44,10 +44,10 @@
  - Almost everything async [tokio.rs](https://tokio.rs)
  - Various gifs commands using Tenor API
  - [Dhall](https://dhall-lang.org) and [rudano](https://github.com/pheki/rudano) config files
- - Multi-server streams notifications/trackers for twitch and goodgame.ru
  - Using [Fluent](https://www.projectfluent.org/) for localization
  - [Sled](https://github.com/spacejam/sled) for editable info archive
  - Plays music streams! (`~join ~play`)
+ - Multi-server streams notifications/trackers for twitch and goodgame.ru
  - Veto helper (for banning maps against some player) using W3C statistics
  - Bets on live games with `~bet` and emojis under Live tracking games
  - Warcraft 3 commands `~stats`, `~today` and more with info from wacraft3.info and W3C ladder

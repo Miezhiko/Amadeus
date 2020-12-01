@@ -15,7 +15,7 @@
   <a href="#notes">Notes</a>
 </p>
 
-![Azure DevOps builds](https://img.shields.io/azure-devops/build/qeenon/0dcb863b-80ca-4465-a7f2-a8cb387865f9/1?color=blue&label=Azure)
+[![Azure DevOps builds](https://img.shields.io/azure-devops/build/qeenon/0dcb863b-80ca-4465-a7f2-a8cb387865f9/1?color=blue&label=Azure)]()
 [![GitHub](https://github.com/Qeenon/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Qeenon/Amadeus/workflows/mawa)
 [![CircleCI](https://circleci.com/gh/Qeenon/Amadeus/tree/mawa.svg?style=shield)](https://circleci.com/gh/Qeenon/Amadeus/tree/mawa)
 [![Appveyor](https://ci.appveyor.com/api/projects/status/8cd1qi1aykujkyd2?svg=true)](https://ci.appveyor.com/project/Qeenon/amadeus)
@@ -25,7 +25,7 @@
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Qeenon/Amadeus)
 [![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
 [![Discord](https://img.shields.io/discord/611822838831251466?label=Discord&color=pink)](https://discord.gg/GdzjVvD)
-[![Twitter Follow](https://img.shields.io/twitter/follow/Qeenon.svg?style=social)](https://twitter.com/Qeenon) 
+[![Twitter Follow](https://img.shields.io/twitter/follow/Qeenon.svg?style=social)](https://twitter.com/Qeenon)
 
 
 ## Features

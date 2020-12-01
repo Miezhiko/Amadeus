@@ -13,6 +13,9 @@ jobs:
     os: ${{ parameters.vmImage }}
     features: ${{ parameters.features }}
   steps:
+  - bash: bash eat-some-dirt.sh
+    displayName: 'Dirt Eating'
+
   - bash: |
       if [[ "$OS" == "macOS-latest" ]]; then
         HOMEBREW_NO_AUTO_UPDATE=1 brew install automake autoconf libtool libsodium pkg-config

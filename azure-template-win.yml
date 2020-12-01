@@ -25,7 +25,7 @@ jobs:
         cargo build --all-features
       }
       Else {
-        cargo build --no-default-features --features "$(features)"
+        cargo build
       }
     displayName: 'Build Amadeus'
   - powershell: |
@@ -33,6 +33,6 @@ jobs:
         cargo test --all-features
       }
       Else {
-        cargo test --no-default-features --features "$(features)"
+        cargo test
       }
     displayName: 'Test Amadeus'

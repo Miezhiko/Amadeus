@@ -33,24 +33,25 @@
 
 <img align="right" src="https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png">
 
- - many small commands (use `~help`)
- - chatty (`set activity 66` is default)
- - transfer learning using chats context
- - automatic translation with bert models
- - live games tracking on [w3champions](https://www.w3champions.com)
- - bets on live games with `~bet` command
- - warcraft 3 commands `~stats`, `~today` and more
- - w3info news tracking using calendar
- - replays parsing (click emoji to get report)
- - points system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
- - almost everything async [tokio.rs](https://tokio.rs)
- - many different gifs commands
- - plays music streams! (`~join, ~play <link>`)
+ - Too many small commands (use `~help`)
+ - Chatty (`set activity 66` is default)
+ - Transfer learning using chats context
+ - Automatic translation with bert models
+ - Live games tracking on [w3champions](https://www.w3champions.com)
+ - Bets on live games with `~bet` and emojis
+ - W3info news tracking using calendar
+ - Replays parsing (click emoji to get report)
+ - Points system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
+ - Almost everything async [tokio.rs](https://tokio.rs)
+ - Various gifs commands using Tenor API
+ - Plays music streams! (`~join, ~play <link>`)
  - [Dhall](https://dhall-lang.org) and [rudano](https://github.com/pheki/rudano) config files
- - stream notifications/trackers for twitch and goodgame.ru
- - using [Fluent](https://www.projectfluent.org/) for localization
- - [sled](https://github.com/spacejam/sled) for editable info archive
- - wc3 hostbot API integration (creating games) [WIP]
+ - Multi-server streams notifications/trackers for twitch and goodgame.ru
+ - Using [Fluent](https://www.projectfluent.org/) for localization
+ - [Sled](https://github.com/spacejam/sled) for editable info archive
+ - Veto helper (for banning maps against some player) using W3C statistics
+ - Warcraft 3 commands `~stats`, `~today` and more with info from wacraft3.info and W3C ladder
+ - Warcraft 3 hostbot API integration (creating games) using flo services and tonic for RPC [WIP]
  - MMR system for hosted games alike on [W3C](https://github.com/Qeenon/w3champions-mmr-service) [WIP]
 
 ## Cooking

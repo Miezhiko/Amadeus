@@ -1,14 +1,8 @@
 - Per server settings (those that we set with `~set` command)
-- Possibly automatic twitch OAuth token regeneration every month (or better on error)
-- Service logs (alike `journalctl --since today -u Amadeus`)
-- Maybe Lavalink for music instead of https://github.com/ytdl-org/youtube-dl
 - Check for ngram generators?
 - Split chain into 3 mods: cache, chain and possibly move general stuff to lib
-- Show region (EU/NA) on live matches
-- Replace argparse to something less boring
+- Replace argparse to something less boring (clap?)
 - Amadeus rs: greeting check needs optimization
-- Custom bets maybe (really not sure)
 - Implement users services marketplace
 - Write test to ensure that fluent translation of help will not be too big for discord!
 - move w3info steins to dhall / write test for it
-- Repair CI on Windows (e.g. eating dirt script)

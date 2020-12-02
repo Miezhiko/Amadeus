@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "2.29.9"
+version     = "2.29.10"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -11,7 +11,6 @@ license     = "ISC AND MPL-v2"
 
 [features]
 default = []
-w3g_rs  = ["w3grs"]
 flo = ["flo-grpc", "tonic", "hex"]
 
 [dependencies]
@@ -66,11 +65,6 @@ features = [ "cache"
            , "native_tls_backend"
            , "utils"
            , "collector" ]
-
-[dependencies.w3grs]
-git = "https://github.com/Qeenon/w3grs.git"
-branch = "mawa"
-optional = true
 
 [dependencies.kathoey]
 git = "https://github.com/Qeenon/Kathoey"

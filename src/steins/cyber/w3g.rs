@@ -1,21 +1,6 @@
-#[cfg(not(feature = "w3g_rs"))] use tokio::process::Command;
-#[cfg(not(feature = "w3g_rs"))] use serde_json::Value;
+use tokio::process::Command;
+use serde_json::Value;
 
-/*
-subheader.replay_length_ms
-metadata.map
-slot_records[x].race_flag .status .player_id
-player_records .id .name
-reforged_player_records .id .name .clan
-*/
-
-#[cfg(feature="w3g_rs")]
-fn analyze_rs(path: &str) -> eyre::Result<String> {
-  let p = w3grs::parse(String::from(path))?;
-  Ok( String::from( p.metadata.map ) )
-}
-
-#[cfg(not(feature = "w3g_rs"))]
 async fn analyze_js(path: &str) -> eyre::Result<String> {
   let node_out = Command::new("sh")
         .arg("-c")
@@ -31,7 +16,6 @@ async fn analyze_js(path: &str) -> eyre::Result<String> {
   Ok(npm_stdout)
 }
 
-#[cfg(not(feature = "w3g_rs"))]
 #[allow(clippy::type_complexity)]
 fn prettify_analyze_js(j: &str, minimal: bool)
   -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
@@ -155,14 +139,6 @@ fn prettify_analyze_js(j: &str, minimal: bool)
   Ok((out, pls))
 }
 
-#[cfg(feature="w3g_rs")]
-pub async fn analyze(path: &str, _minimal: bool)
-    -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
-  let replay_data = analyze_rs(path)?;
-  Ok((replay_data, vec![]))
-}
-
-#[cfg(not(feature = "w3g_rs"))]
 pub async fn analyze(path: &str, minimal: bool)
     -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let replay_data = analyze_js(path).await?;
@@ -174,14 +150,7 @@ pub async fn analyze(path: &str, minimal: bool)
 mod cyber_w3g_tests {
   use super::*;
   #[ignore]
-  #[test]
-  #[cfg(feature="w3g_rs")]
-  fn parse_replay_test() {
-    assert!( analyze_rs("example.w3g").is_ok() );
-  }
-  #[ignore]
   #[tokio::test(basic_scheduler)]
-  #[cfg(not(feature = "w3g_rs"))]
   async fn my_test() -> Result<(), String> {
     if let Ok(replay_data) = analyze_js("example.w3g").await {
       assert!(!replay_data.is_empty());

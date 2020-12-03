@@ -487,6 +487,13 @@ impl EventHandler for Handler {
                         error!("Failed to remove all the reactions {:?}", why);
                       }
                     }
+                  } else {
+                    if let Err(why) =
+                      guild.create_role(&ctx,
+                          |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
+                                .name("UNBLOCK AMADEUS")).await {
+                      error!("Failed to create UNBLOCK role, {:?}", why);
+                    }
                   }
                 }
               }

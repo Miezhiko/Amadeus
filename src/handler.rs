@@ -78,9 +78,10 @@ impl EventHandler for Handler {
                   if some_permissions.administrator()
                   && guild.role_by_name("UNBLOCK AMADEUS").is_none() {
                     if let Err(why) =
+                      // Hadouken
                       guild.create_role(&ctx,
                         |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
-                            .name("UNBLOCK AMADEUS")).await {
+                             .name("UNBLOCK AMADEUS")).await {
                       error!("Failed to create UNBLOCK role, {:?}", why);
                     }
                   }
@@ -369,129 +370,121 @@ impl EventHandler for Handler {
               return;
             }
           }
-          let is_admin =
-            if let Ok(member) = msg.member(&ctx).await {
-              if let Ok(permissions) = member.permissions(&ctx.cache).await {
-                permissions.administrator()
-              } else { false }
-            } else {false };
-          if !is_admin {
-            gate::LAST_CHANNEL.store(msg.channel_id.0, Ordering::Relaxed);
-            // wakes up on any activity
-            let rndx = rand::thread_rng().gen_range(0, 3);
-            if rndx != 1 {
-              if let Some(nick) = msg.author.nick_in(&ctx, &guild_id).await {
-                ctx.set_activity(Activity::listening(&nick)).await;
-              } else {
-                ctx.set_activity(Activity::listening(&msg.author.name)).await;
-              }
-              ctx.online().await;
+          gate::LAST_CHANNEL.store(msg.channel_id.0, Ordering::Relaxed);
+          // wakes up on any activity
+          let rndx = rand::thread_rng().gen_range(0, 3);
+          if rndx != 1 {
+            if let Some(nick) = msg.author.nick_in(&ctx, &guild_id).await {
+              ctx.set_activity(Activity::listening(&nick)).await;
             } else {
-              let activity = chain::generate(&ctx, &msg, None).await;
-              if !activity.is_empty() {
-                if activity.contains('<') && activity.contains('>') {
-                  lazy_static! {
-                    static ref RE_IB: Regex
-                      = Regex::new(r"<(.*?)>").unwrap();
-                  }
-                  let replaced = RE_IB.replace_all(&activity, "");
-                  if !replaced.is_empty() {
-                    ctx.set_activity(Activity::competing(&replaced)).await;
-                  }
-                } else {
-                  ctx.set_activity(Activity::playing(&activity)).await;
-                }
-                ctx.idle().await;
-              }
+              ctx.set_activity(Activity::listening(&msg.author.name)).await;
             }
-            if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
-              let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
-              let rnd = rand::thread_rng().gen_range(0, activity_level);
-              if rnd == 1 {
-                chain::chat(&ctx, &msg).await;
+            ctx.online().await;
+          } else {
+            let activity = chain::generate(&ctx, &msg, None).await;
+            if !activity.is_empty() {
+              if activity.contains('<') && activity.contains('>') {
+                lazy_static! {
+                  static ref RE_IB: Regex
+                    = Regex::new(r"<(.*?)>").unwrap();
+                }
+                let replaced = RE_IB.replace_all(&activity, "");
+                if !replaced.is_empty() {
+                  ctx.set_activity(Activity::competing(&replaced)).await;
+                }
+              } else {
+                ctx.set_activity(Activity::playing(&activity)).await;
               }
-              let rnd2 : u16 = rand::thread_rng().gen_range(0, 2);
-              if rnd2 == 1 {
-                let mut rng = StdRng::from_entropy();
-                let emoji = REACTIONS.choose(&mut rng).unwrap();
-                let reaction = ReactionType::Custom {
-                  animated: false,
-                  id: EmojiId(emoji.id),
-                  name: Some(emoji.name.clone())
-                };
+              ctx.idle().await;
+            }
+          }
+          if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
+            let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
+            let rnd = rand::thread_rng().gen_range(0, activity_level);
+            if rnd == 1 {
+              chain::chat(&ctx, &msg).await;
+            }
+            let rnd2 : u16 = rand::thread_rng().gen_range(0, 2);
+            if rnd2 == 1 {
+              let mut rng = StdRng::from_entropy();
+              let emoji = REACTIONS.choose(&mut rng).unwrap();
+              let reaction = ReactionType::Custom {
+                animated: false,
+                id: EmojiId(emoji.id),
+                name: Some(emoji.name.clone())
+              };
 
-                if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-                  if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
-                    if let Some(role) = guild.role_by_name("UNBLOCK AMADEUS") {
+              if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+                if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
+                  if let Some(role) = guild.role_by_name("UNBLOCK AMADEUS") {
 
-                      let normal_people_rnd : u16 = rand::thread_rng().gen_range(0, 9);
-                      if (normal_people_rnd == 1 || member.roles.contains(&role.id))
-                      && !WHITELIST.iter().any(|u| *u == msg.author.id.0)
-                      && !self.ioptions.servers.iter()
-                                                .any(|s| s.id == guild_id.0
-                                                      && s.kind == CoreGuild::Safe) {
+                    let normal_people_rnd : u16 = rand::thread_rng().gen_range(0, 9);
+                    if (normal_people_rnd == 1 || member.roles.contains(&role.id))
+                    && !WHITELIST.iter().any(|u| *u == msg.author.id.0)
+                    && !self.ioptions.servers.iter()
+                                              .any(|s| s.id    == guild_id.0
+                                                    && s.kind  == CoreGuild::Safe) {
 
-                        if let Err(why) = msg.react(&ctx, reaction).await {
-                          error!("Failed to react: {:?}", why);
-                          if why.to_string().contains("blocked")
-                          && !member.roles.contains(&role.id) {
-                            if let Err(why) = member.add_role(&ctx, role).await {
-                              error!("Failed to assign hater role {:?}", why);
-                            } else {
-                              let nick = member.nick.unwrap_or_else(|| msg.author.name.clone());
-                              let repl = if lang::is_russian(&msg.content) {
-                                format!("Ну чел {} явно меня не уважает", &nick)
-                              } else {
-                                format!("Seems like {} doesn't respect me :(", &nick)
-                              };
-                              channel_message(&ctx, &msg, &repl).await;
-                              let new_nick : String = format!("Hater {}", &msg.author.name);
-                              if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m|
-                                m.nickname(new_nick)).await {
-                                error!("Failed to change user's nick {:?}", why2);
-                              }
-                            }
-                          }
-                        } else if member.roles.contains(&role.id) {
-                          if let Err(why) = member.remove_role(&ctx, role).await {
-                            error!("Failed to remove gay role {:?}", why);
+                      if let Err(why) = msg.react(&ctx, reaction).await {
+                        error!("Failed to react: {:?}", why);
+                        if why.to_string().contains("blocked")
+                        && !member.roles.contains(&role.id) {
+                          if let Err(why) = member.add_role(&ctx, role).await {
+                            error!("Failed to assign hater role {:?}", why);
                           } else {
+                            let nick = member.nick.unwrap_or_else(|| msg.author.name.clone());
                             let repl = if lang::is_russian(&msg.content) {
-                              format!("Пчел {} извини если что, давай останемся друзьями", msg.author.name)
+                              format!("Ну чел {} явно меня не уважает", &nick)
                             } else {
-                              format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name)
+                              format!("Seems like {} doesn't respect me :(", &nick)
                             };
                             channel_message(&ctx, &msg, &repl).await;
-                            if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m| m.nickname("")).await {
-                              error!("Failed to reset user's nick {:?}", why2);
+                            let new_nick : String = format!("Hater {}", &msg.author.name);
+                            if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m|
+                              m.nickname(new_nick)).await {
+                              error!("Failed to change user's nick {:?}", why2);
                             }
                           }
                         }
-                      }
-
-                      if member.roles.contains(&role.id) {
-                        let new_nick = format!("Hater {}", msg.author.name);
-                        if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m| m.nickname(new_nick)).await {
-                          error!("Failed to change user's nick {:?}", why2);
-                        }
-                        if let Err(why) = &msg.delete(&ctx).await {
-                          error!("Error replacing bad people {:?}", why);
-                        }
-                        if !msg.content.is_empty() && !msg.content.starts_with("http") {
-                          let new_words = chain::obfuscate(&msg.content);
-                          let says = if lang::is_russian(&new_words) {
-                            "говорит"
-                          } else { "says" };
-                          let rm = format!("{} {} {} {}", msg.author.name, says, new_words, &msg.content);
-                          channel_message(&ctx, &msg, &rm).await;
+                      } else if member.roles.contains(&role.id) {
+                        if let Err(why) = member.remove_role(&ctx, role).await {
+                          error!("Failed to remove gay role {:?}", why);
+                        } else {
+                          let repl = if lang::is_russian(&msg.content) {
+                            format!("Пчел {} извини если что, давай останемся друзьями", msg.author.name)
+                          } else {
+                            format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name)
+                          };
+                          channel_message(&ctx, &msg, &repl).await;
+                          if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m| m.nickname("")).await {
+                            error!("Failed to reset user's nick {:?}", why2);
+                          }
                         }
                       }
+                    }
 
-                      let rnd3 = rand::thread_rng().gen_range(0, 9);
-                      if rnd3 != 1 {
-                        if let Err(why) = msg.delete_reactions(&ctx).await {
-                          error!("Failed to remove all the reactions {:?}", why);
-                        }
+                    if member.roles.contains(&role.id) {
+                      let new_nick = format!("Hater {}", msg.author.name);
+                      if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m| m.nickname(new_nick)).await {
+                        error!("Failed to change user's nick {:?}", why2);
+                      }
+                      if let Err(why) = &msg.delete(&ctx).await {
+                        error!("Error replacing bad people {:?}", why);
+                      }
+                      if !msg.content.is_empty() && !msg.content.starts_with("http") {
+                        let new_words = chain::obfuscate(&msg.content);
+                        let says = if lang::is_russian(&new_words) {
+                          "говорит"
+                        } else { "says" };
+                        let rm = format!("{} {} {} {}", msg.author.name, says, new_words, &msg.content);
+                        channel_message(&ctx, &msg, &rm).await;
+                      }
+                    }
+
+                    let rnd3 = rand::thread_rng().gen_range(0, 9);
+                    if rnd3 != 1 {
+                      if let Err(why) = msg.delete_reactions(&ctx).await {
+                        error!("Failed to remove all the reactions {:?}", why);
                       }
                     }
                   }

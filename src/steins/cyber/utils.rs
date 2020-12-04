@@ -44,6 +44,7 @@ fn try_get_map(m: &str) -> String {
             , "losttemple"            => "LT"
             , "turtlerock"            => "TR"
             , "ruinsofazshara"        => "ROA"
+            , "synergy"               => "Synergy"
             , "gnollwood"             => "Gnoll Wood"
             , "hillsbradcreek"        => "Hillsbrad Creek"
             , "goldshire"             => "Goldshire"

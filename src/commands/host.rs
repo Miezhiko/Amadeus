@@ -74,7 +74,14 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
       ..Default::default()
     }).await?.into_inner();
 
-  let race_num: i32 =
+  let race_num1: i32 =
+    if let Ok(race_vs) = args.single_quoted::<String>() {
+      get_race_num(&race_vs)
+    } else {
+      4
+    };
+
+  let race_num2: i32 =
     if let Ok(race_vs) = args.single_quoted::<String>() {
       get_race_num(&race_vs)
     } else {
@@ -88,7 +95,7 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
       color: 1,
       handicap: 100,
       status: 2,
-      race: race_num,
+      race: race_num1,
       ..Default::default()
     };
 
@@ -98,13 +105,13 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
       computer: 2,
       handicap: 100,
       status: 2,
-      race: 4,
+      race: race_num2,
       ..Default::default()
     };
 
     let res = rpc
       .create_game_as_bot(CreateGameAsBotRequest {
-        name: "TEST".to_string(),
+        name: msg.author.name.clone(),
         map: Some(get_map()?),
         node_id: 14, //russia
         slots: vec![
@@ -203,7 +210,7 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
 
       let res = rpc
         .create_game_as_bot(CreateGameAsBotRequest {
-          name: "TEST".to_string(),
+          name: msg.author.name.clone(),
           map: Some(get_map()?),
           node_id: 14, //russia
           slots: vec![

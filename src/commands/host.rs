@@ -20,6 +20,7 @@ use flo_grpc::player::*;
 use flo_grpc::game::*;
 
 #[command]
+#[owners_only]
 async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
   let flo_secret = {
     let data = ctx.data.read().await;
@@ -57,122 +58,180 @@ async fn register_player(ctx: &Context, msg: &Message, mut args: Args) -> Comman
   Ok(())
 }
 
-/*
-enum Race {
-  RaceHuman = 0;
-  RaceOrc = 1;
-  RaceNightElf = 2;
-  RaceUndead = 3;
-  RaceRandom = 4;
-}
-*/
-
 #[command]
-#[owners_only]
-async fn create_game_vs_amadeus(ctx: &Context, msg: &Message, mut _args: Args) -> CommandResult {
+async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let flo_secret = {
     let data = ctx.data.read().await;
     data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
   };
   let mut rpc = get_grpc_client(flo_secret).await;
 
-  let player_slot_settings = SlotSettings {
-    team: 1,
-    color: 1,
-    handicap: 100,
-    status: 2,
-    race: 3,
-    ..Default::default()
-  };
-
-  let amadeus_slot_settings = SlotSettings {
-    team: 2,
-    color: 2,
-    computer: 2,
-    handicap: 100,
-    status: 2,
-    race: 4,
-    ..Default::default()
-  };
-
-  let res = rpc
-    .create_game_as_bot(CreateGameAsBotRequest {
-      name: "TEST".to_string(),
-      map: Some(get_map()?),
-      node_id: 14, //russia
-      slots: vec![
-        CreateGameSlot {
-          player_id: Some(317),
-          settings: Some(player_slot_settings),
-          ..Default::default()
-        },
-        CreateGameSlot {
-          player_id: None,
-          settings: Some(amadeus_slot_settings),
-          ..Default::default()
-        }
-      ],
+  let user_secret_res = rpc
+    .update_and_get_player(UpdateAndGetPlayerRequest {
+      source: PlayerSource::Api as i32,
+      name: msg.author.name.clone(),
+      source_id: msg.author.id.0.to_string(),
       ..Default::default()
-    })
-    .await?;
+    }).await?.into_inner();
 
-  let id = res.into_inner().game.unwrap().id;
+  let race_num: i32 =
+    if let Ok(race_vs) = args.single_quoted::<String>() {
+      get_race_num(&race_vs)
+    } else {
+      4
+    };
 
-  let game_start = rpc
-    .start_game_as_bot(StartGameAsBotRequest { game_id: id })
-    .await?
-    .into_inner();
+  direct_message(ctx, msg, &format!("your token: {}", user_secret_res.token)).await;
+  if let Some(p) = user_secret_res.player {
+    let player_slot_settings = SlotSettings {
+      team: 1,
+      color: 1,
+      handicap: 100,
+      status: 2,
+      race: race_num,
+      ..Default::default()
+    };
 
-  channel_message(ctx, msg, &format!("Game {} started: {:?}", id, game_start)).await;
+    let amadeus_slot_settings = SlotSettings {
+      team: 2,
+      color: 2,
+      computer: 2,
+      handicap: 100,
+      status: 2,
+      race: 4,
+      ..Default::default()
+    };
+
+    let res = rpc
+      .create_game_as_bot(CreateGameAsBotRequest {
+        name: "TEST".to_string(),
+        map: Some(get_map()?),
+        node_id: 14, //russia
+        slots: vec![
+          CreateGameSlot {
+            player_id: Some(p.id),
+            settings: Some(player_slot_settings),
+            ..Default::default()
+          },
+          CreateGameSlot {
+            player_id: None,
+            settings: Some(amadeus_slot_settings),
+            ..Default::default()
+          }
+        ],
+        ..Default::default()
+      })
+      .await?;
+
+    let id = res.into_inner().game.unwrap().id;
+
+    let game_start = rpc
+      .start_game_as_bot(StartGameAsBotRequest { game_id: id })
+      .await?
+      .into_inner();
+
+    channel_message(ctx, msg, &format!("Game {} started: {:?}", id, game_start)).await;
+  } else {
+    channel_message(ctx, msg, "Failed to get player").await;
+  }
 
   Ok(())
 }
 
 #[command]
-//#[min_args(1)]
-#[owners_only]
-async fn create_game(ctx: &Context, msg: &Message, mut _args: Args) -> CommandResult {
-  //let meme = get_player(&args.single_quoted::<String>()?, ctx, msg).await?;
+#[min_args(1)]
+async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  let meme = get_player(&args.single_quoted::<String>()?, ctx, msg).await?;
   let flo_secret = {
     let data = ctx.data.read().await;
     data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
   };
   let mut rpc = get_grpc_client(flo_secret).await;
 
-  let players = vec![316, 317];
-
-  let res = rpc
-    .create_game_as_bot(CreateGameAsBotRequest {
-      name: "TEST".to_string(),
-      map: Some(get_map()?),
-      node_id: 14, //russia
-      slots: players
-        .into_iter()
-        .enumerate()
-        .map(|(idx, id)| CreateGameSlot {
-          player_id: Some(id),
-          settings: SlotSettings {
-            team: idx as i32,
-            color: idx as i32,
-            status: 2,
-            handicap: 100,
-            ..Default::default()
-          }
-          .into(),
-        })
-        .collect(),
+  let user_secret_res1 = rpc
+    .update_and_get_player(UpdateAndGetPlayerRequest {
+      source: PlayerSource::Api as i32,
+      name: msg.author.name.clone(),
+      source_id: msg.author.id.0.to_string(),
       ..Default::default()
-    })
-    .await?;
+    }).await?.into_inner();
 
-  let id = res.into_inner().game.unwrap().id;
+  let user_secret_res2 = rpc
+    .update_and_get_player(UpdateAndGetPlayerRequest {
+      source: PlayerSource::Api as i32,
+      name: meme.user.name.clone(),
+      source_id: meme.user.id.0.to_string(),
+      ..Default::default()
+    }).await?.into_inner();
 
-  let game_start = rpc
-    .start_game_as_bot(StartGameAsBotRequest { game_id: id })
-    .await?
-    .into_inner();
+  let race_num1: i32 =
+    if let Ok(race_vs) = args.single_quoted::<String>() {
+      get_race_num(&race_vs)
+    } else {
+      4
+    };
+  let race_num2: i32 =
+    if let Ok(race_vs) = args.single_quoted::<String>() {
+      get_race_num(&race_vs)
+    } else {
+      4
+    };
 
-  channel_message(ctx, msg, &format!("Game {} started: {:?}", id, game_start)).await;
+  direct_message(ctx, msg, &format!("your token: {}\nopponent token: {}"
+                           , user_secret_res1.token, user_secret_res2.token)).await;
+
+  if let Some(p1) = user_secret_res1.player {
+    if let Some(p2) = user_secret_res2.player {
+
+      let player1_slot_settings = SlotSettings {
+        team: 1,
+        color: 1,
+        handicap: 100,
+        status: 2,
+        race: race_num1,
+        ..Default::default()
+      };
+
+      let player2_slot_settings = SlotSettings {
+        team: 2,
+        color: 2,
+        handicap: 100,
+        status: 2,
+        race: race_num2,
+        ..Default::default()
+      };
+
+      let res = rpc
+        .create_game_as_bot(CreateGameAsBotRequest {
+          name: "TEST".to_string(),
+          map: Some(get_map()?),
+          node_id: 14, //russia
+          slots: vec![
+            CreateGameSlot {
+              player_id: Some(p1.id),
+              settings: Some(player1_slot_settings),
+              ..Default::default()
+            },
+            CreateGameSlot {
+              player_id: Some(p2.id),
+              settings: Some(player2_slot_settings),
+              ..Default::default()
+            }
+          ],
+          ..Default::default()
+        })
+        .await?;
+
+      let id = res.into_inner().game.unwrap().id;
+
+      let game_start = rpc
+        .start_game_as_bot(StartGameAsBotRequest { game_id: id })
+        .await?
+        .into_inner();
+
+      channel_message(ctx, msg, &format!("Game {} started: {:?}", id, game_start)).await;
+    }
+  }
 
   Ok(())
 }

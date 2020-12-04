@@ -134,9 +134,8 @@ struct Admin;
 
 #[cfg(feature = "flo")]
 #[group("Flo")]
-#[checks(Admin)]
 #[help_available(false)]
-#[commands(flo_nodes, register_player, create_game, create_game_vs_amadeus)]
+#[commands(flo_nodes, register_player, host_vs, host_vs_amadeus)]
 struct Flo;
 
 #[hook]
@@ -179,9 +178,7 @@ async fn before(_ctx: &Context, msg: &Message, cmd_name: &str) -> bool {
   if IGNORED.contains(&msg.channel_id.0) {
     return false;
   }
-
   debug!("Running command: {}, Message: {}", &cmd_name, &msg.content);
-
   true
 }
 

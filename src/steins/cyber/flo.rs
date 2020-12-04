@@ -2,6 +2,22 @@ use flo_grpc::Channel;
 use flo_grpc::controller::*;
 use flo_grpc::game::*;
 
+pub fn get_race_num(race_x: &str) -> i32 {
+  let race_vs_lower = race_x.to_lowercase();
+  if race_vs_lower.starts_with('h') {
+    0
+  } else if race_vs_lower.starts_with('o') {
+    1
+  } else if race_vs_lower.starts_with('n')
+          || race_vs_lower.starts_with('e') {
+    2
+  } else if race_vs_lower.starts_with('u') {
+    3
+  } else {
+    4
+  }
+}
+
 pub async fn get_grpc_client(flo_secret: String) -> flo_controller_client::FloControllerClient<Channel> {
   let channel = Channel::from_static("tcp://service.w3flo.com:3549")
     .connect()

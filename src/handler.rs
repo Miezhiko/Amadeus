@@ -2,7 +2,8 @@ use crate::{
   types::{ common::CoreGuild, options::* },
   steins::{ gate
           , ai::chain
-          , cyber::replay::{ replay_embed, attach_replay }
+          , cyber::replay::{ replay_embed
+                           , attach_replay }
           },
   common::{ trees
           , help::{ lang, channel::channel_by_name }
@@ -487,13 +488,11 @@ impl EventHandler for Handler {
                         error!("Failed to remove all the reactions {:?}", why);
                       }
                     }
-                  } else {
-                    if let Err(why) =
-                      guild.create_role(&ctx,
-                          |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
-                                .name("UNBLOCK AMADEUS")).await {
-                      error!("Failed to create UNBLOCK role, {:?}", why);
-                    }
+                  } else if let Err(why) =
+                    guild.create_role(&ctx,
+                        |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
+                              .name("UNBLOCK AMADEUS")).await {
+                    error!("Failed to create UNBLOCK role, {:?}", why);
                   }
                 }
               }
@@ -501,13 +500,6 @@ impl EventHandler for Handler {
           }
         }
       }
-      /* TODO: not sure for users messages
-      let mut backup_deq = BACKUP.lock().await;
-      if backup_deq.len() == backup_deq.capacity() {
-        backup_deq.pop_front();
-      }
-      backup_deq.push_back((msg.id, msg));
-      */
     }
   }
   async fn guild_ban_addition(&self, _ctx: Context, _guild_id: GuildId, _banned_user: User) {}

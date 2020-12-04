@@ -5,7 +5,7 @@ use crate::{
           , cyber::replay::{ replay_embed
                            , attach_replay }
           },
-  common::{ trees
+  common::{ db::trees
           , help::{ lang, channel::channel_by_name }
           , msg::channel_message
           },

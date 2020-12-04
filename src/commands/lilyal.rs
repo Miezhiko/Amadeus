@@ -1,7 +1,7 @@
 use crate::{
   common::{
     msg::channel_message,
-    sled
+    db::sled_info
   }
 };
 
@@ -22,7 +22,7 @@ async fn register(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
   //}
   let key = &args.single::<String>()?;
   let value = args.rest();
-  if let Err(why) = sled::store(key, value) {
+  if let Err(why) = sled_info::store(key, value) {
     error!("Failed to register {}, {:?}", key, why);
   } else {
     channel_message(&ctx, &msg, &format!("Registered {}", key)).await;
@@ -37,7 +37,7 @@ async fn show(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   //  error!("Error deleting original command {:?}", why);
   //}
   let key = &args.single::<String>()?;
-  match sled::read(key) {
+  match sled_info::read(key) {
     Ok(val) => {
       channel_message(&ctx, &msg, &val).await;
     }, Err(why) => {
@@ -52,7 +52,7 @@ async fn list(ctx: &Context, msg: &Message) -> CommandResult {
   //if let Err(why) = msg.delete(ctx).await {
   //  error!("Error deleting original command {:?}", why);
   //}
-  match sled::list() {
+  match sled_info::list() {
     Ok(val) => {
       channel_message(&ctx, &msg, &val).await;
     }, Err(why) => {
@@ -69,7 +69,7 @@ async fn delete(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   //  error!("Error deleting original command {:?}", why);
   //}
   let key = &args.single::<String>()?;
-  match sled::delete(key) {
+  match sled_info::delete(key) {
     Ok(_) => {
       channel_message(&ctx, &msg, &format!("Deleted {}", key)).await;
     }, Err(why) => {

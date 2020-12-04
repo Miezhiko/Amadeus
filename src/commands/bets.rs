@@ -1,7 +1,7 @@
 use crate::{
   types::{ common::{ CoreGuild, CoreGuilds }
          , tracking::Bet },
-  common::{ trees
+  common::{ db::trees
           , help::members::get_player
           , msg::channel_message
   },

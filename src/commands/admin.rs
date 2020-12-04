@@ -1,5 +1,5 @@
 use crate::{
-  common::{ trees, msg::channel_message }
+  common::{ db::trees, msg::channel_message }
 };
 
 use serenity::{

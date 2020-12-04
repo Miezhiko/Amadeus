@@ -2,7 +2,7 @@ use crate::{
   types::common::{ AllGuilds, ChannelLanguage },
   common::{ help::lang
           , msg::{ reply, channel_message }
-          , trees::{ register, check_registration }
+          , db::trees::{ register, check_registration }
   },
   collections::base::{ CONFUSION
                      , CONFUSION_RU

@@ -5,7 +5,7 @@ use crate::{
          , tracking::Bet
          , twitch::Twitch
          , goodgame::GoodGameData },
-  common::trees,
+  common::db::trees,
   steins::cyber
 };
 

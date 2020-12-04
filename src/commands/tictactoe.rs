@@ -5,10 +5,8 @@
  */
 
 use crate::{
-  common::{
-    trees,
-    msg::{ channel_message }
-  }
+  common::{ db::trees
+          , msg::channel_message }
 };
 
 use std::fmt::Display;
@@ -18,16 +16,12 @@ use serenity::{
   prelude::Context,
   model::misc::Mentionable,
   model::guild::Member,
-  model::channel::{
-    Message,
-    ReactionType,
-  },
+  model::channel::{ Message
+                  , ReactionType },
   model::id::UserId,
-  framework::standard::{
-    Args,
-    CommandResult,
-    macros::command,
-  },
+  framework::standard::{ Args
+                       , CommandResult
+                       , macros::command }
 };
 
 use regex::Regex;

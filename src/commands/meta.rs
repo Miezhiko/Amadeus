@@ -240,7 +240,7 @@ async fn get_system_info(ctx: &Context) -> SysInfo {
   }
   let dbs_stdout = Command::new("sh")
           .arg("-c")
-          .arg("du trees | cut -f 1")
+          .arg("du -s trees | cut -f 1")
           .output()
           .await
           .expect("failed to execute process");

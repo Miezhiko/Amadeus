@@ -59,6 +59,29 @@ async fn register_player(ctx: &Context, msg: &Message, mut args: Args) -> Comman
 }
 
 #[command]
+async fn register_me(ctx: &Context, msg: &Message) -> CommandResult {
+  let flo_secret = {
+    let data = ctx.data.read().await;
+    data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
+  };
+  let mut rpc = get_grpc_client(flo_secret).await;
+  let res = rpc
+    .update_and_get_player(UpdateAndGetPlayerRequest {
+      source: PlayerSource::Api as i32,
+      name: msg.author.name.clone(),
+      source_id: msg.author.id.0.to_string(),
+      ..Default::default()
+    }).await?.into_inner();
+  direct_message(ctx, msg, &format!("token {}", res.token)).await;
+  if let Some(p) = res.player {
+    channel_message(ctx, msg, &format!("registered {}, token sent via DM", p.id)).await;
+  } else {
+    channel_message(ctx, msg, "token sent via DM").await;
+  }
+  Ok(())
+}
+
+#[command]
 async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let flo_secret = {
     let data = ctx.data.read().await;
@@ -74,6 +97,17 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
       ..Default::default()
     }).await?.into_inner();
 
+  let map: Map =
+    if let Ok(wanted_map) = args.single_quoted::<String>() {
+      if let Ok(mapx) = get_map_by_name(&wanted_map).await {
+        mapx
+      } else {
+        get_map()?
+      }
+    } else {
+      get_map()?
+    };
+
   let race_num1: i32 =
     if let Ok(race_vs) = args.single_quoted::<String>() {
       get_race_num(&race_vs)
@@ -88,7 +122,8 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
       4
     };
 
-  direct_message(ctx, msg, &format!("your token: {}", user_secret_res.token)).await;
+  // direct_message(ctx, msg, &format!("your token: {}", user_secret_res.token)).await;
+
   if let Some(p) = user_secret_res.player {
     let player_slot_settings = SlotSettings {
       team: 1,
@@ -112,7 +147,7 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
     let res = rpc
       .create_game_as_bot(CreateGameAsBotRequest {
         name: msg.author.name.clone(),
-        map: Some(get_map()?),
+        map: Some(map),
         node_id: 14, //russia
         slots: vec![
           CreateGameSlot {
@@ -171,6 +206,17 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
       ..Default::default()
     }).await?.into_inner();
 
+  let map: Map =
+    if let Ok(wanted_map) = args.single_quoted::<String>() {
+      if let Ok(mapx) = get_map_by_name(&wanted_map).await {
+        mapx
+      } else {
+        get_map()?
+      }
+    } else {
+      get_map()?
+    };
+
   let race_num1: i32 =
     if let Ok(race_vs) = args.single_quoted::<String>() {
       get_race_num(&race_vs)
@@ -184,8 +230,10 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
       4
     };
 
+  /*
   direct_message(ctx, msg, &format!("your token: {}\nopponent token: {}"
                            , user_secret_res1.token, user_secret_res2.token)).await;
+  */
 
   if let Some(p1) = user_secret_res1.player {
     if let Some(p2) = user_secret_res2.player {
@@ -211,7 +259,7 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
       let res = rpc
         .create_game_as_bot(CreateGameAsBotRequest {
           name: msg.author.name.clone(),
-          map: Some(get_map()?),
+          map: Some(map),
           node_id: 14, //russia
           slots: vec![
             CreateGameSlot {

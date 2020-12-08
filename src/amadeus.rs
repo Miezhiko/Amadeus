@@ -135,7 +135,7 @@ struct Admin;
 #[cfg(feature = "flo")]
 #[group("Flo")]
 #[help_available(false)]
-#[commands(flo_nodes, register_player, host_vs, host_vs_amadeus)]
+#[commands(flo_nodes, register_player, register_me, host_vs, host_vs_amadeus)]
 struct Flo;
 
 #[hook]

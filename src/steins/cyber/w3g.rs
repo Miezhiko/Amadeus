@@ -19,7 +19,7 @@ async fn analyze_js(path: &str) -> eyre::Result<String> {
 #[allow(clippy::type_complexity)]
 fn prettify_analyze_js(j: &str, minimal: bool)
   -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
-  let json : Value = serde_json::from_str(&j)?;
+  let json: Value = serde_json::from_str(&j)?;
   let mut out = String::new();
   let mut pls = vec![];
   if !minimal {

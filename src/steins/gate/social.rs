@@ -18,8 +18,8 @@ use rand::Rng;
 
 /* every 30 minutes */
 static POLL_PERIOD_SECONDS: u64 = 30 * 60;
-/* every ~1 hour, depends on ACTIVITY_LEVEL */
-static PASSED_FOR_CONVERSATION: u32 = 1 * 60 * 60 / POLL_PERIOD_SECONDS as u32;
+/* every ~30 mins, depends on ACTIVITY_LEVEL */
+static PASSED_FOR_CONVERSATION: u32 = 30 * 60 / POLL_PERIOD_SECONDS as u32;
 
 pub async fn activate_social_skils(ctx: &Arc<Context>) {
 

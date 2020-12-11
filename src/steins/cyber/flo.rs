@@ -96,7 +96,7 @@ pub async fn get_map_by_name(name: &str) -> eyre::Result<Map> {
   let height = picked_map.pointer("/height").unwrap().as_u64().unwrap();
 
   let mut payers = vec![];
-  if let Some(players_j) = json.pointer("/players") {
+  if let Some(players_j) = picked_map.pointer("/players") {
     let players_a = players_j.as_array().unwrap();
     for palyer_j in players_a {
       let pname = palyer_j.pointer("/name").unwrap().as_str().unwrap().to_string();
@@ -113,7 +113,7 @@ pub async fn get_map_by_name(name: &str) -> eyre::Result<Map> {
   }
 
   let mut forces = vec![];
-  if let Some(forces_j) = json.pointer("/forces") {
+  if let Some(forces_j) = picked_map.pointer("/forces") {
     let forces_a = forces_j.as_array().unwrap();
     for force_j in forces_a {
       let fname = force_j.pointer("/name").unwrap().as_str().unwrap().to_string();

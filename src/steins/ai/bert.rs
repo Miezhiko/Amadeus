@@ -1,11 +1,13 @@
 use crate::steins::ai::chain::CACHE_ENG_STR;
 
-use rust_bert::pipelines::conversation::{ ConversationManager, ConversationModel };
-use rust_bert::pipelines::question_answering::{ QaInput, QuestionAnsweringModel };
-use rust_bert::pipelines::translation::{ Language, TranslationConfig, TranslationModel };
+use rust_bert::pipelines::{
+  conversation::{ ConversationManager, ConversationModel },
+  question_answering::{ QaInput, QuestionAnsweringModel },
+  translation::{ Language, TranslationConfig, TranslationModel }
+};
 
 use tch::Device;
-use tokio::{task, sync::Mutex };
+use tokio::{ task, sync::Mutex };
 
 use std::collections::HashMap;
 use uuid::Uuid;
@@ -13,6 +15,22 @@ use uuid::Uuid;
 use eyre::Result;
 
 lazy_static! {
+  // models
+  static ref DEVICE: Device = Device::cuda_if_available();
+  pub static ref EN2RUMODEL: Mutex<TranslationModel> =
+    Mutex::new(TranslationModel::new(
+      TranslationConfig::new(Language::EnglishToRussian, *DEVICE)
+    ).unwrap());
+  pub static ref RU2ENMODEL: Mutex<TranslationModel> =
+    Mutex::new(TranslationModel::new(
+      TranslationConfig::new(Language::RussianToEnglish, *DEVICE)
+    ).unwrap());
+  pub static ref QAMODEL: Mutex<QuestionAnsweringModel> =
+    Mutex::new(QuestionAnsweringModel::new(Default::default()).unwrap());
+  pub static ref CONVMODEL: Mutex<ConversationModel> =
+    Mutex::new(ConversationModel::new(Default::default()).unwrap());
+
+  // chat context
   pub static ref CONV_MANAGER: Mutex<ConversationManager>
     = Mutex::new(ConversationManager::new());
   pub static ref CHAT_CONTEXT: Mutex<HashMap<u64, (Uuid, u32, u32)>>
@@ -23,11 +41,9 @@ pub async fn en2ru(text: String) -> Result<String> {
   if text.is_empty() {
     return Ok(String::new());
   }
+  let en2ru_model = EN2RUMODEL.lock().await;
   task::spawn_blocking(move || {
-    let translation_config =
-      TranslationConfig::new(Language::EnglishToRussian, Device::cuda_if_available());
-    let model = TranslationModel::new(translation_config)?;
-    let output = model.translate(&[text.as_str()]);
+    let output = en2ru_model.translate(&[text.as_str()]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig EnglishToRussian");
       Ok(text)
@@ -41,11 +57,9 @@ pub async fn ru2en(text: String) -> Result<String> {
   if text.is_empty() {
     return Ok(String::new());
   }
+  let ru2en_model = EN2RUMODEL.lock().await;
   task::spawn_blocking(move || {
-    let translation_config =
-      TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
-    let model = TranslationModel::new(translation_config)?;
-    let output = model.translate(&[text.as_str()]);
+    let output = ru2en_model.translate(&[text.as_str()]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig RussianToEnglish");
       Ok(text)
@@ -60,12 +74,10 @@ pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
   if texts.is_empty() {
     return Ok(vec![]);
   }
+  let ru2en_model = EN2RUMODEL.lock().await;
   task::spawn_blocking(move || {
     let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
-    let translation_config =
-      TranslationConfig::new(Language::RussianToEnglish, Device::cuda_if_available());
-    let model = TranslationModel::new(translation_config)?;
-    let output = model.translate(&ttt);
+    let output = ru2en_model.translate(&ttt);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig RussianToEnglish");
       Ok(Vec::new())
@@ -73,30 +85,6 @@ pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
       Ok(output)
     }
   }).await.unwrap()
-}
-
-fn ask_with_cache(q: String, cache: String) -> Result<String> {
-  // Set-up Question Answering model
-  let qa_model = QuestionAnsweringModel::new(Default::default())?;
-
-  let qa_input = QaInput {
-    question: q,
-    context: cache
-  };
-
-  // Get answer
-  let answers = qa_model.predict(&[qa_input], 1, 32);
-  if answers.is_empty() {
-    error!("Failed to ansewer with QuestionAnsweringModel");
-    // TODO: error should be here
-    Ok(String::new())
-  } else {
-    let my_answers = &answers[0];
-
-    // we have several answers (hope they sorted by score)
-    let answer = &my_answers[0];
-    Ok(answer.answer.clone())
-  }
 }
 
 pub async fn ask(question: String) -> Result<String> {
@@ -107,17 +95,33 @@ pub async fn ask(question: String) -> Result<String> {
     } else {
       cache_eng_vec.join(" ")
     };
+  let qa_model = QAMODEL.lock().await;
   task::spawn_blocking(move || {
-    ask_with_cache(question, cache)
+    let qa_input = QaInput {
+      question: question,
+      context: cache
+    };
+    // Get answer
+    let answers = qa_model.predict(&[qa_input], 1, 32);
+    if answers.is_empty() {
+      error!("Failed to ansewer with QuestionAnsweringModel");
+      // TODO: error should be here
+      Ok(String::new())
+    } else {
+      let my_answers = &answers[0];
+
+      // we have several answers (hope they sorted by score)
+      let answer = &my_answers[0];
+      Ok(answer.answer.clone())
+    }
   }).await.unwrap()
 }
 
 pub async fn chat(something: String, user_id: u64) -> Result<String> {
   let mut conversation_manager = CONV_MANAGER.lock().await;
   let mut chat_context = CHAT_CONTEXT.lock().await;
+  let conversation_model = CONVMODEL.lock().await;
   task::spawn_blocking(move || {
-    let conversation_model = ConversationModel::new(Default::default())?;
-
     let output =
       if user_id != 0 {
         if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
@@ -162,23 +166,4 @@ pub async fn chat(something: String, user_id: u64) -> Result<String> {
       Ok(answer.clone())
     }
   }).await.unwrap()
-}
-
-#[cfg(test)]
-mod bert_tests {
-  use super::*;
-  #[test]
-  #[ignore]
-  fn spell_test() -> Result<(), String> {
-    let cache = String::from("Humba");
-    match ask_with_cache(String::from("Humans imba?"), cache) {
-      Ok(some) => {
-        if !some.is_empty() {
-          Ok(())
-        } else {
-          Err(String::from("empty output"))
-        }
-      }, Err(de) => Err(format!("Failed to get answer {:?}", de))
-    }
-  }
 }

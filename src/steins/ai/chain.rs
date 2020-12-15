@@ -472,7 +472,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
     typing.stop();
   }
   if answer.as_str().trim().is_empty()
-  || answer.len() == 1 {
+  || answer.as_str().trim().len() < 3 {
     generate_response(ctx, msg).await
   } else {
     answer

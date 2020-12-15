@@ -471,8 +471,8 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
   if let Ok(typing) = start_typing {
     typing.stop();
   }
-  if answer.as_str().trim().is_empty()
-  || answer.as_str().trim().len() < 3 {
+  let trimmd = answer.as_str().trim();
+  if trimmd.is_empty() || trimmd.len() < 3 {
     generate_response(ctx, msg).await
   } else {
     answer

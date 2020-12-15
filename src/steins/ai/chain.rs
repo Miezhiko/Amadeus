@@ -408,7 +408,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
     } else {
       lang::is_russian(&msg.content)
     };
-  let rndx : u32 = rand::thread_rng().gen_range(0, 9);
+  let rndx: u32 = rand::thread_rng().gen_range(0, 20);
   let mut bert_generated = false;
   let mut answer =
     if rndx != 1 {
@@ -418,7 +418,15 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
         } else { msg.content.clone() }
         } else { msg.content.clone() };
       if msg.content.ends_with('?') {
-        if let Ok(answer) = bert::ask(text).await {
+        let rndxqa: u32 = rand::thread_rng().gen_range(0, 2);
+        if rndxqa == 1 {
+          if let Ok(answer) = bert::ask(text).await {
+            bert_generated = true;
+            answer
+          } else {
+            generate(&ctx, &msg, Some(russian)).await
+          }
+        } else if let Ok(answer) = bert::chat(text, msg.author.id.0).await {
           bert_generated = true;
           answer
         } else {

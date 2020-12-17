@@ -136,6 +136,7 @@ pub async fn ask(question: String) -> Result<String> {
 pub async fn chat(something: String, user_id: u64) -> Result<String> {
   let conversation_model = CONVMODEL.lock().await;
   let mut chat_context = CHAT_CONTEXT.lock().await;
+  let cache_eng_vec = CACHE_ENG_STR.lock().await;
   task::spawn_blocking(move || {
     let output =
       if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
@@ -143,11 +144,14 @@ pub async fn chat(something: String, user_id: u64) -> Result<String> {
           chat_context.remove(&user_id);
 
           let mut conversation_manager = ConversationManager::new();
-          conversation_manager.create(&something);
+          let cache_slices = cache_eng_vec.iter().map(AsRef::as_ref).collect::<Vec<&str>>();
+          let encoded_history = conversation_model.encode_prompts(&cache_slices);
+          let conv_id = conversation_manager.create(&something);
+          conversation_manager.get(&conv_id).unwrap().load_from_history(cache_slices, encoded_history);
 
           chat_context.insert( user_id
-                            , ( conversation_manager, 0, 0 )
-                            );
+                             , ( conversation_manager, 0, 0 )
+                             );
 
           let (registered_conversation, _, _) =
             chat_context.get_mut(&user_id).unwrap();
@@ -159,10 +163,13 @@ pub async fn chat(something: String, user_id: u64) -> Result<String> {
         }
       } else {
         let mut conversation_manager = ConversationManager::new();
-        conversation_manager.create(&something);
+        let cache_slices = cache_eng_vec.iter().map(AsRef::as_ref).collect::<Vec<&str>>();
+        let encoded_history = conversation_model.encode_prompts(&cache_slices);
+        let conv_id = conversation_manager.create(&something);
+        conversation_manager.get(&conv_id).unwrap().load_from_history(cache_slices, encoded_history);
         chat_context.insert( user_id
-                            , ( conversation_manager, 0, 0 )
-                            );
+                           , ( conversation_manager, 0, 0 )
+                           );
         let (registered_conversation, _, _) =
           chat_context.get_mut(&user_id).unwrap();
         conversation_model.generate_responses(registered_conversation)

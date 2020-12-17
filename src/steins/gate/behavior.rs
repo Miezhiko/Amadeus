@@ -1,6 +1,6 @@
 use crate::{
   types::options::IOptions,
-  common::options,
+  common::{ options, system },
   steins::{
     gate::social::activate_social_skils,
     gate::tracking::{ team_games::activate_games_tracking
@@ -8,8 +8,7 @@ use crate::{
                     , w3info::activate_w3info_tracking },
     ai::chain
   },
-  commands::pad::update_current_season,
-  commands::owner::twitch_update
+  commands::pad::update_current_season
 };
 
 use serenity::{
@@ -38,7 +37,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   update_current_season(&ctx).await;
 
   // generate new twitch toke
-  if let Err(why) = twitch_update(&ctx).await {
+  if let Err(why) = system::twitch_update(&ctx).await {
     error!("Twitch token update failed {:?}", why);
   }
 

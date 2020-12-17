@@ -122,7 +122,7 @@ struct Lilyal;
 #[help_available(false)]
 #[owners_only]
 #[checks(Admin)]
-#[commands(say, set, clear, upgrade
+#[commands(say, set, clear_messages, upgrade
   , update_cache, clear_chain_cache
   , twitch_token_update)]
 struct Owner;

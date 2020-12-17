@@ -7,7 +7,8 @@ use crate::{
   },
   steins::ai::chain,
   common::{ options,
-    i18n::{ help_i18n, US_ENG }
+    i18n::{ help_i18n, US_ENG },
+    system::{ VoiceManager, ShardManagerContainer }
   },
   handler::Handler,
   commands::{ meta::*, chat::*

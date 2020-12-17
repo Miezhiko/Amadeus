@@ -1,16 +1,21 @@
 use crate::steins::ai::chain::CACHE_ENG_STR;
 
 use rust_bert::pipelines::{
-  conversation::{ ConversationManager, ConversationModel },
-  question_answering::{ QaInput, QuestionAnsweringModel },
-  translation::{ Language, TranslationConfig, TranslationModel }
+  conversation::{ ConversationManager
+                , ConversationModel
+                , ConversationConfig },
+  question_answering::{ QaInput
+                      , QuestionAnsweringModel
+                      , QuestionAnsweringConfig },
+  translation::{ Language
+               , TranslationConfig
+               , TranslationModel }
 };
 
 use tch::Device;
 use tokio::{ task, sync::Mutex };
 
 use std::collections::HashMap;
-use uuid::Uuid;
 
 use eyre::Result;
 
@@ -26,14 +31,25 @@ lazy_static! {
       TranslationConfig::new(Language::RussianToEnglish, *DEVICE)
     ).unwrap());
   pub static ref QAMODEL: Mutex<QuestionAnsweringModel> =
-    Mutex::new(QuestionAnsweringModel::new(Default::default()).unwrap());
+    Mutex::new(QuestionAnsweringModel::new(
+      QuestionAnsweringConfig {
+        lower_case: false,
+        device: *DEVICE,
+        ..Default::default()
+      }
+    ).unwrap());
   pub static ref CONVMODEL: Mutex<ConversationModel> =
-    Mutex::new(ConversationModel::new(Default::default()).unwrap());
+    Mutex::new(ConversationModel::new(
+      ConversationConfig {
+        min_length: 2,
+        max_length: 100,
+        min_length_for_response: 5,
+        device: *DEVICE,
+        ..Default::default()
+      }
+    ).unwrap());
 
-  // chat context
-  pub static ref CONV_MANAGER: Mutex<ConversationManager>
-    = Mutex::new(ConversationManager::new());
-  pub static ref CHAT_CONTEXT: Mutex<HashMap<u64, (Uuid, u32, u32)>>
+  pub static ref CHAT_CONTEXT: Mutex<HashMap<u64, (ConversationManager, u32, u32)>>
     = Mutex::new(HashMap::new());
 }
 
@@ -118,36 +134,38 @@ pub async fn ask(question: String) -> Result<String> {
 }
 
 pub async fn chat(something: String, user_id: u64) -> Result<String> {
-  let mut conversation_manager = CONV_MANAGER.lock().await;
-  let mut chat_context = CHAT_CONTEXT.lock().await;
   let conversation_model = CONVMODEL.lock().await;
+  let mut chat_context = CHAT_CONTEXT.lock().await;
   task::spawn_blocking(move || {
     let output =
-      if user_id != 0 {
-        if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
-          if *x > 5 {
-            *tracking_conversation = conversation_manager.create(&something);
-            *passed = 0; *x = 0;
-            conversation_model.generate_responses(&mut conversation_manager)
-          } else if let Some(found_conversation) = conversation_manager
-                                             .get(tracking_conversation) {
-            let _ = found_conversation.add_user_input(&something);
-            *passed = 0; *x += 1;
-            conversation_model.generate_responses(&mut conversation_manager)
-          } else {
-            *tracking_conversation = conversation_manager.create(&something);
-            *passed = 0; *x = 0;
-            conversation_model.generate_responses(&mut conversation_manager)
-          }
-        } else {
+      if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
+        if *x > 100 {
+          chat_context.remove(&user_id);
+
+          let mut conversation_manager = ConversationManager::new();
+          conversation_manager.create(&something);
+
           chat_context.insert( user_id
-                             , ( conversation_manager.create(&something), 0, 0 )
-                             );
-          conversation_model.generate_responses(&mut conversation_manager)
+                            , ( conversation_manager, 0, 0 )
+                            );
+
+          let (registered_conversation, _, _) =
+            chat_context.get_mut(&user_id).unwrap();
+          conversation_model.generate_responses(registered_conversation)
+        } else {
+          tracking_conversation.create(&something);
+          *passed = 0; *x += 1;
+          conversation_model.generate_responses(tracking_conversation)
         }
       } else {
+        let mut conversation_manager = ConversationManager::new();
         conversation_manager.create(&something);
-        conversation_model.generate_responses(&mut conversation_manager)
+        chat_context.insert( user_id
+                            , ( conversation_manager, 0, 0 )
+                            );
+        let (registered_conversation, _, _) =
+          chat_context.get_mut(&user_id).unwrap();
+        conversation_model.generate_responses(registered_conversation)
       };
 
     let out_values = output.values()

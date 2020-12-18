@@ -502,6 +502,10 @@ impl EventHandler for Handler {
       }
     }
   }
-  async fn guild_ban_addition(&self, _ctx: Context, _guild_id: GuildId, _banned_user: User) {}
-  async fn guild_ban_removal(&self, _ctx: Context, _guild_id: GuildId, _unbanned_user: User) {}
+  async fn guild_ban_addition(&self, _ctx: Context, _guild_id: GuildId, banned_user: User) {
+    info!("User {} banned", banned_user.name);
+  }
+  async fn guild_ban_removal(&self, _ctx: Context, _guild_id: GuildId, unbanned_user: User) {
+    info!("User {} unbanned", unbanned_user.name);
+  }
 }

@@ -107,9 +107,12 @@ pub async fn ask(question: String) -> Result<String> {
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let cache = 
     if cache_eng_vec.is_empty() {
-      String::from("Humans imba")
+      String::from("HUMBA")
     } else {
-      cache_eng_vec.join(" ")
+      cache_eng_vec.iter().rev().take(50)
+                   .map(AsRef::as_ref)
+                   .collect::<Vec<&str>>()
+                   .join(" ")
     };
   let qa_model = QAMODEL.lock().await;
   task::spawn_blocking(move || {

@@ -352,7 +352,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
       CACHE_ENG.lock().await
     };
   let mut out = chain.generate_str();
-  let rndx = rand::thread_rng().gen_range(0, 50);
+  let rndx = rand::thread_rng().gen_range(0, 66);
   if rndx == 1 {
     if russian {
       out = boris::spell(&out);

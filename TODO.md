@@ -6,4 +6,3 @@
 - Implement users services marketplace
 - Write test to ensure that fluent translation of help will not be too big for discord!
 - move w3info steins to dhall / write test for it
-- Improve QA context

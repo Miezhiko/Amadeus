@@ -20,6 +20,7 @@ use chrono::{ Duration, Utc };
 use tokio::process::Command;
 
 use regex::Regex;
+use once_cell::sync::Lazy;
 use kathoey::utils::capital_first;
 use serde_json::Value;
 
@@ -162,15 +163,10 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> eyre::Res
                 .output()
                 .await
                 .expect("failed to update crates");
-      lazy_static! {
-        static ref LINKS_RE: Regex =
-          Regex::new(r"(.https.*)").unwrap();
-      }
+
+      static LINKS_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.https.*)").unwrap());
       if let Ok(cargo_update_out) = &String::from_utf8(cargo_update.stderr) {
-        lazy_static! {
-          static ref GIT_RE: Regex =
-            Regex::new(r"(.Updating git.*)").unwrap();
-        }
+        static GIT_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.Updating git.*)").unwrap());
         let mut update_str = LINKS_RE.replace_all(&cargo_update_out, "").to_string();
         update_str = GIT_RE.replace_all(&update_str, "").to_string();
         update_str = update_str.replace("/root/contrib/rust/", "");

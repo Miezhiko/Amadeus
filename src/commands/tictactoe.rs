@@ -25,6 +25,7 @@ use serenity::{
 };
 
 use regex::Regex;
+use once_cell::sync::Lazy;
 use futures_util::{
   stream,
   StreamExt,
@@ -39,10 +40,8 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
       Err(why) => Err(why.to_string()),
     }
   } else if member_name.starts_with("<@") && member_name.ends_with('>') {
-    lazy_static! {
-      static ref RE: Regex =
-        Regex::new("[<@!>]").unwrap();
-    }
+    static RE: Lazy<Regex> =
+      Lazy::new(|| Regex::new("[<@!>]").unwrap());
     let member_id = RE.replace_all(&member_name, "").into_owned();
     let member = &msg.guild_id.unwrap().member(ctx, UserId(member_id.parse::<u64>().unwrap())).await;
     match member {

@@ -40,6 +40,7 @@ use rand::{ Rng
           , SeedableRng };
 
 use regex::Regex;
+use once_cell::sync::Lazy;
 
 pub static THREADS: AtomicBool  = AtomicBool::new(false);
 pub static BLAME: AtomicBool    = AtomicBool::new(false);
@@ -59,11 +60,10 @@ impl Handler {
   }
 }
 
-lazy_static! {
-  pub static ref BACKUP: Mutex<VecDeque<(MessageId, Message)>>
-    = Mutex::new(VecDeque::with_capacity(64));
-  pub static ref MUTED: Mutex<Vec<UserId>> = Mutex::new(Vec::new());
-}
+pub static BACKUP: Lazy<Mutex<VecDeque<(MessageId, Message)>>> =
+  Lazy::new(|| Mutex::new(VecDeque::with_capacity(64)));
+pub static MUTED: Lazy<Mutex<Vec<UserId>>> =
+  Lazy::new(|| Mutex::new(Vec::new()));
 
 #[async_trait]
 impl EventHandler for Handler {
@@ -385,10 +385,8 @@ impl EventHandler for Handler {
             let activity = chain::generate(&ctx, &msg, None).await;
             if !activity.is_empty() {
               if activity.contains('<') && activity.contains('>') {
-                lazy_static! {
-                  static ref RE_IB: Regex
-                    = Regex::new(r"<(.*?)>").unwrap();
-                }
+                static RE_IB: Lazy<Regex> =
+                  Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
                 let replaced = RE_IB.replace_all(&activity, "");
                 if !replaced.is_empty() {
                   ctx.set_activity(Activity::competing(&replaced)).await;

@@ -11,6 +11,8 @@ use tokio::{ task
 
 use eyre::Result;
 
+use once_cell::sync::Lazy;
+
 static LSUF: &str = "trees/tree.lusf";
 static ZSUF: &str = "trees/ztree.lusf";
 
@@ -32,10 +34,10 @@ fn get_storage(tree: &str) -> Storage<FileNvm> {
   }
 }
 
-lazy_static! {
-  pub static ref STORAGE: Mutex<Storage<FileNvm>> = Mutex::new(get_storage(LSUF));
-  pub static ref ZTREE: Mutex<Storage<FileNvm>> = Mutex::new(get_storage(ZSUF));
-}
+pub static STORAGE: Lazy<Mutex<Storage<FileNvm>>> =
+  Lazy::new(|| Mutex::new(get_storage(LSUF)));
+pub static ZTREE: Lazy<Mutex<Storage<FileNvm>>> =
+  Lazy::new(|| Mutex::new(get_storage(ZSUF)));
 
 pub async fn register( channel_id: u64
                      , message_id: u64) {

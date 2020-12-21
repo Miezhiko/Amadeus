@@ -30,6 +30,7 @@ use tokio::process::Command;
 
 use rand::Rng;
 use regex::Regex;
+use once_cell::sync::Lazy;
 
 use qrcode::{
   QrCode,
@@ -231,11 +232,10 @@ async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
         .await
         .expect("failed to execute process");
   if let Ok(git_log_stdout) = &String::from_utf8(git_log.stdout) {
-
-    lazy_static! {
-      static ref RE1: Regex = Regex::new(r"<(.*?)>").unwrap();
-      static ref RE2: Regex = Regex::new(r"Date.*").unwrap();
-    }
+    static RE1: Lazy<Regex> =
+      Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
+    static RE2: Lazy<Regex> =
+      Lazy::new(|| Regex::new(r"Date.*").unwrap());
     let mut descr = RE1.replace_all(&git_log_stdout, "").to_string();
     descr = RE2.replace_all(&descr, "").to_string();
     descr = descr.lines()

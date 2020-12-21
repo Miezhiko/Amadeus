@@ -3,12 +3,14 @@ use crate::types::rules::*;
 use itertools::Itertools;
 use regex::Regex;
 
+use once_cell::sync::Lazy;
+
 fn remove_duplicate_characters(data: &str) -> String {
   data.chars().dedup().collect()
 }
 
-lazy_static! {
-  pub static ref RULES: Vec<Rule> = vec![
+pub static RULES: Lazy<Vec<Rule>> = Lazy::new(||
+  vec![
     bjr! { r"[ъь]"    => "" },
     bjr! { r"[^а-я]"  => "" },
     bjf! { remove_duplicate_characters },
@@ -28,5 +30,5 @@ lazy_static! {
     bjr! { "г$"     => "к" },
     bjr! { "тс|дс"  => "ц" },
     bjf! { remove_duplicate_characters },
-  ];
-}
+  ]
+);

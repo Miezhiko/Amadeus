@@ -14,31 +14,35 @@ use rust_bert::pipelines::{
 
 use tch::Device;
 use tokio::{ task, sync::Mutex };
+use once_cell::sync::Lazy;
 
 use std::collections::HashMap;
 
 use eyre::Result;
 
-lazy_static! {
-  // models
-  static ref DEVICE: Device = Device::cuda_if_available();
-  pub static ref EN2RUMODEL: Mutex<TranslationModel> =
+// models
+static DEVICE: Lazy<Device> = Lazy::new(|| Device::cuda_if_available());
+pub static EN2RUMODEL: Lazy<Mutex<TranslationModel>> =
+  Lazy::new(||
     Mutex::new(TranslationModel::new(
       TranslationConfig::new(Language::EnglishToRussian, *DEVICE)
-    ).unwrap());
-  pub static ref RU2ENMODEL: Mutex<TranslationModel> =
+    ).unwrap()));
+pub static RU2ENMODEL: Lazy<Mutex<TranslationModel>> =
+  Lazy::new(||
     Mutex::new(TranslationModel::new(
       TranslationConfig::new(Language::RussianToEnglish, *DEVICE)
-    ).unwrap());
-  pub static ref QAMODEL: Mutex<QuestionAnsweringModel> =
+    ).unwrap()));
+pub static QAMODEL: Lazy<Mutex<QuestionAnsweringModel>> =
+  Lazy::new(||
     Mutex::new(QuestionAnsweringModel::new(
       QuestionAnsweringConfig {
         lower_case: false,
         device: *DEVICE,
         ..Default::default()
       }
-    ).unwrap());
-  pub static ref CONVMODEL: Mutex<ConversationModel> =
+    ).unwrap()));
+pub static CONVMODEL: Lazy<Mutex<ConversationModel>> =
+  Lazy::new(||
     Mutex::new(ConversationModel::new(
       ConversationConfig {
         min_length: 2,
@@ -47,11 +51,10 @@ lazy_static! {
         device: *DEVICE,
         ..Default::default()
       }
-    ).unwrap());
+    ).unwrap()));
 
-  pub static ref CHAT_CONTEXT: Mutex<HashMap<u64, (ConversationManager, u32, u32)>>
-    = Mutex::new(HashMap::new());
-}
+pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32, u32)>>>
+  = Lazy::new(|| Mutex::new(HashMap::new()));
 
 pub async fn en2ru(text: String) -> Result<String> {
   if text.is_empty() {
@@ -73,7 +76,7 @@ pub async fn ru2en(text: String) -> Result<String> {
   if text.is_empty() {
     return Ok(String::new());
   }
-  let ru2en_model = EN2RUMODEL.lock().await;
+  let ru2en_model = RU2ENMODEL.lock().await;
   task::spawn_blocking(move || {
     let output = ru2en_model.translate(&[text.as_str()]);
     if output.is_empty() {

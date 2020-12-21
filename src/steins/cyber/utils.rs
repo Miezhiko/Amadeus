@@ -1,4 +1,5 @@
 use regex::Regex;
+use once_cell::sync::Lazy;
 
 pub fn get_race(r : u32) -> String {
   String::from(
@@ -67,10 +68,9 @@ fn try_get_map(m: &str) -> String {
 }
 
 pub fn get_map(m: &str) -> String {
-  lazy_static! {
-  static ref MAP_REGEX: Regex = Regex::new(
+  static MAP_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(
     r"^(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([a-zA-Z._']+?)(?:w3c|w3x)?(?:[0-9]+)?(?:_lv)?(?:_|\.)?(?:anon)?(?:_|\.)?$")
-      .unwrap(); }
+      .unwrap());
   let mut map = String::new();
   if let Some(caps) = MAP_REGEX.captures(m) {
     if let Some(group1) = caps.get(1) {

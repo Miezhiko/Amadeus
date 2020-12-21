@@ -1,5 +1,7 @@
 use crate::types::team::Player;
 
+use once_cell::sync::Lazy;
+
 /*
 * Note all the members of those lists are agreed to share this imformation
 * If someone wants to be excluded please feel free to contact author or do it with PR
@@ -10,11 +12,9 @@ static DIVISION1D: &str   = "dhall/team/division1.dhall";
 static DIVISION2D: &str   = "dhall/team/division2.dhall";
 static INTERESTINGD: &str = "dhall/team/interesting.dhall";
 
-lazy_static! {
-  pub static ref DIVISION1: Vec<Player>   = dhall!(DIVISION1D);
-  pub static ref DIVISION2: Vec<Player>   = dhall!(DIVISION2D);
-  pub static ref INTERESTING: Vec<Player> = dhall!(INTERESTINGD);
-}
+pub static DIVISION1: Lazy<Vec<Player>>   = Lazy::new(|| dhall!(DIVISION1D));
+pub static DIVISION2: Lazy<Vec<Player>>   = Lazy::new(|| dhall!(DIVISION2D));
+pub static INTERESTING: Lazy<Vec<Player>> = Lazy::new(|| dhall!(INTERESTINGD));
 
 pub fn teammates() -> Vec<Player> {
   [&DIVISION1[..], &DIVISION2[..]].concat()

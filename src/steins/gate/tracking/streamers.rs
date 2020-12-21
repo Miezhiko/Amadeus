@@ -22,13 +22,11 @@ use std::{
 };
 
 use chrono::DateTime;
-
+use once_cell::sync::Lazy;
 use rand::Rng;
 
-lazy_static! {
-  pub static ref STREAMS: Mutex<HashMap<u64, TrackingGame>>
-    = Mutex::new(HashMap::new());
-}
+pub static STREAMS: Lazy<Mutex<HashMap<u64, TrackingGame>>>
+  = Lazy::new(|| Mutex::new(HashMap::new()));
 
 async fn clear_channel(channel: ChannelId, ctx: &Context) {
   if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(25)).await {

@@ -1,5 +1,7 @@
 use crate::types::common::Reaction;
 
+use once_cell::sync::Lazy;
+
 static GREETINGSD: &str      = "dhall/base/greetings.dhall";
 static CONFUSION_RUD: &str   = "dhall/base/confusion_ru.dhall";
 static CONFUSIOND: &str      = "dhall/base/confusion.dhall";
@@ -8,15 +10,13 @@ static OBFUSCATIOND: &str    = "dhall/base/obfuscation.dhall";
 static WHITELISTD: &str      = "dhall/base/whitelist.dhall";
 static REACTIONSD: &str      = "dhall/base/reactions.dhall";
 
-lazy_static! {
-  pub static ref GREETINGS: Vec<String>      = dhall!(GREETINGSD);
-  pub static ref CONFUSION_RU: Vec<String>   = dhall!(CONFUSION_RUD);
-  pub static ref CONFUSION: Vec<String>      = dhall!(CONFUSIOND);
-  pub static ref OBFUSCATION_RU: Vec<String> = dhall!(OBFUSCATION_RUD);
-  pub static ref OBFUSCATION: Vec<String>    = dhall!(OBFUSCATIOND);
-  pub static ref WHITELIST: Vec<u64>         = dhall!(WHITELISTD);
-  pub static ref REACTIONS: Vec<Reaction>    = dhall!(REACTIONSD);
-}
+pub static GREETINGS: Lazy<Vec<String>>      = Lazy::new(|| dhall!(GREETINGSD));
+pub static CONFUSION_RU: Lazy<Vec<String>>   = Lazy::new(|| dhall!(CONFUSION_RUD));
+pub static CONFUSION: Lazy<Vec<String>>      = Lazy::new(|| dhall!(CONFUSIOND));
+pub static OBFUSCATION_RU: Lazy<Vec<String>> = Lazy::new(|| dhall!(OBFUSCATION_RUD));
+pub static OBFUSCATION: Lazy<Vec<String>>    = Lazy::new(|| dhall!(OBFUSCATIOND));
+pub static WHITELIST: Lazy<Vec<u64>>         = Lazy::new(|| dhall!(WHITELISTD));
+pub static REACTIONS: Lazy<Vec<Reaction>>    = Lazy::new(|| dhall!(REACTIONSD));
 
 #[cfg(test)]
 mod base_dhall_tests {

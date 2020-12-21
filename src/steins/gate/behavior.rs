@@ -23,15 +23,15 @@ use std::collections::HashMap;
 
 use chrono::{ Utc, DateTime };
 use tokio::sync::Mutex;
+use once_cell::sync::Lazy;
 
-lazy_static! {
-  pub static ref START_TIME: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
-}
+pub static START_TIME: Lazy<Mutex<DateTime<Utc>>> =
+  Lazy::new(|| Mutex::new(Utc::now()));
 
 pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   info!("activation has started");
 
-  lazy_static::initialize(&START_TIME);
+  Lazy::force(&START_TIME);
 
   // set actual season for pad statistics
   update_current_season(&ctx).await;
@@ -42,7 +42,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   }
 
   info!("loading Kathoey");
-  lazy_static::initialize(&chain::KATHOEY);
+  Lazy::force(&chain::KATHOEY);
 
   info!("starting background threads");
   // Now there are several lists of channels and several Guilds

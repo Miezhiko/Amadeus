@@ -34,6 +34,7 @@ use std::collections::HashMap;
 use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use tokio::sync::{ Mutex, MutexGuard };
+use once_cell::sync::Lazy;
 
 use async_recursion::async_recursion;
 
@@ -53,18 +54,20 @@ static TRANSLATION_MAX: u32 = 5;
 // Note: use 66 for low activity/comfortable behavior
 pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(66);
 
-lazy_static! {
-  pub static ref CACHE_ENG: Mutex<Chain<String>>    = Mutex::new(Chain::new());
-  pub static ref CACHE_ENG_STR: Mutex<Vec<String>>  = Mutex::new(Vec::new());
-  pub static ref CACHE_RU: Mutex<Chain<String>>     = Mutex::new(Chain::new());
-  pub static ref LAST_UPDATE: Mutex<DateTime<Utc>>  = Mutex::new(Utc::now());
-  pub static ref KATHOEY: Mutex<Kathoey> =
-    Mutex::new(Kathoey::load("../Kathoey/dict.bin").unwrap());
+pub static CACHE_ENG: Lazy<Mutex<Chain<String>>> =
+  Lazy::new(|| Mutex::new(Chain::new()));
+pub static CACHE_ENG_STR: Lazy<Mutex<Vec<String>>> =
+  Lazy::new(|| Mutex::new(Vec::new()));
+pub static CACHE_RU: Lazy<Mutex<Chain<String>>> =
+  Lazy::new(|| Mutex::new(Chain::new()));
+pub static LAST_UPDATE: Lazy<Mutex<DateTime<Utc>>> =
+  Lazy::new(|| Mutex::new(Utc::now()));
+pub static KATHOEY: Lazy<Mutex<Kathoey>> =
+  Lazy::new(|| Mutex::new(Kathoey::load("../Kathoey/dict.bin").unwrap()));
 
-  static ref RE1: Regex = Regex::new(r"<(.*?)>").unwrap();
-  static ref RE2: Regex = Regex::new(r":(.*?):").unwrap();
-  static ref RE3: Regex = Regex::new(r"&(.*?);").unwrap();
-}
+static RE1: Lazy<Regex> = Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
+static RE2: Lazy<Regex> = Lazy::new(|| Regex::new(r":(.*?):").unwrap());
+static RE3: Lazy<Regex> = Lazy::new(|| Regex::new(r"&(.*?);").unwrap());
 
 pub async fn update_cache( ctx: &Context
                          , channels: &HashMap<ChannelId, GuildChannel>

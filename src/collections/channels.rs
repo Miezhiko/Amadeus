@@ -1,5 +1,7 @@
 use crate::types::common::LChannel;
 
+use once_cell::sync::Lazy;
+
 /*
  * Channels where I can spam (well, chat actually)
  */
@@ -17,12 +19,10 @@ static AI_LEARND: &str   = "dhall/channels/ai_learn.dhall";
  */
 static IGNOREDD: &str   = "dhall/channels/ignored.dhall";
 
-lazy_static! {
-  pub static ref AI_ALLOWED: Vec<LChannel>  = dhall!(AI_ALLOWEDD);
-  pub static ref EXCEPTIONS: Vec<u64>       = dhall!(EXCEPTIONSD);
-  pub static ref AI_LEARN: Vec<LChannel>    = dhall!(AI_LEARND);
-  pub static ref IGNORED: Vec<u64>          = dhall!(IGNOREDD);
-}
+pub static AI_ALLOWED: Lazy<Vec<LChannel>> = Lazy::new(|| dhall!(AI_ALLOWEDD));
+pub static EXCEPTIONS: Lazy<Vec<u64>>      = Lazy::new(|| dhall!(EXCEPTIONSD));
+pub static AI_LEARN: Lazy<Vec<LChannel>>   = Lazy::new(|| dhall!(AI_LEARND));
+pub static IGNORED: Lazy<Vec<u64>>         = Lazy::new(|| dhall!(IGNOREDD));
 
 #[cfg(test)]
 mod channels_dhall_tests {

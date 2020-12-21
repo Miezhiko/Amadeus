@@ -21,11 +21,10 @@ use serenity::{
 
 use std::collections::HashMap;
 use tokio::sync::Mutex;
+use once_cell::sync::Lazy;
 
-lazy_static! {
-  pub static ref GAMES: Mutex<HashMap<String, TrackingGame>>
-    = Mutex::new(HashMap::new());
-}
+pub static GAMES: Lazy<Mutex<HashMap<String, TrackingGame>>>
+  = Lazy::new(|| Mutex::new(HashMap::new()));
 
 async fn check_match( matchid: &str
                     , playaz: &[Player]

@@ -6,13 +6,11 @@ use serenity::{
 };
 
 use regex::Regex;
+use once_cell::sync::Lazy;
 
 pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> eyre::Result<Member> {
   if meme.starts_with("<@") && meme.ends_with('>') {
-    lazy_static! {
-      static ref RE: Regex =
-        Regex::new("[<@!>]").unwrap();
-    }
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new("[<@!>]").unwrap() );
     let member_id = RE.replace_all(&meme, "").into_owned();
     let member = msg.guild_id.unwrap().member(
       ctx, UserId(member_id.parse::<u64>().unwrap())).await;

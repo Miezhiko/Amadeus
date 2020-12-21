@@ -31,7 +31,7 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
   tokio::spawn(async move {
     loop {
       let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 10;
-      let rndx = rand::thread_rng().gen_range(0, activity_level);
+      let rndx = rand::thread_rng().gen_range(0..activity_level);
       if rndx == 1 {
         let ai_text = chain::generate_with_language(&ctx_clone, false).await;
         if let Err(why) = ch_deref.send_message(&ctx_clone, |m| {

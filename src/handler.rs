@@ -373,7 +373,7 @@ impl EventHandler for Handler {
           }
           gate::LAST_CHANNEL.store(msg.channel_id.0, Ordering::Relaxed);
           // wakes up on any activity
-          let rndx = rand::thread_rng().gen_range(0, 3);
+          let rndx = rand::thread_rng().gen_range(0..3);
           if rndx != 1 {
             if let Some(nick) = msg.author.nick_in(&ctx, &guild_id).await {
               ctx.set_activity(Activity::listening(&nick)).await;
@@ -401,11 +401,11 @@ impl EventHandler for Handler {
           }
           if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
             let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
-            let rnd = rand::thread_rng().gen_range(0, activity_level);
+            let rnd = rand::thread_rng().gen_range(0..activity_level);
             if rnd == 1 {
               chain::chat(&ctx, &msg).await;
             }
-            let rnd2 : u16 = rand::thread_rng().gen_range(0, 2);
+            let rnd2 : u16 = rand::thread_rng().gen_range(0..2);
             if rnd2 == 1 {
               let mut rng = StdRng::from_entropy();
               let emoji = REACTIONS.choose(&mut rng).unwrap();
@@ -419,7 +419,7 @@ impl EventHandler for Handler {
                 if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
                   if let Some(role) = guild.role_by_name("UNBLOCK AMADEUS") {
 
-                    let normal_people_rnd : u16 = rand::thread_rng().gen_range(0, 9);
+                    let normal_people_rnd : u16 = rand::thread_rng().gen_range(0..9);
                     if (normal_people_rnd == 1 || member.roles.contains(&role.id))
                     && !WHITELIST.iter().any(|u| *u == msg.author.id.0)
                     && !self.ioptions.servers.iter()
@@ -482,7 +482,7 @@ impl EventHandler for Handler {
                       }
                     }
 
-                    let rnd3 = rand::thread_rng().gen_range(0, 9);
+                    let rnd3 = rand::thread_rng().gen_range(0..9);
                     if rnd3 != 1 {
                       if let Err(why) = msg.delete_reactions(&ctx).await {
                         error!("Failed to remove all the reactions {:?}", why);

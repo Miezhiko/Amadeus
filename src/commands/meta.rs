@@ -75,9 +75,9 @@ async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   set!{ title = args.single::<String>()?
       , description = args.rest()
       , nick  = nickname_maybe.unwrap_or_else(|| msg.author.name.clone())
-      , red   = rand::thread_rng().gen_range(0, 255)
-      , green = rand::thread_rng().gen_range(0, 255)
-      , blue  = rand::thread_rng().gen_range(0, 255) };
+      , red   = rand::thread_rng().gen_range(0..255)
+      , green = rand::thread_rng().gen_range(0..255)
+      , blue  = rand::thread_rng().gen_range(0..255) };
   msg.channel_id.send_message(&ctx.http, |m|
     m.embed(|e| e.title(title)
                  .colour((red, green, blue))

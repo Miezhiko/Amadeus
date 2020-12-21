@@ -352,7 +352,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
       CACHE_ENG.lock().await
     };
   let mut out = chain.generate_str();
-  let rndx = rand::thread_rng().gen_range(0, 66);
+  let rndx = rand::thread_rng().gen_range(0..66);
   if rndx == 1 {
     if russian {
       out = boris::spell(&out);
@@ -376,7 +376,7 @@ pub fn obfuscate(msg_content: &str) -> String {
     }
   }
   chain.feed_str(msg_content);
-  let rndx = rand::thread_rng().gen_range(0, 6);
+  let rndx = rand::thread_rng().gen_range(0..6);
   let cahin_string = chain.generate_str();
   if rndx == 1 {
     if russian {
@@ -408,7 +408,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
     } else {
       lang::is_russian(&msg.content)
     };
-  let rndx: u32 = rand::thread_rng().gen_range(0, 20);
+  let rndx: u32 = rand::thread_rng().gen_range(0..20);
   let mut bert_generated = false;
   let mut answer =
     if rndx != 1 {
@@ -418,7 +418,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
         } else { msg.content.clone() }
         } else { msg.content.clone() };
       if msg.content.ends_with('?') {
-        let rndxqa: u32 = rand::thread_rng().gen_range(0, 2);
+        let rndxqa: u32 = rand::thread_rng().gen_range(0..2);
         if rndxqa == 1 {
           if let Ok(answer) = bert::ask(text).await {
             bert_generated = true;
@@ -446,7 +446,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
       if let Ok(translated) = bert::en2ru(answer.clone()).await {
         // feminize translated text
         let kathoey = KATHOEY.lock().await;
-        let rndy : u32 = rand::thread_rng().gen_range(0, 15);
+        let rndy : u32 = rand::thread_rng().gen_range(0..15);
         answer =
           if rndy == 1 {
             kathoey.extreme_feminize(&translated)
@@ -455,10 +455,10 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
           };
       }
     } else {
-      let rndxx : u32 = rand::thread_rng().gen_range(0, 2);
+      let rndxx : u32 = rand::thread_rng().gen_range(0..2);
       if rndxx == 1 {
         let kathoey = KATHOEY.lock().await;
-        let rndxxx : u32 = rand::thread_rng().gen_range(0, 15);
+        let rndxxx : u32 = rand::thread_rng().gen_range(0..15);
         answer =
           if rndxxx == 1 {
             kathoey.extreme_feminize(&answer)
@@ -482,7 +482,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
 pub async fn chat(ctx: &Context, msg: &Message) {
   let answer = generate_response(ctx, msg).await;
   if !answer.is_empty() {
-    let rnd = rand::thread_rng().gen_range(0, 3);
+    let rnd = rand::thread_rng().gen_range(0..3);
     if rnd == 1 {
       reply(&ctx, &msg, &answer).await;
     } else {

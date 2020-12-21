@@ -110,14 +110,14 @@ pub async fn replay_embed( ctx: &Context
             .axis_style(&RGBColor(80, 80, 80))
             .draw().unwrap();
           for (k, plx) in fields3 {
-            set! { red   = rand::thread_rng().gen_range(0, 255)
-                 , green = rand::thread_rng().gen_range(0, 255)
-                 , blue  = rand::thread_rng().gen_range(0, 255) };
+            set! { red   = rand::thread_rng().gen_range(0..255)
+                 , green = rand::thread_rng().gen_range(0..255)
+                 , blue  = rand::thread_rng().gen_range(0..255) };
             let mut color = RGBColor(red, green, blue);
             if red < 150 && green < 150 && blue < 150 {
-              set! { red2   = rand::thread_rng().gen_range(100, 255)
-                   , green2 = rand::thread_rng().gen_range(100, 255)
-                   , blue2  = rand::thread_rng().gen_range(100, 255) };
+              set! { red2   = rand::thread_rng().gen_range(100..255)
+                   , green2 = rand::thread_rng().gen_range(100..255)
+                   , blue2  = rand::thread_rng().gen_range(100..255) };
               color = RGBColor(red2, green2, blue2);
             }
             cc.draw_series(LineSeries::new(plx, &color)).unwrap()
@@ -325,14 +325,14 @@ pub async fn attach_replay( ctx: &Context
                               .axis_style(&RGBColor(80, 80, 80))
                               .draw().unwrap();
                             for (k, plx) in fields3 {
-                              set! { red   = rand::thread_rng().gen_range(0, 255)
-                                  , green = rand::thread_rng().gen_range(0, 255)
-                                  , blue  = rand::thread_rng().gen_range(0, 255) };
+                              set! { red   = rand::thread_rng().gen_range(0..255)
+                                   , green = rand::thread_rng().gen_range(0..255)
+                                   , blue  = rand::thread_rng().gen_range(0..255) };
                               let mut color = RGBColor(red, green, blue);
                               if red < 150 && green < 150 && blue < 150 {
-                                set! { red2   = rand::thread_rng().gen_range(100, 255)
-                                    , green2 = rand::thread_rng().gen_range(100, 255)
-                                    , blue2  = rand::thread_rng().gen_range(100, 255) };
+                                set! { red2   = rand::thread_rng().gen_range(100..255)
+                                     , green2 = rand::thread_rng().gen_range(100..255)
+                                     , blue2  = rand::thread_rng().gen_range(100..255) };
                                 color = RGBColor(red2, green2, blue2);
                               }
                               cc.draw_series(LineSeries::new(plx, &color)).unwrap()

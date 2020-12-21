@@ -266,9 +266,9 @@ pub async fn activate_streamers_tracking(
                   }
                 }
               }
-              set! { red   = rand::thread_rng().gen_range(0, 255)
-                   , green = rand::thread_rng().gen_range(0, 255)
-                   , blue  = rand::thread_rng().gen_range(0, 255) };
+              set! { red   = rand::thread_rng().gen_range(0..255)
+                   , green = rand::thread_rng().gen_range(0..255)
+                   , blue  = rand::thread_rng().gen_range(0..255) };
               match sh_deref.send_message(&ctx_clone, |m| m
                 .embed(|e| {
                   let mut e = e

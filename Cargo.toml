@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "3.0.1"
+version     = "3.0.2"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -14,7 +14,6 @@ default = []
 flo = ["flo-grpc", "tonic", "hex"]
 
 [dependencies]
-rand                = "0.7"
 chrono              = "0.4"
 chrono-tz           = "0.5"
 argparse            = "0.2"
@@ -47,6 +46,7 @@ unic-langid         = "0.9"
 fluent-templates    = "0.5"
 sled                = "0.34"
 
+rand      = { version = "0.8",  features = ["std", "std_rng"] }
 reqwest   = { version = "0.10", features = ["json", "blocking"] }
 ical      = { version = "0.7",  features = ["ical"] }
 markov    = { version = "1.1",  features = ["yaml"] }

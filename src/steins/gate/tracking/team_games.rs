@@ -147,9 +147,9 @@ pub async fn activate_games_tracking(
               }
             }
           }
-          set!{ red   = rand::thread_rng().gen_range(0, 255)
-              , green = rand::thread_rng().gen_range(0, 255)
-              , blue  = rand::thread_rng().gen_range(0, 255) };
+          set!{ red   = rand::thread_rng().gen_range(0..255)
+              , green = rand::thread_rng().gen_range(0..255)
+              , blue  = rand::thread_rng().gen_range(0..255) };
 
           let nickname_maybe = user.nick_in(&ctx_clone.http, options_clone.guild).await;
           let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());

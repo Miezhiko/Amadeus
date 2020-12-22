@@ -150,7 +150,8 @@ pub async fn chat(something: String, user_id: u64) -> Result<String> {
           chat_context.remove(&user_id);
 
           let mut conversation_manager = ConversationManager::new();
-          let cache_slices = cache_eng_vec.iter().map(AsRef::as_ref).collect::<Vec<&str>>();
+          let cache_slices = cache_eng_vec.iter().rev().take(50)
+                                          .map(AsRef::as_ref).collect::<Vec<&str>>();
           let encoded_history = conversation_model.encode_prompts(&cache_slices);
           let conv_id = conversation_manager.create(&something);
           conversation_manager.get(&conv_id).unwrap().load_from_history(cache_slices, encoded_history);
@@ -169,7 +170,8 @@ pub async fn chat(something: String, user_id: u64) -> Result<String> {
         }
       } else {
         let mut conversation_manager = ConversationManager::new();
-        let cache_slices = cache_eng_vec.iter().map(AsRef::as_ref).collect::<Vec<&str>>();
+        let cache_slices = cache_eng_vec.iter().rev().take(10)
+                                        .map(AsRef::as_ref).collect::<Vec<&str>>();
         let encoded_history = conversation_model.encode_prompts(&cache_slices);
         let conv_id = conversation_manager.create(&something);
         conversation_manager.get(&conv_id).unwrap().load_from_history(cache_slices, encoded_history);

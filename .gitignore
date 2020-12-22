@@ -4,7 +4,6 @@
 /node_modules/
 conf.dhall
 conf.rs
-Cargo.lock
 
 # secret commands, tokens and stuff
 misc/secret

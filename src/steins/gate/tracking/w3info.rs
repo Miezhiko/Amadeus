@@ -1,9 +1,12 @@
-use crate::commands::warcraft;
-
-use serenity::{
-  prelude::*,
-  model::id::ChannelId
+use crate::{
+  common::constants::{
+    NEWS_CHANNEL,
+    LILNEWS_CHANNEL
+  },
+  commands::warcraft
 };
+
+use serenity::prelude::*;
 
 use std::{
   time,
@@ -14,17 +17,12 @@ use chrono::{ Duration, DateTime, Utc };
 
 pub async fn activate_w3info_tracking(ctx: &Arc<Context> ) {
 
-  // TODO: move to dhall config
-  let thread_channels = vec![ ChannelId ( 635912696675565608 ) // Fake News
-                            , ChannelId ( 742643130096156672 ) // Lilualia
-                            ];
-
   let ctx_clone = Arc::clone(&ctx);
 
   tokio::spawn(async move {
     loop {
       let today: DateTime<Utc> = Utc::now();
-      for chan in &thread_channels {
+      for chan in &[NEWS_CHANNEL, LILNEWS_CHANNEL] {
         if let Err(why) =
           warcraft::tour_internal( &ctx_clone
                                   , &chan, today

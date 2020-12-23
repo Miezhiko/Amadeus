@@ -5,14 +5,16 @@ use crate::{
          , tracking::Bet
          , twitch::Twitch
          , goodgame::GoodGameData },
-  common::db::trees,
+  common::{
+    db::trees,
+    constants::LOG_CHANNEL
+  },
   steins::cyber
 };
 
 use serenity::{
   prelude::*,
-  model::{ id::ChannelId
-         , channel::ReactionType }
+  model::channel::ReactionType
 };
 
 use std::{ time
@@ -26,12 +28,11 @@ pub async fn activate_games_tracking(
                    , token:     String
                    , amadeus:   u64 ) {
 
-  set!{ ch_deref      = ChannelId( 721956117558853673 )
-      , ctx_clone     = Arc::clone(&ctx)
+  set!{ ctx_clone     = Arc::clone(&ctx)
       , options_clone = options.clone() };
 
   // Delete live games from log channel (if some)
-  if let Ok(vec_msg) = ch_deref.messages(&ctx, |g| g.limit(50)).await {
+  if let Ok(vec_msg) = LOG_CHANNEL.messages(&ctx, |g| g.limit(50)).await {
     let mut vec_id = Vec::new();
     for message in vec_msg {
       for embed in message.embeds {
@@ -44,7 +45,7 @@ pub async fn activate_games_tracking(
       }
     }
     if !vec_id.is_empty() {
-      match ch_deref.delete_messages(&ctx, vec_id.as_slice()).await {
+      match LOG_CHANNEL.delete_messages(&ctx, vec_id.as_slice()).await {
         Ok(nothing)  => nothing,
         Err(err) => warn!("Failed to clean live messages {}", err),
       };
@@ -77,7 +78,6 @@ pub async fn activate_games_tracking(
 
       info!("check");
       let our_gsx = cyber::team_checker::check( &ctx_clone
-                                              , ch_deref.0
                                               , options_clone.guild
                                               , &rqcl
                                               ).await;
@@ -154,7 +154,7 @@ pub async fn activate_games_tracking(
           let nickname_maybe = user.nick_in(&ctx_clone.http, options_clone.guild).await;
           let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
 
-          match ch_deref.send_message(&ctx_clone, |m| m
+          match LOG_CHANNEL.send_message(&ctx_clone, |m| m
             .embed(|e| {
               let mut e = e
                 .title("JUST STARTED")

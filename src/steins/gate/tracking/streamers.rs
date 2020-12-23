@@ -4,7 +4,14 @@ use crate::{
          , twitch::Twitch
          , goodgame::GoodGameData },
   collections::team::players,
-  common::help::channel::channel_by_name
+  common::{
+    help::channel::channel_by_name,
+    constants::{
+      STREAMS_CHANNEL,
+      LILYAL_CHANNEL,
+      LILYAL
+    }
+  }
 };
 
 use serenity::{
@@ -64,14 +71,11 @@ pub async fn activate_streamers_tracking(
       } else { None }
     } else { None };
 
-  set!{ sh_deref      = ChannelId( 698766464420937768 )
-      , lilyal_id     = 367722659590569994u64
-      , lilyal        = ChannelId( 775757970822397963 )
-      , ctx_clone     = Arc::clone(&ctx)
+  set!{ ctx_clone     = Arc::clone(&ctx)
       , options_clone = options.clone() };
 
-  clear_channel(sh_deref, &ctx).await;
-  clear_channel(lilyal, &ctx).await;
+  clear_channel(STREAMS_CHANNEL, &ctx).await;
+  clear_channel(LILYAL_CHANNEL, &ctx).await;
 
   tokio::spawn(async move {
     let mut streams_lock = STREAMS.lock().await;
@@ -171,7 +175,7 @@ pub async fn activate_streamers_tracking(
           }
           if !additional_fields.is_empty() {
             if let Some(track) = streams_lock.get(&playa.discord) {
-              if let Ok(mut msg) = ctx_clone.http.get_message(sh_deref.0, track.tracking_msg_id[0]).await {
+              if let Ok(mut msg) = ctx_clone.http.get_message(STREAMS_CHANNEL.0, track.tracking_msg_id[0]).await {
                 let footer = if track.passed_time > 60 {
                     let hours: u32 = track.passed_time / 60;
                     let minutes = track.passed_time % 60;
@@ -213,8 +217,9 @@ pub async fn activate_streamers_tracking(
                 )).await {
                   error!("Failed to edit stream msg {:?}", why);
                 }
-                if user.id.0 == lilyal_id && track.tracking_msg_id.len() > 1 {
-                  if let Ok(mut msg_lil) = ctx_clone.http.get_message(lilyal.0, track.tracking_msg_id[1]).await {
+                if user.id.0 == LILYAL && track.tracking_msg_id.len() > 1 {
+                  if let Ok(mut msg_lil) =
+                      ctx_clone.http.get_message(LILYAL_CHANNEL.0, track.tracking_msg_id[1]).await {
                     if let Err(why) = msg_lil.edit(&ctx_clone.http, |m| m
                       .embed(|e|  {
                         let mut e = e
@@ -267,7 +272,7 @@ pub async fn activate_streamers_tracking(
               set! { red   = rand::thread_rng().gen_range(0..255)
                    , green = rand::thread_rng().gen_range(0..255)
                    , blue  = rand::thread_rng().gen_range(0..255) };
-              match sh_deref.send_message(&ctx_clone, |m| m
+              match STREAMS_CHANNEL.send_message(&ctx_clone, |m| m
                 .embed(|e| {
                   let mut e = e
                     .title(&title)
@@ -293,8 +298,8 @@ pub async fn activate_streamers_tracking(
                     still_live: true,
                     players: vec![playa_for_stream], bets: vec![], fails: 0 }
                   );
-                  if user.id.0 == lilyal_id {
-                    match lilyal.send_message(&ctx_clone, |m| m
+                  if user.id.0 == LILYAL {
+                    match LILYAL_CHANNEL.send_message(&ctx_clone, |m| m
                       .embed(|e| {
                         let mut e = e
                           .title(&title)
@@ -329,7 +334,7 @@ pub async fn activate_streamers_tracking(
               }
             }
           } else if let Some(track) = streams_lock.get(&playa.discord) {
-            if let Ok(mut msg) = ctx_clone.http.get_message(sh_deref.0, track.tracking_msg_id[0]).await {
+            if let Ok(mut msg) = ctx_clone.http.get_message(STREAMS_CHANNEL.0, track.tracking_msg_id[0]).await {
               let footer = if track.passed_time > 60 {
                   let hours: u32 = track.passed_time / 60;
                   let minutes = track.passed_time % 60;
@@ -370,8 +375,9 @@ pub async fn activate_streamers_tracking(
               )).await {
                 error!("Failed to edit stream msg {:?}", why);
               }
-              if user.id.0 == lilyal_id && track.tracking_msg_id.len() > 1 {
-                if let Ok(mut msgl) = ctx_clone.http.get_message(lilyal.0, track.tracking_msg_id[1]).await {
+              if user.id.0 == LILYAL && track.tracking_msg_id.len() > 1 {
+                if let Ok(mut msgl) =
+                    ctx_clone.http.get_message(LILYAL_CHANNEL.0, track.tracking_msg_id[1]).await {
                   if let Err(why) = msgl.edit(&ctx_clone.http, |m| m
                     .embed(|e|  {
                       let mut e = e

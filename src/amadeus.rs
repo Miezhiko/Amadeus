@@ -34,9 +34,6 @@ use serenity::{
   model::{ channel::Message, id::UserId }
 };
 
-use argparse::{ ArgumentParser
-              , action::{IFlagAction, ParseResult} };
-
 use tracing::{ Level, instrument };
 use tracing_subscriber::FmtSubscriber;
 use tracing_log::LogTracer;
@@ -45,23 +42,12 @@ use std::collections::{ HashSet, HashMap };
 use std::sync::Arc;
 
 use regex::Regex;
+use once_cell::sync::Lazy;
 use reqwest::Client as Reqwest;
 
 use rand::{ rngs::StdRng
           , seq::SliceRandom
           , SeedableRng };
-
-pub struct Version();
-
-impl IFlagAction for Version {
-  fn parse_flag(&self) -> ParseResult {
-    set!( version = env!("CARGO_PKG_VERSION").to_string()
-        , pname = "Amadeus"
-        , version_string = format!("{} {}", pname, version) );
-    println!("{}", version_string);
-    ParseResult::Exit
-  }
-}
 
 #[check]
 #[name = "Admin"]
@@ -197,15 +183,22 @@ async fn after( ctx: &Context
   }
 }
 
+fn greeting_regex_from_str(c: &str) -> Regex {
+  let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
+  Regex::new(&regex).unwrap()
+}
+
 #[hook]
 async fn unrecognised_command( ctx: &Context
                              , msg: &Message
                              , _command_name: &str ) {
-  let is_valid_greeting = |c| {
-    let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
-    let is_greeting = Regex::new(&regex).unwrap();
-    is_greeting.is_match(&msg.content) };
-  if GREETINGS.iter().any(is_valid_greeting) {
+  static GREETINGS_CHECKS: Lazy<Vec<Regex>> =
+    Lazy::new(||
+      GREETINGS.iter().map(|c|
+        greeting_regex_from_str(c)
+      ).collect()
+    );
+  if GREETINGS_CHECKS.iter().any(|r| r.is_match(&msg.content)) {
     let mut rng = StdRng::from_entropy();
     if let Some(hi_reply) = GREETINGS.choose(&mut rng) {
       if let Err(why) = msg.reply(&ctx, hi_reply).await {
@@ -231,7 +224,9 @@ async fn help_command( ctx: &Context
                      , owners: HashSet<UserId> ) -> CommandResult {
   if args.is_empty() {
     help_i18n(ctx, msg, &US_ENG).await;
-  } else if help_commands::with_embeds(ctx, msg, args, help_options, groups, owners).await.is_none() {
+  } else if help_commands::with_embeds( ctx, msg, args
+                                      , help_options, groups, owners
+                                      ).await.is_none() {
     warn!("empty help answer");
   }
   Ok(())
@@ -240,13 +235,6 @@ async fn help_command( ctx: &Context
 #[instrument]
 pub async fn run(opts : &IOptions) ->
   eyre::Result<(), Box<dyn std::error::Error + Send + Sync>> {
-  { // this block limits scope of borrows by ap.refer() method
-    let mut ap = ArgumentParser::new();
-    let pname = "Amadeus";
-    ap.set_description(pname);
-    ap.add_option(&["--version"], Version(), "Show version");
-    ap.parse_args_or_exit();
-  }
 
   LogTracer::init()?;
   let subscriber = FmtSubscriber::builder()

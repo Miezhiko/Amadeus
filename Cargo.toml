@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "3.1.2"
+version     = "3.2.0"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -16,7 +16,6 @@ flo = ["flo-grpc", "tonic", "hex"]
 [dependencies]
 chrono              = "0.4"
 chrono-tz           = "0.5"
-argparse            = "0.2"
 tracing             = "0.1"
 tracing-log         = "0.1"
 tracing-futures     = "0.2"
@@ -83,7 +82,7 @@ optional = true
 path = "crates/flo-grpc"
 optional = true
 
-# wait for serenity, hyper, reqwest support for 0.3
+# wait for serenity, hyper, reqwest support for 1.0
 [dependencies.tokio]
 version = "0.2"
 features = ["full", "blocking", "sync"]

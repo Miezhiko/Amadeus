@@ -44,3 +44,51 @@ pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) 
     error!("Error sending help message: {:?}", why);
   }
 }
+
+/*
+Embed titles are limited to 256 characters
+Embed descriptions are limited to 2048 characters
+There can be up to 25 fields
+A field's name is limited to 256 characters and its value to 1024 characters
+The footer text is limited to 2048 characters
+The author name is limited to 256 characters
+In addition, the sum of all characters in an embed structure must not exceed 6000 characters
+*/
+#[cfg(test)]
+mod translation_tests {
+  use super::*;
+  fn help_test_with_lang(lang: &LanguageIdentifier) {
+    let string_description = LOCALES.lookup(lang, "help-description");
+    assert!( string_description.chars().count() < 2048 );
+    let string_footer = LOCALES.lookup(lang, "footer");
+    assert!( string_footer.chars().count() < 2048 );
+    let strings = &[
+      string_description,
+      LOCALES.lookup(lang, "age"),
+      LOCALES.lookup(lang, "birthdate"),
+      LOCALES.lookup(lang, "amadeus-birthdate"),
+      LOCALES.lookup(lang, "blood-type"),
+      LOCALES.lookup(lang, "height"),
+      LOCALES.lookup(lang, "amadeus-height"),
+      LOCALES.lookup(lang, "weight"),
+      LOCALES.lookup(lang, "amadeus-weight"),
+      LOCALES.lookup(lang, "version"),
+      LOCALES.lookup(lang, "user-commands-title"),
+      LOCALES.lookup(lang, "user-commands"),
+      LOCALES.lookup(lang, "music-commands-title"),
+      LOCALES.lookup(lang, "music-commands"),
+      LOCALES.lookup(lang, "warcraft-commands-title"),
+      LOCALES.lookup(lang, "warcraft-commands"),
+      string_footer
+    ];
+    assert!( strings.iter().map(|s| s.chars().count()).sum::<usize>() < 6000 );
+  }
+  #[test]
+  fn help_test_english() {
+    help_test_with_lang(&US_ENG);
+  }
+  #[test]
+  fn help_test_russian() {
+    help_test_with_lang(&RU);
+  }
+}

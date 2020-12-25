@@ -1,8 +1,1 @@
-- Per server settings (those that we set with `~set` command)
-- Check for ngram generators?
 - Split chain into 3 mods: cache, chain and possibly move general stuff to lib
-- Replace argparse to something less boring (clap?)
-- Amadeus rs: greeting check needs optimization
-- Implement users services marketplace
-- Write test to ensure that fluent translation of help will not be too big for discord!
-- move w3info steins to dhall / write test for it

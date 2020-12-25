@@ -11,6 +11,7 @@ let playersList : List Playerx =
   , p "Farer#21146"         444864857658097664
   , p "EnragedOxy#2999"     576662560120766474
   , p "Singroso#2472"       677187656857419792
+  , p "Pechenka#21766"      677187656857419792
   , t "НееЖить#2559"        703241941114028032 "masterv_64"
   , t "sonder#21813"        470291730328190985 "reforgedrav3n"
   , t "Ps1xoZ#21765"        404546426161332224 "ps1xoz_human"

@@ -3,7 +3,6 @@ use crate::{
     system,
     constants::{
       MAIN_CHANNEL,
-      KORCHMA_CHANNEL,
       LOG_CHANNEL
     }
   },
@@ -37,17 +36,6 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
         let ai_text = chain::generate_with_language(&ctx_clone, false).await;
         if let Err(why) = MAIN_CHANNEL.send_message(&ctx_clone, |m| {
           m.content(ai_text)
-        }).await {
-          error!("Failed to post periodic message {:?}", why);
-        }
-      } else if rndx == 2 {
-        let ai_text = chain::generate_with_language(&ctx_clone, true).await;
-        let message = {
-          let kathoey = chain::KATHOEY.lock().await;
-          kathoey.feminize(&ai_text)
-        };
-        if let Err(why) = KORCHMA_CHANNEL.send_message(&ctx_clone, |m| {
-          m.content(message)
         }).await {
           error!("Failed to post periodic message {:?}", why);
         }

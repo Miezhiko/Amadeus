@@ -21,7 +21,7 @@ use std::collections::HashMap;
 use eyre::Result;
 
 // models
-static DEVICE: Lazy<Device> = Lazy::new(|| Device::cuda_if_available());
+static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
 pub static EN2RUMODEL: Lazy<Mutex<TranslationModel>> =
   Lazy::new(||
     Mutex::new(TranslationModel::new(
@@ -53,6 +53,7 @@ pub static CONVMODEL: Lazy<Mutex<ConversationModel>> =
       }
     ).unwrap()));
 
+#[allow(clippy::type_complexity)]
 pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32, u32)>>>
   = Lazy::new(|| Mutex::new(HashMap::new()));
 
@@ -120,8 +121,7 @@ pub async fn ask(question: String) -> Result<String> {
   let qa_model = QAMODEL.lock().await;
   task::spawn_blocking(move || {
     let qa_input = QaInput {
-      question: question,
-      context: cache
+      question, context: cache
     };
     // Get answer
     let answers = qa_model.predict(&[qa_input], 1, 32);

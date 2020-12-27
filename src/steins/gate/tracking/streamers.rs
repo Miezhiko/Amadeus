@@ -6,11 +6,7 @@ use crate::{
   collections::team::players,
   common::{
     help::channel::channel_by_name,
-    constants::{
-      STREAMS_CHANNEL,
-      LILYAL_CHANNEL,
-      LILYAL
-    }
+    constants::STREAMS_CHANNEL
   }
 };
 
@@ -75,7 +71,6 @@ pub async fn activate_streamers_tracking(
       , options_clone = options.clone() };
 
   clear_channel(STREAMS_CHANNEL, &ctx).await;
-  clear_channel(LILYAL_CHANNEL, &ctx).await;
 
   tokio::spawn(async move {
     let mut streams_lock = STREAMS.lock().await;
@@ -217,32 +212,6 @@ pub async fn activate_streamers_tracking(
                 )).await {
                   error!("Failed to edit stream msg {:?}", why);
                 }
-                if user.id.0 == LILYAL && track.tracking_msg_id.len() > 1 {
-                  if let Ok(mut msg_lil) =
-                      ctx_clone.http.get_message(LILYAL_CHANNEL.0, track.tracking_msg_id[1]).await {
-                    if let Err(why) = msg_lil.edit(&ctx_clone.http, |m| m
-                      .embed(|e|  {
-                        let mut e = e
-                          .title(&title)
-                          .colour(color)
-                          .author(|a| a.icon_url(&user.face()).name(&is_now_live))
-                          .footer(|f| f.text(&footer));
-                        if !fields.is_empty() {
-                          e = e.fields(fields);
-                        }
-                        if let Some(some_img) = img {
-                          e = e.image(some_img.url);
-                        }
-                        if let Some(some_url) = url {
-                          e = e.url(some_url);
-                        }
-                        e
-                      }
-                    )).await {
-                      error!("Failed to edit stream msg on lilyal {:?}", why);
-                    }
-                  }
-                }
               }
             } else {
               let is_now_live = format!("{} started stream!", &user.name);
@@ -298,35 +267,6 @@ pub async fn activate_streamers_tracking(
                     still_live: true,
                     players: vec![playa_for_stream], bets: vec![], fails: 0 }
                   );
-                  if user.id.0 == LILYAL {
-                    match LILYAL_CHANNEL.send_message(&ctx_clone, |m| m
-                      .embed(|e| {
-                        let mut e = e
-                          .title(&title)
-                          .colour((red, green, blue))
-                          .author(|a| a.icon_url(&user.face()).name(&is_now_live));
-                        if !additional_fields.is_empty() {
-                          e = e.fields(additional_fields);
-                        }
-                        if let Some(some_image) = image {
-                          e = e.image(some_image);
-                        }
-                        if let Some(some_url) = em_url {
-                          e = e.url(some_url);
-                        }
-                        e
-                      }
-                    )).await {
-                      Ok(msg_id_l) => {
-                        if let Some(track) = streams_lock.get_mut(&playa.discord) {
-                          track.tracking_msg_id.push(msg_id_l.id.0);
-                        }
-                      },
-                      Err(why) => {
-                        error!("Failed to post live match to lilyal {:?}", why);
-                      }
-                    }
-                  }
                 },
                 Err(why) => {
                   error!("Failed to post live match {:?}", why);
@@ -374,32 +314,6 @@ pub async fn activate_streamers_tracking(
                 }
               )).await {
                 error!("Failed to edit stream msg {:?}", why);
-              }
-              if user.id.0 == LILYAL && track.tracking_msg_id.len() > 1 {
-                if let Ok(mut msgl) =
-                    ctx_clone.http.get_message(LILYAL_CHANNEL.0, track.tracking_msg_id[1]).await {
-                  if let Err(why) = msgl.edit(&ctx_clone.http, |m| m
-                    .embed(|e|  {
-                      let mut e = e
-                        .title("FINISHED")
-                        .colour(color)
-                        .author(|a| a.icon_url(&user.face()).name(&user.name))
-                        .footer(|f| f.text(&footer));
-                      if !fields.is_empty() {
-                        e = e.fields(fields);
-                      }
-                      if let Some(some_img) = img {
-                        e = e.image(some_img.url);
-                      }
-                      if let Some(some_url) = url {
-                        e = e.url(some_url);
-                      }
-                      e
-                    }
-                  )).await {
-                    error!("Failed to edit stream msg on lilyal {:?}", why);
-                  }
-                }
               }
             }
             streams_lock.remove(&playa.discord);

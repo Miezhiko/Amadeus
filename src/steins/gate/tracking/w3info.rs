@@ -1,8 +1,5 @@
 use crate::{
-  common::constants::{
-    NEWS_CHANNEL,
-    LILNEWS_CHANNEL
-  },
+  common::constants::NEWS_CHANNEL,
   commands::warcraft
 };
 
@@ -22,7 +19,7 @@ pub async fn activate_w3info_tracking(ctx: &Arc<Context> ) {
   tokio::spawn(async move {
     loop {
       let today: DateTime<Utc> = Utc::now();
-      for chan in &[NEWS_CHANNEL, LILNEWS_CHANNEL] {
+      for chan in &[NEWS_CHANNEL] {
         if let Err(why) =
           warcraft::tour_internal( &ctx_clone
                                   , &chan, today

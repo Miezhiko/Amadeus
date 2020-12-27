@@ -64,6 +64,7 @@ mod channels_dhall_tests {
       }, Err(de) => Err(format!("Failed to parse AI_LEARN channels {:?}", de))
     }
   }
-  #[test]
-  fn ignored() -> Result<(), String> { dhall_vec(IGNOREDD) }
+  // IGNORED list is not used/empty atm
+  // #[test]
+  // fn ignored() -> Result<(), String> { dhall_vec(IGNOREDD) }
 }

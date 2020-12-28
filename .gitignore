@@ -11,3 +11,4 @@ misc/secret
 *.png
 *.w3g
 *.out
+*.lock

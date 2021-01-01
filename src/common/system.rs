@@ -55,21 +55,23 @@ pub async fn get_memory_mb() -> eyre::Result<f32> {
 
 pub async fn get_system_info(ctx: &Context) -> SysInfo {
   let data = ctx.data.read().await;
-  let mut sys_info = SysInfo::default();
-  sys_info.shard_latency = {
-    set! { shard_manager = data.get::<ShardManagerContainer>().unwrap()
-         , manager       = shard_manager.lock().await
-         , runners       = manager.runners.lock().await
-         , runner_raw    = runners.get(&ShardId(ctx.shard_id)) };
-    match runner_raw {
-      Some(runner) => {
-        match runner.latency {
-          Some(ms) => format!("{}ms", ms.as_millis()),
-          None => "?ms".to_string()
-        }
-      },
-      None => "?ms".to_string()
-    }
+  let mut sys_info = SysInfo {
+    shard_latency: {
+      set! { shard_manager = data.get::<ShardManagerContainer>().unwrap()
+          , manager       = shard_manager.lock().await
+          , runners       = manager.runners.lock().await
+          , runner_raw    = runners.get(&ShardId(ctx.shard_id)) };
+      match runner_raw {
+        Some(runner) => {
+          match runner.latency {
+            Some(ms) => format!("{}ms", ms.as_millis()),
+            None => "?ms".to_string()
+          }
+        },
+        None => "?ms".to_string()
+      }
+    },
+    ..Default::default()
   };
   if let Ok(memory_mb) = get_memory_mb().await {
     sys_info.memory = if memory_mb >= 1024.0 {

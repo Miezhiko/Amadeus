@@ -8,6 +8,7 @@ use std::collections::HashMap;
 
 use futures_util::stream::{ self, StreamExt };
 
+#[allow(clippy::clippy::needless_lifetimes)]
 pub async fn channel_by_name<'a>( ctx: &Context
                                 , channels: &'a HashMap<ChannelId, GuildChannel>
                                 , channel_name: &str

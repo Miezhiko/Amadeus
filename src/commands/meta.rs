@@ -298,7 +298,7 @@ pub async fn rejoin_voice_channel(ctx : &Context, conf: &ROptions) {
     let mut manager = manager_lock.lock().await;
     if manager.join(last_guild_conf, last_channel_conf).is_some() {
       info!("Rejoined voice channel: {}", last_channel_conf);
-      if conf.last_stream != "" {
+      if !conf.last_stream.is_empty() {
         if let Some(handler) = manager.get_mut(last_guild_conf) {
           match voice::ytdl(&conf.last_stream).await {
             Ok(source) => handler.play(source),

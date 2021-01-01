@@ -12,6 +12,7 @@ use std::{
 
 use chrono::{ Duration, DateTime, Utc };
 
+#[allow(clippy::single_element_loop)]
 pub async fn activate_w3info_tracking(ctx: &Arc<Context> ) {
 
   let ctx_clone = Arc::clone(&ctx);

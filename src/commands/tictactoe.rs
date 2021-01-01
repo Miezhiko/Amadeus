@@ -70,7 +70,7 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
           acc
         }).await;
       let message = {
-        if members_string == "" {
+        if members_string.is_empty() {
           format!("No member named '{}' was found.", member_name.replace("@", ""))
         } else {
           members_string.pop();
@@ -261,7 +261,10 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
     players.reverse();
   }
   players.pop();
-  let mut board = Board::default();
+  let mut board = Board {
+    current_piece: players[0].1,
+    ..Default::default()
+  };
   board.current_piece = players[0].1;
   let mut m = msg.channel_id.say(ctx, format!(">>> ```{}```", &board)).await?;
   for i in 1..4u8 {

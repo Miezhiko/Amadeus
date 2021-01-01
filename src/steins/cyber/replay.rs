@@ -274,9 +274,9 @@ pub async fn attach_replay( ctx: &Context
           if let Some(guild_id) = msg.guild_id {
             if let Ok(channels) = guild_id.channels(ctx).await {
               if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
-                // get last 10 games
+                // get last 15 games
                 if let Ok(messages) = channel.messages(&ctx, |r|
-                  r.limit(10)
+                  r.limit(15)
                 ).await {
                   for mmm in messages {
                     if !mmm.embeds.is_empty()

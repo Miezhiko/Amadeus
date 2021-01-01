@@ -343,7 +343,7 @@ impl EventHandler for Handler {
                 if !attach_replay(&ctx, &msg, file, &storage).await {
                   warn!("Failed to attach an replay to log!");
                 }
-                if let Err(why) = msg.delete(&ctx).await {
+                if let Err(why) = &msg.delete(&ctx).await {
                   error!("failed to clean attachment from log {:?}", why);
                 }
               } else {

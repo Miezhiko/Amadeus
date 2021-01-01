@@ -340,7 +340,6 @@ impl EventHandler for Handler {
             if file.filename.ends_with("w3g") {
               let storage = GuildId( self.ioptions.amadeus_guild );
               if msg.channel_id == LOG_CHANNEL {
-                info!("Trying to attach replay");
                 if !attach_replay(&ctx, &msg, file, &storage).await {
                   warn!("Failed to attach an replay to log!");
                 } else {

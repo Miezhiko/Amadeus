@@ -58,7 +58,6 @@ pub async fn replay_embed( ctx: &Context
       }
       return;
     }
-    info!("Editing live games embed");
     let (d, flds) = data_maybe.unwrap();
     setm!{ eb1 = CreateEmbed::default()
          , eb2 = CreateEmbed::default()

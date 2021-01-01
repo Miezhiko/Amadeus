@@ -31,6 +31,7 @@ pub async fn replay_embed( ctx: &Context
                          , file: &Attachment
                          , amadeus_guild_id: &GuildId ) {
   let fname_apm = format!("{}_apm.png", &file.filename);
+  info!("Downloading replay");
   if let Ok(bytes) = file.download().await {
     let mut fw3g = match File::create(&file.filename).await {
       Ok(replay) => replay,
@@ -48,6 +49,7 @@ pub async fn replay_embed( ctx: &Context
       return;
     }
     let _ = fw3g.sync_data().await;
+    info!("Parsing replay");
     let data_maybe = analyze(&file.filename, false).await;
     if let Err(why) = data_maybe {
       error!("Corrupted replay file? {:?}", why);
@@ -56,6 +58,7 @@ pub async fn replay_embed( ctx: &Context
       }
       return;
     }
+    info!("Editing live games embed");
     let (d, flds) = data_maybe.unwrap();
     setm!{ eb1 = CreateEmbed::default()
          , eb2 = CreateEmbed::default()
@@ -280,7 +283,7 @@ pub async fn attach_replay( ctx: &Context
               for mmm in messages {
                 if !mmm.embeds.is_empty()
                 && !mmm.embeds[0].fields.is_empty()
-                  && mmm.attachments.is_empty() {
+                 && mmm.attachments.is_empty() {
                   // start counting, we need two!
                   let mut same_count: u32 = 0;
                   for f in mmm.embeds[0].fields.clone() {

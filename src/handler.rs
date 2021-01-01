@@ -1,5 +1,6 @@
 use crate::{
-  types::{ common::CoreGuild, options::* },
+  types::{ common::CoreGuild,
+           options::* },
   steins::{ gate
           , ai::chain
           , cyber::replay::{ replay_embed
@@ -8,6 +9,7 @@ use crate::{
   common::{ db::trees
           , help::{ lang, channel::channel_by_name }
           , msg::channel_message
+          , constants::LOG_CHANNEL
           },
   collections::{ base::{ REACTIONS, WHITELIST }
                , channels::{ AI_ALLOWED, EXCEPTIONS, IGNORED }
@@ -46,11 +48,9 @@ pub static THREADS: AtomicBool  = AtomicBool::new(false);
 pub static BLAME: AtomicBool    = AtomicBool::new(false);
 pub static RESTORE: AtomicBool  = AtomicBool::new(false);
 
-pub struct Handler {
-  ioptions:   IOptions,
-  roptions:   ROptions,
-  amadeus_id: UserId
-}
+pub struct Handler { ioptions:   IOptions
+                   , roptions:   ROptions
+                   , amadeus_id: UserId }
 
 impl Handler {
   pub fn new(iopts: &IOptions, ropts: ROptions, amadeus: UserId) -> Handler {
@@ -241,7 +241,7 @@ impl EventHandler for Handler {
                 if let Ok(some_permissions) = member.permissions(&ctx).await {
                   if !some_permissions.administrator() {
                     BLAME.store(true, Ordering::Relaxed);
-                    for _ in 0..10 {
+                    for _ in 0..10u8 {
                       channel_message(&ctx, &msg,
                         "Set administrator role for me, please!").await;
                     }
@@ -338,34 +338,30 @@ impl EventHandler for Handler {
           trees::add_points(guild_id.0, msg.author.id.0, 1).await;
           for file in &msg.attachments {
             if file.filename.ends_with("w3g") {
-              let rainbow = ReactionType::Unicode(String::from("🌈"));
-              let recycle = ReactionType::Unicode(String::from("♻"));
-              let _ = msg.react(&ctx, rainbow).await;
-              let _ = msg.react(&ctx, recycle).await;
-              loop {
-                if let Some(reaction) =
-                  &msg.await_reaction(&ctx)
-                      .timeout(Duration::from_secs(3600)).await {
-                  let emoji = &reaction.as_inner_ref().emoji;
-                  match emoji.as_data().as_str() {
-                    "🌈" => {
-                      let storage = GuildId( self.ioptions.amadeus_guild );
+              let storage = GuildId( self.ioptions.amadeus_guild );
+              if msg.channel_id == LOG_CHANNEL {
+                if !attach_replay(&ctx, &msg, file, &storage).await {
+                  warn!("Failed to attach an replay to log!");
+                }
+                if let Err(why) = msg.delete(&ctx).await {
+                  error!("failed to clean attachment from log {:?}", why);
+                }
+              } else {
+                let rainbow = ReactionType::Unicode(String::from("🌈"));
+                let _ = msg.react(&ctx, rainbow).await;
+                loop {
+                  if let Some(reaction) =
+                    &msg.await_reaction(&ctx)
+                        .timeout(Duration::from_secs(3600)).await {
+                    let emoji = &reaction.as_inner_ref().emoji;
+                    if emoji.as_data().as_str() == "🌈" {
                       replay_embed(&ctx, &msg, file, &storage).await;
                       let _ = msg.delete_reactions(&ctx).await;
-                      break;
                     }
-                    "♻" => {
-                      let storage = GuildId( self.ioptions.amadeus_guild );
-                      if attach_replay(&ctx, &msg, file, &storage).await {
-                        let _ = msg.delete_reactions(&ctx).await;
-                        break;
-                      }
-                    }
-                    _ => {}
-                  };
-                } else {
-                  let _ = msg.delete_reactions(&ctx).await;
-                  break;
+                  } else {
+                    let _ = msg.delete_reactions(&ctx).await;
+                    break;
+                  }
                 }
               }
               return;
@@ -373,7 +369,7 @@ impl EventHandler for Handler {
           }
           gate::LAST_CHANNEL.store(msg.channel_id.0, Ordering::Relaxed);
           // wakes up on any activity
-          let rndx = rand::thread_rng().gen_range(0..3);
+          let rndx: u8 = rand::thread_rng().gen_range(0..3);
           if rndx != 1 {
             if let Some(nick) = msg.author.nick_in(&ctx, &guild_id).await {
               ctx.set_activity(Activity::listening(&nick)).await;
@@ -480,7 +476,7 @@ impl EventHandler for Handler {
                       }
                     }
 
-                    let rnd3 = rand::thread_rng().gen_range(0..9);
+                    let rnd3: u8 = rand::thread_rng().gen_range(0..9);
                     if rnd3 != 1 {
                       if let Err(why) = msg.delete_reactions(&ctx).await {
                         error!("Failed to remove all the reactions {:?}", why);

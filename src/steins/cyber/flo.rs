@@ -12,7 +12,7 @@ pub fn get_race_num(race_x: &str) -> i32 {
   } else if race_vs_lower.starts_with('o') {
     1
   } else if race_vs_lower.starts_with('n')
-          || race_vs_lower.starts_with('e') {
+         || race_vs_lower.starts_with('e') {
     2
   } else if race_vs_lower.starts_with('u') {
     3
@@ -86,28 +86,33 @@ pub async fn get_map_by_name(name: &str) -> eyre::Result<Map> {
     }
   }
 
-  let path = picked_map.pointer("/path").unwrap().as_str().unwrap().to_string();
-  let sha1 = picked_map.pointer("/sha1").unwrap().as_str().unwrap().to_string();
-  let checksum = picked_map.pointer("/checksum").unwrap().as_u64().unwrap();
-  let real_name = picked_map.pointer("/name").unwrap().as_str().unwrap().to_string();
-  let author = picked_map.pointer("/author").unwrap().as_str().unwrap().to_string();
-  let description = picked_map.pointer("/description").unwrap().as_str().unwrap().to_string();
-  let width = picked_map.pointer("/width").unwrap().as_u64().unwrap();
-  let height = picked_map.pointer("/height").unwrap().as_u64().unwrap();
+  let unwrap_s = |j: &Value, s: &str| {
+    j.pointer(s).unwrap().as_str().unwrap().to_string()
+  };
+  let unwrap_n = |j: &Value, s: &str| {
+    j.pointer(s).unwrap().as_u64().unwrap()
+  };
+  set!{ path        = unwrap_s(picked_map, "/path")
+      , sha1        = unwrap_s(picked_map, "/sha1")
+      , checksum    = unwrap_n(picked_map, "/checksum")
+      , real_name   = unwrap_s(picked_map, "/name")
+      , author      = unwrap_s(picked_map, "/author")
+      , description = unwrap_s(picked_map, "/description")
+      , width       = unwrap_n(picked_map, "/width")
+      , height      = unwrap_n(picked_map, "/height") };
 
   let mut payers = vec![];
   if let Some(players_j) = picked_map.pointer("/players") {
     let players_a = players_j.as_array().unwrap();
     for palyer_j in players_a {
-      let pname = palyer_j.pointer("/name").unwrap().as_str().unwrap().to_string();
-      let ptype = palyer_j.pointer("/type").unwrap().as_u64().unwrap();
-      let pflags = palyer_j.pointer("/flags").unwrap().as_u64().unwrap();
-      let map_player = MapPlayer {
-        name: pname,
-        r#type: ptype as u32,
-        flags: pflags as u32,
-        ..Default::default()
-      };
+      set!{ pname   = unwrap_s(palyer_j, "/name")
+          , ptype   = unwrap_n(palyer_j, "/type")
+          , pflags  = unwrap_n(palyer_j, "/flags") };
+      let map_player =
+        MapPlayer { name: pname
+                  , r#type: ptype as u32
+                  , flags: pflags as u32
+                  , ..Default::default() };
       payers.push(map_player);
     }
   }
@@ -116,30 +121,28 @@ pub async fn get_map_by_name(name: &str) -> eyre::Result<Map> {
   if let Some(forces_j) = picked_map.pointer("/forces") {
     let forces_a = forces_j.as_array().unwrap();
     for force_j in forces_a {
-      let fname = force_j.pointer("/name").unwrap().as_str().unwrap().to_string();
-      let fplayer_set = force_j.pointer("/player_set").unwrap().as_u64().unwrap();
-      let fflags = force_j.pointer("/flags").unwrap().as_u64().unwrap();
-      let map_force = MapForce {
-        name: fname,
-        flags: fflags as u32,
-        player_set: fplayer_set as u32,
-        ..Default::default()
-      };
+      set!{ fname       = unwrap_s(force_j, "/name")
+          , fplayer_set = unwrap_n(force_j, "/player_set")
+          , fflags      = unwrap_n(force_j, "/flags") };
+      let map_force =
+        MapForce { name: fname
+                 , flags: fflags as u32
+                 , player_set: fplayer_set as u32
+                 , ..Default::default() };
       forces.push(map_force);
     }
   }
 
-  let map = Map {
-    sha1: hex::decode(sha1)?,
-    checksum: checksum as u32,
-    name: real_name,
-    description: description,
-    author: author,
-    path: path,
-    width: width as u32,
-    height: height as u32,
-    players: payers,
-    forces: forces
-  };
+  let map =
+    Map { sha1: hex::decode(sha1)?
+        , checksum: checksum as u32
+        , name: real_name
+        , description
+        , author
+        , path
+        , width: width as u32
+        , height: height as u32
+        , players: payers
+        , forces };
   Ok(map)
 }

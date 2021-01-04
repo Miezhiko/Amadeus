@@ -290,13 +290,13 @@ async fn check_match( matchid: &str
 }
 
 async fn generate_bet_fields( ctx: &Context
-                            , track: &TrackingGame
+                            , track: &mut TrackingGame
                             ) -> Option<Vec<(String, String, bool)>> {
   let mut bet_fields = None;
   if !track.bets.is_empty() {
     let mut woutput = vec![];
     let mut loutput = vec![];
-    for bet in &track.bets {
+    for bet in &mut track.bets {
       let user_id = UserId( bet.member );
       if let Ok(user) = user_id.to_user(ctx).await {
         if bet.positive {
@@ -308,6 +308,7 @@ async fn generate_bet_fields( ctx: &Context
             format!("**{}**: {}", user.name, bet.points)
           );
         }
+        bet.registered = true;
       }
     }
     let mut fstring = woutput.join("\n");
@@ -700,7 +701,12 @@ pub async fn check<'a>( ctx: &Context
                           let mut losers_output = vec![];
                           for bet in &track.bets {
                             if *is_win == bet.positive {
-                              let best_win = (bet.points as f32 * k).round() as u64;
+                              let best_win = 
+                                if bet.registered {
+                                  (bet.points as f32 * k).round() as u64
+                                } else {
+                                  bet.points
+                                };
                               win_calculation.insert(bet.member, (bet.points, best_win));
                               waste += best_win;
                             } else {

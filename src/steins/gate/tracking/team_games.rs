@@ -222,7 +222,8 @@ pub async fn activate_games_tracking(
                                     let bet = Bet { guild: g.0
                                                   , member: u.0
                                                   , points: 100
-                                                  , positive: is_positive };
+                                                  , positive: is_positive
+                                                  , registered: false };
                                     let (succ, rst) = trees::give_points( g.0, u.0
                                                                         , amadeus
                                                                         , 100 ).await;

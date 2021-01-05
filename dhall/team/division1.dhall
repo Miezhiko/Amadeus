@@ -2,7 +2,7 @@ let Playerx : Type = ./types/player_type.dhall
 
 let p = ./functions/p.dhall
 let t = ./functions/t.dhall
-let g = ./functions/g.dhall
+let b = ./functions/b.dhall
 
 let playersList : List Playerx =
   [ p "Edek#1800"         298003054110965762
@@ -18,8 +18,8 @@ let playersList : List Playerx =
   , t "Маша#21994"        510368731378089984 "Qinon"
   , t "hhh#2991"          510732278025027596 "hotwussy"
   , t "GraVe#2254"        355795504367534090 "GraVesc2"
-  , g "Reyenir#2169"      287914378513088515 "reyenir" "Cherry-Phoenix"
-  , g "ag3nt#21617"       293268448212156416 "ag3ntik" "ag3nt"
+  , b "Reyenir#2169"      287914378513088515 "reyenir" "Cherry-Phoenix"
+  , b "ag3nt#21617"       293268448212156416 "ag3ntik" "ag3nt"
   ]
 
 in playersList

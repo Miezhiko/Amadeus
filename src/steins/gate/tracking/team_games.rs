@@ -178,10 +178,10 @@ pub async fn activate_games_tracking(
               if !additional_fields.is_empty() {
                 e = e.fields(additional_fields);
               }
-              if let Some(some_image) = image {
+              if let Some(some_image) = image.clone() {
                 e = e.image(some_image);
               }
-              if let Some(some_url) = em_url {
+              if let Some(some_url) = em_url.clone() {
                 e = e.url(some_url);
               }
               e
@@ -254,6 +254,7 @@ pub async fn activate_games_tracking(
             },
             Err(why) => {
               error!("Failed to post live match {:?}", why);
+              error!("Fields: {:?}\n{:?}\n{:?}\n", game.description, image, em_url);
             }
           }
         }

@@ -141,7 +141,13 @@ pub async fn activate_games_tracking(
                             ggdata.channel.title.clone()
                           };
                         additional_fields.push(("Live on ggru", title, false));
-                        image  = Some(ggdata.channel.thumb.clone());
+                        let img_gg =
+                          if ggdata.channel.thumb.starts_with("//") {
+                            ggdata.channel.thumb.chars().skip(2).collect()
+                          } else {
+                            ggdata.channel.thumb.clone()
+                          };
+                        image  = Some(img_gg);
                         em_url = Some(url);
                       }
                     }

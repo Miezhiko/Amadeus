@@ -157,7 +157,13 @@ pub async fn activate_streamers_tracking(
                                              , ggdata.viewers, ggdata.users_in_chat );
                         additional_fields.push(("Live on ggru", viewers, true));
                         title  = ggdata.channel.title.clone();
-                        image  = Some(ggdata.channel.thumb.clone());
+                        let img_gg =
+                          if ggdata.channel.thumb.starts_with("//") {
+                            ggdata.channel.thumb.chars().skip(2).collect()
+                          } else {
+                            ggdata.channel.thumb.clone()
+                          };
+                        image  = Some(img_gg);
                         em_url = Some(url);
                       }
                     }

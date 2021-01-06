@@ -389,25 +389,26 @@ pub async fn check<'a>( ctx: &Context
                             let mut e = e
                               .title("LIVE")
                               .author(|a| a.icon_url(&user.face()).name(&nick))
-                              .description(mstr)
+                              .description(mstr.clone())
                               .colour(color)
                               .footer(|f| f.text(footer));
                             if !fields.is_empty() {
-                              e = e.fields(fields);
+                              e = e.fields(fields.clone());
                             }
                             if let Some(bet_data) = bet_fields {
                               e = e.fields(bet_data);
                             }
-                            if let Some(some_img) = img {
+                            if let Some(some_img) = img.clone() {
                               e = e.image(some_img.url);
                             }
-                            if let Some(some_url) = url {
+                            if let Some(some_url) = url.clone() {
                               e = e.url(some_url);
                             }
                             e
                           }
                         )).await {
-                          error!("Failed to post live match {:?}", why);
+                          error!("Failed to post live match {:?}, Debug data:", why);
+                          error!("Fields: {:?}\n{:?}\n{:?}\n{:?}\n", mstr, fields, img, url);
                         }
                       }
                     }

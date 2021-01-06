@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "3.4.2"
+version     = "4.0.0"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -46,13 +46,15 @@ fluent-templates    = "0.5"
 sled                = "0.34"
 
 rand      = { version = "0.8",  features = ["std", "std_rng"] }
-reqwest   = { version = "0.10", features = ["json", "blocking"] }
+reqwest   = { version = "0.11", features = ["json", "blocking"] }
 ical      = { version = "0.7",  features = ["ical"] }
 markov    = { version = "1.1",  features = ["yaml"] }
 
 [dependencies.serenity]
 default-features = false
-version = "0.9"
+version = "0.10"
+#git = "https://github.com/serenity-rs/serenity.git"
+#branch = "current"
 features = [ "cache"
            , "builder"
            , "model"
@@ -64,6 +66,10 @@ features = [ "cache"
            , "native_tls_backend"
            , "utils"
            , "collector" ]
+
+[dependencies.songbird]
+git = "https://github.com/serenity-rs/songbird.git"
+branch = "current"
 
 [dependencies.kathoey]
 git = "https://github.com/Qeenon/Kathoey"
@@ -84,5 +90,5 @@ optional = true
 
 # wait for serenity, hyper, reqwest support for 1.0
 [dependencies.tokio]
-version = "0.2"
-features = ["full", "blocking", "sync"]
+version = "1.0"
+features = ["full"]

@@ -265,7 +265,7 @@ pub async fn activate_games_tracking(
           }
         }
       }
-      tokio::time::delay_for(time::Duration::from_secs(30)).await;
+      tokio::time::sleep(time::Duration::from_secs(30)).await;
     }
   });
 }

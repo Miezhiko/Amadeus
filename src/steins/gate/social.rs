@@ -67,7 +67,7 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
         }
 
       }
-      tokio::time::delay_for(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
+      tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
     }
   });
 

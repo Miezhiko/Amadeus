@@ -5,10 +5,7 @@ use crate::{
 };
 
 use serenity::{
-  client::{
-    bridge::gateway::{ShardId, ShardManager},
-    bridge::voice::ClientVoiceManager
-  },
+  client::bridge::gateway::{ShardId, ShardManager},
   prelude::*,
   model::{ gateway::Activity
          , id::ChannelId }
@@ -31,12 +28,7 @@ pub struct SysInfo {
   pub db_size: String
 }
 
-pub struct VoiceManager;
 pub struct ShardManagerContainer;
-
-impl TypeMapKey for VoiceManager {
-  type Value = Arc<Mutex<ClientVoiceManager>>;
-}
 
 impl TypeMapKey for ShardManagerContainer {
   type Value = Arc<Mutex<ShardManager>>;

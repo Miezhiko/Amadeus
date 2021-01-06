@@ -166,7 +166,11 @@ impl EventHandler for Handler {
       }
     }
   }
-  async fn message_delete(&self, ctx: Context, channel_id: ChannelId, deleted_message_id: MessageId) {
+  async fn message_delete( &self
+                         , ctx: Context
+                         , channel_id: ChannelId
+                         , deleted_message_id: MessageId
+                         , _guild_id: Option<GuildId> ) {
     if RESTORE.load(Ordering::Relaxed) {
       if !AI_ALLOWED.iter().any(|c| c.id == channel_id.0) {
         return;

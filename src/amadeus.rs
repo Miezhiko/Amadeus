@@ -8,7 +8,7 @@ use crate::{
   steins::ai::chain,
   common::{ options,
     i18n::{ help_i18n, US_ENG },
-    system::{ VoiceManager, ShardManagerContainer }
+    system::ShardManagerContainer
   },
   handler::Handler,
   commands::{ meta::*, chat::*
@@ -24,11 +24,16 @@ use crate::{
 #[cfg(feature = "flo")]
 use crate::commands::host::*;
 
+// This trait adds the `register_songbird` and `register_songbird_with` methods
+// to the client builder below, making it easy to install this voice client.
+// The voice client can be retrieved in any command using `songbird::get(ctx).await`.
+use songbird::SerenityInit;
+
 use serenity::{
   prelude::*,
   framework::StandardFramework,
   framework::standard::{ DispatchError, Args, CommandOptions
-                       , CheckResult, Reason, CommandResult
+                       , Reason, CommandResult
                        , macros::{ group, check, hook, help }
                        , HelpOptions, CommandGroup, help_commands },
   model::{ channel::Message, id::UserId }
@@ -56,13 +61,15 @@ use rand::{ rngs::StdRng
 async fn admin_check( ctx: &Context
                     , msg: &Message
                     , _: &mut Args
-                    , _: &CommandOptions ) -> CheckResult {
+                    , _: &CommandOptions ) -> Result<(), Reason> {
   if let Ok(member) = msg.member(ctx).await {
-    if let Ok(permissions) = member.permissions(&ctx.cache).await {
-      return permissions.administrator().into();
+    if let Ok(permissions) = member.permissions(&ctx).await {
+      if permissions.administrator() {
+        return Ok(());
+      }
     }
   }
-  false.into()
+  Err(Reason::User("Lacked admin permission".to_string()))
 }
 
 #[group("Meta")]
@@ -319,10 +326,10 @@ pub async fn run(opts : &IOptions) ->
                                  , amadeus_id
                                  )
                     )
-      .framework(std_framework).await?;
+      .framework(std_framework)
+      .register_songbird().await?;
   {
     let mut data = client.data.write().await;
-    data.insert::<VoiceManager>(Arc::clone(&client.voice_manager));
     data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
     data.insert::<ReqwestClient>(Arc::new(Reqwest::new()));
     data.insert::<PubCreds>(Arc::new(creds));

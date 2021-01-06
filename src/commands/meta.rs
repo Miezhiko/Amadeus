@@ -22,8 +22,7 @@ use serenity::{
     CommandResult, Args,
     macros::command,
     Delimiter
-  },
-  voice
+  }
 };
 
 use tokio::process::Command;
@@ -288,21 +287,24 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
   Ok(())
 }
 
-pub async fn rejoin_voice_channel(ctx : &Context, conf: &ROptions) {
+pub async fn rejoin_voice_channel(ctx: &Context, conf: &ROptions) {
   if conf.rejoin && conf.last_guild != 0 && conf.last_channel != 0 {
     set!{ last_guild_conf   = GuildId( conf.last_guild )
         , last_channel_conf = ChannelId( conf.last_channel ) };
-    let manager_lock =
-      ctx.data.read().await
-        .get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
-    let mut manager = manager_lock.lock().await;
-    if manager.join(last_guild_conf, last_channel_conf).is_some() {
+
+    let manager = songbird::get(ctx).await
+      .expect("Songbird Voice client placed in at initialisation.").clone();
+
+    let (_call, j) = manager.join(last_guild_conf, last_channel_conf).await;
+
+    if j.is_ok() {
       info!("Rejoined voice channel: {}", last_channel_conf);
       if !conf.last_stream.is_empty() {
-        if let Some(handler) = manager.get_mut(last_guild_conf) {
-          match voice::ytdl(&conf.last_stream).await {
-            Ok(source) => handler.play(source),
-            Err(why)   => error!("Err starting source: {:?}", why)
+        if let Some(handler_lock) = manager.get(last_guild_conf) {
+          let mut handler = handler_lock.lock().await;
+          match songbird::ytdl(&conf.last_stream).await {
+            Ok(source) => { handler.play_source(source); },
+            Err(why)   => { error!("Err starting source {:?}", why); }
           };
         }
       }
@@ -333,10 +335,10 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
       return Ok(());
     }
   };
-  let manager_lock = ctx.data.read().await
-    .get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
-  let mut manager = manager_lock.lock().await;
-  if manager.join(guild_id, connect_to).is_some() {
+  let manager = songbird::get(ctx).await
+    .expect("Songbird Voice client placed in at initialisation.").clone();
+  let (_call, j) = manager.join(guild_id, connect_to).await;
+  if j.is_ok() {
     let mut opts = options::get_roptions().await?;
     if opts.last_guild != guild_id.0
     || opts.last_channel != connect_to.0
@@ -368,12 +370,13 @@ async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
       return Ok(());
     },
   };
-  let manager_lock = ctx.data.read()
-      .await.get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
-  let mut manager = manager_lock.lock().await;
+  let manager = songbird::get(ctx).await
+    .expect("Songbird Voice client placed in at initialisation.").clone();
   let has_handler = manager.get(guild_id).is_some();
   if has_handler {
-    manager.remove(guild_id);
+    if let Err(why) = manager.remove(guild_id).await {
+      error!("Error removing songbird manager from guild: {:?}", why);
+    }
     let _ = msg.channel_id.say(&ctx, "I left voice channel");
     let mut conf = options::get_roptions().await?;
     if conf.rejoin {
@@ -416,19 +419,19 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       return Ok(());
     }
   };
-  let manager_lock = ctx.data.read().await
-      .get::<VoiceManager>().cloned().expect("Expected VoiceManager in ShareMap.");
-  let mut manager = manager_lock.lock().await;
-  if let Some(handler) = manager.get_mut(guild_id) {
-    let source = match voice::ytdl(&url).await {
+  let manager = songbird::get(ctx).await
+    .expect("Songbird Voice client placed in at initialisation.").clone();
+  if let Some(handler_lock) = manager.get(guild_id) {
+    let mut handler = handler_lock.lock().await;
+    let source = match songbird::ytdl(&url).await {
       Ok(source) => source,
       Err(why) => {
-        error!("Err starting source: {:?}", why);
+        error!("Err starting source {:?}", why);
         reply(ctx, msg, &format!("Sorry, error sourcing ffmpeg {:?}", why)).await;
         return Ok(());
       }
     };
-    handler.play_only(source);
+    handler.play_source(source);
     let mut conf = options::get_roptions().await?;
     let last_stream_conf = conf.last_stream;
     if last_stream_conf != url {

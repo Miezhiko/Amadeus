@@ -150,7 +150,7 @@ pub async fn analyze(path: &str, minimal: bool)
 mod cyber_w3g_tests {
   use super::*;
   #[ignore]
-  #[tokio::test(basic_scheduler)]
+  #[tokio::test(flavor="current_thread")]
   async fn my_test() -> Result<(), String> {
     if let Ok(replay_data) = analyze_js("example.w3g").await {
       assert!(!replay_data.is_empty());

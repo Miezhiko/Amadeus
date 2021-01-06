@@ -143,7 +143,7 @@ pub async fn activate_games_tracking(
                         additional_fields.push(("Live on ggru", title, false));
                         let img_gg =
                           if ggdata.channel.thumb.starts_with("//") {
-                            ggdata.channel.thumb.chars().skip(2).collect()
+                            String::from("https:") + &ggdata.channel.thumb
                           } else {
                             ggdata.channel.thumb.clone()
                           };

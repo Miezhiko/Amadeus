@@ -159,7 +159,7 @@ pub async fn activate_streamers_tracking(
                         title  = ggdata.channel.title.clone();
                         let img_gg =
                           if ggdata.channel.thumb.starts_with("//") {
-                            ggdata.channel.thumb.chars().skip(2).collect()
+                            String::from("https:") + &ggdata.channel.thumb
                           } else {
                             ggdata.channel.thumb.clone()
                           };

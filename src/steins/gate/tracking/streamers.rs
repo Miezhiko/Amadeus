@@ -169,6 +169,9 @@ pub async fn activate_streamers_tracking(
             }
           }
           if !additional_fields.is_empty() {
+            if title.is_empty() {
+              title = String::from("LIVE");
+            }
             if let Some(track) = streams_lock.get(&playa.discord) {
               if let Ok(mut msg) = ctx_clone.http.get_message(STREAMS_CHANNEL.0, track.tracking_msg_id[0]).await {
                 let footer = if track.passed_time > 60 {
@@ -269,7 +272,7 @@ pub async fn activate_streamers_tracking(
                   );
                 },
                 Err(why) => {
-                  error!("Failed to post live match {:?}", why);
+                  error!("Failed to post stream {:?}", why);
                 }
               }
             }

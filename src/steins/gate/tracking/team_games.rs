@@ -135,7 +135,12 @@ pub async fn activate_games_tracking(
                           format!("{}\n{}", &ggdata.channel.title, url);
                         additional_fields.push(("Live on ggru", titurl, true));
                       } else {
-                        additional_fields.push(("Live on ggru", ggdata.channel.title.clone(), false));
+                        let title = if ggdata.channel.title.is_empty() {
+                            String::from("LIVE")
+                          } else {
+                            ggdata.channel.title.clone()
+                          };
+                        additional_fields.push(("Live on ggru", title, false));
                         image  = Some(ggdata.channel.thumb.clone());
                         em_url = Some(url);
                       }

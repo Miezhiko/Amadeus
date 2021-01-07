@@ -1,4 +1,4 @@
-use crate::steins::ai::chain::CACHE_ENG_STR;
+use crate::steins::ai::cache::CACHE_ENG_STR;
 
 use rust_bert::pipelines::{
   conversation::{ ConversationManager

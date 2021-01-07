@@ -3,7 +3,7 @@ use crate::{
     db::trees,
     msg::channel_message
   },
-  steins::ai::{ chain, boris, uwu }
+  steins::ai::{ cache, chain, boris, uwu }
 };
 
 use serenity::{
@@ -185,7 +185,7 @@ async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[aliases(fem)]
 #[description("feminize text")]
 async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let kathoey = chain::KATHOEY.lock().await;
+  let kathoey = cache::KATHOEY.lock().await;
   channel_message( ctx
                  , msg
                  , &kathoey.feminize(args.message())
@@ -198,7 +198,7 @@ async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[aliases(ffem)]
 #[description("feminize text with extreme mode!")]
 async fn extreme_feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let kathoey = chain::KATHOEY.lock().await;
+  let kathoey = cache::KATHOEY.lock().await;
   channel_message( ctx
                  , msg
                  , &kathoey.extreme_feminize(args.message())

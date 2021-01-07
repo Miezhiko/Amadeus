@@ -2,7 +2,7 @@ use crate::{
   types::{ common::CoreGuild,
            options::* },
   steins::{ gate
-          , ai::chain
+          , ai::{ cache, chain }
           , cyber::replay::{ replay_embed
                            , attach_replay }
           },
@@ -400,7 +400,7 @@ impl EventHandler for Handler {
             }
           }
           if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
-            let activity_level = chain::ACTIVITY_LEVEL.load(Ordering::Relaxed);
+            let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed);
             let rnd = rand::thread_rng().gen_range(0..activity_level);
             if rnd == 1 {
               chain::chat(&ctx, &msg).await;

@@ -6,7 +6,7 @@ use crate::{
     system
   },
   steins::{ gate
-          , ai::chain::{ ACTIVITY_LEVEL
+          , ai::cache::{ ACTIVITY_LEVEL
                        , actualize_cache
                        , clear_cache }
           }

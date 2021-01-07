@@ -6,7 +6,7 @@ use crate::{
     gate::tracking::{ team_games::activate_games_tracking
                     , streamers::activate_streamers_tracking
                     , w3info::activate_w3info_tracking },
-    ai::chain
+    ai::cache
   },
   commands::pad::update_current_season
 };
@@ -42,7 +42,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   }
 
   info!("loading Kathoey");
-  Lazy::force(&chain::KATHOEY);
+  Lazy::force(&cache::KATHOEY);
 
   info!("starting background threads");
   // Now there are several lists of channels and several Guilds
@@ -57,7 +57,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   }
 
   // updating ai:chain cache
-  chain::update_cache(&ctx, &all_channels).await;
+  cache::update_cache(&ctx, &all_channels).await;
 
   let ac = std::sync::Arc::new(ctx);
   activate_social_skils(&ac).await;

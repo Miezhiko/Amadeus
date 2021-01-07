@@ -12,7 +12,6 @@ let playersList : List Playerx =
   , t "Soulful#2300"        147805125824610304 "soulful85"
   , t "Avernus#2393"        247774118798295041 "ghost_17"
   , g "Rici#2903"           404379597568999425 "Rici"
-  , b "Лилуал#2400"         367722659590569994 "lilyal_" "lilyal"
   , b "НееЖить#2559"        703241941114028032 "masterv_64" "Ghost_OL"
   , p "RavenTT#2656"        277555411584942080
   , p "Fopogg#2818"         318043743628427269

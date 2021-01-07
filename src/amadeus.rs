@@ -15,8 +15,8 @@ use crate::{
             , warcraft::*, pad::*
             , owner::*, admin::*
             , tictactoe::*, images::*
-            , tranlation::*, lilyal::*
-            , bets::* },
+            , tranlation::*, info::*
+            , bets::*, music::* },
   collections::{ base::GREETINGS
                , channels::IGNORED }
 };

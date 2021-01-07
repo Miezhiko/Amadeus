@@ -14,7 +14,7 @@ use crate::{
   collections::{ base::{ REACTIONS, WHITELIST }
                , channels::{ AI_ALLOWED, EXCEPTIONS, IGNORED }
                },
-  commands::meta::rejoin_voice_channel
+  commands::music::rejoin_voice_channel
 };
 
 use serenity::{

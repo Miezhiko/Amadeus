@@ -65,6 +65,7 @@ fn try_get_map(m: &str) -> String {
             , "twilightruins"         => "Twilight Ruins"
             , "goldrush"              => "Gold Rush"
             , "dalarangarden"         => "Dalaran Garden"
+            , "nerubianpassage"       => "Nerubian Massage"
             , _                       => "" })
 }
 

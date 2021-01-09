@@ -109,7 +109,7 @@ struct Pad;
 #[group("Database")]
 #[description = "Information storage commands"]
 #[commands(register, show, delete, list)]
-struct Lilyal;
+struct Info;
 
 #[group("Owner")]
 #[help_available(false)]
@@ -309,7 +309,7 @@ pub async fn run(opts : &IOptions) ->
       .group(&IMAGES_GROUP)
       .group(&WARCRAFT_GROUP)
       .group(&PAD_GROUP)
-      .group(&LILYAL_GROUP)
+      .group(&INFO_GROUP)
       .group(&OWNER_GROUP)
       .group(&ADMIN_GROUP)
       .help(&HELP_COMMAND);

@@ -60,12 +60,13 @@ fn try_get_map(m: &str) -> String {
             , "deadlock"              => "Deadlock"
             , "northernfelwood"       => "Northen Gay Wood"
             , "dragonfalls"           => "Dragon Balls"
-            , "ferocity201016"        => "Ferocity"
+            , "ferocity"              => "Ferocity"
             , "murguloasis"           => "Murgul Oasis"
             , "twilightruins"         => "Twilight Ruins"
             , "goldrush"              => "Gold Rush"
             , "dalarangarden"         => "Dalaran Garden"
             , "nerubianpassage"       => "Nerubian Massage"
+            , "cherryville"           => "Cherry Ville"
             , _                       => "" })
 }
 

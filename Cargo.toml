@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "4.0.5"
+version     = "4.0.6"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -75,7 +75,6 @@ optional = true
 version = "0.3"
 optional = true
 
-# private source (optional)
 [dependencies.flo-grpc]
 path = "crates/flo-grpc"
 optional = true

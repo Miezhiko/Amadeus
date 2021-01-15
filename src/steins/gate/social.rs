@@ -6,7 +6,7 @@ use crate::{
       LOG_CHANNEL
     }
   },
-  steins::ai::{ cache, chain, bert },
+  steins::ai::{ cache, chain, bert, reinit },
   commands::pad::update_current_season
 };
 
@@ -63,6 +63,9 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
             if let Err(why) = system::upgrade_amadeus(&ctx_clone, &LOG_CHANNEL).await {
               error!("Failed to run upgrade {:?}", why);
             }
+          } else if mem_mb > 1024.0 * 6.66 {
+            // soft reset on 6.66 gb
+            reinit().await;
           }
         }
 

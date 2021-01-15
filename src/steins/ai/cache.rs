@@ -60,15 +60,20 @@ pub static RE1: Lazy<Regex> = Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
 pub static RE2: Lazy<Regex> = Lazy::new(|| Regex::new(r":(.*?):").unwrap());
 pub static RE3: Lazy<Regex> = Lazy::new(|| Regex::new(r"&(.*?);").unwrap());
 
+pub async fn reinit() {
+  let mut cache_eng_str = CACHE_ENG_STR.lock().await;
+  *cache_eng_str = cache_eng_str.clone().into_iter().rev().take(100).collect::<Vec<String>>();
+}
+
 pub async fn update_cache( ctx: &Context
                          , channels: &HashMap<ChannelId, GuildChannel>
                          ) {
 
   info!("updating AI chain has started");
 
-  setm!{ cache_eng = CACHE_ENG.lock().await
-       , cache_ru = CACHE_RU.lock().await
-       , cache_eng_str = CACHE_ENG_STR.lock().await };
+  setm!{ cache_eng      = CACHE_ENG.lock().await
+       , cache_ru       = CACHE_RU.lock().await
+       , cache_eng_str  = CACHE_ENG_STR.lock().await };
 
   if cache_eng.is_empty() || cache_ru.is_empty() {
     if fs::metadata(CACHE_ENG_YML).await.is_ok() {
@@ -205,6 +210,7 @@ pub async fn update_cache( ctx: &Context
   let _ = cache_eng.save(CACHE_ENG_YML);
   let _ = cache_ru.save(CACHE_RU_YML);
 
+  *cache_eng_str = cache_eng_str.clone().into_iter().rev().take(100).collect::<Vec<String>>();
   if let Ok(rdn) = rudano::to_string_compact(&cache_eng_str.clone()) {
     if let Err(why) = fs::write(CACHE_RDN, rdn).await {
       error!("failed save rudano cache {:?}", why);

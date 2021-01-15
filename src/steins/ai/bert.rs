@@ -57,6 +57,11 @@ pub static CONVMODEL: Lazy<Mutex<ConversationModel>> =
 pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32, u32)>>>
   = Lazy::new(|| Mutex::new(HashMap::new()));
 
+pub async fn reinit() {
+  let mut chat_context = CHAT_CONTEXT.lock().await;
+  chat_context.clear();
+}
+
 pub async fn en2ru(text: String) -> Result<String> {
   if text.is_empty() {
     return Ok(String::new());
@@ -113,7 +118,7 @@ pub async fn ask(question: String) -> Result<String> {
     if cache_eng_vec.is_empty() {
       String::from("HUMBA")
     } else {
-      cache_eng_vec.iter().rev().take(50)
+      cache_eng_vec.iter().rev().take(100)
                    .map(AsRef::as_ref)
                    .collect::<Vec<&str>>()
                    .join(" ")
@@ -150,7 +155,7 @@ pub async fn chat(something: String, user_id: u64) -> Result<String> {
           chat_context.remove(&user_id);
 
           let mut conversation_manager = ConversationManager::new();
-          let cache_slices = cache_eng_vec.iter().rev().take(50)
+          let cache_slices = cache_eng_vec.iter().rev().take(100)
                                           .map(AsRef::as_ref).collect::<Vec<&str>>();
           let encoded_history = conversation_model.encode_prompts(&cache_slices);
           let conv_id = conversation_manager.create(&something);

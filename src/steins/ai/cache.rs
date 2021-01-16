@@ -210,7 +210,6 @@ pub async fn update_cache( ctx: &Context
   let _ = cache_eng.save(CACHE_ENG_YML);
   let _ = cache_ru.save(CACHE_RU_YML);
 
-  *cache_eng_str = cache_eng_str.clone().into_iter().rev().take(100).collect::<Vec<String>>();
   if let Ok(rdn) = rudano::to_string_compact(&cache_eng_str.clone()) {
     if let Err(why) = fs::write(CACHE_RDN, rdn).await {
       error!("failed save rudano cache {:?}", why);

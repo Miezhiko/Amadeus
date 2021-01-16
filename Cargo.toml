@@ -71,7 +71,6 @@ features = [ "cache"
 version = "0.4"
 optional = true
 
-# wait for flo-grpc to update
 [dependencies.tonic]
 version = "0.3"
 optional = true

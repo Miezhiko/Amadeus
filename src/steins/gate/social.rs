@@ -63,8 +63,8 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
             if let Err(why) = system::upgrade_amadeus(&ctx_clone, &LOG_CHANNEL).await {
               error!("Failed to run upgrade {:?}", why);
             }
-          } else if mem_mb > 1024.0 * 6.66 {
-            // soft reset on 6.66 gb
+          } else if mem_mb > 1024.0 * 13.0 {
+            // soft reset on 13 gb
             reinit().await;
           }
         }

@@ -126,7 +126,7 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
 
   if let Some(p) = user_secret_res.player {
     let player_slot_settings = SlotSettings {
-      team: 1,
+      team: 0,
       color: 1,
       handicap: 100,
       status: 2,
@@ -135,7 +135,7 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
     };
 
     let amadeus_slot_settings = SlotSettings {
-      team: 2,
+      team: 1,
       color: 2,
       computer: 2,
       handicap: 100,
@@ -239,7 +239,7 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     if let Some(p2) = user_secret_res2.player {
 
       let player1_slot_settings = SlotSettings {
-        team: 1,
+        team: 0,
         color: 1,
         handicap: 100,
         status: 2,
@@ -248,7 +248,7 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
       };
 
       let player2_slot_settings = SlotSettings {
-        team: 2,
+        team: 1,
         color: 2,
         handicap: 100,
         status: 2,

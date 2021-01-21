@@ -113,7 +113,7 @@ pub async fn get_uptime(start: &str) -> (String, String) {
       uptime_string = format!("{} {}m", uptime_string, mm);
     }
   } else {
-    let mm = since_start_time.num_minutes();
+    let mm = since_start_time.num_minutes() - dd*24*60;
     if mm > 0 {
       uptime_string = format!("{} {}m {}s", uptime_string, mm
                                           , since_start_time.num_seconds() - mm*60);

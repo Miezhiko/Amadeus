@@ -67,7 +67,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
         , rqcl = data.get::<ReqwestClient>().unwrap() };
     rqcl.clone()
   };
-  let url = "https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gateway=20&gameMode=1";
+  let url = "https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gameMode=1";
   let res = rqcl.get(url).send().await?;
   let going : Going = res.json().await?;
   if !going.matches.is_empty() {
@@ -153,42 +153,24 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     rqcl.clone()
   };
   let season = current_season();
-  let mut gateway = "20"; // Europe by default
   let userx = if args_msg.contains('#') { String::from(args_msg) }
     else {
-      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
+      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?searchFor={}&season={}", args_msg, season);
       let ress = rqcl.get(&search_uri).send().await?;
       let search : Vec<Search> = ress.json().await?;
       if !search.is_empty() {
         if !search[0].player.playerIds.is_empty() {
           search[0].player.playerIds[0].battleTag.clone()
         } else { String::new() }
-      } else {
-        gateway = "10"; // If empty results on Europe Go America
-        let search_uri_a = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
-        let ress_a = rqcl.get(&search_uri_a).send().await?;
-        let search_a : Vec<Search> = ress_a.json().await?;
-        if !search_a.is_empty() {
-          if !search_a[0].player.playerIds.is_empty() {
-            search_a[0].player.playerIds[0].battleTag.clone()
-          } else { String::new() }
-        } else { String::new() }
-      }
+      } else { String::new() }
     };
   if !userx.is_empty() {
     let user = userx.replace("#","%23");
-    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay={}&season={}", user, gateway, season);
+    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?season={}", user, season);
     let game_mode_res = rqcl.get(&game_mode_uri).send().await?;
     let game_mode_stats : Vec<GMStats> =
       match game_mode_res.json::<Vec<GMStats>>().await {
-        Ok(gms) => {
-          if gms.is_empty() {
-            gateway = "10"; // Go America!
-            let game_mode_uri2 = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?gateWay={}&season={}", user, gateway, season);
-            let game_mode_res2 = rqcl.get(&game_mode_uri2).send().await?;
-            game_mode_res2.json().await?
-          } else { gms }
-        },
+        Ok(gms) => gms,
         Err(wha) => {
           let game_mode_res2 = rqcl.get(&game_mode_uri).send().await?;
           if let Ok(text_res) = game_mode_res2.text().await {
@@ -285,7 +267,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
       }
     }
 
-    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?gateWay={}&season={}", user, gateway, season);
+    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?season={}", user, season);
     let res = rqcl.get(&uri).send().await?;
     let stats : Vec<Stats> = res.json().await?;
 
@@ -438,27 +420,17 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
         , rqcl = data.get::<ReqwestClient>().unwrap() };
     rqcl.clone()
   };
-  let mut gateway = "20"; // Europe by default
+
   let userx = if args_msg.contains('#') { args_msg }
     else {
-      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
+      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?searchFor={}&season={}", args_msg, season);
       let ress = rqcl.get(&search_uri).send().await?;
       let search : Vec<Search> = ress.json().await?;
       if !search.is_empty() {
         if !search[0].player.playerIds.is_empty() {
           search[0].player.playerIds[0].battleTag.clone()
         } else { String::new() }
-      } else {
-        gateway = "10"; // If empty results on Europe Go America
-        let search_uri_a = format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay={}&searchFor={}&season={}", gateway, args_msg, season);
-        let ress_a = rqcl.get(&search_uri_a).send().await?;
-        let search_a : Vec<Search> = ress_a.json().await?;
-        if !search_a.is_empty() {
-          if !search_a[0].player.playerIds.is_empty() {
-            search_a[0].player.playerIds[0].battleTag.clone()
-          } else { String::new() }
-        } else { String::new() }
-      }
+      } else { String::new() }
     };
   if !userx.is_empty() {
     let user = userx.replace("#","%23");

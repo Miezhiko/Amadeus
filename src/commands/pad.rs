@@ -155,7 +155,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
   let season = current_season();
   let userx = if args_msg.contains('#') { String::from(args_msg) }
     else {
-      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?searchFor={}&season={}", args_msg, season);
+      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?searchFor={}&season={}&gateWay=20", args_msg, season);
       let ress = rqcl.get(&search_uri).send().await?;
       let search : Vec<Search> = ress.json().await?;
       if !search.is_empty() {
@@ -166,7 +166,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     };
   if !userx.is_empty() {
     let user = userx.replace("#","%23");
-    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?season={}", user, season);
+    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?season={}&gateWay=20", user, season);
     let game_mode_res = rqcl.get(&game_mode_uri).send().await?;
     let game_mode_stats : Vec<GMStats> =
       match game_mode_res.json::<Vec<GMStats>>().await {
@@ -267,7 +267,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
       }
     }
 
-    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?season={}", user, season);
+    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?season={}&gateWay=20", user, season);
     let res = rqcl.get(&uri).send().await?;
     let stats : Vec<Stats> = res.json().await?;
 
@@ -423,7 +423,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
 
   let userx = if args_msg.contains('#') { args_msg }
     else {
-      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?searchFor={}&season={}", args_msg, season);
+      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?searchFor={}&season={}&gateWay=20", args_msg, season);
       let ress = rqcl.get(&search_uri).send().await?;
       let search : Vec<Search> = ress.json().await?;
       if !search.is_empty() {

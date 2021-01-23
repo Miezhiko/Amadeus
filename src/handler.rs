@@ -54,8 +54,8 @@ pub struct Handler { ioptions:   IOptions
 
 impl Handler {
   pub fn new(iopts: &IOptions, ropts: ROptions, amadeus: UserId) -> Handler {
-    Handler { ioptions: iopts.clone()
-            , roptions: ropts
+    Handler { ioptions:   iopts.clone()
+            , roptions:   ropts
             , amadeus_id: amadeus }
   }
 }
@@ -158,8 +158,8 @@ impl EventHandler for Handler {
         if let Err(why) = channel.send_message(&ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&user.face()).name(&user.name))
-              .title(title)
-              .timestamp(chrono::Utc::now().to_rfc3339())
+             .title(title)
+             .timestamp(chrono::Utc::now().to_rfc3339())
             })).await {
           error!("Failed to log leaving user {:?}", why);
         }

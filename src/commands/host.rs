@@ -22,15 +22,33 @@ use flo_grpc::game::*;
 use tokio_compat_02::FutureExt;
 
 #[command]
-#[owners_only]
+#[aliases(nodes)]
 async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
   let flo_secret = {
     let data = ctx.data.read().await;
     data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
   };
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
   let mut rpc = get_grpc_client(flo_secret).compat().await;
-  let nodes = rpc.list_nodes(()).await;
-  channel_message(ctx, msg, &format!("{:?}", nodes)).await;
+  let nodes_reply = rpc.list_nodes(()).await?;
+  let nodes = nodes_reply.into_inner().nodes;
+  let n_strs = nodes.iter()
+                    .map(|n| format!("**{}** {} [{}] *{}*"
+                                    , n.name
+                                    , n.ip_addr
+                                    , n.country_id
+                                    , n.location))
+                    .collect::<Vec<String>>();
+  let footer = format!("Requested by {}", msg.author.name);
+  if let Err(why) = msg.channel_id.send_message(ctx, |m| m
+    .embed(|e| e
+    .description(n_strs.join("\n"))
+    .footer(|f| f.text(footer))
+  )).await {
+    error!("Failed to post nodes {:?}", why);
+  }
   Ok(())
 }
 

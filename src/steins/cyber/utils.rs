@@ -32,7 +32,7 @@ pub fn get_league(l: u32) -> String {
 
 fn try_get_map(m: &str) -> String {
   String::from(
-    match m { "Overall"               => "All"
+    match m { "overall"               => "All"
             , "echoisles"             => "EI"
             , "northernisles"         => "NIS"
             , "amazonia"              => "AZ"
@@ -68,6 +68,10 @@ fn try_get_map(m: &str) -> String {
             , "nerubianpassage"       => "Nerubian Massage"
             , "cherryville"           => "Cherry Ville"
             , "feralas"               => "Feralass"
+            , "battleground"          => "Battleground"
+            , "sanctuary"             => "Sanctuary"
+            , "fortpearl"             => "Fort Pearl"
+            , "tidehunters"           => "TH"
             , _                       => "" })
 }
 

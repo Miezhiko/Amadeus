@@ -32,7 +32,7 @@ pub fn get_league(l: u32) -> String {
 
 fn try_get_map(m: &str) -> String {
   String::from(
-    match m { "overall"               => "All"
+    match m { "Overall"               => "All"
             , "echoisles"             => "EI"
             , "northernisles"         => "NIS"
             , "amazonia"              => "AZ"

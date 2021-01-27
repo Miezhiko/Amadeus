@@ -21,12 +21,12 @@ use serenity::{
   , macros::command }
 };
 
-use std::collections::HashMap;
 use serde_json::Value;
-
 use comfy_table::*;
 
 use std::{ time::Duration
+         , collections::HashMap
+         , sync::Arc
          , sync::atomic::Ordering::Relaxed
          , sync::atomic::AtomicU32 };
 
@@ -138,6 +138,32 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   Ok(())
 }
 
+async fn get_player(rqcl: &Arc<reqwest::Client>, target: &str, season: &str) -> eyre::Result<Option<String>> {
+  if target.contains('#') {
+    Ok(Some(target.to_string()))
+  }
+  else {
+    let search_uri =
+      format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay=20&searchFor={}&season={}"
+             , target, season);
+    let search: Vec<Search> = rqcl.get(&search_uri).send().await?.json::<Vec<Search>>().await?;
+    if !search.is_empty() {
+      // search for ToD will give toy Toddy at first, so we search for exact match
+      for s in &search {
+        for id in &s.player.playerIds {
+          if target == id.name {
+            return Ok(Some(id.battleTag.clone()));
+          }
+        }
+      }
+      // if there is no exact match return first search result
+      Ok(Some(search[0].player.playerIds[0].battleTag.clone()))
+    } else {
+      Ok(None)
+    }
+  }
+}
+
 #[command]
 #[aliases(статистика)]
 #[description("display statistics on W3Champions")]
@@ -153,18 +179,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     rqcl.clone()
   };
   let season = current_season();
-  let userx = if args_msg.contains('#') { String::from(args_msg) }
-    else {
-      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?searchFor={}&season={}&gateWay=20", args_msg, season);
-      let ress = rqcl.get(&search_uri).send().await?;
-      let search : Vec<Search> = ress.json().await?;
-      if !search.is_empty() {
-        if !search[0].player.playerIds.is_empty() {
-          search[0].player.playerIds[0].battleTag.clone()
-        } else { String::new() }
-      } else { String::new() }
-    };
-  if !userx.is_empty() {
+  if let Some(userx) = get_player(&rqcl, args_msg, &season).await? {
     let user = userx.replace("#","%23");
     let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?season={}&gateWay=20", user, season);
     let game_mode_res = rqcl.get(&game_mode_uri).send().await?;

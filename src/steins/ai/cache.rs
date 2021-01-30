@@ -1,7 +1,8 @@
 use crate::{
   types::common::{ AllGuilds, ChannelLanguage },
   common::{ help::lang
-          , db::trees::{ register, check_registration }
+          , db::trees::{ register, check_registration
+                       , LSUF, ZSUF }
   },
   collections::base::{ CONFUSION
                      , CONFUSION_RU },
@@ -256,9 +257,12 @@ pub async fn clear_cache() {
   if fs::metadata(CACHE_RDN).await.is_ok() {
     let _ = fs::remove_file(CACHE_RDN).await;
   }
-  // Finally clear ZTREE
-  if fs::metadata("trees/ztree.lusf").await.is_ok() {
-    let _ = fs::remove_file("trees/ztree.lusf").await;
+
+  if fs::metadata(ZSUF).await.is_ok() {
+    let _ = fs::remove_file(ZSUF).await;
+  }
+  if fs::metadata(LSUF).await.is_ok() {
+    let _ = fs::remove_file(LSUF).await;
   }
 }
 

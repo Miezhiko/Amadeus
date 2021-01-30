@@ -13,8 +13,8 @@ use eyre::Result;
 
 use once_cell::sync::Lazy;
 
-static LSUF: &str = "trees/tree.lusf";
-static ZSUF: &str = "trees/ztree.lusf";
+pub static LSUF: &str = "trees/tree.lusf";
+pub static ZSUF: &str = "trees/ztree.lusf";
 
 #[derive(Serialize, Deserialize)]
 struct Points {

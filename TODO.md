@@ -1,1 +1,1 @@
-streaming now role
+move apm pics channel to constants

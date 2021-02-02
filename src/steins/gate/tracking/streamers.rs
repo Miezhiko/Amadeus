@@ -5,16 +5,16 @@ use crate::{
          , goodgame::GoodGameData },
   collections::team::players,
   common::{
-    help::channel::channel_by_name,
-    constants::STREAMS_CHANNEL
+    constants::{ STREAMS_CHANNEL
+               , LIVE_ROLE
+               , STREAM_PICS }
   }
 };
 
 use serenity::{
   prelude::*,
   http::AttachmentType,
-  model::{ id::ChannelId
-         , id::GuildId }
+  model::id::ChannelId
 };
 
 use std::{
@@ -58,19 +58,29 @@ pub async fn activate_streamers_tracking(
                    , options:   &IOptions
                    , token:     String ) {
 
-  let amadeus_guild_id = GuildId( options.amadeus_guild );
-
-  let amadeus_storage =
-    if let Ok(amadeus_channels) = amadeus_guild_id.channels(ctx).await {
-      if let Some((ch, _)) = channel_by_name(&ctx, &amadeus_channels, "stream_pics").await {
-        Some(*ch)
-      } else { None }
-    } else { None };
-
   set!{ ctx_clone     = Arc::clone(&ctx)
       , options_clone = options.clone() };
 
   clear_channel(STREAMS_CHANNEL, &ctx).await;
+
+  // clear roles
+  if let Ok(channel) = STREAMS_CHANNEL.to_channel(&ctx.http).await {
+    if let Some(g) = channel.guild() {
+      if let Ok(guild) = g.guild_id.to_partial_guild(&ctx).await {
+        for playa in players() {
+          if let Ok(mut member) = guild.member(&ctx.http, playa.discord).await {
+            if let Some(role) = guild.roles.get(&LIVE_ROLE) {
+              if member.roles.contains(&LIVE_ROLE) {
+                if let Err(why) = member.remove_role(&ctx, role).await {
+                  error!("Failed to remove live streaming role {:?}", why);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   tokio::spawn(async move {
     let mut streams_lock = STREAMS.lock().await;
@@ -224,26 +234,24 @@ pub async fn activate_streamers_tracking(
               }
             } else {
               let is_now_live = format!("{} started stream!", &user.name);
-              if let Some(storage) = &amadeus_storage {
-                if let Some(some_image) = &image {
-                  if let Ok(response) = reqwest::get(some_image.as_str()).await {
-                    if let Ok(bytes) = response.bytes().await {
-                      let cow = AttachmentType::Bytes {
-                        data: Cow::from(bytes.as_ref()),
-                        filename: "stream_img.jpg".to_string()
-                      };
-                      match storage.send_message(&ctx_clone, |m| m.add_file(cow)).await {
-                        Ok(msg) => {
-                          if !msg.attachments.is_empty() {
-                            let img_attachment = &msg.attachments[0];
-                            image = Some(img_attachment.url.clone());
-                          }
-                        },
-                        Err(why) => {
-                          error!("Failed to download and post stream img {:?}", why);
+              if let Some(some_image) = &image {
+                if let Ok(response) = reqwest::get(some_image.as_str()).await {
+                  if let Ok(bytes) = response.bytes().await {
+                    let cow = AttachmentType::Bytes {
+                      data: Cow::from(bytes.as_ref()),
+                      filename: "stream_img.jpg".to_string()
+                    };
+                    match STREAM_PICS.send_message(&ctx_clone, |m| m.add_file(cow)).await {
+                      Ok(msg) => {
+                        if !msg.attachments.is_empty() {
+                          let img_attachment = &msg.attachments[0];
+                          image = Some(img_attachment.url.clone());
                         }
-                      };
-                    }
+                      },
+                      Err(why) => {
+                        error!("Failed to download and post stream img {:?}", why);
+                      }
+                    };
                   }
                 }
               }
@@ -276,6 +284,21 @@ pub async fn activate_streamers_tracking(
                     still_live: true,
                     players: vec![playa_for_stream], bets: vec![], fails: 0 }
                   );
+                  if let Ok(channel) = STREAMS_CHANNEL.to_channel(&ctx_clone.http).await {
+                    if let Some(g) = channel.guild() {
+                      if let Ok(guild) = g.guild_id.to_partial_guild(&ctx_clone).await {
+                        if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
+                          if let Some(role) = guild.roles.get(&LIVE_ROLE) {
+                            if !member.roles.contains(&LIVE_ROLE) {
+                              if let Err(why) = member.add_role(&ctx_clone, role).await {
+                                error!("Failed to assign live streaming role {:?}", why);
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 },
                 Err(why) => {
                   error!("Failed to post stream {:?}", why);
@@ -323,6 +346,21 @@ pub async fn activate_streamers_tracking(
                 }
               )).await {
                 error!("Failed to edit stream msg {:?}", why);
+              }
+              if let Ok(channel) = STREAMS_CHANNEL.to_channel(&ctx_clone.http).await {
+                if let Some(g) = channel.guild() {
+                  if let Ok(guild) = g.guild_id.to_partial_guild(&ctx_clone).await {
+                    if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
+                      if let Some(role) = guild.roles.get(&LIVE_ROLE) {
+                        if member.roles.contains(&LIVE_ROLE) {
+                          if let Err(why) = member.remove_role(&ctx_clone, role).await {
+                            error!("Failed to remove live streaming role {:?}", why);
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
             streams_lock.remove(&playa.discord);

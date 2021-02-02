@@ -419,7 +419,7 @@ impl EventHandler for Handler {
                 if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
                   if let Some(role) = guild.role_by_name("UNBLOCK AMADEUS") {
 
-                    let normal_people_rnd : u16 = rand::thread_rng().gen_range(0..9);
+                    let normal_people_rnd: u16 = rand::thread_rng().gen_range(0..9);
                     if (normal_people_rnd == 1 || member.roles.contains(&role.id))
                     && !WHITELIST.iter().any(|u| *u == msg.author.id.0)
                     && !self.ioptions.servers.iter()

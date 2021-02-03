@@ -72,6 +72,7 @@ fn try_get_map(m: &str) -> String {
             , "sanctuary"             => "Sanctuary"
             , "fortpearl"             => "Fort Pearl"
             , "tidehunters"           => "TH"
+            , "royalgardens"          => "Royal Gardens"
             , _                       => "" })
 }
 

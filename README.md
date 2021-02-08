@@ -98,7 +98,7 @@ npm install w3gjs
 to test typescript code you may run
 
 ```shell
-node node_modules/ts-node/dist/bin.js .\js\w3g_parse.ts .\LastReplay.w3g > gg.out
+node node_modules/ts-node/dist/bin.js ./js/w3g_parse.ts ./LastReplay.w3g > gg.out
 ```
 
 Note: will lag at first run due pre-trained models downloading.

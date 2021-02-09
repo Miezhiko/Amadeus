@@ -342,9 +342,8 @@ impl EventHandler for Handler {
           trees::add_points(guild_id.0, msg.author.id.0, 1).await;
           for file in &msg.attachments {
             if file.filename.ends_with("w3g") {
-              let storage = GuildId( self.ioptions.amadeus_guild );
               if msg.channel_id == LOG_CHANNEL {
-                if !attach_replay(&ctx, &msg, file, &storage).await {
+                if !attach_replay(&ctx, &msg, file).await {
                   warn!("Failed to attach an replay to log!");
                 } else {
                   info!("Relay attached successfully");
@@ -361,7 +360,7 @@ impl EventHandler for Handler {
                         .timeout(Duration::from_secs(3600)).await {
                     let emoji = &reaction.as_inner_ref().emoji;
                     if emoji.as_data().as_str() == "🌈" {
-                      replay_embed(&ctx, &msg, file, &storage).await;
+                      replay_embed(&ctx, &msg, file).await;
                       let _ = msg.delete_reactions(&ctx).await;
                     }
                   } else {

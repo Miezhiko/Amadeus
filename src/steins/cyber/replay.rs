@@ -1,7 +1,6 @@
 use crate::{
-  common::{ help::channel::channel_by_name
-          , msg::channel_message
-          , constants::LOG_CHANNEL
+  common::{ msg::channel_message
+          , constants::{ LOG_CHANNEL, APM_PICS }
           },
   collections::team::teammates,
   steins::cyber::w3g::analyze
@@ -9,10 +8,11 @@ use crate::{
 
 use serenity::{
   prelude::*,
-  model::{ channel::Attachment
-         , id::GuildId
-         , channel::Message, channel::ReactionType
-         },
+  model::channel::{
+    Attachment,
+    Message,
+    ReactionType
+  },
   http::AttachmentType,
   builder::CreateEmbed
 };
@@ -28,8 +28,7 @@ use plotters::prelude::*;
 
 pub async fn replay_embed( ctx: &Context
                          , msg: &Message
-                         , file: &Attachment
-                         , amadeus_guild_id: &GuildId ) {
+                         , file: &Attachment ) {
   let fname_apm = format!("{}_apm.png", &file.filename);
   info!("Downloading replay");
   if let Ok(bytes) = file.download().await {
@@ -132,26 +131,18 @@ pub async fn replay_embed( ctx: &Context
             .label_font(("monospace", 17).into_font().color(&RGBColor(200, 200, 200)))
             .draw().unwrap();
         }
-        let amadeus_storage =
-          if let Ok(amadeus_channels) = amadeus_guild_id.channels(&ctx).await {
-            if let Some((ch, _)) = channel_by_name(&ctx, &amadeus_channels, "apm_pics").await {
-              Some(*ch)
-            } else { None }
-          } else { None };
-        if let Some(storage) = &amadeus_storage {
-          match storage.send_message(&ctx, |m|
-            m.add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
-            Ok(msg) => {
-              if !msg.attachments.is_empty() {
-                let img_attachment = &msg.attachments[0];
-                apm_image = Some(img_attachment.url.clone());
-              }
-            },
-            Err(why) => {
-              error!("Failed to download and post stream img {:?}", why);
+        match APM_PICS.send_message(&ctx, |m|
+          m.add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
+          Ok(msg) => {
+            if !msg.attachments.is_empty() {
+              let img_attachment = &msg.attachments[0];
+              apm_image = Some(img_attachment.url.clone());
             }
-          };
-        }
+          },
+          Err(why) => {
+            error!("Failed to download and post stream img {:?}", why);
+          }
+        };
       }
       eb1.fields(fields1);
       eb2.fields(fields2);
@@ -213,8 +204,7 @@ pub async fn replay_embed( ctx: &Context
 
 pub async fn attach_replay( ctx: &Context
                           , msg: &Message
-                          , file: &Attachment
-                          , amadeus_guild_id: &GuildId ) -> bool {
+                          , file: &Attachment ) -> bool {
   // this is only for teammates
   if let Some(playa) = teammates().into_iter().find(|p|
     p.discord == msg.author.id.0) {
@@ -345,30 +335,23 @@ pub async fn attach_replay( ctx: &Context
                           .label_font(("monospace", 17).into_font().color(&RGBColor(200, 200, 200)))
                           .draw().unwrap();
                       }
-                      let amadeus_storage =
-                        if let Ok(amadeus_channels) = amadeus_guild_id.channels(&ctx).await {
-                          if let Some((ch, _)) = channel_by_name(&ctx, &amadeus_channels, "apm_pics").await {
-                            Some(*ch)
-                          } else { None }
-                        } else { None };
-                      if let Some(storage) = &amadeus_storage {
-                        match storage.send_message(&ctx, |m|
-                          m.add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
-                          Ok(msg) => {
-                            if !msg.attachments.is_empty() {
-                              let img_attachment = &msg.attachments[0];
-                              apm_image = Some(img_attachment.url.clone());
-                            }
-                          },
-                          Err(why) => {
-                            error!("Failed to download and post stream img {:?}", why);
+                      match APM_PICS.send_message(&ctx, |m|
+                        m.add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
+                        Ok(msg) => {
+                          if !msg.attachments.is_empty() {
+                            let img_attachment = &msg.attachments[0];
+                            apm_image = Some(img_attachment.url.clone());
                           }
-                        };
-                      }
+                        },
+                        Err(why) => {
+                          error!("Failed to download and post stream img {:?}", why);
+                        }
+                      };
                     }
 
                     let nick = msg.author.nick_in(ctx, guild_id)
-                                          .await.unwrap_or_else(|| msg.author.name.clone());
+                                         .await
+                                         .unwrap_or_else(|| msg.author.name.clone());
 
                     if let Err(why) = LOG_CHANNEL.send_message(ctx, |m| {
                       let mut m =

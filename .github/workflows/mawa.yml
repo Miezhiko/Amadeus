@@ -32,8 +32,6 @@ jobs:
         which gcc >/dev/null 2>&1 && (gcc --version | head -1) || true
         cargo -V
         rustc -V
-    - name: Dirt
-      run: bash eat-some-dirt.sh
     - name: Build
       run: cargo build --verbose
     - name: Run tests

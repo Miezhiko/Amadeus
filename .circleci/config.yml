@@ -6,7 +6,6 @@ jobs:
       - image: circleci/rust:latest
     steps:
       - checkout
-      - run: bash eat-some-dirt.sh
       - run: cargo --version
       - run: cargo test
 

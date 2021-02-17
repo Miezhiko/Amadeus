@@ -71,7 +71,7 @@ let Server : Type =
 let u = λ(id: Natural) → { id = id, kind = SType.Unsafe }
 let s = λ(id: Natural) → { id = id, kind = SType.Safe }
 let additional_servers : List Server =
-  [ u 676119422418550815 -- "Зарянка"
+  [ u 676119422418550815 -- "Unsafe Server"
   , s 728694826203349072 -- "Rusty Tools"
   ]
 in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"

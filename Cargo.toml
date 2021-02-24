@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "4.4.0"
+version     = "4.4.1"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -36,7 +36,7 @@ itertools           = "0.10"
 uuid                = "0.8"
 tch                 = "0.3"
 plotters            = "0.3"
-rust-bert           = "0.13"
+rust-bert           = "0.14"
 rudano              = "0.1"
 eyre                = "0.6"
 async-recursion     = "0.3"

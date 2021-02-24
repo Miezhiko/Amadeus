@@ -234,24 +234,28 @@ pub async fn activate_streamers_tracking(
               }
             } else {
               let is_now_live = format!("{} started stream!", &user.name);
-              if let Some(some_image) = &image {
-                if let Ok(response) = reqwest::get(some_image.as_str()).await {
-                  if let Ok(bytes) = response.bytes().await {
-                    let cow = AttachmentType::Bytes {
-                      data: Cow::from(bytes.as_ref()),
-                      filename: "stream_img.jpg".to_string()
-                    };
-                    match STREAM_PICS.send_message(&ctx_clone, |m| m.add_file(cow)).await {
-                      Ok(msg) => {
-                        if !msg.attachments.is_empty() {
-                          let img_attachment = &msg.attachments[0];
-                          image = Some(img_attachment.url.clone());
+              // stream thumbnail image caching only work with twitch
+              // (most likely because of image format difference jpg/png)
+              if twitch_live {
+                if let Some(some_image) = &image {
+                  if let Ok(response) = reqwest::get(some_image.as_str()).await {
+                    if let Ok(bytes) = response.bytes().await {
+                      let cow = AttachmentType::Bytes {
+                        data: Cow::from(bytes.as_ref()),
+                        filename: "stream_img.jpg".to_string()
+                      };
+                      match STREAM_PICS.send_message(&ctx_clone, |m| m.add_file(cow)).await {
+                        Ok(msg) => {
+                          if !msg.attachments.is_empty() {
+                            let img_attachment = &msg.attachments[0];
+                            image = Some(img_attachment.url.clone());
+                          }
+                        },
+                        Err(why) => {
+                          error!("Failed to download and post stream img {:?}", why);
                         }
-                      },
-                      Err(why) => {
-                        error!("Failed to download and post stream img {:?}", why);
-                      }
-                    };
+                      };
+                    }
                   }
                 }
               }

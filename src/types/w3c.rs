@@ -123,7 +123,7 @@ pub struct ServerInfo {
   pub name: Option<String>,
   pub nodeId: Option<u32>,
   pub playerServerInfos: Vec<PlayerServerInfo>,
-  pub provider: String
+  pub provider: Option<String>
 }
 
 #[allow(non_snake_case)]

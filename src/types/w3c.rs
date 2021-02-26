@@ -109,6 +109,25 @@ pub_struct!(Team {
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
+pub struct PlayerServerInfo {
+  pub averagePing: u32,
+  pub battleTag: String,
+  pub currentPing: u32
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct ServerInfo {
+  pub countryCode: Option<String>,
+  pub location: Option<String>,
+  pub name: Option<String>,
+  pub nodeId: Option<u32>,
+  pub playerServerInfos: Vec<PlayerServerInfo>,
+  pub provider: String
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
 pub struct Match {
   pub map: String,
   pub id: String,
@@ -118,6 +137,7 @@ pub struct Match {
   pub startTime: String,
   pub endTime: String,
   pub gameMode: u32,
+  pub serverInfo: ServerInfo,
   pub teams: Vec<Team>,
   pub gateWay: u32,
   pub season: u32

@@ -103,7 +103,7 @@ struct Warcraft;
 
 #[group("W3C")]
 #[description = "w3champions commands"]
-#[commands(stats, ongoing, veto, bet)]
+#[commands(stats, ongoing, veto, vs, bet)]
 struct Pad;
 
 #[group("Database")]

@@ -8,7 +8,8 @@ use crate::{
   },
   steins::cyber::{
     utils::{ get_race, get_race2
-           , get_league, get_map, get_league_png }
+           , get_league, get_map
+           , get_league_png }
   }
 };
 
@@ -417,15 +418,17 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 #[min_args(2)]
 #[description("Generates ideal veto based on W3C statistics")]
 async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0);
   let args_msg = args.single::<String>()?;
   let race_vs = args.single::<String>()?;
+
+  let start_typing = ctx.http.start_typing(msg.channel_id.0);
+
   let mut seasons = 2;
-  let season = current_season();
+  let season = current_season().parse::<u32>().unwrap();
   if let Ok(opt) = args.single::<String>() {
     let lower = opt.to_lowercase();
     if lower == "all" {
-      seasons = season.parse::<u32>().unwrap() - 1;
+      seasons = season - 1;
     } else if lower == "last" {
       seasons = 1;
     }
@@ -440,7 +443,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
     else {
       let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?searchFor={}&season={}&gateWay=20", args_msg, season);
       let ress = rqcl.get(&search_uri).send().await?;
-      let search : Vec<Search> = ress.json().await?;
+      let search: Vec<Search> = ress.json().await?;
       if !search.is_empty() {
         if !search[0].player.playerIds.is_empty() {
           search[0].player.playerIds[0].battleTag.clone()
@@ -452,7 +455,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
 
     let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
     let res2 = rqcl.get(&uri2).send().await?;
-    let stats2 : Stats2 = res2.json().await?;
+    let stats2: Stats2 = res2.json().await?;
 
     let race_vs_lower = race_vs.to_lowercase();
     let race_vs_num: u32 =
@@ -514,8 +517,8 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
 
     process_stats2(stats2);
 
-    for sx in 1..seasons {
-      let previous_season = season.parse::<u32>().unwrap() - sx;
+    for sx in 0..seasons {
+      let previous_season = season - sx;
       let uri3 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, previous_season);
       if let Ok(res3) = rqcl.get(&uri3).send().await {
         if let Ok(stats3) = res3.json::<Stats2>().await {
@@ -543,6 +546,154 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
 
   } else {
     channel_message(&ctx, &msg, "Search found no users with that nickname").await;
+  }
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  if let Ok(typing) = start_typing {
+    typing.stop();
+  }
+  Ok(())
+}
+
+#[command]
+#[min_args(2)]
+#[aliases(versus)]
+#[description("Show W3C statistics for two players")]
+async fn vs(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
+  let p1 = args.single::<String>()?;
+  let p2 = args.single::<String>()?;
+
+  let start_typing = ctx.http.start_typing(msg.channel_id.0);
+  let mut seasons = 2;
+  let season = current_season().parse::<u32>().unwrap();
+
+  if let Ok(opt) = args.single::<String>() {
+    let lower = opt.to_lowercase();
+    if lower == "all" {
+      seasons = season - 1;
+    } else if lower == "last" {
+      seasons = 1;
+    }
+  }
+
+  let rqcl = {
+    set!{ data = ctx.data.read().await
+        , rqcl = data.get::<ReqwestClient>().unwrap() };
+    rqcl.clone()
+  };
+
+  let userx1 = if p1.contains('#') { p1 }
+    else {
+      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?searchFor={}&season={}&gateWay=20", p1, season);
+      let ress = rqcl.get(&search_uri).send().await?;
+      let search: Vec<Search> = ress.json().await?;
+      if !search.is_empty() {
+        if !search[0].player.playerIds.is_empty() {
+          search[0].player.playerIds[0].battleTag.clone()
+        } else { String::new() }
+      } else { String::new() }
+    };
+  let userx2 = if p2.contains('#') { p2 }
+    else {
+      let search_uri = format!("https://statistic-service.w3champions.com/api/ladder/search?searchFor={}&season={}&gateWay=20", p2, season);
+      let ress = rqcl.get(&search_uri).send().await?;
+      let search: Vec<Search> = ress.json().await?;
+      if !search.is_empty() {
+        if !search[0].player.playerIds.is_empty() {
+          search[0].player.playerIds[0].battleTag.clone()
+        } else { String::new() }
+      } else { String::new() }
+    };
+
+  if !userx1.is_empty() && !userx1.is_empty() {
+    let name1 = &userx1.split('#').collect::<Vec<&str>>()[0];
+    let name2 = &userx2.split('#').collect::<Vec<&str>>()[0];
+
+    let user1 = userx1.replace("#","%23");
+    let user2 = userx2.replace("#","%23");
+
+    let mut match_strings = vec![];
+    let mut wins = 0;
+    let mut loses = 0;
+    for sx in 0..seasons {
+      let previous_season = season - sx;
+      let vs_uri = format!("https://statistic-service.w3champions.com/api/matches/search?playerId={}&gateway=20&offset=0&opponentId={}&season={}",
+        user1, user2, previous_season);
+      info!("VS: {}", vs_uri);
+      let ress = rqcl.get(&vs_uri).send().await?;
+      let rest: Going = ress.json().await?;
+      info!("RESET: {:?}", rest);
+      for m in rest.matches.iter() {
+        // for now only solo matches
+        if m.gameMode == 1 {
+          let map_name = get_map(&m.map);
+          let flo_info =
+            if m.serverInfo.provider == "BNET" {
+              String::from("BNET")
+            } else {
+              if let Some(si) = &m.serverInfo.name {
+                si.clone()
+              } else {
+                m.serverInfo.provider.clone()
+              }
+            };
+          let mut p1s = String::new();
+          let mut p2s = String::new();
+          let mut winner = false;
+          for t in m.teams.iter() {
+            for p in t.players.iter() {
+              let race = get_race2(p.race);
+              let mut if_ping = String::new();
+              for psi in m.serverInfo.playerServerInfos.iter() {
+                if psi.battleTag == p.battleTag {
+                  if_ping = format!(" {}ms", psi.averagePing);
+                }
+              }
+              if p.battleTag == userx1 {
+                if t.won {
+                  winner = true;
+                  wins += 1;
+                } else {
+                  loses += 1;
+                }
+                p1s = format!("{} ({}) {}", name1, race, if_ping);
+              } else {
+                p2s = format!("{} ({}) {}", name2, race, if_ping);
+              }
+            }
+          }
+          let match_string = 
+            if winner {
+              format!(
+                "• [{}, {}] **{}** > {} <https://www.w3champions.com/match/{}>",
+                map_name, flo_info, p1s, p2s, m.id )
+              } else {
+                format!(
+                  "• [{}, {}] {} < **{}** <https://www.w3champions.com/match/{}>",
+                  map_name, flo_info, p1s, p2s, m.id )
+              };
+          match_strings.push(match_string);
+        }
+      }
+    }
+
+    if !match_strings.is_empty() {
+      let footer = format!("Requested by {}", msg.author.name);
+      if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+          .embed(|e| e
+          .title(&format!("{} {} : {} {}", &name1, wins, loses, &name2))
+          .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
+          .description(match_strings.join("\n"))
+          .footer(|f| f.text(footer)))).await {
+        error!("Error sending veto message: {:?}", why);
+      }
+    } else {
+      channel_message(&ctx, &msg, "No games for those players in selected seasons").await;
+    }
+
+  } else {
+    channel_message(&ctx, &msg, "Can't find one of two users").await;
   }
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);

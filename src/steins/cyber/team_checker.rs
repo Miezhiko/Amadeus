@@ -170,9 +170,9 @@ async fn check_match( matchid: &str
       let duration_in_minutes = m.durationInSeconds / 60;
       if md.playerScores.len() > 1 && m.gameMode == 1 {
         set! { p1 = &md.playerScores[0]
-              , p2 = &md.playerScores[1]
-              , s1 = p1.battleTag.clone()
-              , s2 = p2.battleTag.clone() };
+             , p2 = &md.playerScores[1]
+             , s1 = p1.battleTag.clone()
+             , s2 = p2.battleTag.clone() };
         let s3 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
             , p1.unitScore.unitsProduced
             , p1.unitScore.unitsKilled

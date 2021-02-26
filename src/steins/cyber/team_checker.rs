@@ -43,7 +43,7 @@ async fn check_match( matchid: &str
       Ok(md) => {
         if_md = Some(md);
       }, Err(err) => {
-        warn!("Failed parse by-ongoing-match {:?}", err);
+        warn!("Failed parse by-ongoing-match {:?}, url: {}", err, url);
       }
     }
   }

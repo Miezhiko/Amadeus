@@ -94,12 +94,17 @@ pub_struct!(GMStats {
 
 pub_struct!(TeamPlayer {
   race: u32,
+  rndRace: Option<u32>,
   oldMmr: u32,
   currentMmr: u32,
   battleTag: String,
   name: String,
   mmrGain: i32,
   won: bool,
+  location: Option<String>,
+  countryCode: Option<String>,
+  country: Option<String>,
+  twitch: Option<String>,
 });
 
 pub_struct!(Team {
@@ -137,6 +142,7 @@ pub struct Match {
   pub startTime: String,
   pub endTime: String,
   pub gameMode: u32,
+  pub number: Option<u32>,
   pub serverInfo: ServerInfo,
   pub teams: Vec<Team>,
   pub gateWay: u32,

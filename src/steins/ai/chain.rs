@@ -10,6 +10,7 @@ use crate::{
                        , CACHE_ENG
                        , KATHOEY
                        , RE1, RE2, RE3
+                       , NLPR_RULES, NLPR_TOKENIZER
                        , self }
               , boris, uwu, bert }
 };
@@ -83,17 +84,23 @@ pub async fn generate_with_language(ctx: &Context, russian: bool) -> String {
   chain.generate_str()
 }
 
+pub async fn correct(msg: &str) -> String {
+  let nlp = NLPR_RULES.lock().await;
+  let tokenizer = NLPR_TOKENIZER.lock().await;
+  nlp.correct(&msg, &tokenizer)
+}
+
 pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> String {
   let msg_content = &msg.content;
   let russian = if let Some(rus) = mbrussian
     { rus } else { lang::is_russian(msg_content) };
   cache::actualize_cache(ctx).await;
   let chain : MutexGuard<Chain<String>> =
-  if russian {
-      CACHE_RU.lock().await
-    } else {
-      CACHE_ENG.lock().await
-    };
+    if russian {
+        CACHE_RU.lock().await
+      } else {
+        CACHE_ENG.lock().await
+      };
   let mut out = chain.generate_str();
   let rndx = rand::thread_rng().gen_range(0..66);
   if rndx == 1 {
@@ -102,6 +109,9 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
     } else {
       out = uwu::spell(&out);
     }
+  }
+  if !russian && rndx < 50 {
+    out = correct(&out).await;
   }
   out
 }

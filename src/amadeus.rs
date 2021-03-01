@@ -80,7 +80,8 @@ struct Meta;
 
 #[group("Chat")]
 #[description = "Chat commands"]
-#[commands(quote, boris, owo, score, top, give, feminize, extreme_feminize)]
+#[commands( quote, boris, owo, score, top, give, correct
+          , feminize, extreme_feminize )]
 struct Chat;
 
 #[group("Translation")]

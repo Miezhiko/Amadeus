@@ -31,10 +31,14 @@ use chrono::{ Duration, Utc, DateTime };
 use once_cell::sync::Lazy;
 
 use kathoey::types::Kathoey;
+use nlprule::{Tokenizer, Rules};
 
 static CACHE_ENG_YML: &str = "cache/cache_eng.yml";
 static CACHE_RU_YML: &str = "cache/cache_ru.yml";
 static CACHE_RDN: &str = "cache/cache.rs";
+
+static NLPRULE_TOKENIZER: &str = "nlprule/en_tokenizer.bin";
+static NLPRULE_RULES: &str = "nlprule/en_rules.bin";
 
 // WILL NOT WORK WITH ANYTHING MORE THAN 200
 // NO IDEA WHY...
@@ -56,6 +60,11 @@ pub static LAST_UPDATE: Lazy<Mutex<DateTime<Utc>>> =
   Lazy::new(|| Mutex::new(Utc::now()));
 pub static KATHOEY: Lazy<Mutex<Kathoey>> =
   Lazy::new(|| Mutex::new(Kathoey::load("../Kathoey/dict.bin").unwrap()));
+
+pub static NLPR_TOKENIZER: Lazy<Mutex<Tokenizer>> =
+  Lazy::new(|| Mutex::new( Tokenizer::new(NLPRULE_TOKENIZER).unwrap() ));
+pub static NLPR_RULES: Lazy<Mutex<Rules>> =
+  Lazy::new(|| Mutex::new( Rules::new(NLPRULE_RULES).unwrap() ));
 
 pub static RE1: Lazy<Regex> = Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
 pub static RE2: Lazy<Regex> = Lazy::new(|| Regex::new(r":(.*?):").unwrap());

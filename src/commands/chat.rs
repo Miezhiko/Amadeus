@@ -205,3 +205,15 @@ async fn extreme_feminize(ctx: &Context, msg: &Message, args: Args) -> CommandRe
                  ).await;
   Ok(())
 }
+
+#[command]
+#[min_args(1)]
+#[description("grammar correction")]
+async fn correct(ctx: &Context, msg: &Message) -> CommandResult {
+  let correction = chain::correct(&msg.content).await;
+  channel_message( ctx
+                 , msg
+                 , &correction
+                 ).await;
+  Ok(())
+}

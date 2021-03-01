@@ -36,6 +36,7 @@
  - Chatty (`set activity 66` is default)
  - Transfer learning using chats context
  - Automatic translation with bert models
+ - Rule-based grammatical error correction
  - Live games tracking on [w3champions](https://www.w3champions.com)
  - W3info news tracking using calendar
  - Replays parsing (click emoji to get report)

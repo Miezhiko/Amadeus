@@ -88,7 +88,8 @@ version = "0.2"
 optional = true
 
 [dependencies.flo-grpc]
-path = "crates/flo-grpc"
+git = "https://github.com/Masha/flo-grpc.git"
+branch = "main"
 optional = true
 
 [dependencies.tokio]

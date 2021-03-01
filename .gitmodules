@@ -1,3 +1,0 @@
-[submodule "crates/flo-grpc"]
-	path = crates/flo-grpc
-	url = https://github.com/w3champions/flo-grpc.git

@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "4.5.4"
+version     = "4.5.5"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -10,8 +10,8 @@ description = "memory storage and artificial intelligence system"
 license     = "ISC AND MPL-v2"
 
 [features]
-default = []
-flo = ["tonic", "hex", "tokio-compat-02"] # "flo-grpc"
+default = ["flo"]
+flo = ["tonic", "hex", "tokio-compat-02", "flo-grpc"]
 
 [dependencies]
 chrono              = "0.4"
@@ -78,6 +78,7 @@ branch = "main"
 version = "0.4"
 optional = true
 
+# flo needs update to 0.4 first
 [dependencies.tonic]
 version = "0.3"
 optional = true
@@ -86,10 +87,9 @@ optional = true
 version = "0.2"
 optional = true
 
-# uncomment for flo support
-#[dependencies.flo-grpc]
-#path = "crates/flo-grpc"
-#optional = true
+[dependencies.flo-grpc]
+path = "crates/flo-grpc"
+optional = true
 
 [dependencies.tokio]
 version = "1.2"

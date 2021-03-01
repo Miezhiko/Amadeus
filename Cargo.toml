@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "4.5.3"
+version     = "4.5.4"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -46,7 +46,6 @@ sled                = "0.34"
 kathoey             = "1.0"
 songbird            = "0.1.4"
 serde_dhall         = "0.10.0"
-nlprule             = "0.4"
 
 rand    = { version = "0.8",  features = ["std", "std_rng"] }
 reqwest = { version = "0.11", features = ["json", "blocking"] }
@@ -67,6 +66,13 @@ features = [ "cache"
            , "native_tls_backend"
            , "utils"
            , "collector" ]
+
+# using fork because I will update tokens&rules
+# in the same time with code
+# related: https://github.com/bminixhofer/nlprule/issues/49
+[dependencies.nlprule]
+git = "https://github.com/Masha/nlprule.git"
+branch = "main"
 
 [dependencies.hex]
 version = "0.4"

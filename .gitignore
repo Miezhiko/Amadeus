@@ -2,7 +2,7 @@
 /trees/
 /cache/
 /node_modules/
-/nlpure/
+/nlprule/
 conf.dhall
 conf.rs
 

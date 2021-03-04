@@ -220,10 +220,10 @@ pub async fn activate_streamers_tracking(
                     if !fields.is_empty() {
                       e = e.fields(fields.clone());
                     }
-                    if let Some(some_img) = img.clone() {
-                      e = e.image(some_img.url);
+                    if let Some(some_img) = &img {
+                      e = e.image(some_img.url.clone());
                     }
-                    if let Some(some_url) = url.clone() {
+                    if let Some(some_url) = &url {
                       e = e.url(some_url);
                     }
                     e
@@ -271,10 +271,10 @@ pub async fn activate_streamers_tracking(
                   if !additional_fields.is_empty() {
                     e = e.fields(additional_fields.clone());
                   }
-                  if let Some(some_image) = image.clone() {
+                  if let Some(some_image) = &image {
                     e = e.image(some_image);
                   }
-                  if let Some(some_url) = em_url.clone() {
+                  if let Some(some_url) = &em_url {
                     e = e.url(some_url);
                   }
                   e
@@ -340,10 +340,10 @@ pub async fn activate_streamers_tracking(
                   if !fields.is_empty() {
                     e = e.fields(fields.clone());
                   }
-                  if let Some(some_img) = img.clone() {
-                    e = e.image(some_img.url);
+                  if let Some(some_img) = &img {
+                    e = e.image(some_img.url.clone());
                   }
-                  if let Some(some_url) = url.clone() {
+                  if let Some(some_url) = &url {
                     e = e.url(some_url);
                   }
                   e

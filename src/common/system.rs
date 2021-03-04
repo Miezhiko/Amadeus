@@ -42,7 +42,7 @@ pub async fn get_memory_mb() -> eyre::Result<f32> {
           .output()
           .await?;
   let mem_used = &String::from_utf8(mem_stdout.stdout)?;
-  Ok(mem_used[..mem_used.len() - 2].parse::<f32>().unwrap()/1024f32)
+  Ok(mem_used[..mem_used.len() - 2].parse::<f32>().unwrap_or(0f32)/1024f32)
 }
 
 pub async fn get_system_info(ctx: &Context) -> SysInfo {

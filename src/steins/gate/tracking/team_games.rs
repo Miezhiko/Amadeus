@@ -92,10 +92,9 @@ pub async fn activate_games_tracking(
                , image              = None
                , em_url             = None };
 
-          if playa.streams.is_some() {
-            let streams = playa.streams.clone().unwrap();
-            if streams.twitch.is_some() {
-              let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", &streams.twitch.unwrap());
+          if let Some(streams) = &playa.streams {
+            if let Some(twitch_stream) = &streams.twitch {
+              let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", twitch_stream);
               if let Ok(res) = rqcl
                 .get(&getq)
                 .header("Authorization", token.clone())
@@ -122,14 +121,13 @@ pub async fn activate_games_tracking(
                 }
               }
             }
-            if streams.ggru.is_some() {
-              let ggru = streams.ggru.clone().unwrap();
-              let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", &ggru);
+            if let Some(ggru) = &streams.ggru {
+              let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru);
               if let Ok(gg) = rqcl.get(&ggru_link).send().await {
                 match gg.json::<GoodGameData>().await {
                   Ok(ggdata) => {
                     if ggdata.status == "Live" {
-                      let url = format!("https://goodgame.ru/channel/{}", &ggru);
+                      let url = format!("https://goodgame.ru/channel/{}", ggru);
                       if twitch_live {
                         let titurl =
                           format!("{}\n{}", &ggdata.channel.title, url);
@@ -184,10 +182,10 @@ pub async fn activate_games_tracking(
               if !additional_fields.is_empty() {
                 e = e.fields(additional_fields);
               }
-              if let Some(some_image) = image.clone() {
+              if let Some(some_image) = &image {
                 e = e.image(some_image);
               }
-              if let Some(some_url) = em_url.clone() {
+              if let Some(some_url) = &em_url {
                 e = e.url(some_url);
               }
               e

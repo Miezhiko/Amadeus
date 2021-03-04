@@ -314,7 +314,10 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
       }
 
       let max_games : Option<&Stats> = stats.iter().max_by_key(|s| s.games);
-      let max_games_race = if max_games.is_some() { max_games.unwrap().race } else { 0 };
+      let max_games_race =
+        if let Some(max) = max_games {
+          max.race
+        } else { 0 };
       if league_avi.is_empty() {
         league_avi = match max_games_race {
             1 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/HUMAN.png",

@@ -59,18 +59,21 @@ async fn serenity_channel_message_multi2(ctx: &Context, msg: &Message, texts : V
 }
 
 pub fn split_code(text: &str) -> Vec<String> {
-  let first_space = text.find(' ').unwrap();
-  let start_from =
-    if let Some(first_newline) = text.find('\n') {
-      if first_space < first_newline { first_space }
-      else { first_newline }
-    } else { first_space };
-  let starting_pattern = &text[..start_from];
-  let whole_new_text = &text[start_from..text.len()-4];
-  let peaces = whole_new_text.as_bytes()
-    .chunks(MESSAGE_LIMIT - 200)
-    .map(|s| unsafe { ::std::str::from_utf8_unchecked(s).replace("```", "'''") });
-  peaces.map(|s| format!("{}\n{}\n```", starting_pattern, s)).collect()
+  if let Some(first_space) = text.find(' ') {
+    let start_from =
+      if let Some(first_newline) = text.find('\n') {
+        if first_space < first_newline { first_space }
+        else { first_newline }
+      } else { first_space };
+    let starting_pattern = &text[..start_from];
+    let whole_new_text = &text[start_from..text.len()-4];
+    let peaces = whole_new_text.as_bytes()
+      .chunks(MESSAGE_LIMIT - 200)
+      .map(|s| unsafe { ::std::str::from_utf8_unchecked(s).replace("```", "'''") });
+    peaces.map(|s| format!("{}\n{}\n```", starting_pattern, s)).collect()
+  } else {
+    vec![text.to_string()]
+  }
 }
 
 pub fn split_message(text: &str) -> Vec<&str> {

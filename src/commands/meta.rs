@@ -87,12 +87,15 @@ async fn qrcode(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     error!("Error deleting original command {:?}", why);
   }
   let words = args.message();
-  let code = QrCode::new(words).unwrap();
-  let image = code.render::<unicode::Dense1x2>()
-      .dark_color(unicode::Dense1x2::Light)
-      .light_color(unicode::Dense1x2::Dark)
-      .build();
-  msg.channel_id.say(ctx, format!("```{}```", image)).await?;
+  if let Ok(code) = QrCode::new(words) {
+    let image = code.render::<unicode::Dense1x2>()
+        .dark_color(unicode::Dense1x2::Light)
+        .light_color(unicode::Dense1x2::Dark)
+        .build();
+    msg.channel_id.say(ctx, format!("```{}```", image)).await?;
+  } else {
+    msg.channel_id.say(ctx, "failed to get qr code").await?;
+  }
   Ok(())
 }
 

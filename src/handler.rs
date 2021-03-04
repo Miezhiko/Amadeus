@@ -310,9 +310,11 @@ impl EventHandler for Handler {
       }
       for embed in &msg.embeds {
         let mut not_stupid_zephyr = true;
-        if (&embed.description).is_some()
-          && embed.description.as_ref().unwrap().contains("DiscordAPIError") {
-          not_stupid_zephyr = false
+        
+        if let Some(desc) = &embed.description {
+          if desc.contains("DiscordAPIError") {
+            not_stupid_zephyr = false;
+          }
         }
         if not_stupid_zephyr {
           if let Err(why) = &msg.channel_id.send_message(&ctx, |m| {

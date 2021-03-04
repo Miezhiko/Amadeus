@@ -139,7 +139,7 @@ pub async fn give_points( guild_id: u64
     Ok(mbdata) => {
       if let Some(mut data) = mbdata {
         let byte_data: &mut [u8] = data.as_bytes_mut();
-        let mut points : Points = bincode::deserialize(byte_data).unwrap();
+        let mut points: Points = bincode::deserialize(byte_data).unwrap();
         if points.count >= points_count {
           points.count -= points_count;
           let new_bytes = bincode::serialize(&points).unwrap();
@@ -191,7 +191,7 @@ pub async fn give_points( guild_id: u64
   }
 }
 
-pub async fn get_points(guild_id: u64, user_id: u64) -> Result<u64, cannyls::Error> {
+pub async fn get_points(guild_id: u64, user_id: u64) -> eyre::Result<u64> {
   let mut storage = STORAGE.lock().await;
   task::spawn_blocking(move || {
     let u64_2: u128 = (guild_id as u128) << 64 | user_id as u128; // >
@@ -209,7 +209,7 @@ pub async fn get_points(guild_id: u64, user_id: u64) -> Result<u64, cannyls::Err
       }
     }
     Ok(0)
-  }).await.unwrap()
+  }).await?
 }
 
 pub async fn clear_points(guild_id: u64, user_id: u64) -> Result<bool, cannyls::Error> {

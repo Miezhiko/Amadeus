@@ -191,9 +191,9 @@ async fn after( ctx: &Context
   }
 }
 
-fn greeting_regex_from_str(c: &str) -> Regex {
+fn greeting_regex_from_str(c: &str) -> Option<Regex> {
   let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
-  Regex::new(&regex).unwrap()
+  Regex::new(&regex).ok()
 }
 
 #[hook]
@@ -202,7 +202,7 @@ async fn unrecognised_command( ctx: &Context
                              , _command_name: &str ) {
   static GREETINGS_CHECKS: Lazy<Vec<Regex>> =
     Lazy::new(||
-      GREETINGS.iter().map(|c|
+      GREETINGS.iter().filter_map(|c|
         greeting_regex_from_str(c)
       ).collect()
     );

@@ -31,7 +31,7 @@ async fn bert_translate(ctx: &Context, text: String, lang: Language)
       let translation = &output[0];
       Ok(translation.clone())
     }
-  }).await.unwrap()
+  }).await?
 }
 
 #[command]

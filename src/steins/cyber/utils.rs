@@ -32,7 +32,7 @@ pub fn get_league(l: u32) -> String {
 
 fn try_get_map(m: &str) -> String {
   String::from(
-    match m { "Overall"               => "All"
+    match m { "overall"               => "All"
             , "echoisles"             => "EI"
             , "northernisles"         => "NIS"
             , "amazonia"              => "AZ"
@@ -83,7 +83,8 @@ pub fn get_map(m: &str) -> String {
   let mut map = String::new();
   if let Some(caps) = MAP_REGEX.captures(m) {
     if let Some(group1) = caps.get(1) {
-      map = try_get_map(group1.as_str());
+      let lower_map = group1.as_str().to_lowercase();
+      map = try_get_map(&lower_map);
     }
   }
   if map.is_empty() { m.to_string() } else { map }

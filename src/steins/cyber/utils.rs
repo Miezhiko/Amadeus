@@ -40,12 +40,9 @@ fn try_get_map(m: &str) -> String {
             , "concealedhill"         => "CH"
             , "twistedmeadows"        => "TM"
             , "terenasstand"          => "TS"
-            , "terenasstandlv"        => "TSLV"
             , "autumnleaves"          => "AL"
             , "avalanche"             => "AV"
-            , "avalanchelv"           => "AVLV"
             , "losttemple"            => "LT"
-            , "losttemplelv"          => "LTLV"
             , "turtlerock"            => "TR"
             , "ruinsofazshara"        => "ROA"
             , "synergy"               => "Synergy"
@@ -83,13 +80,13 @@ fn try_get_map(m: &str) -> String {
 
 pub fn get_map(m: &str) -> String {
   static MAP_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(
-    r"^(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([a-zA-Z._']+?)(?:w3c|w3x)?(?:[0-9]+)?(?:_lv)?(?:_|\.)?(?:anon)?(?:_|\.)?$")
+    r"^(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([a-z._']+?)(?:w3c|w3x)?(?:[0-9]+)?(?:_lv|lv)?(?:_|\.)?(?:anon)?(?:_|\.)?$")
       .unwrap());
   let mut map = String::new();
-  if let Some(caps) = MAP_REGEX.captures(m) {
+  let lower_map = m.to_lowercase();
+  if let Some(caps) = MAP_REGEX.captures(&lower_map) {
     if let Some(group1) = caps.get(1) {
-      let lower_map = group1.as_str().to_lowercase();
-      map = try_get_map(&lower_map);
+      map = try_get_map(group1.as_str());
     }
   }
   if map.is_empty() { m.to_string() } else { map }
@@ -123,5 +120,7 @@ mod cyber_utils_tests {
     assert_eq!(get_map("_1v1_autumnleaves_anon"), "AL");
     assert_eq!(get_map("_gnollwood_anon"), "Gnoll Wood");
     assert_eq!(get_map("phantomgrovew3c201016"), "Phantom Grove");
+    assert_eq!(get_map("PhantomGroveW3C"), "Phantom Grove");
+    assert_eq!(get_map("DeadlockLV"), "Deadlock");
   }
 }

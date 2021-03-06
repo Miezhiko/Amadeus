@@ -40,9 +40,12 @@ fn try_get_map(m: &str) -> String {
             , "concealedhill"         => "CH"
             , "twistedmeadows"        => "TM"
             , "terenasstand"          => "TS"
+            , "terenasstandlv"        => "TSLV"
             , "autumnleaves"          => "AL"
-            , "avalanche"             => "AVLV"
+            , "avalanche"             => "AV"
+            , "avalanchelv"           => "AVLV"
             , "losttemple"            => "LT"
+            , "losttemplelv"          => "LTLV"
             , "turtlerock"            => "TR"
             , "ruinsofazshara"        => "ROA"
             , "synergy"               => "Synergy"
@@ -74,6 +77,7 @@ fn try_get_map(m: &str) -> String {
             , "tidehunters"           => "TH"
             , "royalgardens"          => "Royal Gardens"
             , "shatteredexile"        => "Shattered Exile"
+            , "kal'drassil"           => "Kal'drassil"
             , _                       => "" })
 }
 

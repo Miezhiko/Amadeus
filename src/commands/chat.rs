@@ -34,7 +34,7 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
         } else {
           ( &msg.author.name, 0 )
         };
-    let out = format!("Score for {} : {}", target, the_points);
+    let out = format!("Score for {}: {}", target, the_points);
     let footer = format!("Requested by {}", msg.author.name);
     if let Err(why) = msg.channel_id.send_message(ctx, |m| m
       .embed(|e| e
@@ -58,7 +58,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         first
       } else { 10 };
   if let Some(guild) = msg.guild(ctx).await {
-    let mut members_with_points : Vec<(Member, u64)> = Vec::new();
+    let mut members_with_points: Vec<(Member, u64)> = Vec::new();
     for (id, mem) in guild.members {
       if let Ok(p) = trees::get_points( guild.id.0, id.0 ).await {
         members_with_points.push( (mem, p) );
@@ -68,10 +68,10 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     }
     members_with_points.sort_by(|(_, pa), (_, pb) | pa.cmp(pb));
     members_with_points.reverse();
-    let mut out : Vec<String> = Vec::new();
+    let mut out: Vec<String> = Vec::new();
     for (i, (m, p)) in members_with_points.iter().take(top_x).enumerate() {
       let n = i + 1;
-      out.push(format!("{}. **{}** : **{}**", n, m.user.name, p));
+      out.push(format!("{}. **{}**: **{}**", n, m.user.name, p));
     }
     let title = format!("Top {} points", top_x);
     let footer = format!("Requested by {}", msg.author.name);

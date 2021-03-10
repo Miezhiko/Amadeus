@@ -36,7 +36,7 @@ async fn check_match( matchid: &str
   let url =
     format!("https://statistic-service.w3champions.com/api/matches/by-ongoing-match-id/{}", matchid);
 
-  let mut if_md : Option<MD> = None;
+  let mut if_md: Option<MD> = None;
 
   if let Ok(res) = rqcl.get(&url).send().await {
     match res.json::<MD>().await {
@@ -329,7 +329,7 @@ pub async fn check<'a>( ctx: &Context
                       , guild_id: u64
                       , rqcl: &reqwest::Client
                       ) -> Vec<StartingGame> {
-  let mut out : Vec<StartingGame> = Vec::new();
+  let mut out: Vec<StartingGame> = Vec::new();
   if let Ok(res) =
     rqcl.get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0")
         .send()
@@ -627,7 +627,7 @@ pub async fn check<'a>( ctx: &Context
           }
         }
 
-        let mut k_to_del : Vec<String> = Vec::new();
+        let mut k_to_del: Vec<String> = Vec::new();
         let mut games_lock = GAMES.lock().await;
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
@@ -635,7 +635,7 @@ pub async fn check<'a>( ctx: &Context
                 check_match(k, &track.players, rqcl).await {
               let fgame = &finished_game;
               if let Ok(mut msg) = ctx.http.get_message(LOG_CHANNEL.0, track.tracking_msg_id[0]).await {
-                let footer : String = format!("Passed: {} min", fgame.passed_time);
+                let footer: String = format!("Passed: {} min", fgame.passed_time);
                 // git first player for discord (again, as ususal)
                 let playa = track.players[0].discord;
                 if let Ok(user) = ctx.http.get_user(playa).await {
@@ -697,7 +697,7 @@ pub async fn check<'a>( ctx: &Context
                         if let Ok(p) = trees::get_points( guild_id, amadeus ).await {
                           let mut win_calculation = HashMap::new();
                           let mut waste = 0;
-                          let mut k : f32 = 2.0;
+                          let mut k: f32 = 2.0;
                           let mut losers_output = vec![];
                           for bet in &track.bets {
                             if *is_win == bet.positive {

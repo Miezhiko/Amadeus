@@ -1,7 +1,7 @@
 use regex::Regex;
 use once_cell::sync::Lazy;
 
-pub fn get_race(r : u32) -> String {
+pub fn get_race(r: u32) -> String {
   String::from(
     match r { 1 => "Human"
             , 2 => "Orc"
@@ -10,7 +10,7 @@ pub fn get_race(r : u32) -> String {
             , _ => "Random" })
 }
 
-pub fn get_race2(r : u32) -> String {
+pub fn get_race2(r: u32) -> String {
   String::from(
     match r { 1 => "H"
             , 2 => "O"

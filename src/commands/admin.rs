@@ -13,7 +13,7 @@ use serenity::{
 
 #[command]
 #[required_permissions(ADMINISTRATOR)]
-async fn idle(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
+async fn idle(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let what = args.message();
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -25,7 +25,7 @@ async fn idle(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 
 #[command]
 #[required_permissions(ADMINISTRATOR)]
-async fn stream(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
+async fn stream(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Ok(stream_url) = args.single::<String>() {
     let name = args.single::<String>().unwrap_or_else(|_| "Amadeus".to_string());
     if let Err(why) = msg.delete(&ctx).await {

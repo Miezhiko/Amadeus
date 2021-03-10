@@ -70,13 +70,13 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   };
   let url = "https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gameMode=1";
   let res = rqcl.get(url).send().await?;
-  let going : Going = res.json().await?;
+  let going: Going = res.json().await?;
   if !going.matches.is_empty() {
     let footer = format!("Requested by {}", msg.author.name);
     let mut embeds = vec![];
     for (i, chunk) in going.matches.chunks(ONGOING_PAGE_SIZE).enumerate() {
       let mut embed = CreateEmbed::default();
-      let mut description : String = String:: new();
+      let mut description: String = String:: new();
       for m in chunk {
         if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
           set! { g_map = get_map(&m.map)
@@ -168,7 +168,7 @@ async fn get_player(rqcl: &Arc<reqwest::Client>, target: &str, season: &str) -> 
 #[command]
 #[aliases(статистика)]
 #[description("display statistics on W3Champions")]
-async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
+async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
   let mut args_msg = args.message();
   if args_msg.is_empty() {
@@ -184,7 +184,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     let user = userx.replace("#","%23");
     let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?season={}&gateWay=20", user, season);
     let game_mode_res = rqcl.get(&game_mode_uri).send().await?;
-    let game_mode_stats : Vec<GMStats> =
+    let game_mode_stats: Vec<GMStats> =
       match game_mode_res.json::<Vec<GMStats>>().await {
         Ok(gms) => gms,
         Err(wha) => {
@@ -277,7 +277,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
     if !at_list.is_empty() {
       at_list.sort_by(|(mmra,_), (mmrb, _) | mmra.cmp(mmrb));
       at_list.reverse();
-      let map_of_sort : Vec<String> = at_list.into_iter().map(|(_, strx)| strx).take(5).collect();
+      let map_of_sort: Vec<String> = at_list.into_iter().map(|(_, strx)| strx).take(5).collect();
       if !map_of_sort.is_empty() {
         at_info = map_of_sort.join("\n");
       }
@@ -285,9 +285,9 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 
     let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?season={}&gateWay=20", user, season);
     let res = rqcl.get(&uri).send().await?;
-    let stats : Vec<Stats> = res.json().await?;
+    let stats: Vec<Stats> = res.json().await?;
 
-    let mut stats_by_races : String = String::new();
+    let mut stats_by_races: String = String::new();
     if !stats.is_empty() {
 
       let clan_uri = format!("https://statistic-service.w3champions.com/api/clans?battleTag={}", user);
@@ -297,7 +297,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
         if let Ok(clan_text_res) = clan_res.text().await {
           let clan_json_res = serde_json::from_str(&clan_text_res);
           if clan_json_res.is_ok() {
-            let clan_json : Value = clan_json_res.unwrap();
+            let clan_json: Value = clan_json_res.unwrap();
             if let Some(clan) = clan_json.pointer("/clanId") {
               if let Some(clan_str) = clan.as_str() {
                 clanned = format!("[{}] {}", clan_str, name);
@@ -310,10 +310,10 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
       for stat in &stats {
         let race = get_race(stat.race);
         let winrate = (stat.winrate * 100.0).round();
-        stats_by_races = format!("{}\n**{}**\t : *wins*: {}, *loses*: {}, *winrate*: **{}%**", stats_by_races, race, stat.wins, stat.losses, winrate);
+        stats_by_races = format!("{}\n**{}**\t: *wins*: {}, *loses*: {}, *winrate*: **{}%**", stats_by_races, race, stat.wins, stat.losses, winrate);
       }
 
-      let max_games : Option<&Stats> = stats.iter().max_by_key(|s| s.games);
+      let max_games: Option<&Stats> = stats.iter().max_by_key(|s| s.games);
       let max_games_race =
         if let Some(max) = max_games {
           max.race
@@ -339,7 +339,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 
       let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
       let res2 = rqcl.get(&uri2).send().await?;
-      let stats2 : Stats2 = res2.json().await?;
+      let stats2: Stats2 = res2.json().await?;
 
       let mut table = Table::new();
 
@@ -353,7 +353,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
               s3.race == 16 {
             for s4 in &s3.winLossesOnMap {
               let text = get_map(&s4.map);
-              let mut scores : HashMap<u32, String> = HashMap::new();
+              let mut scores: HashMap<u32, String> = HashMap::new();
               for s5 in &s4.winLosses {
                 let vs_winrate = (s5.winrate * 100.0).round();
                 let text = format!("{}%", vs_winrate);
@@ -420,7 +420,7 @@ async fn stats(ctx: &Context, msg: &Message, args : Args) -> CommandResult {
 #[command]
 #[min_args(2)]
 #[description("Generates ideal veto based on W3C statistics")]
-async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
+async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let args_msg = args.single::<String>()?;
   let race_vs = args.single::<String>()?;
 
@@ -554,7 +554,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
 #[min_args(2)]
 #[aliases(versus)]
 #[description("Show W3C statistics for two players")]
-async fn vs(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
+async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let p1 = args.single::<String>()?;
   let p2 = args.single::<String>()?;
 
@@ -653,7 +653,7 @@ async fn vs(ctx: &Context, msg: &Message, mut args : Args) -> CommandResult {
         let footer = format!("Requested by {}", msg.author.name);
         if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
             .embed(|e| e
-            .title(&format!("{} {} : {} {}", &name1, wins, loses, &name2))
+            .title(&format!("{} {}: {} {}", &name1, wins, loses, &name2))
             .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
             .description(match_strings.join("\n"))
             .footer(|f| f.text(footer)))).await {

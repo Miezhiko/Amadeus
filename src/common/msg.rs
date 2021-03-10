@@ -25,34 +25,34 @@ async fn serenity_channel_message_single(ctx: &Context, msg: &Message, text: &st
   }
 }
 
-async fn serenity_direct_message_multi(ctx: &Context, msg: &Message, texts : Vec<&str>) {
+async fn serenity_direct_message_multi(ctx: &Context, msg: &Message, texts: Vec<&str>) {
   for text in texts {
     serenity_direct_message_single(ctx, msg, text).await;
   }
 }
-async fn serenity_direct_message_multi2(ctx: &Context, msg: &Message, texts : Vec<String>) {
+async fn serenity_direct_message_multi2(ctx: &Context, msg: &Message, texts: Vec<String>) {
   for text in texts {
     serenity_direct_message_single(ctx, msg, &text).await;
   }
 }
 
-async fn serenity_reply_multi(ctx: &Context, msg: &Message, texts : Vec<&str>) {
+async fn serenity_reply_multi(ctx: &Context, msg: &Message, texts: Vec<&str>) {
   for text in texts {
     serenity_reply_single(ctx, msg, text).await;
   }
 }
-async fn serenity_reply_multi2(ctx: &Context, msg: &Message, texts : Vec<String>) {
+async fn serenity_reply_multi2(ctx: &Context, msg: &Message, texts: Vec<String>) {
   for text in texts {
     serenity_reply_single(ctx, msg, &text).await;
   }
 }
 
-async fn serenity_channel_message_multi(ctx: &Context, msg: &Message, texts : Vec<&str>) {
+async fn serenity_channel_message_multi(ctx: &Context, msg: &Message, texts: Vec<&str>) {
   for text in texts {
     serenity_channel_message_single(ctx, msg, text).await;
   }
 }
-async fn serenity_channel_message_multi2(ctx: &Context, msg: &Message, texts : Vec<String>) {
+async fn serenity_channel_message_multi2(ctx: &Context, msg: &Message, texts: Vec<String>) {
   for text in texts {
     serenity_channel_message_single(ctx, msg, &text).await;
   }

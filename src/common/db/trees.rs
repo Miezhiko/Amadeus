@@ -152,7 +152,7 @@ pub async fn give_points( guild_id: u64
             Ok(tmbdata) => {
               if let Some(mut tdata) = tmbdata {
                 let tbyte_data: &mut [u8] = tdata.as_bytes_mut();
-                let mut tpoints : Points = bincode::deserialize(tbyte_data).unwrap();
+                let mut tpoints: Points = bincode::deserialize(tbyte_data).unwrap();
                 tpoints.count += points_count;
                 let tnew_bytes = bincode::serialize(&tpoints).unwrap();
                 (*tbyte_data).copy_from_slice(&tnew_bytes[..]);

@@ -1,6 +1,6 @@
 use crate::{
-  types::{ common::CoreGuild,
-           options::* },
+  types::{ common::CoreGuild
+         , options::* },
   steins::{ gate
           , ai::{ cache, chain }
           , cyber::replay::{ replay_embed
@@ -108,7 +108,7 @@ impl EventHandler for Handler {
     info!("Connected as {}", ready.user.name);
     rejoin_voice_channel(&ctx, &self.roptions).await;
   }
-  async fn resume(&self, _ctx : Context, _ : ResumedEvent) {
+  async fn resume(&self, _ctx: Context, _: ResumedEvent) {
     info!("Resumed");
   }
   async fn guild_member_addition(&self, ctx: Context, guild_id: GuildId, member: Member) {
@@ -406,7 +406,7 @@ impl EventHandler for Handler {
             if rnd == 1 {
               chain::chat(&ctx, &msg).await;
             }
-            let rnd2 : u16 = rand::thread_rng().gen_range(0..2);
+            let rnd2: u16 = rand::thread_rng().gen_range(0..2);
             if rnd2 == 1 {
               let mut rng = StdRng::from_entropy();
               let emoji = REACTIONS.choose(&mut rng).unwrap();
@@ -441,7 +441,7 @@ impl EventHandler for Handler {
                               format!("Seems like {} doesn't respect me :(", &nick)
                             };
                             channel_message(&ctx, &msg, &repl).await;
-                            let new_nick : String = format!("Hater {}", &msg.author.name);
+                            let new_nick: String = format!("Hater {}", &msg.author.name);
                             if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m|
                               m.nickname(new_nick)).await {
                               error!("Failed to change user's nick {:?}", why2);

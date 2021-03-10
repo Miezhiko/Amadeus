@@ -94,7 +94,7 @@ pub async fn replay_embed( ctx: &Context
           );
         }
       }
-      let mut apm_image : Option<String> = None;
+      let mut apm_image: Option<String> = None;
       if !fields3.is_empty() {
         let (_, first_amp_list) = &fields3[0];
         let len: f32 = first_amp_list.len() as f32 - 1_f32;
@@ -154,7 +154,7 @@ pub async fn replay_embed( ctx: &Context
     if let Ok(mut bot_msg) = msg.channel_id.send_message(&ctx, |m| {
                                 m.embed(|e| { e.0 = embeds[0].0.clone(); e })
                               }).await {
-      let mut page : usize = 0;
+      let mut page: usize = 0;
       let left = ReactionType::Unicode(String::from("⬅️"));
       let right = ReactionType::Unicode(String::from("➡️"));
       let _ = bot_msg.react(&ctx, left).await;
@@ -298,7 +298,7 @@ pub async fn attach_replay( ctx: &Context
                       }
                     }
                     let fname_apm = format!("{}_apm.png", &file.filename);
-                    let mut apm_image : Option<String> = None;
+                    let mut apm_image: Option<String> = None;
                     if !fields3.is_empty() {
                       let (_, first_amp_list) = &fields3[0];
                       let len: f32 = first_amp_list.len() as f32 - 1_f32;

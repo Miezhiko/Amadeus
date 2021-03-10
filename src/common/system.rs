@@ -98,7 +98,7 @@ pub async fn get_system_info(ctx: &Context) -> SysInfo {
 pub async fn get_uptime(start: &str) -> (String, String) {
   let nao = Utc::now();
   let start_time = START_TIME.lock().await;
-  let since_start_time : Duration = nao - *start_time;
+  let since_start_time: Duration = nao - *start_time;
   let mut uptime_string = String::from(start);
 
   let dd = since_start_time.num_days();
@@ -235,7 +235,7 @@ pub async fn twitch_update(ctx: &Context) -> eyre::Result<()> {
     .await
     .expect("failed to run curl");
   if let Ok(curl_out) = &String::from_utf8(curl.stdout) {
-    let json : Value = serde_json::from_str(&curl_out)?;
+    let json: Value = serde_json::from_str(&curl_out)?;
     if let Some(token_type) = json.pointer("/token_type") {
       let mut out = capital_first(token_type.as_str().unwrap());
       if let Some(access_token) = json.pointer("/access_token") {

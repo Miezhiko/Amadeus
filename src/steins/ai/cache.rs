@@ -120,7 +120,7 @@ pub async fn update_cache( ctx: &Context
     }
   }
 
-  let mut ru_messages_for_translation : Vec<String> = vec![];
+  let mut ru_messages_for_translation: Vec<String> = vec![];
 
   let m_count = CHANNEL_CACHE_MAX * AI_LEARN.len() as u64;
   let progress_step = m_count / 5;
@@ -134,7 +134,7 @@ pub async fn update_cache( ctx: &Context
         let mut messages = chan.messages_iter(&ctx).boxed();
 
         info!("updating ai chain from {}", &c_name);
-        let mut i_ru_for_translation : u32 = 0;
+        let mut i_ru_for_translation: u32 = 0;
         let mut i: u64 = 0;
 
         while let Some(message_result) = messages.next().await {
@@ -278,7 +278,7 @@ pub async fn clear_cache() {
 pub async fn actualize_cache(ctx: &Context) {
   let nao = Utc::now();
   let mut last_update = LAST_UPDATE.lock().await;
-  let since_last_update : Duration = nao - *last_update;
+  let since_last_update: Duration = nao - *last_update;
   if since_last_update > Duration::hours(2) {
     let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
     let data = ctx.data.read().await;

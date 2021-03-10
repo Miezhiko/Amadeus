@@ -61,7 +61,7 @@ pub async fn activate_games_tracking(
     loop {
       { // scope for GAMES lock
         let mut games_lock = cyber::team_checker::GAMES.lock().await;
-        let mut k_to_del : Vec<String> = Vec::new();
+        let mut k_to_del: Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
           if track.passed_time < 666 {
             track.passed_time += 1;

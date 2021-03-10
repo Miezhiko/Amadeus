@@ -85,7 +85,7 @@ pub async fn activate_streamers_tracking(
   tokio::spawn(async move {
     let mut streams_lock = STREAMS.lock().await;
     loop {
-      let mut k_to_del : Vec<u64> = Vec::new();
+      let mut k_to_del: Vec<u64> = Vec::new();
       for (k, track) in streams_lock.iter_mut() {
         if track.passed_time < (60 * 24) {
           // for real it's 60 + some time for processing

@@ -15,7 +15,7 @@ pub async fn get_roptions() -> eyre::Result<ROptions> {
   Ok(rdn)
 }
 
-pub async fn put_roptions(opts : &ROptions) -> eyre::Result<()> {
+pub async fn put_roptions(opts: &ROptions) -> eyre::Result<()> {
   let rdn = rudano::to_string_pretty(opts)?;
   fs::write(RUDANO_FILE_NAME, rdn).await?;
   Ok(())

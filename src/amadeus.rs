@@ -241,7 +241,7 @@ async fn help_command( ctx: &Context
 }
 
 #[instrument]
-pub async fn run(opts : &IOptions) ->
+pub async fn run(opts: &IOptions) ->
   eyre::Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
   LogTracer::init()?;

@@ -34,7 +34,7 @@ pub async fn tour_internal( ctx: &Context
     set! { str_date_now = on.format("%Y%m%d").to_string()
          , str_time_now = on.format("%H%M").to_string() };
 
-    let mut eventos : Vec<(String, String, bool)> = Vec::new();
+    let mut eventos: Vec<(String, String, bool)> = Vec::new();
 
     set!{ utc       = chrono::Utc::now()
         , cet_time  = utc.with_timezone(&chrono_tz::CET).time()
@@ -173,7 +173,7 @@ pub async fn tour_internal( ctx: &Context
   Ok(())
 }
 
-pub async fn tour(ctx: &Context, msg: &Message, on : DateTime<Utc>) -> CommandResult {
+pub async fn tour(ctx: &Context, msg: &Message, on: DateTime<Utc>) -> CommandResult {
   tour_internal(ctx, &msg.channel_id, on, false, true).await
 }
 
@@ -181,7 +181,7 @@ pub async fn tour(ctx: &Context, msg: &Message, on : DateTime<Utc>) -> CommandRe
 #[aliases(вчера)]
 #[description("display yesterday events from w3info")]
 pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
-  let yesterday : DateTime<Utc> = Utc::now() - Duration::days(1); 
+  let yesterday: DateTime<Utc> = Utc::now() - Duration::days(1); 
   tour(ctx, msg, yesterday).await?;
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -193,7 +193,7 @@ pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
 #[aliases(сегодня)]
 #[description("display today events from w3info")]
 pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
-  let today : DateTime<Utc> = Utc::now(); 
+  let today: DateTime<Utc> = Utc::now(); 
   tour_internal(ctx, &msg.channel_id, today, true, true).await?;
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -205,7 +205,7 @@ pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
 #[aliases(завтра)]
 #[description("display tomorrow events from w3info")]
 pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
-  let tomorrow : DateTime<Utc> = Utc::now() + Duration::days(1); 
+  let tomorrow: DateTime<Utc> = Utc::now() + Duration::days(1); 
   tour(ctx, msg, tomorrow).await?;
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -217,7 +217,7 @@ pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
 #[aliases(выходные)]
 #[description("display weekends events from w3info")]
 pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
-  let mut today : DateTime<Utc> = Utc::now();
+  let mut today: DateTime<Utc> = Utc::now();
   if today.weekday() == Weekday::Sun {
     tour_internal(ctx, &msg.channel_id, today, true, false).await?;
   } else {
@@ -228,7 +228,7 @@ pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
       }
     }
     tour_internal(ctx, &msg.channel_id, today, is_saturday, true).await?;
-    let tomorrow : DateTime<Utc> = today + Duration::days(1); 
+    let tomorrow: DateTime<Utc> = today + Duration::days(1); 
     tour(ctx, msg, tomorrow).await?;
   }
   if let Err(why) = msg.delete(&ctx).await {
@@ -240,10 +240,10 @@ pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 #[description("ugly useless command")]
 pub async fn lineup(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let mut maps_out : Vec<(String, String, bool)> = Vec::new();
+  let mut maps_out: Vec<(String, String, bool)> = Vec::new();
   let text = args.message();
 
-  let check_for_title : Vec<String> =
+  let check_for_title: Vec<String> =
     text.split('|').map(str::to_string).collect();
 
   let title = if check_for_title.len() > 1 {
@@ -261,7 +261,7 @@ pub async fn lineup(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   };
 
   let playermap_split = players.split(' ').filter(|x| !x.is_empty());
-  let playermap : Vec<String> =
+  let playermap: Vec<String> =
     playermap_split.map(str::to_string).collect();
   for i in (0..(playermap.len() -1)).step_by(2) {
     maps_out.push((playermap[i].clone(), playermap[i + 1].clone(), true));

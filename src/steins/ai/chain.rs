@@ -75,7 +75,7 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
 
 pub async fn generate_with_language(ctx: &Context, russian: bool) -> String {
   cache::actualize_cache(ctx).await;
-  let chain : MutexGuard<Chain<String>> =
+  let chain: MutexGuard<Chain<String>> =
     if russian {
       CACHE_RU.lock().await
     } else {
@@ -95,7 +95,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
   let russian = if let Some(rus) = mbrussian
     { rus } else { lang::is_russian(msg_content) };
   cache::actualize_cache(ctx).await;
-  let chain : MutexGuard<Chain<String>> =
+  let chain: MutexGuard<Chain<String>> =
     if russian {
         CACHE_RU.lock().await
       } else {
@@ -199,7 +199,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
       if let Ok(translated) = bert::en2ru(answer.clone()).await {
         // feminize translated text
         let kathoey = KATHOEY.lock().await;
-        let rndy : u32 = rand::thread_rng().gen_range(0..15);
+        let rndy: u32 = rand::thread_rng().gen_range(0..15);
         answer =
           if rndy == 1 {
             kathoey.extreme_feminize(&translated)
@@ -208,10 +208,10 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
           };
       }
     } else {
-      let rndxx : u32 = rand::thread_rng().gen_range(0..2);
+      let rndxx: u32 = rand::thread_rng().gen_range(0..2);
       if rndxx == 1 {
         let kathoey = KATHOEY.lock().await;
-        let rndxxx : u32 = rand::thread_rng().gen_range(0..15);
+        let rndxxx: u32 = rand::thread_rng().gen_range(0..15);
         answer =
           if rndxxx == 1 {
             kathoey.extreme_feminize(&answer)

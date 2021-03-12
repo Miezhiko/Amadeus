@@ -22,11 +22,13 @@ pub fn get_race2(r: u32) -> String {
 pub fn get_league(l: u32) -> String {
   String::from(match l { 0 => "GrandMaster"
                        , 1 => "Master"
-                       , 2 => "Diamond"
-                       , 3 => "Platinum"
-                       , 4 => "Gold"
-                       , 5 => "Silver"
-                       , 6 => "Bronze"
+                       , 2 => "Adept"
+                       , 3 => "Diamond"
+                       , 4 => "Platinum"
+                       , 5 => "Gold"
+                       , 6 => "Silver"
+                       , 7 => "Bronze"
+                       , 8 => "Grass"
                        , _ => "" })
 }
 

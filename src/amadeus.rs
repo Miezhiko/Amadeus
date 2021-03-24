@@ -124,7 +124,7 @@ struct Owner;
 #[group("Admin")]
 #[checks(Admin)]
 #[help_available(false)]
-#[commands(idle, stream, give_win, register_lose, mute, unmute)]
+#[commands(give_win, register_lose, mute, unmute)]
 struct Admin;
 
 #[cfg(feature = "flo")]

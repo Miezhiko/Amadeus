@@ -6,6 +6,12 @@ use crate::{
   }
 };
 
+#[cfg(feature = "voice_analysis")]
+use crate::common::voice_analysis::*;
+
+#[cfg(feature = "voice_analysis")]
+use songbird::CoreEvent;
+
 use serenity::{
   prelude::*,
   model::{
@@ -49,6 +55,7 @@ pub async fn rejoin_voice_channel(ctx: &Context, conf: &ROptions) {
 }
 
 #[command]
+#[only_in("guilds")]
 #[description("join voice channel")]
 async fn join(ctx: &Context, msg: &Message) -> CommandResult {
   let guild = match msg.guild(&ctx).await {
@@ -71,8 +78,8 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
   };
   let manager = songbird::get(ctx).await
     .expect("Songbird Voice client placed in at initialisation.").clone();
-  let (_call, j) = manager.join(guild_id, connect_to).await;
-  if j.is_ok() {
+  let (_handler_lock, conn_result) = manager.join(guild_id, connect_to).await;
+  if conn_result.is_ok() {
     let mut opts = options::get_roptions().await?;
     if opts.last_guild != guild_id.0
     || opts.last_channel != connect_to.0
@@ -82,6 +89,18 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
       opts.last_channel = connect_to.0;
       options::put_roptions(&opts).await?;
     }
+
+    #[cfg(feature = "voice_analysis")]
+    {
+      let mut handler = _handler_lock.lock().await;
+
+      handler.add_global_event(CoreEvent::SpeakingStateUpdate.into(), Receiver::new());
+      handler.add_global_event(CoreEvent::SpeakingUpdate.into(), Receiver::new());
+      handler.add_global_event(CoreEvent::VoicePacket.into(), Receiver::new());
+      handler.add_global_event(CoreEvent::ClientConnect.into(), Receiver::new());
+      handler.add_global_event(CoreEvent::ClientDisconnect.into(), Receiver::new());
+    }
+
     if let Err(why) = msg.channel_id.say(&ctx, &format!("I've joined {}", connect_to.mention())).await {
       error!("failed to say joined {:?}", why);
     }

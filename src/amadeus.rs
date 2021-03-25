@@ -8,7 +8,8 @@ use crate::{
   steins::ai::chain,
   common::{ options,
     i18n::{ help_i18n, US_ENG },
-    system::ShardManagerContainer
+    system::ShardManagerContainer,
+    voice::DECODE_TYPE
   },
   handler::Handler,
   commands::{ meta::*, chat::*
@@ -24,10 +25,10 @@ use crate::{
 #[cfg(feature = "flo")]
 use crate::commands::host::*;
 
-// This trait adds the `register_songbird` and `register_songbird_with` methods
-// to the client builder below, making it easy to install this voice client.
-// The voice client can be retrieved in any command using `songbird::get(ctx).await`.
-use songbird::SerenityInit;
+use songbird::{
+  driver::Config as DriverConfig,
+  {SerenityInit, Songbird},
+};
 
 use serenity::{
   prelude::*,
@@ -320,6 +321,16 @@ pub async fn run(opts: &IOptions) ->
     std_framework = std_framework.group(&FLO_GROUP)
   }
 
+  // Here, we need to configure Songbird to decode all incoming voice packets.
+  // If you want, you can do this on a per-call basis---here, we need it to
+  // read the audio data that other people are sending us!
+  let songbird = Songbird::serenity();
+  songbird.set_config(
+    DriverConfig::default()
+      .decode_mode(DECODE_TYPE.clone())
+      .crypto_mode(songbird::driver::CryptoMode::Normal),
+  );
+
   let mut client =
     serenity::Client::builder(&opts.discord)
       .event_handler(Handler::new( opts
@@ -328,7 +339,7 @@ pub async fn run(opts: &IOptions) ->
                                  )
                     )
       .framework(std_framework)
-      .register_songbird().await?;
+      .register_songbird_with(songbird.into()).await?;
   {
     let mut data = client.data.write().await;
     data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));

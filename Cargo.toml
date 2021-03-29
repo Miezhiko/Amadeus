@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "4.5.14"
+version     = "4.5.15"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -11,8 +11,9 @@ license     = "AGPL-3.0-or-later"
 
 [features]
 default = ["flo"]
+full = ["flo", "voice_analysis"]
 flo = ["tonic", "hex", "tokio-compat-02", "flo-grpc"]
-voice_analysis = ["deepspeech"]
+voice_analysis = ["audrey", "dasp_interpolate", "dasp_signal", "deepspeech"]
 
 [dependencies]
 chrono              = "0.4"
@@ -98,6 +99,19 @@ optional = true
 [dependencies.tokio]
 version = "1.4"
 features = ["full"]
+
+[dependencies.audrey]
+version = "0.3"
+optional = true
+
+[dependencies.dasp_signal]
+version = "0.11"
+optional = true
+
+[dependencies.dasp_interpolate]
+version = "0.11"
+optional = true
+features = ["linear"]
 
 [dependencies.deepspeech]
 version = "0.9"

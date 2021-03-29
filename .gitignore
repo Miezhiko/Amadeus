@@ -13,3 +13,6 @@ misc/secret
 *.w3g
 *.out
 *.lock
+
+# deepseach models
+ds/

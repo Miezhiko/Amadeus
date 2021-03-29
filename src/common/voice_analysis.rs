@@ -1,7 +1,7 @@
 use crate::common::voice::*;
+use crate::common::voice_to_text::*;
 
 use serenity::async_trait;
-use serenity::prelude::TypeMapKey;
 use songbird::driver::DecodeMode;
 use songbird::model::id::UserId;
 use songbird::model::payload::{ClientConnect, ClientDisconnect, Speaking};
@@ -24,11 +24,11 @@ pub struct Receiver {
 
 impl Receiver {
   pub fn new() -> Self {
-  // You can manage state here, such as a buffer of audio packet bytes so
-  // you can later store them in intervals.
-  let ssrc_map = Arc::new(RwLock::new(HashMap::new()));
-  let audio_buffer = Arc::new(RwLock::new(HashMap::new()));
-  let encoded_audio_buffer = Arc::new(RwLock::new(HashMap::new()));
+    // You can manage state here, such as a buffer of audio packet bytes so
+    // you can later store them in intervals.
+    let ssrc_map = Arc::new(RwLock::new(HashMap::new()));
+    let audio_buffer = Arc::new(RwLock::new(HashMap::new()));
+    let encoded_audio_buffer = Arc::new(RwLock::new(HashMap::new()));
     Self {
       ssrc_map,
       audio_buffer,
@@ -40,7 +40,7 @@ impl Receiver {
 // orginally taken from https://github.com/tazz4843/scripty/blob/main/src/utils.rs
 #[async_trait]
 impl VoiceEventHandler for Receiver {
-  //noinspection SpellCheckingInspection
+  // noinspection SpellCheckingInspection
   #[allow(unused_variables)]
   async fn act(&self, ctx: &EventContext<'_>) -> Option<Event> {
     use EventContext as Ctx;
@@ -94,7 +94,7 @@ impl VoiceEventHandler for Receiver {
               }
             }
             _ => {
-              panic!("No supported decode mode found!")
+              error!("No supported decode mode found!")
             }
           }
         } // otherwise just ignore it since we can't do anything about that
@@ -104,45 +104,43 @@ impl VoiceEventHandler for Receiver {
         // or stopping speaking.
         let uid: u64 = {
           let map = self.ssrc_map.read().await;
-          match map.get(&ssrc) {
+          match map.get(ssrc) {
             Some(u) => u.to_string().parse().unwrap(),
             None => 0,
           }
         };
-        if *speaking {
-          // user started speaking, reset buffer if not already
-          self.audio_buffer.write().await.clear();
-          self.encoded_audio_buffer.write().await.clear();
-        } else {
+        if !*speaking {
           match DECODE_TYPE {
             DecodeMode::Decrypt => {
               // all of this code reeks of https://www.youtube.com/watch?v=lIFE7h3m40U
-              println!("Decode mode is DecodeMode::Decrypt");
-              tokio::task::spawn_blocking(move || {});
-              let buf = self.encoded_audio_buffer.read().await;
-              let audio = match buf.get(ssrc) {
-                Some(a) => a,
-                None => {
-                  println!(
-                    "Didn't find a user with SSRC {} in the audio buffers.",
-                    ssrc
-                  );
-                  return None;
+              let audio = {
+                let mut buf = self.encoded_audio_buffer.write().await;
+                match buf.insert(*ssrc, Vec::new()) {
+                  Some(a) => a,
+                  None => {
+                    warn!(
+                      "Didn't find a user with SSRC {} in the audio buffers.",
+                      ssrc
+                    );
+                    return None;
+                  }
                 }
               };
+
               let file_id = Uuid::new_v4();
+              let file_path = format!("{}.wav", file_id.as_u128());
               let args = [
                 "-f",
                 "s16be",
                 "-ar",
                 "8000",
                 "-ac",
-                "2",
+                "1",
                 "-acodec",
                 "pcm_s16le",
                 "-i",
                 "-",
-                &format!("{}.wav", file_id.as_u128()),
+                &file_path,
               ];
 
               let mut child = match Command::new("ffmpeg")
@@ -154,11 +152,11 @@ impl VoiceEventHandler for Receiver {
                 .spawn()
               {
                 Err(e) => {
-                  println!("Failed to spawn FFMPEG!");
+                  error!("Failed to spawn FFMPEG! {:?}", e);
                   return None;
                 }
                 Ok(c) => {
-                  println!("Spawned FFMPEG!");
+                  info!("Spawned FFMPEG!");
                   c
                 }
               };
@@ -166,36 +164,55 @@ impl VoiceEventHandler for Receiver {
               match child.stdin {
                 Some(ref mut stdin) => {
                   for i in audio {
-                    if let Err(e) = stdin.write_u8(*i).await {
-                      println!("Failed to write byte to FFMPEG stdin! {}", e);
+                    if let Err(e) = stdin.write_u8(i).await {
+                      error!("Failed to write byte to FFMPEG stdin! {}", e);
                     };
                   }
                 }
                 None => {
-                  println!("Failed to open FFMPEG stdin!");
+                  error!("Failed to open FFMPEG stdin!");
                   return None;
                 }
               };
-              // we now have a file named "{}.pcm" where {} is the user's SSRC.
+
+              // we now have a file named "{}.wav" where {} is the user's SSRC.
               // at this point we shouldn't do anything more in this function to avoid blocking too long.
               // we've already done what cannot be done in another function, which is getting the actual audio
               // so we spawn a background thread to do the rest, and return from this function.
               tokio::spawn(async move {
                 // this one line ^ is why the entire bot needs nightly Rust
-                let _ = child.wait().await;
-              }); // TODO: actually implement the DeepSpeech lib!
-              self.audio_buffer.write().await.clear(); // now to clear buffer
+                match child.wait().await {
+                  Ok(_) => {
+                    match run_stt(file_path.clone()).await {
+                      Ok(r) => {
+                        info!("Text: {}", r);
+                      }
+                      Err(e) => {
+                        warn!("Failed to run speech-to-text! {}", e);
+                      }
+                    };
+                  }
+                  Err(e) => {
+                    error!("FFMPEG failed! {}", e);
+                  }
+                };
+                if let Err(e) = tokio::fs::remove_file(&file_path).await {
+                  error!("Failed to delete {}! {}", &file_path, e);
+                };
+                ()
+              });
+
             }
             DecodeMode::Decode => {
-              println!("Decode mode is DecodeMode::Decode");
+              info!("Decode mode is DecodeMode::Decode");
               unimplemented!();
             }
             _ => {
-              println!("Decode mode is invalid!");
+              error!("Decode mode is invalid!");
             }
           }
         }
-        println!(
+        info!(
           "Source {} (ID {}) has {} speaking.",
           ssrc,
           uid,
@@ -210,8 +227,7 @@ impl VoiceEventHandler for Receiver {
       } => {
         // An event which fires for every received audio packet,
         // containing the decoded data.
-
-        let uid: u64 = {
+        let _uid: u64 = {
           // block that will drop lock when exited
           let map = self.ssrc_map.read().await;
           match map.get(&packet.ssrc) {
@@ -220,12 +236,12 @@ impl VoiceEventHandler for Receiver {
           }
         };
         match audio {
-          Some(audio) => {
-            println!("Decoded audio is not currently supported.");
+          Some(_audio) => {
+            warn!("Decoded audio is not currently supported.");
           }
           _ => {
             let audio_range: &usize = &(packet.payload.len() - payload_end_pad);
-            let range = std::ops::Range {
+            let _range = std::ops::Range {
               start: payload_offset,
               end: audio_range,
             };
@@ -272,7 +288,7 @@ impl VoiceEventHandler for Receiver {
           let mut map = self.ssrc_map.write().await;
           map.insert(*audio_ssrc, *user_id);
         }
-        println!(
+        info!(
           "Client connected: user {:?} has audio SSRC {:?}, video SSRC {:?}",
           user_id, audio_ssrc, video_ssrc,
         );
@@ -312,13 +328,14 @@ impl VoiceEventHandler for Receiver {
           map.remove(&u);
         };
 
-        println!("Client disconnected: user {:?}", user_id);
+        info!("Client disconnected: user {:?}", user_id);
       }
       _ => {
         // We won't be registering this struct for any more event classes.
         unimplemented!()
       }
     }
+
     None
   }
 }

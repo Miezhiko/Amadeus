@@ -37,6 +37,7 @@
  - Transfer learning using chats context
  - Automatic translation with bert models
  - Rule-based grammatical error correction
+ - [Deepspeach](https://github.com/mozilla/DeepSpeech) for voice[WIP]
  - Live games tracking on [w3champions](https://www.w3champions.com)
  - W3info news tracking using calendar
  - Replays parsing (click emoji to get report)
@@ -53,7 +54,7 @@
  - Bets on live games with `~bet` and emojis under Live tracking games
  - Warcraft 3 commands `~stats`, `~today` and more with info from wacraft3.info and W3C ladder
  - Warcraft 3 hostbot API integration (creating games) using flo services and tonic for RPC [WIP]
- - MMR system for hosted games alike on [W3C](https://github.com/Qeenon/w3champions-mmr-service) [WIP]
+
 
 ## Cooking
 

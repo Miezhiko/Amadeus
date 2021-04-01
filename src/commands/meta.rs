@@ -286,10 +286,12 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 #[aliases(время)]
 #[description("display current time")]
-async fn time(ctx: &Context, msg: &Message) -> CommandResult {
+async fn time(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
+
+  let mb_tz = args.message();
 
   let utc = chrono::Utc::now();
   let time_format = "%k:%M";
@@ -341,11 +343,22 @@ async fn time(ctx: &Context, msg: &Message) -> CommandResult {
       , msk_emoji = get_emoji(msk_pattern)
       , est_emoji = get_emoji(est_pattern) };
 
+  let mut desc =
+    format!("**CET**: {} {}\n**MSK**: {} {}\n**EST**: {} {}", cet, cet_emoji, msk, msk_emoji, est, est_emoji);
+
+  if let Ok(tz) = mb_tz.parse::<chrono_tz::Tz>() {
+    let tz_time = utc.with_timezone(&tz).time();
+    let tz_fmt = tz_time.format(time_format);
+    let tz_pattern = (est_time.hour12().1, munutes_first_half);
+    let tz_emoji = get_emoji(tz_pattern);
+    desc = format!("{}\n**{}**: {} {}", desc, mb_tz, tz_fmt, tz_emoji);
+  }
+
   let mut eb = CreateEmbed::default();
   let footer = format!("Requested by {}", msg.author.name);
   eb.color(0xe735cc);
   eb.title("Time");
-  eb.description(format!("**CET**: {} {}\n**MSK**: {} {}\n**EST**: {} {}", cet, cet_emoji, msk, msk_emoji, est, est_emoji));
+  eb.description(desc);
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
   eb.footer(|f| f.text(footer));
 

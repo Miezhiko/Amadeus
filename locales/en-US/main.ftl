@@ -22,6 +22,7 @@ user-commands = • **ttt** *<@user>* *<N>*: play tic tac toe for points
   • **urban** *<thing>*: explains a thing
   • **gif** *<thing>*, cry, hug, pat, slap, cringe, wave, sex, ahegao, clap, shrug, lol, angry, dance, confused, shock, nervous, sad, happy, annoyed, omg, smile, ew, awkward, oops, lazy, hungry, stressed, scared, bored, yes, no, bye, sorry, sleepy, wink, facepalm, whatever, pout, smug, smirk
   • **ru2en** *<text>*: translation, also **en2ru** **en2de** **en2fr** **de2en** **fr2en**
+  • **time** *<timezone>*: show current time in different timezones
 
 music-commands-title = music commands
 music-commands = • **join**: to your voice channel (you should be there)

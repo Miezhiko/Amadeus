@@ -653,7 +653,7 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         let footer = format!("Requested by {}", msg.author.name);
         if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
             .embed(|e| e
-            .title(&format!("{} {}: {} {}", &name1, wins, loses, &name2))
+            .title(&format!("{} {} : {} {}", &name1, wins, loses, &name2))
             .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
             .description(match_strings.join("\n"))
             .footer(|f| f.text(footer)))).await {

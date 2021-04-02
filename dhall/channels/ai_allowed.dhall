@@ -16,5 +16,7 @@ let channels : List Channel =
   , bi 611824891666104320 -- "🚧random"
   , bi 755768364390940692 -- "💻computers"
   , bi 666614389805416448 -- "🌈climatestrike"
+  , ru 827151604053835807 -- nejit1
+  , ru 827154134163390535 -- nejit2
   ]
 in channels

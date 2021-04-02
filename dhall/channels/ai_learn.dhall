@@ -21,5 +21,7 @@ let channels : List Channel =
   , bi 695909020732620830 -- "division-2"
   , bi 666614389805416448 -- "🌈climatestrike"
   , bi 611824913829068800 -- "🇯🇵日本語"
+  , ru 827151604053835807 -- nejit1
+  , ru 827154134163390535 -- nejit2
   ]
 in channels

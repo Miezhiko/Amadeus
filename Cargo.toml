@@ -7,7 +7,7 @@ readme      = "README.md"
 keywords    = [ "discord", "bot" ]
 edition     = "2018"
 description = "memory storage and artificial intelligence system"
-license     = "AGPL-3.0-or-later"
+license     = "AGPL-3.0-only"
 
 [features]
 default = ["flo"]

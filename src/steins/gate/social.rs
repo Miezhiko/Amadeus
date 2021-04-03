@@ -1,10 +1,9 @@
 use crate::{
   common::{
     system,
-    constants::{
-      MAIN_CHANNEL,
-      LOG_CHANNEL
-    }
+    constants::{ MAIN_CHANNEL
+               , MIST_CHANNEL
+               , LOG_CHANNEL }
   },
   steins::ai::{ cache, chain, bert, reinit },
   commands::pad::update_current_season
@@ -32,9 +31,13 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
     loop {
       let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 10;
       let rndx = rand::thread_rng().gen_range(0..activity_level);
-      if rndx == 1 {
-        let ai_text = chain::generate_with_language(&ctx_clone, false).await;
-        if let Err(why) = MAIN_CHANNEL.send_message(&ctx_clone, |m| {
+      if rndx < 3 {
+        let (chanz, ru) = match rndx {
+          0 => { (MAIN_CHANNEL, false) },
+          _ => { (MIST_CHANNEL, true) }
+        };
+        let ai_text = chain::generate_with_language(&ctx_clone, ru).await;
+        if let Err(why) = chanz.send_message(&ctx_clone, |m| {
           m.content(ai_text)
         }).await {
           error!("Failed to post periodic message {:?}", why);

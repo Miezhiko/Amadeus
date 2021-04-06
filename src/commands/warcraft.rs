@@ -2,10 +2,8 @@ use serenity::{
   prelude::*,
   model::{ channel::*
          , id::ChannelId },
-  framework::standard::{
-    Args, CommandResult,
-    macros::command
-  }
+  framework::standard::{ CommandResult
+                       , macros::command }
 };
 
 use std::io::BufReader;
@@ -21,6 +19,8 @@ pub async fn tour_internal( ctx: &Context
                           , passed_check: bool
                           , report_no_events: bool
                           ) -> CommandResult {
+
+  // TODO:: find non-blocking alternative for IcalParser
   let maybe_reader = task::spawn_blocking(move || {
     if let Ok(res) = reqwest::blocking::get("https://warcraft3.info/ical-events") {
       let buf = BufReader::new(res);
@@ -36,8 +36,8 @@ pub async fn tour_internal( ctx: &Context
 
     let mut eventos: Vec<(String, String, bool)> = Vec::new();
 
-    set!{ utc       = chrono::Utc::now()
-        , cet_time  = utc.with_timezone(&chrono_tz::CET).time()
+    set!{ utc      = chrono::Utc::now()
+        , cet_time = utc.with_timezone(&chrono_tz::CET).time()
         , msk_time = utc.with_timezone(&chrono_tz::Europe::Moscow).time()
         , h_offset = msk_time.hour() - cet_time.hour() };
 
@@ -54,7 +54,6 @@ pub async fn tour_internal( ctx: &Context
                 if let Some(val) = ep.value {
                   if val.len() >= 8 {
                     let str_date = &val[..8];
-
                     let not_passed = if passed_check {
                       if let Ok(local_utc_time) = str_time_now.parse::<i32>() {
                         let str_hour_mins = &val[9..13];
@@ -68,7 +67,7 @@ pub async fn tour_internal( ctx: &Context
                       is_today = true;
                       if val.len() >= 14 {
                         set! { str_hour = &val[9..11]
-                             , str_min = &val[11..13] };
+                             , str_min  = &val[11..13] };
                         let msk =
                           if let Ok(str_int) = str_hour.parse::<u32>() {
                             let mut msk_h = str_int + h_offset;
@@ -142,7 +141,7 @@ pub async fn tour_internal( ctx: &Context
       }
       if let Some(msg_id) = post_to_edit {
         if let Ok(mut msg) = ctx.http.get_message( channel_id.0
-                                                , msg_id.0 ).await {
+                                                 , msg_id.0 ).await {
           if let Err(why) = msg.edit(&ctx, |m| m
             .embed(|e| e
               .title(title)
@@ -230,53 +229,6 @@ pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
     tour_internal(ctx, &msg.channel_id, today, is_saturday, true).await?;
     let tomorrow: DateTime<Utc> = today + Duration::days(1); 
     tour(ctx, msg, tomorrow).await?;
-  }
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-  Ok(())
-}
-
-#[command]
-#[description("ugly useless command")]
-pub async fn lineup(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let mut maps_out: Vec<(String, String, bool)> = Vec::new();
-  let text = args.message();
-
-  let check_for_title: Vec<String> =
-    text.split('|').map(str::to_string).collect();
-
-  let title = if check_for_title.len() > 1 {
-    let s = &check_for_title[0];
-    String::from(s.trim())
-  } else {
-    String::from("Custom lineup")
-  };
-
-  let players = if check_for_title.len() > 1 {
-    let s = &check_for_title[1];
-    String::from(s.trim())
-  } else {
-    String::from(text)
-  };
-
-  let playermap_split = players.split(' ').filter(|x| !x.is_empty());
-  let playermap: Vec<String> =
-    playermap_split.map(str::to_string).collect();
-  for i in (0..(playermap.len() -1)).step_by(2) {
-    maps_out.push((playermap[i].clone(), playermap[i + 1].clone(), true));
-  }
-
-  let footer = format!("Made by {}", msg.author.name);
-
-  if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
-    .embed(|e| e
-      .title(title)
-      .fields(maps_out)
-      .colour((255,182,193))
-      .footer(|f| f.text(footer))
-    )).await {
-    error!("Error sending help message: {:?}", why);
   }
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);

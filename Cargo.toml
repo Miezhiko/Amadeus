@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "4.5.19"
+version     = "4.5.20"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -45,7 +45,7 @@ fluent-templates    = "0.6"
 sled                = "0.34"
 kathoey             = "1.0"
 songbird            = "0.1.5"
-serde_dhall         = "0.10.0"
+serde_dhall         = "0.10"
 
 # rust bert needs update
 tch                 = "0.3"

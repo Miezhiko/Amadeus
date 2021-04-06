@@ -100,7 +100,7 @@ struct Images;
 
 #[group("Warcraft")]
 #[description = "Warcraft events"]
-#[commands(lineup, yesterday, today, tomorrow, weekends)]
+#[commands(yesterday, today, tomorrow, weekends)]
 struct Warcraft;
 
 #[group("W3C")]

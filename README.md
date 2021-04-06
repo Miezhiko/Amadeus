@@ -53,7 +53,7 @@
  - Versus command showing score for one player against another for x seasons
  - Bets on live games with `~bet` and emojis under Live tracking games
  - Warcraft 3 commands `~stats`, `~today` and more with info from wacraft3.info and W3C ladder
- - Warcraft 3 hostbot API integration (creating games) using flo services and tonic for RPC [WIP]
+ - Warcraft 3 hostbot API integration (creating games) using flo services and tonic for RPC
 
 
 ## Cooking
@@ -124,5 +124,6 @@ systemctl restart Amadeus
 
 ## Notes
 
- - Work in progress
- - Check TODO.md
+ - Check TODO.md for planned work
+ - You need libdeepspeech for voice analysis feature
+

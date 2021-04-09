@@ -19,8 +19,6 @@ use flo_grpc::controller::*;
 use flo_grpc::player::*;
 use flo_grpc::game::*;
 
-use tokio_compat_02::FutureExt;
-
 #[command]
 #[aliases(nodes)]
 async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
@@ -31,7 +29,7 @@ async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let mut rpc = get_grpc_client(flo_secret).compat().await;
+  let mut rpc = get_grpc_client(flo_secret).await;
   let nodes_reply = rpc.list_nodes(()).await?;
   let nodes = nodes_reply.into_inner().nodes;
   let n_strs = nodes.iter()
@@ -61,7 +59,7 @@ async fn register_player(ctx: &Context, msg: &Message, mut args: Args) -> Comman
     let data = ctx.data.read().await;
     data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
   };
-  let mut rpc = get_grpc_client(flo_secret).compat().await;
+  let mut rpc = get_grpc_client(flo_secret).await;
   let res = rpc
     .update_and_get_player(UpdateAndGetPlayerRequest {
       source: PlayerSource::Api as i32,
@@ -84,7 +82,7 @@ async fn register_me(ctx: &Context, msg: &Message) -> CommandResult {
     let data = ctx.data.read().await;
     data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
   };
-  let mut rpc = get_grpc_client(flo_secret).compat().await;
+  let mut rpc = get_grpc_client(flo_secret).await;
   let res = rpc
     .update_and_get_player(UpdateAndGetPlayerRequest {
       source: PlayerSource::Api as i32,
@@ -107,7 +105,7 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
     let data = ctx.data.read().await;
     data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
   };
-  let mut rpc = get_grpc_client(flo_secret).compat().await;
+  let mut rpc = get_grpc_client(flo_secret).await;
 
   let user_secret_res = rpc
     .update_and_get_player(UpdateAndGetPlayerRequest {
@@ -208,7 +206,7 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     let data = ctx.data.read().await;
     data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
   };
-  let mut rpc = get_grpc_client(flo_secret).compat().await;
+  let mut rpc = get_grpc_client(flo_secret).await;
 
   let user_secret_res1 = rpc
     .update_and_get_player(UpdateAndGetPlayerRequest {

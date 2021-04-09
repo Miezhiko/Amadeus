@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "4.5.20"
+version     = "4.6.0"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -12,7 +12,7 @@ license     = "AGPL-3.0-only"
 [features]
 default = ["flo"]
 full = ["flo", "voice_analysis"]
-flo = ["tonic", "hex", "tokio-compat-02", "flo-grpc"]
+flo = ["tonic", "hex", "flo-grpc"]
 voice_analysis = ["audrey", "dasp_interpolate", "dasp_signal", "deepspeech"]
 
 [dependencies]
@@ -84,11 +84,7 @@ optional = true
 
 # flo needs update to 0.4 first
 [dependencies.tonic]
-version = "0.3"
-optional = true
-
-[dependencies.tokio-compat-02]
-version = "0.2"
+version = "0.4"
 optional = true
 
 [dependencies.flo-grpc]

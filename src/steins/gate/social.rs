@@ -3,6 +3,7 @@ use crate::{
     system,
     constants::{ MAIN_CHANNEL
                , MIST_CHANNEL
+               , KORC_CHANNEL
                , LOG_CHANNEL }
   },
   steins::ai::{ cache, chain, bert, reinit },
@@ -31,9 +32,10 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
     loop {
       let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 10;
       let rndx = rand::thread_rng().gen_range(0..activity_level);
-      if rndx < 3 {
+      if rndx < 4 {
         let (chanz, ru) = match rndx {
           0 => { (MAIN_CHANNEL, false) },
+          1 => { (KORC_CHANNEL, false) },
           _ => { (MIST_CHANNEL, true) }
         };
         let ai_text = chain::generate_with_language(&ctx_clone, ru).await;

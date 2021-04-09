@@ -19,7 +19,6 @@
 [![GitHub](https://github.com/Qeenon/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Qeenon/Amadeus/workflows/mawa)
 [![CircleCI](https://circleci.com/gh/Qeenon/Amadeus/tree/mawa.svg?style=shield)](https://circleci.com/gh/Qeenon/Amadeus/tree/mawa)
 [![Appveyor](https://ci.appveyor.com/api/projects/status/8cd1qi1aykujkyd2?svg=true)](https://ci.appveyor.com/project/Qeenon/amadeus)
-[![License: ISC](https://img.shields.io/badge/License-ISC-teal.svg)](https://opensource.org/licenses/ISC)
 [![GitHub contributors](https://img.shields.io/github/contributors/Qeenon/Amadeus.svg?style=flat)]()
 [![GitHub last commit](https://img.shields.io/github/last-commit/Qeenon/Amadeus.svg?style=flat)]()
 [![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)

@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "4.6.0"
+version     = "4.6.1"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -44,7 +44,7 @@ unic-langid         = "0.9"
 fluent-templates    = "0.6"
 sled                = "0.34"
 kathoey             = "1.0"
-songbird            = "0.1.5"
+songbird            = "0.1.6"
 serde_dhall         = "0.10"
 
 # rust bert needs update
@@ -93,7 +93,7 @@ branch = "main"
 optional = true
 
 [dependencies.tokio]
-version = "1.4"
+version = "1.5"
 features = ["full"]
 
 [dependencies.audrey]

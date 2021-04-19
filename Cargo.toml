@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "4.6.1"
+version     = "4.7.0"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -82,7 +82,6 @@ branch = "main"
 version = "0.4"
 optional = true
 
-# flo needs update to 0.4 first
 [dependencies.tonic]
 version = "0.4"
 optional = true

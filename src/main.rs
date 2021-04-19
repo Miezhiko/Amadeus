@@ -11,6 +11,9 @@ mod collections;
 mod commands;
 mod steins;
 mod handler;
+mod checks;
+mod hooks;
+mod groups;
 mod amadeus;
 
 use eyre::{ WrapErr, Result };

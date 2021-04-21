@@ -151,7 +151,7 @@ pub async fn chat(something: String, user_id: u64) -> Result<String> {
   task::spawn_blocking(move || {
     let output =
       if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
-        if *x > 5 {
+        if *x > 100 {
           chat_context.remove(&user_id);
 
           let mut conversation_manager = ConversationManager::new();

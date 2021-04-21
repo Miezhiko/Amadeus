@@ -55,6 +55,10 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
       all_channels.extend(serv_channels);
     }
   }
+  let home = GuildId(options.guild);
+  if let Ok(serv_channels) = home.channels(&ctx).await {
+    all_channels.extend(serv_channels);
+  }
 
   // updating ai:chain cache
   cache::update_cache(&ctx, &all_channels).await;

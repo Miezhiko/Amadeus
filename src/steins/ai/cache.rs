@@ -158,6 +158,8 @@ pub async fn update_cache( ctx: &Context
                   let mut result_string = RE1.replace_all(&mmm.content, "").to_string();
                   result_string = RE2.replace_all(&result_string, "").to_string();
                   result_string = RE3.replace_all(&result_string, "").to_string();
+                  result_string = result_string.replace(
+                    |c: char| !c.is_ascii() || c.is_digit(10), "");
                   let result = result_string.trim();
                   let is_http = result.starts_with("http");
                   if !result.is_empty() && !result.contains('$') && !is_http {

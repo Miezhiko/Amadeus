@@ -1,18 +1,24 @@
-use crate::common::voice::*;
-use crate::common::voice_to_text::*;
+use crate::{
+  common::voice::*,
+  common::voice_to_text::*
+};
 
-use serenity::async_trait;
-use songbird::driver::DecodeMode;
-use songbird::model::id::UserId;
-use songbird::model::payload::{ClientConnect, ClientDisconnect, Speaking};
-use songbird::Event;
-use songbird::{EventContext, EventHandler as VoiceEventHandler};
-use std::collections::HashMap;
-use std::process::Stdio;
-use std::sync::Arc;
-use tokio::io::AsyncWriteExt;
-use tokio::process::{Command};
-use tokio::sync::RwLock;
+use opus::Decoder;
+
+use serenity::prelude::Context;
+use serenity::{async_trait, model::webhook::Webhook, prelude::RwLock};
+
+use songbird::{
+  driver::DecodeMode,
+  model::{
+    id::UserId,
+    payload::{ClientConnect, ClientDisconnect, Speaking},
+  },
+  Event, EventContext, EventHandler as VoiceEventHandler,
+};
+
+use std::{collections::HashMap, process::Stdio, sync::Arc};
+use tokio::{io::AsyncWriteExt, process::Command, task};
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -20,30 +26,34 @@ pub struct Receiver {
   ssrc_map: Arc<RwLock<HashMap<u32, UserId>>>,
   audio_buffer: Arc<RwLock<HashMap<u32, Vec<i16>>>>,
   encoded_audio_buffer: Arc<RwLock<HashMap<u32, Vec<u8>>>>,
+  webhook: Arc<Webhook>,
+  context: Arc<Context>,
 }
 
 impl Receiver {
-  pub fn new() -> Self {
+  pub fn new(webhook: Webhook, context: Arc<Context>) -> Self {
     // You can manage state here, such as a buffer of audio packet bytes so
     // you can later store them in intervals.
     let ssrc_map = Arc::new(RwLock::new(HashMap::new()));
     let audio_buffer = Arc::new(RwLock::new(HashMap::new()));
     let encoded_audio_buffer = Arc::new(RwLock::new(HashMap::new()));
+    let webhook = Arc::new(webhook);
     Self {
       ssrc_map,
       audio_buffer,
       encoded_audio_buffer,
+      webhook,
+      context,
     }
   }
 }
 
-// orginally taken from https://github.com/tazz4843/scripty/blob/main/src/utils.rs
 #[async_trait]
 impl VoiceEventHandler for Receiver {
-  // noinspection SpellCheckingInspection
+  //noinspection SpellCheckingInspection
   #[allow(unused_variables)]
   async fn act(&self, ctx: &EventContext<'_>) -> Option<Event> {
-    use EventContext as Ctx;
+    use songbird::EventContext as Ctx;
 
     match ctx {
       Ctx::SpeakingStateUpdate(Speaking {
@@ -73,28 +83,14 @@ impl VoiceEventHandler for Receiver {
           match DECODE_TYPE {
             DecodeMode::Decrypt => {
               let mut audio_buf = self.encoded_audio_buffer.write().await;
-              match audio_buf.get_mut(ssrc) {
-                Some(b) => {
-                  b.clear();
-                }
-                None => {
-                  audio_buf.insert(*ssrc, Vec::new());
-                }
-              }
+              audio_buf.insert(*ssrc, Vec::new());
             }
             DecodeMode::Decode => {
               let mut audio_buf = self.audio_buffer.write().await;
-              match audio_buf.get_mut(ssrc) {
-                Some(b) => {
-                  b.clear();
-                }
-                None => {
-                  audio_buf.insert(*ssrc, Vec::new());
-                }
-              }
+              audio_buf.insert(*ssrc, Vec::new());
             }
             _ => {
-              error!("No supported decode mode found!")
+              panic!("No supported decode mode found!")
             }
           }
         } // otherwise just ignore it since we can't do anything about that
@@ -105,20 +101,19 @@ impl VoiceEventHandler for Receiver {
         let uid: u64 = {
           let map = self.ssrc_map.read().await;
           match map.get(ssrc) {
-            Some(u) => u.to_string().parse().unwrap(),
+            Some(u) => u.0,
             None => 0,
           }
         };
         if !*speaking {
-          match DECODE_TYPE {
+          let audio = match DECODE_TYPE {
             DecodeMode::Decrypt => {
-              // all of this code reeks of https://www.youtube.com/watch?v=lIFE7h3m40U
               let audio = {
                 let mut buf = self.encoded_audio_buffer.write().await;
                 match buf.insert(*ssrc, Vec::new()) {
                   Some(a) => a,
                   None => {
-                    warn!(
+                    println!(
                       "Didn't find a user with SSRC {} in the audio buffers.",
                       ssrc
                     );
@@ -126,93 +121,142 @@ impl VoiceEventHandler for Receiver {
                   }
                 }
               };
-
-              let file_id = Uuid::new_v4();
-              let file_path = format!("{}.wav", file_id.as_u128());
-              let args = [
-                "-f",
-                "s16be",
-                "-ar",
-                "8000",
-                "-ac",
-                "1",
-                "-acodec",
-                "pcm_s16le",
-                "-i",
-                "-",
-                &file_path,
-              ];
-
-              let mut child = match Command::new("ffmpeg")
-                .args(&args)
-                .stdin(Stdio::piped())
-                .stdout(Stdio::null())
-                .stderr(Stdio::inherit())
-                .kill_on_drop(true)
-                .spawn()
-              {
+              let mut decoder = match Decoder::new(16_000, opus::Channels::Stereo) {
+                Ok(d) => d,
                 Err(e) => {
-                  error!("Failed to spawn FFMPEG! {:?}", e);
-                  return None;
-                }
-                Ok(c) => {
-                  info!("Spawned FFMPEG!");
-                  c
-                }
-              };
-
-              match child.stdin {
-                Some(ref mut stdin) => {
-                  for i in audio {
-                    if let Err(e) = stdin.write_u8(i).await {
-                      error!("Failed to write byte to FFMPEG stdin! {}", e);
-                    };
-                  }
-                }
-                None => {
-                  error!("Failed to open FFMPEG stdin!");
+                  println!("Creating opus decoder failed: {}", e);
                   return None;
                 }
               };
-
-              // we now have a file named "{}.wav" where {} is the user's SSRC.
-              // at this point we shouldn't do anything more in this function to avoid blocking too long.
-              // we've already done what cannot be done in another function, which is getting the actual audio
-              // so we spawn a background thread to do the rest, and return from this function.
-              tokio::spawn(async move {
-                // this one line ^ is why the entire bot needs nightly Rust
-                match child.wait().await {
-                  Ok(_) => {
-                    match run_stt(file_path.clone()).await {
-                      Ok(r) => {
-                        info!("Text: {}", r);
-                      }
-                      Err(e) => {
-                        warn!("Failed to run speech-to-text! {}", e);
-                      }
-                    };
-                  }
-                  Err(e) => {
-                    error!("FFMPEG failed! {}", e);
-                  }
-                };
-                if let Err(e) = tokio::fs::remove_file(&file_path).await {
-                  error!("Failed to delete {}! {}", &file_path, e);
-                };
-                ()
-              });
-
+              let mut v = Vec::new();
+              match decoder.decode(&audio[..], &mut v, false) {
+                Ok(s) => {
+                  println!("Decoded {} opus samples", s);
+                }
+                Err(e) => {
+                  println!("Failed to decode opus: {}", e);
+                  return None;
+                }
+              };
+              v
             }
             DecodeMode::Decode => {
-              info!("Decode mode is DecodeMode::Decode");
-              unimplemented!();
+              let mut buf = self.audio_buffer.write().await;
+              match buf.insert(*ssrc, Vec::new()) {
+                Some(a) => a,
+                None => {
+                  println!(
+                    "Didn't find a user with SSRC {} in the audio buffers.",
+                    ssrc
+                  );
+                  return None;
+                }
+              }
             }
             _ => {
-              error!("Decode mode is invalid!");
+              println!("Decode mode is invalid!");
+              return None;
             }
-          }
+          };
+          // all of this code reeks of https://www.youtube.com/watch?v=lIFE7h3m40U
+          let file_id = Uuid::new_v4();
+          let file_path = format!("{}.wav", file_id.as_u128());
+
+          let args = [
+            "-f",
+            "s16le",
+            "-ar",
+            "8000",
+            "-ac",
+            "1",
+            "-acodec",
+            "pcm_s16le",
+            "-i",
+            "-",
+            &file_path,
+          ];
+
+          let mut child = match Command::new("ffmpeg")
+            .args(&args)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .kill_on_drop(true)
+            .spawn()
+          {
+            Err(e) => {
+              println!("Failed to spawn FFMPEG!");
+              return None;
+            }
+            Ok(c) => {
+              println!("Spawned FFMPEG!");
+              c
+            }
+          };
+
+          match child.stdin {
+            Some(ref mut stdin) => {
+              for i in audio {
+                if let Err(e) = stdin.write_i16(i).await {
+                  println!("Failed to write byte to FFMPEG stdin! {}", e);
+                };
+              }
+            }
+            None => {
+              println!("Failed to open FFMPEG stdin!");
+              return None;
+            }
+          };
+          // we now have a file named "{}.wav" where {} is a random UUID as a 128-bit integer.
+          // we should yield now to let other tasks proceed
+          task::yield_now().await;
+          let webhook = self.webhook.clone();
+          let context = self.context.clone();
+
+          task::spawn(async move {
+            match child.wait().await {
+              Ok(_) => {
+                match run_stt(file_path.clone()).await {
+                  Ok(r) => {
+                    if r.len() != 0 {
+                      match context.cache.user(uid).await {
+                        Some(u) => {
+                          let profile_picture = match u.avatar {
+                            Some(a) => {
+                              format!("https://cdn.discordapp.com/avatars/{}/{}.png", u.id, a)
+                            }
+                            None => u.default_avatar_url(),
+                          };
+                          let name = u.name;
+
+                          let _ = webhook
+                            .execute(&context, false, |m| {
+                              m.avatar_url(profile_picture)
+                                .content(r)
+                                .username(name)
+                            })
+                            .await;
+                          // see comments below
+                        }
+                        None => {}
+                      }
+                    }
+                  }
+                  Err(e) => {
+                    println!("Failed to run speech-to-text! {}", e);
+                  }
+                };
+              }
+              Err(e) => {
+                println!("FFMPEG failed! {}", e);
+              }
+            };
+            if let Err(e) = tokio::fs::remove_file(&file_path).await {
+              println!("Failed to delete {}! {}", &file_path, e);
+            };
+          });
         }
-        info!(
+        println!(
           "Source {} (ID {}) has {} speaking.",
           ssrc,
           uid,
@@ -227,7 +271,8 @@ impl VoiceEventHandler for Receiver {
       } => {
         // An event which fires for every received audio packet,
         // containing the decoded data.
-        let _uid: u64 = {
+
+        let uid: u64 = {
           // block that will drop lock when exited
           let map = self.ssrc_map.read().await;
           match map.get(&packet.ssrc) {
@@ -236,12 +281,19 @@ impl VoiceEventHandler for Receiver {
           }
         };
         match audio {
-          Some(_audio) => {
-            warn!("Decoded audio is not currently supported.");
+          Some(audio) => {
+            let mut buf = self.audio_buffer.write().await;
+            let b = match buf.get_mut(&packet.ssrc) {
+              Some(b) => b,
+              None => {
+                return None;
+              }
+            };
+            b.extend(audio);
           }
           _ => {
             let audio_range: &usize = &(packet.payload.len() - payload_end_pad);
-            let _range = std::ops::Range {
+            let range = std::ops::Range {
               start: payload_offset,
               end: audio_range,
             };
@@ -255,12 +307,11 @@ impl VoiceEventHandler for Receiver {
             let mut counter: i64 = -1;
             for i in &packet.payload {
               counter += 1;
-              if counter <= *payload_offset as i64 {
-                continue;
-              } else if counter > *audio_range as i64 {
+              if (counter <= *payload_offset as i64) | (counter > *audio_range as i64)
+              {
                 continue;
               } else {
-                b.push(i.clone())
+                b.push(*i)
               }
             }
           }
@@ -288,7 +339,7 @@ impl VoiceEventHandler for Receiver {
           let mut map = self.ssrc_map.write().await;
           map.insert(*audio_ssrc, *user_id);
         }
-        info!(
+        println!(
           "Client connected: user {:?} has audio SSRC {:?}, video SSRC {:?}",
           user_id, audio_ssrc, video_ssrc,
         );
@@ -328,7 +379,7 @@ impl VoiceEventHandler for Receiver {
           map.remove(&u);
         };
 
-        info!("Client disconnected: user {:?}", user_id);
+        println!("Client disconnected: user {:?}", user_id);
       }
       _ => {
         // We won't be registering this struct for any more event classes.

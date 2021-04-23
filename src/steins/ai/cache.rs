@@ -69,6 +69,7 @@ pub static NLPR_RULES: Lazy<Mutex<Rules>> =
 pub static RE1: Lazy<Regex> = Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
 pub static RE2: Lazy<Regex> = Lazy::new(|| Regex::new(r":(.*?):").unwrap());
 pub static RE3: Lazy<Regex> = Lazy::new(|| Regex::new(r"&(.*?);").unwrap());
+pub static RE4: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+").unwrap());
 
 pub async fn reinit() {
   let mut cache_eng_str = CACHE_ENG_STR.lock().await;
@@ -158,8 +159,9 @@ pub async fn update_cache( ctx: &Context
                   let mut result_string = RE1.replace_all(&mmm.content, "").to_string();
                   result_string = RE2.replace_all(&result_string, "").to_string();
                   result_string = RE3.replace_all(&result_string, "").to_string();
+                  result_string = RE4.replace_all(&result_string, " ").to_string();
                   result_string = result_string.replace(
-                    |c: char| !c.is_ascii() || c.is_digit(10), "");
+                    |c: char| !c.is_whitespace() && (!c.is_ascii() || !c.is_alphabetic()), "");
                   let result = result_string.trim();
                   let is_http = result.starts_with("http");
                   if !result.is_empty() && !result.contains('$') && !is_http {

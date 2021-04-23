@@ -35,7 +35,7 @@ pub async fn get_grpc_client(flo_secret: String) -> flo_controller_client::FloCo
 }
 
 // that's very default map when map name is not provided
-pub fn get_map() -> eyre::Result<Map> {
+pub fn get_map() -> anyhow::Result<Map> {
   let map = Map {
     sha1: hex::decode("9524abb8e35ce7b158bfa4d4b8734234d6073ca5")?,
     checksum: 3851316688u32,
@@ -56,7 +56,7 @@ pub fn get_map() -> eyre::Result<Map> {
   Ok(map)
 }
 
-pub async fn get_map_by_name(name: &str) -> eyre::Result<Map> {
+pub async fn get_map_by_name(name: &str) -> anyhow::Result<Map> {
   let maps_json = fs::read_to_string("maps/maps.json").await?;
   let json: Value = serde_json::from_str(&maps_json)?;
   let maps = json.as_array().unwrap();
@@ -71,7 +71,7 @@ pub async fn get_map_by_name(name: &str) -> eyre::Result<Map> {
   }
 
   if maybe_maps.is_empty() {
-    return Err( eyre!("Can't find this map") );
+    return Err( anyhow!("Can't find this map") );
   }
 
   let mut picked_map: &Value = maybe_maps.first().unwrap();

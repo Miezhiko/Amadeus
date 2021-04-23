@@ -34,7 +34,7 @@ impl TypeMapKey for ShardManagerContainer {
   type Value = Arc<Mutex<ShardManager>>;
 }
 
-pub async fn get_memory_mb() -> eyre::Result<f32> {
+pub async fn get_memory_mb() -> anyhow::Result<f32> {
   let pid = std::process::id().to_string();
   let mem_stdout = Command::new("sh")
           .arg("-c")
@@ -125,7 +125,7 @@ pub async fn get_uptime(start: &str) -> (String, String) {
   ( start_time.format("%Y %b %d %H:%M").to_string(), uptime_string )
 }
 
-pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> eyre::Result<()> {
+pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::Result<()> {
   let start_typing = ctx.http.start_typing(channel_id.0);
   ctx.set_activity(Activity::listening("Fetching changes")).await;
   ctx.idle().await;
@@ -220,7 +220,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> eyre::Res
   Ok(())
 }
 
-pub async fn twitch_update(ctx: &Context) -> eyre::Result<()> {
+pub async fn twitch_update(ctx: &Context) -> anyhow::Result<()> {
   set!{ data            = ctx.data.read().await
       , client_id       = data.get::<PubCreds>().unwrap().get("twitch_client").unwrap().as_str()
       , client_secret   = data.get::<PubCreds>().unwrap().get("twitch_secret").unwrap().as_str() };
@@ -247,5 +247,5 @@ pub async fn twitch_update(ctx: &Context) -> eyre::Result<()> {
       }
     }
   }
-  Err(eyre!("Failed to update twitch token"))
+  Err(anyhow!("Failed to update twitch token"))
 }

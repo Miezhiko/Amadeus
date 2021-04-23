@@ -13,7 +13,7 @@ use futures_util::{
   StreamExt,
 };
 
-pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> eyre::Result<Member> {
+pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> anyhow::Result<Member> {
   if meme.starts_with("<@") && meme.ends_with('>') {
     static RE: Lazy<Regex> = Lazy::new(|| Regex::new("[<@!>]").unwrap() );
     let member_id = RE.replace_all(&meme, "").into_owned();
@@ -21,7 +21,7 @@ pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> eyre::Resul
       ctx, UserId(member_id.parse::<u64>().unwrap())).await;
     match member {
       Ok(m) => Ok(m),
-      Err(why) => Err(eyre!(why))
+      Err(why) => Err(anyhow!(why))
     }
   } else {
     let guild = &msg.guild(ctx).await.unwrap();
@@ -33,7 +33,7 @@ pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> eyre::Resul
         return Ok(m.clone())
       }
     }
-    Err(eyre!("can't find this player"))
+    Err(anyhow!("can't find this player"))
   }
 }
 

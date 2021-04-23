@@ -18,7 +18,7 @@ use once_cell::sync::Lazy;
 
 use std::collections::HashMap;
 
-use eyre::Result;
+use anyhow::Result;
 
 // models
 static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);

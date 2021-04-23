@@ -31,7 +31,7 @@ use reqwest::Client as Reqwest;
 
 #[instrument]
 pub async fn run(opts: &IOptions) ->
-  eyre::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+  anyhow::Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
   LogTracer::init()?;
   let subscriber = FmtSubscriber::builder()

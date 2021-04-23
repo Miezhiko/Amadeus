@@ -1,7 +1,7 @@
 use tokio::process::Command;
 use serde_json::Value;
 
-async fn analyze_js(path: &str) -> eyre::Result<String> {
+async fn analyze_js(path: &str) -> anyhow::Result<String> {
   let node_out = Command::new("sh")
         .arg("-c")
       //.arg(&format!("node js/w3gjs_parse.js {}", path))
@@ -18,7 +18,7 @@ async fn analyze_js(path: &str) -> eyre::Result<String> {
 
 #[allow(clippy::type_complexity)]
 fn prettify_analyze_js(j: &str, minimal: bool)
-  -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
+  -> anyhow::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let json: Value = serde_json::from_str(&j)?;
   let mut out = String::new();
   let mut pls = vec![];
@@ -140,7 +140,7 @@ fn prettify_analyze_js(j: &str, minimal: bool)
 }
 
 pub async fn analyze(path: &str, minimal: bool)
-    -> eyre::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
+    -> anyhow::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let replay_data = analyze_js(path).await?;
   let pretty_daya = prettify_analyze_js(&replay_data, minimal)?;
   Ok(pretty_daya)

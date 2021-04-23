@@ -1,7 +1,7 @@
 #![type_length_limit="2792949"]
 
 #[macro_use] extern crate serde;
-#[macro_use] extern crate eyre;
+#[macro_use] extern crate anyhow;
 #[macro_use] extern crate tracing;
 #[macro_use] mod macros;
 
@@ -16,12 +16,12 @@ mod hooks;
 mod groups;
 mod amadeus;
 
-use eyre::{ WrapErr, Result };
+use anyhow::Result;
 
 #[tokio::main(worker_threads=8)]
 async fn main() -> Result<()> {
   let iopts = common::options::get_ioptions()
-                .wrap_err("Failed to parse Dhall condig")?;
+                .map_err(|e| anyhow!("Failed to parse Dhall condig {:?}", e))?;
   if let Err(err) = amadeus::run(&iopts).await {
     panic!("Amadeus died {:?}", err)
   }

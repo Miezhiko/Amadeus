@@ -139,7 +139,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   Ok(())
 }
 
-async fn get_player(rqcl: &Arc<reqwest::Client>, target: &str, season: &str) -> eyre::Result<Option<String>> {
+async fn get_player(rqcl: &Arc<reqwest::Client>, target: &str, season: &str) -> anyhow::Result<Option<String>> {
   if target.contains('#') {
     Ok(Some(target.to_string()))
   }

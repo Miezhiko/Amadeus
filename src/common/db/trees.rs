@@ -9,7 +9,7 @@ use tokio::{ task
            , sync::{ Mutex }
            };
 
-use eyre::Result;
+use anyhow::Result;
 
 use once_cell::sync::Lazy;
 
@@ -191,7 +191,7 @@ pub async fn give_points( guild_id: u64
   }
 }
 
-pub async fn get_points(guild_id: u64, user_id: u64) -> eyre::Result<u64> {
+pub async fn get_points(guild_id: u64, user_id: u64) -> anyhow::Result<u64> {
   let mut storage = STORAGE.lock().await;
   task::spawn_blocking(move || {
     let u64_2: u128 = (guild_id as u128) << 64 | user_id as u128; // >

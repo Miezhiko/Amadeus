@@ -18,10 +18,5 @@ let channels : List Channel =
   , bi 666614389805416448 -- "🌈climatestrike"
   , ru 827151604053835807 -- nejit1
   , ru 827154134163390535 -- nejit2
-  , ru 766697158245089310 -- korchma 1
-  , ru 802227624964522054 -- korchma 2
-  , ru 766759137760903200 -- korchma 3
-  , ru 766697312659177503 -- korchma 4
-  , ru 767500986465648641 -- korchma 5
   ]
 in channels

@@ -4,7 +4,6 @@ use serenity::{
 
 pub static MAIN_CHANNEL: ChannelId    = ChannelId( 611822932897038341 );
 pub static MIST_CHANNEL: ChannelId    = ChannelId( 827151604053835807 );
-pub static KORC_CHANNEL: ChannelId    = ChannelId( 766697158245089310 );
 pub static LOG_CHANNEL: ChannelId     = ChannelId( 721956117558853673 );
 pub static STREAMS_CHANNEL: ChannelId = ChannelId( 698766464420937768 );
 pub static NEWS_CHANNEL: ChannelId    = ChannelId( 635912696675565608 );

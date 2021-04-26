@@ -95,7 +95,7 @@ impl EventHandler for Handler {
                         guild.create_role(&ctx,
                           |r| r.colour(Colour::from_rgb(117,244,255).0 as u64)
                               .hoist(true)
-                              .position(255) // bigger = higher
+                              .position(100) // bigger = higher
                               .mentionable(false)
                               .name(LIVE_ROLE)).await {
                         error!("Failed to create LIVE role, {:?}", why);

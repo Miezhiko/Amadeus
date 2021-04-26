@@ -14,7 +14,8 @@ use crate::{
 use serenity::{
   prelude::*,
   http::AttachmentType,
-  model::id::ChannelId
+  model::id::{ ChannelId
+             , GuildId }
 };
 
 use std::{
@@ -56,7 +57,8 @@ async fn clear_channel(channel: ChannelId, ctx: &Context) {
 pub async fn activate_streamers_tracking(
                      ctx:       &Arc<Context>
                    , options:   &IOptions
-                   , token:     String ) {
+                   , token:     String
+                   , servers:   Vec<GuildId> ) {
 
   set!{ ctx_clone     = Arc::clone(&ctx)
       , options_clone = options.clone() };
@@ -69,10 +71,23 @@ pub async fn activate_streamers_tracking(
       if let Ok(guild) = g.guild_id.to_partial_guild(&ctx).await {
         for playa in players() {
           if let Ok(mut member) = guild.member(&ctx.http, playa.discord).await {
-            if let Some(role) = guild.roles.get(&LIVE_ROLE) {
-              if member.roles.contains(&LIVE_ROLE) {
+            if let Some(role) = guild.role_by_name(LIVE_ROLE) {
+              if member.roles.contains(&role.id) {
                 if let Err(why) = member.remove_role(&ctx, role).await {
                   error!("Failed to remove live streaming role {:?}", why);
+                }
+              }
+            }
+          }
+          for s in &servers {
+            if let Ok(g) = s.to_partial_guild(&ctx).await {
+              if let Ok(mut m) = g.member(&ctx.http, playa.discord).await {
+                if let Some(r) = g.role_by_name(LIVE_ROLE) {
+                  if m.roles.contains(&r.id) {
+                    if let Err(why) = m.remove_role(&ctx, r).await {
+                      error!("Failed to remove live streaming role {:?} on seerver {:?}", why, s);
+                    }
+                  }
                 }
               }
             }
@@ -288,15 +303,25 @@ pub async fn activate_streamers_tracking(
                     still_live: true,
                     players: vec![playa_for_stream], bets: vec![], fails: 0 }
                   );
-                  if let Ok(channel) = STREAMS_CHANNEL.to_channel(&ctx_clone.http).await {
-                    if let Some(g) = channel.guild() {
-                      if let Ok(guild) = g.guild_id.to_partial_guild(&ctx_clone).await {
-                        if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
-                          if let Some(role) = guild.roles.get(&LIVE_ROLE) {
-                            if !member.roles.contains(&LIVE_ROLE) {
-                              if let Err(why) = member.add_role(&ctx_clone, role).await {
-                                error!("Failed to assign live streaming role {:?}", why);
-                              }
+                  let home = GuildId(options_clone.guild);
+                  if let Ok(guild) = home.to_partial_guild(&ctx_clone).await {
+                    if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
+                      if let Some(role) = guild.role_by_name(LIVE_ROLE) {
+                        if !member.roles.contains(&role.id) {
+                          if let Err(why) = member.add_role(&ctx_clone, role).await {
+                            error!("Failed to assign live streaming role {:?}", why);
+                          }
+                        }
+                      }
+                    }
+                  }
+                  for s in &servers {
+                    if let Ok(g) = s.to_partial_guild(&ctx_clone).await {
+                      if let Ok(mut m) = g.member(&ctx_clone.http, playa.discord).await {
+                        if let Some(r) = g.role_by_name(LIVE_ROLE) {
+                          if !m.roles.contains(&r.id) {
+                            if let Err(why) = m.add_role(&ctx_clone, r).await {
+                              error!("Failed to add live streaming role {:?} on seerver {:?}", why, s);
                             }
                           }
                         }
@@ -351,15 +376,25 @@ pub async fn activate_streamers_tracking(
               )).await {
                 error!("Failed to edit stream msg {:?}", why);
               }
-              if let Ok(channel) = STREAMS_CHANNEL.to_channel(&ctx_clone.http).await {
-                if let Some(g) = channel.guild() {
-                  if let Ok(guild) = g.guild_id.to_partial_guild(&ctx_clone).await {
-                    if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
-                      if let Some(role) = guild.roles.get(&LIVE_ROLE) {
-                        if member.roles.contains(&LIVE_ROLE) {
-                          if let Err(why) = member.remove_role(&ctx_clone, role).await {
-                            error!("Failed to remove live streaming role {:?}", why);
-                          }
+              let home = GuildId(options_clone.guild);
+              if let Ok(guild) = home.to_partial_guild(&ctx_clone).await {
+                if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
+                  if let Some(role) = guild.role_by_name(LIVE_ROLE) {
+                    if member.roles.contains(&role.id) {
+                      if let Err(why) = member.remove_role(&ctx_clone, role).await {
+                        error!("Failed to remove live streaming role {:?}", why);
+                      }
+                    }
+                  }
+                }
+              }
+              for s in &servers {
+                if let Ok(g) = s.to_partial_guild(&ctx_clone).await {
+                  if let Ok(mut m) = g.member(&ctx_clone.http, playa.discord).await {
+                    if let Some(r) = g.role_by_name(LIVE_ROLE) {
+                      if !m.roles.contains(&r.id) {
+                        if let Err(why) = m.remove_role(&ctx_clone, r).await {
+                          error!("Failed to remove live streaming role {:?} on seerver {:?}", why, s);
                         }
                       }
                     }

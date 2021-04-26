@@ -50,7 +50,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
                                .map(|srv| GuildId(srv.id))
                                .collect::<Vec<GuildId>>();
   let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
-  for server in servers {
+  for server in &servers {
     if let Ok(serv_channels) = server.channels(&ctx).await {
       all_channels.extend(serv_channels);
     }
@@ -71,6 +71,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
 
   activate_streamers_tracking(
     &ac, options, access_token.clone()
+       , servers
        ).await;
   activate_games_tracking(
     &ac, options, access_token

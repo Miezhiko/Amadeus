@@ -1,3 +1,4 @@
  - matches limit on ~vs or paging (better pagination)
  - clean debug outputs from ~vs
  - more debugging for voice
+ - warn / ban (same as mute, auto-create mute role)

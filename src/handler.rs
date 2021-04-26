@@ -9,7 +9,9 @@ use crate::{
   common::{ db::trees
           , help::{ lang, channel::channel_by_name }
           , msg::channel_message
-          , constants::LOG_CHANNEL
+          , constants::{ LOG_CHANNEL
+                       , UNBLOCK_ROLE
+                       , LIVE_ROLE }
           },
   collections::{ base::{ REACTIONS, WHITELIST }
                , channels::{ AI_ALLOWED, EXCEPTIONS, IGNORED }
@@ -76,14 +78,28 @@ impl EventHandler for Handler {
             if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
               if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
                 if let Ok(some_permissions) = member.permissions(&ctx).await {
-                  if some_permissions.administrator()
-                  && guild.role_by_name("UNBLOCK AMADEUS").is_none() {
-                    if let Err(why) =
-                      // Hadouken
-                      guild.create_role(&ctx,
-                        |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
-                             .name("UNBLOCK AMADEUS")).await {
-                      error!("Failed to create UNBLOCK role, {:?}", why);
+                  if some_permissions.administrator() {
+                    if guild.role_by_name(UNBLOCK_ROLE).is_none() {
+                      if let Err(why) =
+                        // Hadouken
+                        guild.create_role(&ctx,
+                          |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
+                              .hoist(false)
+                              .mentionable(false)
+                              .name(UNBLOCK_ROLE)).await {
+                        error!("Failed to create UNBLOCK role, {:?}", why);
+                      }
+                    }
+                    if guild.role_by_name(LIVE_ROLE).is_none() {
+                      if let Err(why) =
+                        guild.create_role(&ctx,
+                          |r| r.colour(Colour::from_rgb(117,244,255).0 as u64)
+                              .hoist(true)
+                              .position(255) // bigger = higher
+                              .mentionable(false)
+                              .name(LIVE_ROLE)).await {
+                        error!("Failed to create LIVE role, {:?}", why);
+                      }
                     }
                   }
                 }
@@ -418,7 +434,7 @@ impl EventHandler for Handler {
 
               if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
                 if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
-                  if let Some(role) = guild.role_by_name("UNBLOCK AMADEUS") {
+                  if let Some(role) = guild.role_by_name(UNBLOCK_ROLE) {
 
                     let normal_people_rnd: u16 = rand::thread_rng().gen_range(0..9);
                     if (normal_people_rnd == 1 || member.roles.contains(&role.id))
@@ -492,7 +508,7 @@ impl EventHandler for Handler {
                   } else if let Err(why) =
                     guild.create_role(&ctx,
                         |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
-                              .name("UNBLOCK AMADEUS")).await {
+                              .name(UNBLOCK_ROLE)).await {
                     error!("Failed to create UNBLOCK role, {:?}", why);
                   }
                 }

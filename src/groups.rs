@@ -65,7 +65,7 @@ pub struct Owner;
 #[group("Admin")]
 #[checks(Admin)]
 #[help_available(false)]
-#[commands(give_win, register_lose, mute, unmute)]
+#[commands(mute, unmute)]
 pub struct Admin;
 
 #[cfg(feature = "flo")]

@@ -356,7 +356,7 @@ pub async fn activate_streamers_tracking(
                 color = msg.embeds[0].colour.tuple();
               };
               if let Err(why) = msg.edit(&ctx_clone.http, |m| m
-                .embed(|e|  {
+                .embed(|e| {
                   let mut e = e
                     .title("FINISHED")
                     .colour(color)
@@ -392,7 +392,7 @@ pub async fn activate_streamers_tracking(
                 if let Ok(g) = s.to_partial_guild(&ctx_clone).await {
                   if let Ok(mut m) = g.member(&ctx_clone.http, playa.discord).await {
                     if let Some(r) = g.role_by_name(LIVE_ROLE) {
-                      if !m.roles.contains(&r.id) {
+                      if m.roles.contains(&r.id) {
                         if let Err(why) = m.remove_role(&ctx_clone, r).await {
                           error!("Failed to remove live streaming role {:?} on seerver {:?}", why, s);
                         }

@@ -17,6 +17,8 @@ let playersList : List Playerx =
   , t "SMDVKF#2721"       632300213494611968 "siriustvzzz"
   , b "Reyenir#2169"      287914378513088515 "reyenir" "Cherry-Phoenix"
   , b "ag3nt#21617"       293268448212156416 "ag3ntik" "ag3nt"
+  , b "Rici#2903"         404379597568999425 "riciii" "Rici"
+  , t "Avernus#2393"      247774118798295041 "ghost_17"
   , p "Edek#1800"         298003054110965762
   , p "RiplEy#21126"      137314790769950720
   , p "GadjiPro#2558"     331504164204969984

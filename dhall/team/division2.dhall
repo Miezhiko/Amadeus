@@ -9,17 +9,14 @@ let playersList : List Playerx =
   [ t "sonder#21813"        470291730328190985 "reforgedrav3n"
   , t "Ps1xoZ#21765"        404546426161332224 "ps1xoz_human"
   , t "Rays#2344"           212657754584645633 "follow_rays"
-  , t "Avernus#2393"        247774118798295041 "ghost_17"
   , t "JustDoiTpLs#2907"    543121502711840799 "justdoitpls22"
-  , b "Rici#2903"           404379597568999425 "riciii" "Rici"
   , b "НееЖить#2559"        703241941114028032 "masterv_64" "Ghost_OL"
   , p "RavenTT#2656"        277555411584942080
-  , p "Fopogg#2818"         318043743628427269
-  , p "FATAL#21779"         386856633403310080
-  , p "Farer#21146"         444864857658097664
-  , p "EnragedOxy#2999"     576662560120766474
   , p "Singroso#2472"       677187656857419792
   , p "Pechenka#21766"      677187656857419792
+  , p "Fopogg#2818"         318043743628427269
+  , p "FATAL#21779"         386856633403310080
+  , p "EnragedOxy#2999"     576662560120766474
   ]
 
 in playersList

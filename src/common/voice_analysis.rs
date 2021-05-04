@@ -16,7 +16,6 @@ use songbird::{
   Event, EventContext, EventHandler as VoiceEventHandler,
 };
 
-use std::hint::unreachable_unchecked;
 use std::{collections::HashMap, process::Stdio, sync::Arc};
 use tokio::{io::AsyncWriteExt, process::Command, task};
 use uuid::Uuid;
@@ -157,21 +156,20 @@ impl VoiceEventHandler for Receiver {
           let file_path = format!("{}.wav", file_id.as_u128());
 
           let args = [
-              "-t",
-              "raw",
-              "-b",
-              "16",
-              "-e",
-              "signed-integer",
-              "-r",
-              "16000",
-              "-",
-              "-c",
-              "1",
-              &file_path,
+            "-f",
+            "s16le",
+            "-ar",
+            "48000",
+            "-ac",
+            "2",
+            "-i",
+            "-",
+            "-ac",
+            "1",
+            &file_path,
           ];
 
-          let mut child = match Command::new("sox")
+          let mut child = match Command::new("ffmpeg")
             .args(&args)
             .stdin(Stdio::piped())
             .stdout(Stdio::inherit())
@@ -193,12 +191,12 @@ impl VoiceEventHandler for Receiver {
             Some(ref mut stdin) => {
               for i in audio {
                 if let Err(e) = stdin.write_i16(i).await {
-                  error!("Failed to write byte to Sox stdin! {}", e);
+                  error!("Failed to write byte to ffmpeg stdin! {}", e);
                 };
               }
             }
             None => {
-              error!("Failed to open Sox stdin!");
+              error!("Failed to open ffmpeg stdin!");
               return None;
             }
           };
@@ -243,7 +241,7 @@ impl VoiceEventHandler for Receiver {
                 };
               }
               Err(e) => {
-                error!("Sox failed! {}", e);
+                error!("ffmpeg failed! {}", e);
               }
             };
             if let Err(e) = tokio::fs::remove_file(&file_path).await {
@@ -289,11 +287,11 @@ impl VoiceEventHandler for Receiver {
           _ => {
             let mut audio = {
               let mut decoders = self.decoders.write().await;
-              let decoder = decoders
-                .get_mut(&packet.ssrc)
-                .unwrap_or_else(|| unsafe {
-                  unreachable_unchecked() // SAFETY: shouldn't ever happen... hopefully
-                });
+              let decoder = match decoders
+                .get_mut(&packet.ssrc) {
+                Some(d) => d,
+                None => {return None;}
+              };
               let mut v = Vec::new();
               match decoder.opus_decoder.decode(&packet.payload, &mut v, false) {
                 Ok(s) => {

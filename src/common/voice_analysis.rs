@@ -1,11 +1,13 @@
-use crate::{
-  common::voice_decoder::*,
-  common::voice::*,
-  common::voice_to_text::*
+use crate::common::{
+  voice_decoder::*,
+  voice::*,
+  voice_to_text::*
 };
 
-use serenity::prelude::Context;
-use serenity::{async_trait, model::webhook::Webhook, prelude::RwLock};
+use serenity::{
+  prelude::{Context, RwLock},
+  async_trait, model::webhook::Webhook
+};
 
 use songbird::{
   driver::DecodeMode,
@@ -16,9 +18,8 @@ use songbird::{
   Event, EventContext, EventHandler as VoiceEventHandler,
 };
 
-use std::{collections::HashMap, process::Stdio, sync::Arc};
-use tokio::{io::AsyncWriteExt, process::Command, task};
-use uuid::Uuid;
+use std::{collections::HashMap, sync::Arc};
+use tokio::task;
 
 #[derive(Clone)]
 pub struct Receiver {
@@ -151,101 +152,40 @@ impl VoiceEventHandler for Receiver {
               return None;
             }
           };
-          // all of this code reeks of https://www.youtube.com/watch?v=lIFE7h3m40U
-          let file_id = Uuid::new_v4();
-          let file_path = format!("{}.wav", file_id.as_u128());
 
-          let args = [
-            "-f",
-            "s16le",
-            "-ar",
-            "48000",
-            "-ac",
-            "2",
-            "-i",
-            "-",
-            "-ac",
-            "1",
-            &file_path,
-          ];
-
-          let mut child = match Command::new("ffmpeg")
-            .args(&args)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .kill_on_drop(true)
-            .spawn()
-          {
-            Err(e) => {
-              error!("Failed to spawn Sox!");
-              return None;
-            }
-            Ok(c) => {
-              info!("Spawned Sox!");
-              c
-            }
-          };
-
-          match child.stdin {
-            Some(ref mut stdin) => {
-              for i in audio {
-                if let Err(e) = stdin.write_i16(i).await {
-                  error!("Failed to write byte to ffmpeg stdin! {}", e);
-                };
-              }
-            }
-            None => {
-              error!("Failed to open ffmpeg stdin!");
-              return None;
-            }
-          };
-          // we now have a file named "{}.wav" where {} is a random UUID as a 128-bit integer.
-          // we should yield now to let other tasks proceed
-          task::yield_now().await;
           let webhook = self.webhook.clone();
           let context = self.context.clone();
 
           task::spawn(async move {
-            match child.wait().await {
-              Ok(_) => {
-                match run_stt(file_path.clone()).await {
-                  Ok(r) => {
-                    if r.len() != 0 {
-                      match context.cache.user(uid).await {
-                        Some(u) => {
-                          let profile_picture = match u.avatar {
-                            Some(a) => {
-                              format!("https://cdn.discordapp.com/avatars/{}/{}.png", u.id, a)
-                            }
-                            None => u.default_avatar_url(),
-                          };
-                          let name = u.name;
-
-                          let _ = webhook
-                            .execute(&context, false, |m| {
-                              m.avatar_url(profile_picture)
-                                .content(r)
-                                .username(name)
-                            })
-                            .await;
-                          // see comments below
-                        }
-                        None => {}
-                      }
+            match run_stt(audio).await {
+              Ok(r) => {
+                if r.len() != 0 {
+                  match context.cache.user(uid).await {
+                    Some(u) => {
+                      let profile_picture = match u.avatar {
+                        Some(a) => format!(
+                          "https://cdn.discordapp.com/avatars/{}/{}.png",
+                          u.id, a
+                        ),
+                        None => u.default_avatar_url(),
+                      };
+                      let name = u.name;
+                      let _ = webhook
+                        .execute(&context, false, |m| {
+                          m.avatar_url(profile_picture)
+                            .content(r)
+                            .username(name)
+                        })
+                        .await;
+                      // see comments below
                     }
+                    None => {}
                   }
-                  Err(e) => {
-                    error!("Failed to run speech-to-text! {}", e);
-                  }
-                };
+                }
               }
               Err(e) => {
-                error!("ffmpeg failed! {}", e);
+                error!("Failed to run speech-to-text! {}", e);
               }
-            };
-            if let Err(e) = tokio::fs::remove_file(&file_path).await {
-              error!("Failed to delete {}! {}", &file_path, e);
             };
           });
         }

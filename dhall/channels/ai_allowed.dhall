@@ -12,7 +12,6 @@ let channels : List Channel =
   , en 773830849124106250 -- "english"
   , bi 679723943535312903 -- "dating"
   , bi 611825511433240577 -- "warcraft"
-  , bi 631379331515678720 -- "team-chat"
   , bi 611824891666104320 -- "🚧random"
   , bi 755768364390940692 -- "💻computers"
   , bi 666614389805416448 -- "🌈climatestrike"

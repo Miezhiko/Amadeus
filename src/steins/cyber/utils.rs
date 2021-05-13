@@ -77,6 +77,7 @@ fn try_get_map(m: &str) -> String {
             , "royalgardens"          => "Royal Gardens"
             , "shatteredexile"        => "Shattered Exile"
             , "kal'drassil"           => "Kal'drassil"
+            , "shallowhrave"          => "SG"
             , _                       => "" })
 }
 

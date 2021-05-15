@@ -5,9 +5,7 @@ let t = ./functions/t.dhall
 let b = ./functions/b.dhall
 
 let playersList : List Playerx =
-  [ t "sockpuppet#21397"  204753768523235329 "whitemale18"
-  , t "lmao#21922"        204753768523235329 "whitemale18"
-  , t "PriesT#12658"      180213339111161856 "PriesTwc3"
+  [ t "PriesT#12658"      180213339111161856 "PriesTwc3"
   , t "ENA1337#2702"      138315254378659840 "ena1337"
   , t "Muffy#2299"        196231768880185344 "muffy_supergosu"
   , t "Trunks#2116"       297810232254398466 "trynkzzz"

@@ -7,7 +7,6 @@ let g = ./functions/g.dhall
 let playersList : List Playerx =
   [ t "Fingon#2350"   361930230375514112 "Skyrimoon"
   , p "Alucard#1389"  196922236895100928
-  , p "War3Alex#2255" 720938816810254338
   ]
 
 in playersList

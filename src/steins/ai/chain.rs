@@ -110,7 +110,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
       out = uwu::spell(&out);
     }
   }
-  if !russian && rndx < 50 {
+  if !russian && rndx < 30 {
     out = correct(&out).await;
   }
   out

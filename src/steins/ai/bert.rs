@@ -20,6 +20,10 @@ use std::collections::HashMap;
 
 use anyhow::Result;
 
+use rand::Rng;
+
+use super::neo::chat_neo;
+
 // models
 static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
 pub static EN2RUMODEL: Lazy<Mutex<TranslationModel>> =
@@ -144,7 +148,7 @@ pub async fn ask(question: String) -> Result<String> {
   }).await.unwrap()
 }
 
-pub async fn chat(something: String, user_id: u64) -> Result<String> {
+async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
   let conversation_model = CONVMODEL.lock().await;
   let mut chat_context = CHAT_CONTEXT.lock().await;
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
@@ -204,4 +208,12 @@ pub async fn chat(something: String, user_id: u64) -> Result<String> {
       Ok(answer.clone())
     }
   }).await.unwrap()
+}
+
+pub async fn chat(something: String, user_id: u64) -> Result<String> {
+  let rndx = rand::thread_rng().gen_range(0..2);
+  match rndx {
+    0 => chat_neo(something).await,
+    _ => chat_gpt2(something, user_id).await
+  }
 }

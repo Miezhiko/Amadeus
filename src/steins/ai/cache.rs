@@ -73,7 +73,23 @@ pub static RE4: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+").unwrap());
 
 pub async fn reinit() {
   let mut cache_eng_str = CACHE_ENG_STR.lock().await;
-  *cache_eng_str = cache_eng_str.clone().into_iter().rev().take(100).collect::<Vec<String>>();
+  *cache_eng_str = cache_eng_str.clone().into_iter().rev().take(255).collect::<Vec<String>>();
+}
+
+fn process_message_string(s: &str) -> Option<String> {
+  let mut result_string = RE1.replace_all(s, "").to_string();
+  result_string = RE2.replace_all(&result_string, "").to_string();
+  result_string = RE3.replace_all(&result_string, "").to_string();
+  result_string = RE4.replace_all(&result_string, " ").to_string();
+  result_string = result_string.replace(
+    |c: char| !c.is_whitespace() && (!c.is_ascii() || !c.is_alphabetic()), "");
+  let result = result_string.trim();
+  let is_http = result.starts_with("http");
+  if !result.is_empty() && !result.contains('$') && !is_http {
+    Some(result.to_string())
+  } else {
+    None
+  }
 }
 
 pub async fn update_cache( ctx: &Context
@@ -90,6 +106,8 @@ pub async fn update_cache( ctx: &Context
     if fs::metadata(CACHE_ENG_YML).await.is_ok() {
       if let Ok(eng_cache) = Chain::load(CACHE_ENG_YML) {
         *cache_eng = eng_cache;
+      } else {
+        error!("Failed to load chace eng YML!");
       }
     } else {
       for confuse in CONFUSION.iter() {
@@ -99,6 +117,8 @@ pub async fn update_cache( ctx: &Context
     if fs::metadata(CACHE_RU_YML).await.is_ok() {
       if let Ok(ru_cache) = Chain::load(CACHE_RU_YML) {
         *cache_ru = ru_cache;
+      } else {
+        error!("Failed to load chace ru YML!");
       }
     } else {
       for confuse in CONFUSION_RU.iter() {
@@ -156,25 +176,17 @@ pub async fn update_cache( ctx: &Context
                 }
                 i += 1; m_progress += 1;
                 if !check_registration(chan.0, mmm.id.0).await {
-                  let mut result_string = RE1.replace_all(&mmm.content, "").to_string();
-                  result_string = RE2.replace_all(&result_string, "").to_string();
-                  result_string = RE3.replace_all(&result_string, "").to_string();
-                  result_string = RE4.replace_all(&result_string, " ").to_string();
-                  result_string = result_string.replace(
-                    |c: char| !c.is_whitespace() && (!c.is_ascii() || !c.is_alphabetic()), "");
-                  let result = result_string.trim();
-                  let is_http = result.starts_with("http");
-                  if !result.is_empty() && !result.contains('$') && !is_http {
+                  if let Some(result) = process_message_string(&mmm.content) {
                     match ch_lang.lang {
                       ChannelLanguage::Russian => {
-                        cache_ru.feed_str(result);
+                        cache_ru.feed_str(&result);
                         if i_ru_for_translation < TRANSLATION_MAX {
                           ru_messages_for_translation.push(result.to_string());
                           i_ru_for_translation += 1;
                         }
                       },
                       ChannelLanguage::English => {
-                        cache_eng.feed_str(result);
+                        cache_eng.feed_str(&result);
                         if result.contains('\n') {
                           for line in result.lines() {
                             if !line.is_empty() {
@@ -182,18 +194,18 @@ pub async fn update_cache( ctx: &Context
                             }
                           }
                         } else {
-                          cache_eng_str.push(result.to_string());
+                          cache_eng_str.push(result);
                         }
                       },
                       ChannelLanguage::Bilingual => {
-                        if lang::is_russian(result) {
-                          cache_ru.feed_str(result);
+                        if lang::is_russian(&result) {
+                          cache_ru.feed_str(&result);
                           if i_ru_for_translation < TRANSLATION_MAX {
-                            ru_messages_for_translation.push(result.to_string());
+                            ru_messages_for_translation.push(result);
                             i_ru_for_translation += 1;
                           }
                         } else {
-                          cache_eng.feed_str(result);
+                          cache_eng.feed_str(&result);
                           if result.contains('\n') {
                             for line in result.lines() {
                               if !line.is_empty() {
@@ -201,7 +213,7 @@ pub async fn update_cache( ctx: &Context
                               }
                             }
                           } else {
-                            cache_eng_str.push(result.to_string());
+                            cache_eng_str.push(result);
                           }
                         }
                       }
@@ -221,8 +233,12 @@ pub async fn update_cache( ctx: &Context
   }
 
   info!("Dumping chains!");
-  let _ = cache_eng.save(CACHE_ENG_YML);
-  let _ = cache_ru.save(CACHE_RU_YML);
+  if let Err(err) = cache_eng.save(CACHE_ENG_YML) {
+    error!("failed to save eng yml cache: {:?}", err);
+  }
+  if let Err(err) = cache_ru.save(CACHE_RU_YML) {
+    error!("failed to save ru yml cache: {:?}", err);
+  }
 
   if let Ok(rdn) = rudano::to_string_compact(&cache_eng_str.clone()) {
     if let Err(why) = fs::write(CACHE_RDN, rdn).await {
@@ -254,6 +270,7 @@ pub async fn update_cache( ctx: &Context
   ctx.set_activity(Activity::playing(&version)).await;
 }
 
+// TODO: error checks
 pub async fn clear_cache() {
   setm!{ cache_eng = CACHE_ENG.lock().await
        , cache_ru = CACHE_RU.lock().await
@@ -297,6 +314,17 @@ pub async fn actualize_cache(ctx: &Context) {
       }
       update_cache(ctx, &all_channels).await;
       *last_update = nao;
+    }
+  }
+}
+
+#[cfg(test)]
+mod cache_tests {
+  use super::*;
+  #[test]
+  fn cache_msg_string_process_test() {
+    if let Some(result) = process_message_string("Привет") {
+      assert_eq!(result, "Привет");
     }
   }
 }

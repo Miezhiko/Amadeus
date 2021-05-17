@@ -103,31 +103,31 @@ impl VoiceEventHandler for Receiver {
           }
         } // otherwise just ignore it since we can't do anything about that
       }
-      Ctx::SpeakingUpdate { ssrc, speaking } => {
+      Ctx::SpeakingUpdate(data) => {
         // You can implement logic here which reacts to a user starting
         // or stopping speaking.
         let uid: u64 = {
           let map = self.ssrc_map.read().await;
-          match map.get(ssrc) {
+          match map.get(&data.ssrc) {
             Some(u) => u.0,
             None => 0,
           }
         };
-        if !*speaking {
+        if !data.speaking {
           let audio = match DECODE_TYPE {
             DecodeMode::Decrypt => {
               {
                 let mut decoders = self.decoders.write().await;
-                decoders.insert(*ssrc, Decoder::new());
+                decoders.insert(data.ssrc, Decoder::new());
               }
               {
                 let mut buf = self.encoded_audio_buffer.write().await;
-                match buf.insert(*ssrc, Vec::new()) {
+                match buf.insert(data.ssrc, Vec::new()) {
                   Some(a) => a,
                   None => {
                     warn!(
                       "Didn't find a user with SSRC {} in the audio buffers.",
-                      ssrc
+                      data.ssrc
                     );
                     return None;
                   }
@@ -136,12 +136,12 @@ impl VoiceEventHandler for Receiver {
             }
             DecodeMode::Decode => {
               let mut buf = self.audio_buffer.write().await;
-              match buf.insert(*ssrc, Vec::new()) {
+              match buf.insert(data.ssrc, Vec::new()) {
                 Some(a) => a,
                 None => {
                   warn!(
                     "Didn't find a user with SSRC {} in the audio buffers.",
-                    ssrc
+                    data.ssrc
                   );
                   return None;
                 }
@@ -191,32 +191,27 @@ impl VoiceEventHandler for Receiver {
         }
         info!(
           "Source {} (ID {}) has {} speaking.",
-          ssrc,
+          data.ssrc,
           uid,
-          if *speaking { "started" } else { "stopped" },
+          if data.speaking { "started" } else { "stopped" },
         );
       }
-      Ctx::VoicePacket {
-        audio,
-        packet,
-        payload_offset,
-        payload_end_pad,
-      } => {
+      Ctx::VoicePacket(data) => {
         // An event which fires for every received audio packet,
         // containing the decoded data.
 
         let uid: u64 = {
           // block that will drop lock when exited
           let map = self.ssrc_map.read().await;
-          match map.get(&packet.ssrc) {
+          match map.get(&data.packet.ssrc) {
             Some(u) => u.to_string().parse().unwrap(),
             None => 0,
           }
         };
-        match audio {
+        match data.audio {
           Some(audio) => {
             let mut buf = self.audio_buffer.write().await;
-            let b = match buf.get_mut(&packet.ssrc) {
+            let b = match buf.get_mut(&data.packet.ssrc) {
               Some(b) => b,
               None => {
                 return None;
@@ -228,12 +223,12 @@ impl VoiceEventHandler for Receiver {
             let mut audio = {
               let mut decoders = self.decoders.write().await;
               let decoder = match decoders
-                .get_mut(&packet.ssrc) {
+                .get_mut(&data.packet.ssrc) {
                 Some(d) => d,
                 None => {return None;}
               };
               let mut v = Vec::new();
-              match decoder.opus_decoder.decode(&packet.payload, &mut v, false) {
+              match decoder.opus_decoder.decode(&data.packet.payload, &mut v, false) {
                 Ok(s) => {
                   info!("Decoded {} opus samples", s);
                 }
@@ -245,17 +240,13 @@ impl VoiceEventHandler for Receiver {
               v
             };
             let mut buf = self.encoded_audio_buffer.write().await;
-            if let Some(b) = buf.get_mut(&packet.ssrc) {
+            if let Some(b) = buf.get_mut(&data.packet.ssrc) {
               b.append(&mut audio);
             };
           }
         }
       }
-      Ctx::RtcpPacket {
-        packet,
-        payload_offset,
-        payload_end_pad,
-      } => {
+      Ctx::RtcpPacket(data) => {
         // An event which fires for every received rtcp packet,
         // containing the call statistics and reporting information.
         // Probably ignorable for our purposes.

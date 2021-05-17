@@ -1,4 +1,4 @@
-use crate::steins::ai::cache::CACHE_ENG_STR;
+//use crate::steins::ai::cache::CACHE_ENG_STR;
 
 use rust_bert::gpt_neo::{
     GptNeoConfigResources, GptNeoMergesResources, GptNeoModelResources, GptNeoVocabResources,
@@ -43,15 +43,16 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
     Mutex::new( TextGenerationModel::new(generate_config).unwrap() )
   });
 
+// TODO: cache?
 pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   let neo_model = NEOMODEL.lock().await;
-  let cache_eng_vec = CACHE_ENG_STR.lock().await;
+  //let cache_eng_vec = CACHE_ENG_STR.lock().await;
   task::spawn_blocking(move || {
-    let mut cache_slices = cache_eng_vec
-                          .iter().rev().take(50)
-                          .map(AsRef::as_ref).collect::<Vec<&str>>();
-    cache_slices.push(&something);
-    let output = neo_model.generate(&cache_slices, None);
+    //let mut cache_slices = cache_eng_vec
+    //                      .iter().rev().take(50)
+    //                      .map(AsRef::as_ref).collect::<Vec<&str>>();
+    //cache_slices.push(&something);
+    let output = neo_model.generate(&[something.as_str()], None);
 
     if output.is_empty() {
       error!("Failed to chat with Neo Model");

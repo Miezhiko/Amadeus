@@ -161,7 +161,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
     } else {
       lang::is_russian(&msg.content)
     };
-  let rndx: u32 = rand::thread_rng().gen_range(0..20);
+  let rndx: u32 = rand::thread_rng().gen_range(0..30);
   let mut bert_generated = false;
   let mut answer =
     if rndx != 1 {

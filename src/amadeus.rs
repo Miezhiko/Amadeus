@@ -14,7 +14,7 @@ use crate::{
 };
 
 use songbird::{
-  driver::Config as DriverConfig,
+  Config as DriverConfig,
   {SerenityInit, Songbird},
 };
 

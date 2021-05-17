@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "4.8.11"
+version     = "4.8.12"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -44,7 +44,7 @@ unic-langid         = "0.9"
 fluent-templates    = "0.6"
 sled                = "0.34"
 kathoey             = "1.0.4"
-songbird            = "0.1.6"
+songbird            = "0.2.0-beta.1"
 serde_dhall         = "0.10"
 
 # rust bert needs update

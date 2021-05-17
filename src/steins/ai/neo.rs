@@ -1,15 +1,19 @@
-//use crate::steins::ai::cache::CACHE_ENG_STR;
+use crate::steins::ai::cache::CACHE_ENG_STR;
 
 use rust_bert::gpt_neo::{
     GptNeoConfigResources, GptNeoMergesResources, GptNeoModelResources, GptNeoVocabResources,
 };
-use rust_bert::pipelines::common::ModelType;
-use rust_bert::pipelines::text_generation::{TextGenerationConfig, TextGenerationModel};
-use rust_bert::resources::{RemoteResource, Resource};
+use rust_bert::{
+  pipelines::common::ModelType,
+  pipelines::text_generation::{TextGenerationConfig, TextGenerationModel},
+  resources::{RemoteResource, Resource}
+};
 use tch::Device;
 
 use once_cell::sync::Lazy;
 use tokio::{ task, sync::Mutex };
+
+use rand::seq::SliceRandom;
 
 pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
   Lazy::new(||{
@@ -46,12 +50,12 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
 // TODO: cache?
 pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   let neo_model = NEOMODEL.lock().await;
-  //let cache_eng_vec = CACHE_ENG_STR.lock().await;
+  let cache_eng_vec = CACHE_ENG_STR.lock().await;
   task::spawn_blocking(move || {
-    //let mut cache_slices = cache_eng_vec
-    //                      .iter().rev().take(50)
-    //                      .map(AsRef::as_ref).collect::<Vec<&str>>();
-    //cache_slices.push(&something);
+    let mut cache_slices = cache_eng_vec
+                          .choose_multiple(&mut rand::thread_rng(), 2)
+                          .map(AsRef::as_ref).collect::<Vec<&str>>();
+    cache_slices.push(&something);
     let output = neo_model.generate(&[something.as_str()], None);
 
     if output.is_empty() {

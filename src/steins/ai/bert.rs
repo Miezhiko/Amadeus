@@ -71,7 +71,7 @@ pub async fn en2ru(text: String) -> Result<String> {
     return Ok(String::new());
   }
   let en2ru_model = EN2RUMODEL.lock().await;
-  task::spawn_blocking(move || {
+  //task::spawn_blocking(move || {
     let output = en2ru_model.translate(&[text.as_str()]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig EnglishToRussian");
@@ -79,7 +79,7 @@ pub async fn en2ru(text: String) -> Result<String> {
     } else {
       Ok(output[0].clone())
     }
-  }).await.unwrap()
+  //}).await.unwrap()
 }
 
 pub async fn ru2en(text: String) -> Result<String> {
@@ -87,7 +87,7 @@ pub async fn ru2en(text: String) -> Result<String> {
     return Ok(String::new());
   }
   let ru2en_model = RU2ENMODEL.lock().await;
-  task::spawn_blocking(move || {
+  //task::spawn_blocking(move || {
     let output = ru2en_model.translate(&[text.as_str()]);
     if output.is_empty() {
       error!("Failed to translate with TranslationConfig RussianToEnglish");
@@ -96,7 +96,7 @@ pub async fn ru2en(text: String) -> Result<String> {
       let translation = &output[0];
       Ok(translation.clone())
     }
-  }).await.unwrap()
+  //}).await.unwrap()
 }
 
 pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
@@ -104,7 +104,7 @@ pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
     return Ok(vec![]);
   }
   let ru2en_model = EN2RUMODEL.lock().await;
-  task::spawn_blocking(move || {
+  //task::spawn_blocking(move || {
     let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
     let output = ru2en_model.translate(&ttt);
     if output.is_empty() {
@@ -113,7 +113,7 @@ pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
     } else {
       Ok(output)
     }
-  }).await.unwrap()
+  //}).await.unwrap()
 }
 
 pub async fn ask(question: String) -> Result<String> {
@@ -128,7 +128,7 @@ pub async fn ask(question: String) -> Result<String> {
         .join(" ")
     };
   let qa_model = QAMODEL.lock().await;
-  task::spawn_blocking(move || {
+  //task::spawn_blocking(move || {
     let qa_input = QaInput {
       question, context: cache
     };
@@ -145,14 +145,14 @@ pub async fn ask(question: String) -> Result<String> {
       let answer = &my_answers[0];
       Ok(answer.answer.clone())
     }
-  }).await.unwrap()
+  //}).await.unwrap()
 }
 
 async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
   let conversation_model = CONVMODEL.lock().await;
   let mut chat_context = CHAT_CONTEXT.lock().await;
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
-  task::spawn_blocking(move || {
+  //task::spawn_blocking(move || {
     let output =
       if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
         if *x > 100 {
@@ -209,7 +209,7 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
 
       Ok(answer.clone())
     }
-  }).await.unwrap()
+  //}).await.unwrap()
 }
 
 pub async fn chat(something: String, user_id: u64) -> Result<String> {

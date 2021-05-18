@@ -36,7 +36,7 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
       vocab_resource,
       merges_resource,
       min_length: 10,
-      max_length: 64,
+      max_length: 40,
       do_sample: false,
       early_stopping: true,
       num_beams: 4,
@@ -51,21 +51,20 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
 pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   let neo_model = NEOMODEL.lock().await;
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
-  task::spawn_blocking(move || {
-    let mut cache_slices = cache_eng_vec
-                          .choose_multiple(&mut rand::thread_rng(), 50)
-                          .map(AsRef::as_ref).collect::<Vec<&str>>();
-    cache_slices.push(&something);
-    let output = neo_model.generate(&[something.as_str()], None);
-
-    if output.is_empty() {
-      error!("Failed to chat with Neo Model");
-      // TODO: error should be here
-      Ok(String::new())
-    } else {
-      // just get first maybe?
-      let answer = &output[0];
-      Ok(answer.clone())
-    }
-  }).await.unwrap()
+  //task::spawn_blocking(move || {
+  let mut cache_slices = cache_eng_vec
+                        .choose_multiple(&mut rand::thread_rng(), 33)
+                        .map(AsRef::as_ref).collect::<Vec<&str>>();
+  cache_slices.push(&something);
+  let output = neo_model.generate(&[something.as_str()], None);
+  if output.is_empty() {
+    error!("Failed to chat with Neo Model");
+    // TODO: error should be here
+    Ok(String::new())
+  } else {
+    // just get first maybe?
+    let answer = &output[0];
+    Ok(answer.clone())
+  }
+  //}).await.unwrap()
 }

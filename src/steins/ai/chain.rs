@@ -4,7 +4,8 @@ use crate::{
           , msg::{ reply, channel_message }
   },
   collections::base::{ OBFUSCATION
-                     , OBFUSCATION_RU },
+                     , OBFUSCATION_RU
+                     , CASELIST },
   collections::channels::{ AI_LEARN, AI_ALLOWED },
   steins::ai::{ cache::{ CACHE_RU
                        , CACHE_ENG
@@ -163,8 +164,9 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
     };
   let rndx: u32 = rand::thread_rng().gen_range(0..30);
   let mut bert_generated = false;
+  let in_case = CASELIST.iter().any(|u| *u == msg.author.id.0);
   let mut answer =
-    if rndx != 1 {
+    if rndx != 1 && !in_case {
       let text = if russian {
         if let Ok(translated) = bert::ru2en(msg.content.clone()).await {
           translated
@@ -199,7 +201,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
       if let Ok(translated) = bert::en2ru(answer.clone()).await {
         // feminize translated text
         let kathoey = KATHOEY.lock().await;
-        let rndy: u32 = rand::thread_rng().gen_range(0..15);
+        let rndy: u32 = rand::thread_rng().gen_range(0..30);
         answer =
           if rndy == 1 {
             kathoey.extreme_feminize(&translated)
@@ -211,7 +213,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
       let rndxx: u32 = rand::thread_rng().gen_range(0..2);
       if rndxx == 1 {
         let kathoey = KATHOEY.lock().await;
-        let rndxxx: u32 = rand::thread_rng().gen_range(0..15);
+        let rndxxx: u32 = rand::thread_rng().gen_range(0..30);
         answer =
           if rndxxx == 1 {
             kathoey.extreme_feminize(&answer)

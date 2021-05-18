@@ -11,7 +11,7 @@ use rust_bert::{
 use tch::Device;
 
 use once_cell::sync::Lazy;
-use tokio::{ task, sync::Mutex };
+use tokio::sync::Mutex;
 
 use rand::seq::SliceRandom;
 
@@ -47,11 +47,9 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
     Mutex::new( TextGenerationModel::new(generate_config).unwrap() )
   });
 
-// TODO: cache?
 pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   let neo_model = NEOMODEL.lock().await;
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
-  //task::spawn_blocking(move || {
   let mut cache_slices = cache_eng_vec
                         .choose_multiple(&mut rand::thread_rng(), 33)
                         .map(AsRef::as_ref).collect::<Vec<&str>>();
@@ -66,5 +64,4 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
     let answer = &output[0];
     Ok(answer.clone())
   }
-  //}).await.unwrap()
 }

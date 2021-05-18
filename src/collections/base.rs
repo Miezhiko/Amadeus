@@ -8,6 +8,7 @@ static CONFUSIOND: &str      = "dhall/base/confusion.dhall";
 static OBFUSCATION_RUD: &str = "dhall/base/obfuscation_ru.dhall";
 static OBFUSCATIOND: &str    = "dhall/base/obfuscation.dhall";
 static WHITELISTD: &str      = "dhall/base/whitelist.dhall";
+static CASELISTD: &str       = "dhall/base/case.dhall";
 static REACTIONSD: &str      = "dhall/base/reactions.dhall";
 
 pub static GREETINGS: Lazy<Vec<String>>      = Lazy::new(|| dhall!(GREETINGSD));
@@ -16,6 +17,7 @@ pub static CONFUSION: Lazy<Vec<String>>      = Lazy::new(|| dhall!(CONFUSIOND));
 pub static OBFUSCATION_RU: Lazy<Vec<String>> = Lazy::new(|| dhall!(OBFUSCATION_RUD));
 pub static OBFUSCATION: Lazy<Vec<String>>    = Lazy::new(|| dhall!(OBFUSCATIOND));
 pub static WHITELIST: Lazy<Vec<u64>>         = Lazy::new(|| dhall!(WHITELISTD));
+pub static CASELIST: Lazy<Vec<u64>>          = Lazy::new(|| dhall!(CASELISTD));
 pub static REACTIONS: Lazy<Vec<Reaction>>    = Lazy::new(|| dhall!(REACTIONSD));
 
 #[cfg(test)]
@@ -50,6 +52,17 @@ mod base_dhall_tests {
           Ok(())
         } else {
           Err(String::from("empty structure loaded for whitelist"))
+        }
+      }, Err(de) => Err(format!("Failed to parse {:?}", de))
+    }
+  }
+  fn case() -> Result<(), String> {
+    match serde_dhall::from_file(CASED).parse::<Vec<u64>>() {
+      Ok(some) => {
+        if !some.is_empty() {
+          Ok(())
+        } else {
+          Err(String::from("empty structure loaded for case"))
         }
       }, Err(de) => Err(format!("Failed to parse {:?}", de))
     }

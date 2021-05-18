@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "5.2.0"
+version     = "5.3.1"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -43,7 +43,7 @@ async-recursion     = "0.3"
 unic-langid         = "0.9"
 fluent-templates    = "0.6"
 sled                = "0.34"
-kathoey             = "1.0.4"
+kathoey             = "1.0.6"
 songbird            = "0.2.0-beta.1"
 serde_dhall         = "0.10"
 

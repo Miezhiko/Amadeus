@@ -141,6 +141,7 @@ pub async fn ask(question: String) -> Result<String> {
 }
 
 async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
+  info!("Generating GPT2 response");
   let conversation_model = CONVMODEL.lock().await;
   let mut chat_context = CHAT_CONTEXT.lock().await;
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
@@ -151,7 +152,7 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
 
         let mut conversation_manager = ConversationManager::new();
         let cache_slices = cache_eng_vec
-                        .choose_multiple(&mut rand::thread_rng(), 50)
+                        .choose_multiple(&mut rand::thread_rng(), 32)
                         .map(AsRef::as_ref).collect::<Vec<&str>>();
         let encoded_history = conversation_model.encode_prompts(&cache_slices);
         let conv_id = conversation_manager.create(&something);

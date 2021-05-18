@@ -31,7 +31,7 @@ use std::{ time::Duration
          , sync::atomic::Ordering::Relaxed
          , sync::atomic::AtomicU32 };
 
-pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(6);
+pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(7);
 static ONGOING_PAGE_SIZE: usize = 15;
 
 pub async fn update_current_season(ctx: &Context) {
@@ -285,7 +285,17 @@ async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
     let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?season={}&gateWay=20", user, season);
     let res = rqcl.get(&uri).send().await?;
-    let stats: Vec<Stats> = res.json().await?;
+    let stats: Vec<Stats> =
+      match res.json::<Vec<Stats>>().await {
+        Ok(sms) => sms,
+        Err(wha) => {
+          let sms_res_2 = rqcl.get(&uri).send().await?;
+          if let Ok(text_res) = sms_res_2.text().await {
+            error!("{:?} on {}", wha, text_res);
+          }
+          vec![]
+        }
+      };
 
     let mut stats_by_races: String = String::new();
     if !stats.is_empty() {

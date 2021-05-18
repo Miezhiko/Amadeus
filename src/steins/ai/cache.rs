@@ -30,6 +30,7 @@ use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use once_cell::sync::Lazy;
 
+use kathoey::SEPARATORS;
 use kathoey::types::Kathoey;
 use nlprule::{Tokenizer, Rules};
 
@@ -76,7 +77,7 @@ pub async fn reinit() {
   *cache_eng_str = cache_eng_str.clone().into_iter().rev().take(666).collect::<Vec<String>>();
 }
 
-fn process_message_string(s: &str) -> Option<String> {
+fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String, ChannelLanguage)> {
   let mut result_string = RE1.replace_all(s, "").to_string();
   result_string = RE2.replace_all(&result_string, "").to_string();
   result_string = RE3.replace_all(&result_string, "").to_string();
@@ -86,7 +87,25 @@ fn process_message_string(s: &str) -> Option<String> {
   let result = result_string.trim();
   let is_http = result.starts_with("http");
   if !result.is_empty() && !result.contains('$') && !is_http {
-    Some(result.to_string())
+    let mut result_str = result.to_string();
+    let l = if lang == ChannelLanguage::Bilingual {
+        if lang::is_russian(&result) {
+          ChannelLanguage::Russian
+        } else {
+          ChannelLanguage::English
+        }
+      } else { lang };
+    let words = result.split(&SEPARATORS[..]);
+    for word in words {
+      if word.starts_with("http") {
+        result_str = result_str.replace(word, "");
+      }
+    }
+    if l == ChannelLanguage::English {
+      result_str = result_str.replace(
+        |c: char| !c.is_whitespace() && !c.is_ascii(), "");
+    }
+    Some((result_str, l))
   } else {
     None
   }
@@ -177,8 +196,8 @@ pub async fn update_cache( ctx: &Context
                 i += 1; m_progress += 1;
                 if !check_registration(chan.0, mmm.id.0).await {
                   debug!("#processing {}", &mmm.content);
-                  if let Some(result) = process_message_string(&mmm.content) {
-                    match ch_lang.lang {
+                  if let Some((result, lang)) = process_message_string(&mmm.content, ch_lang.lang) {
+                    match lang {
                       ChannelLanguage::Russian => {
                         debug!("#adding to russian {}", &result);
                         cache_ru.feed_str(&result);
@@ -200,28 +219,7 @@ pub async fn update_cache( ctx: &Context
                           cache_eng_str.push(result);
                         }
                       },
-                      ChannelLanguage::Bilingual => {
-                        if lang::is_russian(&result) {
-                          debug!("#adding to russian {}", &result);
-                          cache_ru.feed_str(&result);
-                          if i_ru_for_translation < TRANSLATION_MAX {
-                            ru_messages_for_translation.push(result);
-                            i_ru_for_translation += 1;
-                          }
-                        } else {
-                          debug!("#adding to english {}", &result);
-                          cache_eng.feed_str(&result);
-                          if result.contains('\n') {
-                            for line in result.lines() {
-                              if !line.is_empty() {
-                                cache_eng_str.push(line.to_string());
-                              }
-                            }
-                          } else {
-                            cache_eng_str.push(result);
-                          }
-                        }
-                      }
+                      ChannelLanguage::Bilingual => { /* we know language from process_message fn */ }
                     }
                     register(chan.0, mmm.id.0).await;
                   }
@@ -328,12 +326,14 @@ mod cache_tests {
   use super::*;
   #[test]
   fn cache_msg_string_process_eng_test() {
-    assert_eq!(Some(String::from("Hello")), process_message_string("Hello"));
+    assert_eq!(Some((String::from("Hello"), ChannelLanguage::English))
+        , process_message_string("Hello", ChannelLanguage::English));
   }
   #[test]
   fn cache_msg_string_process_ru_test() {
-    assert_eq!(Some(String::from("Привет")), process_message_string("Привет"));
-    assert_eq!(Some(String::from("Бойся женщин Они мстительны и безжалостны")),
-      process_message_string("Бойся женщин! Они мстительны и безжалостны!"));
+    assert_eq!(Some((String::from("Привет"), ChannelLanguage::Russian))
+        , process_message_string("Привет", ChannelLanguage::Bilingual));
+    assert_eq!(Some((String::from("Бойся женщин Они мстительны и безжалостны"), ChannelLanguage::Russian))
+        , process_message_string("Бойся женщин! Они мстительны и безжалостны!", ChannelLanguage::Russian));
   }
 }

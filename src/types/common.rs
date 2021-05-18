@@ -3,7 +3,7 @@ use serenity::prelude::*;
 use std::{ collections::HashMap, sync::Arc };
 use reqwest::Client as Reqwest;
 
-#[derive(Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Hash, Deserialize, Debug, Copy)]
 pub enum ChannelLanguage {
   English,
   Russian,

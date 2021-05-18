@@ -144,7 +144,7 @@ pub fn obfuscate(msg_content: &str) -> String {
 }
 
 #[async_recursion]
-async fn generate_response(ctx: &Context, msg: &Message) -> String {
+async fn generate_response(ctx: &Context, msg: &Message, gtry: u32) -> String {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
   let russian =
     if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0) {
@@ -166,7 +166,7 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
   let mut bert_generated = false;
   let in_case = CASELIST.iter().any(|u| *u == msg.author.id.0);
   let mut answer =
-    if rndx != 1 && !in_case {
+    if rndx != 1 && !in_case && gtry < 10 {
       let text = if russian {
         if let Ok(translated) = bert::ru2en(msg.content.clone()).await {
           translated
@@ -194,6 +194,9 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
         generate(&ctx, &msg, Some(russian)).await
       }
     } else {
+      if gtry > 9 {
+        warn!("Failed to generate normal response after 10 tryes!, msg was: {}", &msg.content);
+      }
       generate(&ctx, &msg, Some(russian)).await
     };
   if russian {
@@ -228,14 +231,14 @@ async fn generate_response(ctx: &Context, msg: &Message) -> String {
   }
   let trimmd = answer.as_str().trim();
   if trimmd.is_empty() || trimmd.len() < 3 {
-    generate_response(ctx, msg).await
+    generate_response(ctx, msg, gtry + 1).await
   } else {
     answer
   }
 }
 
 pub async fn chat(ctx: &Context, msg: &Message) {
-  let answer = generate_response(ctx, msg).await;
+  let answer = generate_response(ctx, msg, 0).await;
   if !answer.is_empty() {
     let rnd = rand::thread_rng().gen_range(0..3);
     if rnd == 1 {
@@ -247,7 +250,7 @@ pub async fn chat(ctx: &Context, msg: &Message) {
 }
 
 pub async fn response(ctx: &Context, msg: &Message) {
-  let answer = generate_response(ctx, msg).await;
+  let answer = generate_response(ctx, msg, 0).await;
   if !answer.is_empty() {
     reply(&ctx, &msg, &answer).await;
   }

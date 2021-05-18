@@ -56,8 +56,9 @@ mod base_dhall_tests {
       }, Err(de) => Err(format!("Failed to parse {:?}", de))
     }
   }
+  #[test]
   fn case() -> Result<(), String> {
-    match serde_dhall::from_file(CASED).parse::<Vec<u64>>() {
+    match serde_dhall::from_file(CASELISTD).parse::<Vec<u64>>() {
       Ok(some) => {
         if !some.is_empty() {
           Ok(())

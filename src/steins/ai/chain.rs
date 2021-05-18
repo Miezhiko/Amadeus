@@ -75,7 +75,7 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
 }
 
 pub async fn generate_with_language(ctx: &Context, russian: bool) -> String {
-  cache::actualize_cache(ctx).await;
+  cache::actualize_cache(ctx, false).await;
   let chain: MutexGuard<Chain<String>> =
     if russian {
       CACHE_RU.lock().await
@@ -95,7 +95,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
   let msg_content = &msg.content;
   let russian = if let Some(rus) = mbrussian
     { rus } else { lang::is_russian(msg_content) };
-  cache::actualize_cache(ctx).await;
+  cache::actualize_cache(ctx, false).await;
   let chain: MutexGuard<Chain<String>> =
     if russian {
         CACHE_RU.lock().await

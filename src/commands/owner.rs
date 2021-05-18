@@ -124,7 +124,7 @@ async fn update_cache(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  actualize_cache(ctx).await;
+  actualize_cache(ctx, true).await;
   channel_message(ctx, msg, "Cache updated").await;
   Ok(())
 }

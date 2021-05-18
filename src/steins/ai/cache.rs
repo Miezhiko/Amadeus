@@ -82,7 +82,7 @@ fn process_message_string(s: &str) -> Option<String> {
   result_string = RE3.replace_all(&result_string, "").to_string();
   result_string = RE4.replace_all(&result_string, " ").to_string();
   result_string = result_string.replace(
-    |c: char| !c.is_whitespace() && (!c.is_ascii() || !c.is_alphabetic()), "");
+    |c: char| !c.is_whitespace() && !c.is_alphabetic(), "");
   let result = result_string.trim();
   let is_http = result.starts_with("http");
   if !result.is_empty() && !result.contains('$') && !is_http {
@@ -176,9 +176,11 @@ pub async fn update_cache( ctx: &Context
                 }
                 i += 1; m_progress += 1;
                 if !check_registration(chan.0, mmm.id.0).await {
+                  debug!("#processing {}", &mmm.content);
                   if let Some(result) = process_message_string(&mmm.content) {
                     match ch_lang.lang {
                       ChannelLanguage::Russian => {
+                        debug!("#adding to russian {}", &result);
                         cache_ru.feed_str(&result);
                         if i_ru_for_translation < TRANSLATION_MAX {
                           ru_messages_for_translation.push(result.to_string());
@@ -186,6 +188,7 @@ pub async fn update_cache( ctx: &Context
                         }
                       },
                       ChannelLanguage::English => {
+                        debug!("#adding to english {}", &result);
                         cache_eng.feed_str(&result);
                         if result.contains('\n') {
                           for line in result.lines() {
@@ -199,12 +202,14 @@ pub async fn update_cache( ctx: &Context
                       },
                       ChannelLanguage::Bilingual => {
                         if lang::is_russian(&result) {
+                          debug!("#adding to russian {}", &result);
                           cache_ru.feed_str(&result);
                           if i_ru_for_translation < TRANSLATION_MAX {
                             ru_messages_for_translation.push(result);
                             i_ru_for_translation += 1;
                           }
                         } else {
+                          debug!("#adding to english {}", &result);
                           cache_eng.feed_str(&result);
                           if result.contains('\n') {
                             for line in result.lines() {
@@ -322,9 +327,13 @@ pub async fn actualize_cache(ctx: &Context, force: bool) {
 mod cache_tests {
   use super::*;
   #[test]
-  fn cache_msg_string_process_test() {
-    if let Some(result) = process_message_string("Привет") {
-      assert_eq!(result, "Привет");
-    }
+  fn cache_msg_string_process_eng_test() {
+    assert_eq!(Some(String::from("Hello")), process_message_string("Hello"));
+  }
+  #[test]
+  fn cache_msg_string_process_ru_test() {
+    assert_eq!(Some(String::from("Привет")), process_message_string("Привет"));
+    assert_eq!(Some(String::from("Бойся женщин Они мстительны и безжалостны")),
+      process_message_string("Бойся женщин! Они мстительны и безжалостны!"));
   }
 }

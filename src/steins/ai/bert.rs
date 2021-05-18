@@ -49,8 +49,8 @@ pub static CONVMODEL: Lazy<Mutex<ConversationModel>> =
   Lazy::new(||
     Mutex::new(ConversationModel::new(
       ConversationConfig {
-        min_length: 2,
-        max_length: 100,
+        min_length: 3,
+        max_length: 64,
         min_length_for_response: 5,
         device: *DEVICE,
         ..Default::default()
@@ -147,20 +147,20 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let output =
     if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
-      if *x > 100 {
+      if *x > 5 {
         chat_context.remove(&user_id);
 
         let mut conversation_manager = ConversationManager::new();
         let cache_slices = cache_eng_vec
-                        .choose_multiple(&mut rand::thread_rng(), 32)
+                        .choose_multiple(&mut rand::thread_rng(), 64)
                         .map(AsRef::as_ref).collect::<Vec<&str>>();
         let encoded_history = conversation_model.encode_prompts(&cache_slices);
         let conv_id = conversation_manager.create(&something);
         conversation_manager.get(&conv_id).unwrap().load_from_history(cache_slices, encoded_history);
 
         chat_context.insert( user_id
-                            , ( conversation_manager, 0, 0 )
-                            );
+                           , ( conversation_manager, 0, 0 )
+                           );
 
         let (registered_conversation, _, _) =
           chat_context.get_mut(&user_id).unwrap();

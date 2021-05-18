@@ -36,7 +36,7 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
       vocab_resource,
       merges_resource,
       min_length: 10,
-      max_length: 40,
+      max_length: 64,
       do_sample: false,
       early_stopping: true,
       num_beams: 4,

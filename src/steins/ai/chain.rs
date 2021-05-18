@@ -146,6 +146,9 @@ pub fn obfuscate(msg_content: &str) -> String {
 #[async_recursion]
 async fn generate_response(ctx: &Context, msg: &Message, gtry: u32) -> String {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
+  if gtry > 0 {
+    warn!("Failed to generate normal respons, try: {}", gtry);
+  }
   let russian =
     if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0) {
       match ch_lang.lang {

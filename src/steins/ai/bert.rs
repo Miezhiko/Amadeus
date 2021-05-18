@@ -1,4 +1,7 @@
-use crate::steins::ai::cache::CACHE_ENG_STR;
+use crate::steins::ai::cache::{
+  CACHE_ENG_STR,
+  process_message_for_gpt
+};
 
 use rust_bert::pipelines::{
   conversation::{ ConversationManager
@@ -110,7 +113,8 @@ pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
   }
 }
 
-pub async fn ask(question: String) -> Result<String> {
+pub async fn ask(msg_content: String) -> Result<String> {
+  let question = process_message_for_gpt(&msg_content);
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let cache = 
     if cache_eng_vec.is_empty() {
@@ -205,8 +209,9 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
 
 pub async fn chat(something: String, user_id: u64) -> Result<String> {
   let rndx = rand::thread_rng().gen_range(0..4);
+  let input = process_message_for_gpt(&something);
   match rndx {
-    0 => chat_neo(something).await,
-    _ => chat_gpt2(something, user_id).await
+    0 => chat_neo(input).await,
+    _ => chat_gpt2(input, user_id).await
   }
 }

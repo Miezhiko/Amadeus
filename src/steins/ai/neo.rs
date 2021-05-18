@@ -52,7 +52,7 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   let neo_model = NEOMODEL.lock().await;
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let mut cache_slices = cache_eng_vec
-                        .choose_multiple(&mut rand::thread_rng(), 33)
+                        .choose_multiple(&mut rand::thread_rng(), 64)
                         .map(AsRef::as_ref).collect::<Vec<&str>>();
   cache_slices.push(&something);
   let output = neo_model.generate(&[something.as_str()], None);

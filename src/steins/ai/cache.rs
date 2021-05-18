@@ -77,11 +77,16 @@ pub async fn reinit() {
   *cache_eng_str = cache_eng_str.clone().into_iter().rev().take(666).collect::<Vec<String>>();
 }
 
-fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String, ChannelLanguage)> {
+pub fn process_message_for_gpt(s: &str) -> String {
   let mut result_string = RE1.replace_all(s, "").to_string();
   result_string = RE2.replace_all(&result_string, "").to_string();
   result_string = RE3.replace_all(&result_string, "").to_string();
   result_string = RE4.replace_all(&result_string, " ").to_string();
+  result_string.trim().to_string()
+}
+
+fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String, ChannelLanguage)> {
+  let mut result_string = process_message_for_gpt(&s);
   result_string = result_string.replace(
     |c: char| !c.is_whitespace() && !c.is_alphabetic(), "");
   let result = result_string.trim();

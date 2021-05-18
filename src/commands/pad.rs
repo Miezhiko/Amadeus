@@ -349,43 +349,55 @@ async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
       let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
       let res2 = rqcl.get(&uri2).send().await?;
-      let stats2: Stats2 = res2.json().await?;
+      let stats2_mb: Option<Stats2> =
+        match res2.json::<Stats2>().await {
+          Ok(sms2) => Some(sms2),
+          Err(wha2) => {
+            let sms2_res_2 = rqcl.get(&uri2).send().await?;
+            if let Ok(text_res) = sms2_res_2.text().await {
+              error!("{:?} on {}", wha2, text_res);
+            }
+            None
+          }
+        };
 
-      let mut table = Table::new();
+      if let Some(stats2) = stats2_mb {
+        let mut table = Table::new();
 
-      table.set_content_arrangement(ContentArrangement::Dynamic)
-           .set_table_width(40)
-           .set_header(vec!["Map", "vs HU", "vs O", "vs NE", "vs UD"]);
+        table.set_content_arrangement(ContentArrangement::Dynamic)
+            .set_table_width(40)
+            .set_header(vec!["Map", "vs HU", "vs O", "vs NE", "vs UD"]);
 
-      if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
-        for s3 in s24 {
-          if !s3.winLossesOnMap.is_empty() &&
-              s3.race == 16 {
-            for s4 in &s3.winLossesOnMap {
-              let text = get_map(&s4.map);
-              let mut scores: HashMap<u32, String> = HashMap::new();
-              for s5 in &s4.winLosses {
-                let vs_winrate = (s5.winrate * 100.0).round();
-                let text = format!("{}%", vs_winrate);
-                scores.insert(s5.race, text);
+        if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
+          for s3 in s24 {
+            if !s3.winLossesOnMap.is_empty() &&
+                s3.race == 16 {
+              for s4 in &s3.winLossesOnMap {
+                let text = get_map(&s4.map);
+                let mut scores: HashMap<u32, String> = HashMap::new();
+                for s5 in &s4.winLosses {
+                  let vs_winrate = (s5.winrate * 100.0).round();
+                  let text = format!("{}%", vs_winrate);
+                  scores.insert(s5.race, text);
+                }
+                table.add_row(vec![
+                  Cell::new(text).set_alignment(CellAlignment::Left),
+                  Cell::new(scores.get(&1).unwrap_or( &String::from("-") ))
+                    .set_alignment(CellAlignment::Center),
+                  Cell::new(scores.get(&2).unwrap_or( &String::from("-") ))
+                    .set_alignment(CellAlignment::Center),
+                  Cell::new(scores.get(&4).unwrap_or( &String::from("-") ))
+                    .set_alignment(CellAlignment::Center),
+                  Cell::new(scores.get(&8).unwrap_or( &String::from("-") ))
+                    .set_alignment(CellAlignment::Center)
+                ]);
               }
-              table.add_row(vec![
-                Cell::new(text).set_alignment(CellAlignment::Left),
-                Cell::new(scores.get(&1).unwrap_or( &String::from("-") ))
-                  .set_alignment(CellAlignment::Center),
-                Cell::new(scores.get(&2).unwrap_or( &String::from("-") ))
-                  .set_alignment(CellAlignment::Center),
-                Cell::new(scores.get(&4).unwrap_or( &String::from("-") ))
-                  .set_alignment(CellAlignment::Center),
-                Cell::new(scores.get(&8).unwrap_or( &String::from("-") ))
-                  .set_alignment(CellAlignment::Center)
-              ]);
             }
           }
         }
+        description = format!("{}```\n{}\n```", description, table);
       }
 
-      description = format!("{}```\n{}\n```", description, table);
       let footer = format!("Requested by {}", msg.author.name);
 
       let mut additional_info = vec![("Stats by races", &stats_by_races, false)];
@@ -459,93 +471,105 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
     let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
     let res2 = rqcl.get(&uri2).send().await?;
-    let stats2: Stats2 = res2.json().await?;
-
-    let race_vs_lower = race_vs.to_lowercase();
-    let race_vs_num: u32 =
-      if race_vs_lower.starts_with('h') {
-        1
-      } else if race_vs_lower.starts_with('o') {
-        2
-      } else if race_vs_lower.starts_with('n')
-             || race_vs_lower.starts_with('e') {
-        4
-      } else if race_vs_lower.starts_with('u') {
-        8
-      } else {
-        0
+    let stats2_mb: Option<Stats2> =
+      match res2.json::<Stats2>().await {
+        Ok(sms2) => Some(sms2),
+        Err(wha2) => {
+          let sms2_res_2 = rqcl.get(&uri2).send().await?;
+          if let Ok(text_res) = sms2_res_2.text().await {
+            error!("{:?} on {}", wha2, text_res);
+          }
+          None
+        }
       };
 
-    if race_vs_num == 0 {
-      channel_message(&ctx, &msg, "Can't parse that race").await;
-      if let Ok(typing) = start_typing {
-        typing.stop();
-      }
-      return Ok(());
-    }
+    if let Some(stats2) = stats2_mb {
+      let race_vs_lower = race_vs.to_lowercase();
+      let race_vs_num: u32 =
+        if race_vs_lower.starts_with('h') {
+          1
+        } else if race_vs_lower.starts_with('o') {
+          2
+        } else if race_vs_lower.starts_with('n')
+              || race_vs_lower.starts_with('e') {
+          4
+        } else if race_vs_lower.starts_with('u') {
+          8
+        } else {
+          0
+        };
 
-    let mut winrate_maps = vec![];
-    let mut process_stats2 = |stats2: Stats2| {
-      if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
-        for s3 in s24 {
-          if !s3.winLossesOnMap.is_empty() &&
-              s3.race == 16 {
-            for s4 in &s3.winLossesOnMap {
-              let text_map = get_map(&s4.map);
-              for s5 in &s4.winLosses {
-                if s5.race == race_vs_num && text_map != "All" {
-                  if let Some(fwm) =
-                    winrate_maps.iter_mut().find(|(_, m, _, _)|
-                    m == &text_map
-                  ) {
-                    let (_, _, ww, ll) = fwm;
-                    let aw = *ww + s5.wins;
-                    let al = *ll + s5.losses;
-                    let wr: f64 =
-                      if al + aw > 0 {
-                        (aw as f64/(al as f64+aw as f64) * 100.0).round()
-                      } else { 0.0 };
-                    *fwm = (wr, text_map.clone(), aw, al);
-                  } else if !(s5.wins == 0 && s5.losses == 0) {
-                    let vs_winrate = (s5.winrate * 100.0).round();
-                    winrate_maps.push(( vs_winrate, text_map.clone()
-                                      , s5.wins, s5.losses ));
+      if race_vs_num == 0 {
+        channel_message(&ctx, &msg, "Can't parse that race").await;
+        if let Ok(typing) = start_typing {
+          typing.stop();
+        }
+        return Ok(());
+      }
+
+      let mut winrate_maps = vec![];
+      let mut process_stats2 = |stats2: Stats2| {
+        if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
+          for s3 in s24 {
+            if !s3.winLossesOnMap.is_empty() &&
+                s3.race == 16 {
+              for s4 in &s3.winLossesOnMap {
+                let text_map = get_map(&s4.map);
+                for s5 in &s4.winLosses {
+                  if s5.race == race_vs_num && text_map != "All" {
+                    if let Some(fwm) =
+                      winrate_maps.iter_mut().find(|(_, m, _, _)|
+                      m == &text_map
+                    ) {
+                      let (_, _, ww, ll) = fwm;
+                      let aw = *ww + s5.wins;
+                      let al = *ll + s5.losses;
+                      let wr: f64 =
+                        if al + aw > 0 {
+                          (aw as f64/(al as f64+aw as f64) * 100.0).round()
+                        } else { 0.0 };
+                      *fwm = (wr, text_map.clone(), aw, al);
+                    } else if !(s5.wins == 0 && s5.losses == 0) {
+                      let vs_winrate = (s5.winrate * 100.0).round();
+                      winrate_maps.push(( vs_winrate, text_map.clone()
+                                        , s5.wins, s5.losses ));
+                    }
                   }
                 }
               }
             }
           }
         }
-      }
-    };
+      };
 
-    process_stats2(stats2);
+      process_stats2(stats2);
 
-    for sx in 0..seasons {
-      let previous_season = season - sx;
-      let uri3 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, previous_season);
-      if let Ok(res3) = rqcl.get(&uri3).send().await {
-        if let Ok(stats3) = res3.json::<Stats2>().await {
-          process_stats2(stats3);
+      for sx in 0..seasons {
+        let previous_season = season - sx;
+        let uri3 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, previous_season);
+        if let Ok(res3) = rqcl.get(&uri3).send().await {
+          if let Ok(stats3) = res3.json::<Stats2>().await {
+            process_stats2(stats3);
+          }
         }
       }
-    }
 
-    winrate_maps.sort_by(|(a,_,_,_), (b,_,_,_)| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Less));
+      winrate_maps.sort_by(|(a,_,_,_), (b,_,_,_)| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Less));
 
-    let mut out = String::new();
-    for (w, m, ww, ll) in winrate_maps {
-      out = format!("{}**{}**\t\t{}% **{}**W - **{}**L\n", out, m, w, ww, ll);
-    }
+      let mut out = String::new();
+      for (w, m, ww, ll) in winrate_maps {
+        out = format!("{}**{}**\t\t{}% **{}**W - **{}**L\n", out, m, w, ww, ll);
+      }
 
-    let footer = format!("Requested by {}", msg.author.name);
-    if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
-        .embed(|e| e
-        .title(&format!("{} vs {}", &userx, &race_vs))
-        .description(out)
-        .url(&format!("https://www.w3champions.com/player/{}/statistics", user))
-        .footer(|f| f.text(footer)))).await {
-      error!("Error sending veto message: {:?}", why);
+      let footer = format!("Requested by {}", msg.author.name);
+      if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+          .embed(|e| e
+          .title(&format!("{} vs {}", &userx, &race_vs))
+          .description(out)
+          .url(&format!("https://www.w3champions.com/player/{}/statistics", user))
+          .footer(|f| f.text(footer)))).await {
+        error!("Error sending veto message: {:?}", why);
+      }
     }
 
   } else {

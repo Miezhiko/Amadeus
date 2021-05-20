@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "5.3.8"
+version     = "5.4.0"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -46,6 +46,7 @@ sled                = "0.34"
 kathoey             = "1.0.6"
 songbird            = "0.2.0-beta.1"
 serde_dhall         = "0.10"
+nlprule             = "0.6.4"
 
 # rust bert needs update
 tch                 = "0.4.1"
@@ -70,13 +71,6 @@ features = [ "cache"
            , "native_tls_backend"
            , "utils"
            , "collector" ]
-
-# using fork because I will update tokens&rules
-# in the same time with code
-# related: https://github.com/bminixhofer/nlprule/issues/49
-[dependencies.nlprule]
-git = "https://github.com/Masha/nlprule.git"
-branch = "main"
 
 [dependencies.hex]
 version = "0.4"

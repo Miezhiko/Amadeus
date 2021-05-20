@@ -1,6 +1,7 @@
 use crate::{
   types::common::ChannelLanguage,
   common::{ help::lang
+          , db::trees::{ register, check_registration }
           , msg::{ reply, channel_message }
   },
   collections::base::{ OBFUSCATION
@@ -12,6 +13,7 @@ use crate::{
                        , KATHOEY
                        , RE1, RE2, RE3
                        , NLPR_RULES, NLPR_TOKENIZER
+                       , process_message_string
                        , self }
               , boris, uwu, bert }
 };
@@ -96,12 +98,23 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
   let russian = if let Some(rus) = mbrussian
     { rus } else { lang::is_russian(msg_content) };
   cache::actualize_cache(ctx, false).await;
-  let chain: MutexGuard<Chain<String>> =
+  let mut chain: MutexGuard<Chain<String>> =
     if russian {
         CACHE_RU.lock().await
       } else {
         CACHE_ENG.lock().await
       };
+  if !check_registration(msg.channel_id.0, msg.id.0).await {
+    let ch_lang = if russian {
+        ChannelLanguage::Russian
+      } else {
+        ChannelLanguage::English
+      };
+    if let Some((result, _)) = process_message_string(msg_content, ch_lang) {
+      chain.feed_str(&result);
+    }
+    register(msg.channel_id.0, msg.id.0).await;
+  }
   let mut out = chain.generate_str();
   let rndx = rand::thread_rng().gen_range(0..66);
   if rndx == 1 {

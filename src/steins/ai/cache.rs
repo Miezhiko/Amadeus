@@ -85,7 +85,7 @@ pub fn process_message_for_gpt(s: &str) -> String {
   result_string.trim().to_string()
 }
 
-fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String, ChannelLanguage)> {
+pub fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String, ChannelLanguage)> {
   let mut result_string = process_message_for_gpt(&s);
   result_string = result_string.replace(
     |c: char| !c.is_whitespace() && !c.is_alphabetic(), "");

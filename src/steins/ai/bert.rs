@@ -220,6 +220,9 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
 pub async fn chat(something: String, user_id: u64) -> Result<String> {
   let rndx = rand::thread_rng().gen_range(0..4);
   let input = process_message_for_gpt(&something);
+  if input.is_empty() {
+    return Err(anyhow!("empty input"));
+  }
   match rndx {
     0 => chat_neo(input).await,
     _ => chat_gpt2(input, user_id).await

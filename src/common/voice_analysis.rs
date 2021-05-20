@@ -159,27 +159,24 @@ impl VoiceEventHandler for Receiver {
           task::spawn(async move {
             match run_stt(audio).await {
               Ok(r) => {
-                if r.len() != 0 {
-                  match context.cache.user(uid).await {
-                    Some(u) => {
-                      let profile_picture = match u.avatar {
-                        Some(a) => format!(
-                          "https://cdn.discordapp.com/avatars/{}/{}.png",
-                          u.id, a
-                        ),
-                        None => u.default_avatar_url(),
-                      };
-                      let name = u.name;
-                      let _ = webhook
-                        .execute(&context, false, |m| {
-                          m.avatar_url(profile_picture)
-                            .content(r)
-                            .username(name)
-                        })
-                        .await;
-                      // see comments below
-                    }
-                    None => {}
+                if !r.is_empty() {
+                  if let Some(u) = context.cache.user(uid).await {
+                    let profile_picture = match u.avatar {
+                      Some(a) => format!(
+                        "https://cdn.discordapp.com/avatars/{}/{}.png",
+                        u.id, a
+                      ),
+                      None => u.default_avatar_url(),
+                    };
+                    let name = u.name;
+                    let _ = webhook
+                      .execute(&context, false, |m| {
+                        m.avatar_url(profile_picture)
+                         .content(r)
+                         .username(name)
+                      })
+                      .await;
+                    // see comments below
                   }
                 }
               }

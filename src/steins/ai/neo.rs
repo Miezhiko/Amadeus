@@ -11,7 +11,7 @@ use rust_bert::{
 use tch::Device;
 
 use once_cell::sync::Lazy;
-use tokio::sync::Mutex;
+use tokio::{ task, sync::Mutex };
 
 use rand::seq::SliceRandom;
 
@@ -55,14 +55,16 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
                         .choose_multiple(&mut rand::thread_rng(), 64)
                         .map(AsRef::as_ref).collect::<Vec<&str>>();
   cache_slices.push(&something);
-  let output = neo_model.generate(&[something.as_str()], None);
-  if output.is_empty() {
-    error!("Failed to chat with Neo Model");
-    // TODO: error should be here
-    Ok(String::new())
-  } else {
-    // just get first maybe?
-    let answer = &output[0];
-    Ok(answer.clone())
-  }
+  task::spawn_blocking(move || {
+    let output = neo_model.generate(&[something.as_str()], None);
+    if output.is_empty() {
+      error!("Failed to chat with Neo Model");
+      // TODO: error should be here
+      Ok(String::new())
+    } else {
+      // just get first maybe?
+      let answer = &output[0];
+      Ok(answer.clone())
+    }
+  }).await.unwrap()
 }

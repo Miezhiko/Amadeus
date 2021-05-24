@@ -79,6 +79,7 @@ fn try_get_map(m: &str) -> String {
             , "kal'drassil"           => "Kal'drassil"
             , "shallowgrave"          => "SG"
             , "plunderisle"           => "PI"
+            , "kingandcountry"        => "King and Country"
             , _                       => "" })
 }
 

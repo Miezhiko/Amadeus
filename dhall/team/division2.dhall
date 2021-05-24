@@ -12,6 +12,7 @@ let playersList : List Playerx =
   , t "JustDoiTpLs#2907"    543121502711840799 "justdoitpls22"
   , t "Soulful#2300"        147805125824610304 "soulful85"
   , b "НееЖить#2559"        703241941114028032 "masterv_64" "Ghost_OL"
+  , t "RaVeN#212265"        707083717595627570 "raven71russ"
   , p "RavenTT#2656"        277555411584942080
   , p "Singroso#2472"       677187656857419792
   , p "Pechenka#21766"      677187656857419792

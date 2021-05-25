@@ -13,8 +13,6 @@ use songbird::CoreEvent;
 
 #[cfg(feature = "voice_analysis")]
 use std::sync::Arc;
-#[cfg(feature = "voice_analysis")]
-use serde_json::json;
 
 use serenity::{
   prelude::*,
@@ -96,18 +94,8 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
 
     #[cfg(feature = "voice_analysis")]
     {
-      let channel_webhooks = ctx.http.get_channel_webhooks(connect_to.0).await?;
       let ctx_arc = Arc::new(ctx.clone());
-      let receiver = if channel_webhooks.is_empty() {
-          let map = json!({"name": "Amadeus voice"});
-          let webhook = ctx.http.create_webhook(connect_to.0, &map).await?;
-          Receiver::new(webhook, ctx_arc)
-        } else {
-          let webhook_id = channel_webhooks[0].id;
-          let webhook = ctx.http.get_webhook(webhook_id.0).await?;
-          Receiver::new(webhook, ctx_arc)
-        };
-
+      let receiver = Receiver::new(ctx_arc);
       let mut handler = _handler_lock.lock().await;
 
       handler.add_global_event(CoreEvent::SpeakingStateUpdate.into(), receiver.clone());

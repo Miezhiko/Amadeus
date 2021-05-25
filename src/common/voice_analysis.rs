@@ -6,7 +6,7 @@ use crate::common::{
 
 use serenity::{
   prelude::{Context, RwLock},
-  async_trait, model::webhook::Webhook
+  async_trait
 };
 
 use songbird::{
@@ -27,25 +27,22 @@ pub struct Receiver {
   audio_buffer: Arc<RwLock<HashMap<u32, Vec<i16>>>>,
   encoded_audio_buffer: Arc<RwLock<HashMap<u32, Vec<i16>>>>,
   decoders: Arc<RwLock<HashMap<u32, Decoder>>>,
-  webhook: Arc<Webhook>,
   context: Arc<Context>,
 }
 
 impl Receiver {
-  pub fn new(webhook: Webhook, context: Arc<Context>) -> Self {
+  pub fn new(context: Arc<Context>) -> Self {
     // You can manage state here, such as a buffer of audio packet bytes so
     // you can later store them in intervals.
     let ssrc_map = Arc::new(RwLock::new(HashMap::new()));
     let audio_buffer = Arc::new(RwLock::new(HashMap::new()));
     let encoded_audio_buffer = Arc::new(RwLock::new(HashMap::new()));
     let decoders = Arc::new(RwLock::new(HashMap::new()));
-    let webhook = Arc::new(webhook);
     Self {
       ssrc_map,
       audio_buffer,
       encoded_audio_buffer,
       decoders,
-      webhook,
       context,
     }
   }
@@ -153,7 +150,6 @@ impl VoiceEventHandler for Receiver {
             }
           };
 
-          let webhook = self.webhook.clone();
           let context = self.context.clone();
 
           task::spawn(async move {
@@ -161,22 +157,11 @@ impl VoiceEventHandler for Receiver {
               Ok(r) => {
                 if !r.is_empty() {
                   if let Some(u) = context.cache.user(uid).await {
-                    let profile_picture = match u.avatar {
-                      Some(a) => format!(
-                        "https://cdn.discordapp.com/avatars/{}/{}.png",
-                        u.id, a
-                      ),
-                      None => u.default_avatar_url(),
-                    };
-                    let name = u.name;
-                    let _ = webhook
-                      .execute(&context, false, |m| {
-                        m.avatar_url(profile_picture)
-                         .content(r)
-                         .username(name)
-                      })
-                      .await;
-                    // see comments below
+                    if let Err(dmerr) =
+                      u.direct_message(&context.http
+                        , |m| { m.content(r) }).await {
+                      error!("failed to dm speaker {:?}", dmerr);
+                    }
                   }
                 }
               }
@@ -260,6 +245,10 @@ impl VoiceEventHandler for Receiver {
           // block that will drop the lock when exited
           let mut map = self.ssrc_map.write().await;
           map.insert(*audio_ssrc, *user_id);
+        }
+        {
+          let mut decoders = self.decoders.write().await;
+          decoders.insert(*audio_ssrc, Decoder::new());
         }
         info!(
           "Client connected: user {:?} has audio SSRC {:?}, video SSRC {:?}",

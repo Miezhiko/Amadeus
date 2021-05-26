@@ -133,7 +133,11 @@ impl VoiceEventHandler for Receiver {
                         , |m| { m.content(r) }).await {
                       error!("failed to dm speaker {:?}", dmerr);
                     }
+                  } else {
+                    warn!("failed to find user for stt");
                   }
+                } else {
+                  warn!("empty response from stt");
                 }
               }
               Err(e) => {

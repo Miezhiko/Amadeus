@@ -33,6 +33,7 @@ pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
         }
       }
     }
+
     let mut m = Model::load_from_files(&graph_name).unwrap();
     // enable external scorer if found in the model folder
     if let Some(scorer) = scorer_name {
@@ -48,6 +49,7 @@ pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
       SAMPLE_RATE as f64,
     );
     let audio_buf: Vec<_> = conv.until_exhausted().map(|v| v[0]).collect();
+    info!("passing audio buf to stt: {:?}", &audio_buf);
 
     // Run the speech to text algorithm
     m.speech_to_text(&audio_buf)

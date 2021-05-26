@@ -140,8 +140,7 @@ pub async fn ask(msg_content: String) -> Result<String> {
     let answers = qa_model.predict(&[qa_input], 1, 32);
     if answers.is_empty() {
       error!("Failed to ansewer with QuestionAnsweringModel");
-      // TODO: error should be here
-      Ok(String::new())
+      Err(anyhow!("no output from GPT QA model"))
     } else {
       let my_answers = &answers[0];
 
@@ -206,13 +205,9 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
 
     if out_values.is_empty() {
       error!("Failed to chat with ConversationModel");
-      // TODO: error should be here
-      Ok(String::new())
+      Err(anyhow!("no output from GPT 2 model"))
     } else {
-      // just get first
-      let answer = &out_values[0];
-
-      Ok(answer.clone())
+      Ok(out_values[0].clone())
     }
   }).await.unwrap()
 }

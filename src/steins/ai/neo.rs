@@ -59,12 +59,15 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
     let output = neo_model.generate(&[something.as_str()], None);
     if output.is_empty() {
       error!("Failed to chat with Neo Model");
-      // TODO: error should be here
-      Ok(String::new())
+      Err(anyhow!("no output from GPT neo model"))
     } else {
-      // just get first maybe?
-      let answer = &output[0];
-      Ok(answer.clone())
+      Ok(
+        if output.len() > 1 {
+          output[1].clone()
+        } else {
+          output[0].clone()
+        }
+      )
     }
   }).await.unwrap()
 }

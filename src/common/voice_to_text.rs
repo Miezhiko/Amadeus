@@ -1,12 +1,10 @@
-// use dasp_interpolate::linear::Linear;
-// use dasp_signal::{from_iter, interpolate::Converter, Signal};
+use dasp_interpolate::linear::Linear;
+use dasp_signal::{from_iter, interpolate::Converter, Signal};
 use deepspeech::errors::DeepspeechError;
 use deepspeech::Model;
 use std::path::Path;
 
-// The model has been trained on this specific
-// sample rate.
-// pub const SAMPLE_RATE: u32 = 16_000;
+pub const SAMPLE_RATE: u32 = 16_000;
 
 pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
   // Run the speech to text algorithm
@@ -43,8 +41,6 @@ pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
       m.enable_external_scorer(&scorer).unwrap();
     }
 
-    //TODO: check channel bitrate
-    /*
     let interpolator = Linear::new([0i16], [0]);
     let conv = Converter::from_hz_to_hz(
       from_iter(input_data.iter().map(|v| [*v]).collect::<Vec<_>>()),
@@ -54,16 +50,13 @@ pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
     );
     let audio_buf: Vec<_> = conv.until_exhausted().map(|v| v[0]).collect();
     //debug!("passing audio buf to stt: {:?}", &audio_buf);
-    */
-
-    let result_mb = m.speech_to_text(&input_data);
 
     // Run the speech to text algorithm
-    //let result = m.speech_to_text(&audio_buf);
+    let result = m.speech_to_text(&audio_buf);
 
-    info!("Got vtt result: {:?}", result_mb);
+    info!("Got vtt result: {:?}", result);
 
-    result_mb
+    result
   })
   .await
   .expect("Failed to spawn blocking!")

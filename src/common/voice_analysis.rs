@@ -190,6 +190,7 @@ impl VoiceEventHandler for Receiver {
             None => 0,
           }
         };
+
         match data.audio {
           Some(audio) => {
             let mut buf = self.audio_buffer.write().await;
@@ -209,7 +210,8 @@ impl VoiceEventHandler for Receiver {
                 Some(d) => d,
                 None => {return None;}
               };
-              let mut v = Vec::new();
+              let mut v: Vec<i16> = Vec::new();
+              info!("Decode input: {:?}", &data.packet.payload);
               match decoder.opus_decoder.decode(&data.packet.payload, &mut v, false) {
                 Ok(s) => {
                   info!("Decoded {} opus samples", s);

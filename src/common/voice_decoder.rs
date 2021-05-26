@@ -4,8 +4,8 @@ pub struct Decoder {
   pub opus_decoder: OpusDecoder,
 }
 
-unsafe impl Send for Decoder {} // SAFETY: none, it just hasn't broken yet
-unsafe impl Sync for Decoder {} // SAFETY: none, it just hasn't broken yet
+unsafe impl Send for Decoder {}
+unsafe impl Sync for Decoder {}
 
 impl Decoder {
   pub fn new() -> Decoder {

@@ -1,5 +1,4 @@
 use crate::common::{
-  voice_decoder::*,
   voice::*,
   voice_to_text::*
 };
@@ -25,8 +24,6 @@ use tokio::task;
 pub struct Receiver {
   ssrc_map: Arc<RwLock<HashMap<u32, UserId>>>,
   audio_buffer: Arc<RwLock<HashMap<u32, Vec<i16>>>>,
-  encoded_audio_buffer: Arc<RwLock<HashMap<u32, Vec<i16>>>>,
-  decoders: Arc<RwLock<HashMap<u32, Decoder>>>,
   context: Arc<Context>,
 }
 
@@ -36,13 +33,9 @@ impl Receiver {
     // you can later store them in intervals.
     let ssrc_map = Arc::new(RwLock::new(HashMap::new()));
     let audio_buffer = Arc::new(RwLock::new(HashMap::new()));
-    let encoded_audio_buffer = Arc::new(RwLock::new(HashMap::new()));
-    let decoders = Arc::new(RwLock::new(HashMap::new()));
     Self {
       ssrc_map,
       audio_buffer,
-      encoded_audio_buffer,
-      decoders,
       context,
     }
   }
@@ -81,14 +74,7 @@ impl VoiceEventHandler for Receiver {
           map.insert(*ssrc, *user_id);
           match DECODE_TYPE {
             DecodeMode::Decrypt => {
-              {
-                let mut audio_buf = self.encoded_audio_buffer.write().await;
-                audio_buf.insert(*ssrc, Vec::new());
-              }
-              {
-                let mut decoders = self.decoders.write().await;
-                decoders.insert(*ssrc, Decoder::new());
-              }
+              // no need since default mode is decode
             }
             DecodeMode::Decode => {
               let mut audio_buf = self.audio_buffer.write().await;
@@ -113,23 +99,8 @@ impl VoiceEventHandler for Receiver {
         if !data.speaking {
           let audio = match DECODE_TYPE {
             DecodeMode::Decrypt => {
-              {
-                let mut decoders = self.decoders.write().await;
-                decoders.insert(data.ssrc, Decoder::new());
-              }
-              {
-                let mut buf = self.encoded_audio_buffer.write().await;
-                match buf.insert(data.ssrc, Vec::new()) {
-                  Some(a) => a,
-                  None => {
-                    warn!(
-                      "Didn't find a user with SSRC {} in the audio buffers.",
-                      data.ssrc
-                    );
-                    return None;
-                  }
-                }
-              }
+              // no need since default mode is decode
+              return None;
             }
             DecodeMode::Decode => {
               let mut buf = self.audio_buffer.write().await;
@@ -181,7 +152,6 @@ impl VoiceEventHandler for Receiver {
       Ctx::VoicePacket(data) => {
         // An event which fires for every received audio packet,
         // containing the decoded data.
-
         let uid: u64 = {
           // block that will drop lock when exited
           let map = self.ssrc_map.read().await;
@@ -203,30 +173,8 @@ impl VoiceEventHandler for Receiver {
             b.extend(audio);
           }
           _ => {
-            let mut audio = {
-              let mut decoders = self.decoders.write().await;
-              let decoder = match decoders
-                .get_mut(&data.packet.ssrc) {
-                Some(d) => d,
-                None => { return None; }
-              };
-              let mut v: Vec<i16> = Vec::new();
-              info!("Decode input: {:?}", &data.packet.payload);
-              match decoder.opus_decoder.decode(&data.packet.payload, &mut v, false) {
-                Ok(s) => {
-                  info!("Decoded {} opus samples", s);
-                }
-                Err(e) => {
-                  error!("Failed to decode opus: {}", e);
-                  return None;
-                }
-              };
-              v
-            };
-            let mut buf = self.encoded_audio_buffer.write().await;
-            if let Some(b) = buf.get_mut(&data.packet.ssrc) {
-              b.append(&mut audio);
-            };
+            // no need since default mode is decode
+            return None;
           }
         }
       }
@@ -247,10 +195,6 @@ impl VoiceEventHandler for Receiver {
           // block that will drop the lock when exited
           let mut map = self.ssrc_map.write().await;
           map.insert(*audio_ssrc, *user_id);
-        }
-        {
-          let mut decoders = self.decoders.write().await;
-          decoders.insert(*audio_ssrc, Decoder::new());
         }
         info!(
           "Client connected: user {:?} has audio SSRC {:?}, video SSRC {:?}",
@@ -277,8 +221,7 @@ impl VoiceEventHandler for Receiver {
         if let Some(u) = key {
           match DECODE_TYPE {
             DecodeMode::Decrypt => {
-              let mut audio_buf = self.encoded_audio_buffer.write().await;
-              audio_buf.remove(&u);
+              // unsupported
             }
             DecodeMode::Decode => {
               let mut audio_buf = self.audio_buffer.write().await;

@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "5.5.8"
+version     = "5.6.0"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -13,7 +13,7 @@ license     = "AGPL-3.0-only"
 default = ["flo"]
 full = ["flo", "voice_analysis"]
 flo = ["tonic", "hex", "flo-grpc"]
-voice_analysis = ["dasp_interpolate", "dasp_signal", "deepspeech", "opus"]
+voice_analysis = ["dasp_interpolate", "dasp_signal", "deepspeech"]
 
 [dependencies]
 chrono              = "0.4"
@@ -101,10 +101,6 @@ features = ["linear"]
 version = "0.9"
 optional = true
 
-[dependencies.opus]
-version = "0.2.1"
-optional = true
-
 [profile.release]
 opt-level = 3
-lto = false # incompatible with `-C embed-bitcode=no`
+lto = true

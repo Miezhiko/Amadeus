@@ -208,7 +208,7 @@ impl VoiceEventHandler for Receiver {
               let decoder = match decoders
                 .get_mut(&data.packet.ssrc) {
                 Some(d) => d,
-                None => {return None;}
+                None => { return None; }
               };
               let mut v: Vec<i16> = Vec::new();
               info!("Decode input: {:?}", &data.packet.payload);

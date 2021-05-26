@@ -15,10 +15,12 @@ use crate::{
 
 use songbird::{
   Config as DriverConfig,
+  driver::CryptoMode,
   {SerenityInit, Songbird},
 };
 
 use serenity::framework::StandardFramework;
+use serenity::client::bridge::gateway::GatewayIntents;
 
 use tracing::{ Level, instrument };
 use tracing_subscriber::FmtSubscriber;
@@ -115,12 +117,18 @@ pub async fn run(opts: &IOptions) ->
   let songbird = Songbird::serenity();
   songbird.set_config(
     DriverConfig::default()
-      .decode_mode(DECODE_TYPE.clone())
-      .crypto_mode(songbird::driver::CryptoMode::Normal),
+      .decode_mode(DECODE_TYPE)
+      .crypto_mode(CryptoMode::Normal),
   );
 
   let mut client =
     serenity::Client::builder(&opts.discord)
+      .intents( GatewayIntents::GUILD_MESSAGES
+              | GatewayIntents::GUILD_MESSAGE_REACTIONS
+              | GatewayIntents::GUILDS
+              | GatewayIntents::GUILD_VOICE_STATES
+              | GatewayIntents::GUILD_MEMBERS
+        )
       .event_handler(Handler::new( opts
                                  , runtime_options
                                  , amadeus_id

@@ -127,14 +127,14 @@ impl VoiceEventHandler for Receiver {
             match run_stt(audio).await {
               Ok(r) => {
                 if !r.is_empty() {
-                  if let Some(u) = context.cache.user(uid).await {
+                  if let Ok(u) = context.http.get_user(uid).await {
                     if let Err(dmerr) =
                       u.direct_message(&context.http
                         , |m| { m.content(r) }).await {
                       error!("failed to dm speaker {:?}", dmerr);
                     }
                   } else {
-                    warn!("failed to find user for stt");
+                    warn!("failed to find user {}", uid);
                   }
                 } else {
                   warn!("empty response from stt");

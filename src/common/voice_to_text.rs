@@ -49,10 +49,16 @@ pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
       SAMPLE_RATE as f64,
     );
     let audio_buf: Vec<_> = conv.until_exhausted().map(|v| v[0]).collect();
-    debug!("passing audio buf to stt: {:?}", &audio_buf);
+    //debug!("passing audio buf to stt: {:?}", &audio_buf);
+
+    let result_mb = m.speech_to_text(&input_data);
 
     // Run the speech to text algorithm
-    m.speech_to_text(&audio_buf)
+    let result = m.speech_to_text(&audio_buf);
+
+    info!("Got vtt result: {:?} | {:?}", result, result_mb);
+
+    result
   })
   .await
   .expect("Failed to spawn blocking!")

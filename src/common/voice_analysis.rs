@@ -54,17 +54,6 @@ impl VoiceEventHandler for Receiver {
         user_id,
         ..
       }) => {
-        // Discord voice calls use RTP, where every sender uses a randomly allocated
-        // *Synchronisation Source* (SSRC) to allow receivers to tell which audio
-        // stream a received packet belongs to. As this number is not derived from
-        // the sender's user_id, only Discord Voice Gateway messages like this one
-        // inform us about which random SSRC a user has been allocated. Future voice
-        // packets will contain *only* the SSRC.
-        //
-        // You can implement logic here so that you can differentiate users'
-        // SSRCs and map the SSRC to the User ID and maintain this state.
-        // Using this map, you can map the `ssrc` in `voice_packet`
-        // to the user ID and handle their audio packets separately.
         info!(
           "Speaking state update: user {:?} has SSRC {:?}, using {:?}",
           user_id, ssrc, speaking,
@@ -98,31 +87,30 @@ impl VoiceEventHandler for Receiver {
         };
         if !data.speaking {
           let audio = match DECODE_TYPE {
-            DecodeMode::Decrypt => {
-              // no need since default mode is decode
-              return None;
-            }
-            DecodeMode::Decode => {
-              let mut buf = self.audio_buffer.write().await;
-              match buf.insert(data.ssrc, Vec::new()) {
-                Some(a) => a,
-                None => {
-                  warn!(
-                    "Didn't find a user with SSRC {} in the audio buffers.",
-                    data.ssrc
-                  );
-                  return None;
+              DecodeMode::Decrypt => {
+                // no need since default mode is decode
+                return None;
+              }
+              DecodeMode::Decode => {
+                let mut buf = self.audio_buffer.write().await;
+                match buf.insert(data.ssrc, Vec::new()) {
+                  Some(a) => a,
+                  None => {
+                    warn!(
+                      "Didn't find a user with SSRC {} in the audio buffers.",
+                      data.ssrc
+                    );
+                    return None;
+                  }
                 }
               }
-            }
-            _ => {
-              error!("Decode mode is invalid!");
-              return None;
-            }
-          };
+              _ => {
+                error!("Decode mode is invalid!");
+                return None;
+              }
+            };
 
           let context = self.context.clone();
-
           task::spawn(async move {
             match run_stt(audio).await {
               Ok(r) => {

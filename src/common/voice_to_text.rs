@@ -1,20 +1,22 @@
-use dasp_interpolate::linear::Linear;
-use dasp_signal::{from_iter, interpolate::Converter, Signal};
+// use dasp_interpolate::linear::Linear;
+// use dasp_signal::{from_iter, interpolate::Converter, Signal};
 use deepspeech::errors::DeepspeechError;
 use deepspeech::Model;
 use std::path::Path;
 
 // The model has been trained on this specific
 // sample rate.
-pub const SAMPLE_RATE: u32 = 16_000;
+// pub const SAMPLE_RATE: u32 = 16_000;
 
 pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
   // Run the speech to text algorithm
   tokio::task::spawn_blocking(move || {
-    let model_dir_str = "ds";
-    let dir_path = Path::new(model_dir_str);
-    let mut graph_name: Box<Path> = dir_path.join("output_graph.pb").into_boxed_path();
+    let dir_path = Path::new("ds");
+
+    let mut graph_name: Box<Path> =
+      dir_path.join("ds/deepspeech-0.9.3-models.pbmm").into_boxed_path();
     let mut scorer_name: Option<Box<Path>> = None;
+
     // search for model in model directory
     for file in dir_path
       .read_dir()
@@ -37,10 +39,12 @@ pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
     let mut m = Model::load_from_files(&graph_name).unwrap();
     // enable external scorer if found in the model folder
     if let Some(scorer) = scorer_name {
-      println!("Using external scorer `{}`", scorer.to_str().unwrap());
+      println!("Using scorer `{}`", scorer.to_str().unwrap());
       m.enable_external_scorer(&scorer).unwrap();
     }
 
+    //TODO: check channel bitrate
+    /*
     let interpolator = Linear::new([0i16], [0]);
     let conv = Converter::from_hz_to_hz(
       from_iter(input_data.iter().map(|v| [*v]).collect::<Vec<_>>()),
@@ -50,15 +54,16 @@ pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
     );
     let audio_buf: Vec<_> = conv.until_exhausted().map(|v| v[0]).collect();
     //debug!("passing audio buf to stt: {:?}", &audio_buf);
+    */
 
     let result_mb = m.speech_to_text(&input_data);
 
     // Run the speech to text algorithm
-    let result = m.speech_to_text(&audio_buf);
+    //let result = m.speech_to_text(&audio_buf);
 
-    info!("Got vtt result: {:?} | {:?}", result, result_mb);
+    info!("Got vtt result: {:?}", result_mb);
 
-    result
+    result_mb
   })
   .await
   .expect("Failed to spawn blocking!")

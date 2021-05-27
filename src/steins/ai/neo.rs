@@ -49,8 +49,8 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
 
 pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   info!("Generating GPT Neo response");
-  let neo_model = NEOMODEL.lock().await;
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
+  let neo_model = NEOMODEL.lock().await;
   let mut cache_slices = cache_eng_vec
                         .choose_multiple(&mut rand::thread_rng(), 64)
                         .map(AsRef::as_ref).collect::<Vec<&str>>();

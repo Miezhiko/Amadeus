@@ -120,8 +120,10 @@ pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
 }
 
 pub async fn ask(msg_content: String) -> Result<String> {
-  let question = process_message_for_gpt(&msg_content);
+  info!("Generating GPT2 QA response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
+  let qa_model = QAMODEL.lock().await;
+  let question = process_message_for_gpt(&msg_content);
   let cache = 
     if cache_eng_vec.is_empty() {
       String::from("HUMBA")
@@ -131,7 +133,6 @@ pub async fn ask(msg_content: String) -> Result<String> {
         .map(AsRef::as_ref).collect::<Vec<&str>>()
         .join(" ")
     };
-  let qa_model = QAMODEL.lock().await;
   task::spawn_blocking(move || {
     let qa_input = QaInput {
       question, context: cache
@@ -153,9 +154,9 @@ pub async fn ask(msg_content: String) -> Result<String> {
 
 async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
   info!("Generating GPT2 response");
+  let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let conversation_model = CONVMODEL.lock().await;
   let mut chat_context = CHAT_CONTEXT.lock().await;
-  let cache_eng_vec = CACHE_ENG_STR.lock().await;
   task::spawn_blocking(move || {
     let output =
       if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {

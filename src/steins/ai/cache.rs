@@ -74,7 +74,11 @@ pub static RE4: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+").unwrap());
 
 pub async fn reinit() {
   let mut cache_eng_str = CACHE_ENG_STR.lock().await;
-  *cache_eng_str = cache_eng_str.clone().into_iter().rev().take(666).collect::<Vec<String>>();
+  *cache_eng_str = cache_eng_str.clone()
+                                .into_iter()
+                                .rev()
+                                .take(666)
+                                .collect::<Vec<String>>();
 }
 
 pub fn process_message_for_gpt(s: &str) -> String {

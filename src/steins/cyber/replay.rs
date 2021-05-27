@@ -1,6 +1,7 @@
 use crate::{
   common::{ msg::channel_message
-          , constants::{ LOG_CHANNEL, APM_PICS }
+          , constants::{ LOG_CHANNEL
+                       , APM_PICS }
           },
   collections::team::teammates,
   steins::cyber::w3g::analyze
@@ -8,11 +9,9 @@ use crate::{
 
 use serenity::{
   prelude::*,
-  model::channel::{
-    Attachment,
-    Message,
-    ReactionType
-  },
+  model::channel::{ Attachment
+                  , Message
+                  , ReactionType },
   http::AttachmentType,
   builder::CreateEmbed
 };

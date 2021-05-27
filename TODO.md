@@ -1,3 +1,6 @@
  - matches limit on ~vs or paging (better pagination)
  - clean debug outputs from ~vs
  - more debugging for voice
+ - match for chain generate_replay
+ - split replay.rs into smaller functions
+ - something for proper colors split for graphs

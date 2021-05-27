@@ -169,15 +169,18 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
                           .map(AsRef::as_ref).collect::<Vec<&str>>();
           let encoded_history = conversation_model.encode_prompts(&cache_slices);
           let conv_id = conversation_manager.create(&something);
-          conversation_manager.get(&conv_id).unwrap().load_from_history(cache_slices, encoded_history);
-
+          if let Some(cm) = conversation_manager.get(&conv_id) {
+            cm.load_from_history(cache_slices, encoded_history);
+          }
           chat_context.insert( user_id
                             , ( conversation_manager, 0, 0 )
                             );
-
-          let (registered_conversation, _, _) =
-            chat_context.get_mut(&user_id).unwrap();
-          conversation_model.generate_responses(registered_conversation)
+          if let Some(chat_cont) = chat_context.get_mut(&user_id) {
+            let (registered_conversation, _, _) = chat_cont;
+            conversation_model.generate_responses(registered_conversation)
+          } else {
+            return Err(anyhow!("Failed to cregister conversation for {}", &user_id));
+          }
         } else {
           tracking_conversation.create(&something);
           *passed = 0; *x += 1;
@@ -190,13 +193,20 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
                           .map(AsRef::as_ref).collect::<Vec<&str>>();
         let encoded_history = conversation_model.encode_prompts(&cache_slices);
         let conv_id = conversation_manager.create(&something);
-        conversation_manager.get(&conv_id).unwrap().load_from_history(cache_slices, encoded_history);
+        if let Some(cm) = conversation_manager.get(&conv_id) {
+          cm.load_from_history(cache_slices, encoded_history);
+        }
+
         chat_context.insert( user_id
                             , ( conversation_manager, 0, 0 )
                             );
-        let (registered_conversation, _, _) =
-          chat_context.get_mut(&user_id).unwrap();
-        conversation_model.generate_responses(registered_conversation)
+
+        if let Some(chat_cont) = chat_context.get_mut(&user_id) {
+          let (registered_conversation, _, _) = chat_cont;
+          conversation_model.generate_responses(registered_conversation)
+        } else {
+          return Err(anyhow!("Failed to cregister conversation for {}", &user_id));
+        }
       };
 
     let out_values = output.values()

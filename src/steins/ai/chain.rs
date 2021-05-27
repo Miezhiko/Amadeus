@@ -156,6 +156,7 @@ pub fn obfuscate(msg_content: &str) -> String {
   }
 }
 
+// TODO: match instead of let Ok
 #[async_recursion]
 async fn generate_response(ctx: &Context, msg: &Message, gtry: u32) -> String {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);

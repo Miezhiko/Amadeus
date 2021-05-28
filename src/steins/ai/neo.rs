@@ -47,7 +47,7 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
     Mutex::new( TextGenerationModel::new(generate_config).unwrap() )
   });
 
-static NEO_SEPARATORS: [char; 2] = ['"', '”'];
+static NEO_SEPARATORS: [char; 3] = ['"', '*', '”'];
 
 pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   info!("Generating GPT Neo response");

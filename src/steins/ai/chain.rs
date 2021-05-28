@@ -185,30 +185,47 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32) -> String {
   let mut answer =
     if rndx != 1 && !in_case && gtry < 10 {
       let text = if russian {
-        if let Ok(translated) = bert::ru2en(msg.content.clone()).await {
-          translated
-        } else { msg.content.clone() }
-        } else { msg.content.clone() };
+        match bert::ru2en(msg.content.clone()).await {
+          Ok(translated) => translated,
+          Err(why) => {
+            error!("Failed to translate msg content {:?}" , why);
+            msg.content.clone()
+          }
+        }
+      } else { msg.content.clone() };
       if msg.content.ends_with('?') {
         let rndxqa: u32 = rand::thread_rng().gen_range(0..2);
         if rndxqa == 1 {
-          if let Ok(answer) = bert::ask(text).await {
+          match bert::ask(text).await {
+            Ok(answer) => {
+              bert_generated = true;
+              answer },
+            Err(why) => {
+              error!("Failed to bert ask {:?}" , why);
+              generate(&ctx, &msg, Some(russian)).await
+            }
+          }
+        } else {
+          match bert::chat(text, msg.author.id.0).await {
+            Ok(answer) => {
+              bert_generated = true;
+              answer },
+            Err(why) => {
+              error!("Failed to bert chat with question {:?}" , why);
+              generate(&ctx, &msg, Some(russian)).await
+            }
+          }
+        }
+      } else {
+        match bert::chat(text, msg.author.id.0).await {
+          Ok(answer) => {
             bert_generated = true;
-            answer
-          } else {
+            answer },
+          Err(why) => {
+            error!("Failed to bert chat {:?}" , why);
             generate(&ctx, &msg, Some(russian)).await
           }
-        } else if let Ok(answer) = bert::chat(text, msg.author.id.0).await {
-          bert_generated = true;
-          answer
-        } else {
-          generate(&ctx, &msg, Some(russian)).await
         }
-      } else if let Ok(answer) = bert::chat(text, msg.author.id.0).await {
-        bert_generated = true;
-        answer
-      } else {
-        generate(&ctx, &msg, Some(russian)).await
       }
     } else {
       if gtry > 9 {
@@ -216,18 +233,24 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32) -> String {
       }
       generate(&ctx, &msg, Some(russian)).await
     };
-  if russian {
+  if russian && !answer.is_empty() {
     if bert_generated {
-      if let Ok(translated) = bert::en2ru(answer.clone()).await {
-        // feminize translated text
-        let kathoey = KATHOEY.lock().await;
-        let rndy: u32 = rand::thread_rng().gen_range(0..30);
-        answer =
-          if rndy == 1 {
-            kathoey.extreme_feminize(&translated)
-          } else {
-            kathoey.feminize(&translated)
-          };
+      match bert::en2ru(answer.clone()).await {
+        Ok(translated) => {
+          let rnda: u32 = rand::thread_rng().gen_range(0..10);
+          if rnda != 1 {
+            let kathoey = KATHOEY.lock().await;
+            let rndy: u32 = rand::thread_rng().gen_range(0..30);
+            answer =
+              if rndy == 1 {
+                kathoey.extreme_feminize(&translated)
+              } else {
+                kathoey.feminize(&translated)
+              };
+          }
+        }, Err(why) => {
+          error!("Failed to translate answer to Russian {:?}" , why);
+        }
       }
     } else {
       let rndxx: u32 = rand::thread_rng().gen_range(0..2);

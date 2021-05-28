@@ -74,9 +74,7 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
     }).await.unwrap()?;
 
   let mut split = neo_result.split('"').collect::<Vec<&str>>();
-  split.sort_by(|sa, sb| { let sal = sa.len();
-                           let sbl = sb.len();
-                           sal.cmp(&sbl) } );
+  split.sort_by(|sa, sb| sa.len().cmp(&sb.len()) );
   split.reverse();
   if let Some(first) = split.first() {
     Ok( first.to_string() )

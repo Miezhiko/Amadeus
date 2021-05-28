@@ -47,6 +47,8 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
     Mutex::new( TextGenerationModel::new(generate_config).unwrap() )
   });
 
+static NEO_SEPARATORS: [char; 2] = ['"', '”'];
+
 pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   info!("Generating GPT Neo response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
@@ -73,7 +75,7 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
       }
     }).await.unwrap()?;
 
-  let mut split = neo_result.split('"').collect::<Vec<&str>>();
+  let mut split = neo_result.split(&NEO_SEPARATORS[..]).collect::<Vec<&str>>();
   split.sort_by(|sa, sb| sa.len().cmp(&sb.len()) );
   split.reverse();
   if let Some(first) = split.first() {

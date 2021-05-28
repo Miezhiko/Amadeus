@@ -55,19 +55,32 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
                         .choose_multiple(&mut rand::thread_rng(), 64)
                         .map(AsRef::as_ref).collect::<Vec<&str>>();
   cache_slices.push(&something);
-  task::spawn_blocking(move || {
-    let output = neo_model.generate(&[something.as_str()], None);
-    if output.is_empty() {
-      error!("Failed to chat with Neo Model");
-      Err(anyhow!("no output from GPT neo model"))
-    } else {
-      Ok(
-        if output.len() > 1 {
-          output[1].clone()
-        } else {
-          output[0].clone()
-        }
-      )
-    }
-  }).await.unwrap()
+
+  let neo_result =
+    task::spawn_blocking(move || {
+      let output = neo_model.generate(&[something.as_str()], None);
+      if output.is_empty() {
+        error!("Failed to chat with Neo Model");
+        Err(anyhow!("no output from GPT neo model"))
+      } else {
+        Ok(
+          if output.len() > 1 {
+            output[1].clone()
+          } else {
+            output[0].clone()
+          }
+        )
+      }
+    }).await.unwrap()?;
+
+  let mut split = neo_result.split('"').collect::<Vec<&str>>();
+  split.sort_by(|sa, sb| { let sal = sa.len();
+                           let sbl = sb.len();
+                           sal.cmp(&sbl) } );
+  split.reverse();
+  if let Some(first) = split.first() {
+    Ok( first.to_string() )
+  } else {
+    Err( anyhow!("output was literally only quotes >_<") )
+  }
 }

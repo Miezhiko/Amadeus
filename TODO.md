@@ -3,4 +3,4 @@
  - more debugging for voice
  - split replay.rs into smaller functions
  - something for proper colors split for graphs
- - tests for rust-bert
+ - unwraps in replay.rs

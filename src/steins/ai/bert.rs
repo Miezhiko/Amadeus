@@ -152,11 +152,21 @@ pub async fn ask(msg_content: String) -> Result<String> {
   }).await.unwrap()
 }
 
-async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
+async fn chat_gpt2(input: String, user_id: u64) -> Result<String> {
   info!("Generating GPT2 response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let conversation_model = CONVMODEL.lock().await;
   let mut chat_context = CHAT_CONTEXT.lock().await;
+
+  // TODO: fix in progress in rust-bert
+  // if message is too big, take only last things
+  let mut something = input;
+  if something.len() > 666 {
+    if let Some((i, _)) = something.char_indices().rev().nth(666) {
+      something = something[i..].to_string();
+    }
+  }
+
   task::spawn_blocking(move || {
     let output =
       if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {

@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "6.0.3"
+version     = "6.0.4"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -50,7 +50,7 @@ nlprule             = "0.6.4"
 # rust bert needs update
 tch                 = "0.4.1"
 #rust-bert           = "0.15"
-rust-bert = { git = "https://github.com/guillaume-be/rust-bert", branch = "conversation_model_fox" }
+rust-bert = { git = "https://github.com/guillaume-be/rust-bert", branch = "long_translation_fix" }
 
 rand    = { version = "0.8",  features = ["std", "std_rng"] }
 reqwest = { version = "0.11", features = ["json", "blocking"] }

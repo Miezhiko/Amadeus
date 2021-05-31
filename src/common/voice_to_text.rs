@@ -43,13 +43,12 @@ pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
 
     let interpolator = Linear::new([0i16], [0]);
     let conv = Converter::from_hz_to_hz(
-      from_iter(input_data.iter().map(|v| [*v]).collect::<Vec<_>>()),
+      from_iter(input_data.iter().map(|v| [(*v - 0x80) << 8]).collect::<Vec<_>>()),
       interpolator,
       48000_f64,
       SAMPLE_RATE as f64,
     );
     let audio_buf: Vec<_> = conv.until_exhausted().map(|v| v[0]).collect();
-    //debug!("passing audio buf to stt: {:?}", &audio_buf);
 
     // Run the speech to text algorithm
     let result = m.speech_to_text(&audio_buf);

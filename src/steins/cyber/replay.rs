@@ -25,10 +25,72 @@ use async_std::{ fs::File, fs
 
 use plotters::prelude::*;
 
-fn gen_colors() -> (u8, u8, u8) {
-  ( rand::thread_rng().gen_range(0..255)
-  , rand::thread_rng().gen_range(0..255)
-  , rand::thread_rng().gen_range(0..255) )
+static BASE_DIVERGENCE: f32 = 80f32;
+
+fn unfloat(v: f32) -> u8 {
+  if v >= 1.0 { 255u8 } else {
+    (v * 256.0) as u8
+  }
+}
+
+fn hsv(huy: f32, sat: f32, val: f32) -> (u8, u8, u8) {
+  set!{ chrome = val * sat
+      , huyhuy = huy / 60.0
+      , tmpcol = chrome * (1.0 - ((huyhuy % 2.0) - 1.0).abs())
+      , midval = val - chrome };
+  let c = match huyhuy {
+    h if (h >= 0.0 && h < 1.0) => (chrome, tmpcol, 0.0),
+    h if (h >= 1.0 && h < 2.0) => (tmpcol, chrome, 0.0),
+    h if (h >= 2.0 && h < 3.0) => (0.0, chrome, tmpcol),
+    h if (h >= 3.0 && h < 4.0) => (0.0, tmpcol, chrome),
+    h if (h >= 4.0 && h < 5.0) => (tmpcol, 0.0, chrome),
+    h if (h >= 5.0 && h < 6.0) => (chrome, 0.0, tmpcol),
+    _                          => (0.0, 0.0, 0.0) };
+  ( unfloat (c.0 + midval)
+  , unfloat (c.1 + midval)
+  , unfloat (c.2 + midval) )
+}
+
+fn rnd_cos(huy: &mut f32, sat: &mut f32, val: &mut f32, i: f32, d: f32) {
+  set!{ fix = (i * 30.0).cos().abs()
+      , div = if d < 15.0 { 15.0 } else { d } };
+  *huy = (*huy + div + fix).abs() % 360.0;
+  *sat = ((i * 0.35).cos() / 4.0).abs();
+  *val = 0.5 + (i.cos() / 2.0).abs();
+}
+
+fn rnd_tan(huy: &mut f32, sat: &mut f32, val: &mut f32, i: f32, d: f32) {
+  set!{ fix = (i * 55.0).tan().abs()
+      , div = if d < 15.0 { 15.0 } else { d } };
+  *huy = (*huy + div + fix).abs() % 360.0;
+  *sat = (i * 0.35).sin().abs();
+  *val = ((6.33 * i) * 0.5).cos().abs();
+  if *sat < 0.4 { *sat = 0.4; }
+  if *val < 0.2 {
+    *val = 0.2;
+  } else if *val > 0.85 {
+    *val = 0.85;
+  }
+}
+
+fn gen_colors(n: usize) -> Vec<(u8, u8, u8)> {
+  setm!{ rng = rand::thread_rng()
+       , huy = rng.gen_range(0.0..360.0)
+       , sat = rng.gen_range(0.35..1.0)
+       , val = rng.gen_range(0.55..1.0)
+       , palette = Vec::with_capacity(n) };
+  set!{ rand_bool   = rng.gen_range(0..2)
+      , use_cos_f   = rand_bool == 1
+      , divergence  = BASE_DIVERGENCE - n as f32 / 2.6 };
+  for i in 0..n {
+    let rgb = hsv(huy, sat, val);
+    if use_cos_f {
+      rnd_cos(&mut huy, &mut sat, &mut val, i as f32, divergence);
+    } else {
+      rnd_tan(&mut huy, &mut sat, &mut val, i as f32, divergence);
+    }
+    palette.push(rgb);
+  } palette
 }
 
 pub async fn replay_embed( ctx: &Context
@@ -69,7 +131,7 @@ pub async fn replay_embed( ctx: &Context
     let footer = format!("Uploaded by {}", msg.author.name);
     eb1.color(0xe535cc);        eb2.color(0xe535cc);        eb3.color(0xe535cc);
     eb1.title(&file.filename);  eb2.title(&file.filename);  eb3.title(&file.filename);
-    eb1.description(&d);        eb2.description("units");   eb3.description("apm");
+    eb1.description(&d);        eb2.description("units");   eb3.description("APM Graph");
     static AMADEUS_LOGO: &str = "https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png";
     eb1.thumbnail(AMADEUS_LOGO);
     eb2.thumbnail(AMADEUS_LOGO);
@@ -112,24 +174,24 @@ pub async fn replay_embed( ctx: &Context
             .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)
             .unwrap();
           cc.configure_mesh()
-            .label_style(("monospace", 14).into_font().color(&RGBColor(150, 150, 150)))
+            .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
             .y_labels(10)
             .axis_style(&RGBColor(80, 80, 80))
             .draw().unwrap();
+          let colors = gen_colors(fields3.len());
+          let mut i = 0;
           for (k, plx) in fields3 {
-            let (red, green, blue) = gen_colors();
-            let mut color = RGBColor(red, green, blue);
-            if red < 150 && green < 150 && blue < 150 {
-              let (red2, green2, blue2) = gen_colors();
-              color = RGBColor(red2, green2, blue2);
-            }
+            let (red, green, blue) = colors[i];
+            let color = RGBColor(red, green, blue);
             cc.draw_series(LineSeries::new(plx, &color)).unwrap()
               .label(&k)
               .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &color));
+            i += 1;
           }
           cc.configure_series_labels()
+            .position(SeriesLabelPosition::LowerRight)
             .border_style(&BLACK)
-            .label_font(("monospace", 17).into_font().color(&RGBColor(200, 200, 200)))
+            .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
             .draw().unwrap();
         }
         match APM_PICS.send_message(&ctx, |m|
@@ -312,24 +374,24 @@ pub async fn attach_replay( ctx: &Context
                           .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)
                           .unwrap();
                         cc.configure_mesh()
-                          .label_style(("monospace", 14).into_font().color(&RGBColor(150, 150, 150)))
+                          .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
                           .y_labels(10)
                           .axis_style(&RGBColor(80, 80, 80))
                           .draw().unwrap();
+                        let colors = gen_colors(fields3.len());
+                        let mut i = 0;
                         for (k, plx) in fields3 {
-                          let (red, green, blue) = gen_colors();
-                          let mut color = RGBColor(red, green, blue);
-                          if red < 150 && green < 150 && blue < 150 {
-                            let (red2, green2, blue2) = gen_colors();
-                            color = RGBColor(red2, green2, blue2);
-                          }
+                          let (red, green, blue) = colors[i];
+                          let color = RGBColor(red, green, blue);
                           cc.draw_series(LineSeries::new(plx, &color)).unwrap()
                             .label(&k)
                             .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &color));
+                          i += 1;
                         }
                         cc.configure_series_labels()
+                          .position(SeriesLabelPosition::LowerRight)
                           .border_style(&BLACK)
-                          .label_font(("monospace", 17).into_font().color(&RGBColor(200, 200, 200)))
+                          .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
                           .draw().unwrap();
                       }
                       match APM_PICS.send_message(&ctx, |m|

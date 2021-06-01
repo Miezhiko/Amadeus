@@ -2,5 +2,5 @@
  - clean debug outputs from ~vs
  - more debugging for voice
  - split replay.rs into smaller functions
- - something for proper colors split for graphs
+ - move colors functions from replay.rs to color_utils mb
  - unwraps in replay.rs

@@ -76,8 +76,8 @@ pub async fn en2ru(text: String) -> Result<String> {
   let en2ru_model = EN2RUMODEL.lock().await;
   task::spawn_blocking(move || {
     let mut something = text;
-    if something.len() > 256 {
-      if let Some((i, _)) = something.char_indices().rev().nth(256) {
+    if something.len() > 512 {
+      if let Some((i, _)) = something.char_indices().rev().nth(512) {
         something = something[i..].to_string();
       }
     }
@@ -98,8 +98,8 @@ pub async fn ru2en(text: String) -> Result<String> {
   let ru2en_model = RU2ENMODEL.lock().await;
   task::spawn_blocking(move || {
     let mut something = text;
-    if something.len() > 256 {
-      if let Some((i, _)) = something.char_indices().rev().nth(256) {
+    if something.len() > 512 {
+      if let Some((i, _)) = something.char_indices().rev().nth(512) {
         something = something[i..].to_string();
       }
     }
@@ -136,7 +136,12 @@ pub async fn ask(msg_content: String) -> Result<String> {
   info!("Generating GPT2 QA response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let qa_model = QAMODEL.lock().await;
-  let question = process_message_for_gpt(&msg_content);
+  let mut question = process_message_for_gpt(&msg_content);
+  if question.len() > 512 {
+    if let Some((i, _)) = question.char_indices().rev().nth(512) {
+      question = question[i..].to_string();
+    }
+  }
   let cache = 
     if cache_eng_vec.is_empty() {
       String::from("HUMBA")
@@ -238,7 +243,12 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
 
 pub async fn chat(something: String, user_id: u64) -> Result<String> {
   let rndx = rand::thread_rng().gen_range(0..4);
-  let input = process_message_for_gpt(&something);
+  let mut input = process_message_for_gpt(&something);
+  if input.len() > 512 {
+    if let Some((i, _)) = input.char_indices().rev().nth(512) {
+      input = input[i..].to_string();
+    }
+  }
   if input.is_empty() {
     return Err(anyhow!("empty input"));
   }

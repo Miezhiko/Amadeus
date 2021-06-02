@@ -27,18 +27,24 @@ use rand::{ seq::SliceRandom, Rng };
 
 use super::neo::chat_neo;
 
+static TRANSLATION_LIMIT: usize = 512;
+static GPT_LIMIT: usize = 1000;
+
 // models
 static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
+
 pub static EN2RUMODEL: Lazy<Mutex<TranslationModel>> =
   Lazy::new(||
     Mutex::new(TranslationModel::new(
       TranslationConfig::new(Language::EnglishToRussian, *DEVICE)
     ).unwrap()));
+
 pub static RU2ENMODEL: Lazy<Mutex<TranslationModel>> =
   Lazy::new(||
     Mutex::new(TranslationModel::new(
       TranslationConfig::new(Language::RussianToEnglish, *DEVICE)
     ).unwrap()));
+
 pub static QAMODEL: Lazy<Mutex<QuestionAnsweringModel>> =
   Lazy::new(||
     Mutex::new(QuestionAnsweringModel::new(
@@ -48,6 +54,7 @@ pub static QAMODEL: Lazy<Mutex<QuestionAnsweringModel>> =
         ..Default::default()
       }
     ).unwrap()));
+
 pub static CONVMODEL: Lazy<Mutex<ConversationModel>> =
   Lazy::new(||
     Mutex::new(ConversationModel::new(
@@ -76,8 +83,8 @@ pub async fn en2ru(text: String) -> Result<String> {
   let en2ru_model = EN2RUMODEL.lock().await;
   task::spawn_blocking(move || {
     let mut something = text;
-    if something.len() > 512 {
-      if let Some((i, _)) = something.char_indices().rev().nth(512) {
+    if something.len() > TRANSLATION_LIMIT {
+      if let Some((i, _)) = something.char_indices().rev().nth(TRANSLATION_LIMIT) {
         something = something[i..].to_string();
       }
     }
@@ -98,8 +105,8 @@ pub async fn ru2en(text: String) -> Result<String> {
   let ru2en_model = RU2ENMODEL.lock().await;
   task::spawn_blocking(move || {
     let mut something = text;
-    if something.len() > 512 {
-      if let Some((i, _)) = something.char_indices().rev().nth(512) {
+    if something.len() > TRANSLATION_LIMIT {
+      if let Some((i, _)) = something.char_indices().rev().nth(TRANSLATION_LIMIT) {
         something = something[i..].to_string();
       }
     }
@@ -137,8 +144,8 @@ pub async fn ask(msg_content: String) -> Result<String> {
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let qa_model = QAMODEL.lock().await;
   let mut question = process_message_for_gpt(&msg_content);
-  if question.len() > 512 {
-    if let Some((i, _)) = question.char_indices().rev().nth(512) {
+  if question.len() > GPT_LIMIT {
+    if let Some((i, _)) = question.char_indices().rev().nth(GPT_LIMIT) {
       question = question[i..].to_string();
     }
   }
@@ -244,8 +251,8 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
 pub async fn chat(something: String, user_id: u64) -> Result<String> {
   let rndx = rand::thread_rng().gen_range(0..4);
   let mut input = process_message_for_gpt(&something);
-  if input.len() > 512 {
-    if let Some((i, _)) = input.char_indices().rev().nth(512) {
+  if input.len() > GPT_LIMIT {
+    if let Some((i, _)) = input.char_indices().rev().nth(GPT_LIMIT) {
       input = input[i..].to_string();
     }
   }

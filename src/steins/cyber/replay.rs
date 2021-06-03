@@ -2,6 +2,7 @@ use crate::{
   common::{ msg::channel_message
           , constants::{ LOG_CHANNEL
                        , APM_PICS }
+          , colors::gen_colors
           },
   collections::team::teammates,
   steins::cyber::w3g::analyze
@@ -18,113 +19,40 @@ use serenity::{
 
 use std::time::Duration;
 
-use rand::Rng;
-
 use async_std::{ fs::File, fs
                , prelude::* };
 
 use plotters::prelude::*;
 
-static BASE_DIVERGENCE: f32 = 80f32;
-
-fn unfloat(v: f32) -> u8 {
-  if v >= 1.0 { 255u8 } else {
-    (v * 256.0) as u8
-  }
-}
-
-fn hsv(huy: f32, sat: f32, val: f32) -> (u8, u8, u8) {
-  set!{ chrome = val * sat
-      , huyhuy = huy / 60.0
-      , tmpcol = chrome * (1.0 - ((huyhuy % 2.0) - 1.0).abs())
-      , midval = val - chrome };
-  let c = match huyhuy {
-    h if (h >= 0.0 && h < 1.0) => (chrome, tmpcol, 0.0),
-    h if (h >= 1.0 && h < 2.0) => (tmpcol, chrome, 0.0),
-    h if (h >= 2.0 && h < 3.0) => (0.0, chrome, tmpcol),
-    h if (h >= 3.0 && h < 4.0) => (0.0, tmpcol, chrome),
-    h if (h >= 4.0 && h < 5.0) => (tmpcol, 0.0, chrome),
-    h if (h >= 5.0 && h < 6.0) => (chrome, 0.0, tmpcol),
-    _                          => (0.0, 0.0, 0.0) };
-  ( unfloat (c.0 + midval)
-  , unfloat (c.1 + midval)
-  , unfloat (c.2 + midval) )
-}
-
-fn rnd_cos(huy: &mut f32, sat: &mut f32, val: &mut f32, i: f32, d: f32) {
-  set!{ fix = (i * 30.0).cos().abs()
-      , div = if d < 15.0 { 15.0 } else { d } };
-  *huy = (*huy + div + fix).abs() % 360.0;
-  *sat = ((i * 0.35).cos() / 4.0).abs();
-  *val = 0.5 + (i.cos() / 2.0).abs();
-}
-
-fn rnd_tan(huy: &mut f32, sat: &mut f32, val: &mut f32, i: f32, d: f32) {
-  set!{ fix = (i * 55.0).tan().abs()
-      , div = if d < 15.0 { 15.0 } else { d } };
-  *huy = (*huy + div + fix).abs() % 360.0;
-  *sat = (i * 0.35).sin().abs();
-  *val = ((6.33 * i) * 0.5).cos().abs();
-  if *sat < 0.4 { *sat = 0.4; }
-  if *val < 0.2 {
-    *val = 0.2;
-  } else if *val > 0.85 {
-    *val = 0.85;
-  }
-}
-
-fn gen_colors(n: usize) -> Vec<(u8, u8, u8)> {
-  setm!{ rng = rand::thread_rng()
-       , huy = rng.gen_range(0.0..360.0)
-       , sat = rng.gen_range(0.35..1.0)
-       , val = rng.gen_range(0.55..1.0)
-       , palette = Vec::with_capacity(n) };
-  set!{ rand_bool   = rng.gen_range(0..2)
-      , use_cos_f   = rand_bool == 1
-      , divergence  = BASE_DIVERGENCE - n as f32 / 2.6 };
-  for i in 0..n {
-    let rgb = hsv(huy, sat, val);
-    if use_cos_f {
-      rnd_cos(&mut huy, &mut sat, &mut val, i as f32, divergence);
-    } else {
-      rnd_tan(&mut huy, &mut sat, &mut val, i as f32, divergence);
-    }
-    palette.push(rgb);
-  } palette
-}
-
 pub async fn replay_embed( ctx: &Context
                          , msg: &Message
-                         , file: &Attachment ) {
+                         , file: &Attachment ) -> anyhow::Result<()> {
   let fname_apm = format!("{}_apm.png", &file.filename);
   info!("Downloading replay");
   if let Ok(bytes) = file.download().await {
     let mut fw3g = match File::create(&file.filename).await {
       Ok(replay) => replay,
       Err(why) => {
-        error!("Error creating file: {:?}", why);
         channel_message(ctx, msg, "Error getting replay").await;
-        return;
+        return Err(anyhow!("Error creating file: {:?}", why));
       }
     };
     if let Err(why) = fw3g.write_all(&bytes).await {
-      error!("Error writing to file: {:?}", why);
       if let Err(why2) = fs::remove_file(&file.filename).await {
         error!("Error removing file: {:?}", why2);
       }
-      return;
+      return Err(anyhow!("Error writing to file: {:?}", why));
     }
     let _ = fw3g.sync_data().await;
     info!("Parsing replay");
     let data_maybe = analyze(&file.filename, false).await;
     if let Err(why) = data_maybe {
-      error!("Corrupted replay file? {:?}", why);
       if let Err(why2) = fs::remove_file(&file.filename).await {
         error!("Error removing file: {:?}", why2);
       }
-      return;
+      return Err(anyhow!("Corrupted replay file? {:?}", why));
     }
-    let (d, flds) = data_maybe.unwrap();
+    let (d, flds) = data_maybe?;
     setm!{ eb1 = CreateEmbed::default()
          , eb2 = CreateEmbed::default()
          , eb3 = CreateEmbed::default() };
@@ -167,23 +95,22 @@ pub async fn replay_embed( ctx: &Context
         let len: f32 = first_amp_list.len() as f32 - 1_f32;
         { // because of Rc < > in BitMapBackend I need own scope here
           let root_area = BitMapBackend::new(&fname_apm, (1024, 768)).into_drawing_area();
-          root_area.fill(&RGBColor(47, 49, 54)).unwrap(); //2f3136
+          root_area.fill(&RGBColor(47, 49, 54))?; //2f3136
           let mut cc = ChartBuilder::on(&root_area)
             .margin(5)
             .set_all_label_area_size(50)
-            .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)
-            .unwrap();
+            .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)?;
           cc.configure_mesh()
             .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
             .y_labels(10)
             .axis_style(&RGBColor(80, 80, 80))
-            .draw().unwrap();
+            .draw()?;
           let colors = gen_colors(fields3.len());
           let mut i = 0;
           for (k, plx) in fields3 {
             let (red, green, blue) = colors[i];
             let color = RGBColor(red, green, blue);
-            cc.draw_series(LineSeries::new(plx, &color)).unwrap()
+            cc.draw_series(LineSeries::new(plx, &color))?
               .label(&k)
               .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &color));
             i += 1;
@@ -192,7 +119,7 @@ pub async fn replay_embed( ctx: &Context
             .position(SeriesLabelPosition::LowerRight)
             .border_style(&BLACK)
             .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
-            .draw().unwrap();
+            .draw()?;
         }
         match APM_PICS.send_message(&ctx, |m|
           m.add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
@@ -263,6 +190,7 @@ pub async fn replay_embed( ctx: &Context
       error!("Error removing file: {:?}", why2);
     }
   }
+  Ok(())
 }
 
 pub async fn attach_replay( ctx: &Context

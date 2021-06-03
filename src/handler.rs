@@ -378,7 +378,9 @@ impl EventHandler for Handler {
                         .timeout(Duration::from_secs(3600)).await {
                     let emoji = &reaction.as_inner_ref().emoji;
                     if emoji.as_data().as_str() == "🌈" {
-                      replay_embed(&ctx, &msg, file).await;
+                      if let Err(why) = replay_embed(&ctx, &msg, file).await {
+                        error!("Failed to analyze replay:\n{:?}", why);
+                      }
                       let _ = msg.delete_reactions(&ctx).await;
                     }
                   } else {

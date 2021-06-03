@@ -627,8 +627,8 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         let previous_season = season - sx;
         let vs_uri = format!("https://statistic-service.w3champions.com/api/matches/search?playerId={}&gateway=20&offset=0&opponentId={}&season={}",
           user1, user2, previous_season);
-        //TODO: clean after testing done
-        info!("VS: {}", vs_uri);
+
+        debug!("VS: {}", vs_uri);
         let ress = rqcl.get(&vs_uri).send().await?;
         let rest: Going = ress.json().await?;
         for m in rest.matches.iter() {

@@ -128,6 +128,7 @@ pub async fn run(opts: &IOptions) ->
               | GatewayIntents::GUILDS
               | GatewayIntents::GUILD_VOICE_STATES
               | GatewayIntents::GUILD_MEMBERS
+              | GatewayIntents::GUILD_PRESENCES
         )
       .event_handler(Handler::new( opts
                                  , runtime_options

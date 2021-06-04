@@ -24,13 +24,15 @@ pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> anyhow::Res
       Err(why) => Err(anyhow!(why))
     }
   } else {
-    let guild = &msg.guild(ctx).await.unwrap();
-    let member_name = meme.split('#').next().unwrap();
-    for m in guild.members.values() {
-      if m.display_name() == std::borrow::Cow::Borrowed(member_name) ||
-        m.user.name == member_name
-      {
-        return Ok(m.clone())
+    if let Some(guild) = &msg.guild(ctx).await {
+      if let Some(member_name) = meme.split('#').next() {
+        for m in guild.members.values() {
+          if m.display_name() == std::borrow::Cow::Borrowed(member_name) ||
+            m.user.name == member_name
+          {
+            return Ok(m.clone())
+          }
+        }
       }
     }
     Err(anyhow!("can't find this player"))

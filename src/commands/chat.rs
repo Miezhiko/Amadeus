@@ -53,13 +53,14 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  let top_x = 
+  let top_x =
     if let Ok(first) = args.single::<usize>() {
         first
       } else { 10 };
   if let Some(guild) = msg.guild(ctx).await {
     let mut members_with_points: Vec<(Member, u64)> = Vec::new();
     for (id, mem) in guild.members {
+      debug!("scanning points for {}", &mem.user.name);
       if let Ok(p) = trees::get_points( guild.id.0, id.0 ).await {
         members_with_points.push( (mem, p) );
       } else {

@@ -305,9 +305,8 @@ async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       let mut clanned = String::from(*name);
       if let Ok(clan_res) = rqcl.get(&clan_uri).send().await {
         if let Ok(clan_text_res) = clan_res.text().await {
-          let clan_json_res = serde_json::from_str(&clan_text_res);
-          if clan_json_res.is_ok() {
-            let clan_json: Value = clan_json_res.unwrap();
+          let clan_json_res = serde_json::from_str::<Value>(&clan_text_res);
+          if let Ok(clan_json) = clan_json_res {
             if let Some(clan) = clan_json.pointer("/clanId") {
               if let Some(clan_str) = clan.as_str() {
                 clanned = format!("[{}] {}", clan_str, name);
@@ -450,7 +449,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
   let mut seasons = 2;
   let season_str = current_season();
-  let season = season_str.parse::<u32>().unwrap();
+  let season = season_str.parse::<u32>()?;
 
   if let Ok(opt) = args.single::<String>() {
     let lower = opt.to_lowercase();
@@ -595,7 +594,7 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
   let mut seasons = 2;
   let season_str = current_season();
-  let season = season_str.parse::<u32>().unwrap();
+  let season = season_str.parse::<u32>()?;
 
   if let Ok(opt) = args.single::<String>() {
     let lower = opt.to_lowercase();

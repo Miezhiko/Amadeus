@@ -9,9 +9,7 @@ use crate::{
 use serenity::{
   builder::CreateEmbed,
   prelude::*,
-  model::{
-    channel::*
-  },
+  model::channel::*,
   framework::standard::{
     CommandResult, Args,
     macros::command

@@ -16,10 +16,8 @@ mod hooks;
 mod groups;
 mod amadeus;
 
-use anyhow::Result;
-
 #[tokio::main(worker_threads=8)]
-async fn main() -> Result<()> {
+async fn main() -> anyhow::Result<()> {
   let iopts = common::options::get_ioptions()
                 .map_err(|e| anyhow!("Failed to parse Dhall condig {:?}", e))?;
   if let Err(err) = amadeus::run(&iopts).await {

@@ -27,7 +27,7 @@ use rand::{ seq::SliceRandom, Rng };
 
 use super::neo::chat_neo;
 
-static TRANSLATION_LIMIT: usize = 512;
+pub static TRANSLATION_LIMIT: usize = 512;
 static GPT_LIMIT: usize = 1000;
 
 // models

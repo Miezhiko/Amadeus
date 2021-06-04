@@ -1,3 +1,5 @@
+use crate::steins::ai::bert::TRANSLATION_LIMIT;
+
 use serenity::{
   prelude::*,
   model::channel::*,
@@ -14,19 +16,24 @@ use rust_bert::pipelines::translation::{ Language
 use tch::Device;
 use tokio::task;
 
-async fn bert_translate(ctx: &Context, text: String, lang: Language)
+async fn bert_translate(_ctx: &Context, text: String, lang: Language)
           -> anyhow::Result<String> {
-  ctx.idle().await;
   task::spawn_blocking(move || {
+    let mut something = text;
+    if something.len() > TRANSLATION_LIMIT {
+      if let Some((i, _)) = something.char_indices().rev().nth(TRANSLATION_LIMIT) {
+        something = something[i..].to_string();
+      }
+    }
+
     let translation_config =
       TranslationConfig::new(lang, Device::cuda_if_available());
 
     let model = TranslationModel::new(translation_config)?;
 
-    let output = model.translate(&[text.as_str()]);
+    let output = model.translate(&[something.as_str()]);
     if output.is_empty() {
-      error!("Failed to translate with TranslationConfig EnglishToRussian");
-      Ok(text)
+      Err(anyhow!("Failed to translate with TranslationConfig EnglishToRussian"))
     } else {
       let translation = &output[0];
       Ok(translation.clone())
@@ -64,9 +71,9 @@ async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         mm.edit(ctx, |m|
           m.embed(|e|
             e.fields(fields)
-            .author(|a| a.icon_url(&msg.author.face())
-                         .name(&msg.author.name)
-                   )
+             .author(|a| a.icon_url(&msg.author.face())
+                          .name(&msg.author.name)
+                    )
           )
         ).await?;
       }
@@ -108,8 +115,8 @@ async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         mm.edit(ctx, |m|
           m.embed(|e|
             e.fields(fields)
-            .author(|a| a.icon_url(&msg.author.face())
-                         .name(&msg.author.name)
+             .author(|a| a.icon_url(&msg.author.face())
+                          .name(&msg.author.name)
                     )
           )
         ).await?;

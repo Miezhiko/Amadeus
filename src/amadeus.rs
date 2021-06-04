@@ -19,15 +19,19 @@ use songbird::{
   {SerenityInit, Songbird},
 };
 
-use serenity::framework::StandardFramework;
-use serenity::client::bridge::gateway::GatewayIntents;
+use serenity::{
+  framework::StandardFramework,
+  client::bridge::gateway::GatewayIntents
+};
 
 use tracing::{ Level, instrument };
 use tracing_subscriber::FmtSubscriber;
 use tracing_log::LogTracer;
 
-use std::collections::{ HashSet, HashMap };
-use std::sync::Arc;
+use std::{
+  collections::{ HashSet, HashMap },
+  sync::Arc
+};
 
 use reqwest::Client as Reqwest;
 

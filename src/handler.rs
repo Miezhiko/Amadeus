@@ -116,8 +116,8 @@ impl EventHandler for Handler {
     }
     let threads_check = THREADS.load(Ordering::Relaxed);
     if !threads_check {
-      gate::behavior::activate(ctx, &self.ioptions, &self.amadeus_id).await;
       THREADS.store(true, Ordering::Relaxed);
+      gate::behavior::activate(ctx, &self.ioptions, &self.amadeus_id).await;
     }
   }
   async fn ready(&self, ctx: Context, ready: Ready) {
@@ -168,8 +168,8 @@ impl EventHandler for Handler {
       }
     }
     if let Ok(channels) = guild_id.channels(&ctx).await {
-      let ai_text = chain::generate_with_language(&ctx, false).await;
-      if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
+      if let Some((channel, _)) = channel_by_name(&ctx, &channels, "main").await {
+        let ai_text = chain::generate_with_language(&ctx, false).await;
         let title = format!("has left, {}", &ai_text);
         if let Err(why) = channel.send_message(&ctx, |m| m
           .embed(|e| {
@@ -381,10 +381,14 @@ impl EventHandler for Handler {
                       if let Err(why) = replay_embed(&ctx, &msg, file).await {
                         error!("Failed to analyze replay:\n{:?}", why);
                       }
-                      let _ = msg.delete_reactions(&ctx).await;
+                      if let Err(why) = msg.delete_reactions(&ctx).await {
+                        error!("failed to delte msg reactions {:?}", why);
+                      }
                     }
                   } else {
-                    let _ = msg.delete_reactions(&ctx).await;
+                    if let Err(why) = msg.delete_reactions(&ctx).await {
+                      error!("failed to delte msg reactions {:?}", why);
+                    }
                     break;
                   }
                 }
@@ -393,7 +397,7 @@ impl EventHandler for Handler {
             }
           }
           gate::LAST_CHANNEL.store(msg.channel_id.0, Ordering::Relaxed);
-          // wakes up on any activity
+
           let rndx: u8 = rand::thread_rng().gen_range(0..3);
           if rndx != 1 {
             if let Some(nick) = msg.author.nick_in(&ctx, &guild_id).await {
@@ -418,6 +422,7 @@ impl EventHandler for Handler {
               ctx.idle().await;
             }
           }
+
           if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
             let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed);
             let rnd = rand::thread_rng().gen_range(0..activity_level);
@@ -521,10 +526,18 @@ impl EventHandler for Handler {
       }
     }
   }
-  async fn guild_ban_addition(&self, _ctx: Context, _guild_id: GuildId, banned_user: User) {
-    info!("User {} banned", banned_user.name);
+  async fn guild_ban_addition(&self, ctx: Context, guild_id: GuildId, banned_user: User) {
+    if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+      info!("User {} banned from {}", banned_user.name, guild.name);
+    } else {
+      info!("User {} banned from nowhere", banned_user.name);
+    }
   }
-  async fn guild_ban_removal(&self, _ctx: Context, _guild_id: GuildId, unbanned_user: User) {
-    info!("User {} unbanned", unbanned_user.name);
+  async fn guild_ban_removal(&self, ctx: Context, guild_id: GuildId, unbanned_user: User) {
+    if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+      info!("User {} unbanned from {}", unbanned_user.name, guild.name);
+    } else {
+      info!("User {} unbanned from nowhere", unbanned_user.name);
+    }
   }
 }

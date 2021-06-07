@@ -113,7 +113,7 @@ pub async fn activate_streamers_tracking(
         warn!("stream {} out with timeout", ktd);
         streams_lock.remove(&ktd);
       }
-      info!("streams check");
+      trace!("streams check");
       for playa in players() {
         if let Ok(user) = ctx_clone.http.get_user(playa.discord).await {
           setm!{ twitch_live        = false

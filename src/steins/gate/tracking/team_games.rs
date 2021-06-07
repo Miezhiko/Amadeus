@@ -5,17 +5,13 @@ use crate::{
          , tracking::Bet
          , twitch::Twitch
          , goodgame::GoodGameData },
-  common::{
-    db::trees,
-    constants::LOG_CHANNEL
-  },
+  common::{ db::trees
+          , constants::LOG_CHANNEL },
   steins::cyber
 };
 
-use serenity::{
-  prelude::*,
-  model::channel::ReactionType
-};
+use serenity::{ prelude::*
+              , model::channel::ReactionType };
 
 use std::{ time
          , sync::Arc };
@@ -59,6 +55,7 @@ pub async fn activate_games_tracking(
       rqcl.clone()
     };
     loop {
+
       { // scope for GAMES lock
         let mut games_lock = cyber::team_checker::GAMES.lock().await;
         let mut k_to_del: Vec<String> = Vec::new();
@@ -76,7 +73,7 @@ pub async fn activate_games_tracking(
         }
       }
 
-      info!("check");
+      trace!("check");
       let our_gsx = cyber::team_checker::check( &ctx_clone
                                               , options_clone.guild
                                               , &rqcl
@@ -156,6 +153,7 @@ pub async fn activate_games_tracking(
               }
             }
           }
+
           set!{ red   = rand::thread_rng().gen_range(0..255)
               , green = rand::thread_rng().gen_range(0..255)
               , blue  = rand::thread_rng().gen_range(0..255) };

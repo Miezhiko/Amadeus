@@ -125,4 +125,5 @@ systemctl restart Amadeus
 
  - Check TODO.md for planned work
  - You need libdeepspeech for voice analysis feature
- - Code open sourced just because for my friend Sirius to be able to see it, please pay attention to license
+ - Code open sourced just for my friend Sirius to be able to see it, please pay attention to license
+ - Fingon is cute

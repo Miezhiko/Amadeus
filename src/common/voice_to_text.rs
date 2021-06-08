@@ -44,9 +44,10 @@ pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
       m.enable_external_scorer(&scorer).unwrap();
     }
 
+    /* stereo to mono code:
     let input_data = {
       let mut result = Vec::new();
-      let (_, chunks) = input_data.as_rchunks::<4>();
+      let (_, chunks) = input_data.as_rchunks::<2>();
       for chunk in chunks {
         let left = chunk.get(0).unwrap_or_else(|| unsafe {unreachable_unchecked()}).clone();
         let right = chunk.get(1).unwrap_or_else(|| unsafe {unreachable_unchecked()}).clone();
@@ -54,6 +55,7 @@ pub async fn run_stt(input_data: Vec<i16>) -> Result<String, DeepspeechError> {
       }
       result
     };
+   */
 
     let interpolator = Linear::new([0i16], [0]);
     let conv = Converter::from_hz_to_hz(

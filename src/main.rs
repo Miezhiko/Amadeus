@@ -1,5 +1,6 @@
 #![type_length_limit="2792949"]
-#![feature(slice_as_chunks)]
+// needed for stereo to mono:
+//#![feature(slice_as_chunks)]
 
 #[macro_use] extern crate serde;
 #[macro_use] extern crate anyhow;

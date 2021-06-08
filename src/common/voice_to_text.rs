@@ -5,7 +5,7 @@ use deepspeech::errors::DeepspeechError;
 use deepspeech::Model;
 
 use std::path::Path;
-use std::hint::unreachable_unchecked;
+// use std::hint::unreachable_unchecked;
 
 pub const SAMPLE_RATE: u32 = 16_000;
 

@@ -10,7 +10,3 @@ pub static APM_PICS: ChannelId        = ChannelId( 752538491312930878 );
 
 pub static LIVE_ROLE: &str            = "🔴 LIVE";
 pub static UNBLOCK_ROLE: &str         = "UNBLOCK AMADEUS";
-
-/*
-pub static DEBUG_CHANNEL: ChannelId   = ChannelId( 740144639050383412 );
-*/

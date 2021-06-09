@@ -8,7 +8,7 @@ use crate::{
                      , CONFUSION_RU },
   collections::channels::AI_LEARN,
   steins::ai::bert,
-  handler::RESTORE
+  message::RESTORE
 };
 
 use serenity::{

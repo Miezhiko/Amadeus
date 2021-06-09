@@ -12,6 +12,7 @@ mod common;
 mod collections;
 mod commands;
 mod steins;
+mod message;
 mod handler;
 mod checks;
 mod hooks;

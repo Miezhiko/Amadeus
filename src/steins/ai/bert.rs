@@ -149,15 +149,20 @@ pub async fn ask(msg_content: String) -> Result<String> {
       question = question[i..].to_string();
     }
   }
-  let cache = 
+  let mut cache =
     if cache_eng_vec.is_empty() {
       String::from("HUMBA")
     } else {
       cache_eng_vec
-        .choose_multiple(&mut rand::thread_rng(), 100)
+        .choose_multiple(&mut rand::thread_rng(), 25)
         .map(AsRef::as_ref).collect::<Vec<&str>>()
         .join(" ")
     };
+  if question.len() + cache.len() > GPT_LIMIT {
+    if let Some((i, _)) = cache.char_indices().rev().nth(GPT_LIMIT - question.len()) {
+      cache = cache[i..].to_string();
+    }
+  }
   task::spawn_blocking(move || {
     let qa_input = QaInput {
       question, context: cache
@@ -190,7 +195,7 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
 
           let mut conversation_manager = ConversationManager::new();
           let cache_slices = cache_eng_vec
-                          .choose_multiple(&mut rand::thread_rng(), 64)
+                          .choose_multiple(&mut rand::thread_rng(), 32)
                           .map(AsRef::as_ref).collect::<Vec<&str>>();
           let encoded_history = conversation_model.encode_prompts(&cache_slices);
           let conv_id = conversation_manager.create(&something);
@@ -214,7 +219,7 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
       } else {
         let mut conversation_manager = ConversationManager::new();
         let cache_slices = cache_eng_vec
-                          .choose_multiple(&mut rand::thread_rng(), 10)
+                          .choose_multiple(&mut rand::thread_rng(), 5)
                           .map(AsRef::as_ref).collect::<Vec<&str>>();
         let encoded_history = conversation_model.encode_prompts(&cache_slices);
         let conv_id = conversation_manager.create(&something);

@@ -1,4 +1,7 @@
-use crate::steins::ai::cache::CACHE_ENG_STR;
+use crate::steins::ai::cache::{
+  process_message_for_gpt,
+  CACHE_ENG_STR
+};
 
 use rust_bert::gpt_neo::{
     GptNeoConfigResources, GptNeoMergesResources, GptNeoModelResources, GptNeoVocabResources,
@@ -54,7 +57,7 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let neo_model = NEOMODEL.lock().await;
   let mut cache_slices = cache_eng_vec
-                        .choose_multiple(&mut rand::thread_rng(), 64)
+                        .choose_multiple(&mut rand::thread_rng(), 32)
                         .map(AsRef::as_ref).collect::<Vec<&str>>();
   cache_slices.push(&something);
 
@@ -64,22 +67,27 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
       if output.is_empty() {
         error!("Failed to chat with Neo Model");
         Err(anyhow!("no output from GPT neo model"))
-      } else {
-        Ok(
-          if output.len() > 1 {
-            output[1].clone()
+      } else { Ok(
+        if output.len() > 1 {
+          if let Some(r) = output.choose(&mut rand::thread_rng()) {
+            String::from(r)
           } else {
-            output[0].clone()
+            output[1].clone()
           }
-        )
+        } else {
+          output[0].clone()
+        } )
       }
     }).await.unwrap()?;
 
-  let mut split = neo_result.split(&NEO_SEPARATORS[..]).collect::<Vec<&str>>();
-  split.sort_by(|sa, sb| sa.len().cmp(&sb.len()) );
-  split.reverse();
-  if let Some(first) = split.first() {
-    Ok( first.to_string() )
+  let split = neo_result.split(&NEO_SEPARATORS[..]).collect::<Vec<&str>>();
+  if let Some(first) = split.choose(&mut rand::thread_rng()) {
+    let result = process_message_for_gpt(first);
+    if result.is_empty() {
+      Err( anyhow!("only trash in chat neo response") )
+    } else {
+      Ok( result )
+    }
   } else {
     Err( anyhow!("output was literally only quotes >_<") )
   }

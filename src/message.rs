@@ -197,6 +197,13 @@ pub async fn process( ioptions: &IOptions
             return;
           }
         }
+        // any other junk on log channel should be removed
+        if msg.channel_id == LOG_CHANNEL {
+          if let Err(why) = &msg.delete(&ctx).await {
+            error!("failed to clean junk from log {:?}", why);
+          }
+          return;
+        }
         gate::LAST_CHANNEL.store(msg.channel_id.0, Ordering::Relaxed);
 
         let rndx: u8 = rand::thread_rng().gen_range(0..3);

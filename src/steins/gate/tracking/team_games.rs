@@ -208,10 +208,10 @@ pub async fn activate_games_tracking(
               let xtx_clone = Arc::clone(&ctx_clone);
               tokio::spawn(async move {
                 loop {
-                  // 20 minutes for each game
+                  // 10 minutes for each game
                   if let Some(reaction) =
                     &msg_id.await_reaction(&xtx_clone.shard)
-                            .timeout(time::Duration::from_secs(1200)).await {
+                            .timeout(time::Duration::from_secs(600)).await {
                     let inref = reaction.as_inner_ref();
                     let emoji = &inref.emoji;
                     if let Some(u) = inref.user_id {

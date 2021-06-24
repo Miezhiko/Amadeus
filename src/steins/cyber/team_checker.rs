@@ -2,7 +2,7 @@ use crate::{
   types::{ common::{ CoreGuild, CoreGuilds }
          , team::Player
          , tracking::*
-         , w3c::{ Going, MD } },
+         , w3c::{ Going, MD, PlayerAPI } },
   collections::team::teammates,
   common::{
     db::trees,
@@ -22,12 +22,42 @@ use serenity::{
              , GuildId }
 };
 
-use std::collections::HashMap;
+use std::{collections::HashMap, str};
 use tokio::sync::Mutex;
 use once_cell::sync::Lazy;
 
 pub static GAMES: Lazy<Mutex<HashMap<String, TrackingGame>>>
   = Lazy::new(|| Mutex::new(HashMap::new()));
+
+pub static AKA: Lazy<Mutex<HashMap<String, Option<String>>>>
+  = Lazy::new(|| Mutex::new(HashMap::new()));
+
+async fn check_aka( battletag: &str
+                  , rqcl: &reqwest::Client ) -> Option<String> {
+  let mut aka_lock = AKA.lock().await;
+  match aka_lock.get(battletag) {
+    Some(aka) => aka.clone(),
+    None => {
+      let user = battletag.replace("#","%23");
+      let url = format!("https://statistic-service.w3champions.com/api/players/{}", user);
+      if let Ok(res) = rqcl.get(&url).send().await {
+        match res.json::<PlayerAPI>().await {
+          Ok(papi) => {
+            if let Some(aka) = papi.playerAkaData {
+              aka_lock.insert(battletag.to_string(), Some(aka.name.clone()));
+              return Some(aka.name);
+            } else {
+              aka_lock.insert(battletag.to_string(), None);
+            }
+          }, Err(err) => {
+            warn!("Failed parse player api {:?}, url: {}", err, url);
+          }
+        }
+      }
+      None
+    }
+  }
+}
 
 async fn check_match( matchid: &str
                     , playaz: &[Player]
@@ -88,15 +118,21 @@ async fn check_match( matchid: &str
             losers.push((playa.discord, won));
           }
         }
+        let t0_name =
+          if let Some(aka) = check_aka(&m.teams[0].players[0].battleTag, rqcl).await
+            { aka } else { m.teams[0].players[0].name.clone() };
+        let t1_name =
+          if let Some(aka) = check_aka(&m.teams[1].players[0].battleTag, rqcl).await
+            { aka } else { m.teams[1].players[0].name.clone() };
         let player1 = if m.teams[0].players[0].won {
-          format!("__**{}**__ **+{}**", m.teams[0].players[0].name, m.teams[0].players[0].mmrGain)
+          format!("__**{}**__ **+{}**", t0_name, m.teams[0].players[0].mmrGain)
         } else {
-          format!("__*{}*__ **{}**", m.teams[0].players[0].name, m.teams[1].players[0].mmrGain)
+          format!("__*{}*__ **{}**", t0_name, m.teams[1].players[0].mmrGain)
         };
         let player2 = if m.teams[1].players[0].won {
-          format!("__**{}**__ **+{}**", m.teams[1].players[0].name, m.teams[0].players[0].mmrGain)
+          format!("__**{}**__ **+{}**", t1_name, m.teams[0].players[0].mmrGain)
         } else {
-          format!("__*{}*__ **{}**", m.teams[1].players[0].name, m.teams[1].players[0].mmrGain)
+          format!("__*{}*__ **{}**", t1_name, m.teams[1].players[0].mmrGain)
         };
         Some(
           vec![ format!("({}) {} [{}] *vs* ({}) {} [{}] *{}*",
@@ -347,9 +383,17 @@ pub async fn check<'a>( ctx: &Context
                 set!{ g_map = get_map(&m.map)
                     , race1 = get_race2(m.teams[0].players[0].race)
                     , race2 = get_race2(m.teams[1].players[0].race) };
+
+                let t0_name =
+                  if let Some(aka) = check_aka(&m.teams[0].players[0].battleTag, rqcl).await
+                    { aka } else { m.teams[0].players[0].name.clone() };
+                let t1_name =
+                  if let Some(aka) = check_aka(&m.teams[1].players[0].battleTag, rqcl).await
+                    { aka } else { m.teams[1].players[0].name.clone() };
+
                 let mstr = format!("({}) **{}** [{}] *vs* ({}) **{}** [{}] *{}*",
-                    race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
-                  , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
+                    race1, t0_name, m.teams[0].players[0].oldMmr
+                  , race2, t1_name, m.teams[1].players[0].oldMmr, g_map);
 
                 { // games lock scope
                   let mut games_lock = GAMES.lock().await;

@@ -1,3 +1,4 @@
  - pagination for ~vs
  - emoji roles
-
+ - put https://statistic-service.w3champions.com/api to constants
+ - store aka accounts in database

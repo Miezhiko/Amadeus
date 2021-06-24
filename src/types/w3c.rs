@@ -197,3 +197,29 @@ pub struct MD {
 pub_struct!(Season {
   id: u32,
 });
+
+pub_struct!(PlayerAka {
+  country: String,
+  id: u32,
+  liquipedia: String,
+  main_race: String,
+  name: String,
+});
+
+pub_struct!(WinLose {
+  games: u32,
+  losses: u32,
+  race: u32,
+  winrate: f32,
+  wins: u32,
+});
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct PlayerAPI {
+  pub battleTag: String,
+  pub name: String,
+  pub participatedInSeasons: Vec<Season>,
+  pub playerAkaData: Option<PlayerAka>,
+  pub winLosses: Vec<WinLose>
+}

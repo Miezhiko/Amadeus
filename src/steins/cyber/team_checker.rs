@@ -22,7 +22,7 @@ use serenity::{
              , GuildId }
 };
 
-use std::{collections::HashMap, str};
+use std::collections::HashMap;
 use tokio::sync::Mutex;
 use once_cell::sync::Lazy;
 

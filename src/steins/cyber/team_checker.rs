@@ -44,8 +44,12 @@ async fn check_aka( battletag: &str
         match res.json::<PlayerAPI>().await {
           Ok(papi) => {
             if let Some(aka) = papi.playerAkaData {
-              aka_lock.insert(battletag.to_string(), Some(aka.name.clone()));
-              return Some(aka.name);
+              if let Some(aka_name) = aka.name {
+                aka_lock.insert(battletag.to_string(), Some(aka_name.clone()));
+                return Some(aka_name);
+              } else {
+                aka_lock.insert(battletag.to_string(), None);
+              }
             } else {
               aka_lock.insert(battletag.to_string(), None);
             }

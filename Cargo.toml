@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "6.2.1"
+version     = "6.2.3"
 authors     = [ "Qeenon" ]
 repository  = "https://github.com/Qeenon/Amadeus"
 readme      = "README.md"
@@ -69,7 +69,9 @@ features = [ "cache"
            , "http"
            , "native_tls_backend"
            , "utils"
-           , "collector" ]
+           , "collector"
+           , "unstable_discord_api"
+           ]
 
 [dependencies.hex]
 version = "0.4"

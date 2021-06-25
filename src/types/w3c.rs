@@ -199,11 +199,11 @@ pub_struct!(Season {
 });
 
 pub_struct!(PlayerAka {
-  country: String,
+  country: Option<String>,
   id: u32,
-  liquipedia: String,
-  main_race: String,
-  name: String,
+  liquipedia: Option<String>,
+  main_race: Option<String>,
+  name: Option<String>,
 });
 
 pub_struct!(WinLose {

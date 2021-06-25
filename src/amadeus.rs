@@ -127,6 +127,7 @@ pub async fn run(opts: &IOptions) ->
 
   let mut client =
     serenity::Client::builder(&opts.discord)
+      .application_id(opts.app_id)
       .intents( GatewayIntents::GUILD_MESSAGES
               | GatewayIntents::GUILD_MESSAGE_REACTIONS
               | GatewayIntents::GUILDS

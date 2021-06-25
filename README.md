@@ -77,6 +77,7 @@ let additional_servers : List Server =
   , s 728694826203349072 -- "Rusty Tools"
   ]
 in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
+   , app_id               = 000000000000000000
    , guild                = 611822838831251466
    , amadeus_guild        = 740144638375231489
    , servers              = additional_servers

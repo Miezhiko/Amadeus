@@ -132,6 +132,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
 }
 
 #[command]
+#[aliases(hugs)]
 async fn hug(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "hug anime"
@@ -141,6 +142,7 @@ async fn hug(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(pats)]
 async fn pat(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "pat anime"
@@ -150,6 +152,7 @@ async fn pat(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(slaps)]
 async fn slap(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "slap anime"
@@ -159,6 +162,7 @@ async fn slap(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(waves)]
 async fn wave(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "wave anime"
@@ -186,6 +190,7 @@ async fn ahegao(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(dancing)]
 async fn dance(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "dancing anime"
@@ -204,6 +209,7 @@ async fn clap(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(laught)]
 async fn lol(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "lol anime"
@@ -240,6 +246,7 @@ async fn happy(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(shrugs)]
 async fn shrug(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "shrug anime"
@@ -249,6 +256,7 @@ async fn shrug(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(shocked)]
 async fn shock(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "shock anime"
@@ -276,6 +284,7 @@ async fn confused(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(cries)]
 async fn cry(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "cry anime"
@@ -285,6 +294,7 @@ async fn cry(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(pouts)]
 async fn pout(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "pout anime"
@@ -303,6 +313,7 @@ async fn cringe(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(annoying)]
 async fn annoyed(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "annoyed anime"
@@ -312,6 +323,7 @@ async fn annoyed(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(omfg)]
 async fn omg(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "omg anime"
@@ -321,6 +333,7 @@ async fn omg(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(smiles)]
 async fn smile(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "smile anime"
@@ -395,6 +408,7 @@ async fn hungry(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[aliases(stress)]
 async fn stressed(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "stressed anime"

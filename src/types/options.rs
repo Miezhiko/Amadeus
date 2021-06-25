@@ -3,6 +3,7 @@ use crate::types::common::IServer;
 #[derive(Clone, Deserialize, Debug)]
 pub struct IOptions {
   pub discord: String,
+  pub app_id: u64,
   pub guild: u64,
   pub amadeus_guild: u64,
   pub servers: Vec<IServer>,

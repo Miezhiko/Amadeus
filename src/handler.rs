@@ -61,6 +61,25 @@ impl EventHandler for Handler {
         if let Some(serv) = self.ioptions.servers.iter().find(|s| s.id == guild_id.0) {
           if serv.kind == CoreGuild::Unsafe {
             if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+              /* TODO: https://discord.com/developers/docs/interactions/slash-commands
+              if let Err(why) = guild.create_application_command( &ctx,
+                             |ac| ac.name("help")
+                                    .description("Display Amadeus Help")
+                                    .default_permission(true) ).await {
+                error!("Failed to register help command, {:?}", why);
+              }
+              if let Err(why) = guild.create_application_command( &ctx,
+                             |ac| ac.name("en2ru")
+                                    .description("Translate from English to Russian")
+                                    .default_permission(true) ).await {
+                error!("Failed to register en2ru command, {:?}", why);
+              }
+              if let Err(why) = guild.create_application_command( &ctx,
+                             |ac| ac.name("ru2en")
+                                    .description("Translate from Russian to English")
+                                    .default_permission(true) ).await {
+                error!("Failed to register ru2en command, {:?}", why);
+              } */
               if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
                 if let Ok(some_permissions) = member.permissions(&ctx).await {
                   if some_permissions.administrator() {

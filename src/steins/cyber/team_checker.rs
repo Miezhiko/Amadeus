@@ -6,7 +6,7 @@ use crate::{
   collections::team::teammates,
   common::{
     db::trees,
-    constants::LOG_CHANNEL
+    constants::{ W3C_API, LOG_CHANNEL }
   },
   steins::cyber::{
     utils::{ get_race2
@@ -39,7 +39,7 @@ async fn check_aka( battletag: &str
     Some(aka) => aka.clone(),
     None => {
       let user = battletag.replace("#","%23");
-      let url = format!("https://statistic-service.w3champions.com/api/players/{}", user);
+      let url = format!("{}/players/{}", W3C_API, user);
       if let Ok(res) = rqcl.get(&url).send().await {
         match res.json::<PlayerAPI>().await {
           Ok(papi) => {
@@ -63,8 +63,7 @@ async fn check_match( matchid: &str
                     , playaz: &[Player]
                     , rqcl: &reqwest::Client
                     ) -> Option<FinishedGame> {
-  let url =
-    format!("https://statistic-service.w3champions.com/api/matches/by-ongoing-match-id/{}", matchid);
+  let url = format!("{}/matches/by-ongoing-match-id/{}", W3C_API, matchid);
 
   let mut if_md: Option<MD> = None;
 
@@ -80,13 +79,13 @@ async fn check_match( matchid: &str
 
   // fallback mode when by-ongoing-match-id fails
   if if_md.is_none() {
-    if let Ok(wtf) = rqcl.get("https://statistic-service.w3champions.com/api/matches?offset=0")
+    if let Ok(wtf) = rqcl.get(&format!("{}/matches?offset=0", W3C_API))
                          .send()
                          .await {
       if let Ok(going) = wtf.json::<Going>().await {
         for mm in &going.matches {
           if mm.match_id == matchid {
-            let url = format!("https://statistic-service.w3champions.com/api/matches/{}", mm.id);
+            let url = format!("{}/matches/{}", W3C_API, mm.id);
             if let Ok(res) = rqcl.get(&url).send().await {
               match res.json::<MD>().await {
                 Ok(md) => {
@@ -367,7 +366,7 @@ pub async fn check<'a>( ctx: &Context
                       ) -> Vec<StartingGame> {
   let mut out: Vec<StartingGame> = Vec::new();
   if let Ok(res) =
-    rqcl.get("https://statistic-service.w3champions.com/api/matches/ongoing?offset=0")
+    rqcl.get(&format!("{}/matches/ongoing?offset=0", W3C_API))
         .send()
         .await {
     if let Ok(going) = res.json::<Going>().await {

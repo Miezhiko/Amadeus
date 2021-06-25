@@ -8,7 +8,7 @@ use crate::{
                     , w3info::activate_w3info_tracking },
     ai::cache
   },
-  commands::pad::update_current_season
+  commands::w3c::update_current_season
 };
 
 use serenity::{

@@ -6,7 +6,7 @@ use crate::{
                , LOG_CHANNEL }
   },
   steins::ai::{ cache, chain, bert, reinit },
-  commands::pad::update_current_season
+  commands::w3c::update_current_season
 };
 
 use serenity::prelude::*;

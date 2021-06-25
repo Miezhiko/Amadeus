@@ -1,7 +1,7 @@
 use crate::checks::*;
 use crate::commands::{
   meta::*, chat::*
-, warcraft::*, pad::*
+, warcraft::*, w3c::*
 , owner::*, admin::*
 , tictactoe::*, images::*
 , translation::*, info::*

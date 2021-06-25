@@ -4,6 +4,7 @@ use crate::{
     w3c::*
   },
   common::{
+    constants::W3C_API,
     msg::{ channel_message }
   },
   steins::cyber::{
@@ -40,7 +41,7 @@ pub async fn update_current_season(ctx: &Context) {
         , rqcl = data.get::<ReqwestClient>().unwrap() };
     rqcl.clone()
   };
-  if let Ok(res) = rqcl.get("https://statistic-service.w3champions.com/api/ladder/seasons")
+  if let Ok(res) = rqcl.get(&format!("{}/ladder/seasons", W3C_API))
                        .send()
                        .await {
     if let Ok(seasons) = res.json::<Vec<Season>>().await {
@@ -68,8 +69,8 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
         , rqcl = data.get::<ReqwestClient>().unwrap() };
     rqcl.clone()
   };
-  let url = "https://statistic-service.w3champions.com/api/matches/ongoing?offset=0&gameMode=1";
-  let res = rqcl.get(url).send().await?;
+  let url = format!("{}/matches/ongoing?offset=0&gameMode=1", W3C_API);
+  let res = rqcl.get(&url).send().await?;
   let going: Going = res.json().await?;
   if !going.matches.is_empty() {
     let footer = format!("Requested by {}", msg.author.name);
@@ -145,8 +146,8 @@ async fn get_player(rqcl: &Arc<reqwest::Client>, target: &str, season: &str) -> 
   }
   else {
     let search_uri =
-      format!("https://statistic-service.w3champions.com/api/ladder/search?gateWay=20&searchFor={}&season={}"
-             , target, season);
+      format!("{}/ladder/search?gateWay=20&searchFor={}&season={}"
+             , W3C_API, target, season);
     let search: Vec<Search> = rqcl.get(&search_uri).send().await?.json::<Vec<Search>>().await?;
     if !search.is_empty() {
       // search for ToD will give toy Toddy at first, so we search for exact match
@@ -182,7 +183,7 @@ async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let season = current_season();
   if let Some(userx) = get_player(&rqcl, args_msg, &season).await? {
     let user = userx.replace("#","%23");
-    let game_mode_uri = format!("https://statistic-service.w3champions.com/api/players/{}/game-mode-stats?season={}&gateWay=20", user, season);
+    let game_mode_uri = format!("{}/players/{}/game-mode-stats?season={}&gateWay=20", W3C_API, user, season);
     let game_mode_res = rqcl.get(&game_mode_uri).send().await?;
     let game_mode_stats: Vec<GMStats> =
       match game_mode_res.json::<Vec<GMStats>>().await {
@@ -283,7 +284,7 @@ async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       }
     }
 
-    let uri = format!("https://statistic-service.w3champions.com/api/players/{}/race-stats?season={}&gateWay=20", user, season);
+    let uri = format!("{}/players/{}/race-stats?season={}&gateWay=20", W3C_API, user, season);
     let res = rqcl.get(&uri).send().await?;
     let stats: Vec<Stats> =
       match res.json::<Vec<Stats>>().await {
@@ -300,7 +301,7 @@ async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let mut stats_by_races: String = String::new();
     if !stats.is_empty() {
 
-      let clan_uri = format!("https://statistic-service.w3champions.com/api/clans?battleTag={}", user);
+      let clan_uri = format!("{}/clans?battleTag={}", W3C_API, user);
       let name = &userx.split('#').collect::<Vec<&str>>()[0];
       let mut clanned = String::from(*name);
       if let Ok(clan_res) = rqcl.get(&clan_uri).send().await {
@@ -346,7 +347,7 @@ async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
       let mut description = format!("[{}] {}\n", &userx, &league_info);
 
-      let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
+      let uri2 = format!("{}/player-stats/{}/race-on-map-versus-race?season={}", W3C_API, user, season);
       let res2 = rqcl.get(&uri2).send().await?;
       let stats2_mb: Option<Stats2> =
         match res2.json::<Stats2>().await {
@@ -468,7 +469,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(userx) = get_player(&rqcl, &args_msg, &season_str).await? {
     let user = userx.replace("#","%23");
 
-    let uri2 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, season);
+    let uri2 = format!("{}/player-stats/{}/race-on-map-versus-race?season={}", W3C_API, user, season);
     let res2 = rqcl.get(&uri2).send().await?;
     let stats2_mb: Option<Stats2> =
       match res2.json::<Stats2>().await {
@@ -545,7 +546,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
       for sx in 0..seasons {
         let previous_season = season - sx;
-        let uri3 = format!("https://statistic-service.w3champions.com/api/player-stats/{}/race-on-map-versus-race?season={}", user, previous_season);
+        let uri3 = format!("{}/player-stats/{}/race-on-map-versus-race?season={}", W3C_API, user, previous_season);
         if let Ok(res3) = rqcl.get(&uri3).send().await {
           if let Ok(stats3) = res3.json::<Stats2>().await {
             process_stats2(stats3);
@@ -624,8 +625,8 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       let mut loses = 0;
       for sx in 0..seasons {
         let previous_season = season - sx;
-        let vs_uri = format!("https://statistic-service.w3champions.com/api/matches/search?playerId={}&gateway=20&offset=0&opponentId={}&season={}",
-          user1, user2, previous_season);
+        let vs_uri = format!("{}/matches/search?playerId={}&gateway=20&offset=0&opponentId={}&season={}",
+                                W3C_API, user1, user2, previous_season);
 
         debug!("VS: {}", vs_uri);
         let ress = rqcl.get(&vs_uri).send().await?;

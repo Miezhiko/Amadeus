@@ -2,7 +2,7 @@ pub mod meta;
 pub mod warcraft;
 pub mod owner;
 pub mod admin;
-pub mod pad;
+pub mod w3c;
 pub mod chat;
 pub mod tictactoe;
 pub mod images;

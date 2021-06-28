@@ -172,7 +172,7 @@ impl EventHandler for Handler {
       }
     }
     if let Ok(channels) = guild_id.channels(&ctx).await {
-      if let Some((channel, _)) = channel_by_name(&ctx, &channels, "main").await {
+      if let Some((channel, _)) = channel_by_name(&ctx, &channels, "moderation").await {
         let ai_text = chain::generate_with_language(&ctx, false).await;
         let title = format!("has left, {}", &ai_text);
         if let Err(why) = channel.send_message(&ctx, |m| m

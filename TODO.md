@@ -1,3 +1,4 @@
  - pagination for ~vs
  - emoji roles
  - store aka accounts in database
+ - finetune GTP2 model

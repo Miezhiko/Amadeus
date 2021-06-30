@@ -27,7 +27,7 @@ pub struct Chat;
 
 #[group("Translation")]
 #[description = "Translation commands"]
-#[commands(en2ru, ru2en, en2de, de2en, en2fr, fr2en)]
+#[commands(perevod, translate, en2de, de2en, en2fr, fr2en)]
 pub struct Translate;
 
 #[group("Images")]

@@ -14,6 +14,7 @@ use crate::{
 use serenity::{
   prelude::*,
   model::{
+    interactions::ApplicationCommand,
     id::{ GuildId, ChannelId, UserId },
     channel::GuildChannel
   }
@@ -32,6 +33,12 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   info!("activation has started");
 
   Lazy::force(&START_TIME);
+
+  // clean up global application commands
+  if let Err(why) = ApplicationCommand::create_global_application_commands(&ctx.http, |cs| cs
+  ).await {
+    error!("Failed to clean global application commands {}", why);
+  }
 
   // set actual season for pad statistics
   update_current_season(&ctx).await;

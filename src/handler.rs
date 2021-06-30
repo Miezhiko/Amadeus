@@ -10,23 +10,28 @@ use crate::{
           , help::channel::channel_by_name
           , constants::{ UNBLOCK_ROLE
                        , LIVE_ROLE }
+          , i18n::{ edit_help_i18n, US_ENG }
           },
   collections::channels::AI_ALLOWED,
-  commands::music::rejoin_voice_channel
+  commands::{
+    music::rejoin_voice_channel,
+    translation, w3c::stats
+  }
 };
 
 use serenity::{
   prelude::*,
   async_trait,
   utils::Colour,
-  model::{ guild::ActionMessage
+  model::{ guild::{ PartialGuild, ActionMessage }
          , id::{ GuildId, MessageId, UserId, ChannelId }
          , event::ResumedEvent, gateway::Ready, guild::Member
-         , channel::Message
-         , user::User
+         , channel::Message, user::User
+         , interactions::{ ApplicationCommandOptionType, InteractionResponseType, Interaction, InteractionData }
          },
   http::AttachmentType,
-  builder::CreateEmbed
+  builder::CreateEmbed,
+  framework::standard::{ Args, Delimiter }
 };
 
 use std::{ borrow::Cow
@@ -52,34 +57,133 @@ impl Handler {
 pub static MUTED: Lazy<Mutex<Vec<UserId>>> =
   Lazy::new(|| Mutex::new(Vec::new()));
 
+async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
+  if let Err(why) = guild.create_application_commands(ctx, |cs| {
+    cs.create_application_command(|c| c.name("help")
+      .description("Display Amadeus Help")
+    )
+      .create_application_command(|c| c.name("translate")
+      .description("Translate Russian to English")
+      .create_option(|o| {
+          o.name("text")
+          .description("What will be translated")
+          .kind(ApplicationCommandOptionType::String)
+          .required(true)
+      })
+    )
+      .create_application_command(|c| c.name("перевод")
+      .description("Перевод с английского на Русский")
+      .create_option(|o| {
+          o.name("текст")
+          .description("Текст для перевода")
+          .kind(ApplicationCommandOptionType::String)
+          .required(true)
+      })
+    )
+      .create_application_command(|c| c.name("stats")
+      .description("Display W3C player statistics")
+      .create_option(|o| {
+          o.name("battletag")
+          .description("Target player")
+          .kind(ApplicationCommandOptionType::String)
+          .required(true)
+      })
+    )
+  }).await {
+    error!("Failed to register global application commands {:?}", why);
+  }
+}
+
 #[async_trait]
 impl EventHandler for Handler {
+  async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
+    if let Some(d) = &interaction.data {
+      match d {
+        InteractionData::ApplicationCommand(ac) => {
+          if let Err(why) = interaction.create_interaction_response(&ctx.http, |response| {
+            response
+              .kind(InteractionResponseType::ChannelMessageWithSource)
+              .interaction_response_data( |message| message.content("OK!") )
+          }).await {
+            error!("Failed to create OK interaction response {:?}", why);
+          }
+          match ac.name.as_str() {
+            "help" => {
+              match interaction.edit_original_interaction_response(&ctx.http, |response|
+                response.content("Creating Help ...")
+              ).await {
+                Ok(mut msg) => {
+                  edit_help_i18n(&ctx, &mut msg, &US_ENG).await;
+                }, Err(why) => {
+                  error!("Failed to create help interaction response {:?}", why);
+                }
+              };
+            },
+            "stats" => {
+              if let Some(o) = ac.options.first() {
+                if let Some(v) = o.value.clone() {
+                  if let Some(t) = v.as_str() {
+
+                    match interaction.edit_original_interaction_response(&ctx.http, |response|
+                      response.content(&format!("Getting stats for {}", t))
+                    ).await {
+                      Ok(msg) => {
+                        let args = Args::new(t, &[Delimiter::Single(';')]);
+                        if let Err(serr) = stats(&ctx, &msg, args).await {
+                          error!("Failed to get stats on interaction {:?}", serr);
+                        }
+                      }, Err(why) => {
+                        error!("Failed to create stats interaction response {:?}", why);
+                      }
+                    };
+
+                  }
+                }
+              }
+            },
+            cmd if cmd == "translate" || cmd == "перевод" => {
+              if let Some(o) = ac.options.first() {
+                if let Some(v) = o.value.clone() {
+                  if let Some(t) = v.as_str() {
+
+                    match interaction.edit_original_interaction_response(&ctx.http, |response|
+                      response.content(&format!("Translating {}", t))
+                    ).await {
+                      Ok(msg) => {
+                        let args = Args::new(t, &[Delimiter::Single(';')]);
+                        if cmd == "translate" {
+                          if let Err(terr) = translation::translate(&ctx, &msg, args).await {
+                            error!("Failed to translate to English on interaction {:?}", terr);
+                          }
+                        } else {
+                          if let Err(terr) = translation::perevod(&ctx, &msg, args).await {
+                            error!("Failed to translate to Russian on interaction {:?}", terr);
+                          }
+                        }
+                      }, Err(why) => {
+                        error!("Failed to create translation interaction response {:?}", why);
+                      }
+                    };
+
+                  }
+                }
+              }
+            }
+            _ => { /* dunno */ }
+          };
+        },
+        _ => { /* dunno */ }
+      }
+    }
+  }
   async fn cache_ready(&self, ctx: Context, guilds: Vec<GuildId>) {
     info!("Cache is READY");
     for guild_id in guilds {
       if guild_id.0 != self.ioptions.guild && guild_id.0 != self.ioptions.amadeus_guild {
         if let Some(serv) = self.ioptions.servers.iter().find(|s| s.id == guild_id.0) {
-          if serv.kind == CoreGuild::Unsafe {
-            if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-              /* TODO: https://discord.com/developers/docs/interactions/slash-commands
-              if let Err(why) = guild.create_application_command( &ctx,
-                             |ac| ac.name("help")
-                                    .description("Display Amadeus Help")
-                                    .default_permission(true) ).await {
-                error!("Failed to register help command, {:?}", why);
-              }
-              if let Err(why) = guild.create_application_command( &ctx,
-                             |ac| ac.name("en2ru")
-                                    .description("Translate from English to Russian")
-                                    .default_permission(true) ).await {
-                error!("Failed to register en2ru command, {:?}", why);
-              }
-              if let Err(why) = guild.create_application_command( &ctx,
-                             |ac| ac.name("ru2en")
-                                    .description("Translate from Russian to English")
-                                    .default_permission(true) ).await {
-                error!("Failed to register ru2en command, {:?}", why);
-              } */
+          if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+            create_app_commands(&ctx, &guild).await;
+            if serv.kind == CoreGuild::Unsafe {
               if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
                 if let Ok(some_permissions) = member.permissions(&ctx).await {
                   if some_permissions.administrator() {
@@ -115,6 +219,11 @@ impl EventHandler for Handler {
           if let Err(why) = guild_id.leave(&ctx).await {
             error!("Failed to leave guild {:?}", why);
           }
+        }
+      } else {
+        // this is for own server and amadeus testing server
+        if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+          create_app_commands(&ctx, &guild).await;
         }
       }
     }

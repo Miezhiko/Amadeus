@@ -44,7 +44,8 @@ async fn bert_translate(_ctx: &Context, text: String, lang: Language)
 #[command]
 #[min_args(1)]
 #[description("Translate English to Russian")]
-async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+#[aliases(перевод, en2ru)]
+pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -88,7 +89,8 @@ async fn en2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[command]
 #[min_args(1)]
 #[description("Translate Russian to English")]
-async fn ru2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+#[aliases(ru2en)]
+pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);

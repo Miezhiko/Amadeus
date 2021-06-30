@@ -167,9 +167,9 @@ async fn get_player(rqcl: &Arc<reqwest::Client>, target: &str, season: &str) -> 
 }
 
 #[command]
-#[aliases(статистика)]
+#[aliases(статистика, statistics)]
 #[description("display statistics on W3Champions")]
-async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
   let mut args_msg = args.message();
   if args_msg.is_empty() {

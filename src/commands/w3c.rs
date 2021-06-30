@@ -5,13 +5,12 @@ use crate::{
   },
   common::{
     constants::W3C_API,
-    msg::{ channel_message }
+    msg::channel_message
   },
-  steins::cyber::{
+  steins::cyber::
     utils::{ get_race, get_race2
            , get_league, get_map
            , get_league_png }
-  }
 };
 
 use serenity::{
@@ -218,13 +217,8 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
               format!("*League*: **{}**", league_str)
             }
           };
-        let progr = if gmstat.rankingPointsProgress.mmr > 0 {
-            format!("+{}", gmstat.rankingPointsProgress.mmr)
-          } else {
-            gmstat.rankingPointsProgress.mmr.to_string()
-          };
-        league_info = format!("**Winrate**: **{}%** **MMR**: __**{}**__ (*{}*)\n{} *Rank*: **{}**",
-          winrate, gmstat.mmr, progr, &league_division, gmstat.rank);
+        league_info = format!("**Winrate**: **{}%** **MMR**: __**{}**__\n{} *Rank*: **{}**",
+          winrate, gmstat.mmr, &league_division, gmstat.rank);
       } else if gmstat.gameMode == 2 {
         set!{ lid         = gmstat.leagueOrder
             , league_str  = get_league(lid)

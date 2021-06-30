@@ -124,6 +124,7 @@ impl EventHandler for Handler {
                 if let Some(v) = o.value.clone() {
                   if let Some(t) = v.as_str() {
 
+                    RESTORE.store(false, Ordering::Relaxed);
                     match interaction.edit_original_interaction_response(&ctx.http, |response|
                       response.content(&format!("Getting stats for {}", t))
                     ).await {
@@ -136,6 +137,7 @@ impl EventHandler for Handler {
                         error!("Failed to create stats interaction response {:?}", why);
                       }
                     };
+                    RESTORE.store(true, Ordering::Relaxed);
 
                   }
                 }
@@ -146,6 +148,7 @@ impl EventHandler for Handler {
                 if let Some(v) = o.value.clone() {
                   if let Some(t) = v.as_str() {
 
+                    RESTORE.store(false, Ordering::Relaxed);
                     match interaction.edit_original_interaction_response(&ctx.http, |response|
                       response.content(&format!("Translating {}", t))
                     ).await {
@@ -164,6 +167,7 @@ impl EventHandler for Handler {
                         error!("Failed to create translation interaction response {:?}", why);
                       }
                     };
+                    RESTORE.store(true, Ordering::Relaxed);
 
                   }
                 }

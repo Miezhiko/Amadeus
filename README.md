@@ -47,7 +47,7 @@
  - [Dhall](https://dhall-lang.org) and [rudano](https://github.com/pheki/rudano) config files
  - Using [Fluent](https://www.projectfluent.org/) for localization
  - [Sled](https://github.com/spacejam/sled) for editable info archive
- - Plays music streams! (`~join ~play`)
+ - Plays music streams using [Songbird](https://github.com/serenity-rs/songbird)! (`~join ~play`)
  - Multi-server streams notifications/trackers for twitch and goodgame.ru
  - Veto helper (for banning maps against some player) using W3C statistics
  - Versus command showing score for one player against another for x seasons

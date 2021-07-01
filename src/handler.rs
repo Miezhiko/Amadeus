@@ -5,6 +5,7 @@ use crate::{
          , options::* },
   steins::{ gate
           , ai::chain
+          , ai::boris
           },
   common::{ db::trees
           , help::channel::channel_by_name
@@ -89,6 +90,15 @@ async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
           .required(true)
       })
     )
+      .create_application_command(|c| c.name("борис")
+      .description("Команда, которую любит Лилуал")
+      .create_option(|o| {
+          o.name("текст")
+          .description("Текст для Бориса")
+          .kind(ApplicationCommandOptionType::String)
+          .required(true)
+      })
+    )
   }).await {
     error!("Failed to register global application commands {:?}", why);
   }
@@ -96,90 +106,121 @@ async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
 
 #[async_trait]
 impl EventHandler for Handler {
+
   async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
     if let Some(d) = &interaction.data {
       match d {
         InteractionData::ApplicationCommand(ac) => {
-          if let Err(why) = interaction.create_interaction_response(&ctx.http, |response| {
-            response
-              .kind(InteractionResponseType::ChannelMessageWithSource)
-              .interaction_response_data( |message| message.content("OK!") )
-          }).await {
-            error!("Failed to create OK interaction response {:?}", why);
-          }
           match ac.name.as_str() {
-            "help" => {
-              match interaction.edit_original_interaction_response(&ctx.http, |response|
-                response.content("Creating Help ...")
-              ).await {
-                Ok(mut msg) => {
-                  edit_help_i18n(&ctx, &mut msg, &US_ENG).await;
-                }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+            "борис" => {
+              if let Some(o) = ac.options.first() {
+                if let Some(v) = o.value.clone() {
+                  if let Some(t) = v.as_str() {
+
+                    if let Err(why) = interaction.create_interaction_response(&ctx.http, |response| {
+                      response
+                        .kind(InteractionResponseType::ChannelMessageWithSource)
+                        .interaction_response_data( |message| message.content( boris::spell(t) ) )
+                    }).await {
+                      error!("Failed to create boris interaction response {:?}", why);
+                    }
+
+                  }
                 }
+              }
+            },
+
+            // TODO: use any
+            c if c == "translate"
+              || c == "перевод"
+              || c == "help"
+              || c == "stats" => {
+
+              if let Err(why) = interaction.create_interaction_response(&ctx.http, |response| {
+                response
+                  .kind(InteractionResponseType::ChannelMessageWithSource)
+                  .interaction_response_data( |message| message.content("OK!") )
+              }).await {
+                error!("Failed to create OK interaction response {:?}", why);
+              }
+
+              match c {
+                "help" => {
+                  match interaction.edit_original_interaction_response(&ctx.http, |response|
+                    response.content("Creating Help ...")
+                  ).await {
+                    Ok(mut msg) => {
+                      edit_help_i18n(&ctx, &mut msg, &US_ENG).await;
+                    }, Err(why) => {
+                      error!("Failed to create help interaction response {:?}", why);
+                    }
+                  };
+                },
+                "stats" => {
+                  if let Some(o) = ac.options.first() {
+                    if let Some(v) = o.value.clone() {
+                      if let Some(t) = v.as_str() {
+
+                        RESTORE.store(false, Ordering::Relaxed);
+                        match interaction.edit_original_interaction_response(&ctx.http, |response|
+                          response.content(&format!("Getting stats for {}", t))
+                        ).await {
+                          Ok(msg) => {
+                            let args = Args::new(t, &[Delimiter::Single(';')]);
+                            if let Err(serr) = stats(&ctx, &msg, args).await {
+                              error!("Failed to get stats on interaction {:?}", serr);
+                            }
+                          }, Err(why) => {
+                            error!("Failed to create stats interaction response {:?}", why);
+                          }
+                        };
+                        RESTORE.store(true, Ordering::Relaxed);
+
+                      }
+                    }
+                  }
+                },
+                cmd if cmd == "translate" || cmd == "перевод" => {
+                  if let Some(o) = ac.options.first() {
+                    if let Some(v) = o.value.clone() {
+                      if let Some(t) = v.as_str() {
+
+                        RESTORE.store(false, Ordering::Relaxed);
+                        match interaction.edit_original_interaction_response(&ctx.http, |response|
+                          response.content(&format!("Translating {}", t))
+                        ).await {
+                          Ok(msg) => {
+                            let args = Args::new(t, &[Delimiter::Single(';')]);
+                            if cmd == "translate" {
+                              if let Err(terr) = translation::translate(&ctx, &msg, args).await {
+                                error!("Failed to translate to English on interaction {:?}", terr);
+                              }
+                            } else {
+                              if let Err(terr) = translation::perevod(&ctx, &msg, args).await {
+                                error!("Failed to translate to Russian on interaction {:?}", terr);
+                              }
+                            }
+                          }, Err(why) => {
+                            error!("Failed to create translation interaction response {:?}", why);
+                          }
+                        };
+                        RESTORE.store(true, Ordering::Relaxed);
+
+                      }
+                    }
+                  }
+                }
+                _ => { /* dunno */ }
               };
             },
-            "stats" => {
-              if let Some(o) = ac.options.first() {
-                if let Some(v) = o.value.clone() {
-                  if let Some(t) = v.as_str() {
-
-                    RESTORE.store(false, Ordering::Relaxed);
-                    match interaction.edit_original_interaction_response(&ctx.http, |response|
-                      response.content(&format!("Getting stats for {}", t))
-                    ).await {
-                      Ok(msg) => {
-                        let args = Args::new(t, &[Delimiter::Single(';')]);
-                        if let Err(serr) = stats(&ctx, &msg, args).await {
-                          error!("Failed to get stats on interaction {:?}", serr);
-                        }
-                      }, Err(why) => {
-                        error!("Failed to create stats interaction response {:?}", why);
-                      }
-                    };
-                    RESTORE.store(true, Ordering::Relaxed);
-
-                  }
-                }
-              }
-            },
-            cmd if cmd == "translate" || cmd == "перевод" => {
-              if let Some(o) = ac.options.first() {
-                if let Some(v) = o.value.clone() {
-                  if let Some(t) = v.as_str() {
-
-                    RESTORE.store(false, Ordering::Relaxed);
-                    match interaction.edit_original_interaction_response(&ctx.http, |response|
-                      response.content(&format!("Translating {}", t))
-                    ).await {
-                      Ok(msg) => {
-                        let args = Args::new(t, &[Delimiter::Single(';')]);
-                        if cmd == "translate" {
-                          if let Err(terr) = translation::translate(&ctx, &msg, args).await {
-                            error!("Failed to translate to English on interaction {:?}", terr);
-                          }
-                        } else {
-                          if let Err(terr) = translation::perevod(&ctx, &msg, args).await {
-                            error!("Failed to translate to Russian on interaction {:?}", terr);
-                          }
-                        }
-                      }, Err(why) => {
-                        error!("Failed to create translation interaction response {:?}", why);
-                      }
-                    };
-                    RESTORE.store(true, Ordering::Relaxed);
-
-                  }
-                }
-              }
-            }
-            _ => { /* dunno */ }
+             _ => { /* dunno */ }
           };
         },
         _ => { /* dunno */ }
       }
     }
   }
+
   async fn cache_ready(&self, ctx: Context, guilds: Vec<GuildId>) {
     info!("Cache is READY");
     for guild_id in guilds {
@@ -237,13 +278,16 @@ impl EventHandler for Handler {
       gate::behavior::activate(ctx, &self.ioptions, &self.amadeus_id).await;
     }
   }
+
   async fn ready(&self, ctx: Context, ready: Ready) {
     info!("Connected as {}", ready.user.name);
     rejoin_voice_channel(&ctx, &self.roptions).await;
   }
+
   async fn resume(&self, _ctx: Context, _: ResumedEvent) {
     info!("Resumed");
   }
+
   async fn guild_member_addition(&self, ctx: Context, guild_id: GuildId, member: Member) {
     let mut muted_lock = MUTED.lock().await;
     if muted_lock.contains(&member.user.id) {
@@ -270,6 +314,7 @@ impl EventHandler for Handler {
       }
     }
   }
+
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, _: Option<Member>) {
     let _was_on_chat = trees::clear_points(guild_id.0, user.id.0).await;
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
@@ -299,6 +344,7 @@ impl EventHandler for Handler {
       }
     }
   }
+
   async fn message_delete( &self
                          , ctx: Context
                          , channel_id: ChannelId
@@ -366,12 +412,14 @@ impl EventHandler for Handler {
       }
     }
   }
+
   async fn message(&self, ctx: Context, msg: Message) {
     message::process( &self.ioptions
                     , self.amadeus_id
                     , &ctx
                     , msg ).await;
   }
+
   async fn guild_ban_addition(&self, ctx: Context, guild_id: GuildId, banned_user: User) {
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       info!("User {} banned from {}", banned_user.name, guild.name);
@@ -379,6 +427,7 @@ impl EventHandler for Handler {
       info!("User {} banned from nowhere", banned_user.name);
     }
   }
+
   async fn guild_ban_removal(&self, ctx: Context, guild_id: GuildId, unbanned_user: User) {
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       info!("User {} unbanned from {}", unbanned_user.name, guild.name);
@@ -386,4 +435,5 @@ impl EventHandler for Handler {
       info!("User {} unbanned from nowhere", unbanned_user.name);
     }
   }
+
 }

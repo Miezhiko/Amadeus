@@ -32,6 +32,7 @@
 <img align="right" src="https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png">
 
  - Too many small commands (use `~help`)
+ - Slash commands support (type `/`)
  - Chatty (`set activity 66` is default)
  - Transfer learning using chats context
  - Automatic translation with bert models

@@ -187,7 +187,7 @@ async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[min_args(1)]
 #[aliases(fem)]
 #[description("feminize text")]
-async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+pub async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let kathoey = cache::KATHOEY.lock().await;
   channel_message( ctx
                  , msg
@@ -212,7 +212,7 @@ async fn extreme_feminize(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 #[command]
 #[min_args(1)]
 #[description("grammar correction")]
-async fn correct(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+pub async fn correct(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let correction = chain::correct(args.message()).await;
   channel_message( ctx
                  , msg

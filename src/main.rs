@@ -13,6 +13,7 @@ mod steins;
 mod message;
 mod handler;
 mod checks;
+mod slash;
 mod hooks;
 mod groups;
 mod amadeus;

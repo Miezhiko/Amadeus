@@ -15,6 +15,8 @@ use serenity::{
   }
 };
 
+use chrono::NaiveDateTime;
+
 use flo_grpc::controller::*;
 use flo_grpc::player::*;
 use flo_grpc::game::*;
@@ -46,6 +48,45 @@ async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
     .footer(|f| f.text(footer))
   )).await {
     error!("Failed to post nodes {:?}", why);
+  }
+  Ok(())
+}
+
+#[command]
+async fn flo_bans(ctx: &Context, msg: &Message) -> CommandResult {
+  let flo_secret = {
+    let data = ctx.data.read().await;
+    data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
+  };
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  let mut rpc = get_grpc_client(flo_secret).await;
+  let bans_reply = rpc.list_player_bans(ListPlayerBansRequest {
+    ..Default::default()
+  }).await?;
+  let bans = bans_reply.into_inner().player_bans;
+  let mut n_strs = vec![];
+  for ban in bans {
+    if let Some(p) = ban.player {
+      let mut expires = String::new(); // TOOD created_at
+      if let Some(e) = ban.ban_expires_at {
+        let dt = NaiveDateTime::from_timestamp(e.seconds, e.nanos as u32);
+        expires = dt.format("%Y-%m-%d %H:%M:%S").to_string();
+      }
+      n_strs.push(
+        format!("**{}** {} [{}]",
+          p.name, ban.ban_type, expires)
+      );
+    }
+  }
+  let footer = format!("Requested by {}", msg.author.name);
+  if let Err(why) = msg.channel_id.send_message(ctx, |m| m
+    .embed(|e| e
+    .description(n_strs.join("\n"))
+    .footer(|f| f.text(footer))
+  )).await {
+    error!("Failed to post bans {:?}", why);
   }
   Ok(())
 }

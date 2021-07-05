@@ -6,7 +6,7 @@ use crate::{
   common::i18n::{ edit_help_i18n, US_ENG },
   commands::{
     translation, w3c::stats,
-    chat
+    chat, meta
   }
 };
 
@@ -23,12 +23,14 @@ use serenity::{
 
 use std::sync::atomic::Ordering;
 
-static ASYNC_CMDS: [&str; 6] = [ "translate"
+static ASYNC_CMDS: [&str; 8] = [ "translate"
                                , "перевод"
                                , "help"
                                , "stats"
                                , "феминизировать"
-                               , "correct" ];
+                               , "correct"
+                               , "time"
+                               , "время" ];
 
 pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
   if let Err(why) = guild.create_application_commands(ctx, |cs| {
@@ -96,6 +98,24 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
           .description("Text for correction")
           .kind(ApplicationCommandOptionType::String)
           .required(true)
+      })
+    )
+      .create_application_command(|c| c.name("time")
+      .description("Display current time")
+      .create_option(|o| {
+          o.name("timezone")
+          .description("Optional timezone")
+          .kind(ApplicationCommandOptionType::String)
+          .required(false)
+      })
+    )
+      .create_application_command(|c| c.name("время")
+      .description("Показать текущее время")
+      .create_option(|o| {
+          o.name("город")
+          .description("Дополнительный часовой пояс")
+          .kind(ApplicationCommandOptionType::String)
+          .required(false)
       })
     )
   }).await {
@@ -266,7 +286,31 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     }
                   }
                 }
-              }
+              },
+              cmd if cmd == "time" || cmd == "время" => {
+                let mut str_arg = String::new();
+                if let Some(o) = ac.options.first() {
+                  if let Some(v) = o.value.clone() {
+                    if let Some(t) = v.as_str() {
+                      str_arg = t.into();
+                    }
+                  }
+                }
+                RESTORE.store(false, Ordering::Relaxed);
+                match interaction.edit_original_interaction_response(&ctx.http, |response|
+                  response.content("⌚")
+                ).await {
+                  Ok(msg) => {
+                    let args = Args::new(str_arg.as_str(), &[Delimiter::Single(';')]);
+                    if let Err(terr) = meta::time(&ctx, &msg, args).await {
+                      error!("Failed to show time on interaction {:?}", terr);
+                    }
+                  }, Err(why) => {
+                    error!("Failed to show time interaction response {:?}", why);
+                  }
+                };
+                RESTORE.store(true, Ordering::Relaxed);
+              },
               _ => { /* dunno */ }
             };
           },

@@ -284,7 +284,7 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 #[aliases(время)]
 #[description("display current time")]
-async fn time(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+pub async fn time(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
   }

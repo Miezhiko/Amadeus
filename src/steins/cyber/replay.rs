@@ -1,7 +1,6 @@
 use crate::{
   common::{ msg::channel_message
-          , constants::{ SOLO_CHANNEL
-                       , APM_PICS }
+          , constants::APM_PICS
           , colors::gen_colors
           },
   collections::team::teammates,
@@ -254,10 +253,9 @@ pub async fn attach_replay( ctx: &Context
           }
         }
         if found {
-          // get log channel
           if let Some(guild_id) = msg.guild_id {
             // get last 15 games
-            if let Ok(messages) = SOLO_CHANNEL.messages(&ctx, |r|
+            if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
               r.limit(15)
             ).await {
               for mmm in messages {
@@ -340,7 +338,7 @@ pub async fn attach_replay( ctx: &Context
                                          .await
                                          .unwrap_or_else(|| msg.author.name.clone());
 
-                    if let Err(why) = SOLO_CHANNEL.send_message(ctx, |m| {
+                    if let Err(why) = msg.channel_id.send_message(ctx, |m| {
                       let mut m =
                         m.embed(|e| {
                           let mut e = e

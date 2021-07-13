@@ -1,6 +1,13 @@
 use crate::types::team::Player;
 
 #[allow(non_snake_case)]
+pub enum GameMode {
+  Solo,
+  Team2,
+  Team4
+}
+
+#[allow(non_snake_case)]
 pub struct FinishedGame {
   pub desc: Vec<String>,
   pub passed_time: u32,
@@ -26,12 +33,14 @@ pub struct TrackingGame {
   pub still_live: bool,
   pub players: Vec<Player>,
   pub bets: Vec<Bet>,
-  pub fails: u32
+  pub fails: u32,
+  pub mode: GameMode
 }
 
 #[allow(non_snake_case)]
 pub struct StartingGame {
   pub key: String,
   pub description: Vec<String>,
-  pub players: Vec<Player>
+  pub players: Vec<Player>,
+  pub mode: GameMode
 }

@@ -1,6 +1,6 @@
 use crate::{
   types::{ options::IOptions
-         , tracking::TrackingGame
+         , tracking::{ TrackingGame, GameMode }
          , twitch::Twitch
          , goodgame::GoodGameData },
   collections::team::players,
@@ -301,7 +301,8 @@ pub async fn activate_streamers_tracking(
                     tracking_msg_id: vec![msg_id.id.0],
                     passed_time: 0,
                     still_live: true,
-                    players: vec![playa_for_stream], bets: vec![], fails: 0 }
+                    players: vec![playa_for_stream], bets: vec![], fails: 0,
+                    mode: GameMode::Solo }
                   );
                   let home = GuildId(options_clone.guild);
                   if let Ok(guild) = home.to_partial_guild(&ctx_clone).await {

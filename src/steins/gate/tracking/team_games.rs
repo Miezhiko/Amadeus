@@ -1,12 +1,16 @@
 use crate::{
   types::{ common::ReqwestClient
          , options::IOptions
-         , tracking::TrackingGame
-         , tracking::Bet
+         , tracking::{ TrackingGame
+                     , Bet, GameMode }
          , twitch::Twitch
          , goodgame::GoodGameData },
   common::{ db::trees
-          , constants::SOLO_CHANNEL },
+          , constants::{ GAME_CHANNELS
+                       , SOLO_CHANNEL
+                       , TEAM2_CHANNEL
+                       , TEAM4_CHANNEL }
+          },
   steins::cyber
 };
 
@@ -28,23 +32,25 @@ pub async fn activate_games_tracking(
       , options_clone = options.clone() };
 
   // Delete live games from log channel (if some)
-  if let Ok(vec_msg) = SOLO_CHANNEL.messages(&ctx, |g| g.limit(50)).await {
-    let mut vec_id = Vec::new();
-    for message in vec_msg {
-      for embed in message.embeds {
-        if let Some(title) = embed.title {
-          if title == "LIVE" || title == "JUST STARTED" {
-            vec_id.push(message.id);
-            break;
+  for channel in GAME_CHANNELS {
+    if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(50)).await {
+      let mut vec_id = Vec::new();
+      for message in vec_msg {
+        for embed in message.embeds {
+          if let Some(title) = embed.title {
+            if title == "LIVE" || title == "JUST STARTED" {
+              vec_id.push(message.id);
+              break;
+            }
           }
         }
       }
-    }
-    if !vec_id.is_empty() {
-      match SOLO_CHANNEL.delete_messages(&ctx, vec_id.as_slice()).await {
-        Ok(nothing)  => nothing,
-        Err(err) => warn!("Failed to clean live messages {}", err),
-      };
+      if !vec_id.is_empty() {
+        match channel.delete_messages(&ctx, vec_id.as_slice()).await {
+          Ok(nothing)  => nothing,
+          Err(err) => warn!("Failed to clean live messages {}", err),
+        };
+      }
     }
   }
 
@@ -161,7 +167,13 @@ pub async fn activate_games_tracking(
           let nickname_maybe = user.nick_in(&ctx_clone.http, options_clone.guild).await;
           let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
 
-          match SOLO_CHANNEL.send_message(&ctx_clone, |m| m
+          let game_channel = match game.mode {
+            GameMode::Solo  => SOLO_CHANNEL,
+            GameMode::Team2 => TEAM2_CHANNEL,
+            GameMode::Team4 => TEAM4_CHANNEL
+          };
+
+          match game_channel.send_message(&ctx_clone, |m| m
             .embed(|e| {
               let mut e = e
                 .title("JUST STARTED")
@@ -196,7 +208,8 @@ pub async fn activate_games_tracking(
                   tracking_msg_id: vec![msg_id.id.0],
                   passed_time: 0,
                   still_live: false,
-                  players: game.players, bets: vec![], fails: 0 }
+                  players: game.players, bets: vec![], fails: 0,
+                  mode: game.mode }
                 );
               }
               let up = ReactionType::Unicode(String::from("👍🏻"));

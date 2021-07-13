@@ -6,7 +6,7 @@ use crate::{
   collections::team::teammates,
   common::{
     db::trees,
-    constants::{ W3C_API, SOLO_CHANNEL }
+    constants::{ W3C_API, SOLO_CHANNEL, TEAM2_CHANNEL, TEAM4_CHANNEL }
   },
   steins::cyber::{
     utils::{ get_race2
@@ -463,7 +463,8 @@ pub async fn check<'a>( ctx: &Context
                     out.push(
                       StartingGame { key: m.match_id
                                    , description: vec![ mstr ]
-                                   , players: playaz });
+                                   , players: playaz
+                                   , mode: GameMode::Solo });
                   }
                 }
               }
@@ -511,7 +512,7 @@ pub async fn check<'a>( ctx: &Context
                     track.still_live = true;
                     set!{ minutes = track.passed_time / 2
                         , footer = format!("Passed: {} min", minutes) };
-                    if let Ok(mut msg) = ctx.http.get_message(SOLO_CHANNEL.0, track.tracking_msg_id[0]).await {
+                    if let Ok(mut msg) = ctx.http.get_message(TEAM2_CHANNEL.0, track.tracking_msg_id[0]).await {
                       // get first player for discord
                       let playa = playaz[0].discord;
                       if let Ok(user) = ctx.http.get_user(playa).await {
@@ -567,7 +568,8 @@ pub async fn check<'a>( ctx: &Context
                     out.push(
                       StartingGame { key: m.match_id
                                    , description: mvec
-                                   , players: playaz });
+                                   , players: playaz
+                                   , mode: GameMode::Team2 });
                   }
                 }
               }
@@ -611,7 +613,7 @@ pub async fn check<'a>( ctx: &Context
                   track.still_live = true;
                   set!{ minutes = track.passed_time / 2
                       , footer = format!("Passed: {} min", minutes) };
-                  if let Ok(mut msg) = ctx.http.get_message(SOLO_CHANNEL.0, track.tracking_msg_id[0]).await {
+                  if let Ok(mut msg) = ctx.http.get_message(TEAM4_CHANNEL.0, track.tracking_msg_id[0]).await {
                     // get first player for discord
                     let playa = playaz[0].discord;
                     if let Ok(user) = ctx.http.get_user(playa).await {
@@ -667,7 +669,8 @@ pub async fn check<'a>( ctx: &Context
                   out.push(
                     StartingGame { key: m.match_id
                                  , description: mvec
-                                 , players: playaz });
+                                 , players: playaz
+                                 , mode: GameMode::Team4 });
                 }
               }
             }
@@ -678,10 +681,14 @@ pub async fn check<'a>( ctx: &Context
         let mut games_lock = GAMES.lock().await;
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
-            if let Some(finished_game) =
-                check_match(k, &track.players, rqcl).await {
+            let game_channel = match track.mode {
+              GameMode::Solo  => SOLO_CHANNEL,
+              GameMode::Team2 => TEAM2_CHANNEL,
+              GameMode::Team4 => TEAM4_CHANNEL
+            };
+            if let Some(finished_game) = check_match(k, &track.players, rqcl).await {
               let fgame = &finished_game;
-              if let Ok(mut msg) = ctx.http.get_message(SOLO_CHANNEL.0, track.tracking_msg_id[0]).await {
+              if let Ok(mut msg) = ctx.http.get_message(game_channel.0, track.tracking_msg_id[0]).await {
                 let footer: String = format!("Passed: {} min", fgame.passed_time);
                 // git first player for discord (again, as ususal)
                 let playa = track.players[0].discord;
@@ -882,7 +889,7 @@ pub async fn check<'a>( ctx: &Context
               } else {
                 // mark tracking game for removal after 3 fails
                 k_to_del.push(k.clone());
-                if let Ok(msg) = ctx.http.get_message(SOLO_CHANNEL.0, track.tracking_msg_id[0]).await {
+                if let Ok(msg) = ctx.http.get_message(game_channel.0, track.tracking_msg_id[0]).await {
                   if let Err(wtf) = msg.delete(ctx).await {
                     error!("Failed to clean up dropped Live game {:?}", wtf);
                   }

@@ -153,7 +153,7 @@ pub async fn activate_games_tracking(
                       }
                     }
                   }, Err(why) => {
-                    error!("Failed to parse good game structs {:?}", why);
+                    error!("Failed to parse good game structs {:?} on request {}", why, &ggru_link);
                   }
                 };
               }

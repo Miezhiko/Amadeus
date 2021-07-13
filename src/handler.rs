@@ -8,9 +8,9 @@ use crate::{
           , ai::chain
           },
   common::{ db::trees
-          , help::channel::channel_by_name
           , constants::{ UNBLOCK_ROLE
-                       , LIVE_ROLE }
+                       , LIVE_ROLE
+                       , MODERATION }
           },
   collections::channels::AI_ALLOWED,
   commands::music::rejoin_voice_channel
@@ -168,19 +168,15 @@ impl EventHandler for Handler {
         }
       }
     }
-    if let Ok(channels) = guild_id.channels(&ctx).await {
-      if let Some((channel, _)) = channel_by_name(&ctx, &channels, "moderation").await {
-        let ai_text = chain::generate_with_language(&ctx, false).await;
-        let title = format!("has left, {}", &ai_text);
-        if let Err(why) = channel.send_message(&ctx, |m| m
-          .embed(|e| {
-            e.author(|a| a.icon_url(&user.face()).name(&user.name))
-             .title(title)
-             .timestamp(chrono::Utc::now().to_rfc3339())
-            })).await {
-          error!("Failed to log leaving user {:?}", why);
-        }
-      }
+    let ai_text = chain::generate_with_language(&ctx, false).await;
+    let title = format!("has left, {}", &ai_text);
+    if let Err(why) = MODERATION.send_message(&ctx, |m| m
+      .embed(|e| {
+        e.author(|a| a.icon_url(&user.face()).name(&user.name))
+          .title(title)
+          .timestamp(chrono::Utc::now().to_rfc3339())
+        })).await {
+      error!("Failed to log leaving user {:?}", why);
     }
   }
 

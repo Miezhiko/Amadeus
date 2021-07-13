@@ -6,7 +6,7 @@ use crate::{
          , twitch::Twitch
          , goodgame::GoodGameData },
   common::{ db::trees
-          , constants::LOG_CHANNEL },
+          , constants::SOLO_CHANNEL },
   steins::cyber
 };
 
@@ -28,7 +28,7 @@ pub async fn activate_games_tracking(
       , options_clone = options.clone() };
 
   // Delete live games from log channel (if some)
-  if let Ok(vec_msg) = LOG_CHANNEL.messages(&ctx, |g| g.limit(50)).await {
+  if let Ok(vec_msg) = SOLO_CHANNEL.messages(&ctx, |g| g.limit(50)).await {
     let mut vec_id = Vec::new();
     for message in vec_msg {
       for embed in message.embeds {
@@ -41,7 +41,7 @@ pub async fn activate_games_tracking(
       }
     }
     if !vec_id.is_empty() {
-      match LOG_CHANNEL.delete_messages(&ctx, vec_id.as_slice()).await {
+      match SOLO_CHANNEL.delete_messages(&ctx, vec_id.as_slice()).await {
         Ok(nothing)  => nothing,
         Err(err) => warn!("Failed to clean live messages {}", err),
       };
@@ -161,7 +161,7 @@ pub async fn activate_games_tracking(
           let nickname_maybe = user.nick_in(&ctx_clone.http, options_clone.guild).await;
           let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
 
-          match LOG_CHANNEL.send_message(&ctx_clone, |m| m
+          match SOLO_CHANNEL.send_message(&ctx_clone, |m| m
             .embed(|e| {
               let mut e = e
                 .title("JUST STARTED")

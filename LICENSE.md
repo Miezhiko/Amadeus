@@ -1,7 +1,7 @@
                     GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
 
- Copyright (c) 2020-2021, Маша Qeenon <masha@tutamail.com>
+ Copyright (c) 2020-2021, Маша Miezhiko <masha@tutamail.com>
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 

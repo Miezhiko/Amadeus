@@ -19,7 +19,7 @@ pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) 
   if let Err(why) = msg.channel_id.send_message(ctx, |m| m
     .embed(|e| e
       .title("Amadeus")
-      .url("https://github.com/Qeenon/Amadeus")
+      .url("https://github.com/Miezhiko/Amadeus")
       .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
       .description(LOCALES.lookup(lang, "help-description"))
@@ -51,7 +51,7 @@ pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIde
     .content("")
     .embed(|e| e
       .title("Amadeus")
-      .url("https://github.com/Qeenon/Amadeus")
+      .url("https://github.com/Miezhiko/Amadeus")
       .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
       .description(LOCALES.lookup(lang, "help-description"))

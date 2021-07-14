@@ -15,16 +15,16 @@
   <a href="#notes">Notes</a>
 </p>
 
-[![Azure DevOps builds](https://img.shields.io/azure-devops/build/qeenon/0dcb863b-80ca-4465-a7f2-a8cb387865f9/1?color=blue&label=Azure)]()
-[![GitHub](https://github.com/Qeenon/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Qeenon/Amadeus/workflows/mawa)
-[![CircleCI](https://circleci.com/gh/Qeenon/Amadeus/tree/mawa.svg?style=shield)](https://circleci.com/gh/Qeenon/Amadeus/tree/mawa)
-[![Appveyor](https://ci.appveyor.com/api/projects/status/8cd1qi1aykujkyd2?svg=true)](https://ci.appveyor.com/project/Qeenon/amadeus)
-[![GitHub contributors](https://img.shields.io/github/contributors/Qeenon/Amadeus.svg?style=flat)]()
-[![GitHub last commit](https://img.shields.io/github/last-commit/Qeenon/Amadeus.svg?style=flat)]()
-[![codecov](https://codecov.io/gh/Qeenon/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Qeenon/Amadeus)
+[![Azure DevOps builds](https://img.shields.io/azure-devops/build/Miezhiko/0dcb863b-80ca-4465-a7f2-a8cb387865f9/1?color=blue&label=Azure)]()
+[![GitHub](https://github.com/Miezhiko/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Miezhiko/Amadeus/workflows/mawa)
+[![CircleCI](https://circleci.com/gh/Miezhiko/Amadeus/tree/mawa.svg?style=shield)](https://circleci.com/gh/Miezhiko/Amadeus/tree/mawa)
+[![Appveyor](https://ci.appveyor.com/api/projects/status/8cd1qi1aykujkyd2?svg=true)](https://ci.appveyor.com/project/Miezhiko/amadeus)
+[![GitHub contributors](https://img.shields.io/github/contributors/Miezhiko/Amadeus.svg?style=flat)]()
+[![GitHub last commit](https://img.shields.io/github/last-commit/Miezhiko/Amadeus.svg?style=flat)]()
+[![codecov](https://codecov.io/gh/Miezhiko/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Miezhiko/Amadeus)
 [![Discord](https://img.shields.io/discord/611822838831251466?label=Discord&color=pink)](https://discord.gg/GdzjVvD)
-[![Twitter Follow](https://img.shields.io/twitter/follow/Qeenon.svg?style=social)](https://twitter.com/Qeenon)
+[![Twitter Follow](https://img.shields.io/twitter/follow/Miezhiko.svg?style=social)](https://twitter.com/Miezhiko)
 
 
 ## Features

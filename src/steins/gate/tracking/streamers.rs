@@ -198,7 +198,7 @@ pub async fn activate_streamers_tracking(
                 };
               }
             }
-          }
+          } else { continue; }
           if !additional_fields.is_empty() {
             if title.is_empty() {
               title = String::from("LIVE");

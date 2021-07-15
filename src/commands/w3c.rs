@@ -392,7 +392,11 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         description = format!("{}```\n{}\n```", description, table);
       }
 
-      let footer = format!("Requested by {}", msg.author.name);
+      let footer = if !msg.author.bot {
+          format!("Requested by {}", msg.author.name)
+        } else {
+          String::from("Requested from /")
+        };
 
       let mut additional_info = vec![("Stats by races", &stats_by_races, false)];
       if !rt_string.is_empty() {

@@ -353,12 +353,15 @@ pub async fn time(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   }
 
   let mut eb = CreateEmbed::default();
-  let footer = format!("Requested by {}", msg.author.name);
   eb.color(0xe735cc);
   eb.title("Time");
   eb.description(desc);
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
-  eb.footer(|f| f.text(footer));
+
+  if !msg.author.bot {
+    let footer = format!("Requested by {}", msg.author.name);
+    eb.footer(|f| f.text(footer));
+  }
 
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| { e.0 = eb.0; e })

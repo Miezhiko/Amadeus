@@ -78,14 +78,14 @@ pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIde
 }
 
 /*
-Embed titles are limited to 256 characters
-Embed descriptions are limited to 2048 characters
-There can be up to 25 fields
-A field's name is limited to 256 characters and its value to 1024 characters
-The footer text is limited to 2048 characters
-The author name is limited to 256 characters
-In addition, the sum of all characters in an embed structure must not exceed 6000 characters
-*/
+ * Embed titles are limited to 256 characters
+ * Embed descriptions are limited to 2048 characters
+ * There can be up to 25 fields
+ * A field's name is limited to 256 characters and its value to 1024 characters
+ * The footer text is limited to 2048 characters
+ * The author name is limited to 256 characters
+ * In addition, the sum of all characters in an embed structure must not exceed 6000 characters
+ */
 #[cfg(test)]
 mod translation_tests {
   use super::*;

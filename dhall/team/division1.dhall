@@ -21,7 +21,7 @@ let playersList : List Playerx =
   , p "Edek#1800"         298003054110965762
   , p "RiplEy#21126"      137314790769950720
   , p "GadjiPro#2558"     331504164204969984
-  , p "SasoRii#21896"     714711512282824755
+  , p "MashaQeenon#2754"  510368731378089984
   ]
 
 in playersList

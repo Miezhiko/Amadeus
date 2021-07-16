@@ -18,8 +18,8 @@ use serenity::{
   prelude::*,
   model::{
     misc::Mentionable,
-    id::GuildId,
-    id::ChannelId,
+    id::GuildId, id::ChannelId,
+    user::User, guild::Guild,
     channel::*
   },
   framework::standard::{
@@ -117,9 +117,56 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
   Ok(())
 }
 
+pub async fn join_slash(ctx: &Context, user: &User, guild: &Guild) -> anyhow::Result<()> {
+  let guild_id = guild.id;
+  let channel_id = guild
+    .voice_states.get(&user.id)
+    .and_then(|voice_state| voice_state.channel_id);
+  let connect_to = match channel_id {
+    Some(channel) => channel,
+    None => {
+      if let Err(why) = user.dm(ctx, |m| m.content("You're not in a voice channel")).await {
+        error!("Error DMing user: {:?}", why);
+      }
+      return Ok(());
+    }
+  };
+  let manager = songbird::get(ctx).await
+    .expect("Songbird Voice client placed in at initialisation.").clone();
+  let (_handler_lock, conn_result) = manager.join(guild_id, connect_to).await;
+  if conn_result.is_ok() {
+    let mut opts = options::get_roptions().await?;
+    if opts.last_guild != guild_id.0
+    || opts.last_channel != connect_to.0
+    || !opts.rejoin {
+      opts.rejoin = true;
+      opts.last_guild = guild_id.0;
+      opts.last_channel = connect_to.0;
+      options::put_roptions(&opts).await?;
+    }
+
+    #[cfg(feature = "voice_analysis")]
+    {
+      let ctx_arc = Arc::new(ctx.clone());
+      let receiver = Receiver::new(ctx_arc);
+      let mut handler = _handler_lock.lock().await;
+
+      handler.add_global_event(CoreEvent::SpeakingStateUpdate.into(), receiver.clone());
+      handler.add_global_event(CoreEvent::SpeakingUpdate.into(), receiver.clone());
+      handler.add_global_event(CoreEvent::VoicePacket.into(), receiver.clone());
+      handler.add_global_event(CoreEvent::ClientConnect.into(), receiver.clone());
+      handler.add_global_event(CoreEvent::ClientDisconnect.into(), receiver.clone());
+    }
+
+  } else {
+    error!("Some error joining the channel on slash command");
+  }
+  Ok(())
+}
+
 #[command]
 #[description("leave voice channel")]
-async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
+pub async fn leave(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
   let guild_id = match ctx.cache.guild_channel(msg.channel_id).await {
     Some(channel) => channel.guild_id,
     None => {
@@ -151,7 +198,7 @@ async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[description("play some mp3/youtube stream")]
-async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let url =
     if !args.is_empty() {
       match args.single::<String>() {

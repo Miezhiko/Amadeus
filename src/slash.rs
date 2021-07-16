@@ -6,7 +6,7 @@ use crate::{
   common::i18n::{ edit_help_i18n, US_ENG },
   commands::{
     translation, w3c::stats,
-    chat, meta
+    chat, meta, music
   }
 };
 
@@ -23,14 +23,17 @@ use serenity::{
 
 use std::sync::atomic::Ordering;
 
-static ASYNC_CMDS: [&str; 8] = [ "translate"
-                               , "перевод"
-                               , "help"
-                               , "stats"
-                               , "феминизировать"
-                               , "correct"
-                               , "time"
-                               , "время" ];
+static ASYNC_CMDS: [&str; 11] = [ "translate"
+                                , "перевод"
+                                , "help"
+                                , "stats"
+                                , "феминизировать"
+                                , "correct"
+                                , "time"
+                                , "время"
+                                , "leave"
+                                , "play"
+                                , "repeat" ];
 
 pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
   if let Err(why) = guild.create_application_commands(ctx, |cs| {
@@ -118,6 +121,24 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
           .required(false)
       })
     )
+      .create_application_command(|c| c.name("join")
+      .description("Join voice channel with you (you should be in voice channel)")
+    )
+      .create_application_command(|c| c.name("leave")
+      .description("Leave voice channel")
+    )
+      .create_application_command(|c| c.name("repeat")
+      .description("Play last song again")
+    )
+      .create_application_command(|c| c.name("play")
+      .description("Play radio stream or youtube stuff")
+      .create_option(|o| {
+          o.name("url")
+          .description("link for music to play")
+          .kind(ApplicationCommandOptionType::String)
+          .required(true)
+      })
+    )
   }).await {
     error!("Failed to register global application commands {:?}", why);
   }
@@ -128,6 +149,31 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
     match d {
       InteractionData::ApplicationCommand(ac) => {
         match ac.name.as_str() {
+          "join" => {
+            if let Some(guild_id) = &interaction.guild_id {
+              if let Some(guild) = guild_id.to_guild_cached(ctx).await {
+                if let Some(user) = &interaction.user {
+                  if let Err(err) = music::join_slash(ctx, &user, &guild).await {
+                    if let Err(why) = interaction.create_interaction_response(&ctx.http, |response| {
+                      response
+                        .kind(InteractionResponseType::ChannelMessageWithSource)
+                        .interaction_response_data( |message| message.content( format!("Failed to join {:?}", err) ) )
+                    }).await {
+                      error!("Failed to create boris interaction response {:?}", why);
+                    }
+                  } else {
+                    if let Err(why) = interaction.create_interaction_response(&ctx.http, |response| {
+                      response
+                        .kind(InteractionResponseType::ChannelMessageWithSource)
+                        .interaction_response_data( |message| message.content( "I've joined voice channel" ) )
+                    }).await {
+                      error!("Failed to create boris interaction response {:?}", why);
+                    }
+                  }
+                }
+              }
+            }
+          }
           "борис" => {
             if let Some(o) = ac.options.first() {
               if let Some(v) = o.value.clone() {
@@ -182,6 +228,38 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     edit_help_i18n(&ctx, &mut msg, &US_ENG).await;
                   }, Err(why) => {
                     error!("Failed to create help interaction response {:?}", why);
+                  }
+                };
+              },
+              "leave" => {
+                match interaction.edit_original_interaction_response(&ctx.http, |response|
+                  response.content("Leaving...")
+                ).await {
+                  Ok(msg) => {
+                    RESTORE.store(false, Ordering::Relaxed);
+                    let args = Args::new("", &[]);
+                    if let Err(err) = music::leave(ctx, &msg, args).await {
+                      error!("Failed to leave voice channel {:?}" , err);
+                    }
+                    RESTORE.store(true, Ordering::Relaxed);
+                  }, Err(why) => {
+                    error!("Failed to create leave interaction response {:?}", why);
+                  }
+                };
+              },
+              "repeat" => {
+                match interaction.edit_original_interaction_response(&ctx.http, |response|
+                  response.content("Repeating...")
+                ).await {
+                  Ok(msg) => {
+                    RESTORE.store(false, Ordering::Relaxed);
+                    let args = Args::new("", &[]);
+                    if let Err(err) = music::play(ctx, &msg, args).await {
+                      error!("Failed to repeat last song {:?}" , err);
+                    }
+                    RESTORE.store(true, Ordering::Relaxed);
+                  }, Err(why) => {
+                    error!("Failed to create repeat interaction response {:?}", why);
                   }
                 };
               },
@@ -249,6 +327,30 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                           }
                         }, Err(why) => {
                           error!("Failed to feminize on interaction response {:?}", why);
+                        }
+                      };
+                      RESTORE.store(true, Ordering::Relaxed);
+
+                    }
+                  }
+                }
+              },
+              "play" => {
+                if let Some(o) = ac.options.first() {
+                  if let Some(v) = o.value.clone() {
+                    if let Some(t) = v.as_str() {
+
+                      RESTORE.store(false, Ordering::Relaxed);
+                      match interaction.edit_original_interaction_response(&ctx.http, |response|
+                        response.content(&format!("Playing {}", t))
+                      ).await {
+                        Ok(msg) => {
+                          let args = Args::new(t, &[Delimiter::Single(';')]);
+                          if let Err(serr) = music::play(&ctx, &msg, args).await {
+                            error!("Failed to get play on interaction {:?}", serr);
+                          }
+                        }, Err(why) => {
+                          error!("Failed to create play interaction response {:?}", why);
                         }
                       };
                       RESTORE.store(true, Ordering::Relaxed);

@@ -4,4 +4,3 @@
  - finetune GTP2 model
  - add more slash commands
  - save authorship for complex slash commands
- - add all the gifs to slash commands

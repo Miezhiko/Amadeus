@@ -31,7 +31,7 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
     loop {
       let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 10;
       let rndx = rand::thread_rng().gen_range(0..activity_level);
-      if rndx < 3 {
+      if rndx < 2 {
         let (chanz, ru) = match rndx {
           0 => { (MAIN_CHANNEL, false) },
           _ => { (MIST_CHANNEL, true) }

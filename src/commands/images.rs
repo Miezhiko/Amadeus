@@ -10,7 +10,7 @@ use serenity::{
   utils::Colour
 };
 
-use std::{ collections::HashMap };
+use std::collections::HashMap;
 use reqwest::Url;
 use serde::Deserialize;
 use rand::{ prelude::StdRng, Rng, SeedableRng };
@@ -32,7 +32,7 @@ struct Media {
 }
 
 async fn fetch_gifs(ctx: &Context, search: &str, amount: u32, filter: &str)
-        -> Result<Vec<GifResult>, Box<dyn std::error::Error + Send + Sync>> {
+        -> anyhow::Result<Vec<GifResult>> {
 
   let (reqwest_client, tenor_key) = {
     set!{ data            = ctx.data.read().await
@@ -55,14 +55,14 @@ async fn fetch_gifs(ctx: &Context, search: &str, amount: u32, filter: &str)
   Ok(resp.results)
 }
 
-enum GType {
+pub enum GType {
   Own(String),
   Target(String),
   Nothing
 }
 
-fn own(x: &str) -> GType { GType::Own(String::from(x)) }
-fn target(x: &str) -> GType { GType::Target(String::from(x)) }
+pub fn own(x: &str) -> GType { GType::Own(String::from(x)) }
+pub fn target(x: &str) -> GType { GType::Target(String::from(x)) }
 
 async fn gifx<C: Into<Colour>>( ctx: &Context
                               , msg: &Message
@@ -124,6 +124,70 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
     }
   } else {
     msg.channel_id.say(ctx, "Please mention a person!").await?;
+  }
+  if let Ok(typing) = start_typing {
+    typing.stop();
+  }
+  Ok(())
+}
+
+pub async fn gifs<C: Into<Colour>>( ctx: &Context
+                                  , user: &User
+                                  , msg: &mut Message
+                                  , fetch: &str
+                                  , color: C
+                                  , target: GType
+                                  , nsfw: bool
+                                  , arg: Option<String>
+                                  ) -> anyhow::Result<()> {
+  let start_typing = ctx.http.start_typing(msg.channel_id.0);
+  if match target {
+    GType::Target(_) => arg.is_some(),
+    GType::Own(_) => true,
+    GType::Nothing => true
+  } {
+    let filter = if nsfw {
+        if msg.channel(ctx).await.unwrap().is_nsfw() {
+          "off" 
+        } else {
+          "low"
+        }
+      } else  { "off" };
+
+    let gifs = fetch_gifs(ctx, fetch, 50, filter).await?;
+    let mut rng = StdRng::from_entropy();
+    let val = rng.gen_range(0..gifs.len());
+
+    let nickname_maybe =
+      if let Some(guild_id) = msg.guild_id {
+        user.nick_in(&ctx, &guild_id).await
+      } else { None };
+    let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
+
+    match target {
+      GType::Target(t) => {
+        msg.edit(ctx, |m| m.content("")
+                           .embed(|e| e.color(color)
+                           .author(|a| a.icon_url(&user.face()).name(&nick))
+                           .description(format!("{} {}", t, arg.unwrap_or(String::new())))
+                           .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
+      },
+      GType::Own(o) => {
+        msg.edit(ctx, |m| m.content("")
+                           .embed(|e| e.color(color)
+                           .author(|a| a.icon_url(&user.face()).name(&nick))
+                           .description(o)
+                           .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
+      },
+      GType::Nothing => {
+        msg.edit(ctx, |m| m.content("")
+                           .embed(|e| e.color(color)
+                           .author(|a| a.icon_url(&user.face()).name(&nick))
+                           .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
+      }
+    }
+  } else {
+    msg.edit(ctx, |m| m.content("Please mention a person!")).await?;
   }
   if let Ok(typing) = start_typing {
     typing.stop();

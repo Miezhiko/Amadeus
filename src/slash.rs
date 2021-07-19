@@ -6,7 +6,7 @@ use crate::{
   common::i18n::{ edit_help_i18n, US_ENG },
   commands::{
     translation, w3c::stats,
-    chat, meta, music
+    chat, meta, music, images
   }
 };
 
@@ -23,22 +23,31 @@ use serenity::{
 
 use std::sync::atomic::Ordering;
 
-static ASYNC_CMDS: [&str; 11] = [ "translate"
-                                , "перевод"
-                                , "help"
-                                , "stats"
-                                , "феминизировать"
-                                , "correct"
-                                , "time"
-                                , "время"
-                                , "leave"
-                                , "play"
-                                , "repeat" ];
+static ASYNC_CMDS: [&str; 14] = [ "translate", "перевод", "help"
+                                , "stats", "феминизировать", "correct"
+                                , "time", "время", "leave"
+                                , "play", "repeat"
+                                , "wave", "cry", "hug" ];
 
 pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
   if let Err(why) = guild.create_application_commands(ctx, |cs| {
     cs.create_application_command(|c| c.name("help")
       .description("Display Amadeus Help")
+    )
+      .create_application_command(|c| c.name("wave")
+      .description("Wave a hand you know...")
+    )
+      .create_application_command(|c| c.name("cry")
+      .description("Start to cry!")
+    )
+      .create_application_command(|c| c.name("hug")
+      .description("Literally hug someone")
+      .create_option(|o| {
+          o.name("person")
+          .description("Person to hug")
+          .kind(ApplicationCommandOptionType::String)
+          .required(true)
+      })
     )
       .create_application_command(|c| c.name("translate")
       .description("Translate Russian to English")
@@ -152,8 +161,8 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           "join" => {
             if let Some(guild_id) = &interaction.guild_id {
               if let Some(guild) = guild_id.to_guild_cached(ctx).await {
-                if let Some(user) = &interaction.user {
-                  if let Err(err) = music::join_slash(ctx, &user, &guild).await {
+                if let Some(member) = &interaction.member {
+                  if let Err(err) = music::join_slash(ctx, &member.user, &guild).await {
                     if let Err(why) = interaction.create_interaction_response(&ctx.http, |response| {
                       response
                         .kind(InteractionResponseType::ChannelMessageWithSource)
@@ -225,11 +234,82 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                   response.content("Creating Help ...")
                 ).await {
                   Ok(mut msg) => {
-                    edit_help_i18n(&ctx, &mut msg, &US_ENG).await;
+                    edit_help_i18n(ctx, &mut msg, &US_ENG).await;
                   }, Err(why) => {
                     error!("Failed to create help interaction response {:?}", why);
                   }
                 };
+              },
+              "wave" => {
+                if let Some(member) = &interaction.member {
+                  match interaction.edit_original_interaction_response(&ctx.http, |response|
+                    response.content("Waving ...")
+                  ).await {
+                    Ok(mut msg) => {
+                      if let Err(err) =
+                        images::gifs( ctx, &member.user
+                                    , &mut msg
+                                    , "wave anime"
+                                    , 0x3252e3
+                                    , images::own("waves")
+                                    , false, None).await {
+                        error!("Failed do gif emoji {:?}", err);
+                      }
+                    }, Err(why) => {
+                      error!("Failed to create help interaction response {:?}", why);
+                    }
+                  };
+                }
+              },
+              "cry" => {
+                if let Some(member) = &interaction.member {
+                  match interaction.edit_original_interaction_response(&ctx.http, |response|
+                    response.content("Crying ...")
+                  ).await {
+                    Ok(mut msg) => {
+                      if let Err(err) =
+                        images::gifs( ctx, &member.user
+                                    , &mut msg
+                                    , "cry anime"
+                                    , 0x126223
+                                    , images::own("crying")
+                                    , false, None).await {
+                        error!("Failed do gif emoji {:?}", err);
+                      }
+                    }, Err(why) => {
+                      error!("Failed to create help interaction response {:?}", why);
+                    }
+                  };
+                }
+              },
+              "hug" => {
+                if let Some(o) = ac.options.first() {
+                  if let Some(v) = o.value.clone() {
+                    if let Some(t) = v.as_str() {
+
+                      if let Some(member) = &interaction.member {
+                        match interaction.edit_original_interaction_response(&ctx.http, |response|
+                          response.content("Hugs ...")
+                        ).await {
+                          Ok(mut msg) => {
+                            if let Err(err) =
+                              images::gifs( ctx, &member.user
+                                          , &mut msg
+                                          , "hug anime"
+                                          , 0xed9e2f
+                                          , images::target("hugs")
+                                          , false, Some(t.into())).await {
+                              error!("Failed do gif emoji {:?}", err);
+                            }
+                          }, Err(why) => {
+                            error!("Failed to create help interaction response {:?}", why);
+                          }
+                        };
+                      }
+
+                    }
+                  }
+                }
               },
               "leave" => {
                 match interaction.edit_original_interaction_response(&ctx.http, |response|

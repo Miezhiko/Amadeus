@@ -85,7 +85,7 @@ fn try_get_map(m: &str) -> String {
 
 pub fn get_map(m: &str) -> String {
   static MAP_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(
-    r"^(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([a-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$")
+    r"^(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([a-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:[0-9]_[0-9]+)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$")
       .unwrap());
   let mut map = String::new();
   let lower_map = m.to_lowercase();

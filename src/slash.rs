@@ -23,10 +23,10 @@ use serenity::{
 
 use std::sync::atomic::Ordering;
 
-static ASYNC_CMDS: [&str; 50] = [ "translate", "перевод", "help"
+static ASYNC_CMDS: [&str; 51] = [ "translate", "перевод", "help"
                                 , "stats", "феминизировать", "correct"
                                 , "time", "время", "leave"
-                                , "play", "repeat"
+                                , "play", "repeat", "scared"
                                 , "wave", "cry", "hug"
                                 , "pat", "slap", "cringe"
                                 , "ahegao", "clap", "wink"

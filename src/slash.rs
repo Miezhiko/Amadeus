@@ -354,10 +354,9 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
 
             if let Err(why) = interaction.create_interaction_response(&ctx.http, |response| {
               response
-                .kind(InteractionResponseType::ChannelMessageWithSource)
-                .interaction_response_data( |message| message.content("OK!") )
+                .kind(InteractionResponseType::DeferredChannelMessageWithSource)
             }).await {
-              error!("Failed to create OK interaction response {:?}", why);
+              error!("Failed to set DeferredChannelMessageWithSource {:?}", why);
             }
 
             match c {

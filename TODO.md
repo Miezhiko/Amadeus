@@ -2,4 +2,5 @@
  - emoji roles
  - finetune GTP2 model
  - add more slash commands
- - save authorship for complex slash commands
+ - save authorship for some slash commands
+ - restructure team_checker module (code quality)

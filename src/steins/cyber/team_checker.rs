@@ -249,10 +249,14 @@ async fn check_match( matchid: &str
           } else {
             &md.playerScores[1]
           };
+        let a1 = if let Some(aka) = check_aka(&s1, rqcl).await
+                  { aka } else { s1.clone() };
+        let a2 = if let Some(aka) = check_aka(&s2, rqcl).await
+                  { aka } else { s2 };
         let scores = if m.teams[0].players[0].battleTag == s1 {
-            Some((s1,s2,s3,s4))
+            Some((a1,a2,s3,s4))
           } else {
-            Some((s2,s1,s4,s3))
+            Some((a2,a1,s4,s3))
           };
         if !player_scores.heroes.is_empty() {
           maybe_hero_png = Some(get_hero_png(
@@ -301,8 +305,10 @@ async fn check_match( matchid: &str
               } else { &md.playerScores[1] }
             } else { &md.playerScores[1] }
           } else { &md.playerScores[1] };
-        set! { s1 = player_scores.battleTag.clone()
-             , s2 = teammate_scores.battleTag.clone() };
+        let s1 = if let Some(aka) = check_aka(&player_scores.battleTag, rqcl).await
+                  { aka } else { player_scores.battleTag.clone() };
+        let s2 = if let Some(aka) = check_aka(&teammate_scores.battleTag, rqcl).await
+                  { aka } else { teammate_scores.battleTag.clone() };
         let s3 = format!("produced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
             , player_scores.unitScore.unitsProduced
             , player_scores.unitScore.unitsKilled

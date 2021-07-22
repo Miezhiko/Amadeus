@@ -151,12 +151,16 @@ async fn check_match( matchid: &str
               , race2, player2, m.teams[1].players[0].oldMmr, g_map) ])
       } else if m.gameMode == 6 || m.gameMode == 2 {
         let g_map  = get_map(&m.map);
+        let mut aka_names: [[String; 2]; 2] = Default::default();
         for i in 0..2 {
           for j in 0..2 {
             if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
               let won = m.teams[i].players[j].won;
               losers.push((playa.discord, won));
             }
+            aka_names[i][j] =
+              if let Some(aka) = check_aka(&m.teams[i].players[j].battleTag, rqcl).await
+                { aka } else { m.teams[i].players[j].name.clone() };
           }
         }
         let mstr = format!("Map: {}", g_map);
@@ -164,48 +168,52 @@ async fn check_match( matchid: &str
           if m.gameMode == 6 {
             if m.teams[x].won {
               format!("({}) __**{}**__\n({}) __**{}**__\n[{}] **+{}**"
-              , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name
-              , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+              , get_race2(m.teams[x].players[0].race), aka_names[x][0]
+              , get_race2(m.teams[x].players[1].race), aka_names[x][1], m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
             } else {
               format!("({}) __*{}*__\n({}) __*{}*__\n[{}] *{}*"
-              , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name
-              , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+              , get_race2(m.teams[x].players[0].race), aka_names[x][0]
+              , get_race2(m.teams[x].players[1].race), aka_names[x][1], m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
             }
           } else if m.teams[x].won {
             format!("({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**"
-            , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
-            , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+            , get_race2(m.teams[x].players[0].race), aka_names[x][0], m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
+            , get_race2(m.teams[x].players[1].race), aka_names[x][1], m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
           } else {
             format!("({}) __*{}*__ [{}] *{}*\n({}) __*{}*__ [{}] *{}*"
-            , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
-            , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
+            , get_race2(m.teams[x].players[0].race), aka_names[x][0], m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
+            , get_race2(m.teams[x].players[1].race), aka_names[x][1], m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
           }
         };
         Some( vec![ mstr, teamx(0), teamx(1) ] )
       } else if m.gameMode == 4 {
         let g_map  = get_map(&m.map);
+        let mut aka_names: [[String; 4]; 2] = Default::default();
         for i in 0..2 {
           for j in 0..4 {
             if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
               let won = m.teams[i].players[j].won;
               losers.push((playa.discord, won));
             }
+            aka_names[i][j] =
+              if let Some(aka) = check_aka(&m.teams[i].players[j].battleTag, rqcl).await
+                { aka } else { m.teams[i].players[j].name.clone() };
           }
         }
         let mstr = format!("Map: {}", g_map);
         let teamx = |x: usize| -> String {
           if m.teams[x].won {
             format!("({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**"
-            , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
-            , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain
-            , get_race2(m.teams[x].players[2].race), m.teams[x].players[2].name, m.teams[x].players[2].oldMmr, m.teams[x].players[2].mmrGain
-            , get_race2(m.teams[x].players[3].race), m.teams[x].players[3].name, m.teams[x].players[3].oldMmr, m.teams[x].players[3].mmrGain)
+            , get_race2(m.teams[x].players[0].race), aka_names[x][0], m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
+            , get_race2(m.teams[x].players[1].race), aka_names[x][1], m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain
+            , get_race2(m.teams[x].players[2].race), aka_names[x][2], m.teams[x].players[2].oldMmr, m.teams[x].players[2].mmrGain
+            , get_race2(m.teams[x].players[3].race), aka_names[x][3], m.teams[x].players[3].oldMmr, m.teams[x].players[3].mmrGain)
           } else {
             format!("({}) __*{}*__ [{}] *{}*\n({}) __*{}*__ [{}] *{}*\n({}) __*{}*__ [{}] *{}*\n({}) __*{}*__ [{}] *{}*"
-            , get_race2(m.teams[x].players[0].race), m.teams[x].players[0].name, m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
-            , get_race2(m.teams[x].players[1].race), m.teams[x].players[1].name, m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain
-            , get_race2(m.teams[x].players[2].race), m.teams[x].players[2].name, m.teams[x].players[2].oldMmr, m.teams[x].players[2].mmrGain
-            , get_race2(m.teams[x].players[3].race), m.teams[x].players[3].name, m.teams[x].players[3].oldMmr, m.teams[x].players[3].mmrGain)
+            , get_race2(m.teams[x].players[0].race), aka_names[x][0], m.teams[x].players[0].oldMmr, m.teams[x].players[0].mmrGain
+            , get_race2(m.teams[x].players[1].race), aka_names[x][1], m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain
+            , get_race2(m.teams[x].players[2].race), aka_names[x][2], m.teams[x].players[2].oldMmr, m.teams[x].players[2].mmrGain
+            , get_race2(m.teams[x].players[3].race), aka_names[x][3], m.teams[x].players[3].oldMmr, m.teams[x].players[3].mmrGain)
           }
         };
         Some( vec![ mstr, teamx(0), teamx(1) ] )

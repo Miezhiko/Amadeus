@@ -158,7 +158,18 @@ pub async fn activate_streamers_tracking(
                       }
                     }
                   }, Err(why) => {
-                    error!("Failed to parse twitch structs\nrequest: {}\nerror: {:?}", &getq, why);
+                    // try again to get debug information
+                    if let Ok(res) = client
+                      .get(&getq)
+                      .header("Authorization", token.clone())
+                      .header("Client-ID", options_clone.twitch_client_id.clone())
+                      .send().await {
+                      if let Ok(some_text) = res.text().await {
+                        error!("Failed to parse twitch structs\nrequest: {}\nerror: {:?}\ntext: {}", &getq, why, some_text);
+                      }
+                    } else {
+                      error!("Failed to parse twitch structs\nrequest: {}\nerror: {:?}", &getq, why);
+                    }
                   }
                 }
               }

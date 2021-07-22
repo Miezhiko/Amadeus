@@ -230,20 +230,18 @@ async fn check_match( matchid: &str
              , p2 = &md.playerScores[1]
              , s1 = p1.battleTag.clone()
              , s2 = p2.battleTag.clone() };
-        let s3 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+        let s3 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}"
             , p1.heroScore.heroesKilled
             , p1.heroScore.expGained
             , p1.unitScore.unitsProduced
             , p1.unitScore.unitsKilled
-            , p1.resourceScore.goldCollected
-            , p1.heroScore.expGained);
-        let s4 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+            , p1.resourceScore.goldCollected);
+        let s4 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}"
             , p2.heroScore.heroesKilled
             , p2.heroScore.expGained
             , p2.unitScore.unitsProduced
             , p2.unitScore.unitsKilled
-            , p2.resourceScore.goldCollected
-            , p2.heroScore.expGained);
+            , p2.resourceScore.goldCollected);
 
         // To display hero icon / scores we use 1st playa
         let btag = &playaz[0].battletag;
@@ -313,20 +311,18 @@ async fn check_match( matchid: &str
                   { aka } else { player_scores.battleTag.clone() };
         let s2 = if let Some(aka) = check_aka(&teammate_scores.battleTag, rqcl).await
                   { aka } else { teammate_scores.battleTag.clone() };
-        let s3 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+        let s3 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}"
             , player_scores.heroScore.heroesKilled
             , player_scores.heroScore.expGained
             , player_scores.unitScore.unitsProduced
             , player_scores.unitScore.unitsKilled
-            , player_scores.resourceScore.goldCollected
-            , player_scores.heroScore.expGained);
-        let s4 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}\nhero exp: {}"
+            , player_scores.resourceScore.goldCollected);
+        let s4 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}"
             , teammate_scores.heroScore.heroesKilled
             , teammate_scores.heroScore.expGained
             , teammate_scores.unitScore.unitsProduced
             , teammate_scores.unitScore.unitsKilled
-            , teammate_scores.resourceScore.goldCollected
-            , teammate_scores.heroScore.expGained);
+            , teammate_scores.resourceScore.goldCollected);
         return Some(FinishedGame
           { desc: mstr
           , passed_time: duration_in_minutes

@@ -65,6 +65,8 @@ async fn check_aka( battletag: &str
             warn!("Failed parse player api {:?}, url: {}", err, url);
           }
         }
+      } else {
+        warn!("Failed to get {}", url);
       }
       None
     }
@@ -503,22 +505,31 @@ pub async fn check<'a>( ctx: &Context
 
                 let mstr = format!("Map: {}", g_map);
 
+                let mut aka_names: [[String; 2]; 2] = Default::default();
+                for i in 0..2 {
+                  for j in 0..2 {
+                    aka_names[i][j] =
+                      if let Some(aka) = check_aka(&m.teams[i].players[j].battleTag, rqcl).await
+                        { aka } else { m.teams[i].players[j].name.clone() };
+                  }
+                }
+
                 let mvec =
                   if m.gameMode == 6 {
                     let team1 = format!("({}) **{}**\n({}) **{}**\n{} MMR"
-                      , race1, m.teams[0].players[0].name
-                      , race12, m.teams[0].players[1].name, m.teams[0].players[0].oldMmr);
+                      , race1, aka_names[0][0]
+                      , race12, aka_names[0][1], m.teams[0].players[0].oldMmr);
                     let team2 = format!("({}) **{}**\n({}) **{}**\n{} MMR"
-                      , race2, m.teams[1].players[0].name
-                      , race22, m.teams[1].players[1].name, m.teams[1].players[0].oldMmr);
+                      , race2, aka_names[1][0]
+                      , race22, aka_names[1][1], m.teams[1].players[0].oldMmr);
                     vec![ mstr, team1, team2 ]
                   } else {
                     let team1 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
-                      , race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
-                      , race12, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr);
+                      , race1, aka_names[0][0], m.teams[0].players[0].oldMmr
+                      , race12, aka_names[0][1], m.teams[0].players[1].oldMmr);
                     let team2 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
-                      , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr
-                      , race22, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr);
+                      , race2, aka_names[1][0], m.teams[1].players[0].oldMmr
+                      , race22, aka_names[1][1], m.teams[1].players[1].oldMmr);
                     vec![ mstr, team1, team2 ]
                   };
 
@@ -609,17 +620,26 @@ pub async fn check<'a>( ctx: &Context
 
               let mstr = format!("Map: {}", g_map);
 
+              let mut aka_names: [[String; 2]; 4] = Default::default();
+              for i in 0..2 {
+                for j in 0..4 {
+                  aka_names[i][j] =
+                    if let Some(aka) = check_aka(&m.teams[i].players[j].battleTag, rqcl).await
+                      { aka } else { m.teams[i].players[j].name.clone() };
+                }
+              }
+
               let mvec = {
                   let team1 = format!("({}) **{}** [{}]\n({}) **{}** [{}]\n({}) **{}** [{}]\n({}) **{}** [{}]"
-                    , race1,  m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
-                    , race12, m.teams[0].players[1].name, m.teams[0].players[1].oldMmr
-                    , race13, m.teams[0].players[2].name, m.teams[0].players[2].oldMmr
-                    , race14, m.teams[0].players[3].name, m.teams[0].players[3].oldMmr);
+                    , race1,  aka_names[0][0], m.teams[0].players[0].oldMmr
+                    , race12, aka_names[0][1], m.teams[0].players[1].oldMmr
+                    , race13, aka_names[0][2], m.teams[0].players[2].oldMmr
+                    , race14, aka_names[0][3], m.teams[0].players[3].oldMmr);
                   let team2 = format!("({}) **{}** [{}]\n({}) **{}** [{}]\n({}) **{}** [{}]\n({}) **{}** [{}]"
-                    , race2,  m.teams[1].players[0].name, m.teams[1].players[0].oldMmr
-                    , race22, m.teams[1].players[1].name, m.teams[1].players[1].oldMmr
-                    , race23, m.teams[1].players[2].name, m.teams[1].players[2].oldMmr
-                    , race24, m.teams[1].players[3].name, m.teams[1].players[3].oldMmr);
+                    , race2,  aka_names[1][0], m.teams[1].players[0].oldMmr
+                    , race22, aka_names[1][1], m.teams[1].players[1].oldMmr
+                    , race23, aka_names[1][2], m.teams[1].players[2].oldMmr
+                    , race24, aka_names[1][3], m.teams[1].players[3].oldMmr);
                   vec![ mstr, team1, team2 ]
                 };
 

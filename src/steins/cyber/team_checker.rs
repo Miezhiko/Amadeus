@@ -5,7 +5,7 @@ use crate::{
          , w3c::{ Going, MD, PlayerAPI } },
   collections::team::teammates,
   common::{
-    db::trees,
+    db::trees, aka::{ self, Aka },
     constants::{ W3C_API, SOLO_CHANNEL, TEAM2_CHANNEL, TEAM4_CHANNEL }
   },
   steins::cyber::{
@@ -29,8 +29,7 @@ use once_cell::sync::Lazy;
 pub static GAMES: Lazy<Mutex<HashMap<String, TrackingGame>>>
   = Lazy::new(|| Mutex::new(HashMap::new()));
 
-pub static AKA: Lazy<Mutex<HashMap<String, Option<String>>>>
-  = Lazy::new(|| Mutex::new(HashMap::new()));
+pub static AKA: Lazy<Mutex<Aka>> = Lazy::new(|| Mutex::new(Aka::new()));
 
 async fn check_aka( battletag: &str
                   , rqcl: &reqwest::Client ) -> Option<String> {
@@ -46,12 +45,21 @@ async fn check_aka( battletag: &str
             if let Some(aka) = papi.playerAkaData {
               if let Some(aka_name) = aka.name {
                 aka_lock.insert(battletag.to_string(), Some(aka_name.clone()));
+                if let Err(err) = aka::put_aka(&*aka_lock).await {
+                  error!("failed to update aka rs db {:?}", err);
+                }
                 return Some(aka_name);
               } else {
                 aka_lock.insert(battletag.to_string(), None);
+                if let Err(err) = aka::put_aka(&*aka_lock).await {
+                  error!("failed to update aka rs db {:?}", err);
+                }
               }
             } else {
               aka_lock.insert(battletag.to_string(), None);
+              if let Err(err) = aka::put_aka(&*aka_lock).await {
+                error!("failed to update aka rs db {:?}", err);
+              }
             }
           }, Err(err) => {
             warn!("Failed parse player api {:?}, url: {}", err, url);

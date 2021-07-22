@@ -5,13 +5,13 @@ use crate::{
                      , Bet, GameMode }
          , twitch::Twitch
          , goodgame::GoodGameData },
-  common::{ db::trees
+  common::{ db::trees, aka
           , constants::{ GAME_CHANNELS
                        , SOLO_CHANNEL
                        , TEAM2_CHANNEL
                        , TEAM4_CHANNEL }
           },
-  steins::cyber
+  steins::cyber::team_checker::{ self, AKA }
 };
 
 use serenity::{ prelude::*
@@ -30,6 +30,14 @@ pub async fn activate_games_tracking(
 
   set!{ ctx_clone     = Arc::clone(&ctx)
       , options_clone = options.clone() };
+
+  { // AKA lock scope
+    let mut aka_lock = AKA.lock().await;
+    match aka::get_aka().await {
+      Ok(aka) => { *aka_lock = aka; },
+      Err(wa) => { warn!("something with aka.rs, {:?}", wa); }
+    }
+  }
 
   // Delete live games from log channel (if some)
   for channel in GAME_CHANNELS {
@@ -63,7 +71,7 @@ pub async fn activate_games_tracking(
     loop {
 
       { // scope for GAMES lock
-        let mut games_lock = cyber::team_checker::GAMES.lock().await;
+        let mut games_lock = team_checker::GAMES.lock().await;
         let mut k_to_del: Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
           if track.passed_time < 666 {
@@ -80,10 +88,10 @@ pub async fn activate_games_tracking(
       }
 
       trace!("check");
-      let our_gsx = cyber::team_checker::check( &ctx_clone
-                                              , options_clone.guild
-                                              , &rqcl
-                                              ).await;
+      let our_gsx = team_checker::check( &ctx_clone
+                                       , options_clone.guild
+                                       , &rqcl
+                                       ).await;
 
       for game in our_gsx {
         let game_key = game.key.clone();
@@ -203,7 +211,7 @@ pub async fn activate_games_tracking(
           )).await {
             Ok(msg_id) => {
               { // scope for games_lock
-                let mut games_lock = cyber::team_checker::GAMES.lock().await;
+                let mut games_lock = team_checker::GAMES.lock().await;
                 games_lock.insert(game_key.clone(), TrackingGame {
                   tracking_msg_id: vec![msg_id.id.0],
                   passed_time: 0,
@@ -234,7 +242,7 @@ pub async fn activate_games_tracking(
                             let emoji_data = emoji.as_data();
                             if emoji_data.as_str() == "👍🏻" || emoji_data.as_str() == "👎🏻" {
                               let is_positive = emoji_data.as_str() == "👍🏻";
-                              let mut gl = cyber::team_checker::GAMES.lock().await;
+                              let mut gl = team_checker::GAMES.lock().await;
                               if let Some(track) = gl.get_mut(&game_key) {
                                 if track.still_live {
                                   // you bet only once

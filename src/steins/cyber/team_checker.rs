@@ -634,7 +634,7 @@ pub async fn check<'a>( ctx: &Context
 
               let mstr = format!("Map: {}", g_map);
 
-              let mut aka_names: [[String; 2]; 4] = Default::default();
+              let mut aka_names: [[String; 4]; 2] = Default::default();
               for i in 0..2 {
                 for j in 0..4 {
                   aka_names[i][j] =

@@ -23,7 +23,7 @@ use serenity::{
 
 use std::sync::atomic::Ordering;
 
-static ASYNC_CMDS: [&str; 51] = [ "translate", "перевод", "help"
+static ASYNC_CMDS: [&str; 52] = [ "translate", "перевод", "help"
                                 , "stats", "феминизировать", "correct"
                                 , "time", "время", "leave"
                                 , "play", "repeat", "scared"
@@ -39,7 +39,7 @@ static ASYNC_CMDS: [&str; 51] = [ "translate", "перевод", "help"
                                 , "scard", "bored", "yes", "no"
                                 , "bye", "sorry", "sleepy"
                                 , "facepalm", "whatever", "pout"
-                                , "smug", "smirk" ];
+                                , "smug", "smirk", "gif" ];
 
 pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
   if let Err(why) = guild.create_application_commands(ctx, |cs| {
@@ -177,6 +177,15 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("person")
           .description("Person to slap")
+          .kind(ApplicationCommandOptionType::String)
+          .required(true)
+      })
+    )
+      .create_application_command(|c| c.name("gif")
+      .description("Do some specific animation")
+      .create_option(|o| {
+          o.name("animation")
+          .description("Search for specific animation")
           .kind(ApplicationCommandOptionType::String)
           .required(true)
       })
@@ -1202,6 +1211,34 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                           , 0xd62929
                                           , images::target("slaps")
                                           , false, Some(t.into())).await {
+                              error!("Failed do gif emoji {:?}", err);
+                            }
+                          }, Err(why) => {
+                            error!("Failed to create help interaction response {:?}", why);
+                          }
+                        };
+                      }
+
+                    }
+                  }
+                }
+              },
+              "gif" => {
+                if let Some(o) = ac.options.first() {
+                  if let Some(v) = o.value.clone() {
+                    if let Some(t) = v.as_str() {
+
+                      if let Some(member) = &interaction.member {
+                        match interaction.edit_original_interaction_response(&ctx.http, |response|
+                          response.content("Searching ...")
+                        ).await {
+                          Ok(mut msg) => {
+                            if let Err(err) =
+                              images::gifs( ctx, &member.user
+                                          , &mut msg
+                                          , t, 0x8e613b
+                                          , images::GType::Nothing
+                                          , true, None ).await {
                               error!("Failed do gif emoji {:?}", err);
                             }
                           }, Err(why) => {

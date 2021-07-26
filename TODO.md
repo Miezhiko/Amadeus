@@ -5,3 +5,4 @@
  - save authorship for some slash commands
  - restructure team_checker module (code quality)
  - ~upgrade with aka.rs
+ - use different format for aka.rs for unicode support/better readability

@@ -4,7 +4,7 @@
 /node_modules/
 /nlprule/
 conf.dhall
-conf.rs
+conf.yml
 
 # secret commands, tokens and stuff
 misc/secret

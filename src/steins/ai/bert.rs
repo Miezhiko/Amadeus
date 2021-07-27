@@ -153,7 +153,7 @@ pub async fn ask(msg_content: String) -> Result<String> {
     if cache_eng_vec.is_empty() {
       String::from("HUMBA")
     } else {
-      cache_eng_vec
+      cache_eng_vec.iter().collect::<Vec<&String>>()
         .choose_multiple(&mut rand::thread_rng(), 25)
         .map(AsRef::as_ref).collect::<Vec<&str>>()
         .join(" ")
@@ -184,10 +184,11 @@ pub async fn ask(msg_content: String) -> Result<String> {
 
 async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
   info!("Generating GPT2 response");
-  let cache_eng_vec = CACHE_ENG_STR.lock().await;
+  let cache_eng_hs = CACHE_ENG_STR.lock().await;
   let conversation_model = CONVMODEL.lock().await;
   let mut chat_context = CHAT_CONTEXT.lock().await;
   task::spawn_blocking(move || {
+    let cache_eng_vec = cache_eng_hs.iter().collect::<Vec<&String>>();
     let output =
       if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
         if *x > 5 {

@@ -4,4 +4,3 @@
  - add more slash commands
  - save authorship for some slash commands
  - restructure team_checker module (code quality)
- - ~upgrade with aka.yml

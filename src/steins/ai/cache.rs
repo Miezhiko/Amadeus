@@ -25,7 +25,7 @@ use async_std::fs;
 use regex::Regex;
 use markov::Chain;
 
-use std::collections::HashMap;
+use std::collections::{ HashMap, HashSet };
 use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use once_cell::sync::Lazy;
@@ -36,7 +36,7 @@ use nlprule::{Tokenizer, Rules};
 
 static CACHE_ENG_YML: &str = "cache/cache_eng.yml";
 static CACHE_RU_YML: &str = "cache/cache_ru.yml";
-static CACHE_RDN: &str = "cache/cache.rs";
+static CACHE_YML: &str = "cache/cache.yml";
 
 static NLPRULE_TOKENIZER: &str = "nlprule/en_tokenizer.bin";
 static NLPRULE_RULES: &str = "nlprule/en_rules.bin";
@@ -53,8 +53,8 @@ pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(70);
 
 pub static CACHE_ENG: Lazy<Mutex<Chain<String>>> =
   Lazy::new(|| Mutex::new(Chain::new()));
-pub static CACHE_ENG_STR: Lazy<Mutex<Vec<String>>> =
-  Lazy::new(|| Mutex::new(Vec::new()));
+pub static CACHE_ENG_STR: Lazy<Mutex<HashSet<String>>> =
+  Lazy::new(|| Mutex::new(HashSet::new()));
 pub static CACHE_RU: Lazy<Mutex<Chain<String>>> =
   Lazy::new(|| Mutex::new(Chain::new()));
 pub static LAST_UPDATE: Lazy<Mutex<DateTime<Utc>>> =
@@ -76,9 +76,8 @@ pub async fn reinit() {
   let mut cache_eng_str = CACHE_ENG_STR.lock().await;
   *cache_eng_str = cache_eng_str.clone()
                                 .into_iter()
-                                .rev()
                                 .take(666)
-                                .collect::<Vec<String>>();
+                                .collect::<HashSet<String>>();
 }
 
 pub fn process_message_for_gpt(s: &str) -> String {
@@ -156,15 +155,15 @@ pub async fn update_cache( ctx: &Context
   }
 
   if cache_eng_str.is_empty() {
-    if let Ok(contents) = fs::read_to_string(CACHE_RDN).await {
-      if let Ok(rdn) = rudano::from_str::<Vec<String>>(&contents) {
-        for res in rdn {
-          cache_eng_str.push(res);
+    if let Ok(contents) = fs::read_to_string(CACHE_YML).await {
+      if let Ok(yml) = serde_yaml::from_str::<Vec<String>>(&contents) {
+        for res in yml {
+          cache_eng_str.insert(res);
         }
       }
     } else {
       for confuse in CONFUSION.iter() {
-        cache_eng_str.push( confuse.to_string() );
+        cache_eng_str.insert( confuse.to_string() );
       }
     }
   }
@@ -221,11 +220,11 @@ pub async fn update_cache( ctx: &Context
                         if result.contains('\n') {
                           for line in result.lines() {
                             if !line.is_empty() {
-                              cache_eng_str.push(line.to_string());
+                              cache_eng_str.insert(line.to_string());
                             }
                           }
                         } else {
-                          cache_eng_str.push(result);
+                          cache_eng_str.insert(result);
                         }
                       },
                       ChannelLanguage::Bilingual => { /* we know language from process_message fn */ }
@@ -252,8 +251,8 @@ pub async fn update_cache( ctx: &Context
     error!("failed to save ru yml cache: {:?}", err);
   }
 
-  if let Ok(rdn) = rudano::to_string_compact(&cache_eng_str.clone()) {
-    if let Err(why) = fs::write(CACHE_RDN, rdn).await {
+  if let Ok(yml) = serde_yaml::to_string(&cache_eng_str.clone()) {
+    if let Err(why) = fs::write(CACHE_YML, yml).await {
       error!("failed save rudano cache {:?}", why);
     }
   } else {
@@ -264,9 +263,11 @@ pub async fn update_cache( ctx: &Context
     info!("Translating cache");
     tokio::spawn(async move {
       tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-      if let Ok(mut translated) = bert::ru2en_many(ru_messages_for_translation).await {
+      if let Ok(translated) = bert::ru2en_many(ru_messages_for_translation).await {
         if !translated.is_empty() {
-          cache_eng_str.append(&mut translated);
+          for tr in translated.into_iter() {
+            cache_eng_str.insert(tr);
+          }
           info!("Cache translation complete");
         }
       }
@@ -296,8 +297,8 @@ pub async fn clear_cache() {
   if fs::metadata(CACHE_RU_YML).await.is_ok() {
     let _ = fs::remove_file(CACHE_RU_YML).await;
   }
-  if fs::metadata(CACHE_RDN).await.is_ok() {
-    let _ = fs::remove_file(CACHE_RDN).await;
+  if fs::metadata(CACHE_YML).await.is_ok() {
+    let _ = fs::remove_file(CACHE_YML).await;
   }
 
   if fs::metadata(ZSUF).await.is_ok() {

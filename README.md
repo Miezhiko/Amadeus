@@ -44,7 +44,7 @@
  - Points system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
  - Almost everything async [tokio.rs](https://tokio.rs)
  - Various gifs commands using Tenor API
- - [Dhall](https://dhall-lang.org) and [rudano](https://github.com/pheki/rudano) config files
+ - [Dhall](https://dhall-lang.org) and YAML config files
  - Using [Fluent](https://www.projectfluent.org/) for localization
  - [Sled](https://github.com/spacejam/sled) for editable info archive
  - Plays music streams using [Songbird](https://github.com/serenity-rs/songbird)! (`~join ~play`)
@@ -60,11 +60,11 @@
 
  - to compile just use `cargo build --release` (on Windows you there could be problems with PyTorch, you can install it first and setup paths alike it's done in `misc/build.bat` file)
  - `cp conf.example.dhall conf.dhall` (initial constant options)
- - `cp conf.example.rs conf.rs` (those options may change in runtime)
+ - `cp conf.example.yml conf.yml` (those options may change in runtime)
  - generate token here: https://discord.com/developers/applications
  - optionally for twitch support: https://dev.twitch.tv/docs/authentication
  - modify conf.dhall and fill `discord`, `tenor_key` and optionally `twitch` client data
- - conf.rs `twitch` value is OAuth access token, you can regenerate it with bot command `~twitch_token_update`
+ - conf.yml `twitch` value is OAuth access token, you can regenerate it with bot command `~twitch_token_update`
 
 ``` haskell
 let SType = < Safe

@@ -56,7 +56,8 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   info!("Generating GPT Neo response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let neo_model = NEOMODEL.lock().await;
-  let mut cache_slices = cache_eng_vec
+  let cache_vec = cache_eng_vec.iter().collect::<Vec<&String>>();
+  let mut cache_slices = cache_vec
                         .choose_multiple(&mut rand::thread_rng(), 32)
                         .map(AsRef::as_ref).collect::<Vec<&str>>();
   cache_slices.push(&something);

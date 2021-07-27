@@ -80,6 +80,9 @@ fn try_get_map(m: &str) -> String {
             , "shallowgrave"          => "SG"
             , "plunderisle"           => "PI"
             , "kingandcountry"        => "King and Country"
+            , "banditsbetreat"        => "Bandits Betreat"
+            , "northmarshruin"        => "Northmarsh Ruin"
+            , "mur'guloasis"          => "Mur'gul Oasis"
             , _                       => "" })
 }
 

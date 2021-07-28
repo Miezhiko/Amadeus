@@ -121,12 +121,11 @@ pub async fn ru2en(text: String) -> Result<String> {
   }).await.unwrap()
 }
 
-// this is dangerous method!
 pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
   if texts.is_empty() {
     return Ok(vec![]);
   }
-  let ru2en_model = EN2RUMODEL.lock().await;
+  let ru2en_model = RU2ENMODEL.lock().await;
   task::spawn_blocking(move || {
     let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
     let output = ru2en_model.translate(&ttt);

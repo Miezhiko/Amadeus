@@ -251,12 +251,15 @@ pub async fn update_cache( ctx: &Context
     error!("failed to save ru yml cache: {:?}", err);
   }
 
-  if let Ok(yml) = serde_yaml::to_string(&cache_eng_str.clone()) {
-    if let Err(why) = fs::write(CACHE_YML, yml).await {
-      error!("failed save rudano cache {:?}", why);
+  {
+    let cache_str_to_save = cache_eng_str.clone();
+    if let Ok(yml) = serde_yaml::to_string(&cache_str_to_save) {
+      if let Err(why) = fs::write(CACHE_YML, yml).await {
+        error!("failed save yaml cache str {:?}", why);
+      }
+    } else {
+      error!("failed to serialize cache to yaml");
     }
-  } else {
-    error!("failed to serialize cache to rudano");
   }
 
   if !ru_messages_for_translation.is_empty() {

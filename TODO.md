@@ -4,3 +4,4 @@
  - add more slash commands
  - save authorship for some slash commands
  - restructure team_checker module (code quality)
+ - apm.png files sometimes not instantly removing

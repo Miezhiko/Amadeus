@@ -281,14 +281,7 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
   Ok(())
 }
 
-#[command]
-#[aliases(время)]
-#[description("display current time")]
-pub async fn time(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
-  }
-
+async fn time_internal(msg: &Message, args: Args) -> anyhow::Result<CreateEmbed> {
   let mb_tz = args.message();
 
   let utc = chrono::Utc::now();
@@ -363,8 +356,32 @@ pub async fn time(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     eb.footer(|f| f.text(footer));
   }
 
+  Ok(eb)
+}
+
+#[command]
+#[aliases(время)]
+#[description("display current time")]
+pub async fn time(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+
+  let eb = time_internal(msg, args).await?;
+
   msg.channel_id.send_message(ctx, |m| {
     m.embed(|e| { e.0 = eb.0; e })
   }).await?;
+  Ok(())
+}
+
+pub async fn time_slash(ctx: &Context, msg: &mut Message, args: Args) -> anyhow::Result<()> {
+  let eb = time_internal(msg, args).await?;
+
+  msg.edit(ctx, |m| { m
+    .content("")
+    .embed(|e| { e.0 = eb.0; e })
+  }).await?;
+
   Ok(())
 }

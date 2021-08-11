@@ -1,7 +1,6 @@
  - pagination for ~vs
  - emoji roles
  - finetune GTP2 model
- - add more slash commands
  - save authorship for some slash commands
  - restructure team_checker module (code quality)
- - apm.png files sometimes not instantly removing
+ - since hot emo 1337 team disband need different structure for live games

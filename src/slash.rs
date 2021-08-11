@@ -1422,9 +1422,9 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                 match interaction.edit_original_interaction_response(&ctx.http, |response|
                   response.content("⌚")
                 ).await {
-                  Ok(msg) => {
+                  Ok(mut msg) => {
                     let args = Args::new(str_arg.as_str(), &[Delimiter::Single(';')]);
-                    if let Err(terr) = meta::time(&ctx, &msg, args).await {
+                    if let Err(terr) = meta::time_slash(&ctx, &mut msg, args).await {
                       error!("Failed to show time on interaction {:?}", terr);
                     }
                   }, Err(why) => {

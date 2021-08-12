@@ -3,7 +3,7 @@ use crate::{
          , team::Player
          , tracking::*
          , w3c::{ Going, MD, PlayerAPI } },
-  collections::team::teammates,
+  collections::team::players,
   common::{
     db::trees, aka::{ self, Aka },
     constants::{ W3C_API, SOLO_CHANNEL, TEAM2_CHANNEL, TEAM4_CHANNEL }
@@ -407,7 +407,7 @@ pub async fn check<'a>( ctx: &Context
         for m in going.matches {
           if m.gameMode == 1 {
             if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
-              let playaz = teammates().into_iter().filter( |p|
+              let playaz = players().into_iter().filter( |p|
                    m.teams[0].players[0].battleTag == p.battletag
                 || m.teams[1].players[0].battleTag == p.battletag ).collect::<Vec<Player>>();
               if !playaz.is_empty() {
@@ -499,7 +499,7 @@ pub async fn check<'a>( ctx: &Context
             }
           } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode
             if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
-              let playaz = teammates().into_iter().filter( |p|
+              let playaz = players().into_iter().filter( |p|
                    m.teams[0].players[0].battleTag == p.battletag
                 || m.teams[1].players[0].battleTag == p.battletag
                 || m.teams[0].players[1].battleTag == p.battletag
@@ -613,7 +613,7 @@ pub async fn check<'a>( ctx: &Context
             }
           } else if m.gameMode == 4 && // 4x4
             m.teams.len() > 1 && m.teams[0].players.len() > 3 && m.teams[1].players.len() > 3 {
-            let playaz = teammates().into_iter().filter( |p|
+            let playaz = players().into_iter().filter( |p|
                  m.teams[0].players[0].battleTag == p.battletag || m.teams[0].players[2].battleTag == p.battletag
               || m.teams[1].players[0].battleTag == p.battletag || m.teams[1].players[2].battleTag == p.battletag
               || m.teams[0].players[1].battleTag == p.battletag || m.teams[0].players[3].battleTag == p.battletag

@@ -1,5 +1,5 @@
 use crate::{
-  slash,
+  slash, interactions,
   message::{ self
            , RESTORE, BACKUP },
   types::{ common::CoreGuild
@@ -57,7 +57,7 @@ pub static MUTED: Lazy<Mutex<Vec<UserId>>> =
 impl EventHandler for Handler {
 
   async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
-    slash::handle_slash_commands(&ctx, &interaction).await;
+    interactions::handle_slash_commands(&ctx, &interaction).await;
   }
 
   async fn cache_ready(&self, ctx: Context, guilds: Vec<GuildId>) {

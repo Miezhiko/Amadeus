@@ -1,6 +1,5 @@
- - pagination for ~vs
  - emoji roles
  - finetune GTP2 model
- - save authorship for some slash commands
  - restructure team_checker module (code quality)
- - since hot emo 1337 team disband need different structure for live games
+ - some of slash commands are still missing (vs command, etc...)
+ - since hot emo 1337 team disband need different structure for live games (work in progress)

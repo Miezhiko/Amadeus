@@ -2,26 +2,19 @@ use crate::types::team::Player;
 
 use once_cell::sync::Lazy;
 
+static HEMOD: &str   = "dhall/team/hemo.dhall";
+static EXAMPLED: &str   = "dhall/team/example.dhall";
+
+pub static HEMO: Lazy<Vec<Player>>    = Lazy::new(|| dhall!(HEMOD));
+pub static EXAMPLE: Lazy<Vec<Player>> = Lazy::new(|| dhall!(EXAMPLED));
+
 /*
-* Note all the members of those lists are agreed to share this imformation
-* If someone wants to be excluded please feel free to contact author or do it with PR
-* Don't be toxic
-*/
-
-static DIVISION1D: &str   = "dhall/team/division1.dhall";
-static DIVISION2D: &str   = "dhall/team/division2.dhall";
-static INTERESTINGD: &str = "dhall/team/interesting.dhall";
-
-pub static DIVISION1: Lazy<Vec<Player>>   = Lazy::new(|| dhall!(DIVISION1D));
-pub static DIVISION2: Lazy<Vec<Player>>   = Lazy::new(|| dhall!(DIVISION2D));
-pub static INTERESTING: Lazy<Vec<Player>> = Lazy::new(|| dhall!(INTERESTINGD));
-
-pub fn teammates() -> Vec<Player> {
-  [&DIVISION1[..], &DIVISION2[..]].concat()
-}
-
 pub fn players() -> Vec<Player> {
-  [&DIVISION1[..], &DIVISION2[..], &INTERESTING[..]].concat()
+  [&HEMO[..], &EXAMPLE[..]].concat()
+}
+*/
+pub fn players() -> Vec<Player> {
+  [&HEMO[..]].concat()
 }
 
 #[cfg(test)]
@@ -39,9 +32,7 @@ mod stuff_dhall_tests {
     }
   }
   #[test]
-  fn div1() -> Result<(), String> { dhall_players(DIVISION1D) }
+  fn hemo() -> Result<(), String> { dhall_players(HEMOD) }
   #[test]
-  fn div2() -> Result<(), String> { dhall_players(DIVISION2D) }
-  #[test]
-  fn interesting() -> Result<(), String> { dhall_players(INTERESTINGD) }
+  fn example() -> Result<(), String> { dhall_players(EXAMPLED) }
 }

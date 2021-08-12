@@ -3,7 +3,7 @@ use crate::{
           , constants::APM_PICS
           , colors::gen_colors
           },
-  collections::team::teammates,
+  collections::team::HEMO,
   steins::cyber::w3g::analyze
 };
 
@@ -196,9 +196,9 @@ pub async fn attach_replay( ctx: &Context
                           , msg: &Message
                           , file: &Attachment ) -> bool {
   // this is only for teammates
-  if let Some(playa) = teammates().into_iter().find(|p|
+  if let Some(playa) = HEMO.iter().find(|p|
     p.discord == msg.author.id.0) {
-    let battletag = playa.battletag;
+    let battletag = playa.battletag.clone();
     if let Ok(bytes) = file.download().await {
       let mut fw3g = match File::create(&file.filename).await {
         Ok(replay) => replay,

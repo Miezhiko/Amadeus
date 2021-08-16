@@ -1,12 +1,12 @@
 use serenity::{
   prelude::*,
   model::{ guild::PartialGuild
-         , interactions::ApplicationCommandOptionType
+         , interactions::application_command::ApplicationCommandOptionType
          }
 };
 
 pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
-  if let Err(why) = guild.create_application_commands(ctx, |cs| {
+  if let Err(why) = guild.set_application_commands(ctx, |cs| {
     cs.create_application_command(|c| c.name("help")
       .description("Display Amadeus Help")
     )

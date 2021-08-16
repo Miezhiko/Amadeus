@@ -14,7 +14,7 @@ use crate::{
 use serenity::{
   prelude::*,
   model::{
-    interactions::ApplicationCommand,
+    interactions::application_command::ApplicationCommand,
     id::{ GuildId, ChannelId, UserId },
     channel::GuildChannel
   }
@@ -35,7 +35,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   Lazy::force(&START_TIME);
 
   // clean up global application commands
-  if let Err(why) = ApplicationCommand::create_global_application_commands(&ctx.http, |cs| cs
+  if let Err(why) = ApplicationCommand::set_global_application_commands(&ctx.http, |cs| cs
   ).await {
     error!("Failed to clean global application commands {}", why);
   }

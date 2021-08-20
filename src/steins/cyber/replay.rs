@@ -196,7 +196,7 @@ pub async fn attach_replay( ctx: &Context
                           , msg: &Message
                           , file: &Attachment ) -> bool {
   // this is only for teammates
-  if let Some(playa) = HEMO.iter().find(|p|
+  if let Some(playa) = HEMO.players.iter().find(|p|
     p.discord == msg.author.id.0) {
     let battletag = playa.battletag.clone();
     if let Ok(bytes) = file.download().await {

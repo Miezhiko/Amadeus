@@ -10,3 +10,15 @@ pub struct Player {
   pub discord: u64,
   pub streams: Option<Streams>
 }
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct DiscordServer {
+  pub uid: u64,
+  pub players: Vec<Player>
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct DiscordPlayer {
+  pub player: Player,
+  pub discords: Vec<u64>
+}

@@ -34,7 +34,7 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       for (_, track) in games_lock.iter_mut() {
         if track.still_live {
           for playa in &track.players {
-            if playa.discord == meme.user.id.0 {
+            if playa.player.discord == meme.user.id.0 {
               if track.bets.iter().any(|b| b.member == msg.author.id.0) {
                 channel_message(ctx, msg, "you already have bet on this match").await;
                 return Ok(());

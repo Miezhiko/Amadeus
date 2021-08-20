@@ -96,14 +96,14 @@ pub async fn activate_games_tracking(
       for game in our_gsx {
         let game_key = game.key.clone();
         let playa = &game.players[0];
-        if let Ok(user) = ctx_clone.http.get_user(playa.discord).await {
+        if let Ok(user) = ctx_clone.http.get_user(playa.player.discord).await {
 
           setm!{ twitch_live        = false
                , additional_fields  = Vec::new()
                , image              = None
                , em_url             = None };
 
-          if let Some(streams) = &playa.streams {
+          if let Some(streams) = &playa.player.streams {
             if let Some(twitch_stream) = &streams.twitch {
               let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", twitch_stream);
               if let Ok(res) = rqcl
@@ -212,13 +212,14 @@ pub async fn activate_games_tracking(
             Ok(msg_id) => {
               { // scope for games_lock
                 let mut games_lock = team_checker::GAMES.lock().await;
-                games_lock.insert(game_key.clone(), TrackingGame {
-                  tracking_msg_id: vec![msg_id.id.0],
-                  passed_time: 0,
-                  still_live: false,
-                  players: game.players, bets: vec![], fails: 0,
-                  mode: game.mode }
-                );
+                games_lock.insert( game_key.clone()
+                  , TrackingGame { tracking_msg_id: vec![msg_id.id.0]
+                                 , passed_time: 0
+                                 , still_live: false
+                                 , players: game.players.into_iter().cloned().collect()
+                                 , bets: vec![]
+                                 , fails: 0
+                                 , mode: game.mode } );
               }
               let up = ReactionType::Unicode(String::from("👍🏻"));
               let dw = ReactionType::Unicode(String::from("👎🏻"));

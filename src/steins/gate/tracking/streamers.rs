@@ -3,7 +3,7 @@ use crate::{
          , tracking::{ TrackingGame, GameMode }
          , twitch::Twitch
          , goodgame::GoodGameData },
-  collections::team::players,
+  collections::team::PLAYERS,
   common::{
     constants::{ STREAMS_CHANNEL
                , LIVE_ROLE
@@ -69,8 +69,8 @@ pub async fn activate_streamers_tracking(
   if let Ok(channel) = STREAMS_CHANNEL.to_channel(&ctx.http).await {
     if let Some(g) = channel.guild() {
       if let Ok(guild) = g.guild_id.to_partial_guild(&ctx).await {
-        for playa in players() {
-          if let Ok(mut member) = guild.member(&ctx.http, playa.discord).await {
+        for p in PLAYERS.iter() {
+          if let Ok(mut member) = guild.member(&ctx.http, p.player.discord).await {
             if let Some(role) = guild.role_by_name(LIVE_ROLE) {
               if member.roles.contains(&role.id) {
                 if let Err(why) = member.remove_role(&ctx, role).await {
@@ -81,7 +81,7 @@ pub async fn activate_streamers_tracking(
           }
           for s in &servers {
             if let Ok(g) = s.to_partial_guild(&ctx).await {
-              if let Ok(mut m) = g.member(&ctx.http, playa.discord).await {
+              if let Ok(mut m) = g.member(&ctx.http, p.player.discord).await {
                 if let Some(r) = g.role_by_name(LIVE_ROLE) {
                   if m.roles.contains(&r.id) {
                     if let Err(why) = m.remove_role(&ctx, r).await {
@@ -114,15 +114,15 @@ pub async fn activate_streamers_tracking(
         streams_lock.remove(&ktd);
       }
       trace!("streams check");
-      for playa in players() {
-        if let Ok(user) = ctx_clone.http.get_user(playa.discord).await {
+      for p in PLAYERS.iter() {
+        if let Ok(user) = ctx_clone.http.get_user(p.player.discord).await {
           setm!{ twitch_live        = false
                , additional_fields  = Vec::new()
                , title              = String::new()
                , image              = None
                , em_url             = None };
-          if playa.streams.is_some() {
-            let streams = playa.streams.clone().unwrap();
+          if p.player.streams.is_some() {
+            let streams = p.player.streams.clone().unwrap();
             if streams.twitch.is_some() {
               let client = reqwest::Client::new();
               let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", &streams.twitch.unwrap());
@@ -214,7 +214,7 @@ pub async fn activate_streamers_tracking(
             if title.is_empty() {
               title = String::from("LIVE");
             }
-            if let Some(track) = streams_lock.get(&playa.discord) {
+            if let Some(track) = streams_lock.get(&p.player.discord) {
               if let Ok(mut msg) = ctx_clone.http.get_message(STREAMS_CHANNEL.0, track.tracking_msg_id[0]).await {
                 let footer = if track.passed_time > 60 {
                     let hours: u32 = track.passed_time / 60;
@@ -307,8 +307,8 @@ pub async fn activate_streamers_tracking(
                 }
               )).await {
                 Ok(msg_id) => {
-                  let playa_for_stream = playa.clone();
-                  streams_lock.insert(playa_for_stream.discord, TrackingGame {
+                  let playa_for_stream = p.clone();
+                  streams_lock.insert(playa_for_stream.player.discord, TrackingGame {
                     tracking_msg_id: vec![msg_id.id.0],
                     passed_time: 0,
                     still_live: true,
@@ -329,7 +329,7 @@ pub async fn activate_streamers_tracking(
                   }
                   for s in &servers {
                     if let Ok(g) = s.to_partial_guild(&ctx_clone).await {
-                      if let Ok(mut m) = g.member(&ctx_clone.http, playa.discord).await {
+                      if let Ok(mut m) = g.member(&ctx_clone.http, p.player.discord).await {
                         if let Some(r) = g.role_by_name(LIVE_ROLE) {
                           if !m.roles.contains(&r.id) {
                             if let Err(why) = m.add_role(&ctx_clone, r).await {
@@ -346,7 +346,7 @@ pub async fn activate_streamers_tracking(
                 }
               }
             }
-          } else if let Some(track) = streams_lock.get(&playa.discord) {
+          } else if let Some(track) = streams_lock.get(&p.player.discord) {
             if let Ok(mut msg) = ctx_clone.http.get_message(STREAMS_CHANNEL.0, track.tracking_msg_id[0]).await {
               let footer = if track.passed_time > 60 {
                   let hours: u32 = track.passed_time / 60;
@@ -402,7 +402,7 @@ pub async fn activate_streamers_tracking(
               }
               for s in &servers {
                 if let Ok(g) = s.to_partial_guild(&ctx_clone).await {
-                  if let Ok(mut m) = g.member(&ctx_clone.http, playa.discord).await {
+                  if let Ok(mut m) = g.member(&ctx_clone.http, p.player.discord).await {
                     if let Some(r) = g.role_by_name(LIVE_ROLE) {
                       if m.roles.contains(&r.id) {
                         if let Err(why) = m.remove_role(&ctx_clone, r).await {
@@ -414,7 +414,7 @@ pub async fn activate_streamers_tracking(
                 }
               }
             }
-            streams_lock.remove(&playa.discord);
+            streams_lock.remove(&p.player.discord);
           }
         }
         tokio::time::sleep(time::Duration::from_millis(200)).await;

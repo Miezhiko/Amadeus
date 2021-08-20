@@ -1,4 +1,4 @@
-use crate::types::team::Player;
+use crate::types::team::DiscordPlayer;
 
 #[allow(non_snake_case)]
 pub enum GameMode {
@@ -31,16 +31,16 @@ pub struct TrackingGame {
   pub tracking_msg_id: Vec<u64>,
   pub passed_time: u32,
   pub still_live: bool,
-  pub players: Vec<Player>,
+  pub players: Vec<DiscordPlayer>,
   pub bets: Vec<Bet>,
   pub fails: u32,
   pub mode: GameMode
 }
 
 #[allow(non_snake_case)]
-pub struct StartingGame {
+pub struct StartingGame<'a> {
   pub key: String,
   pub description: Vec<String>,
-  pub players: Vec<Player>,
+  pub players: Vec<&'a DiscordPlayer>,
   pub mode: GameMode
 }

@@ -1,9 +1,9 @@
 use crate::{
   types::{ common::{ CoreGuild, CoreGuilds }
-         , team::Player
+         , team::DiscordPlayer
          , tracking::*
          , w3c::{ Going, MD, PlayerAPI } },
-  collections::team::players,
+  collections::team::PLAYERS,
   common::{
     db::trees, aka::{ self, Aka },
     constants::{ W3C_API, SOLO_CHANNEL, TEAM2_CHANNEL, TEAM4_CHANNEL }
@@ -74,7 +74,7 @@ async fn check_aka( battletag: &str
 }
 
 async fn check_match( matchid: &str
-                    , playaz: &[Player]
+                    , playaz: &[DiscordPlayer]
                     , rqcl: &reqwest::Client
                     ) -> Option<FinishedGame> {
   let url = format!("{}/matches/by-ongoing-match-id/{}", W3C_API, matchid);
@@ -126,9 +126,9 @@ async fn check_match( matchid: &str
             , race1 = get_race2(m.teams[0].players[0].race)
             , race2 = get_race2(m.teams[1].players[0].race) };
         for i in 0..2 {
-          if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.battletag) {
+          if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.player.battletag) {
             let won = m.teams[i].players[0].won;
-            losers.push((playa.discord, won));
+            losers.push((playa.player.discord, won));
           }
         }
         let t0_name =
@@ -156,9 +156,9 @@ async fn check_match( matchid: &str
         let mut aka_names: [[String; 2]; 2] = Default::default();
         for i in 0..2 {
           for j in 0..2 {
-            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
+            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.player.battletag) {
               let won = m.teams[i].players[j].won;
-              losers.push((playa.discord, won));
+              losers.push((playa.player.discord, won));
             }
             aka_names[i][j] =
               if let Some(aka) = check_aka(&m.teams[i].players[j].battleTag, rqcl).await
@@ -193,9 +193,9 @@ async fn check_match( matchid: &str
         let mut aka_names: [[String; 4]; 2] = Default::default();
         for i in 0..2 {
           for j in 0..4 {
-            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.battletag) {
+            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.player.battletag) {
               let won = m.teams[i].players[j].won;
-              losers.push((playa.discord, won));
+              losers.push((playa.player.discord, won));
             }
             aka_names[i][j] =
               if let Some(aka) = check_aka(&m.teams[i].players[j].battleTag, rqcl).await
@@ -244,7 +244,7 @@ async fn check_match( matchid: &str
             , p2.resourceScore.goldCollected);
 
         // To display hero icon / scores we use 1st playa
-        let btag = &playaz[0].battletag;
+        let btag = &playaz[0].player.battletag;
         let player_scores =
           if btag == &s1 {
             &md.playerScores[0]
@@ -275,7 +275,7 @@ async fn check_match( matchid: &str
           });
       } else if (m.gameMode == 6 || m.gameMode == 2) && md.playerScores.len() > 3 {
         // Again, to display hero icon / scores we use 1st playa
-        let btag = &playaz[0].battletag;
+        let btag = &playaz[0].player.battletag;
         let player_scores =
           if let Some(scores) = &md.playerScores.iter().find(|s| {
             &s.battleTag == btag
@@ -290,7 +290,7 @@ async fn check_match( matchid: &str
         let teammate_scores =
           if playaz.len() > 1 {
             if let Some(scores) = &md.playerScores.iter().find(|s| {
-              s.battleTag == playaz[1].battletag
+              s.battleTag == playaz[1].player.battletag
             }) { scores } else { &md.playerScores[1] }
           } else if let Some(team) = m.teams.iter().find(|t| {
             t.players.iter().any(|p| {
@@ -332,7 +332,7 @@ async fn check_match( matchid: &str
           , hero_png: maybe_hero_png
           });
       } else if m.gameMode == 4 {
-        let btag = &playaz[0].battletag;
+        let btag = &playaz[0].player.battletag;
         let player_scores =
           if let Some(scores) = &md.playerScores.iter().find(|s| {
             &s.battleTag == btag
@@ -395,7 +395,7 @@ async fn generate_bet_fields( ctx: &Context
 pub async fn check<'a>( ctx: &Context
                       , guild_id: u64
                       , rqcl: &reqwest::Client
-                      ) -> Vec<StartingGame> {
+                      ) -> Vec<StartingGame<'a>> {
   let mut out: Vec<StartingGame> = Vec::new();
   if let Ok(res) =
     rqcl.get(&format!("{}/matches/ongoing?offset=0", W3C_API))
@@ -407,9 +407,9 @@ pub async fn check<'a>( ctx: &Context
         for m in going.matches {
           if m.gameMode == 1 {
             if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
-              let playaz = players().into_iter().filter( |p|
-                   m.teams[0].players[0].battleTag == p.battletag
-                || m.teams[1].players[0].battleTag == p.battletag ).collect::<Vec<Player>>();
+              let playaz = PLAYERS.iter().filter( |p|
+                   m.teams[0].players[0].battleTag == p.player.battletag
+                || m.teams[1].players[0].battleTag == p.player.battletag ).collect::<Vec<&DiscordPlayer>>();
               if !playaz.is_empty() {
                 set!{ g_map = get_map(&m.map)
                     , race1 = get_race2(m.teams[0].players[0].race)
@@ -434,7 +434,7 @@ pub async fn check<'a>( ctx: &Context
                     let footer = format!("Passed: {} min", minutes);
 
                     // use first player for discord operations
-                    let playa = playaz[0].discord;
+                    let playa = playaz[0].player.discord;
                     if let Ok(mut msg) = ctx.http.get_message(SOLO_CHANNEL.0, track.tracking_msg_id[0]).await {
                       if let Ok(user) = ctx.http.get_user(playa).await {
 
@@ -499,11 +499,11 @@ pub async fn check<'a>( ctx: &Context
             }
           } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode
             if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
-              let playaz = players().into_iter().filter( |p|
-                   m.teams[0].players[0].battleTag == p.battletag
-                || m.teams[1].players[0].battleTag == p.battletag
-                || m.teams[0].players[1].battleTag == p.battletag
-                || m.teams[1].players[1].battleTag == p.battletag ).collect::<Vec<Player>>();
+              let playaz = PLAYERS.iter().filter( |p|
+                   m.teams[0].players[0].battleTag == p.player.battletag
+                || m.teams[1].players[0].battleTag == p.player.battletag
+                || m.teams[0].players[1].battleTag == p.player.battletag
+                || m.teams[1].players[1].battleTag == p.player.battletag ).collect::<Vec<&DiscordPlayer>>();
 
               if !playaz.is_empty() {
                 let g_map = get_map(&m.map);
@@ -551,7 +551,7 @@ pub async fn check<'a>( ctx: &Context
                         , footer = format!("Passed: {} min", minutes) };
                     if let Ok(mut msg) = ctx.http.get_message(TEAM2_CHANNEL.0, track.tracking_msg_id[0]).await {
                       // get first player for discord
-                      let playa = playaz[0].discord;
+                      let playa = playaz[0].player.discord;
                       if let Ok(user) = ctx.http.get_user(playa).await {
                         setm!{ fields = Vec::new()
                             , img    = None
@@ -613,12 +613,12 @@ pub async fn check<'a>( ctx: &Context
             }
           } else if m.gameMode == 4 && // 4x4
             m.teams.len() > 1 && m.teams[0].players.len() > 3 && m.teams[1].players.len() > 3 {
-            let playaz = players().into_iter().filter( |p|
-                 m.teams[0].players[0].battleTag == p.battletag || m.teams[0].players[2].battleTag == p.battletag
-              || m.teams[1].players[0].battleTag == p.battletag || m.teams[1].players[2].battleTag == p.battletag
-              || m.teams[0].players[1].battleTag == p.battletag || m.teams[0].players[3].battleTag == p.battletag
-              || m.teams[1].players[1].battleTag == p.battletag || m.teams[1].players[3].battleTag == p.battletag
-              ).collect::<Vec<Player>>();
+            let playaz = PLAYERS.iter().filter( |p|
+                 m.teams[0].players[0].battleTag == p.player.battletag || m.teams[0].players[2].battleTag == p.player.battletag
+              || m.teams[1].players[0].battleTag == p.player.battletag || m.teams[1].players[2].battleTag == p.player.battletag
+              || m.teams[0].players[1].battleTag == p.player.battletag || m.teams[0].players[3].battleTag == p.player.battletag
+              || m.teams[1].players[1].battleTag == p.player.battletag || m.teams[1].players[3].battleTag == p.player.battletag
+              ).collect::<Vec<&DiscordPlayer>>();
 
             if !playaz.is_empty() {
               let g_map = get_map(&m.map);
@@ -661,7 +661,7 @@ pub async fn check<'a>( ctx: &Context
                       , footer = format!("Passed: {} min", minutes) };
                   if let Ok(mut msg) = ctx.http.get_message(TEAM4_CHANNEL.0, track.tracking_msg_id[0]).await {
                     // get first player for discord
-                    let playa = playaz[0].discord;
+                    let playa = playaz[0].player.discord;
                     if let Ok(user) = ctx.http.get_user(playa).await {
                       setm!{ fields = Vec::new()
                            , img    = None
@@ -737,7 +737,7 @@ pub async fn check<'a>( ctx: &Context
               if let Ok(mut msg) = ctx.http.get_message(game_channel.0, track.tracking_msg_id[0]).await {
                 let footer: String = format!("Passed: {} min", fgame.passed_time);
                 // git first player for discord (again, as ususal)
-                let playa = track.players[0].discord;
+                let playa = track.players[0].player.discord;
                 if let Ok(user) = ctx.http.get_user(playa).await {
                   let mut old_fields = Vec::new();
                   let mut color = (32,32,32);

@@ -16,20 +16,20 @@ let playersList : List Playerx =
   , t "JustDoiTpLs#2907"    543121502711840799 "justdoitpls22"
   , t "Soulful#2300"        147805125824610304 "soulful85"
   , t "RaVeN#212265"        707083717595627570 "raven71russ"
+  , t "YoungUndead#2289"    332258705456234497 "youngundeadd"
   , p "Edek#1800"           298003054110965762
   , p "RiplEy#21126"        137314790769950720
   , p "RavenTT#2656"        277555411584942080
   , p "Singroso#2472"       677187656857419792
   , p "Pechenka#21766"      677187656857419792
-  , t "YoungUndead#2289"    332258705456234497 "youngundeadd"
   ]
 
-let discord : Discordx = { uid = 872428638228844594
-                         , games = None Natural
-                         , games2 = None Natural
-                         , games4 = None Natural
-                         , streams = None Natural
-                         , events = None Natural
-                         , players = playersList }
+let discord : Discordx = { uid      = 872428638228844594
+                         , games    = None Natural
+                         , games2   = None Natural
+                         , games4   = None Natural
+                         , streams  = None Natural
+                         , events   = None Natural
+                         , players  = playersList }
 
 in discord

@@ -4,13 +4,15 @@ use once_cell::sync::Lazy;
 
 static HEMOD: &str   = "dhall/team/hemo.dhall";
 static RAVENSD: &str = "dhall/team/ravens.dhall";
+static NEEJITD: &str = "dhall/team/neejit.dhall";
 
 pub static HEMO: Lazy<DiscordServer>    = Lazy::new(|| dhall!(HEMOD));
 pub static RAVENS: Lazy<DiscordServer>  = Lazy::new(|| dhall!(RAVENSD));
+pub static NEEJIT: Lazy<DiscordServer>  = Lazy::new(|| dhall!(NEEJITD));
 
 fn get_discord_servers() -> Discords {
   let mut discord_servers: Discords = Discords::new();
-  for disc in &[&HEMO, &RAVENS] {
+  for disc in &[&HEMO, &RAVENS, &NEEJIT] {
     let discord = DiscordFields
                     { games:    disc.games
                     , games2:   disc.games2
@@ -24,7 +26,7 @@ fn get_discord_servers() -> Discords {
 
 fn get_discord_players() -> Vec<DiscordPlayer> {
   let mut discord_players = vec![];
-  for disc in &[&HEMO, &RAVENS] {
+  for disc in &[&HEMO, &RAVENS, &NEEJIT] {
     for player in disc.players.iter() {
       if let Some(existing) =
         discord_players.iter_mut()
@@ -56,11 +58,20 @@ mod stuff_dhall_tests {
   fn hemo() -> Result<(), String> { dhall_players(HEMOD) }
   #[test]
   fn ravens() -> Result<(), String> { dhall_players(RAVENSD) }
+ #[test]
+  fn discords() -> Result<(), String> { 
+    let discords = get_discord_servers();
+    if discords.is_empty() {
+      Err("Can't get discord servers".into())
+    } else {
+      Ok(())
+    }
+  }
   #[test]
   fn players() -> Result<(), String> { 
     let discord_players = get_discord_players();
     if discord_players.is_empty() {
-      Err("Can't get players :(".into())
+      Err("Can't get players".into())
     } else {
       Ok(())
     }

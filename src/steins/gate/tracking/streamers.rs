@@ -3,10 +3,9 @@ use crate::{
          , tracking::{ TrackingGame, GameMode }
          , twitch::Twitch
          , goodgame::GoodGameData },
-  collections::team::PLAYERS,
+  collections::team::{ PLAYERS, DISCORDS },
   common::{
-    constants::{ STREAMS_CHANNEL
-               , LIVE_ROLE
+    constants::{ LIVE_ROLE
                , STREAM_PICS }
   }
 };
@@ -63,31 +62,19 @@ pub async fn activate_streamers_tracking(
   set!{ ctx_clone     = Arc::clone(&ctx)
       , options_clone = options.clone() };
 
-  clear_channel(STREAMS_CHANNEL, &ctx).await;
-
-  // clear roles
-  if let Ok(channel) = STREAMS_CHANNEL.to_channel(&ctx.http).await {
-    if let Some(g) = channel.guild() {
-      if let Ok(guild) = g.guild_id.to_partial_guild(&ctx).await {
-        for p in PLAYERS.iter() {
-          if let Ok(mut member) = guild.member(&ctx.http, p.player.discord).await {
-            if let Some(role) = guild.role_by_name(LIVE_ROLE) {
-              if member.roles.contains(&role.id) {
-                if let Err(why) = member.remove_role(&ctx, role).await {
-                  error!("Failed to remove live streaming role {:?}", why);
-                }
-              }
-            }
-          }
-          for s in &servers {
-            if let Ok(g) = s.to_partial_guild(&ctx).await {
-              if let Ok(mut m) = g.member(&ctx.http, p.player.discord).await {
-                if let Some(r) = g.role_by_name(LIVE_ROLE) {
-                  if m.roles.contains(&r.id) {
-                    if let Err(why) = m.remove_role(&ctx, r).await {
-                      error!("Failed to remove live streaming role {:?} on seerver {:?}", why, s);
-                    }
-                  }
+  for (d, df) in DISCORDS.iter() {
+    if let Some(sc) = df.streams {
+      clear_channel(ChannelId(sc), &ctx).await;
+    }
+    let guild_id = GuildId(*d);
+    if let Ok(g) = guild_id.to_partial_guild(&ctx).await {
+      for p in PLAYERS.iter() {
+        if p.discords.contains(d) {
+          if let Ok(mut m) = g.member(&ctx.http, p.player.discord).await {
+            if let Some(r) = g.role_by_name(LIVE_ROLE) {
+              if m.roles.contains(&r.id) {
+                if let Err(why) = m.remove_role(&ctx, r).await {
+                  error!("Failed to remove live streaming role {:?} on seerver {:?}", why, d);
                 }
               }
             }
@@ -210,12 +197,19 @@ pub async fn activate_streamers_tracking(
               }
             }
           } else { continue; }
+
           if !additional_fields.is_empty() {
             if title.is_empty() {
               title = String::from("LIVE");
             }
             if let Some(track) = streams_lock.get(&p.player.discord) {
-              if let Ok(mut msg) = ctx_clone.http.get_message(STREAMS_CHANNEL.0, track.tracking_msg_id[0]).await {
+
+            for t_msg in &track.tracking_msg_id {
+            if let Some(discord) = DISCORDS.get(&t_msg.0) {
+            if let Some(streas_channel) = discord.streams {
+
+              if let Ok(mut msg) = ctx_clone.http.get_message( streas_channel
+                                                             , t_msg.1 ).await {
                 let footer = if track.passed_time > 60 {
                     let hours: u32 = track.passed_time / 60;
                     let minutes = track.passed_time % 60;
@@ -258,6 +252,11 @@ pub async fn activate_streamers_tracking(
                   error!("Failed to edit stream msg {:?}", why);
                 }
               }
+
+            } // if with a stream channel
+            } // if let some discord
+            } // for discord servers
+
             } else {
               let is_now_live = format!("{} started stream!", &user.name);
               // stream thumbnail image caching only work with twitch
@@ -288,7 +287,12 @@ pub async fn activate_streamers_tracking(
               set! { red   = rand::thread_rng().gen_range(0..255)
                    , green = rand::thread_rng().gen_range(0..255)
                    , blue  = rand::thread_rng().gen_range(0..255) };
-              match STREAMS_CHANNEL.send_message(&ctx_clone, |m| m
+
+              for d in &p.discords {
+              if let Some(ds) = DISCORDS.get(&d) {
+              if let Some(sc) = ds.streams {
+
+              match ChannelId(sc).send_message(&ctx_clone, |m| m
                 .embed(|e| {
                   let mut e = e
                     .title(&title)
@@ -308,15 +312,22 @@ pub async fn activate_streamers_tracking(
               )).await {
                 Ok(msg_id) => {
                   let playa_for_stream = p.clone();
-                  streams_lock.insert(playa_for_stream.player.discord, TrackingGame {
-                    tracking_msg_id: vec![msg_id.id.0],
-                    passed_time: 0,
-                    still_live: true,
-                    players: vec![playa_for_stream], bets: vec![], fails: 0,
-                    mode: GameMode::Solo }
-                  );
-                  let home = GuildId(options_clone.guild);
-                  if let Ok(guild) = home.to_partial_guild(&ctx_clone).await {
+                  if let Some(inserted) = streams_lock.get_mut(&playa_for_stream.player.discord) {
+                    if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.0)) {
+                      inserted.tracking_msg_id.push((*d, msg_id.id.0));
+                    }
+                  } else {
+                    streams_lock.insert(playa_for_stream.player.discord, TrackingGame {
+                      // TODO: get discord from player
+                      tracking_msg_id: vec![(*d, msg_id.id.0)],
+                      passed_time: 0,
+                      still_live: true,
+                      players: vec![playa_for_stream], bets: vec![], fails: 0,
+                      mode: GameMode::Solo }
+                    );
+                  }
+                  let discord_guild = GuildId(*d);
+                  if let Ok(guild) = discord_guild.to_partial_guild(&ctx_clone).await {
                     if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
                       if let Some(role) = guild.role_by_name(LIVE_ROLE) {
                         if !member.roles.contains(&role.id) {
@@ -328,12 +339,14 @@ pub async fn activate_streamers_tracking(
                     }
                   }
                   for s in &servers {
-                    if let Ok(g) = s.to_partial_guild(&ctx_clone).await {
-                      if let Ok(mut m) = g.member(&ctx_clone.http, p.player.discord).await {
-                        if let Some(r) = g.role_by_name(LIVE_ROLE) {
-                          if !m.roles.contains(&r.id) {
-                            if let Err(why) = m.add_role(&ctx_clone, r).await {
-                              error!("Failed to add live streaming role {:?} on seerver {:?}", why, s);
+                    if s.0 != *d {
+                      if let Ok(g) = s.to_partial_guild(&ctx_clone).await {
+                        if let Ok(mut m) = g.member(&ctx_clone.http, p.player.discord).await {
+                          if let Some(r) = g.role_by_name(LIVE_ROLE) {
+                            if !m.roles.contains(&r.id) {
+                              if let Err(why) = m.add_role(&ctx_clone, r).await {
+                                error!("Failed to add live streaming role {:?} on seerver {:?}", why, s);
+                              }
                             }
                           }
                         }
@@ -345,9 +358,21 @@ pub async fn activate_streamers_tracking(
                   error!("Failed to post stream {:?}", why);
                 }
               }
+
+              } // if there is a stream channel
+              } // if there are fields
+              } // discords for
+
             }
           } else if let Some(track) = streams_lock.get(&p.player.discord) {
-            if let Ok(mut msg) = ctx_clone.http.get_message(STREAMS_CHANNEL.0, track.tracking_msg_id[0]).await {
+            // stream finished
+
+            for t_msg in &track.tracking_msg_id {
+            if let Some(discord) = DISCORDS.get(&t_msg.0) {
+            if let Some(streas_channel) = discord.streams {
+
+            if let Ok(mut msg) = ctx_clone.http.get_message( streas_channel
+                                                           , t_msg.1 ).await {
               let footer = if track.passed_time > 60 {
                   let hours: u32 = track.passed_time / 60;
                   let minutes = track.passed_time % 60;
@@ -388,8 +413,8 @@ pub async fn activate_streamers_tracking(
               )).await {
                 error!("Failed to edit stream msg {:?}", why);
               }
-              let home = GuildId(options_clone.guild);
-              if let Ok(guild) = home.to_partial_guild(&ctx_clone).await {
+              let discord_guild = GuildId(t_msg.0);
+              if let Ok(guild) = discord_guild.to_partial_guild(&ctx_clone).await {
                 if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
                   if let Some(role) = guild.role_by_name(LIVE_ROLE) {
                     if member.roles.contains(&role.id) {
@@ -401,12 +426,14 @@ pub async fn activate_streamers_tracking(
                 }
               }
               for s in &servers {
-                if let Ok(g) = s.to_partial_guild(&ctx_clone).await {
-                  if let Ok(mut m) = g.member(&ctx_clone.http, p.player.discord).await {
-                    if let Some(r) = g.role_by_name(LIVE_ROLE) {
-                      if m.roles.contains(&r.id) {
-                        if let Err(why) = m.remove_role(&ctx_clone, r).await {
-                          error!("Failed to remove live streaming role {:?} on seerver {:?}", why, s);
+                if s.0 != t_msg.0 {
+                  if let Ok(g) = s.to_partial_guild(&ctx_clone).await {
+                    if let Ok(mut m) = g.member(&ctx_clone.http, p.player.discord).await {
+                      if let Some(r) = g.role_by_name(LIVE_ROLE) {
+                        if m.roles.contains(&r.id) {
+                          if let Err(why) = m.remove_role(&ctx_clone, r).await {
+                            error!("Failed to remove live streaming role {:?} on seerver {:?}", why, s);
+                          }
                         }
                       }
                     }
@@ -414,6 +441,11 @@ pub async fn activate_streamers_tracking(
                 }
               }
             }
+
+            } // if with a stream channel
+            } // if let some discord
+            } // for discord servers
+
             streams_lock.remove(&p.player.discord);
           }
         }

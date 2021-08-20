@@ -39,12 +39,12 @@ let playersList : List Playerx =
   , p "WindWalker#21184"    720938816810254338
   ]
 
-let discord : Discordx = { uid = 611822838831251466
-                         , games = Some 721956117558853673
-                         , games2 = Some 864417724445098004
-                         , games4 = Some 864417767415349248
-                         , streams = Some 698766464420937768
-                         , events = Some 635912696675565608
-                         , players = playersList }
+let discord : Discordx = { uid      = 611822838831251466
+                         , games    = Some 721956117558853673
+                         , games2   = Some 864417724445098004
+                         , games4   = Some 864417767415349248
+                         , streams  = Some 698766464420937768
+                         , events   = Some 635912696675565608
+                         , players  = playersList }
 
 in discord

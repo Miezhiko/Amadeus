@@ -1,4 +1,4 @@
-use crate::types::team::{ DiscordServer, DiscordPlayer };
+use crate::types::team::{Discords, DiscordFields, DiscordPlayer, DiscordServer};
 
 use once_cell::sync::Lazy;
 
@@ -7,6 +7,20 @@ static RAVENSD: &str = "dhall/team/ravens.dhall";
 
 pub static HEMO: Lazy<DiscordServer>    = Lazy::new(|| dhall!(HEMOD));
 pub static RAVENS: Lazy<DiscordServer>  = Lazy::new(|| dhall!(RAVENSD));
+
+fn get_discord_servers() -> Discords {
+  let mut discord_servers: Discords = Discords::new();
+  for disc in &[&HEMO, &RAVENS] {
+    let discord = DiscordFields
+                    { games:    disc.games
+                    , games2:   disc.games2
+                    , games4:   disc.games4
+                    , streams:  disc.streams
+                    , events:   disc.events };
+    discord_servers.insert(disc.uid, discord);
+  }
+  discord_servers
+}
 
 fn get_discord_players() -> Vec<DiscordPlayer> {
   let mut discord_players = vec![];
@@ -26,6 +40,7 @@ fn get_discord_players() -> Vec<DiscordPlayer> {
   discord_players
 }
 
+pub static DISCORDS: Lazy<Discords> = Lazy::new(|| get_discord_servers());
 pub static PLAYERS: Lazy<Vec<DiscordPlayer>> = Lazy::new(|| get_discord_players());
 
 #[cfg(test)]

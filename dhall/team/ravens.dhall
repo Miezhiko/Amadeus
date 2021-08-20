@@ -21,9 +21,15 @@ let playersList : List Playerx =
   , p "RavenTT#2656"        277555411584942080
   , p "Singroso#2472"       677187656857419792
   , p "Pechenka#21766"      677187656857419792
+  , t "YoungUndead#2289"    332258705456234497 "youngundeadd"
   ]
 
 let discord : Discordx = { uid = 872428638228844594
+                         , games = None Natural
+                         , games2 = None Natural
+                         , games4 = None Natural
+                         , streams = None Natural
+                         , events = None Natural
                          , players = playersList }
 
 in discord

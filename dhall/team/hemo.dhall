@@ -1,4 +1,5 @@
 let Playerx : Type = ./types/player_type.dhall
+let Discordx : Type = ./types/discord_type.dhall
 
 let p = ./functions/p.dhall
 let t = ./functions/t.dhall
@@ -13,8 +14,6 @@ let playersList : List Playerx =
   , t "Маша#21994"          510368731378089984 "Miezhiko"
   , t "hhh#2991"            510732278025027596 "hotwussy"
   , t "GraVe#2254"          355795504367534090 "GraVesc2"
-  , t "Sirius#24840"        632300213494611968 "siriustvzzz"
-  , t "SMDVKF#2721"         632300213494611968 "siriustvzzz"
   , b "Reyenir#2169"        287914378513088515 "reyenir" "Cherry-Phoenix"
   , b "ag3nt#21617"         293268448212156416 "ag3ntik" "ag3nt"
   , b "Rici#2903"           404379597568999425 "riciii" "Rici"
@@ -40,4 +39,7 @@ let playersList : List Playerx =
   , p "WindWalker#21184"    720938816810254338
   ]
 
-in { 611822838831251466, playersList }
+let discord : Discordx = { uid = 611822838831251466
+                         , players = playersList }
+
+in discord

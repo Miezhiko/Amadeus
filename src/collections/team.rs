@@ -33,13 +33,21 @@ mod stuff_dhall_tests {
   use super::*;
   fn dhall_players(f: &str) -> Result<(), String> {
     match serde_dhall::from_file(f).parse::<DiscordServer>() {
-      Ok(_) => {
-        Ok(())
-      }, Err(de) => Err(format!("Failed to parse {:?}", de))
+      Ok(_) => Ok(()),
+      Err(de) => Err(format!("Failed to parse {:?}", de))
     }
   }
   #[test]
   fn hemo() -> Result<(), String> { dhall_players(HEMOD) }
   #[test]
   fn ravens() -> Result<(), String> { dhall_players(RAVENSD) }
+  #[test]
+  fn players() -> Result<(), String> { 
+    let discord_players = get_discord_players();
+    if discord_players.is_empty() {
+      Err("Can't get players :(".into())
+    } else {
+      Ok(())
+    }
+  }
 }

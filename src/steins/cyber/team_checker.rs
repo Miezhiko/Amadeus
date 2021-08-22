@@ -31,8 +31,8 @@ pub static GAMES: Lazy<Mutex<HashMap<String, TrackingGame>>>
 
 pub static AKA: Lazy<Mutex<Aka>> = Lazy::new(|| Mutex::new(Aka::new()));
 
-async fn check_aka( battletag: &str
-                  , rqcl: &reqwest::Client ) -> Option<String> {
+pub async fn check_aka( battletag: &str
+                      , rqcl: &reqwest::Client ) -> Option<String> {
   let mut aka_lock = AKA.lock().await;
   match aka_lock.get(battletag) {
     Some(aka) => aka.clone(),

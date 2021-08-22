@@ -1,10 +1,12 @@
 use crate::{
+  types::common::ReqwestClient,
   common::{ msg::channel_message
           , constants::APM_PICS
           , colors::gen_colors
           },
   collections::team::HEMO,
-  steins::cyber::w3g::analyze
+  steins::cyber::{ w3g::analyze
+                 , team_checker::check_aka }
 };
 
 use serenity::{
@@ -236,6 +238,17 @@ pub async fn attach_replay( ctx: &Context
           if battletag == btag {
             // so we see this player is indeed there
             found = true;
+          } else {
+            let rqcl = {
+              set!{ data = ctx.data.read().await
+                  , rqcl = data.get::<ReqwestClient>().unwrap() };
+              rqcl.clone()
+            };
+            if let Some(aka) = check_aka(battletag.as_str(), &rqcl).await {
+              if btag == aka {
+                found = true;
+              }
+            }
           }
           if !vv.is_empty() {
             fields1.push((btag.clone(), vv[0].clone()));

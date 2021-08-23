@@ -5,3 +5,4 @@
  - since hot emo 1337 team disband need different structure for live games (work in progress)
  - stream announce (e.g. steam in 30 mins or something like that) + stream announce role
  - GPT3: drop Q if it's starts with it
+ - Team1 Team2 for solo games

@@ -80,7 +80,7 @@ fn try_get_map(m: &str) -> String {
             , "shallowgrave"          => "SG"
             , "plunderisle"           => "PI"
             , "kingandcountry"        => "King and Country"
-            , "banditsbetreat"        => "Bandits Betreat"
+            , "banditsretreat"        => "Bandits Betreat"
             , "northmarshruin"        => "Northmarsh Ruin"
             , "mur'guloasis"          => "Mur'gul Oasis"
             , _                       => "" })
@@ -131,5 +131,6 @@ mod cyber_utils_tests {
     assert_eq!(get_map("PhantomGroveW3C"), "Phantom Grove");
     assert_eq!(get_map("DeadlockLV"), "Deadlock");
     assert_eq!(get_map("ShatteredExilev2_06"), "Shattered Exile");
+    assert_eq!(get_map("BanditsRetreatv1_1"), "Bandits Betreat");
   }
 }

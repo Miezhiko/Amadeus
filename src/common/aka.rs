@@ -1,7 +1,7 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use async_std::fs;
 
-pub type Aka = HashMap<String, Option<String>>;
+pub type Aka = BTreeMap<String, Option<String>>;
 
 const AKA_FILE_NAME_Y: &str  = "aka.yml";
 

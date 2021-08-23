@@ -9,11 +9,11 @@ use crate::{
   common::{ db::trees
           , help::lang
           , msg::channel_message
-          , constants::{ GAME_CHANNELS
-                       , UNBLOCK_ROLE }
+          , constants::UNBLOCK_ROLE
           },
   collections::{ base::{ REACTIONS, WHITELIST }
                , channels::{ AI_ALLOWED, EXCEPTIONS, IGNORED }
+               , team::DISCORDS
                }
 };
 
@@ -161,7 +161,9 @@ pub async fn process( ioptions: &IOptions
         trees::add_points(guild_id.0, msg.author.id.0, 1).await;
         for file in &msg.attachments {
           if file.filename.ends_with("w3g") {
-            if GAME_CHANNELS.iter().any(|c| c.0 == msg.channel_id.0) {
+            if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg.channel_id.0
+                                         || df.games2.unwrap_or(0) == msg.channel_id.0
+                                         || df.games2.unwrap_or(0) == msg.channel_id.0) {
               if !attach_replay(&ctx, &msg, file).await {
                 warn!("Failed to attach an replay to log!");
               } else {
@@ -198,7 +200,9 @@ pub async fn process( ioptions: &IOptions
           }
         }
         // any other junk on log channel should be removed
-        if GAME_CHANNELS.iter().any(|c| c.0 == msg.channel_id.0) {
+        if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg.channel_id.0
+                                     || df.games2.unwrap_or(0) == msg.channel_id.0
+                                     || df.games2.unwrap_or(0) == msg.channel_id.0) {
           if let Err(why) = &msg.delete(&ctx).await {
             error!("failed to clean junk from log {:?}", why);
           }

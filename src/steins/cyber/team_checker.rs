@@ -3,10 +3,10 @@ use crate::{
          , team::DiscordPlayer
          , tracking::*
          , w3c::{ Going, MD, PlayerAPI } },
-  collections::team::PLAYERS,
+  collections::team::{ PLAYERS, DISCORDS },
   common::{
     db::trees, aka::{ self, Aka },
-    constants::{ W3C_API, SOLO_CHANNEL, TEAM2_CHANNEL, TEAM4_CHANNEL }
+    constants::W3C_API
   },
   steins::cyber::{
     utils::{ get_race2
@@ -19,7 +19,8 @@ use crate::{
 use serenity::{
   prelude::*,
   model::id::{ UserId
-             , GuildId }
+             , GuildId
+             , ChannelId }
 };
 
 use std::collections::HashMap;
@@ -459,8 +460,13 @@ pub async fn check<'a>( ctx: &Context
 
                     // use first player for discord operations
                     let playa = playaz[0].player.discord;
-                    if let Ok(mut msg) = ctx.http.get_message( SOLO_CHANNEL.0
-                                                             , track.tracking_msg_id[0].1).await {
+
+                    let bet_fields = generate_bet_fields(ctx, track).await;
+                    for t in track.tracking_msg_id.iter() {
+                    if let Some(ds) = DISCORDS.get(&t.0) {
+                    if let Some(ch) = ds.games {
+
+                    if let Ok(mut msg) = ctx.http.get_message(ch, t.1).await {
                       if let Ok(user) = ctx.http.get_user(playa).await {
 
                         let mut fields = Vec::new();
@@ -480,7 +486,6 @@ pub async fn check<'a>( ctx: &Context
                           color = msg.embeds[0].colour.tuple();
                         };
 
-                        let bet_fields = generate_bet_fields(ctx, track).await;
                         let nick = user.nick_in(&ctx.http, guild)
                                        .await.unwrap_or_else(|| user.name.clone());
 
@@ -491,12 +496,12 @@ pub async fn check<'a>( ctx: &Context
                               .author(|a| a.icon_url(&user.face()).name(&nick))
                               .description(&mvec[0])
                               .colour(color)
-                              .footer(|f| f.text(footer));
+                              .footer(|f| f.text(&footer));
                             if !fields.is_empty() {
                               e = e.fields(fields);
                             }
-                            if let Some(bet_data) = bet_fields {
-                              e = e.fields(bet_data);
+                            if let Some(bet_data) = &bet_fields {
+                              e = e.fields(bet_data.clone());
                             }
                             if let Some(some_img) = img {
                               e = e.image(some_img.url);
@@ -511,6 +516,9 @@ pub async fn check<'a>( ctx: &Context
                         }
                       }
                     }
+                    } // if channel found
+                    } // if discord found
+                    } // for all tracking messages
 
                   } else {
                     out.push(
@@ -574,8 +582,13 @@ pub async fn check<'a>( ctx: &Context
                     track.still_live = true;
                     set!{ minutes = track.passed_time / 2
                         , footer = format!("Passed: {} min", minutes) };
-                    if let Ok(mut msg) = ctx.http.get_message( TEAM2_CHANNEL.0
-                                                             , track.tracking_msg_id[0].1 ).await {
+
+                    let bet_fields = generate_bet_fields(ctx, track).await;
+                    for t in track.tracking_msg_id.iter() {
+                    if let Some(ds) = DISCORDS.get(&t.0) {
+                    if let Some(ch) = ds.games2 {
+
+                    if let Ok(mut msg) = ctx.http.get_message(ch, t.1).await {
                       // get first player for discord
                       let playa = playaz[0].player.discord;
                       if let Ok(user) = ctx.http.get_user(playa).await {
@@ -596,7 +609,6 @@ pub async fn check<'a>( ctx: &Context
                           color = msg.embeds[0].colour.tuple();
                         };
 
-                        let bet_fields = generate_bet_fields(ctx, track).await;
                         let nick = user.nick_in(&ctx.http, guild)
                                        .await.unwrap_or_else(|| user.name.clone());
 
@@ -607,12 +619,12 @@ pub async fn check<'a>( ctx: &Context
                               .author(|a| a.icon_url(&user.face()).name(&nick))
                               .description(&mvec[0])
                               .colour(color)
-                              .footer(|f| f.text(footer));
+                              .footer(|f| f.text(&footer));
                             if !fields.is_empty() {
                               e = e.fields(fields);
                             }
-                            if let Some(bet_data) = bet_fields {
-                              e = e.fields(bet_data);
+                            if let Some(bet_data) = &bet_fields {
+                              e = e.fields(bet_data.clone());
                             }
                             if let Some(some_img) = img {
                               e = e.image(some_img.url);
@@ -627,6 +639,11 @@ pub async fn check<'a>( ctx: &Context
                         }
                       }
                     }
+
+                    } // if channel found
+                    } // if discord found
+                    } // for all trackign messages
+
                   } else {
                     out.push(
                       StartingGame { key: m.match_id
@@ -685,8 +702,13 @@ pub async fn check<'a>( ctx: &Context
                   track.still_live = true;
                   set!{ minutes = track.passed_time / 2
                       , footer = format!("Passed: {} min", minutes) };
-                  if let Ok(mut msg) = ctx.http.get_message( TEAM4_CHANNEL.0
-                                                           , track.tracking_msg_id[0].1 ).await {
+
+                  let bet_fields = generate_bet_fields(ctx, track).await;
+                  for t in track.tracking_msg_id.iter() {
+                  if let Some(ds) = DISCORDS.get(&t.0) {
+                  if let Some(ch) = ds.games4 {
+
+                  if let Ok(mut msg) = ctx.http.get_message(ch, t.1).await {
                     // get first player for discord
                     let playa = playaz[0].player.discord;
                     if let Ok(user) = ctx.http.get_user(playa).await {
@@ -707,7 +729,6 @@ pub async fn check<'a>( ctx: &Context
                         color = msg.embeds[0].colour.tuple();
                       };
 
-                      let bet_fields = generate_bet_fields(ctx, track).await;
                       let nick = user.nick_in(&ctx.http, guild)
                                      .await.unwrap_or_else(|| user.name.clone());
 
@@ -718,12 +739,12 @@ pub async fn check<'a>( ctx: &Context
                             .author(|a| a.icon_url(&user.face()).name(&nick))
                             .description(&mvec[0])
                             .colour(color)
-                            .footer(|f| f.text(footer));
+                            .footer(|f| f.text(&footer));
                           if !fields.is_empty() {
                             e = e.fields(fields);
                           }
-                          if let Some(bet_data) = bet_fields {
-                            e = e.fields(bet_data);
+                          if let Some(bet_data) = &bet_fields {
+                            e = e.fields(bet_data.clone());
                           }
                           if let Some(some_img) = img {
                             e = e.image(some_img.url);
@@ -738,6 +759,11 @@ pub async fn check<'a>( ctx: &Context
                       }
                     }
                   }
+
+                  } // if channel found
+                  } // if discord found
+                  } // for all tracking
+
                 } else {
                   out.push(
                     StartingGame { key: m.match_id
@@ -754,19 +780,28 @@ pub async fn check<'a>( ctx: &Context
         let mut games_lock = GAMES.lock().await;
         for (k, track) in games_lock.iter_mut() {
           if !track.still_live {
-            let game_channel = match track.mode {
-              GameMode::Solo  => SOLO_CHANNEL,
-              GameMode::Team2 => TEAM2_CHANNEL,
-              GameMode::Team4 => TEAM4_CHANNEL
+
+            // get first player for (again, as ususal)
+            let playa = track.players[0].clone();
+
+            for d in playa.discords.iter() {
+            if let Some(ds) = DISCORDS.get(&d) {
+
+            let game_channel_maybe = match track.mode {
+              GameMode::Solo  => ds.games,
+              GameMode::Team2 => ds.games2,
+              GameMode::Team4 => ds.games4
             };
+
+            if let Some(gc) = game_channel_maybe {
+            let game_channel = ChannelId(gc);
+
             if let Some(finished_game) = check_match(k, &track.players, rqcl).await {
               let fgame = &finished_game;
               if let Ok(mut msg) = ctx.http.get_message( game_channel.0
                                                        , track.tracking_msg_id[0].1 ).await {
                 let footer: String = format!("Passed: {} min", fgame.passed_time);
-                // git first player for discord (again, as ususal)
-                let playa = track.players[0].player.discord;
-                if let Ok(user) = ctx.http.get_user(playa).await {
+                if let Ok(user) = ctx.http.get_user(playa.player.discord).await {
                   let mut old_fields = Vec::new();
                   let mut color = (32,32,32);
                   if !msg.embeds.is_empty() {
@@ -790,7 +825,7 @@ pub async fn check<'a>( ctx: &Context
                       let streak = trees::add_win_points( guild_id
                                                         , *pw
                                                         ).await;
-                      if playa == *pw && streak >= 3 {
+                      if playa.player.discord == *pw && streak >= 3 {
                         title =
                           match streak { 3  => "MULTIKILL"
                                        , 4  => "MEGA KILL"
@@ -971,6 +1006,11 @@ pub async fn check<'a>( ctx: &Context
                 }
               }
             }
+
+            } // find channel for game mode
+            } // find discord
+            } // iterate discords
+
           }
         }
 

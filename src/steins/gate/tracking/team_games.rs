@@ -5,22 +5,42 @@ use crate::{
                      , Bet, GameMode }
          , twitch::Twitch
          , goodgame::GoodGameData },
-  common::{ db::trees, aka
-          , constants::{ GAME_CHANNELS
-                       , SOLO_CHANNEL
-                       , TEAM2_CHANNEL
-                       , TEAM4_CHANNEL }
-          },
+  common::{ db::trees
+          , aka },
+  collections::team::DISCORDS,
   steins::cyber::team_checker::{ self, AKA }
 };
 
 use serenity::{ prelude::*
+              , model::id::ChannelId
               , model::channel::ReactionType };
 
 use std::{ time
          , sync::Arc };
 
 use rand::Rng;
+
+async fn clean_games_channel(channel: &ChannelId, ctx: &Context) {
+  if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(50)).await {
+    let mut vec_id = Vec::new();
+    for message in vec_msg {
+      for embed in message.embeds {
+        if let Some(title) = embed.title {
+          if title == "LIVE" || title == "JUST STARTED" {
+            vec_id.push(message.id);
+            break;
+          }
+        }
+      }
+    }
+    if !vec_id.is_empty() {
+      match channel.delete_messages(&ctx, vec_id.as_slice()).await {
+        Ok(nothing)  => nothing,
+        Err(err) => warn!("Failed to clean live messages {}", err),
+      };
+    }
+  }
+}
 
 pub async fn activate_games_tracking(
                      ctx:       &Arc<Context>
@@ -40,25 +60,10 @@ pub async fn activate_games_tracking(
   }
 
   // Delete live games from log channel (if some)
-  for channel in GAME_CHANNELS {
-    if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(50)).await {
-      let mut vec_id = Vec::new();
-      for message in vec_msg {
-        for embed in message.embeds {
-          if let Some(title) = embed.title {
-            if title == "LIVE" || title == "JUST STARTED" {
-              vec_id.push(message.id);
-              break;
-            }
-          }
-        }
-      }
-      if !vec_id.is_empty() {
-        match channel.delete_messages(&ctx, vec_id.as_slice()).await {
-          Ok(nothing)  => nothing,
-          Err(err) => warn!("Failed to clean live messages {}", err),
-        };
-      }
+  for (_, df) in DISCORDS.iter() {
+    if let Some(sc) = df.games {
+      let channel = ChannelId(sc);
+      clean_games_channel(&channel, ctx).await;
     }
   }
 
@@ -175,92 +180,106 @@ pub async fn activate_games_tracking(
           let nickname_maybe = user.nick_in(&ctx_clone.http, options_clone.guild).await;
           let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
 
-          let game_channel = match game.mode {
-            GameMode::Solo  => SOLO_CHANNEL,
-            GameMode::Team2 => TEAM2_CHANNEL,
-            GameMode::Team4 => TEAM4_CHANNEL
-          };
+          for d in playa.discords.iter() {
+            if let Some(ds) = DISCORDS.get(&d) {
 
-          match game_channel.send_message(&ctx_clone, |m| m
-            .embed(|e| {
-              let mut e = e
-                .title("JUST STARTED")
-                .author(|a| a.icon_url(&user.face()).name(&nick))
-                .colour((red, green, blue));
-              if !game.description.is_empty() {
-                e = e.description(&game.description[0]);
-                if game.description.len() > 2 {
-                  let d_fields = vec![
-                    ("Team 1", &game.description[1], true)
-                  , ("Team 2", &game.description[2], true)
-                  ];
-                  e = e.fields(d_fields);
+            let game_channel_maybe = match game.mode {
+              GameMode::Solo  => ds.games,
+              GameMode::Team2 => ds.games2,
+              GameMode::Team4 => ds.games4
+            };
+
+            if let Some(gc) = game_channel_maybe {
+            let game_channel = ChannelId(gc);
+
+            match game_channel.send_message(&ctx_clone, |m| m
+              .embed(|e| {
+                let mut e = e
+                  .title("JUST STARTED")
+                  .author(|a| a.icon_url(&user.face()).name(&nick))
+                  .colour((red, green, blue));
+                if !game.description.is_empty() {
+                  e = e.description(&game.description[0]);
+                  if game.description.len() > 2 {
+                    let d_fields = vec![
+                      ("Team 1", &game.description[1], true)
+                    , ("Team 2", &game.description[2], true)
+                    ];
+                    e = e.fields(d_fields);
+                  }
                 }
+                if !additional_fields.is_empty() {
+                  e = e.fields(additional_fields.clone());
+                }
+                if let Some(some_image) = &image {
+                  e = e.image(some_image);
+                }
+                if let Some(some_url) = &em_url {
+                  e = e.url(some_url);
+                }
+                e
               }
-              if !additional_fields.is_empty() {
-                e = e.fields(additional_fields);
-              }
-              if let Some(some_image) = &image {
-                e = e.image(some_image);
-              }
-              if let Some(some_url) = &em_url {
-                e = e.url(some_url);
-              }
-              e
-            }
-          )).await {
-            Ok(msg_id) => {
-              { // scope for games_lock
-                let mut games_lock = team_checker::GAMES.lock().await;
-                games_lock.insert( game_key.clone()
-                  // TODO: get discord from a player
-                  , TrackingGame { tracking_msg_id: vec![(611822838831251466, msg_id.id.0)]
-                                 , passed_time: 0
-                                 , still_live: false
-                                 , players: game.players.into_iter().cloned().collect()
-                                 , bets: vec![]
-                                 , fails: 0
-                                 , mode: game.mode } );
-              }
-              let up = ReactionType::Unicode(String::from("👍🏻"));
-              let dw = ReactionType::Unicode(String::from("👎🏻"));
-              let _ = msg_id.react(&ctx_clone.http, up).await;
-              let _ = msg_id.react(&ctx_clone.http, dw).await;
-              // run thread inside thread for reactions
-              // we're cloning ctx yet another time here!
-              let xtx_clone = Arc::clone(&ctx_clone);
-              tokio::spawn(async move {
-                loop {
-                  // 10 minutes for each game
-                  if let Some(reaction) =
-                    &msg_id.await_reaction(&xtx_clone.shard)
-                            .timeout(time::Duration::from_secs(600)).await {
-                    let inref = reaction.as_inner_ref();
-                    let emoji = &inref.emoji;
-                    if let Some(u) = inref.user_id {
-                      if let Some(g) = inref.guild_id {
-                        if let Ok(p) = trees::get_points( g.0, u.0 ).await {
-                          if p > 100 {
-                            let emoji_data = emoji.as_data();
-                            if emoji_data.as_str() == "👍🏻" || emoji_data.as_str() == "👎🏻" {
-                              let is_positive = emoji_data.as_str() == "👍🏻";
-                              let mut gl = team_checker::GAMES.lock().await;
-                              if let Some(track) = gl.get_mut(&game_key) {
-                                if track.still_live {
-                                  // you bet only once
-                                  if !track.bets.iter().any(|b| b.member == u.0) {
-                                    let bet = Bet { guild: g.0
-                                                  , member: u.0
-                                                  , points: 100
-                                                  , positive: is_positive
-                                                  , registered: false };
-                                    let (succ, rst) = trees::give_points( g.0, u.0
-                                                                        , amadeus
-                                                                        , 100 ).await;
-                                    if succ {
-                                      track.bets.push(bet);
-                                    } else {
-                                      error!("Error on bet {:?}", rst);
+            )).await {
+              Ok(msg_id) => {
+                { // scope for games_lock
+                  let mut games_lock = team_checker::GAMES.lock().await;
+                  if let Some(inserted) = games_lock.get_mut(&game_key) {
+                    if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.0)) {
+                      inserted.tracking_msg_id.push((*d, msg_id.id.0));
+                    }
+                  } else {
+                    games_lock.insert( game_key.clone()
+                      // TODO: get discord from a player
+                      , TrackingGame { tracking_msg_id: vec![(*d, msg_id.id.0)]
+                                    , passed_time: 0
+                                    , still_live: false
+                                    , players: game.players.clone().into_iter().cloned().collect()
+                                    , bets: vec![]
+                                    , fails: 0
+                                    , mode: game.mode } );
+                  }
+                }
+                let up = ReactionType::Unicode(String::from("👍🏻"));
+                let dw = ReactionType::Unicode(String::from("👎🏻"));
+                let _ = msg_id.react(&ctx_clone.http, up).await;
+                let _ = msg_id.react(&ctx_clone.http, dw).await;
+                // run thread inside thread for reactions
+                // we're cloning ctx yet another time here!
+                let xtx_clone = Arc::clone(&ctx_clone);
+                let game_key_clone = game_key.clone();
+                tokio::spawn(async move {
+                  loop {
+                    // 10 minutes for each game
+                    if let Some(reaction) =
+                      &msg_id.await_reaction(&xtx_clone.shard)
+                              .timeout(time::Duration::from_secs(600)).await {
+                      let inref = reaction.as_inner_ref();
+                      let emoji = &inref.emoji;
+                      if let Some(u) = inref.user_id {
+                        if let Some(g) = inref.guild_id {
+                          if let Ok(p) = trees::get_points( g.0, u.0 ).await {
+                            if p > 100 {
+                              let emoji_data = emoji.as_data();
+                              if emoji_data.as_str() == "👍🏻" || emoji_data.as_str() == "👎🏻" {
+                                let is_positive = emoji_data.as_str() == "👍🏻";
+                                let mut gl = team_checker::GAMES.lock().await;
+                                if let Some(track) = gl.get_mut(&game_key_clone) {
+                                  if track.still_live {
+                                    // you bet only once
+                                    if !track.bets.iter().any(|b| b.member == u.0) {
+                                      let bet = Bet { guild: g.0
+                                                    , member: u.0
+                                                    , points: 100
+                                                    , positive: is_positive
+                                                    , registered: false };
+                                      let (succ, rst) = trees::give_points( g.0, u.0
+                                                                          , amadeus
+                                                                          , 100 ).await;
+                                      if succ {
+                                        track.bets.push(bet);
+                                      } else {
+                                        error!("Error on bet {:?}", rst);
+                                      }
                                     }
                                   }
                                 }
@@ -269,18 +288,22 @@ pub async fn activate_games_tracking(
                           }
                         }
                       }
+                    } else {
+                      let _ = msg_id.delete_reactions(&xtx_clone.http).await;
+                      break;
                     }
-                  } else {
-                    let _ = msg_id.delete_reactions(&xtx_clone.http).await;
-                    break;
                   }
-                }
-              });
-            },
-            Err(why) => {
-              error!("Failed to post live match {:?}", why);
-              error!("Fields: {:?}\n{:?}\n{:?}\n", game.description, image, em_url);
+                });
+              },
+              Err(why) => {
+                error!("Failed to post live match {:?}", why);
+                error!("Fields: {:?}\n{:?}\n{:?}\n", game.description, image, em_url);
+              }
             }
+
+            } // if there is specific game channel
+            } // if there are discord fields
+
           }
         }
       }

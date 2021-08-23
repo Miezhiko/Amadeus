@@ -147,7 +147,7 @@ async fn check_match( matchid: &str
         } else {
           format!("__*{}*__ **{}**", t1_name, m.teams[1].players[0].mmrGain)
         };
-        Some( vec![ format!("Map: **{}**", g_map)
+        Some( vec![ format!("Map: **{}** ⠀⠀⠀⠀", g_map)
                   , format!("({}) {} [{}]", race1, player1, m.teams[0].players[0].oldMmr)
                   , format!("({}) {} [{}]", race2, player2, m.teams[1].players[0].oldMmr)  ] )
       } else if m.gameMode == 6 || m.gameMode == 2 {
@@ -185,7 +185,7 @@ async fn check_match( matchid: &str
             , get_race2(m.teams[x].players[1].race), aka_names[x][1], m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
           }
         };
-        Some( vec![ format!("Map: **{}**", g_map), teamx(0), teamx(1) ] )
+        Some( vec![ format!("Map: **{}** ⠀⠀⠀⠀", g_map), teamx(0), teamx(1) ] )
       } else if m.gameMode == 4 {
         let g_map  = get_map(&m.map);
         let mut aka_names: [[String; 4]; 2] = Default::default();
@@ -215,7 +215,7 @@ async fn check_match( matchid: &str
             , get_race2(m.teams[x].players[3].race), aka_names[x][3], m.teams[x].players[3].oldMmr, m.teams[x].players[3].mmrGain)
           }
         };
-        Some( vec![ format!("Map: **{}**", g_map), teamx(0), teamx(1) ] )
+        Some( vec![ format!("Map: **{}** ⠀⠀⠀⠀", g_map), teamx(0), teamx(1) ] )
       } else {
         None
       };
@@ -446,7 +446,7 @@ pub async fn check<'a>( ctx: &Context
                     { aka } else { m.teams[1].players[0].name.clone() };
 
                 let mvec =
-                  vec![ format!("Map: **{}**", g_map)
+                  vec![ format!("Map: **{}** ⠀⠀⠀⠀", g_map)
                       , format!("({}) **{}** [{}]", race1, t0_name, m.teams[0].players[0].oldMmr)
                       , format!("({}) **{}** [{}]", race2, t1_name, m.teams[1].players[0].oldMmr) ];
 
@@ -563,7 +563,7 @@ pub async fn check<'a>( ctx: &Context
                     let team2 = format!("({}) **{}**\n({}) **{}**\n{} MMR"
                       , race2, aka_names[1][0]
                       , race22, aka_names[1][1], m.teams[1].players[0].oldMmr);
-                    vec![ format!("Map: **{}**", g_map), team1, team2 ]
+                    vec![ format!("Map: **{}** ⠀⠀⠀⠀", g_map), team1, team2 ]
                   } else {
                     let team1 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
                       , race1, aka_names[0][0], m.teams[0].players[0].oldMmr
@@ -571,7 +571,7 @@ pub async fn check<'a>( ctx: &Context
                     let team2 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
                       , race2, aka_names[1][0], m.teams[1].players[0].oldMmr
                       , race22, aka_names[1][1], m.teams[1].players[1].oldMmr);
-                    vec![ format!("Map: **{}**", g_map), team1, team2 ]
+                    vec![ format!("Map: **{}** ⠀⠀⠀⠀", g_map), team1, team2 ]
                   };
 
                 { // games lock scope
@@ -690,7 +690,7 @@ pub async fn check<'a>( ctx: &Context
                     , race22, aka_names[1][1], m.teams[1].players[1].oldMmr
                     , race23, aka_names[1][2], m.teams[1].players[2].oldMmr
                     , race24, aka_names[1][3], m.teams[1].players[3].oldMmr);
-                  vec![ format!("Map: **{}**", g_map), team1, team2 ]
+                  vec![ format!("Map: **{}** ⠀⠀⠀⠀", g_map), team1, team2 ]
                 };
 
               { // games lock scope

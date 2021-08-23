@@ -283,8 +283,6 @@ pub async fn attach_replay( ctx: &Context
                   let mut same_count: u32 = 0;
                   for f in mmm.embeds[0].fields.clone() {
                     for (pf, _) in fields1.iter() {
-                      //TODO: remove after fix
-                      info!("RA: comparing {} | {}", f.name, pf);
                       if f.name == *pf {
                         same_count += 1;
                       }

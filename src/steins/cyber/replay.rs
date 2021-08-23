@@ -234,29 +234,28 @@ pub async fn attach_replay( ctx: &Context
              , fields1 = vec![]
              , fields2 = vec![]
              , fields3 = vec![] };
-        let short_btag = if battletag.contains('#') {
-            battletag.split('#').collect::<Vec<&str>>()[0].to_string()
-          } else {
-            battletag.clone()
-          };
         for (btag, vv, mut papm) in flds {
-          if short_btag == btag {
+          if battletag == btag {
             // so we see this player is indeed there
             found = true;
-          } else {
+          }
+          if !vv.is_empty() {
             let rqcl = {
               set!{ data = ctx.data.read().await
                   , rqcl = data.get::<ReqwestClient>().unwrap() };
               rqcl.clone()
             };
-            if let Some(aka) = check_aka(battletag.as_str(), &rqcl).await {
-              if btag == aka {
-                found = true;
-              }
-            }
-          }
-          if !vv.is_empty() {
-            fields1.push((btag.clone(), vv[0].clone()));
+            let p_name =
+              if let Some(aka) = check_aka(btag.as_str(), &rqcl).await {
+                aka
+              } else {
+                if btag.contains('#') {
+                  btag.split('#').collect::<Vec<&str>>()[0].to_string()
+                } else {
+                  btag.clone()
+                }
+              };
+            fields1.push((p_name, vv[0].clone()));
           }
           if !papm.len() > 1 {
             // drop last value of apm, because it's "not full"
@@ -279,7 +278,7 @@ pub async fn attach_replay( ctx: &Context
               for mmm in messages {
                 if !mmm.embeds.is_empty()
                 && !mmm.embeds[0].fields.is_empty()
-                 && mmm.attachments.is_empty() {
+                && mmm.attachments.is_empty() {
                   // start counting, we need two!
                   let mut same_count: u32 = 0;
                   for f in mmm.embeds[0].fields.clone() {

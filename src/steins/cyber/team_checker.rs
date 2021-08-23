@@ -13,7 +13,6 @@ use crate::{
            , get_map
            , get_hero_png }
   }
-  //steins::ai::chain
 };
 
 use serenity::{
@@ -427,6 +426,10 @@ pub async fn check<'a>( ctx: &Context
       let guild = GuildId( guild_id );
       if !going.matches.is_empty() {
         for m in going.matches {
+          let server_info = m.serverInfo.clone();
+          let host = format!("Host: {} {}", server_info.name.unwrap_or("?".into())
+                                          , server_info.provider.unwrap_or("".into())
+                            );
           if m.gameMode == 1 {
             if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
               let playaz = PLAYERS.iter().filter( |p|
@@ -492,7 +495,7 @@ pub async fn check<'a>( ctx: &Context
                             let mut e = e
                               .title("LIVE")
                               .author(|a| a.icon_url(&user.face()).name(&nick))
-                              .description(&mvec[0])
+                              .description(&host)
                               .colour(color)
                               .footer(|f| f.text(&footer));
                             if !fields.is_empty() {
@@ -613,7 +616,7 @@ pub async fn check<'a>( ctx: &Context
                             let mut e = e
                               .title("LIVE")
                               .author(|a| a.icon_url(&user.face()).name(&nick))
-                              .description(&mvec[0])
+                              .description(&host)
                               .colour(color)
                               .footer(|f| f.text(&footer));
                             if !fields.is_empty() {
@@ -731,7 +734,7 @@ pub async fn check<'a>( ctx: &Context
                           let mut e = e
                             .title("LIVE")
                             .author(|a| a.icon_url(&user.face()).name(&nick))
-                            .description(&mvec[0])
+                            .description(&host)
                             .colour(color)
                             .footer(|f| f.text(&footer));
                           if !fields.is_empty() {
@@ -797,12 +800,17 @@ pub async fn check<'a>( ctx: &Context
                 let footer: String = format!("Passed: {} min", fgame.passed_time);
                 if let Ok(user) = ctx.http.get_user(playa.player.discord).await {
                   let mut old_fields = Vec::new();
+                  let mut old_description = String::new();
                   let mut color = (32,32,32);
                   if !msg.embeds.is_empty() {
+                    if let Some(old_d) = &msg.embeds[0].description {
+                      old_description = old_d.clone();
+                    }
                     if !msg.embeds[0].fields.is_empty() {
                       for f in msg.embeds[0].fields.clone() {
                         if f.name != "Team 1"
                         && f.name != "Team 2"
+                        && f.value != "\u{200b}"
                         && f.name != "Bets" {
                           old_fields.push((f.name, f.value, f.inline));
                         }
@@ -925,14 +933,6 @@ pub async fn check<'a>( ctx: &Context
                     }
                   }
 
-                  /*
-                  let tip =
-                    if old_fields.is_empty() && streak_fields.is_none() && bet_fields.is_none()
-                                             && fgame.additional_fields.is_some() {
-                      Some(chain::generate_with_language(ctx, false).await)
-                    } else { None };
-                  */
-
                   let nick = user.nick_in(&ctx.http, guild)
                                  .await.unwrap_or_else(|| user.name.clone());
 
@@ -945,22 +945,18 @@ pub async fn check<'a>( ctx: &Context
                          .url(&fgame.link)
                          .footer(|f| f.text(footer));
                       if !fgame.desc.is_empty() {
-                        //e = e.description(&fgame.desc[0]);
+                        if old_description.is_empty() {
+                          e = e.description('\u{200b}');
+                        } else {
+                          e = e.description(&old_description);
+                        }
                         if fgame.desc.len() > 2 {
                           let d_fields = vec![
-                            ("Team 1", &fgame.desc[1], true)
-                          , ("Team 2", &fgame.desc[2], true)
-                          , ("Map",    &fgame.desc[0], false)
+                            ("Team 1", fgame.desc[1].as_str(), true)
+                          , ("Team 2", fgame.desc[2].as_str(), true)
+                          , (&fgame.desc[0], "\u{200b}", false)
                           ];
                           e = e.fields(d_fields);
-                          // add line breaking something if there is no
-                          /*
-                          if let Some(t) = tip {
-                            e = e.fields(vec![
-                              ("Tip for the day", &t, false)
-                            ]);
-                          }
-                          */
                         } else {
                           // TODO: drop it, this should never happen
                           e = e.description(&fgame.desc[0]);

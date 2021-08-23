@@ -113,7 +113,7 @@ pub_struct!(Team {
 });
 
 #[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct PlayerServerInfo {
   pub averagePing: u32,
   pub battleTag: String,
@@ -121,7 +121,7 @@ pub struct PlayerServerInfo {
 }
 
 #[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct ServerInfo {
   pub countryCode: Option<String>,
   pub location: Option<String>,

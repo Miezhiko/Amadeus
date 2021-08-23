@@ -65,6 +65,14 @@ pub async fn activate_games_tracking(
       let channel = ChannelId(sc);
       clean_games_channel(&channel, ctx).await;
     }
+    if let Some(sc) = df.games2 {
+      let channel = ChannelId(sc);
+      clean_games_channel(&channel, ctx).await;
+    }
+    if let Some(sc) = df.games4 {
+      let channel = ChannelId(sc);
+      clean_games_channel(&channel, ctx).await;
+    }
   }
 
   tokio::spawn(async move {
@@ -199,13 +207,17 @@ pub async fn activate_games_tracking(
                   .author(|a| a.icon_url(&user.face()).name(&nick))
                   .colour((red, green, blue));
                 if !game.description.is_empty() {
-                  e = e.description(&game.description[0]);
+                  e = e.description("Host: Gathering information...");
                   if game.description.len() > 2 {
                     let d_fields = vec![
-                      ("Team 1", &game.description[1], true)
-                    , ("Team 2", &game.description[2], true)
+                      ("Team 1", game.description[1].as_str(), true)
+                    , ("Team 2", game.description[2].as_str(), true)
+                    , (&game.description[0], "\u{200b}", false)
                     ];
                     e = e.fields(d_fields);
+                  } else {
+                    // TODO: drop it, this should never happen
+                    e = e.description(&game.description[0]);
                   }
                 }
                 if !additional_fields.is_empty() {

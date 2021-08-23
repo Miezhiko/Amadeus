@@ -147,7 +147,7 @@ async fn check_match( matchid: &str
         } else {
           format!("__*{}*__ **{}**", t1_name, m.teams[1].players[0].mmrGain)
         };
-        Some( vec![ g_map
+        Some( vec![ format!("Map: **{}**", g_map)
                   , format!("({}) {} [{}]", race1, player1, m.teams[0].players[0].oldMmr)
                   , format!("({}) {} [{}]", race2, player2, m.teams[1].players[0].oldMmr)  ] )
       } else if m.gameMode == 6 || m.gameMode == 2 {
@@ -185,7 +185,7 @@ async fn check_match( matchid: &str
             , get_race2(m.teams[x].players[1].race), aka_names[x][1], m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
           }
         };
-        Some( vec![ g_map, teamx(0), teamx(1) ] )
+        Some( vec![ format!("Map: **{}**", g_map), teamx(0), teamx(1) ] )
       } else if m.gameMode == 4 {
         let g_map  = get_map(&m.map);
         let mut aka_names: [[String; 4]; 2] = Default::default();
@@ -215,7 +215,7 @@ async fn check_match( matchid: &str
             , get_race2(m.teams[x].players[3].race), aka_names[x][3], m.teams[x].players[3].oldMmr, m.teams[x].players[3].mmrGain)
           }
         };
-        Some( vec![ g_map, teamx(0), teamx(1) ] )
+        Some( vec![ format!("Map: **{}**", g_map), teamx(0), teamx(1) ] )
       } else {
         None
       };
@@ -446,7 +446,7 @@ pub async fn check<'a>( ctx: &Context
                     { aka } else { m.teams[1].players[0].name.clone() };
 
                 let mvec =
-                  vec![ g_map
+                  vec![ format!("Map: **{}**", g_map)
                       , format!("({}) **{}** [{}]", race1, t0_name, m.teams[0].players[0].oldMmr)
                       , format!("({}) **{}** [{}]", race2, t1_name, m.teams[1].players[0].oldMmr) ];
 
@@ -493,7 +493,7 @@ pub async fn check<'a>( ctx: &Context
                             let mut e = e
                               .title("LIVE")
                               .author(|a| a.icon_url(&user.face()).name(&nick))
-                              .description(&host)
+                              .description(&mvec[0])
                               .colour(color)
                               .footer(|f| f.text(&footer));
                             if !fields.is_empty() {
@@ -524,6 +524,7 @@ pub async fn check<'a>( ctx: &Context
                       StartingGame { key: m.match_id
                                    , description: mvec
                                    , players: playaz
+                                   , host
                                    , mode: GameMode::Solo });
                   }
                 }
@@ -562,7 +563,7 @@ pub async fn check<'a>( ctx: &Context
                     let team2 = format!("({}) **{}**\n({}) **{}**\n{} MMR"
                       , race2, aka_names[1][0]
                       , race22, aka_names[1][1], m.teams[1].players[0].oldMmr);
-                    vec![ g_map, team1, team2 ]
+                    vec![ format!("Map: **{}**", g_map), team1, team2 ]
                   } else {
                     let team1 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
                       , race1, aka_names[0][0], m.teams[0].players[0].oldMmr
@@ -570,7 +571,7 @@ pub async fn check<'a>( ctx: &Context
                     let team2 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
                       , race2, aka_names[1][0], m.teams[1].players[0].oldMmr
                       , race22, aka_names[1][1], m.teams[1].players[1].oldMmr);
-                    vec![ g_map, team1, team2 ]
+                    vec![ format!("Map: **{}**", g_map), team1, team2 ]
                   };
 
                 { // games lock scope
@@ -614,7 +615,7 @@ pub async fn check<'a>( ctx: &Context
                             let mut e = e
                               .title("LIVE")
                               .author(|a| a.icon_url(&user.face()).name(&nick))
-                              .description(&host)
+                              .description(&mvec[0])
                               .colour(color)
                               .footer(|f| f.text(&footer));
                             if !fields.is_empty() {
@@ -646,6 +647,7 @@ pub async fn check<'a>( ctx: &Context
                       StartingGame { key: m.match_id
                                    , description: mvec
                                    , players: playaz
+                                   , host
                                    , mode: GameMode::Team2 });
                   }
                 }
@@ -688,7 +690,7 @@ pub async fn check<'a>( ctx: &Context
                     , race22, aka_names[1][1], m.teams[1].players[1].oldMmr
                     , race23, aka_names[1][2], m.teams[1].players[2].oldMmr
                     , race24, aka_names[1][3], m.teams[1].players[3].oldMmr);
-                  vec![ g_map, team1, team2 ]
+                  vec![ format!("Map: **{}**", g_map), team1, team2 ]
                 };
 
               { // games lock scope
@@ -732,7 +734,7 @@ pub async fn check<'a>( ctx: &Context
                           let mut e = e
                             .title("LIVE")
                             .author(|a| a.icon_url(&user.face()).name(&nick))
-                            .description(&host)
+                            .description(&mvec[0])
                             .colour(color)
                             .footer(|f| f.text(&footer));
                           if !fields.is_empty() {
@@ -764,6 +766,7 @@ pub async fn check<'a>( ctx: &Context
                     StartingGame { key: m.match_id
                                  , description: mvec
                                  , players: playaz
+                                 , host
                                  , mode: GameMode::Team4 });
                 }
               }
@@ -798,17 +801,12 @@ pub async fn check<'a>( ctx: &Context
                 let footer: String = format!("Passed: {} min", fgame.passed_time);
                 if let Ok(user) = ctx.http.get_user(playa.player.discord).await {
                   let mut old_fields = Vec::new();
-                  let mut old_description = String::new();
                   let mut color = (32,32,32);
                   if !msg.embeds.is_empty() {
-                    if let Some(old_d) = &msg.embeds[0].description {
-                      old_description = old_d.clone();
-                    }
                     if !msg.embeds[0].fields.is_empty() {
                       for f in msg.embeds[0].fields.clone() {
                         if f.name != "Team 1"
                         && f.name != "Team 2"
-                        && f.value != "\u{200b}"
                         && f.name != "Bets" {
                           old_fields.push((f.name, f.value, f.inline));
                         }
@@ -943,16 +941,11 @@ pub async fn check<'a>( ctx: &Context
                          .url(&fgame.link)
                          .footer(|f| f.text(footer));
                       if !fgame.desc.is_empty() {
-                        if old_description.is_empty() {
-                          e = e.description('\u{200b}');
-                        } else {
-                          e = e.description(&old_description);
-                        }
+                        e = e.description(&fgame.desc[0]);
                         if fgame.desc.len() > 2 {
                           let d_fields = vec![
                             ("Team 1", fgame.desc[1].as_str(), true)
                           , ("Team 2", fgame.desc[2].as_str(), true)
-                          , (&fgame.desc[0], "\u{200b}", false)
                           ];
                           e = e.fields(d_fields);
                         } else {

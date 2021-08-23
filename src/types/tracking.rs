@@ -43,5 +43,6 @@ pub struct StartingGame<'a> {
   pub key: String,
   pub description: Vec<String>,
   pub players: Vec<&'a DiscordPlayer>,
+  pub host: String,
   pub mode: GameMode
 }

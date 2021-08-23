@@ -7,7 +7,6 @@ pub static MIST_CHANNEL: ChannelId    = ChannelId( 827151604053835807 );
 pub static SOLO_CHANNEL: ChannelId    = ChannelId( 721956117558853673 );
 pub static TEAM2_CHANNEL: ChannelId   = ChannelId( 864417724445098004 );
 pub static TEAM4_CHANNEL: ChannelId   = ChannelId( 864417767415349248 );
-pub static NEWS_CHANNEL: ChannelId    = ChannelId( 635912696675565608 );
 pub static STREAM_PICS: ChannelId     = ChannelId( 740153825272266822 );
 pub static APM_PICS: ChannelId        = ChannelId( 752538491312930878 );
 pub static MODERATION: ChannelId      = ChannelId( 740913303278321704 );

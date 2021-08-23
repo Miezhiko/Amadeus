@@ -427,8 +427,8 @@ pub async fn check<'a>( ctx: &Context
       if !going.matches.is_empty() {
         for m in going.matches {
           let server_info = m.serverInfo.clone();
-          let host = format!("Host: {} {}", server_info.name.unwrap_or("?".into())
-                                          , server_info.provider.unwrap_or("".into())
+          let host = format!("Host: **{}** {}", server_info.name.unwrap_or("?".into())
+                                              , server_info.location.unwrap_or("".into())
                             );
           if m.gameMode == 1 {
             if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {

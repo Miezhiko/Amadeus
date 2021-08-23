@@ -207,7 +207,7 @@ pub async fn activate_games_tracking(
                   .author(|a| a.icon_url(&user.face()).name(&nick))
                   .colour((red, green, blue));
                 if !game.description.is_empty() {
-                  e = e.description("Host: Gathering information...");
+                  e = e.description("Host: *Gathering information...*");
                   if game.description.len() > 2 {
                     let d_fields = vec![
                       ("Team 1", game.description[1].as_str(), true)

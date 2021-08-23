@@ -9,7 +9,7 @@ use crate::{
   },
   steins::cyber::
     utils::{ get_race, get_race2
-           , get_league, get_map
+           , get_league, get_map_short
            , get_league_png }
 };
 
@@ -79,7 +79,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
       let mut description: String = String:: new();
       for m in chunk {
         if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
-          set! { g_map = get_map(&m.map)
+          set! { g_map = get_map_short(&m.map)
                , race1 = get_race2(m.teams[0].players[0].race)
                , race2 = get_race2(m.teams[1].players[0].race) };
           let mstr = format!("({}) **{}** [{}] vs ({}) **{}** [{}] *{}*",
@@ -367,7 +367,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
             if !s3.winLossesOnMap.is_empty() &&
                 s3.race == 16 {
               for s4 in &s3.winLossesOnMap {
-                let text = get_map(&s4.map);
+                let text = get_map_short(&s4.map);
                 let mut scores: HashMap<u32, String> = HashMap::new();
                 for s5 in &s4.winLosses {
                   let vs_winrate = (s5.winrate * 100.0).round();
@@ -512,7 +512,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             if !s3.winLossesOnMap.is_empty() &&
                 s3.race == 16 {
               for s4 in &s3.winLossesOnMap {
-                let text_map = get_map(&s4.map);
+                let text_map = get_map_short(&s4.map);
                 for s5 in &s4.winLosses {
                   if s5.race == race_vs_num && text_map != "All" {
                     if let Some(fwm) =
@@ -632,7 +632,7 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         for m in rest.matches.iter() {
           // for now only solo matches
           if m.gameMode == 1 {
-            let map_name = get_map(&m.map);
+            let map_name = get_map_short(&m.map);
             let flo_info =
               if m.serverInfo.provider == Some("BNET".to_string()) {
                 String::from("BNET")

@@ -1,6 +1,10 @@
 use regex::Regex;
 use once_cell::sync::Lazy;
 
+static MAP_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(
+  r"^(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+_[0-9]+)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$")
+    .unwrap());
+
 pub fn get_race(r: u32) -> String {
   String::from(
     match r { 1 => "Human"
@@ -30,6 +34,60 @@ pub fn get_league(l: u32) -> String {
                        , 7 => "Bronze"
                        , 8 => "Grass"
                        , _ => "" })
+}
+
+fn try_get_map_short(m: &str) -> String {
+  String::from(
+    match m { "overall"               => "All"
+            , "echoisles"             => "EI"
+            , "northernisles"         => "NIS"
+            , "amazonia"              => "AZ"
+            , "lastrefuge"            => "LR"
+            , "concealedhill"         => "CH"
+            , "twistedmeadows"        => "TM"
+            , "terenasstand"          => "TS"
+            , "autumnleaves"          => "AL"
+            , "avalanche"             => "AV"
+            , "losttemple"            => "LT"
+            , "turtlerock"            => "TR"
+            , "ruinsofazshara"        => "RoA"
+            , "synergy"               => "SY"
+            , "gnollwood"             => "GW"
+            , "hillsbradcreek"        => "HC"
+            , "goldshire"             => "GS"
+            , "tidewaterglades"       => "TWG"
+            , "circleoffallenheroes"  => "CoH"
+            , "phantomgrove"          => "PG"
+            , "fullscaleassault"      => "Ass"
+            , "northshire"            => "NS"
+            , "golemsinthemist"       => "GitM"
+            , "wellspringtemple"      => "WS"
+            , "marketsquare"          => "MS"
+            , "deadlock"              => "DL"
+            , "northernfelwood"       => "NFW"
+            , "dragonfalls"           => "DF"
+            , "ferocity"              => "Fro"
+            , "murguloasis"           => "MO"
+            , "twilightruins"         => "TR"
+            , "goldrush"              => "GR"
+            , "dalarangarden"         => "DG"
+            , "nerubianpassage"       => "NM"
+            , "cherryville"           => "CV"
+            , "feralas"               => "Fera"
+            , "battleground"          => "BG"
+            , "sanctuary"             => "Sanc"
+            , "fortpearl"             => "FP"
+            , "tidehunters"           => "TH"
+            , "royalgardens"          => "RG"
+            , "shatteredexile"        => "SE"
+            , "kal'drassil"           => "KD"
+            , "shallowgrave"          => "SG"
+            , "plunderisle"           => "PI"
+            , "kingandcountry"        => "KaC"
+            , "banditsretreat"        => "BB"
+            , "northmarshruin"        => "NR"
+            , "mur'guloasis"          => "MO"
+            , _                       => "" })
 }
 
 fn try_get_map(m: &str) -> String {
@@ -87,14 +145,22 @@ fn try_get_map(m: &str) -> String {
 }
 
 pub fn get_map(m: &str) -> String {
-  static MAP_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(
-    r"^(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+_[0-9]+)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$")
-      .unwrap());
   let mut map = String::new();
   let lower_map = m.to_lowercase();
   if let Some(caps) = MAP_REGEX.captures(&lower_map) {
     if let Some(group1) = caps.get(1) {
       map = try_get_map(group1.as_str());
+    }
+  }
+  if map.is_empty() { m.to_string() } else { map }
+}
+
+pub fn get_map_short(m: &str) -> String {
+  let mut map = String::new();
+  let lower_map = m.to_lowercase();
+  if let Some(caps) = MAP_REGEX.captures(&lower_map) {
+    if let Some(group1) = caps.get(1) {
+      map = try_get_map_short(group1.as_str());
     }
   }
   if map.is_empty() { m.to_string() } else { map }

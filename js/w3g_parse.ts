@@ -6,7 +6,7 @@ const replay = "./" + process.argv[2];
 
 const highlevel_parser = new rep();
 
-class LeaverResult {
+type LeaverResult = {
   id: number
   reason: string
   result: string

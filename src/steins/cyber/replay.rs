@@ -283,13 +283,15 @@ pub async fn attach_replay( ctx: &Context
                   let mut same_count: u32 = 0;
                   for f in mmm.embeds[0].fields.clone() {
                     for (pf, _) in fields1.iter() {
+                      //TODO: remove after fix
+                      info!("RA: comparing {} | {}", f.name, pf);
                       if f.name == *pf {
                         same_count += 1;
                       }
                     }
                   }
                   // we've found some game which looks alike replay
-                  if same_count == 2 {
+                  if same_count > 1 {
                     for f in mmm.embeds[0].fields.clone() {
                       let mut modified = false;
                       for (pf, v) in fields1.iter() {

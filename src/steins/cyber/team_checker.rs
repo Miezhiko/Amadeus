@@ -12,8 +12,8 @@ use crate::{
     utils::{ get_race2
            , get_map
            , get_hero_png }
-  },
-  steins::ai::chain
+  }
+  //steins::ai::chain
 };
 
 use serenity::{
@@ -148,7 +148,7 @@ async fn check_match( matchid: &str
         } else {
           format!("__*{}*__ **{}**", t1_name, m.teams[1].players[0].mmrGain)
         };
-        Some( vec![ format!("Map: {}", g_map)
+        Some( vec![ g_map
                   , format!("({}) {} [{}]", race1, player1, m.teams[0].players[0].oldMmr)
                   , format!("({}) {} [{}]", race2, player2, m.teams[1].players[0].oldMmr)  ] )
       } else if m.gameMode == 6 || m.gameMode == 2 {
@@ -165,7 +165,6 @@ async fn check_match( matchid: &str
                 { aka } else { m.teams[i].players[j].name.clone() };
           }
         }
-        let mstr = format!("Map: {}", g_map);
         let teamx = |x: usize| -> String {
           if m.gameMode == 6 {
             if m.teams[x].won {
@@ -187,7 +186,7 @@ async fn check_match( matchid: &str
             , get_race2(m.teams[x].players[1].race), aka_names[x][1], m.teams[x].players[1].oldMmr, m.teams[x].players[1].mmrGain)
           }
         };
-        Some( vec![ mstr, teamx(0), teamx(1) ] )
+        Some( vec![ g_map, teamx(0), teamx(1) ] )
       } else if m.gameMode == 4 {
         let g_map  = get_map(&m.map);
         let mut aka_names: [[String; 4]; 2] = Default::default();
@@ -202,7 +201,6 @@ async fn check_match( matchid: &str
                 { aka } else { m.teams[i].players[j].name.clone() };
           }
         }
-        let mstr = format!("Map: {}", g_map);
         let teamx = |x: usize| -> String {
           if m.teams[x].won {
             format!("({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**\n({}) __**{}**__ [{}] **+{}**"
@@ -218,7 +216,7 @@ async fn check_match( matchid: &str
             , get_race2(m.teams[x].players[3].race), aka_names[x][3], m.teams[x].players[3].oldMmr, m.teams[x].players[3].mmrGain)
           }
         };
-        Some( vec![ mstr, teamx(0), teamx(1) ] )
+        Some( vec![ g_map, teamx(0), teamx(1) ] )
       } else {
         None
       };
@@ -447,7 +445,7 @@ pub async fn check<'a>( ctx: &Context
                     { aka } else { m.teams[1].players[0].name.clone() };
 
                 let mvec =
-                  vec![ format!("Map: {}", g_map)
+                  vec![ g_map
                       , format!("({}) **{}** [{}]", race1, t0_name, m.teams[0].players[0].oldMmr)
                       , format!("({}) **{}** [{}]", race2, t1_name, m.teams[1].players[0].oldMmr) ];
 
@@ -546,8 +544,6 @@ pub async fn check<'a>( ctx: &Context
                      , race2  = get_race2(m.teams[1].players[0].race)
                      , race22 = get_race2(m.teams[1].players[1].race) };
 
-                let mstr = format!("Map: {}", g_map);
-
                 let mut aka_names: [[String; 2]; 2] = Default::default();
                 for i in 0..2 {
                   for j in 0..2 {
@@ -565,7 +561,7 @@ pub async fn check<'a>( ctx: &Context
                     let team2 = format!("({}) **{}**\n({}) **{}**\n{} MMR"
                       , race2, aka_names[1][0]
                       , race22, aka_names[1][1], m.teams[1].players[0].oldMmr);
-                    vec![ mstr, team1, team2 ]
+                    vec![ g_map, team1, team2 ]
                   } else {
                     let team1 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
                       , race1, aka_names[0][0], m.teams[0].players[0].oldMmr
@@ -573,7 +569,7 @@ pub async fn check<'a>( ctx: &Context
                     let team2 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
                       , race2, aka_names[1][0], m.teams[1].players[0].oldMmr
                       , race22, aka_names[1][1], m.teams[1].players[1].oldMmr);
-                    vec![ mstr, team1, team2 ]
+                    vec![ g_map, team1, team2 ]
                   };
 
                 { // games lock scope
@@ -671,8 +667,6 @@ pub async fn check<'a>( ctx: &Context
                    , race2  = get_race2(m.teams[1].players[0].race), race23 = get_race2(m.teams[1].players[2].race)
                    , race22 = get_race2(m.teams[1].players[1].race), race24 = get_race2(m.teams[1].players[3].race) };
 
-              let mstr = format!("Map: {}", g_map);
-
               let mut aka_names: [[String; 4]; 2] = Default::default();
               for i in 0..2 {
                 for j in 0..4 {
@@ -693,7 +687,7 @@ pub async fn check<'a>( ctx: &Context
                     , race22, aka_names[1][1], m.teams[1].players[1].oldMmr
                     , race23, aka_names[1][2], m.teams[1].players[2].oldMmr
                     , race24, aka_names[1][3], m.teams[1].players[3].oldMmr);
-                  vec![ mstr, team1, team2 ]
+                  vec![ g_map, team1, team2 ]
                 };
 
               { // games lock scope
@@ -930,11 +924,14 @@ pub async fn check<'a>( ctx: &Context
                       }
                     }
                   }
+
+                  /*
                   let tip =
                     if old_fields.is_empty() && streak_fields.is_none() && bet_fields.is_none()
                                              && fgame.additional_fields.is_some() {
                       Some(chain::generate_with_language(ctx, false).await)
                     } else { None };
+                  */
 
                   let nick = user.nick_in(&ctx.http, guild)
                                  .await.unwrap_or_else(|| user.name.clone());
@@ -948,19 +945,25 @@ pub async fn check<'a>( ctx: &Context
                          .url(&fgame.link)
                          .footer(|f| f.text(footer));
                       if !fgame.desc.is_empty() {
-                        e = e.description(&fgame.desc[0]);
+                        //e = e.description(&fgame.desc[0]);
                         if fgame.desc.len() > 2 {
                           let d_fields = vec![
                             ("Team 1", &fgame.desc[1], true)
                           , ("Team 2", &fgame.desc[2], true)
+                          , ("Map",    &fgame.desc[0], false)
                           ];
                           e = e.fields(d_fields);
                           // add line breaking something if there is no
+                          /*
                           if let Some(t) = tip {
                             e = e.fields(vec![
                               ("Tip for the day", &t, false)
                             ]);
                           }
+                          */
+                        } else {
+                          // TODO: drop it, this should never happen
+                          e = e.description(&fgame.desc[0]);
                         }
                       }
                       if !old_fields.is_empty() {

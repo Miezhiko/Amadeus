@@ -1,4 +1,4 @@
-// import rep from "../node_modules/w3gjs";
+//import rep from "../node_modules/w3gjs";
 import rep from "/usr/lib64/node_modules/w3gjs";
 import { units, heroes } from "./mappings"
 
@@ -6,11 +6,17 @@ const replay = "./" + process.argv[2];
 
 const highlevel_parser = new rep();
 
-var leaver_results = [];
+class LeaverResult {
+  id: number
+  reason: string
+  result: string
+}
+
+var leaver_results: LeaverResult[] = [];
 
 highlevel_parser.on("gamedatablock", (block) => {
   if (block.id === 0x17) {
-    const leaver_result = 
+    const leaver_result: LeaverResult =
       { id: block.playerId
       , reason: block.reason
       , result: block.result };
@@ -22,7 +28,7 @@ highlevel_parser
   .parse(replay)
   .then((result) => {
     for (let playa of result.players) {
-      var new_dict = {};
+      var new_dict: { [id: string]: number; } = {};
       for (let key in playa.units.summary) {
         let count = playa.units.summary[key];
         let new_key = units[key].substring(2);
@@ -38,7 +44,7 @@ highlevel_parser
      && leaver_results.length > 1) {
       var found = false;
       for (let i in leaver_results) {
-        if (leaver_results[i].result == 0b000000) {
+        if (leaver_results[i].result == "0b000000") {
           for (let j in leaver_results) {
             if (leaver_results[i].id == result.players[j].id) {
               found = true;

@@ -35,18 +35,18 @@ pub fn get_league(l: u32) -> String {
 fn try_get_map(m: &str) -> String {
   String::from(
     match m { "overall"               => "All"
-            , "echoisles"             => "EI"
-            , "northernisles"         => "NIS"
-            , "amazonia"              => "AZ"
-            , "lastrefuge"            => "LR"
-            , "concealedhill"         => "CH"
-            , "twistedmeadows"        => "TM"
-            , "terenasstand"          => "TS"
-            , "autumnleaves"          => "AL"
-            , "avalanche"             => "AV"
-            , "losttemple"            => "LT"
-            , "turtlerock"            => "TR"
-            , "ruinsofazshara"        => "ROA"
+            , "echoisles"             => "Echo Isles"
+            , "northernisles"         => "Northen Isles"
+            , "amazonia"              => "Amazonia"
+            , "lastrefuge"            => "Last Refuge"
+            , "concealedhill"         => "Concealed Hill"
+            , "twistedmeadows"        => "Twisted Meadows"
+            , "terenasstand"          => "Terenas Stand"
+            , "autumnleaves"          => "Autumn Leaves"
+            , "avalanche"             => "Avalanche"
+            , "losttemple"            => "Lost Temple"
+            , "turtlerock"            => "Turtle Rock"
+            , "ruinsofazshara"        => "Ruins of Azshara"
             , "synergy"               => "Synergy"
             , "gnollwood"             => "Gnoll Wood"
             , "hillsbradcreek"        => "Hillsbrad Creek"
@@ -73,12 +73,12 @@ fn try_get_map(m: &str) -> String {
             , "battleground"          => "Battleground"
             , "sanctuary"             => "Sanctuary"
             , "fortpearl"             => "Fort Pearl"
-            , "tidehunters"           => "TH"
+            , "tidehunters"           => "Tidehunters"
             , "royalgardens"          => "Royal Gardens"
             , "shatteredexile"        => "Shattered Exile"
             , "kal'drassil"           => "Kal'drassil"
-            , "shallowgrave"          => "SG"
-            , "plunderisle"           => "PI"
+            , "shallowgrave"          => "Shallow Grave"
+            , "plunderisle"           => "Plunder Isle"
             , "kingandcountry"        => "King and Country"
             , "banditsretreat"        => "Bandits Betreat"
             , "northmarshruin"        => "Northmarsh Ruin"
@@ -123,9 +123,9 @@ mod cyber_utils_tests {
   use super::*;
   #[test]
   fn get_map_test() {
-    assert_eq!(get_map("echoisles"), "EI");
-    assert_eq!(get_map("autumnleaves201016"), "AL");
-    assert_eq!(get_map("_1v1_autumnleaves_anon"), "AL");
+    assert_eq!(get_map("echoisles"), "Echo Isles");
+    assert_eq!(get_map("autumnleaves201016"), "Autumn Leaves");
+    assert_eq!(get_map("_1v1_autumnleaves_anon"), "Autumn Leaves");
     assert_eq!(get_map("_gnollwood_anon"), "Gnoll Wood");
     assert_eq!(get_map("phantomgrovew3c201016"), "Phantom Grove");
     assert_eq!(get_map("PhantomGroveW3C"), "Phantom Grove");

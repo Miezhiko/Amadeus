@@ -234,8 +234,13 @@ pub async fn attach_replay( ctx: &Context
              , fields1 = vec![]
              , fields2 = vec![]
              , fields3 = vec![] };
+        let short_btag = if battletag.contains('#') {
+            battletag.split('#').collect::<Vec<&str>>()[0].to_string()
+          } else {
+            battletag.clone()
+          };
         for (btag, vv, mut papm) in flds {
-          if battletag == btag {
+          if short_btag == btag {
             // so we see this player is indeed there
             found = true;
           } else {

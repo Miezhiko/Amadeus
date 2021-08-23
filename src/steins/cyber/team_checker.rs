@@ -147,10 +147,9 @@ async fn check_match( matchid: &str
         } else {
           format!("__*{}*__ **{}**", t1_name, m.teams[1].players[0].mmrGain)
         };
-        Some(
-          vec![ format!("({}) {} [{}] *vs* ({}) {} [{}] *{}*",
-                race1, player1, m.teams[0].players[0].oldMmr
-              , race2, player2, m.teams[1].players[0].oldMmr, g_map) ])
+        Some( vec![ format!("Map: {}", g_map)
+                  , format!("({}) {} [{}]", race1, player1, m.teams[0].players[0].oldMmr)
+                  , format!("({}) {} [{}]", race2, player2, m.teams[1].players[0].oldMmr)  ] )
       } else if m.gameMode == 6 || m.gameMode == 2 {
         let g_map  = get_map(&m.map);
         let mut aka_names: [[String; 2]; 2] = Default::default();
@@ -422,9 +421,10 @@ pub async fn check<'a>( ctx: &Context
                   if let Some(aka) = check_aka(&m.teams[1].players[0].battleTag, rqcl).await
                     { aka } else { m.teams[1].players[0].name.clone() };
 
-                let mstr = format!("({}) **{}** [{}] *vs* ({}) **{}** [{}] *{}*",
-                    race1, t0_name, m.teams[0].players[0].oldMmr
-                  , race2, t1_name, m.teams[1].players[0].oldMmr, g_map);
+                let mvec =
+                  vec![ format!("Map: {}", g_map)
+                      , format!("({}) **{}** [{}]", race1, t0_name, m.teams[0].players[0].oldMmr)
+                      , format!("({}) **{}** [{}]", race2, t1_name, m.teams[1].players[0].oldMmr) ];
 
                 { // games lock scope
                   let mut games_lock = GAMES.lock().await;
@@ -465,7 +465,7 @@ pub async fn check<'a>( ctx: &Context
                             let mut e = e
                               .title("LIVE")
                               .author(|a| a.icon_url(&user.face()).name(&nick))
-                              .description(mstr)
+                              .description(&mvec[0])
                               .colour(color)
                               .footer(|f| f.text(footer));
                             if !fields.is_empty() {
@@ -491,7 +491,7 @@ pub async fn check<'a>( ctx: &Context
                   } else {
                     out.push(
                       StartingGame { key: m.match_id
-                                   , description: vec![ mstr ]
+                                   , description: mvec
                                    , players: playaz
                                    , mode: GameMode::Solo });
                   }

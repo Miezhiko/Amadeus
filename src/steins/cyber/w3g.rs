@@ -4,7 +4,6 @@ use serde_json::Value;
 async fn analyze_js(path: &str) -> anyhow::Result<String> {
   let node_out = Command::new("sh")
         .arg("-c")
-      //.arg(&format!("node js/w3gjs_parse.js {}", path))
         .arg(&format!("ts-node js/w3g_parse.ts {}", path))
         .output()
         .await?;

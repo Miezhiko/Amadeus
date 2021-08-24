@@ -137,15 +137,31 @@ async fn check_match( matchid: &str
         let t1_name =
           if let Some(aka) = check_aka(&m.teams[1].players[0].battleTag, rqcl).await
             { aka } else { m.teams[1].players[0].name.clone() };
+
+        let mut t0_ping = String::new();
+        let mut t1_ping = String::new();
+        if m.serverInfo.playerServerInfos.len() > 1 {
+          let (t0_index, t1_index) =
+            if m.teams[0].players[0].battleTag == m.serverInfo.playerServerInfos[0].battleTag {
+              (0, 1)
+            } else {
+              (1, 0)
+            };
+          t0_ping = format!("\n*avg: {}ms now: {}ms*", m.serverInfo.playerServerInfos[t0_index].averagePing
+                                                     , m.serverInfo.playerServerInfos[t0_index].currentPing);
+          t1_ping = format!("\n*avg: {}ms now: {}ms*", m.serverInfo.playerServerInfos[t1_index].averagePing
+                                                     , m.serverInfo.playerServerInfos[t1_index].currentPing);
+        }
+
         let player1 = if m.teams[0].players[0].won {
-          format!("__**{}**__ **+{}**", t0_name, m.teams[0].players[0].mmrGain)
+          format!("__**{}**__ **+{}**{}", t0_name, m.teams[0].players[0].mmrGain, t0_ping)
         } else {
-          format!("__*{}*__ **{}**", t0_name, m.teams[1].players[0].mmrGain)
+          format!("__*{}*__ **{}**{}", t0_name, m.teams[0].players[0].mmrGain, t0_ping)
         };
         let player2 = if m.teams[1].players[0].won {
-          format!("__**{}**__ **+{}**", t1_name, m.teams[0].players[0].mmrGain)
+          format!("__**{}**__ **+{}**{}", t1_name, m.teams[1].players[0].mmrGain, t1_ping)
         } else {
-          format!("__*{}*__ **{}**", t1_name, m.teams[1].players[0].mmrGain)
+          format!("__*{}*__ **{}**{}", t1_name, m.teams[1].players[0].mmrGain, t1_ping)
         };
         Some( vec![ format!("Map: **{}** ⠀⠀⠀⠀", g_map)
                   , format!("({}) {} [{}]", race1, player1, m.teams[0].players[0].oldMmr)
@@ -445,10 +461,25 @@ pub async fn check<'a>( ctx: &Context
                   if let Some(aka) = check_aka(&m.teams[1].players[0].battleTag, rqcl).await
                     { aka } else { m.teams[1].players[0].name.clone() };
 
+                let mut t0_ping = String::new();
+                let mut t1_ping = String::new();
+                if server_info.playerServerInfos.len() > 1 {
+                  let (t0_index, t1_index) =
+                    if m.teams[0].players[0].battleTag == server_info.playerServerInfos[0].battleTag {
+                      (0, 1)
+                    } else {
+                      (1, 0)
+                    };
+                  t0_ping = format!("\n*avg: {}ms now: {}ms*", server_info.playerServerInfos[t0_index].averagePing
+                                                             , server_info.playerServerInfos[t0_index].currentPing);
+                  t1_ping = format!("\n*avg: {}ms now: {}ms*", server_info.playerServerInfos[t1_index].averagePing
+                                                             , server_info.playerServerInfos[t1_index].currentPing);
+                }
+
                 let mvec =
                   vec![ format!("Map: **{}** ⠀⠀⠀⠀", g_map)
-                      , format!("({}) **{}** [{}]", race1, t0_name, m.teams[0].players[0].oldMmr)
-                      , format!("({}) **{}** [{}]", race2, t1_name, m.teams[1].players[0].oldMmr) ];
+                      , format!("({}) **{}** [{}]{}", race1, t0_name, m.teams[0].players[0].oldMmr, t0_ping)
+                      , format!("({}) **{}** [{}]{}", race2, t1_name, m.teams[1].players[0].oldMmr, t1_ping) ];
 
                 { // games lock scope
                   let mut games_lock = GAMES.lock().await;

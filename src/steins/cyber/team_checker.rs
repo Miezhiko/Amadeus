@@ -154,18 +154,18 @@ async fn check_match( matchid: &str
         }
 
         let player1 = if m.teams[0].players[0].won {
-          format!("__**{}**__ **+{}**{}", t0_name, m.teams[0].players[0].mmrGain, t0_ping)
+          format!("__**{}**__ **+{}**", t0_name, m.teams[0].players[0].mmrGain)
         } else {
-          format!("__*{}*__ **{}**{}", t0_name, m.teams[0].players[0].mmrGain, t0_ping)
+          format!("__*{}*__ **{}**", t0_name, m.teams[0].players[0].mmrGain)
         };
         let player2 = if m.teams[1].players[0].won {
-          format!("__**{}**__ **+{}**{}", t1_name, m.teams[1].players[0].mmrGain, t1_ping)
+          format!("__**{}**__ **+{}**", t1_name, m.teams[1].players[0].mmrGain)
         } else {
-          format!("__*{}*__ **{}**{}", t1_name, m.teams[1].players[0].mmrGain, t1_ping)
+          format!("__*{}*__ **{}**", t1_name, m.teams[1].players[0].mmrGain)
         };
         Some( vec![ format!("Map: **{}** ⠀⠀⠀⠀", g_map)
-                  , format!("({}) {} [{}]", race1, player1, m.teams[0].players[0].oldMmr)
-                  , format!("({}) {} [{}]", race2, player2, m.teams[1].players[0].oldMmr)  ] )
+                  , format!("({}) {} [{}]{}", race1, player1, m.teams[0].players[0].oldMmr, t0_ping)
+                  , format!("({}) {} [{}]{}", race2, player2, m.teams[1].players[0].oldMmr, t1_ping) ] )
       } else if m.gameMode == 6 || m.gameMode == 2 {
         let g_map  = get_map(&m.map);
         let mut aka_names: [[String; 2]; 2] = Default::default();
@@ -332,6 +332,24 @@ async fn check_match( matchid: &str
               } else { &md.playerScores[1] }
             } else { &md.playerScores[1] }
           } else { &md.playerScores[1] };
+
+        let mut t0_ping = String::new();
+        let mut t1_ping = String::new();
+        if m.serverInfo.playerServerInfos.len() > 3 {
+          let mut t0_index = 0;
+          let mut t1_index = 1;
+          for i in 0..4 {
+            if player_scores.battleTag == m.serverInfo.playerServerInfos[i].battleTag {
+              t0_index = i;
+            }
+            else if teammate_scores.battleTag == m.serverInfo.playerServerInfos[i].battleTag {
+              t1_index = i;
+            }
+          }
+          t0_ping = format!("\navg ping: {}ms", m.serverInfo.playerServerInfos[t0_index].averagePing);
+          t1_ping = format!("\navg ping: {}ms", m.serverInfo.playerServerInfos[t1_index].averagePing);
+        }
+
         let s1 = if let Some(aka) = check_aka(&player_scores.battleTag, rqcl).await
                   { aka } else {
                     if player_scores.battleTag.contains('#') {
@@ -348,14 +366,16 @@ async fn check_match( matchid: &str
                       teammate_scores.battleTag.clone()
                     }
                   };
-        let s3 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}"
+        let s3 = format!("hero kills: {}{}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}"
             , player_scores.heroScore.heroesKilled
+            , t0_ping
             , player_scores.heroScore.expGained
             , player_scores.unitScore.unitsProduced
             , player_scores.unitScore.unitsKilled
             , player_scores.resourceScore.goldCollected);
-        let s4 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}"
+        let s4 = format!("hero kills: {}{}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}"
             , teammate_scores.heroScore.heroesKilled
+            , t1_ping
             , teammate_scores.heroScore.expGained
             , teammate_scores.unitScore.unitsProduced
             , teammate_scores.unitScore.unitsKilled

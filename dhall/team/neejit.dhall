@@ -7,7 +7,7 @@ let g = ./functions/g.dhall
 let b = ./functions/b.dhall
 
 let playersList : List Playerx =
-  [ t "Маша#21994"          510368731378089984 "Miezhiko"
+  [ t "Miezhiko#2635"       510368731378089984 "Miezhiko"
   , b "НееЖить#2559"        703241941114028032 "masterv_64" "Ghost_OL"
   ]
 

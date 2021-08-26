@@ -71,7 +71,11 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
       } else { Ok(
         if output.len() > 1 {
           if let Some(r) = output.choose(&mut rand::thread_rng()) {
-            String::from(r)
+            if r.starts_with(&something) {
+              r.replace(&something, "")
+            } else {
+              String::from(r)
+            }
           } else {
             output[1].clone()
           }

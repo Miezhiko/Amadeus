@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "7.0.8"
+version     = "7.1.0"
 authors     = [ "Miezhiko" ]
 repository  = "https://github.com/Miezhiko/Amadeus"
 readme      = "README.md"
@@ -46,10 +46,8 @@ kathoey             = "1.0.7"
 songbird            = "0.2.0"
 serde_dhall         = "0.10"
 nlprule             = "0.6.4"
-
-# rust bert needs update
-tch                 = "0.4.1"
-rust-bert           = "0.15.1"
+tch                 = "0.5.0"
+rust-bert           = "0.16.0"
 
 rand    = { version = "0.8",  features = ["std", "std_rng"] }
 reqwest = { version = "0.11", features = ["json", "blocking"] }
@@ -77,17 +75,18 @@ features = [ "cache"
 version = "0.4"
 optional = true
 
+# should be updated with flo
 [dependencies.tonic]
 version = "0.4"
 optional = true
 
 [dependencies.flo-grpc]
-git = "https://github.com/Masha/flo-grpc.git"
+git = "https://github.com/w3champions/flo-grpc.git"
 branch = "main"
 optional = true
 
 [dependencies.tokio]
-version = "1.10"
+version = "1.10.1"
 features = ["full"]
 
 [dependencies.dasp_signal]

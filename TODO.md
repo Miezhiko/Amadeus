@@ -2,8 +2,15 @@
  - finetune GTP2 model
  - restructure team_checker module (code quality)
  - some of slash commands are still missing (vs command, etc...)
- - since hot emo 1337 team disband need different structure for live games (work in progress)
  - stream announce (e.g. steam in 30 mins or something like that) + stream announce role
- - GPT3: drop Q if it's starts with it
- - displayer player pings!
+ - display player pings for 2x2 when live.
+ - documentation
+ - use Summarization model for large texts and just sometimes with context cache!
 
+```rust
+    let summarization_model = SummarizationModel::new(Default::default())?;
+    let input = ["I"]
+    let output = summarization_model.summarize(&input);
+```
+
+ - I need part of speech tagging POSModel but for russian langauge, that could be used for Kathoey

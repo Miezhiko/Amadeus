@@ -10,13 +10,11 @@ use serenity::{
 };
 
 use rust_bert::pipelines::translation::{ Language
-                                       , TranslationConfig
-                                       , TranslationModel };
+                                       , TranslationModelBuilder };
 
-use tch::Device;
 use tokio::task;
 
-async fn bert_translate(_ctx: &Context, text: String, lang: Language)
+async fn bert_translate(_ctx: &Context, text: String, source_lang: Language, target_lang: Language)
           -> anyhow::Result<String> {
   task::spawn_blocking(move || {
     let mut something = text;
@@ -26,16 +24,18 @@ async fn bert_translate(_ctx: &Context, text: String, lang: Language)
       }
     }
 
-    let translation_config =
-      TranslationConfig::new(lang, Device::cuda_if_available());
+    let model = TranslationModelBuilder::new()
+        .with_source_languages(vec![source_lang])
+        .with_target_languages(vec![target_lang])
+        .with_device(tch::Device::cuda_if_available())
+        .create_model()?;
 
-    let model = TranslationModel::new(translation_config)?;
+    let output = model.translate(&[something.as_str()], Some(source_lang), target_lang)?;
 
-    let output = model.translate(&[something.as_str()]);
     if output.is_empty() {
       Err(anyhow!("Failed to translate with TranslationConfig EnglishToRussian"))
     } else {
-      let translation = &output[0];
+      let translation = &output.join(" ");
       Ok(translation.clone())
     }
   }).await?
@@ -62,7 +62,7 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
                       )
             )
           ).await;
-  match bert_translate(ctx, text.clone(), Language::EnglishToRussian).await {
+  match bert_translate(ctx, text.clone(), Language::English, Language::Russian).await {
     Ok(out) => {
       let fields = vec![
         ("Text", format!("{}\n", text), false),
@@ -107,7 +107,7 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
                       )
             )
           ).await;
-  match bert_translate(ctx, text.clone(), Language::RussianToEnglish).await {
+  match bert_translate(ctx, text.clone(), Language::Russian, Language::English).await {
     Ok(out) => {
       let fields = vec![
         ("Text", format!("{}\n", text), false),
@@ -151,7 +151,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                       )
             )
           ).await;
-  match bert_translate(ctx, text.clone(), Language::EnglishToGerman).await {
+  match bert_translate(ctx, text.clone(), Language::English, Language::German).await {
     Ok(out) => {
       let fields = vec![
         ("Text", format!("{}\n", text), false),
@@ -195,7 +195,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                       )
             )
           ).await;
-  match bert_translate(ctx, text.clone(), Language::GermanToEnglish).await {
+  match bert_translate(ctx, text.clone(), Language::German, Language::English).await {
     Ok(out) => {
       let fields = vec![
         ("Text", format!("{}\n", text), false),
@@ -239,7 +239,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                       )
             )
           ).await;
-  match bert_translate(ctx, text.clone(), Language::EnglishToFrench).await {
+  match bert_translate(ctx, text.clone(), Language::English, Language::French).await {
     Ok(out) => {
       let fields = vec![
         ("Text", format!("{}\n", text), false),
@@ -283,7 +283,7 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                       )
             )
           ).await;
-  match bert_translate(ctx, text.clone(), Language::FrenchToEnglish).await {
+  match bert_translate(ctx, text.clone(), Language::French, Language::English).await {
     Ok(out) => {
       let fields = vec![
         ("Text", format!("{}\n", text), false),

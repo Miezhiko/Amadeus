@@ -114,6 +114,7 @@ impl EventHandler for Handler {
     let threads_check = THREADS.load(Ordering::Relaxed);
     if !threads_check {
       THREADS.store(true, Ordering::Relaxed);
+      #[cfg(feature = "trackers")]
       gate::behavior::activate(ctx, &self.ioptions, &self.amadeus_id).await;
     }
   }

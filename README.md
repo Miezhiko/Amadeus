@@ -89,6 +89,15 @@ in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
    }
 ```
 
+Optional Build Features:
+
+ - `trackers` - enable games trackers / w3info news trackers / streams trackers
+ - `flo` - gather flo nodes information / register players / host games
+ - `voice_analysis` - experimental voice recognition (you need libdeepspeach for this to work) (WIP)
+ - `full` - enable all
+
+use `cargo build --release --features flo,trackers` for example to enable what you need.
+
 installation environment for typescript parsing backend (optional)
 typescript replay parsing will be replaced in future.
 

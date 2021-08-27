@@ -2,7 +2,7 @@ parameters:
   name: ''
   vmImage: ''
   toolchain: 'stable'
-  features: ''
+  features: 'flo,trackers'
 
 jobs:
 - job: ${{ parameters.name }}

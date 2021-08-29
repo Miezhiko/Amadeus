@@ -296,14 +296,14 @@ pub async fn attach_replay( ctx: &Context
                         if f.name == *pf {
                           let mut already_inf_fields = false;
                           let new_info = format!("{}\n{}", f.value, v);
-                          for (pff, vv) in fields2.iter {
-                            if pff == f.name && vv == new_info {
+                          for (pff, vv, _) in fields2.iter() {
+                            if pff == &f.name && vv == &new_info {
                               already_inf_fields = true;
                               break;
                             }
                           }
                           if !already_inf_fields {
-                            fields2.push(f.name.clone(), new_info, f.inline);
+                            fields2.push((f.name.clone(), new_info, f.inline));
                           }
                           modified = true;
                         }

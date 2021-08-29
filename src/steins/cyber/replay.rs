@@ -301,10 +301,11 @@ pub async fn attach_replay( ctx: &Context
                               break;
                             }
                           }
+                          modified = true;
                           if !already_inf_fields {
                             fields2.push((f.name.clone(), format!("{}\n{}", f.value, v), f.inline));
+                            break;
                           }
-                          modified = true;
                         }
                       }
                       if !modified {

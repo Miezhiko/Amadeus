@@ -230,10 +230,10 @@ pub async fn attach_replay( ctx: &Context
       // only 2x2 and solo games
       if flds.len() == 2 || flds.len() == 4 {
         setm!{ found = false
-             , max_apm = 0
-             , fields1 = vec![]
-             , fields2 = vec![]
-             , fields3 = vec![] };
+             , max_apm = 0 };
+        let mut fields1: Vec<(String, String)> = vec![];
+        let mut fields2: Vec<(String, String, bool)> = vec![];
+        let mut fields3 = vec![];
         for (btag, vv, mut papm) in flds {
           if battletag == btag {
             // so we see this player is indeed there
@@ -295,15 +295,14 @@ pub async fn attach_replay( ctx: &Context
                       for (pf, v) in fields1.iter() {
                         if f.name == *pf {
                           let mut already_inf_fields = false;
-                          let new_info = format!("{}\n{}", f.value, v);
                           for (pff, vv, _) in fields2.iter() {
-                            if pff == &f.name && vv == &new_info {
+                            if pff == &f.name && vv.ends_with(v) {
                               already_inf_fields = true;
                               break;
                             }
                           }
                           if !already_inf_fields {
-                            fields2.push((f.name.clone(), new_info, f.inline));
+                            fields2.push((f.name.clone(), format!("{}\n{}", f.value, v), f.inline));
                           }
                           modified = true;
                         }

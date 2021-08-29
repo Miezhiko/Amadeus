@@ -17,6 +17,16 @@ pub async fn admin_check( ctx: &Context
     if let Ok(permissions) = member.permissions(&ctx).await {
       if permissions.administrator() {
         return Ok(());
+      } else if let Ok(info) = ctx.http.get_current_application_info().await {
+        if let Some(team) = info.team {
+          if msg.author.id == team.owner_user_id {
+            return Ok(());
+          }
+        } else {
+          if msg.author.id == info.owner.id {
+            return Ok(());
+          }
+        }
       }
     }
   }

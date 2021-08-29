@@ -3,6 +3,8 @@
 /cache/
 /node_modules/
 /nlprule/
+package-lock.json
+
 conf.dhall
 conf.yml
 

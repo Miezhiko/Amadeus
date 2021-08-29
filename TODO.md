@@ -1,10 +1,10 @@
+##REALLY PLANNED:
+
  - emoji roles
- - finetune GTP2 model
  - restructure team_checker module (code quality)
  - some of slash commands are still missing (vs command, etc...)
  - stream announce (e.g. steam in 30 mins or something like that) + stream announce role
  - display player pings for 2x2 when live.
- - documentation
  - use Summarization model for large texts and just sometimes with context cache!
 
 ```rust
@@ -13,4 +13,8 @@
     let output = summarization_model.summarize(&input);
 ```
 
+##I DON'T WANT TO DO IT:
+
  - I need part of speech tagging POSModel but for russian langauge, that could be used for Kathoey
+ - finetune GTP2 model
+ - documentation

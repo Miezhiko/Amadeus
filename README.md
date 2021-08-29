@@ -58,7 +58,8 @@
 
 ## Cooking
 
- - to compile just use `cargo build --release` (on Windows you there could be problems with PyTorch, you can install it first and setup paths alike it's done in `misc/build.bat` file)
+ - Amadeus needs to link with installed [PyTorch](https://pytorch.org/), you can find instructions on [tch-rs](https://github.com/LaurentMazare/tch-rs)
+ - to compile just use `cargo build --release`
  - `cp conf.example.dhall conf.dhall` (initial constant options)
  - `cp conf.example.yml conf.yml` (those options may change in runtime)
  - generate token here: https://discord.com/developers/applications
@@ -134,7 +135,7 @@ systemctl restart Amadeus
 
 ## Notes
 
- - Check TODO.md for planned work
+ - Check TODO.md for planned work (also you if want to help me)
  - You need libdeepspeech for voice analysis feature
  - Code open sourced just for my friend Sirius to be able to see it, please pay attention to license
  - Fingon is cute

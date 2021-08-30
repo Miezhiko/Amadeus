@@ -71,8 +71,8 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
       } else { Ok(
         if output.len() > 1 {
           if let Some(r) = output.choose(&mut rand::thread_rng()) {
-            if r.starts_with(&something) {
-              r.replace(&something, "")
+            if r.contains("following code:") {
+              output[0].clone()
             } else {
               String::from(r)
             }
@@ -91,7 +91,11 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
     if result.is_empty() {
       Err( anyhow!("only trash in chat neo response") )
     } else {
-      Ok( result )
+      if result.contains("following code:") {
+        Err( anyhow!("BAD RESULT") )
+      } else {
+        Ok( result )
+      }
     }
   } else {
     Err( anyhow!("output was literally only quotes >_<") )

@@ -16,7 +16,7 @@
 </p>
 
 [![Build Status](https://dev.azure.com/miezhiko/Amadeus/_apis/build/status/Miezhiko.Amadeus?branchName=mawa)](https://dev.azure.com/miezhiko/Amadeus/_build/latest?definitionId=1&branchName=mawa)
-[![GitHub](https://github.com/Miezhiko/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Miezhiko/Amadeus/workflows/mawa)
+[![GitHub](https://github.com/Miezhiko/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Miezhiko/Amadeus/actions/workflows/mawa.yml)
 [![CircleCI](https://circleci.com/gh/Miezhiko/Amadeus/tree/mawa.svg?style=shield)](https://circleci.com/gh/Miezhiko/Amadeus/tree/mawa)
 [![Appveyor](https://ci.appveyor.com/api/projects/status/8cd1qi1aykujkyd2?svg=true)](https://ci.appveyor.com/project/Miezhiko/amadeus)
 [![GitHub contributors](https://img.shields.io/github/contributors/Miezhiko/Amadeus.svg?style=flat)]()

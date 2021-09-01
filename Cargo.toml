@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "7.1.8"
+version     = "7.1.9"
 authors     = [ "Miezhiko" ]
 repository  = "https://github.com/Miezhiko/Amadeus"
 readme      = "README.md"
@@ -46,8 +46,8 @@ sled                = "0.34"
 kathoey             = "1.0.7"
 serde_dhall         = "0.10"
 nlprule             = "0.6.4"
-tch                 = "0.5.0"
-rust-bert           = "0.16.0"
+tch                 = "0.5"
+rust-bert           = "0.16"
 
 rand    = { version = "0.8",  features = ["std", "std_rng"] }
 reqwest = { version = "0.11", features = ["json", "blocking"] }
@@ -96,7 +96,7 @@ branch = "main"
 optional = true
 
 [dependencies.tokio]
-version = "1.10.1"
+version = "1.11"
 features = ["full"]
 
 [dependencies.dasp_signal]

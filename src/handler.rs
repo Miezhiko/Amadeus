@@ -4,9 +4,7 @@ use crate::{
            , RESTORE, BACKUP },
   types::{ common::CoreGuild
          , options::* },
-  steins::{ gate
-          , ai::chain
-          },
+  steins::ai::chain,
   common::{ db::trees
           , constants::{ UNBLOCK_ROLE
                        , LIVE_ROLE
@@ -15,6 +13,9 @@ use crate::{
   collections::channels::AI_ALLOWED,
   commands::music::rejoin_voice_channel
 };
+
+#[cfg(feature = "trackers")]
+use crate::steins::gate;
 
 use serenity::{
   prelude::*,

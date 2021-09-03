@@ -51,6 +51,7 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
   });
 
 static NEO_SEPARATORS: [char; 3] = ['"', '*', '”'];
+static A: &str = "A: ";
 
 pub async fn chat_neo(something: String) -> anyhow::Result<String> {
   info!("Generating GPT Neo response");
@@ -94,7 +95,16 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
       if result.contains("following code:") {
         Err( anyhow!("BAD RESULT") )
       } else {
-        Ok( result )
+        if result.contains(A) {
+          let a_split = result.split(A).collect::<Vec<&str>>();
+          if a_split.len() > 1 {
+            Ok( a_split[1].to_string() )
+          } else {
+            Ok( result.replace(A, "") )
+          }
+        } else {
+          Ok( result )
+        }
       }
     }
   } else {

@@ -214,7 +214,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
         ctx.set_activity(Activity::listening("Restarting")).await;
         let _systemctl = Command::new("sh")
                 .arg("-c")
-                .arg("systemctl restart Amadeus")
+                .arg("sudo systemctl restart Amadeus")
                 .output()
                 .await
                 .expect("failed to restart Amadeus service");

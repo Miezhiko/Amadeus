@@ -1,10 +1,10 @@
 ##REALLY PLANNED:
 
+ - rework config files for simpler/wider usage
  - emoji roles
  - restructure team_checker module (code quality)
  - some of slash commands are still missing (vs command, etc...)
  - stream announce (e.g. steam in 30 mins or something like that) + stream announce role
- - display player pings for 2x2 when live.
  - use Summarization model for large texts and just sometimes with context cache!
 
 ```rust

@@ -14,8 +14,8 @@ let channels : List Channel =
   , bi 611825511433240577 -- "warcraft"
   , bi 631379331515678720 -- "team-chat-en"
   , ru 841643803563655198 -- "team-chat-ru"
+  , bi 652060938765205515 -- "division-1"
   , bi 695909020732620830 -- "division-2"
-  , ru 851325375203639316 -- "division-3"
   , bi 666614389805416448 -- "🌈climatestrike"
   , bi 611824913829068800 -- "🇯🇵日本語"
   , ru 827151604053835807 -- nejit1

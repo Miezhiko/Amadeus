@@ -97,7 +97,8 @@ Optional Build Features:
  - `voice_analysis` - experimental voice recognition (you need libdeepspeach for this to work) (WIP)
  - `full` - enable all
 
-use `cargo build --release --features flo,trackers` for example to enable what you need.
+`cargo build --release --features flo,trackers` enabled by default,
+use following to ignore non-needed features `cargo build --release --no-default-features`
 
 installation environment for typescript parsing backend (optional)
 typescript replay parsing will be replaced in future.

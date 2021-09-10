@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "7.1.11"
+version     = "7.1.12"
 authors     = [ "Miezhiko" ]
 repository  = "https://github.com/Miezhiko/Amadeus"
 readme      = "README.md"
@@ -10,7 +10,7 @@ description = "memory storage and artificial intelligence system"
 license     = "AGPL-3.0-only"
 
 [features]
-default = []
+default = ["trackers", "flo"]
 trackers = []
 flo = ["tonic", "hex", "flo-grpc"]
 voice_analysis = ["dasp_interpolate", "dasp_signal", "deepspeech"]

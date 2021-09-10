@@ -34,6 +34,7 @@ use std::{ time::Duration
 pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(7);
 static ONGOING_PAGE_SIZE: usize = 15;
 
+#[cfg(feature = "trackers")]
 pub async fn update_current_season(ctx: &Context) {
   let rqcl = {
     set!{ data = ctx.data.read().await

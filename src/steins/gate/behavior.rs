@@ -2,6 +2,7 @@ use crate::{
   types::options::IOptions,
   common::{ options, system },
   steins::{
+    gate::START_TIME,
     gate::social::activate_social_skils,
     gate::tracking::{ team_games::activate_games_tracking
                     , streamers::activate_streamers_tracking
@@ -21,13 +22,7 @@ use serenity::{
 };
 
 use std::collections::HashMap;
-
-use chrono::{ Utc, DateTime };
-use tokio::sync::Mutex;
 use once_cell::sync::Lazy;
-
-pub static START_TIME: Lazy<Mutex<DateTime<Utc>>> =
-  Lazy::new(|| Mutex::new(Utc::now()));
 
 pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   info!("activation has started");

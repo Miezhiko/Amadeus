@@ -1,7 +1,7 @@
 use crate::{
   types::common::PubCreds,
   common::options,
-  steins::gate::behavior::START_TIME
+  steins::gate::START_TIME
 };
 
 use serenity::{

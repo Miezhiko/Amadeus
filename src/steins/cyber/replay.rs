@@ -5,8 +5,8 @@ use crate::{
           , colors::gen_colors
           },
   collections::team::HEMO,
-  steins::cyber::{ w3g::analyze
-                 , team_checker::check_aka }
+  steins::cyber::aka_checker::check_aka,
+  steins::cyber::w3g::analyze
 };
 
 use serenity::{

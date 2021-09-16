@@ -2,17 +2,14 @@ use crate::{
   types::{ common::{ CoreGuild, CoreGuilds }
          , team::DiscordPlayer
          , tracking::*
-         , w3c::{ Going, MD, PlayerAPI } },
+         , w3c::{ Going, MD } },
   collections::team::{ PLAYERS, DISCORDS },
-  common::{
-    db::trees, aka::{ self, Aka },
-    constants::W3C_API
-  },
-  steins::cyber::{
-    utils::{ get_race2
-           , get_map
-           , get_hero_png }
-  }
+  common::constants::W3C_API,
+  common::db::trees,
+  steins::cyber::aka_checker::check_aka,
+  steins::cyber::utils::{ get_race2
+                        , get_map
+                        , get_hero_png }
 };
 
 use serenity::{
@@ -28,50 +25,6 @@ use once_cell::sync::Lazy;
 
 pub static GAMES: Lazy<Mutex<HashMap<String, TrackingGame>>>
   = Lazy::new(|| Mutex::new(HashMap::new()));
-
-pub static AKA: Lazy<Mutex<Aka>> = Lazy::new(|| Mutex::new(Aka::new()));
-
-pub async fn check_aka( battletag: &str
-                      , rqcl: &reqwest::Client ) -> Option<String> {
-  let mut aka_lock = AKA.lock().await;
-  match aka_lock.get(battletag) {
-    Some(aka) => aka.clone(),
-    None => {
-      let user = battletag.replace("#","%23");
-      let url = format!("{}/players/{}", W3C_API, user);
-      if let Ok(res) = rqcl.get(&url).send().await {
-        match res.json::<PlayerAPI>().await {
-          Ok(papi) => {
-            if let Some(aka) = papi.playerAkaData {
-              if let Some(aka_name) = aka.name {
-                aka_lock.insert(battletag.to_string(), Some(aka_name.clone()));
-                if let Err(err) = aka::put_aka(&*aka_lock).await {
-                  error!("failed to update aka rs db {:?}", err);
-                }
-                return Some(aka_name);
-              } else {
-                aka_lock.insert(battletag.to_string(), None);
-                if let Err(err) = aka::put_aka(&*aka_lock).await {
-                  error!("failed to update aka rs db {:?}", err);
-                }
-              }
-            } else {
-              aka_lock.insert(battletag.to_string(), None);
-              if let Err(err) = aka::put_aka(&*aka_lock).await {
-                error!("failed to update aka rs db {:?}", err);
-              }
-            }
-          }, Err(err) => {
-            warn!("Failed parse player api {:?}, url: {}", err, url);
-          }
-        }
-      } else {
-        warn!("Failed to get {}", url);
-      }
-      None
-    }
-  }
-}
 
 async fn check_match( matchid: &str
                     , playaz: &[DiscordPlayer]
@@ -418,8 +371,8 @@ async fn generate_bet_fields( ctx: &Context
                             ) -> Option<Vec<(String, String, bool)>> {
   let mut bet_fields = None;
   if !track.bets.is_empty() {
-    let mut woutput = vec![];
-    let mut loutput = vec![];
+    setm!{ woutput = vec![]
+         , loutput = vec![] };
     for bet in &mut track.bets {
       let user_id = UserId( bet.member );
       if let Ok(user) = user_id.to_user(ctx).await {
@@ -481,8 +434,8 @@ pub async fn check<'a>( ctx: &Context
                   if let Some(aka) = check_aka(&m.teams[1].players[0].battleTag, rqcl).await
                     { aka } else { m.teams[1].players[0].name.clone() };
 
-                let mut t0_ping = String::new();
-                let mut t1_ping = String::new();
+                setm!{ t0_ping = String::new()
+                     , t1_ping = String::new() };
                 if server_info.playerServerInfos.len() > 1 {
                   let (t0_index, t1_index) =
                     if m.teams[0].players[0].battleTag == server_info.playerServerInfos[0].battleTag {
@@ -519,10 +472,10 @@ pub async fn check<'a>( ctx: &Context
                     if let Ok(mut msg) = ctx.http.get_message(ch, t.1).await {
                       if let Ok(user) = ctx.http.get_user(playa).await {
 
-                        let mut fields = Vec::new();
-                        let mut img = None;
-                        let mut url = None;
-                        let mut color = (32,32,32);
+                        setm!{ fields = Vec::new()
+                             , img = None
+                             , url = None
+                             , color = (32,32,32) };
                         if !msg.embeds.is_empty() {
                           if !msg.embeds[0].fields.is_empty() {
                             for f in msg.embeds[0].fields.clone() {
@@ -907,10 +860,10 @@ pub async fn check<'a>( ctx: &Context
                       // There is complicated bet win calculation
                       if let Some(amadeus) = amadeus_maybe {
                         if let Ok(p) = trees::get_points( guild_id, amadeus ).await {
-                          let mut win_calculation = HashMap::new();
-                          let mut waste = 0;
-                          let mut k: f32 = 2.0;
-                          let mut losers_output = vec![];
+                          setm!{ win_calculation  = HashMap::new()
+                               , waste            = 0
+                               , k                = 2.0f32
+                               , losers_output    = vec![] };
                           for bet in &track.bets {
                             if *is_win == bet.positive {
                               let best_win = 

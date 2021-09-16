@@ -8,7 +8,8 @@ use crate::{
   common::{ db::trees
           , aka },
   collections::team::DISCORDS,
-  steins::cyber::team_checker::{ self, AKA }
+  steins::cyber::aka_checker::AKA,
+  steins::cyber::team_checker
 };
 
 use serenity::{ prelude::*

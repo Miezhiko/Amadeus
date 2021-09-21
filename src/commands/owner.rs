@@ -135,7 +135,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  if let Err(why) = system::upgrade_amadeus(ctx, &msg.channel_id).await {
+  if let Err(why) = system::upgrade::upgrade_amadeus(ctx, &msg.channel_id).await {
     error!("Failed to upgrade Amadeus {:?}", why);
   }
   Ok(())
@@ -147,7 +147,7 @@ async fn twitch_token_update(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {:?}", why);
   }
-  if system::twitch_update(ctx).await.is_ok() {
+  if system::hacks::twitch_update(ctx).await.is_ok() {
     channel_message(&ctx, &msg, "twitch access token updated").await;
   }
   Ok(())

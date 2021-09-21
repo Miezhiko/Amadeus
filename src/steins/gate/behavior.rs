@@ -39,7 +39,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   update_current_season(&ctx).await;
 
   // generate new twitch toke
-  if let Err(why) = system::twitch_update(&ctx).await {
+  if let Err(why) = system::hacks::twitch_update(&ctx).await {
     error!("Twitch token update failed {:?}", why);
   }
 

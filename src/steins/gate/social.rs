@@ -60,10 +60,10 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
         update_current_season(&ctx_clone).await;
 
         // memory check!
-        if let Ok(mem_mb) = system::get_memory_mb().await {
+        if let Ok(mem_mb) = system::stats::get_memory_mb().await {
           // USE 24 GB RAM LIMIT FOR NOW
           if mem_mb > 1024.0 * 24.0 {
-            if let Err(why) = system::upgrade_amadeus(&ctx_clone, &MODERATION).await {
+            if let Err(why) = system::upgrade::upgrade_amadeus(&ctx_clone, &MODERATION).await {
               error!("Failed to run upgrade {:?}", why);
             }
           } else if mem_mb > 1024.0 * 13.0 {

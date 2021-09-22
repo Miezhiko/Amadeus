@@ -6,6 +6,7 @@ use crate::{
          , options::* },
   steins::ai::chain,
   common::{ db::trees
+          , log::log
           , constants::{ UNBLOCK_ROLE
                        , LIVE_ROLE
                        , MODERATION }
@@ -24,8 +25,8 @@ use serenity::{
   model::{ guild::ActionMessage
          , id::{ GuildId, MessageId, UserId, ChannelId }
          , event::ResumedEvent, gateway::Ready, guild::Member
-         , channel::Message, user::User
-         , interactions::Interaction
+         , channel::{ Message, Reaction }
+         , user::User, interactions::Interaction
          },
   http::AttachmentType,
   builder::CreateEmbed
@@ -179,6 +180,74 @@ impl EventHandler for Handler {
           .timestamp(chrono::Utc::now().to_rfc3339())
         })).await {
       error!("Failed to log leaving user {:?}", why);
+    }
+  }
+
+  async fn reaction_add(&self, ctx: Context, add_reaction: Reaction) {
+    if let Some(user_id) = add_reaction.user_id {
+      if add_reaction.message_id == 0 {
+        if let Ok(msg) = add_reaction.message(&ctx).await {
+          if let Some(channel) = msg.channel(&ctx).await {
+            if let Some(guild_channel) = channel.guild() {
+              if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
+                if let Some(role) = guild.role_by_name("bisexual") {
+                  if let Ok(mut member) = guild.member(&ctx, user_id).await {
+                    if let Err(why) = member.add_role(&ctx, role).await {
+                      error!("Failed to assign role {:?}", why);
+                    } else {
+                      /*
+                      let user_i64 = user_id.as_u64().clone() as i64;
+                      let guild_i64 = guild_channel.guild_id.as_u64().clone() as i64;
+                      let mut roles_vector : Vec<i64> = Vec::new();
+                      for role in &member.roles {
+                        roles_vector.push(
+                          role.as_u64().clone() as i64);
+                      }
+                      db::update_member(user_i64, guild_i64, &roles_vector);
+                      */
+                      log(&ctx, &guild_channel.guild_id, &format!("{} is bisexual now", member)).await;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  async fn reaction_remove(&self, ctx: Context, add_reaction: Reaction) {
+    if let Some(user_id) = add_reaction.user_id {
+      if add_reaction.message_id == 0 {
+        if let Ok(msg) = add_reaction.message(&ctx).await {
+          if let Some(channel) = msg.channel(&ctx).await {
+            if let Some(guild_channel) = channel.guild() {
+              if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
+                if let Some(role) = guild.role_by_name("bisexual") {
+                  if let Ok(mut member) = guild.member(&ctx, user_id).await {
+                    if let Err(why) = member.remove_role(&ctx, role).await {
+                      error!("Failed to remove role {:?}", why);
+                    } else {
+                      /*
+                      let user_i64 = user_id.as_u64().clone() as i64;
+                      let guild_i64 = guild_channel.guild_id.as_u64().clone() as i64;
+                      let mut roles_vector : Vec<i64> = Vec::new();
+                      for role in &member.roles {
+                        roles_vector.push(
+                          role.as_u64().clone() as i64);
+                      }
+                      db::update_member(user_i64, guild_i64, &roles_vector);
+                      */
+                      log(&ctx, &guild_channel.guild_id, &format!("{} is not bisexual anymore", member)).await;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 

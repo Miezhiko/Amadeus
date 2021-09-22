@@ -1,6 +1,6 @@
 ##REALLY PLANNED:
 
- - emoji roles
+ - emoji roles (pick some real database already?) (commands to register msgs/roles)
  - restructure team_checker module (code quality)
  - some of slash commands are still missing (vs command, etc...)
  - stream announce (e.g. steam in 30 mins or something like that) + stream announce role

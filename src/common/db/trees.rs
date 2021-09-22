@@ -15,6 +15,7 @@ use once_cell::sync::Lazy;
 
 pub static LSUF: &str = "trees/tree.lusf";
 pub static ZSUF: &str = "trees/ztree.lusf";
+pub static RSUF: &str = "trees/rtree.lusf";
 
 #[derive(Serialize, Deserialize)]
 struct Points {
@@ -38,6 +39,8 @@ pub static STORAGE: Lazy<Mutex<Storage<FileNvm>>> =
   Lazy::new(|| Mutex::new(get_storage(LSUF)));
 pub static ZTREE: Lazy<Mutex<Storage<FileNvm>>> =
   Lazy::new(|| Mutex::new(get_storage(ZSUF)));
+pub static RTREE: Lazy<Mutex<Storage<FileNvm>>> =
+  Lazy::new(|| Mutex::new(get_storage(RSUF)));
 
 pub async fn register( channel_id: u64
                      , message_id: u64) {
@@ -313,4 +316,32 @@ pub async fn break_streak( guild_id: u64
       }
     }
   }).await.unwrap();
+}
+
+pub async fn update_roles( guild_id: &u64
+                         , user_id: &u64
+                         , roles: &Vec<u64> ) {
+  let mut storage = RTREE.lock().await;
+  let u64_2: u128 = (*guild_id as u128) << 64 | *user_id as u128; // >
+  let lump_id = LumpId::new(u64_2);
+  if let Ok(mbdata) = storage.get(&lump_id) {
+    if mbdata.is_none() {
+      if let Ok(encoded) = bincode::serialize(roles) {
+        if let Ok(lump_data) = LumpData::new(encoded) {
+          match storage.put(&lump_id, &lump_data) {
+            Ok(added) => {
+              if !added {
+                error!("error on msg registration");
+              }
+            }, Err(not_added) => {
+              error!("error on msg registration {:?}", not_added);
+            }
+          }
+          if let Err(khm) = storage.journal_sync() {
+            error!("failed to sync {:?}", khm);
+          }
+        }
+      }
+    }
+  }
 }

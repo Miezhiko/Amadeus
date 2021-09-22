@@ -2,7 +2,7 @@ use crate::{
   types::common::{ AllGuilds, ChannelLanguage },
   common::{ help::lang
           , db::trees::{ register, check_registration
-                       , LSUF, ZSUF }
+                       , LSUF, ZSUF, RSUF }
   },
   collections::base::{ CONFUSION
                      , CONFUSION_RU },
@@ -309,6 +309,9 @@ pub async fn clear_cache() {
   }
   if fs::metadata(LSUF).await.is_ok() {
     let _ = fs::remove_file(LSUF).await;
+  }
+  if fs::metadata(RSUF).await.is_ok() {
+    let _ = fs::remove_file(RSUF).await;
   }
 }
 

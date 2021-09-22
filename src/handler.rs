@@ -155,6 +155,14 @@ impl EventHandler for Handler {
         }
       }
     }
+    /*
+    let roles = trees::reset_roles(member.user_id(), guild_id);
+    for role in roles {
+      if let Err(why) = member.add_role(&ctx, role).await {
+        error!("Failed to reset role for user {:?}", why);
+      }
+    }
+    */
   }
 
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, _: Option<Member>) {
@@ -195,16 +203,13 @@ impl EventHandler for Handler {
                     if let Err(why) = member.add_role(&ctx, role).await {
                       error!("Failed to assign role {:?}", why);
                     } else {
-                      /*
-                      let user_i64 = user_id.as_u64().clone() as i64;
-                      let guild_i64 = guild_channel.guild_id.as_u64().clone() as i64;
-                      let mut roles_vector : Vec<i64> = Vec::new();
+                      let user_u64 = user_id.as_u64();
+                      let guild_u64 = guild_channel.guild_id.as_u64();
+                      let mut roles_vector : Vec<u64> = Vec::new();
                       for role in &member.roles {
-                        roles_vector.push(
-                          role.as_u64().clone() as i64);
+                        roles_vector.push(role.as_u64().clone());
                       }
-                      db::update_member(user_i64, guild_i64, &roles_vector);
-                      */
+                      trees::update_roles(guild_u64, user_u64, &roles_vector).await;
                       log(&ctx, &guild_channel.guild_id, &format!("{} is bisexual now", member)).await;
                     }
                   }
@@ -229,16 +234,13 @@ impl EventHandler for Handler {
                     if let Err(why) = member.remove_role(&ctx, role).await {
                       error!("Failed to remove role {:?}", why);
                     } else {
-                      /*
-                      let user_i64 = user_id.as_u64().clone() as i64;
-                      let guild_i64 = guild_channel.guild_id.as_u64().clone() as i64;
-                      let mut roles_vector : Vec<i64> = Vec::new();
+                      let user_u64 = user_id.as_u64();
+                      let guild_u64 = guild_channel.guild_id.as_u64();
+                      let mut roles_vector : Vec<u64> = Vec::new();
                       for role in &member.roles {
-                        roles_vector.push(
-                          role.as_u64().clone() as i64);
+                        roles_vector.push(role.as_u64().clone());
                       }
-                      db::update_member(user_i64, guild_i64, &roles_vector);
-                      */
+                      trees::update_roles(guild_u64, user_u64, &roles_vector).await;
                       log(&ctx, &guild_channel.guild_id, &format!("{} is not bisexual anymore", member)).await;
                     }
                   }

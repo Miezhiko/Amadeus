@@ -42,6 +42,7 @@
  - W3info news tracking using calendar
  - Replays parsing (click emoji to get report)
  - Points system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
+ - Emoji roles system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
  - Almost everything async [tokio.rs](https://tokio.rs)
  - Various gifs commands using Tenor API
  - [Dhall](https://dhall-lang.org) and YAML config files

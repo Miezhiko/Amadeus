@@ -173,3 +173,20 @@ async fn register_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandR
   }
   Ok(())
 }
+
+#[command]
+#[owners_only]
+#[min_args(1)]
+async fn list_message_roles(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  if let Err(why) = msg.delete(ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  if let Some(guild_id) = msg.guild_id {
+    let message_id = args.single::<u64>()?;
+    if let Ok(Some(mr)) = trees::message_roles( guild_id.as_u64()
+                                              , &message_id ).await {
+      channel_message(&ctx, &msg, &format!("message roles: {:?}", mr)).await;
+    }
+  }
+  Ok(())
+}

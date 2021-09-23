@@ -338,8 +338,8 @@ pub async fn update_roles( guild_id: &u64
     if let Ok(encoded) = bincode::serialize(roles) {
       if let Ok(lump_data) = LumpData::new(encoded) {
         match storage.put(&lump_id, &lump_data) {
-          Ok(added) => {
-            if !added {
+          Ok(not_added) => {
+            if !not_added {
               error!("error on msg registration");
             }
           }, Err(not_added) => {
@@ -394,11 +394,11 @@ pub async fn register_message( guild_id: &u64
             error!("failed to sync {:?}", khm);
           }
         }
-        if let Ok(encoded) = bincode::serialize(&emoji_roles) {
+        if let Ok(encoded) = bincode::serialize(&emoji_role) {
           if let Ok(lump_data) = LumpData::new(encoded) {
             match storage.put(&lump_id, &lump_data) {
-              Ok(added) => {
-                if added {
+              Ok(not_added) => {
+                if !not_added {
                   error!("error updating message emoji roles");
                 }
                 if let Err(khm) = storage.journal_sync() {

@@ -383,26 +383,30 @@ pub async fn register_message( guild_id: &u64
   let u64_2: u128 = (*guild_id as u128) << 64 | *message_id as u128; // >
   let lump_id = LumpId::new(u64_2);
   if let Ok(mbdata) = storage.get(&lump_id) {
-    if let Some(mut data) = mbdata {
-      let byte_data: &mut [u8] = data.as_bytes_mut();
-      if let Ok(mut emoji_roles) = bincode::deserialize::<HashMap<u64, u64>>(byte_data) {
-        emoji_roles.insert(*emoji_id, *role_id);
-        if let Ok(new_bytes) = bincode::serialize(&emoji_roles) {
-          (*byte_data).copy_from_slice(&new_bytes[..]);
+    if let Some(data) = mbdata {
+      let byte_data: &[u8] = data.as_bytes();
+      if let Ok(emoji_roles) = bincode::deserialize::<HashMap<u64, u64>>(byte_data) {
+        let mut emoji_role: HashMap<u64, u64> = emoji_roles.clone();
+        emoji_role.insert(*emoji_id, *role_id);
+        { // delte existing node
           let _ = storage.delete(&lump_id);
           if let Err(khm) = storage.journal_sync() {
             error!("failed to sync {:?}", khm);
           }
-          match storage.put(&lump_id, &data) {
-            Ok(added) => {
-              if added {
-                error!("error updating message emoji roles");
+        }
+        if let Ok(encoded) = bincode::serialize(&emoji_roles) {
+          if let Ok(lump_data) = LumpData::new(encoded) {
+            match storage.put(&lump_id, &lump_data) {
+              Ok(added) => {
+                if added {
+                  error!("error updating message emoji roles");
+                }
+                if let Err(khm) = storage.journal_sync() {
+                  error!("failed to sync {:?}", khm);
+                }
+              }, Err(ecn) => {
+                error!("Something wrong with cannyls: {:?}", ecn);
               }
-              if let Err(khm) = storage.journal_sync() {
-                error!("failed to sync {:?}", khm);
-              }
-            }, Err(ecn) => {
-              error!("Something wrong with cannyls: {:?}", ecn);
             }
           }
         }

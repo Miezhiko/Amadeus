@@ -59,7 +59,7 @@ pub struct Info;
 #[checks(Admin)]
 #[commands(say, set, clear_messages, upgrade
   , update_cache, clear_chain_cache
-  , twitch_token_update)]
+  , twitch_token_update, register_role)]
 pub struct Owner;
 
 #[group("Admin")]

@@ -1,5 +1,6 @@
 use crate::{
   common::{
+    db::trees,
     msg::{
       channel_message, direct_message
     },
@@ -149,6 +150,26 @@ async fn twitch_token_update(ctx: &Context, msg: &Message) -> CommandResult {
   }
   if system::hacks::twitch_update(ctx).await.is_ok() {
     channel_message(&ctx, &msg, "twitch access token updated").await;
+  }
+  Ok(())
+}
+
+#[command]
+#[owners_only]
+#[min_args(3)]
+async fn register_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  if let Err(why) = msg.delete(ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  if let Some(guild_id) = msg.guild_id {
+    let message_id = args.single::<u64>()?;
+    let emoji_id = args.single::<u64>()?;
+    let role_id = args.single::<u64>()?;
+    trees::register_message( guild_id.as_u64()
+                           , &message_id
+                           , &emoji_id
+                           , &role_id ).await;
+    direct_message(ctx, &msg, &format!("Message role {} registered", role_id)).await;
   }
   Ok(())
 }

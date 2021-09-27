@@ -5,7 +5,7 @@ use crate::{
   types::{ common::CoreGuild
          , options::* },
   steins::ai::chain,
-  common::{ db::trees
+  common::{ db::trees::{ points, roles, emojis }
           , constants::{ UNBLOCK_ROLE
                        , LIVE_ROLE
                        , MODERATION }
@@ -154,7 +154,7 @@ impl EventHandler for Handler {
         }
       }
     }
-    if let Ok(roles) = trees::restore_roles( guild_id.as_u64()
+    if let Ok(roles) = roles::restore_roles( guild_id.as_u64()
                                            , member.user.id.as_u64() ).await {
       for role in roles {
         if let Err(why) = member.add_role(&ctx, role).await {
@@ -165,7 +165,7 @@ impl EventHandler for Handler {
   }
 
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, _: Option<Member>) {
-    let _was_on_chat = trees::clear_points(guild_id.0, user.id.0).await;
+    let _was_on_chat = points::clear_points(guild_id.0, user.id.0).await;
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       if let Ok(member) = guild.member(&ctx, user.id).await {
         if let Some(role) = guild.role_by_name("muted") {
@@ -199,7 +199,7 @@ impl EventHandler for Handler {
               if let Some(guild_channel) = channel.guild() {
                 let user_u64 = user_id.as_u64();
                 let guild_u64 = guild_channel.guild_id.as_u64();
-                if let Ok(Some(emoji_roles)) = trees::message_roles(guild_u64, add_reaction.message_id.as_u64()).await {
+                if let Ok(Some(emoji_roles)) = emojis::message_roles(guild_u64, add_reaction.message_id.as_u64()).await {
                   if let Some(role) = emoji_roles.get(id.as_u64()) {
                     if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                       if let Ok(mut member) = guild.member(&ctx, user_id).await {
@@ -210,7 +210,7 @@ impl EventHandler for Handler {
                           for role in &member.roles {
                             roles_vector.push(role.as_u64().clone());
                           }
-                          trees::update_roles(guild_u64, user_u64, &roles_vector).await;
+                          roles::update_roles(guild_u64, user_u64, &roles_vector).await;
                         }
                       }
                     }
@@ -233,7 +233,7 @@ impl EventHandler for Handler {
               if let Some(guild_channel) = channel.guild() {
                 let user_u64 = user_id.as_u64();
                 let guild_u64 = guild_channel.guild_id.as_u64();
-                if let Ok(Some(emoji_roles)) = trees::message_roles(guild_u64, add_reaction.message_id.as_u64()).await {
+                if let Ok(Some(emoji_roles)) = emojis::message_roles(guild_u64, add_reaction.message_id.as_u64()).await {
                   if let Some(role) = emoji_roles.get(id.as_u64()) {
                     if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                       if let Ok(mut member) = guild.member(&ctx, user_id).await {
@@ -244,7 +244,7 @@ impl EventHandler for Handler {
                           for role in &member.roles {
                             roles_vector.push(role.as_u64().clone());
                           }
-                          trees::update_roles(guild_u64, user_u64, &roles_vector).await;
+                          roles::update_roles(guild_u64, user_u64, &roles_vector).await;
                         }
                       }
                     }

@@ -2,7 +2,7 @@ use crate::{
   types::common::{ ChannelLanguage
                  , AllGuilds },
   common::{ help::lang
-          , db::trees::{ register, check_registration }
+          , db::trees::messages::{ register, check_registration }
           , msg::{ reply, channel_message }
   },
   collections::base::{ OBFUSCATION

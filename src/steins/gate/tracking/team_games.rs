@@ -5,7 +5,7 @@ use crate::{
                      , Bet, GameMode }
          , twitch::Twitch
          , goodgame::GoodGameData },
-  common::{ db::trees
+  common::{ db::trees::points
           , aka },
   collections::team::DISCORDS,
   steins::cyber::aka_checker::AKA,
@@ -270,7 +270,7 @@ pub async fn activate_games_tracking(
                       let emoji = &inref.emoji;
                       if let Some(u) = inref.user_id {
                         if let Some(g) = inref.guild_id {
-                          if let Ok(p) = trees::get_points( g.0, u.0 ).await {
+                          if let Ok(p) = points::get_points( g.0, u.0 ).await {
                             if p > 100 {
                               let emoji_data = emoji.as_data();
                               if emoji_data.as_str() == "👍🏻" || emoji_data.as_str() == "👎🏻" {
@@ -285,9 +285,9 @@ pub async fn activate_games_tracking(
                                                     , points: 100
                                                     , positive: is_positive
                                                     , registered: false };
-                                      let (succ, rst) = trees::give_points( g.0, u.0
-                                                                          , amadeus
-                                                                          , 100 ).await;
+                                      let (succ, rst) = points::give_points( g.0, u.0
+                                                                           , amadeus
+                                                                           , 100 ).await;
                                       if succ {
                                         track.bets.push(bet);
                                       } else {

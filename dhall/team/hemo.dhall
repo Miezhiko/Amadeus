@@ -33,7 +33,6 @@ let playersList : List Playerx =
   , p "Singroso#2472"       677187656857419792
   , p "Pechenka#21766"      677187656857419792
   , p "Fopogg#2818"         318043743628427269
-  , p "FATAL#21779"         386856633403310080
   , p "EnragedOxy#2999"     576662560120766474
   , p "OwerPidor#2503"      862690932931559464
   , p "WindWalker#21184"    720938816810254338

@@ -1,7 +1,7 @@
 use crate::{
   types::common::{ AllGuilds, ChannelLanguage },
   common::{ help::lang
-          , db::trees::{ register, check_registration
+          , db::trees::{ messages::{ register, check_registration }
                        , LSUF, ZSUF, RSUF, MSUF }
   },
   collections::base::{ CONFUSION

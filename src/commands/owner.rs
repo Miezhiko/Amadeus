@@ -1,6 +1,6 @@
 use crate::{
   common::{
-    db::trees,
+    db::trees::emojis,
     msg::{
       channel_message, direct_message
     },
@@ -165,10 +165,10 @@ async fn register_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandR
     let message_id = args.single::<u64>()?;
     let emoji_id = args.single::<u64>()?;
     let role_id = args.single::<u64>()?;
-    trees::register_message( guild_id.as_u64()
-                           , &message_id
-                           , &emoji_id
-                           , &role_id ).await;
+    emojis::register_message( guild_id.as_u64()
+                            , &message_id
+                            , &emoji_id
+                            , &role_id ).await;
     direct_message(ctx, &msg, &format!("Message role {} registered", role_id)).await;
   }
   Ok(())
@@ -183,8 +183,8 @@ async fn list_message_roles(ctx: &Context, msg: &Message, mut args: Args) -> Com
   }
   if let Some(guild_id) = msg.guild_id {
     let message_id = args.single::<u64>()?;
-    if let Ok(Some(mr)) = trees::message_roles( guild_id.as_u64()
-                                              , &message_id ).await {
+    if let Ok(Some(mr)) = emojis::message_roles( guild_id.as_u64()
+                                               , &message_id ).await {
       channel_message(&ctx, &msg, &format!("message roles: {:?}", mr)).await;
     }
   }

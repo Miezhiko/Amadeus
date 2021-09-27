@@ -5,7 +5,7 @@ use crate::{
          , w3c::{ Going, MD } },
   collections::team::{ PLAYERS, DISCORDS },
   common::constants::W3C_API,
-  common::db::trees,
+  common::db::trees::points,
   steins::cyber::aka_checker::check_aka,
   steins::cyber::utils::{ get_race2
                         , get_map
@@ -824,9 +824,9 @@ pub async fn check<'a>( ctx: &Context
                   for (pw, is_win) in &fgame.winners {
                     if *is_win {
                       trace!("Registering win for {}", pw);
-                      let streak = trees::add_win_points( guild_id
-                                                        , *pw
-                                                        ).await;
+                      let streak = points::add_win_points( guild_id
+                                                         , *pw
+                                                         ).await;
                       if playa.player.discord == *pw && streak >= 3 {
                         title =
                           match streak { 3  => "MULTIKILL"
@@ -845,7 +845,7 @@ pub async fn check<'a>( ctx: &Context
                       }
                     } else {
                       trace!("Registering lose for {}", pw);
-                      trees::break_streak(guild_id, *pw).await;
+                      points::break_streak(guild_id, *pw).await;
                     }
                     if !track.bets.is_empty() && bet_fields.is_none() {
                       trace!("Paying for bets");
@@ -859,7 +859,7 @@ pub async fn check<'a>( ctx: &Context
                       };
                       // There is complicated bet win calculation
                       if let Some(amadeus) = amadeus_maybe {
-                        if let Ok(p) = trees::get_points( guild_id, amadeus ).await {
+                        if let Ok(p) = points::get_points( guild_id, amadeus ).await {
                           setm!{ win_calculation  = HashMap::new()
                                , waste            = 0
                                , k                = 2.0f32
@@ -894,10 +894,10 @@ pub async fn check<'a>( ctx: &Context
                           let mut output = vec![];
                           for (mpp, (ppp, wpp)) in win_calculation.iter() {
                             let (succ, rst) =
-                              trees::give_points( guild_id
-                                                , amadeus
-                                                , *mpp
-                                                , *wpp ).await;
+                              points::give_points( guild_id
+                                                 , amadeus
+                                                 , *mpp
+                                                 , *wpp ).await;
                             if !succ {
                               error!("failed to give bet win points: {}", rst);
                             } else {

@@ -1,7 +1,7 @@
 use crate::{
   types::{ common::{ CoreGuild, CoreGuilds }
          , tracking::Bet },
-  common::{ db::trees
+  common::{ db::trees::points
           , help::members::get_player
           , msg::channel_message
   },
@@ -24,7 +24,7 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
     let meme = get_player(&args.single_quoted::<String>()?, ctx, msg).await?;
     let points_count = args.single::<u64>()?;
-    if let Ok(p) = trees::get_points( guild_id.0, msg.author.id.0 ).await {
+    if let Ok(p) = points::get_points( guild_id.0, msg.author.id.0 ).await {
       if p < points_count {
         let err = format!("{} only has {}, need {}", msg.author.name, p, points_count);
         channel_message(ctx, msg, &err).await;
@@ -54,10 +54,10 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                               , points: points_count
                               , positive: true
                               , registered: false };
-                let (succ, rst) = trees::give_points( guild_id.0
-                                                    , msg.author.id.0
-                                                    , amadeus
-                                                    , points_count ).await;
+                let (succ, rst) = points::give_points( guild_id.0
+                                                     , msg.author.id.0
+                                                     , amadeus
+                                                     , points_count ).await;
                 if succ {
                   track.bets.push(bet);
                   if let Err(why) = msg.delete(&ctx).await {

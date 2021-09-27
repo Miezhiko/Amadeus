@@ -6,7 +6,7 @@ use crate::{
           , cyber::replay::{ replay_embed
                            , attach_replay }
           },
-  common::{ db::trees
+  common::{ db::trees::points
           , help::lang
           , msg::channel_message
           , constants::UNBLOCK_ROLE
@@ -158,7 +158,7 @@ pub async fn process( ioptions: &IOptions
           }
         }
       } else {
-        trees::add_points(guild_id.0, msg.author.id.0, 1).await;
+        points::add_points(guild_id.0, msg.author.id.0, 1).await;
         for file in &msg.attachments {
           if file.filename.ends_with("w3g") {
             if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg.channel_id.0

@@ -51,7 +51,6 @@ pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
   });
 
 static NEO_SEPARATORS: [char; 3] = ['"', '*', '”'];
-static NEO_BANNED: [char; 3] = ["$", "{", "}"];
 static A: &str = "A: ";
 
 pub async fn chat_neo(something: String) -> anyhow::Result<String> {
@@ -93,7 +92,7 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
     if result.is_empty() {
       Err( anyhow!("only trash in chat neo response") )
     } else {
-      if NEO_BANNED.iter.any(|c| result.contains(c)) {
+      if result.chars().any(|c| matches!(c, '$' | '{' | '}')) {
         Err( anyhow!("BAD RESULT") )
       } else {
         if result.contains(A) {

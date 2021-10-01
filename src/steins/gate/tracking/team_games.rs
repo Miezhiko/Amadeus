@@ -9,7 +9,7 @@ use crate::{
           , aka },
   collections::team::DISCORDS,
   steins::cyber::aka_checker::AKA,
-  steins::cyber::team_checker
+  steins::cyber::poller
 };
 
 use serenity::{ prelude::*
@@ -85,7 +85,7 @@ pub async fn activate_games_tracking(
     loop {
 
       { // scope for GAMES lock
-        let mut games_lock = team_checker::GAMES.lock().await;
+        let mut games_lock = poller::GAMES.lock().await;
         let mut k_to_del: Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
           if track.passed_time < 666 {
@@ -102,10 +102,10 @@ pub async fn activate_games_tracking(
       }
 
       trace!("check");
-      let our_gsx = team_checker::check( &ctx_clone
-                                       , options_clone.guild
-                                       , &rqcl
-                                       ).await;
+      let our_gsx = poller::check( &ctx_clone
+                                 , options_clone.guild
+                                 , &rqcl
+                                 ).await;
 
       for game in our_gsx {
         let game_key = game.key.clone();
@@ -235,7 +235,7 @@ pub async fn activate_games_tracking(
             )).await {
               Ok(msg_id) => {
                 { // scope for games_lock
-                  let mut games_lock = team_checker::GAMES.lock().await;
+                  let mut games_lock = poller::GAMES.lock().await;
                   if let Some(inserted) = games_lock.get_mut(&game_key) {
                     if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.0)) {
                       inserted.tracking_msg_id.push((*d, msg_id.id.0));
@@ -275,7 +275,7 @@ pub async fn activate_games_tracking(
                               let emoji_data = emoji.as_data();
                               if emoji_data.as_str() == "👍🏻" || emoji_data.as_str() == "👎🏻" {
                                 let is_positive = emoji_data.as_str() == "👍🏻";
-                                let mut gl = team_checker::GAMES.lock().await;
+                                let mut gl = poller::GAMES.lock().await;
                                 if let Some(track) = gl.get_mut(&game_key_clone) {
                                   if track.still_live {
                                     // you bet only once

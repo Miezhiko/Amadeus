@@ -30,7 +30,7 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         channel_message(ctx, msg, &err).await;
         return Ok(());
       }
-      let mut games_lock = cyber::team_checker::GAMES.lock().await;
+      let mut games_lock = cyber::poller::GAMES.lock().await;
       for (_, track) in games_lock.iter_mut() {
         if track.still_live {
           for playa in &track.players {

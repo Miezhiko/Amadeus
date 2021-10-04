@@ -14,7 +14,6 @@ mod message;
 mod handler;
 mod checks;
 mod slash;
-mod interactions;
 mod hooks;
 mod groups;
 mod amadeus;

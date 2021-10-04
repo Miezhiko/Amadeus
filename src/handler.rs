@@ -1,5 +1,5 @@
 use crate::{
-  slash, interactions,
+  slash::{ definitions, interactions },
   message::{ self
            , RESTORE, BACKUP },
   types::{ common::CoreGuild
@@ -67,7 +67,7 @@ impl EventHandler for Handler {
       if guild_id.0 != self.ioptions.guild && guild_id.0 != self.ioptions.amadeus_guild {
         if let Some(serv) = self.ioptions.servers.iter().find(|s| s.id == guild_id.0) {
           if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-            slash::create_app_commands(&ctx, &guild).await;
+            definitions::create_app_commands(&ctx, &guild).await;
             if serv.kind == CoreGuild::Unsafe {
               if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
                 if let Ok(some_permissions) = member.permissions(&ctx).await {
@@ -108,7 +108,7 @@ impl EventHandler for Handler {
       } else {
         // this is for own server and amadeus testing server
         if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-          slash::create_app_commands(&ctx, &guild).await;
+          definitions::create_app_commands(&ctx, &guild).await;
         }
       }
     }

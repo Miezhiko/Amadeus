@@ -5,10 +5,9 @@ use crate::{
             , IServer, AllGuilds },
     options::IOptions
   },
-  common::{ options,
-    system::ShardManagerContainer,
-    voice::DECODE_TYPE
-  },
+  common::{ options
+          , system::ShardManagerContainer
+          , voice::DECODE_TYPE },
   handler::Handler,
   groups::*, hooks::*
 };

@@ -4,6 +4,7 @@
  - some of slash commands are still missing (vs command, etc...)
  - stream announce (e.g. steam in 30 mins or something like that) + stream announce role
  - use Summarization model for large texts and just sometimes with context cache!
+ - unload models from memory after N time when not used?
 
 ```rust
     let summarization_model = SummarizationModel::new(Default::default())?;

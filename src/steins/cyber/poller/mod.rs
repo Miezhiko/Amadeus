@@ -101,9 +101,9 @@ pub async fn check<'a>( ctx: &Context
                       if let Ok(user) = ctx.http.get_user(playa).await {
 
                         setm!{ fields = Vec::new()
-                             , img = None
-                             , url = None
-                             , color = (32,32,32) };
+                             , img    = None
+                             , url    = None
+                             , color  = (32,32,32) };
                         if !msg.embeds.is_empty() {
                           if !msg.embeds[0].fields.is_empty() {
                             for f in msg.embeds[0].fields.clone() {
@@ -112,8 +112,8 @@ pub async fn check<'a>( ctx: &Context
                               }
                             }
                           }
-                          img = msg.embeds[0].image.clone();
-                          url = msg.embeds[0].url.clone();
+                          img   = msg.embeds[0].image.clone();
+                          url   = msg.embeds[0].url.clone();
                           color = msg.embeds[0].colour.tuple();
                         };
 
@@ -211,7 +211,7 @@ pub async fn check<'a>( ctx: &Context
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
                     track.still_live = true;
                     set!{ minutes = track.passed_time / 2
-                        , footer = format!("Passed: {} min", minutes) };
+                        , footer  = format!("Passed: {} min", minutes) };
 
                     let bet_fields = generate_bet_fields(ctx, track).await;
                     for t in track.tracking_msg_id.iter() {
@@ -234,8 +234,8 @@ pub async fn check<'a>( ctx: &Context
                               }
                             }
                           }
-                          img = msg.embeds[0].image.clone();
-                          url = msg.embeds[0].url.clone();
+                          img   = msg.embeds[0].image.clone();
+                          url   = msg.embeds[0].url.clone();
                           color = msg.embeds[0].colour.tuple();
                         };
 

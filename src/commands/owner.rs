@@ -1,9 +1,8 @@
 use crate::{
   common::{
     db::trees::emojis,
-    msg::{
-      channel_message, direct_message
-    },
+    msg::{ channel_message
+         , direct_message },
     system
   },
   steins::{ gate

@@ -1,8 +1,7 @@
 use crate::{
   message::RESTORE,
   steins::{ ai::boris
-          , ai::uwu
-          },
+          , ai::uwu },
   common::i18n::{ edit_help_i18n, US_ENG },
   commands::{
     translation, w3c::stats,
@@ -12,10 +11,8 @@ use crate::{
 
 use serenity::{
   prelude::*,
-  model::{ interactions::{ InteractionResponseType
-                         , Interaction
-                         }
-         },
+  model::interactions::{ InteractionResponseType
+                       , Interaction },
   framework::standard::{ Args, Delimiter }
 };
 

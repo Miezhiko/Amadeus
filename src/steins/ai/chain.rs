@@ -1,6 +1,6 @@
 use crate::{
-  types::common::{ ChannelLanguage
-                 , AllGuilds },
+  types::serenity::{ ChannelLanguage
+                   , AllGuilds },
   common::{ help::lang
           , db::trees::messages::{ register, check_registration }
           , msg::{ reply, channel_message }

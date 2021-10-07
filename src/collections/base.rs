@@ -1,4 +1,4 @@
-use crate::types::common::Reaction;
+use crate::types::serenity::Reaction;
 
 use once_cell::sync::Lazy;
 

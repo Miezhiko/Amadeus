@@ -1,8 +1,8 @@
 use crate::{
   types::{
-    common::{ PubCreds, ReqwestClient
-            , CoreGuild, CoreGuilds, IContext
-            , IServer, AllGuilds },
+    serenity::{ PubCreds, ReqwestClient
+              , CoreGuild, CoreGuilds, IContext
+              , IServer, AllGuilds },
     options::IOptions
   },
   common::{ options

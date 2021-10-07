@@ -1,5 +1,5 @@
 use crate::{
-  types::{ common::{ CoreGuild, CoreGuilds }
+  types::{ serenity::{ CoreGuild, CoreGuilds }
          , tracking::Bet },
   common::{ db::trees::points
           , help::members::get_player

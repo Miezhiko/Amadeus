@@ -1,5 +1,5 @@
 use crate::{
-  types::{ common::ReqwestClient
+  types::{ serenity::ReqwestClient
          , options::IOptions
          , tracking::{ TrackingGame
                      , Bet, GameMode }

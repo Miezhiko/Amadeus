@@ -1,6 +1,9 @@
-use crate::steins::ai::cache::{
-  process_message_for_gpt,
-  CACHE_ENG_STR
+use crate::{
+  types::common::Either,
+  steins::ai::cache::{
+    process_message_for_gpt,
+    CACHE_ENG_STR
+  }
 };
 
 use rust_bert::gpt_neo::{
@@ -58,9 +61,8 @@ static A: &str = "A: ";
 pub async fn chat_neo(something: String, lsm: bool) -> anyhow::Result<String> {
   info!("Generating GPT Neo response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
-  let (mut locked, mut loaded) = (None, None);
-  if lsm { locked = Some( NEOMODEL.lock().await );
-  } else { loaded = Some( neo_model_loader() ); };
+  let either = if lsm { Either::Left(NEOMODEL.lock().await)
+               } else { Either::Right(neo_model_loader()) };
   let cache_vec = cache_eng_vec.iter().collect::<Vec<&String>>();
   let mut cache_slices = cache_vec
                         .choose_multiple(&mut rand::thread_rng(), 32)
@@ -69,15 +71,10 @@ pub async fn chat_neo(something: String, lsm: bool) -> anyhow::Result<String> {
 
   let neo_result =
     task::spawn_blocking(move || {
-      let (lock, load);
-      let neo_model =
-        if lsm {
-          lock = locked.unwrap();
-          &*lock
-        } else {
-          load = loaded.unwrap();
-          &load
-        };
+      let neo_model = match &either {
+        Either::Left(lock)  => lock,
+        Either::Right(load) => load,
+      };
       let output = neo_model.generate(&[something.as_str()], None);
       if output.is_empty() {
         error!("Failed to chat with Neo Model");

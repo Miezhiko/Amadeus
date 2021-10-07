@@ -1,5 +1,5 @@
 use crate::{
-  types::common::PubCreds,
+  types::serenity::PubCreds,
   common::{ msg::channel_message
           , msg::direct_message
           , help::members::get_player },

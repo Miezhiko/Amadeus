@@ -2,7 +2,7 @@ use crate::{
   slash::{ definitions, interactions },
   message::{ self
            , RESTORE, BACKUP },
-  types::{ common::CoreGuild
+  types::{ serenity::CoreGuild
          , options::* },
   steins::ai::chain,
   common::{ db::trees::{ points, roles, emojis }

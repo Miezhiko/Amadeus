@@ -1,5 +1,5 @@
 use crate::{
-  types::common::PubCreds,
+  types::serenity::PubCreds,
   common::options
 };
 

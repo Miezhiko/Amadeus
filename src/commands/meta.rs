@@ -1,5 +1,5 @@
 use crate::{
-  types::common::ReqwestClient,
+  types::serenity::ReqwestClient,
   common::{
     i18n::{ help_i18n, RU },
     system::stats::*

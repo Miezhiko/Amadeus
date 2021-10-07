@@ -1,5 +1,5 @@
 use crate::{
-  types::common::{ AllGuilds, ChannelLanguage },
+  types::serenity::{ AllGuilds, ChannelLanguage },
   common::{ help::lang
           , db::trees::{ messages::{ register, check_registration }
                        , LSUF, ZSUF, RSUF, MSUF }

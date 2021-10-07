@@ -1,4 +1,4 @@
-use crate::types::common::{ ReqwestClient, PubCreds };
+use crate::types::serenity::{ ReqwestClient, PubCreds };
 
 use serenity::{
   prelude::*,

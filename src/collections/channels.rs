@@ -1,4 +1,4 @@
-use crate::types::common::LChannel;
+use crate::types::serenity::LChannel;
 
 use once_cell::sync::Lazy;
 

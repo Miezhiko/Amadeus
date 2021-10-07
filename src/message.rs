@@ -1,5 +1,5 @@
 use crate::{
-  types::{ common::CoreGuild
+  types::{ serenity::CoreGuild
          , options::* },
   steins::{ gate
           , ai::{ cache, chain }

@@ -1,6 +1,6 @@
 use crate::{
   types::{
-    common::ReqwestClient,
+    serenity::ReqwestClient,
     w3c::*
   },
   common::{

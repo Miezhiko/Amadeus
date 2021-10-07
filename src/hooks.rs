@@ -2,7 +2,7 @@ use crate::{ collections::{ base::GREETINGS
                           , channels::IGNORED }
            , common::i18n::{ help_i18n, US_ENG }
            , steins::ai::chain
-           , types::common::IContext
+           , types::serenity::IContext
            };
 
 use serenity::{

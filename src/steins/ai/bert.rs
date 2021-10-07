@@ -1,6 +1,9 @@
-use crate::steins::ai::cache::{
-  CACHE_ENG_STR,
-  process_message_for_gpt
+use crate::{
+  types::common::Either,
+  steins::ai::cache::{
+    CACHE_ENG_STR,
+    process_message_for_gpt
+  }
 };
 
 use rust_bert::pipelines::{
@@ -144,9 +147,8 @@ pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
 pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
   info!("Generating GPT2 QA response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
-  let (mut locked, mut loaded) = (None, None);
-  if lsm { locked = Some( QAMODEL.lock().await );
-  } else { loaded = Some( qa_model_loader() ); };
+  let either = if lsm { Either::Left(QAMODEL.lock().await)
+               } else { Either::Right(qa_model_loader()) };
   let mut question = process_message_for_gpt(&msg_content);
   if question.len() > GPT_LIMIT {
     if let Some((i, _)) = question.char_indices().rev().nth(GPT_LIMIT) {
@@ -168,15 +170,10 @@ pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
     }
   }
   task::spawn_blocking(move || {
-    let (lock, load);
-    let qa_model =
-      if lsm {
-        lock = locked.unwrap();
-        &*lock
-      } else {
-        load = loaded.unwrap();
-        &load
-      };
+    let qa_model = match &either {
+      Either::Left(lock)  => lock,
+      Either::Right(load) => load,
+    };
     let qa_input = QaInput {
       question, context: cache
     };
@@ -198,20 +195,14 @@ pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
 async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String> {
   info!("Generating GPT2 response");
   let cache_eng_hs = CACHE_ENG_STR.lock().await;
-  let (mut locked, mut loaded) = (None, None);
-  if lsm { locked = Some( CONVMODEL.lock().await );
-  } else { loaded = Some( conv_model_loader() ); };
+  let either = if lsm { Either::Left(CONVMODEL.lock().await)
+               } else { Either::Right(conv_model_loader()) };
   let mut chat_context = CHAT_CONTEXT.lock().await;
   task::spawn_blocking(move || {
-    let (lock, load);
-    let conversation_model =
-      if lsm {
-        lock = locked.unwrap();
-        &*lock
-      } else {
-        load = loaded.unwrap();
-        &load
-      };
+    let conversation_model = match &either {
+      Either::Left(lock)  => lock,
+      Either::Right(load) => load,
+    };
     let cache_eng_vec = cache_eng_hs.iter().collect::<Vec<&String>>();
     let output =
       if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {

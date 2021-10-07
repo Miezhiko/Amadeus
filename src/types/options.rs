@@ -1,4 +1,4 @@
-use crate::types::common::IServer;
+use crate::types::serenity::IServer;
 
 #[derive(Clone, Deserialize, Debug)]
 pub struct IOptions {

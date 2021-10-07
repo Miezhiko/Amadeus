@@ -1,5 +1,5 @@
 use crate::{
-  types::common::ReqwestClient,
+  types::serenity::ReqwestClient,
   common::{ msg::channel_message
           , constants::APM_PICS
           , colors::gen_colors

@@ -2,7 +2,7 @@ pub mod finished;
 pub mod bet_fields;
 
 use crate::{
-  types::{ common::{ CoreGuild, CoreGuilds }
+  types::{ serenity::{ CoreGuild, CoreGuilds }
          , team::DiscordPlayer
          , tracking::*
          , w3c::Going },

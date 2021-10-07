@@ -105,15 +105,19 @@ pub async fn chat_neo(something: String, lsm: bool) -> anyhow::Result<String> {
       if result.chars().any(|c| matches!(c, '$' | '{' | '}')) {
         Err( anyhow!("BAD RESULT") )
       } else {
-        if result.contains(A) {
-          let a_split = result.split(A).collect::<Vec<&str>>();
-          if a_split.len() > 1 {
-            Ok( a_split[1].to_string() )
-          } else {
-            Ok( result.replace(A, "") )
-          }
+        if result.contains("following code") {
+          Err( anyhow!("BAD RESULT") )
         } else {
-          Ok( result )
+          if result.contains(A) {
+            let a_split = result.split(A).collect::<Vec<&str>>();
+            if a_split.len() > 1 {
+              Ok( a_split[1].to_string() )
+            } else {
+              Ok( result.replace(A, "") )
+            }
+          } else {
+            Ok( result )
+          }
         }
       }
     }

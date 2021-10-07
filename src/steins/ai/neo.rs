@@ -18,45 +18,49 @@ use tokio::{ task, sync::Mutex };
 
 use rand::seq::SliceRandom;
 
-pub static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
-  Lazy::new(||{
-   let config_resource = Resource::Remote(RemoteResource::from_pretrained(
-      GptNeoConfigResources::GPT_NEO_1_3B,
-    ));
-    let vocab_resource = Resource::Remote(RemoteResource::from_pretrained(
-      GptNeoVocabResources::GPT_NEO_1_3B,
-    ));
-    let merges_resource = Resource::Remote(RemoteResource::from_pretrained(
-      GptNeoMergesResources::GPT_NEO_1_3B,
-    ));
-    let model_resource = Resource::Remote(RemoteResource::from_pretrained(
-      GptNeoModelResources::GPT_NEO_1_3B,
-    ));
-    let generate_config = TextGenerationConfig {
-      model_type: ModelType::GPTNeo,
-      model_resource,
-      config_resource,
-      vocab_resource,
-      merges_resource,
-      min_length: 10,
-      max_length: 64,
-      do_sample: false,
-      early_stopping: true,
-      num_beams: 4,
-      num_return_sequences: 1,
-      device: Device::Cpu,
-      ..Default::default()
-    };
-    Mutex::new( TextGenerationModel::new(generate_config).unwrap() )
-  });
+fn neo_model_loader() -> TextGenerationModel {
+  let config_resource = Resource::Remote(RemoteResource::from_pretrained(
+    GptNeoConfigResources::GPT_NEO_1_3B,
+  ));
+  let vocab_resource = Resource::Remote(RemoteResource::from_pretrained(
+    GptNeoVocabResources::GPT_NEO_1_3B,
+  ));
+  let merges_resource = Resource::Remote(RemoteResource::from_pretrained(
+    GptNeoMergesResources::GPT_NEO_1_3B,
+  ));
+  let model_resource = Resource::Remote(RemoteResource::from_pretrained(
+    GptNeoModelResources::GPT_NEO_1_3B,
+  ));
+  let generate_config = TextGenerationConfig {
+    model_type: ModelType::GPTNeo,
+    model_resource,
+    config_resource,
+    vocab_resource,
+    merges_resource,
+    min_length: 10,
+    max_length: 64,
+    do_sample: false,
+    early_stopping: true,
+    num_beams: 4,
+    num_return_sequences: 1,
+    device: Device::Cpu,
+    ..Default::default()
+  };
+  TextGenerationModel::new(generate_config).unwrap()
+}
+
+static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
+  Lazy::new(||{ Mutex::new(neo_model_loader()) });
 
 static NEO_SEPARATORS: [char; 3] = ['"', '*', '”'];
 static A: &str = "A: ";
 
-pub async fn chat_neo(something: String) -> anyhow::Result<String> {
+pub async fn chat_neo(something: String, lsm: bool) -> anyhow::Result<String> {
   info!("Generating GPT Neo response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
-  let neo_model = NEOMODEL.lock().await;
+  let (mut locked, mut loaded) = (None, None);
+  if lsm { locked = Some( NEOMODEL.lock().await );
+  } else { loaded = Some( neo_model_loader() ); };
   let cache_vec = cache_eng_vec.iter().collect::<Vec<&String>>();
   let mut cache_slices = cache_vec
                         .choose_multiple(&mut rand::thread_rng(), 32)
@@ -65,6 +69,15 @@ pub async fn chat_neo(something: String) -> anyhow::Result<String> {
 
   let neo_result =
     task::spawn_blocking(move || {
+      let (lock, load);
+      let neo_model =
+        if lsm {
+          lock = locked.unwrap();
+          &*lock
+        } else {
+          load = loaded.unwrap();
+          &load
+        };
       let output = neo_model.generate(&[something.as_str()], None);
       if output.is_empty() {
         error!("Failed to chat with Neo Model");

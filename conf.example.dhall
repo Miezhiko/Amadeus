@@ -22,4 +22,5 @@ in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
    , twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAAAAA"
    , tenor_key            = "AAAA"
    , flo_secret           = "AAAAAAAAAAAAAAA"
+   , lazy_static_models   = True
    }

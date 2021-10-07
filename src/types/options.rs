@@ -10,7 +10,8 @@ pub struct IOptions {
   pub twitch_client_id: String,
   pub twitch_client_secret: String,
   pub tenor_key: String,
-  pub flo_secret: String
+  pub flo_secret: String,
+  pub lazy_static_models: bool
 }
 
 #[derive(Clone, Serialize, Deserialize)]

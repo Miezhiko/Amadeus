@@ -59,3 +59,9 @@ pub struct ReqwestClient;
 impl TypeMapKey for ReqwestClient {
   type Value = Arc<Reqwest>;
 }
+
+pub struct IContext;
+
+impl TypeMapKey for IContext {
+  type Value = bool;
+}

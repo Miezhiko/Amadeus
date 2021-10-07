@@ -154,7 +154,7 @@ pub async fn process( ioptions: &IOptions
           let amention2 = format!("<@!{}>", amadeus_id);
           if !msg.content.starts_with(&amention1)
           && !msg.content.starts_with(&amention2) {
-            chain::response(&ctx, &msg).await;
+            chain::response(&ctx, &msg, ioptions.lazy_static_models).await;
           }
         }
       } else {
@@ -239,7 +239,7 @@ pub async fn process( ioptions: &IOptions
           let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed);
           let rnd = rand::thread_rng().gen_range(0..activity_level);
           if rnd == 1 {
-            chain::chat(&ctx, &msg).await;
+            chain::chat(&ctx, &msg, ioptions.lazy_static_models).await;
           }
           let rnd2: u16 = rand::thread_rng().gen_range(0..2);
           if rnd2 == 1 {

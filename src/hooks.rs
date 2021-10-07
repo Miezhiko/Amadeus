@@ -1,9 +1,9 @@
-use crate::{
-  steins::ai::chain,
-  common::i18n::{ help_i18n, US_ENG },
-  collections::{ base::GREETINGS
-               , channels::IGNORED }
-};
+use crate::{ collections::{ base::GREETINGS
+                          , channels::IGNORED }
+           , common::i18n::{ help_i18n, US_ENG }
+           , steins::ai::chain
+           , types::common::IContext
+           };
 
 use serenity::{
   prelude::*,
@@ -104,7 +104,13 @@ pub async fn unrecognised_command( ctx: &Context
       }
     }
   } else {
-    chain::response(&ctx, &msg).await;
+    let lsm = {
+      let data = ctx.data.read().await;
+      if let Some(icontext) = data.get::<IContext>() {
+        *icontext
+      } else { false }
+    };
+    chain::response(&ctx, &msg, lsm).await;
   }
 }
 

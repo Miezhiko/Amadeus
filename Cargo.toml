@@ -1,6 +1,6 @@
 [package]
 name        = "amadeus"
-version     = "7.1.25"
+version     = "7.1.26"
 authors     = [ "Miezhiko" ]
 repository  = "https://github.com/Miezhiko/Amadeus"
 readme      = "README.md"

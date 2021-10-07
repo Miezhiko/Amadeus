@@ -176,7 +176,7 @@ pub fn obfuscate(msg_content: &str) -> String {
 }
 
 #[async_recursion]
-async fn generate_response(ctx: &Context, msg: &Message, gtry: u32) -> String {
+async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -> String {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
   if gtry > 0 {
     warn!("Failed to generate normal respons, try: {}", gtry);
@@ -214,7 +214,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32) -> String {
       if msg.content.ends_with('?') {
         let rndxqa: u32 = rand::thread_rng().gen_range(0..2);
         if rndxqa == 1 {
-          match bert::ask(text).await {
+          match bert::ask(text, lsm).await {
             Ok(answer) => {
               bert_generated = true;
               answer },
@@ -224,7 +224,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32) -> String {
             }
           }
         } else {
-          match bert::chat(text, msg.author.id.0).await {
+          match bert::chat(text, msg.author.id.0, lsm).await {
             Ok(answer) => {
               bert_generated = true;
               answer },
@@ -235,7 +235,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32) -> String {
           }
         }
       } else {
-        match bert::chat(text, msg.author.id.0).await {
+        match bert::chat(text, msg.author.id.0, lsm).await {
           Ok(answer) => {
             bert_generated = true;
             answer },
@@ -291,14 +291,14 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32) -> String {
   }
   let trimmd = answer.as_str().trim();
   if trimmd.is_empty() || trimmd.len() < 3 {
-    generate_response(ctx, msg, gtry + 1).await
+    generate_response(ctx, msg, gtry + 1, lsm).await
   } else {
     answer
   }
 }
 
-pub async fn chat(ctx: &Context, msg: &Message) {
-  let answer = generate_response(ctx, msg, 0).await;
+pub async fn chat(ctx: &Context, msg: &Message, lsm: bool) {
+  let answer = generate_response(ctx, msg, 0, lsm).await;
   if !answer.is_empty() {
     let rnd = rand::thread_rng().gen_range(0..3);
     if rnd == 1 {
@@ -309,8 +309,8 @@ pub async fn chat(ctx: &Context, msg: &Message) {
   }
 }
 
-pub async fn response(ctx: &Context, msg: &Message) {
-  let answer = generate_response(ctx, msg, 0).await;
+pub async fn response(ctx: &Context, msg: &Message, lsm: bool) {
+  let answer = generate_response(ctx, msg, 0, lsm).await;
   if !answer.is_empty() {
     reply(&ctx, &msg, &answer).await;
   }

@@ -42,27 +42,33 @@ pub static ENRUMODEL: Lazy<Mutex<TranslationModel>> =
         .with_device(Device::cuda_if_available())
         .create_model().unwrap()));
 
-pub static QAMODEL: Lazy<Mutex<QuestionAnsweringModel>> =
-  Lazy::new(||
-    Mutex::new(QuestionAnsweringModel::new(
-      QuestionAnsweringConfig {
-        lower_case: false,
-        device: *DEVICE,
-        ..Default::default()
-      }
-    ).unwrap()));
+fn qa_model_loader() -> QuestionAnsweringModel {
+  QuestionAnsweringModel::new(
+    QuestionAnsweringConfig {
+      lower_case: false,
+      device: *DEVICE,
+      ..Default::default()
+    }
+  ).unwrap()
+}
 
-pub static CONVMODEL: Lazy<Mutex<ConversationModel>> =
-  Lazy::new(||
-    Mutex::new(ConversationModel::new(
-      ConversationConfig {
-        min_length: 3,
-        max_length: 64,
-        min_length_for_response: 5,
-        device: *DEVICE,
-        ..Default::default()
-      }
-    ).unwrap()));
+static QAMODEL: Lazy<Mutex<QuestionAnsweringModel>> =
+  Lazy::new(|| Mutex::new(qa_model_loader()));
+
+fn conv_model_loader() -> ConversationModel {
+  ConversationModel::new(
+    ConversationConfig {
+      min_length: 3,
+      max_length: 64,
+      min_length_for_response: 5,
+      device: *DEVICE,
+      ..Default::default()
+    }
+  ).unwrap()
+}
+
+static CONVMODEL: Lazy<Mutex<ConversationModel>> =
+  Lazy::new(|| Mutex::new(conv_model_loader()));
 
 #[allow(clippy::type_complexity)]
 pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32, u32)>>>
@@ -135,10 +141,12 @@ pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
   }).await.unwrap()
 }
 
-pub async fn ask(msg_content: String) -> Result<String> {
+pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
   info!("Generating GPT2 QA response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
-  let qa_model = QAMODEL.lock().await;
+  let (mut locked, mut loaded) = (None, None);
+  if lsm { locked = Some( QAMODEL.lock().await );
+  } else { loaded = Some( qa_model_loader() ); };
   let mut question = process_message_for_gpt(&msg_content);
   if question.len() > GPT_LIMIT {
     if let Some((i, _)) = question.char_indices().rev().nth(GPT_LIMIT) {
@@ -160,6 +168,15 @@ pub async fn ask(msg_content: String) -> Result<String> {
     }
   }
   task::spawn_blocking(move || {
+    let (lock, load);
+    let qa_model =
+      if lsm {
+        lock = locked.unwrap();
+        &*lock
+      } else {
+        load = loaded.unwrap();
+        &load
+      };
     let qa_input = QaInput {
       question, context: cache
     };
@@ -178,18 +195,28 @@ pub async fn ask(msg_content: String) -> Result<String> {
   }).await.unwrap()
 }
 
-async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
+async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String> {
   info!("Generating GPT2 response");
   let cache_eng_hs = CACHE_ENG_STR.lock().await;
-  let conversation_model = CONVMODEL.lock().await;
+  let (mut locked, mut loaded) = (None, None);
+  if lsm { locked = Some( CONVMODEL.lock().await );
+  } else { loaded = Some( conv_model_loader() ); };
   let mut chat_context = CHAT_CONTEXT.lock().await;
   task::spawn_blocking(move || {
+    let (lock, load);
+    let conversation_model =
+      if lsm {
+        lock = locked.unwrap();
+        &*lock
+      } else {
+        load = loaded.unwrap();
+        &load
+      };
     let cache_eng_vec = cache_eng_hs.iter().collect::<Vec<&String>>();
     let output =
       if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
         if *x > 5 {
           chat_context.remove(&user_id);
-
           let mut conversation_manager = ConversationManager::new();
           let cache_slices = cache_eng_vec
                           .choose_multiple(&mut rand::thread_rng(), 32)
@@ -250,7 +277,7 @@ async fn chat_gpt2(something: String, user_id: u64) -> Result<String> {
   }).await.unwrap()
 }
 
-pub async fn chat(something: String, user_id: u64) -> Result<String> {
+pub async fn chat(something: String, user_id: u64, lsm: bool) -> Result<String> {
   let rndx = rand::thread_rng().gen_range(0..4);
   let mut input = process_message_for_gpt(&something);
   if input.len() > GPT_LIMIT {
@@ -262,7 +289,7 @@ pub async fn chat(something: String, user_id: u64) -> Result<String> {
     return Err(anyhow!("empty input"));
   }
   match rndx {
-    0 => chat_neo(input).await,
-    _ => chat_gpt2(input, user_id).await
+    0 => chat_neo(input, lsm).await,
+    _ => chat_gpt2(input, user_id, lsm).await
   }
 }

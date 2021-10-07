@@ -1,7 +1,7 @@
 use crate::{
   types::{
     common::{ PubCreds, ReqwestClient
-            , CoreGuild, CoreGuilds
+            , CoreGuild, CoreGuilds, IContext
             , IServer, AllGuilds },
     options::IOptions
   },
@@ -148,6 +148,7 @@ pub async fn run(opts: &IOptions) ->
     data.insert::<PubCreds>(Arc::new(creds));
     data.insert::<CoreGuilds>(Arc::new(core_guilds));
     data.insert::<AllGuilds>(Arc::new(all_guilds));
+    data.insert::<IContext>(opts.lazy_static_models);
   }
 
   // start listening for events by starting a single shard

@@ -31,7 +31,7 @@ use std::{ time::Duration
          , sync::atomic::Ordering::Relaxed
          , sync::atomic::AtomicU32 };
 
-pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(7);
+pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(9);
 static ONGOING_PAGE_SIZE: usize = 15;
 
 #[cfg(feature = "trackers")]
@@ -360,8 +360,8 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         let mut table = Table::new();
 
         table.set_content_arrangement(ContentArrangement::Dynamic)
-            .set_table_width(40)
-            .set_header(vec!["Map", "vs HU", "vs O", "vs NE", "vs UD"]);
+             .set_table_width(40)
+             .set_header(vec!["Map", "vs HU", "vs O", "vs NE", "vs UD"]);
 
         if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
           for s3 in s24 {

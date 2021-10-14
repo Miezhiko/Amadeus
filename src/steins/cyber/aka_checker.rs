@@ -1,5 +1,5 @@
 use crate::{
-  types::w3c::PlayerAPI,
+  types::w3c::{ PlayerAPI, TeamPlayer },
   common::{
     aka::{ self, Aka },
     constants::W3C_API
@@ -50,5 +50,14 @@ pub async fn check_aka( battletag: &str
       }
       None
     }
+  }
+}
+
+pub async fn aka( player: &TeamPlayer
+                , rqcl: &reqwest::Client ) -> String {
+  if let Some(aka) = check_aka(&player.battleTag, rqcl).await {
+    aka
+  } else {
+    player.name.clone()
   }
 }

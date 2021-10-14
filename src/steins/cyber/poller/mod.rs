@@ -9,7 +9,7 @@ use crate::{
   collections::team::{ PLAYERS, DISCORDS },
   common::constants::W3C_API,
   common::db::trees::points,
-  steins::cyber::aka_checker::check_aka,
+  steins::cyber::aka_checker::aka,
   steins::cyber::poller::{ finished::check_match
                          , bet_fields::generate_bet_fields },
   steins::cyber::utils::{ get_race2
@@ -40,30 +40,26 @@ pub async fn check<'a>( ctx: &Context
         .send()
         .await {
     if let Ok(going) = res.json::<Going>().await {
-      let guild = GuildId( guild_id );
       if !going.matches.is_empty() {
+        let guild = GuildId( guild_id );
         for m in going.matches {
           let server_info = m.serverInfo.clone();
           let host = server_info.name.unwrap_or("no information about host".into());
-          if m.gameMode == 1 {
+          if m.gameMode == 1 { // solo
             if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
               let playaz = PLAYERS.iter().filter( |p|
                    m.teams[0].players[0].battleTag == p.player.battletag
                 || m.teams[1].players[0].battleTag == p.player.battletag ).collect::<Vec<&DiscordPlayer>>();
               if !playaz.is_empty() {
-                set!{ g_map = get_map(&m.map)
-                    , race1 = get_race2(m.teams[0].players[0].race)
-                    , race2 = get_race2(m.teams[1].players[0].race) };
-
-                let t0_name =
-                  if let Some(aka) = check_aka(&m.teams[0].players[0].battleTag, rqcl).await
-                    { aka } else { m.teams[0].players[0].name.clone() };
-                let t1_name =
-                  if let Some(aka) = check_aka(&m.teams[1].players[0].battleTag, rqcl).await
-                    { aka } else { m.teams[1].players[0].name.clone() };
+                set!{ g_map   = get_map(&m.map)
+                    , race1   = get_race2(m.teams[0].players[0].race)
+                    , race2   = get_race2(m.teams[1].players[0].race)
+                    , t0_name = aka(&m.teams[0].players[0], rqcl).await
+                    , t1_name = aka(&m.teams[1].players[0], rqcl).await };
 
                 setm!{ t0_ping = String::new()
                      , t1_ping = String::new() };
+
                 if server_info.playerServerInfos.len() > 1 {
                   let (t0_index, t1_index) =
                     if m.teams[0].players[0].battleTag == server_info.playerServerInfos[0].battleTag {
@@ -86,13 +82,10 @@ pub async fn check<'a>( ctx: &Context
                   let mut games_lock = GAMES.lock().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
                     track.still_live = true;
-                    let minutes = track.passed_time / 2;
-                    let footer = format!("Passed: {} min", minutes);
-
-                    // use first player for discord operations
-                    let playa = playaz[0].player.discord;
-
-                    let bet_fields = generate_bet_fields(ctx, track).await;
+                    set!{ minutes     = track.passed_time / 2
+                        , footer      = format!("Passed: {} min", minutes)
+                        , playa       = playaz[0].player.discord
+                        , bet_fields  = generate_bet_fields(ctx, track).await };
                     for t in track.tracking_msg_id.iter() {
                     if let Some(ds) = DISCORDS.get(&t.0) {
                     if let Some(ch) = ds.games {
@@ -181,9 +174,7 @@ pub async fn check<'a>( ctx: &Context
                 let mut aka_names: [[String; 2]; 2] = Default::default();
                 for i in 0..2 {
                   for j in 0..2 {
-                    aka_names[i][j] =
-                      if let Some(aka) = check_aka(&m.teams[i].players[j].battleTag, rqcl).await
-                        { aka } else { m.teams[i].players[j].name.clone() };
+                    aka_names[i][j] = aka(&m.teams[i].players[j], rqcl).await;
                   }
                 }
 
@@ -223,9 +214,9 @@ pub async fn check<'a>( ctx: &Context
                       let playa = playaz[0].player.discord;
                       if let Ok(user) = ctx.http.get_user(playa).await {
                         setm!{ fields = Vec::new()
-                            , img    = None
-                            , url    = None
-                            , color  = (32,32,32) };
+                             , img    = None
+                             , url    = None
+                             , color  = (32,32,32) };
                         if !msg.embeds.is_empty() {
                           if !msg.embeds[0].fields.is_empty() {
                             for f in msg.embeds[0].fields.clone() {
@@ -297,17 +288,15 @@ pub async fn check<'a>( ctx: &Context
             if !playaz.is_empty() {
               let g_map = get_map(&m.map);
 
-              set! { race1  = get_race2(m.teams[0].players[0].race), race13 = get_race2(m.teams[0].players[2].race)
-                   , race12 = get_race2(m.teams[0].players[1].race), race14 = get_race2(m.teams[0].players[3].race)
-                   , race2  = get_race2(m.teams[1].players[0].race), race23 = get_race2(m.teams[1].players[2].race)
-                   , race22 = get_race2(m.teams[1].players[1].race), race24 = get_race2(m.teams[1].players[3].race) };
+              set!{ race1  = get_race2(m.teams[0].players[0].race), race13 = get_race2(m.teams[0].players[2].race)
+                  , race12 = get_race2(m.teams[0].players[1].race), race14 = get_race2(m.teams[0].players[3].race)
+                  , race2  = get_race2(m.teams[1].players[0].race), race23 = get_race2(m.teams[1].players[2].race)
+                  , race22 = get_race2(m.teams[1].players[1].race), race24 = get_race2(m.teams[1].players[3].race) };
 
               let mut aka_names: [[String; 4]; 2] = Default::default();
               for i in 0..2 {
                 for j in 0..4 {
-                  aka_names[i][j] =
-                    if let Some(aka) = check_aka(&m.teams[i].players[j].battleTag, rqcl).await
-                      { aka } else { m.teams[i].players[j].name.clone() };
+                  aka_names[i][j] = aka(&m.teams[i].players[j], rqcl).await;
                 }
               }
 
@@ -446,9 +435,9 @@ pub async fn check<'a>( ctx: &Context
                     }
                     color = msg.embeds[0].colour.tuple();
                   };
-                  let mut title = "FINISHED";
-                  let mut streak_fields = None;
-                  let mut bet_fields = None;
+                  setm!{ title          = "FINISHED"
+                       , streak_fields  = None
+                       , bet_fields     = None };
                   for (pw, is_win) in &fgame.winners {
                     if *is_win {
                       trace!("Registering win for {}", pw);

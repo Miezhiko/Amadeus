@@ -3,7 +3,7 @@ use crate::{
            , tracking::*
            , w3c::{ Going, MD } },
     common::constants::W3C_API,
-    steins::cyber::aka_checker::check_aka,
+    steins::cyber::aka_checker::{ aka, check_aka },
     steins::cyber::utils::{ get_race2
                           , get_map
                           , get_hero_png }
@@ -67,15 +67,10 @@ pub async fn check_match( matchid: &str
             losers.push((playa.player.discord, won));
           }
         }
-        let t0_name =
-          if let Some(aka) = check_aka(&m.teams[0].players[0].battleTag, rqcl).await
-            { aka } else { m.teams[0].players[0].name.clone() };
-        let t1_name =
-          if let Some(aka) = check_aka(&m.teams[1].players[0].battleTag, rqcl).await
-            { aka } else { m.teams[1].players[0].name.clone() };
-
-        let mut t0_ping = String::new();
-        let mut t1_ping = String::new();
+        set!{ t0_name = aka(&m.teams[0].players[0], rqcl).await
+            , t1_name = aka(&m.teams[1].players[0], rqcl).await };
+        setm!{ t0_ping = String::new()
+             , t1_ping = String::new() };
         if m.serverInfo.playerServerInfos.len() > 1 {
           let (t0_index, t1_index) =
             if m.teams[0].players[0].battleTag == m.serverInfo.playerServerInfos[0].battleTag {
@@ -111,9 +106,7 @@ pub async fn check_match( matchid: &str
               let won = m.teams[i].players[j].won;
               losers.push((playa.player.discord, won));
             }
-            aka_names[i][j] =
-              if let Some(aka) = check_aka(&m.teams[i].players[j].battleTag, rqcl).await
-                { aka } else { m.teams[i].players[j].name.clone() };
+            aka_names[i][j] = aka(&m.teams[i].players[j], rqcl).await;
           }
         }
         let teamx = |x: usize| -> String {
@@ -147,9 +140,7 @@ pub async fn check_match( matchid: &str
               let won = m.teams[i].players[j].won;
               losers.push((playa.player.discord, won));
             }
-            aka_names[i][j] =
-              if let Some(aka) = check_aka(&m.teams[i].players[j].battleTag, rqcl).await
-                { aka } else { m.teams[i].players[j].name.clone() };
+            aka_names[i][j] = aka(&m.teams[i].players[j], rqcl).await;
           }
         }
         let teamx = |x: usize| -> String {

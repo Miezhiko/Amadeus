@@ -1,4 +1,6 @@
-pub mod common;
+// unused:
+// pub mod common;
+
 pub mod serenity;
 pub mod goodgame;
 pub mod options;

@@ -33,7 +33,9 @@ use markov::Chain;
 
 use rand::Rng;
 
-use tokio::sync::MutexGuard ;
+use tokio::{ time::{ sleep, Duration }
+           , sync::MutexGuard
+           };
 
 use async_recursion::async_recursion;
 
@@ -291,6 +293,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
   }
   let trimmd = answer.as_str().trim();
   if trimmd.is_empty() || trimmd.len() < 3 {
+    sleep(Duration::from_millis(100)).await;
     generate_response(ctx, msg, gtry + 1, lsm).await
   } else {
     answer

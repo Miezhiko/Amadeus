@@ -1,5 +1,4 @@
 use crate::{
-  types::common::Either,
   steins::ai::cache::{
     process_message_for_gpt,
     CACHE_ENG_STR
@@ -52,17 +51,20 @@ fn neo_model_loader() -> TextGenerationModel {
   TextGenerationModel::new(generate_config).unwrap()
 }
 
-static NEOMODEL: Lazy<Mutex<TextGenerationModel>> =
-  Lazy::new(||{ Mutex::new(neo_model_loader()) });
+static NEOMODEL: Lazy<Mutex<Option<TextGenerationModel>>> =
+  Lazy::new(||{ Mutex::new(Some(neo_model_loader())) });
 
 static NEO_SEPARATORS: [char; 3] = ['"', '*', '”'];
 static A: &str = "A: ";
 
 pub async fn chat_neo(something: String, lsm: bool) -> anyhow::Result<String> {
   info!("Generating GPT Neo response");
+
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
-  let either = if lsm { Either::Left(NEOMODEL.lock().await)
-               } else { Either::Right(neo_model_loader()) };
+  let mut neo = NEOMODEL.lock().await;
+  if neo.is_none() {
+    *neo = Some(neo_model_loader());
+  }
   let cache_vec = cache_eng_vec.iter().collect::<Vec<&String>>();
   let mut cache_slices = cache_vec
                         .choose_multiple(&mut rand::thread_rng(), 32)
@@ -71,28 +73,31 @@ pub async fn chat_neo(something: String, lsm: bool) -> anyhow::Result<String> {
 
   let neo_result =
     task::spawn_blocking(move || {
-      let neo_model = match &either {
-        Either::Left(lock)  => lock,
-        Either::Right(load) => load,
-      };
-      let output = neo_model.generate(&[something.as_str()], None);
-      if output.is_empty() {
-        error!("Failed to chat with Neo Model");
-        Err(anyhow!("no output from GPT neo model"))
-      } else { Ok(
-        if output.len() > 1 {
-          if let Some(r) = output.choose(&mut rand::thread_rng()) {
-            if r.contains("following code:") {
-              output[0].clone()
+      if let Some(neo_model) = &mut *neo {
+        let output = neo_model.generate(&[something.as_str()], None);
+        if output.is_empty() {
+          error!("Failed to chat with Neo Model");
+          Err(anyhow!("no output from GPT neo model"))
+        } else { Ok({
+          if ! lsm {
+            *neo = None;
+          }
+          if output.len() > 1 {
+            if let Some(r) = output.choose(&mut rand::thread_rng()) {
+              if r.contains("following code:") {
+                output[0].clone()
+              } else {
+                String::from(r)
+              }
             } else {
-              String::from(r)
+              output[1].clone()
             }
           } else {
-            output[1].clone()
-          }
-        } else {
-          output[0].clone()
-        } )
+            output[0].clone()
+          } })
+        }
+      } else {
+        Err(anyhow!("Empty GPT Neo model"))
       }
     }).await.unwrap()?;
 

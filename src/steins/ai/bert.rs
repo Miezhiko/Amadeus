@@ -1,5 +1,4 @@
 use crate::{
-  types::common::Either,
   steins::ai::cache::{
     CACHE_ENG_STR,
     process_message_for_gpt
@@ -55,8 +54,8 @@ fn qa_model_loader() -> QuestionAnsweringModel {
   ).unwrap()
 }
 
-static QAMODEL: Lazy<Mutex<QuestionAnsweringModel>> =
-  Lazy::new(|| Mutex::new(qa_model_loader()));
+static QAMODEL: Lazy<Mutex<Option<QuestionAnsweringModel>>> =
+  Lazy::new(|| Mutex::new(Some(qa_model_loader())));
 
 fn conv_model_loader() -> ConversationModel {
   ConversationModel::new(
@@ -70,8 +69,8 @@ fn conv_model_loader() -> ConversationModel {
   ).unwrap()
 }
 
-static CONVMODEL: Lazy<Mutex<ConversationModel>> =
-  Lazy::new(|| Mutex::new(conv_model_loader()));
+static CONVMODEL: Lazy<Mutex<Option<ConversationModel>>> =
+  Lazy::new(|| Mutex::new(Some(conv_model_loader())));
 
 #[allow(clippy::type_complexity)]
 pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32, u32)>>>
@@ -147,8 +146,10 @@ pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
 pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
   info!("Generating GPT2 QA response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
-  let either = if lsm { Either::Left(QAMODEL.lock().await)
-               } else { Either::Right(qa_model_loader()) };
+  let mut qa = QAMODEL.lock().await;
+  if qa.is_none() {
+    *qa = Some( qa_model_loader() );
+  }
   let mut question = process_message_for_gpt(&msg_content);
   if question.len() > GPT_LIMIT {
     if let Some((i, _)) = question.char_indices().rev().nth(GPT_LIMIT) {
@@ -170,24 +171,27 @@ pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
     }
   }
   task::spawn_blocking(move || {
-    let qa_model = match &either {
-      Either::Left(lock)  => lock,
-      Either::Right(load) => load,
-    };
-    let qa_input = QaInput {
-      question, context: cache
-    };
-    // Get answer
-    let answers = qa_model.predict(&[qa_input], 1, 32);
-    if answers.is_empty() {
-      error!("Failed to ansewer with QuestionAnsweringModel");
-      Err(anyhow!("no output from GPT QA model"))
-    } else {
-      let my_answers = &answers[0];
+    if let Some(qa_model) = &mut *qa {
+      let qa_input = QaInput {
+        question, context: cache
+      };
+      // Get answer
+      let answers = qa_model.predict(&[qa_input], 1, 32);
+      if ! lsm {
+        *qa = None;
+      }
+      if answers.is_empty() {
+        error!("Failed to ansewer with QuestionAnsweringModel");
+        Err(anyhow!("no output from GPT QA model"))
+      } else {
+        let my_answers = &answers[0];
 
-      // we have several answers (hope they sorted by score)
-      let answer = &my_answers[0];
-      Ok(answer.answer.clone())
+        // we have several answers (hope they sorted by score)
+        let answer = &my_answers[0];
+        Ok(answer.answer.clone())
+      }
+    } else {
+      Err(anyhow!("Empty QA model"))
     }
   }).await.unwrap()
 }
@@ -195,75 +199,81 @@ pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
 async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String> {
   info!("Generating GPT2 response");
   let cache_eng_hs = CACHE_ENG_STR.lock().await;
-  let either = if lsm { Either::Left(CONVMODEL.lock().await)
-               } else { Either::Right(conv_model_loader()) };
+  let mut conversation = CONVMODEL.lock().await;
+  if conversation.is_none() {
+    *conversation = Some( conv_model_loader() );
+  }
   let mut chat_context = CHAT_CONTEXT.lock().await;
   task::spawn_blocking(move || {
-    let conversation_model = match &either {
-      Either::Left(lock)  => lock,
-      Either::Right(load) => load,
-    };
-    let cache_eng_vec = cache_eng_hs.iter().collect::<Vec<&String>>();
-    let output =
-      if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
-        if *x > 5 {
-          chat_context.remove(&user_id);
+    if let Some(conversation_model) = &mut *conversation {
+      let cache_eng_vec = cache_eng_hs.iter().collect::<Vec<&String>>();
+      let output =
+        if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
+          if *x > 5 {
+            chat_context.remove(&user_id);
+            let mut conversation_manager = ConversationManager::new();
+            let cache_slices = cache_eng_vec
+                              .choose_multiple(&mut rand::thread_rng(), 32)
+                              .map(AsRef::as_ref).collect::<Vec<&str>>();
+            let encoded_history = conversation_model.encode_prompts(&cache_slices);
+            let conv_id = conversation_manager.create(&something);
+            if let Some(cm) = conversation_manager.get(&conv_id) {
+              cm.load_from_history(cache_slices, encoded_history);
+            }
+            chat_context.insert( user_id
+                               , ( conversation_manager, 0, 0 )
+                               );
+            if let Some(chat_cont) = chat_context.get_mut(&user_id) {
+              let (registered_conversation, _, _) = chat_cont;
+              conversation_model.generate_responses(registered_conversation)
+            } else {
+              return Err(anyhow!("Failed to cregister conversation for {}", &user_id));
+            }
+          } else {
+            tracking_conversation.create(&something);
+            *passed = 0; *x += 1;
+            conversation_model.generate_responses(tracking_conversation)
+          }
+        } else {
           let mut conversation_manager = ConversationManager::new();
           let cache_slices = cache_eng_vec
-                          .choose_multiple(&mut rand::thread_rng(), 32)
-                          .map(AsRef::as_ref).collect::<Vec<&str>>();
+                            .choose_multiple(&mut rand::thread_rng(), 5)
+                            .map(AsRef::as_ref).collect::<Vec<&str>>();
           let encoded_history = conversation_model.encode_prompts(&cache_slices);
           let conv_id = conversation_manager.create(&something);
           if let Some(cm) = conversation_manager.get(&conv_id) {
             cm.load_from_history(cache_slices, encoded_history);
           }
+
           chat_context.insert( user_id
-                            , ( conversation_manager, 0, 0 )
-                            );
+                             , ( conversation_manager, 0, 0 )
+                             );
+
           if let Some(chat_cont) = chat_context.get_mut(&user_id) {
             let (registered_conversation, _, _) = chat_cont;
             conversation_model.generate_responses(registered_conversation)
           } else {
             return Err(anyhow!("Failed to cregister conversation for {}", &user_id));
           }
-        } else {
-          tracking_conversation.create(&something);
-          *passed = 0; *x += 1;
-          conversation_model.generate_responses(tracking_conversation)
-        }
+        };
+
+      let out_values = output.values()
+                             .cloned()
+                             .map(str::to_string)
+                             .collect::<Vec<String>>();
+
+      if ! lsm {
+        *conversation = None;
+      }
+
+      if out_values.is_empty() {
+        error!("Failed to chat with ConversationModel");
+        Err(anyhow!("no output from GPT 2 model"))
       } else {
-        let mut conversation_manager = ConversationManager::new();
-        let cache_slices = cache_eng_vec
-                          .choose_multiple(&mut rand::thread_rng(), 5)
-                          .map(AsRef::as_ref).collect::<Vec<&str>>();
-        let encoded_history = conversation_model.encode_prompts(&cache_slices);
-        let conv_id = conversation_manager.create(&something);
-        if let Some(cm) = conversation_manager.get(&conv_id) {
-          cm.load_from_history(cache_slices, encoded_history);
-        }
-
-        chat_context.insert( user_id
-                            , ( conversation_manager, 0, 0 )
-                            );
-
-        if let Some(chat_cont) = chat_context.get_mut(&user_id) {
-          let (registered_conversation, _, _) = chat_cont;
-          conversation_model.generate_responses(registered_conversation)
-        } else {
-          return Err(anyhow!("Failed to cregister conversation for {}", &user_id));
-        }
-      };
-
-    let out_values = output.values()
-                            .cloned()
-                            .map(str::to_string)
-                            .collect::<Vec<String>>();
-
-    if out_values.is_empty() {
-      error!("Failed to chat with ConversationModel");
-      Err(anyhow!("no output from GPT 2 model"))
+        Ok(out_values[0].clone())
+      }
     } else {
-      Ok(out_values[0].clone())
+      Err(anyhow!("Empty GPT 2 model"))
     }
   }).await.unwrap()
 }

@@ -36,10 +36,10 @@ fn prettify_analyze_js(j: &str, minimal: bool)
   }
   if let Some(players) = json.pointer("/players") {
     for playa in players.as_array().unwrap().iter() {
-      let mut p = String::new();
-      let mut s = String::new();
-      let mut su = String::new();
-      let mut sapm = vec![];
+      setm!{ p    = String::new()
+           , s    = String::new()
+           , su   = String::new()
+           , sapm = vec![] };
       if let Some(name) = playa.pointer("/name") {
         p = name.as_str().unwrap().to_string();
       }
@@ -104,11 +104,11 @@ fn prettify_analyze_js(j: &str, minimal: bool)
     if let Some(chat_object) = json.pointer("/chat") {
       let chat = chat_object.as_array().unwrap();
       if !chat.is_empty() {
-        let mut chat_string = String::new();
-        let mut chat_part_previous = String::new();
+        setm!{ chat_string = String::new()
+             , chat_part_previous = String::new() };
         for chat_o in chat.iter() {
-          let mut chat_p = String::new();
-          let mut chat_m = String::new();
+          setm!{ chat_p = String::new()
+               , chat_m = String::new() };
           if let Some(chat_player) = chat_o.pointer("/playerName") {
             chat_p = chat_player.as_str().unwrap().to_string();
           }
@@ -140,8 +140,8 @@ fn prettify_analyze_js(j: &str, minimal: bool)
 
 pub async fn analyze(path: &str, minimal: bool)
     -> anyhow::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
-  let replay_data = analyze_js(path).await?;
-  let pretty_daya = prettify_analyze_js(&replay_data, minimal)?;
+  set!{ replay_data = analyze_js(path).await?
+      , pretty_daya = prettify_analyze_js(&replay_data, minimal)? };
   Ok(pretty_daya)
 }
 

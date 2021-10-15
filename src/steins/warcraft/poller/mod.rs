@@ -157,7 +157,7 @@ pub async fn check<'a>( ctx: &Context
                 }
               }
             }
-          } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode
+          } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode 2x2
             if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
               let playaz = PLAYERS.iter().filter( |p|
                    m.teams[0].players[0].battleTag == p.player.battletag

@@ -150,8 +150,8 @@ pub async fn process( ioptions: &IOptions
       }
       if (&msg.mentions).iter().any(|u| u.bot) {
         if (&msg.mentions).iter().any(|u| u.bot && u.id == amadeus_id) {
-          let amention1 = format!("<@{}>", amadeus_id);
-          let amention2 = format!("<@!{}>", amadeus_id);
+          set!{ amention1 = format!("<@{}>", amadeus_id)
+              , amention2 = format!("<@!{}>", amadeus_id) };
           if !msg.content.starts_with(&amention1)
           && !msg.content.starts_with(&amention2) {
             chain::response(&ctx, &msg, ioptions.lazy_static_models).await;
@@ -327,7 +327,7 @@ pub async fn process( ioptions: &IOptions
                 } else if let Err(why) =
                   guild.create_role(&ctx,
                       |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
-                            .name(UNBLOCK_ROLE)).await {
+                           .name(UNBLOCK_ROLE)).await {
                   error!("Failed to create UNBLOCK role, {:?}", why);
                 }
               }

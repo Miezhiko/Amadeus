@@ -1,9 +1,7 @@
 use crate::types::tracking::TrackingGame;
 
-use serenity::{
-  prelude::*,
-  model::id::UserId
-};
+use serenity::{ prelude::*
+              , model::id::UserId };
 
 pub async fn generate_bet_fields( ctx: &Context
                                 , track: &mut TrackingGame

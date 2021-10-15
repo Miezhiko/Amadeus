@@ -262,11 +262,11 @@ pub async fn check_match( matchid: &str
             } else { &md.playerScores[1] }
           } else { &md.playerScores[1] };
 
-        let mut t0_ping = String::new();
-        let mut t1_ping = String::new();
+        setm!{ t0_ping = String::new()
+             , t1_ping = String::new() };
         if m.serverInfo.playerServerInfos.len() > 3 {
-          let mut t0_index = 0;
-          let mut t1_index = 1;
+          setm!{ t0_index = 0
+               , t1_index = 1 };
           for i in 0..4 {
             if player_scores.battleTag == m.serverInfo.playerServerInfos[i].battleTag {
               t0_index = i;

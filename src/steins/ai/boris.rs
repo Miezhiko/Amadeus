@@ -43,16 +43,13 @@ fn spell_word(word: &str) -> String {
 
 pub fn spell(text: &str) -> String {
   if text.is_empty() { return String::new(); }
-
   let mut out = vec![];
-
   for word in text.split_whitespace() {
     let spelled = spell_word(word);
     if !spelled.is_empty() {
       out.push(spelled);
     }
   }
-
   out.join(" ")
 }
 

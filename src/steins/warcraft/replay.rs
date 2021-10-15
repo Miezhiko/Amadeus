@@ -148,8 +148,8 @@ pub async fn replay_embed( ctx: &Context
                                 m.embed(|e| { e.0 = embeds[0].0.clone(); e })
                               }).await {
       let mut page: usize = 0;
-      let left = ReactionType::Unicode(String::from("⬅️"));
-      let right = ReactionType::Unicode(String::from("➡️"));
+      set!{ left  = ReactionType::Unicode(String::from("⬅️"))
+          , right = ReactionType::Unicode(String::from("➡️")) };
       let _ = bot_msg.react(&ctx, left).await;
       let _ = bot_msg.react(&ctx, right).await;
       loop {

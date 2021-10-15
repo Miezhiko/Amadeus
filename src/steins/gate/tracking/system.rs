@@ -1,48 +1,29 @@
 use crate::{
-  common::{
-    system,
-    constants::{ MAIN_CHANNEL
-               , MIST_CHANNEL
-               , MODERATION }
-  },
-  steins::ai::{ cache, chain, bert, reinit },
+  common::{ system
+          , constants::MODERATION },
+  steins::ai::{ bert, reinit },
   commands::w3c::update_current_season
 };
 
 use serenity::prelude::*;
 
+use chrono::{ Duration, Utc };
+
 use std::{
-  sync::atomic::Ordering,
   time,
   sync::Arc
 };
-
-use rand::Rng;
 
 /* every 30 minutes */
 static POLL_PERIOD_SECONDS: u64 = 30 * 60;
 /* every ~2 hours, depends on ACTIVITY_LEVEL */
 static PASSED_FOR_CONVERSATION: u32 = 2 * 60 * 60 / POLL_PERIOD_SECONDS as u32;
 
-pub async fn activate_social_skils(ctx: &Arc<Context>) {
-
+pub async fn activate_system_tracker(ctx: &Arc<Context>, lsm: bool) {
   let ctx_clone = Arc::clone(&ctx);
   tokio::spawn(async move {
     loop {
-      let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 10;
-      let rndx = rand::thread_rng().gen_range(0..activity_level);
-      if rndx < 2 {
-        let (chanz, ru) = match rndx {
-          0 => { (MAIN_CHANNEL, false) },
-          _ => { (MIST_CHANNEL, true) }
-        };
-        let ai_text = chain::generate_with_language(&ctx_clone, ru).await;
-        if let Err(why) = chanz.send_message(&ctx_clone, |m| {
-          m.content(ai_text)
-        }).await {
-          error!("Failed to post periodic message {:?}", why);
-        }
-      } else {
+      {
         // clean up old bert model conversation id-s
         let mut k_to_del: Vec<u64> = Vec::new();
         let mut chat_context = bert::CHAT_CONTEXT.lock().await;
@@ -59,6 +40,19 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
         }
         update_current_season(&ctx_clone).await;
 
+        if ! lsm {
+          let mut convmodel_used = bert::CONVMODEL_USED.lock().await;
+          if let Some(conv_model_used_time) = &*convmodel_used {
+            let nao = Utc::now();
+            let since_last_update: Duration = nao - *conv_model_used_time;
+            if since_last_update > Duration::minutes(10) {
+              let mut convmodel = bert::CONVMODEL.lock().await;
+              *convmodel = None;
+              *convmodel_used = None;
+            }
+          }
+        }
+
         // memory check!
         if let Ok(mem_mb) = system::stats::get_memory_mb().await {
           // USE 24 GB RAM LIMIT FOR NOW
@@ -71,10 +65,8 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
             reinit().await;
           }
         }
-
       }
       tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
     }
   });
-
 }

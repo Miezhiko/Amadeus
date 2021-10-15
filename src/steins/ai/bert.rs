@@ -20,6 +20,7 @@ use rust_bert::pipelines::{
 use tch::Device;
 use tokio::{ task, sync::Mutex };
 use once_cell::sync::Lazy;
+use chrono::{ Utc, DateTime };
 
 use std::collections::HashMap;
 
@@ -69,8 +70,11 @@ fn conv_model_loader() -> ConversationModel {
   ).unwrap()
 }
 
-static CONVMODEL: Lazy<Mutex<Option<ConversationModel>>> =
+pub static CONVMODEL: Lazy<Mutex<Option<ConversationModel>>> =
   Lazy::new(|| Mutex::new(Some(conv_model_loader())));
+
+pub static CONVMODEL_USED: Lazy<Mutex<Option<DateTime<Utc>>>> =
+  Lazy::new(|| Mutex::new(None));
 
 #[allow(clippy::type_complexity)]
 pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32, u32)>>>
@@ -203,6 +207,10 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String>
   if conversation.is_none() {
     *conversation = Some( conv_model_loader() );
   }
+  if ! lsm {
+    let mut conv_model_used = CONVMODEL_USED.lock().await;
+    *conv_model_used = Some(Utc::now());
+  }
   let mut chat_context = CHAT_CONTEXT.lock().await;
   task::spawn_blocking(move || {
     if let Some(conversation_model) = &mut *conversation {
@@ -261,10 +269,6 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String>
                              .cloned()
                              .map(str::to_string)
                              .collect::<Vec<String>>();
-
-      if ! lsm {
-        *conversation = None;
-      }
 
       if out_values.is_empty() {
         error!("Failed to chat with ConversationModel");

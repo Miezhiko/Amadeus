@@ -1,4 +1,3 @@
-#[cfg(feature = "trackers")] mod social;
 #[cfg(feature = "trackers")] mod tracking;
 #[cfg(feature = "trackers")] pub mod behavior;
 

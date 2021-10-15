@@ -3,8 +3,8 @@ use crate::{
          , options::* },
   steins::{ gate
           , ai::{ cache, chain }
-          , cyber::replay::{ replay_embed
-                           , attach_replay }
+          , warcraft::replay::{ replay_embed
+                              , attach_replay }
           },
   common::{ db::trees::points
           , help::lang

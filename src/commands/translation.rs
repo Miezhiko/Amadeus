@@ -14,8 +14,10 @@ use rust_bert::pipelines::translation::{ Language
 
 use tokio::task;
 
-async fn bert_translate(_ctx: &Context, text: String, source_lang: Language, target_lang: Language)
-          -> anyhow::Result<String> {
+async fn bert_translate( _ctx: &Context
+                       , text: String
+                       , source_lang: Language
+                       , target_lang: Language ) -> anyhow::Result<String> {
   task::spawn_blocking(move || {
     let mut something = text;
     if something.len() > TRANSLATION_LIMIT {
@@ -161,8 +163,8 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         mm.edit(ctx, |m|
           m.embed(|e|
             e.fields(fields)
-            .author(|a| a.icon_url(&msg.author.face())
-                         .name(&msg.author.name)
+             .author(|a| a.icon_url(&msg.author.face())
+                          .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -205,8 +207,8 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         mm.edit(ctx, |m|
           m.embed(|e|
             e.fields(fields)
-            .author(|a| a.icon_url(&msg.author.face())
-                         .name(&msg.author.name)
+             .author(|a| a.icon_url(&msg.author.face())
+                          .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -249,8 +251,8 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         mm.edit(ctx, |m|
           m.embed(|e|
             e.fields(fields)
-            .author(|a| a.icon_url(&msg.author.face())
-                         .name(&msg.author.name)
+             .author(|a| a.icon_url(&msg.author.face())
+                          .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -293,8 +295,8 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         mm.edit(ctx, |m|
           m.embed(|e|
             e.fields(fields)
-            .author(|a| a.icon_url(&msg.author.face())
-                         .name(&msg.author.name)
+             .author(|a| a.icon_url(&msg.author.face())
+                          .name(&msg.author.name)
                     )
           )
         ).await?;

@@ -3,7 +3,7 @@ use crate::{
   common::{ msg::channel_message
           , msg::direct_message
           , help::members::get_player },
-  steins::cyber::flo::*
+  steins::warcraft::flo::*
 };
 
 use serenity::{

@@ -3,8 +3,9 @@ use crate::{
   common::{ options, system },
   steins::{
     gate::START_TIME,
-    gate::social::activate_social_skils,
-    gate::tracking::{ team_games::activate_games_tracking
+    gate::tracking::{ system::activate_system_tracker
+                    , team_games::activate_games_tracking
+                    , social::activate_social_skils
                     , streamers::activate_streamers_tracking
                     , w3info::activate_w3info_tracking },
     ai::cache
@@ -66,6 +67,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   cache::update_cache(&ctx, &all_channels).await;
 
   let ac = std::sync::Arc::new(ctx);
+  activate_system_tracker(&ac, options.lazy_static_models).await;
   activate_social_skils(&ac).await;
 
   let opts = options::get_roptions().await.unwrap();

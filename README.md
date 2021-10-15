@@ -34,7 +34,6 @@
  - Too many small commands (use `~help`)
  - Slash commands support (type `/`)
  - Chatty (`set activity 66` is default)
- - Transfer learning using chats context
  - Automatic translation with bert models
  - Rule-based grammatical error correction
  - [Deepspeach](https://github.com/mozilla/DeepSpeech) for voice[WIP]
@@ -45,13 +44,15 @@
  - Emoji roles system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
  - Almost everything async [tokio.rs](https://tokio.rs)
  - Various gifs commands using Tenor API
- - [Dhall](https://dhall-lang.org) and YAML config files
  - Using [Fluent](https://www.projectfluent.org/) for localization
  - [Sled](https://github.com/spacejam/sled) for editable info archive
  - Plays music streams using [Songbird](https://github.com/serenity-rs/songbird)! (`~join ~play`)
- - Multi-server streams notifications/trackers for twitch and goodgame.ru
- - Veto helper (for banning maps against some player) using W3C statistics
- - Versus command showing score for one player against another for x seasons
+ - Transfer learning using chats context (models: [DialoGPT](https://github.com/microsoft/DialoGPT) [GPT-Neo](https://github.com/EleutherAI/gpt-neo), [DistilBERT](https://arxiv.org/abs/1910.01108) fine-tuned on SQuAD)
+ - [Dhall](https://dhall-lang.org) and YAML config files, dhall for per-guild teams configurations
+ - Multi-server streams notifications/trackers for twitch and goodgame.ru (using channels from dhall conf)
+ - If lazy_static_models option is `False` conv model unloads after use (DialoGPT wait for 10-30 mins)
+ - Veto helper (for banning maps against some player) using W3C statistics (`~veto` command)
+ - Versus command showing score for one player against another for x seasons (`~vs` command)
  - Bets on live games with `~bet` and emojis under Live tracking games
  - Warcraft 3 commands `~stats`, `~today` and more with info from wacraft3.info and W3C ladder
  - Warcraft 3 hostbot API integration (creating games) using flo services and tonic for RPC
@@ -59,7 +60,7 @@
 
 ## Cooking
 
- - Amadeus needs to link with installed [PyTorch](https://pytorch.org/), you can find instructions on [tch-rs](https://github.com/LaurentMazare/tch-rs)
+ - Amadeus needs to link with [PyTorch](https://pytorch.org/), instructions on [tch-rs](https://github.com/LaurentMazare/tch-rs)
  - to compile just use `cargo build --release`
  - `cp conf.example.dhall conf.dhall` (initial constant options)
  - `cp conf.example.yml conf.yml` (those options may change in runtime)
@@ -88,7 +89,7 @@ in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
    , twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAAAAA"
    , tenor_key            = "AAAA"
    , flo_secret           = "AAAAAAAAAAAAAAA"
-   , lazy_static_models   = True
+   , lazy_static_models   = False
    }
 ```
 

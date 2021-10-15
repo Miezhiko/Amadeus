@@ -7,7 +7,7 @@ use crate::{
     constants::W3C_API,
     msg::channel_message
   },
-  steins::cyber::
+  steins::warcraft::
     utils::{ get_race, get_race2
            , get_league, get_map_short
            , get_league_png }

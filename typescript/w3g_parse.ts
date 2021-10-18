@@ -1,4 +1,6 @@
+//debug:
 //import rep from "../node_modules/w3gjs";
+
 import rep from "/usr/lib64/node_modules/w3gjs";
 import { units, heroes } from "./mappings"
 

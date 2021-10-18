@@ -1,22 +1,22 @@
 use tokio::process::Command;
 use serde_json::Value;
 
-async fn analyze_js(path: &str) -> anyhow::Result<String> {
-  let node_out = Command::new("sh")
+async fn analyze_ts(path: &str) -> anyhow::Result<String> {
+  let ts_node_out = Command::new("sh")
         .arg("-c")
-        .arg(&format!("ts-node js/w3g_parse.ts {}", path))
+        .arg(&format!("ts-node typescript/w3g_parse.ts {}", path))
         .output()
         .await?;
-  let npm_stdout = String::from_utf8(node_out.stdout)?;
-  if npm_stdout.is_empty() {
-    let npm_stderr = String::from_utf8(node_out.stderr)?;
-    info!("npm error: {}", &npm_stderr);
+  let ts_node_stdout = String::from_utf8(ts_node_out.stdout)?;
+  if ts_node_stdout.is_empty() {
+    let ts_node_stderr = String::from_utf8(ts_node_out.stderr)?;
+    error!("npm error: {}", &ts_node_stderr);
   }
-  Ok(npm_stdout)
+  Ok(ts_node_stdout)
 }
 
 #[allow(clippy::type_complexity)]
-fn prettify_analyze_js(j: &str, minimal: bool)
+fn prettify_analyze_ts(j: &str, minimal: bool)
   -> anyhow::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
   let json: Value = serde_json::from_str(&j)?;
   let mut out = String::new();
@@ -140,8 +140,8 @@ fn prettify_analyze_js(j: &str, minimal: bool)
 
 pub async fn analyze(path: &str, minimal: bool)
     -> anyhow::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
-  set!{ replay_data = analyze_js(path).await?
-      , pretty_daya = prettify_analyze_js(&replay_data, minimal)? };
+  set!{ replay_data = analyze_ts(path).await?
+      , pretty_daya = prettify_analyze_ts(&replay_data, minimal)? };
   Ok(pretty_daya)
 }
 
@@ -151,9 +151,9 @@ mod cyber_w3g_tests {
   #[ignore]
   #[tokio::test(flavor="current_thread")]
   async fn my_test() -> Result<(), String> {
-    if let Ok(replay_data) = analyze_js("example.w3g").await {
+    if let Ok(replay_data) = analyze_ts("example.w3g").await {
       assert!(!replay_data.is_empty());
-      match prettify_analyze_js(&replay_data, false) {
+      match prettify_analyze_ts(&replay_data, false) {
         Ok((_p, ps)) => {
           assert_eq!(2, ps.len());
           Ok(())

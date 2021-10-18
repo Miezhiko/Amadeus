@@ -34,7 +34,7 @@ pub static TRANSLATION_LIMIT: usize = 512;
 static GPT_LIMIT: usize = 1000;
 
 // models
-static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
+pub static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
 
 pub static ENRUMODEL: Lazy<Mutex<TranslationModel>> =
   Lazy::new(||

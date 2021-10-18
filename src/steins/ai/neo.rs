@@ -2,7 +2,8 @@ use crate::{
   steins::ai::cache::{
     process_message_for_gpt,
     CACHE_ENG_STR
-  }
+  },
+  steins::ai::bert::DEVICE
 };
 
 use rust_bert::gpt_neo::{
@@ -13,7 +14,6 @@ use rust_bert::{
   pipelines::text_generation::{TextGenerationConfig, TextGenerationModel},
   resources::{RemoteResource, Resource}
 };
-use tch::Device;
 
 use once_cell::sync::Lazy;
 use tokio::{ task, sync::Mutex };
@@ -40,12 +40,12 @@ fn neo_model_loader() -> TextGenerationModel {
     vocab_resource,
     merges_resource,
     min_length: 10,
-    max_length: 64,
+    max_length: 48,
     do_sample: false,
-    early_stopping: true,
+    early_stopping: false,
     num_beams: 4,
     num_return_sequences: 1,
-    device: Device::Cpu,
+    device: *DEVICE,
     ..Default::default()
   };
   TextGenerationModel::new(generate_config).unwrap()

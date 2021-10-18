@@ -44,11 +44,25 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>, lsm: bool) {
           let mut convmodel_used = bert::CONVMODEL_USED.lock().await;
           if let Some(conv_model_used_time) = &*convmodel_used {
             let nao = Utc::now();
-            let since_last_update: Duration = nao - *conv_model_used_time;
-            if since_last_update > Duration::minutes(10) {
+            let since_last_use: Duration = nao - *conv_model_used_time;
+            if since_last_use > Duration::minutes(10) {
               let mut convmodel = bert::CONVMODEL.lock().await;
               *convmodel = None;
               *convmodel_used = None;
+            }
+          }
+
+          // don't free ENRU model if CONV model is loaded.
+          if convmodel_used.is_none() {
+            let mut enru_used = bert::ENRUMODEL_USED.lock().await;
+            if let Some(enru_model_used_time) = &*enru_used {
+              let nao = Utc::now();
+              let since_last_use: Duration = nao - *enru_model_used_time;
+              if since_last_use > Duration::minutes(30) {
+                let mut enrumodel = bert::ENRUMODEL.lock().await;
+                *enrumodel = None;
+                *enru_used = None;
+              }
             }
           }
         }

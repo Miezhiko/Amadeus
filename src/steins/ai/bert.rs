@@ -36,14 +36,19 @@ static GPT_LIMIT: usize = 1000;
 // models
 pub static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
 
-pub static ENRUMODEL: Lazy<Mutex<TranslationModel>> =
-  Lazy::new(||
-    Mutex::new(
-      TranslationModelBuilder::new()
-        .with_source_languages(vec![Language::English, Language::Russian])
-        .with_target_languages(vec![Language::English, Language::Russian])
-        .with_device(Device::cuda_if_available())
-        .create_model().unwrap()));
+pub fn enru_model_loader() -> TranslationModel {
+  TranslationModelBuilder::new()
+    .with_source_languages(vec![Language::English, Language::Russian])
+    .with_target_languages(vec![Language::English, Language::Russian])
+    .with_device(Device::cuda_if_available())
+    .create_model().unwrap()
+}
+
+pub static ENRUMODEL: Lazy<Mutex<Option<TranslationModel>>> =
+  Lazy::new(|| Mutex::new( Some( enru_model_loader() ) ) );
+
+pub static ENRUMODEL_USED: Lazy<Mutex<Option<DateTime<Utc>>>> =
+  Lazy::new(|| Mutex::new(None));
 
 fn qa_model_loader() -> QuestionAnsweringModel {
   QuestionAnsweringModel::new(
@@ -85,64 +90,97 @@ pub async fn reinit() {
   chat_context.clear();
 }
 
-pub async fn en2ru(text: String) -> Result<String> {
+pub async fn en2ru(text: String, lsm: bool) -> Result<String> {
   if text.is_empty() {
     return Ok(String::new());
   }
-  let en2ru_model = ENRUMODEL.lock().await;
+  let mut enru_model = ENRUMODEL.lock().await;
+  if enru_model.is_none() {
+    *enru_model = Some( enru_model_loader() );
+  }
+  if ! lsm {
+    let mut enru_model_model_used = ENRUMODEL_USED.lock().await;
+    *enru_model_model_used = Some(Utc::now());
+  }
   task::spawn_blocking(move || {
-    let mut something = text;
-    if something.len() > TRANSLATION_LIMIT {
-      if let Some((i, _)) = something.char_indices().rev().nth(TRANSLATION_LIMIT) {
-        something = something[i..].to_string();
+    if let Some(en2ru_model) = &mut *enru_model {
+      let mut something = text;
+      if something.len() > TRANSLATION_LIMIT {
+        if let Some((i, _)) = something.char_indices().rev().nth(TRANSLATION_LIMIT) {
+          something = something[i..].to_string();
+        }
       }
-    }
-    let output = en2ru_model.translate(&[something.as_str()], Some(Language::English), Language::Russian)?;
-    if output.is_empty() {
-      error!("Failed to translate with TranslationConfig EnglishToRussian");
-      Ok(something)
+      let output = en2ru_model.translate(&[something.as_str()], Some(Language::English), Language::Russian)?;
+      if output.is_empty() {
+        error!("Failed to translate with TranslationConfig EnglishToRussian");
+        Ok(something)
+      } else {
+        Ok(output[0].clone())
+      }
     } else {
-      Ok(output[0].clone())
+      Err(anyhow!("Empty ENRU model"))
     }
   }).await.unwrap()
 }
 
-pub async fn ru2en(text: String) -> Result<String> {
+pub async fn ru2en(text: String, lsm: bool) -> Result<String> {
   if text.is_empty() {
     return Ok(String::new());
   }
-  let ru2en_model = ENRUMODEL.lock().await;
+  let mut enru_model = ENRUMODEL.lock().await;
+  if enru_model.is_none() {
+    *enru_model = Some( enru_model_loader() );
+  }
+  if ! lsm {
+    let mut enru_model_model_used = ENRUMODEL_USED.lock().await;
+    *enru_model_model_used = Some(Utc::now());
+  }
   task::spawn_blocking(move || {
-    let mut something = text;
-    if something.len() > TRANSLATION_LIMIT {
-      if let Some((i, _)) = something.char_indices().rev().nth(TRANSLATION_LIMIT) {
-        something = something[i..].to_string();
+    if let Some(ru2en_model) = &mut *enru_model {
+      let mut something = text;
+      if something.len() > TRANSLATION_LIMIT {
+        if let Some((i, _)) = something.char_indices().rev().nth(TRANSLATION_LIMIT) {
+          something = something[i..].to_string();
+        }
       }
-    }
-    let output = ru2en_model.translate(&[something.as_str()], Some(Language::Russian), Language::English)?;
-    if output.is_empty() {
-      error!("Failed to translate with TranslationConfig RussianToEnglish");
-      Ok(something)
+      let output = ru2en_model.translate(&[something.as_str()], Some(Language::Russian), Language::English)?;
+      if output.is_empty() {
+        error!("Failed to translate with TranslationConfig RussianToEnglish");
+        Ok(something)
+      } else {
+        let translation = &output[0];
+        Ok(translation.clone())
+      }
     } else {
-      let translation = &output[0];
-      Ok(translation.clone())
+      Err(anyhow!("Empty ENRU model"))
     }
   }).await.unwrap()
 }
 
-pub async fn ru2en_many(texts: Vec<String>) -> Result<Vec<String>> {
+pub async fn ru2en_many(texts: Vec<String>, lsm: bool) -> Result<Vec<String>> {
   if texts.is_empty() {
     return Ok(vec![]);
   }
-  let ru2en_model = ENRUMODEL.lock().await;
+  let mut enru_model = ENRUMODEL.lock().await;
+  if enru_model.is_none() {
+    *enru_model = Some( enru_model_loader() );
+  }
+  if ! lsm {
+    let mut enru_model_model_used = ENRUMODEL_USED.lock().await;
+    *enru_model_model_used = Some(Utc::now());
+  }
   task::spawn_blocking(move || {
-    let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
-    let output = ru2en_model.translate(&ttt, Some(Language::Russian), Language::English)?;
-    if output.is_empty() {
-      error!("Failed to translate with TranslationConfig RussianToEnglish");
-      Ok(Vec::new())
+    if let Some(ru2en_model) = &mut *enru_model {
+      let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
+      let output = ru2en_model.translate(&ttt, Some(Language::Russian), Language::English)?;
+      if output.is_empty() {
+        error!("Failed to translate with TranslationConfig RussianToEnglish");
+        Ok(Vec::new())
+      } else {
+        Ok(output)
+      }
     } else {
-      Ok(output)
+      Err(anyhow!("Empty ENRU model"))
     }
   }).await.unwrap()
 }

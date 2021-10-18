@@ -1,4 +1,10 @@
-use crate::steins::ai::bert::TRANSLATION_LIMIT;
+use crate::{
+  types::serenity::IContext,
+  steins::ai::bert::{
+    TRANSLATION_LIMIT,
+    en2ru, ru2en
+  }
+};
 
 use serenity::{
   prelude::*,
@@ -14,33 +20,48 @@ use rust_bert::pipelines::translation::{ Language
 
 use tokio::task;
 
-async fn bert_translate( _ctx: &Context
+async fn bert_translate( ctx: &Context
                        , text: String
                        , source_lang: Language
                        , target_lang: Language ) -> anyhow::Result<String> {
-  task::spawn_blocking(move || {
-    let mut something = text;
-    if something.len() > TRANSLATION_LIMIT {
-      if let Some((i, _)) = something.char_indices().rev().nth(TRANSLATION_LIMIT) {
-        something = something[i..].to_string();
-      }
-    }
-
-    let model = TranslationModelBuilder::new()
-        .with_source_languages(vec![source_lang])
-        .with_target_languages(vec![target_lang])
-        .with_device(tch::Device::cuda_if_available())
-        .create_model()?;
-
-    let output = model.translate(&[something.as_str()], Some(source_lang), target_lang)?;
-
-    if output.is_empty() {
-      Err(anyhow!("Failed to translate with TranslationConfig EnglishToRussian"))
+  static RUEN_LANGS: &[Language; 2] = &[Language::Russian, Language::English];
+  if RUEN_LANGS.contains(&source_lang) && RUEN_LANGS.contains(&target_lang) {
+    let lsm = {
+      let data = ctx.data.read().await;
+      if let Some(icontext) = data.get::<IContext>() {
+        *icontext
+      } else { false }
+    };
+    if source_lang == Language::Russian {
+      ru2en(text, lsm).await
     } else {
-      let translation = &output.join(" ");
-      Ok(translation.clone())
+      en2ru(text, lsm).await
     }
-  }).await?
+  } else {
+    task::spawn_blocking(move || {
+      let mut something = text;
+      if something.len() > TRANSLATION_LIMIT {
+        if let Some((i, _)) = something.char_indices().rev().nth(TRANSLATION_LIMIT) {
+          something = something[i..].to_string();
+        }
+      }
+
+      let model = TranslationModelBuilder::new()
+          .with_source_languages(vec![source_lang])
+          .with_target_languages(vec![target_lang])
+          .with_device(tch::Device::cuda_if_available())
+          .create_model()?;
+
+      let output = model.translate(&[something.as_str()], Some(source_lang), target_lang)?;
+
+      if output.is_empty() {
+        Err(anyhow!("Failed to translate with TranslationConfig EnglishToRussian"))
+      } else {
+        let translation = &output.join(" ");
+        Ok(translation.clone())
+      }
+    }).await?
+  }
 }
 
 #[command]

@@ -205,7 +205,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
   let mut answer =
     if rndx != 1 && !in_case && gtry < 10 {
       let text = if russian {
-        match bert::ru2en(msg.content.clone()).await {
+        match bert::ru2en(msg.content.clone(), lsm).await {
           Ok(translated) => translated,
           Err(why) => {
             error!("Failed to translate msg content {:?}" , why);
@@ -255,7 +255,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
     };
   if russian && !answer.is_empty() {
     if bert_generated {
-      match bert::en2ru(answer.clone()).await {
+      match bert::en2ru(answer.clone(), lsm).await {
         Ok(translated) => {
           let rnda: u32 = rand::thread_rng().gen_range(0..10);
           if rnda != 1 {

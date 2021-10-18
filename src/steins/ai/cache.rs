@@ -1,5 +1,5 @@
 use crate::{
-  types::serenity::{ AllGuilds, ChannelLanguage },
+  types::serenity::{ AllGuilds, ChannelLanguage, IContext },
   common::{ help::lang
           , db::trees::{ messages::{ register, check_registration }
                        , LSUF, ZSUF, RSUF, MSUF }
@@ -121,6 +121,7 @@ pub fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String,
 
 pub async fn update_cache( ctx: &Context
                          , channels: &HashMap<ChannelId, GuildChannel>
+                         , lsm: bool
                          ) {
 
   info!("updating AI chain has started");
@@ -266,7 +267,7 @@ pub async fn update_cache( ctx: &Context
     info!("Translating cache");
     tokio::spawn(async move {
       tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-      if let Ok(translated) = bert::ru2en_many(ru_messages_for_translation).await {
+      if let Ok(translated) = bert::ru2en_many(ru_messages_for_translation, lsm).await {
         if !translated.is_empty() {
           for tr in translated.into_iter() {
             cache_eng_str.insert(tr);
@@ -325,6 +326,10 @@ pub async fn actualize_cache(ctx: &Context, force: bool) {
   if since_last_update > Duration::hours(2) || force {
     let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
     let data = ctx.data.read().await;
+    let lsm =
+      if let Some(icontext) = data.get::<IContext>() {
+        *icontext
+      } else { false };
     if let Some(servers) = data.get::<AllGuilds>() {
       let server_ids = servers.iter()
                               .map(|srv| GuildId(srv.id))
@@ -334,7 +339,7 @@ pub async fn actualize_cache(ctx: &Context, force: bool) {
           all_channels.extend(serv_channels);
         }
       }
-      update_cache(ctx, &all_channels).await;
+      update_cache(ctx, &all_channels, lsm).await;
       *last_update = nao;
     }
   }

@@ -98,7 +98,7 @@ pub async fn en2ru(text: String, lsm: bool) -> Result<String> {
   if enru_model.is_none() {
     *enru_model = Some( enru_model_loader() );
   }
-  if ! lsm {
+  if !lsm {
     let mut enru_model_model_used = ENRUMODEL_USED.lock().await;
     *enru_model_model_used = Some(Utc::now());
   }
@@ -110,9 +110,9 @@ pub async fn en2ru(text: String, lsm: bool) -> Result<String> {
           something = something[i..].to_string();
         }
       }
-      let output = en2ru_model.translate(&[something.as_str()], Some(Language::English), Language::Russian)?;
+      let output = en2ru_model.translate(&[something.as_str()], Some(Language::English)
+                                                              , Language::Russian)?;
       if output.is_empty() {
-        error!("Failed to translate with TranslationConfig EnglishToRussian");
         Ok(something)
       } else {
         Ok(output[0].clone())
@@ -143,9 +143,9 @@ pub async fn ru2en(text: String, lsm: bool) -> Result<String> {
           something = something[i..].to_string();
         }
       }
-      let output = ru2en_model.translate(&[something.as_str()], Some(Language::Russian), Language::English)?;
+      let output = ru2en_model.translate(&[something.as_str()], Some(Language::Russian)
+                                                              , Language::English)?;
       if output.is_empty() {
-        error!("Failed to translate with TranslationConfig RussianToEnglish");
         Ok(something)
       } else {
         let translation = &output[0];
@@ -172,9 +172,9 @@ pub async fn ru2en_many(texts: Vec<String>, lsm: bool) -> Result<Vec<String>> {
   task::spawn_blocking(move || {
     if let Some(ru2en_model) = &mut *enru_model {
       let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
-      let output = ru2en_model.translate(&ttt, Some(Language::Russian), Language::English)?;
+      let output = ru2en_model.translate(&ttt, Some(Language::Russian)
+                                             , Language::English)?;
       if output.is_empty() {
-        error!("Failed to translate with TranslationConfig RussianToEnglish");
         Ok(Vec::new())
       } else {
         Ok(output)
@@ -223,7 +223,6 @@ pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
         *qa = None;
       }
       if answers.is_empty() {
-        error!("Failed to ansewer with QuestionAnsweringModel");
         Err(anyhow!("no output from GPT QA model"))
       } else {
         let my_answers = &answers[0];
@@ -309,7 +308,6 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String>
                              .collect::<Vec<String>>();
 
       if out_values.is_empty() {
-        error!("Failed to chat with ConversationModel");
         Err(anyhow!("no output from GPT 2 model"))
       } else {
         Ok(out_values[0].clone())

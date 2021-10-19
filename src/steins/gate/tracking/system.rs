@@ -9,10 +9,7 @@ use serenity::prelude::*;
 
 use chrono::{ Duration, Utc };
 
-use std::{
-  time,
-  sync::Arc
-};
+use std::{ time, sync::Arc };
 
 /* every 30 minutes */
 static POLL_PERIOD_SECONDS: u64 = 30 * 60;
@@ -40,7 +37,7 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>, lsm: bool) {
         }
         update_current_season(&ctx_clone).await;
 
-        if ! lsm {
+        if !lsm {
           let mut convmodel_used = bert::CONVMODEL_USED.lock().await;
           if let Some(conv_model_used_time) = &*convmodel_used {
             let nao = Utc::now();
@@ -51,7 +48,6 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>, lsm: bool) {
               *convmodel_used = None;
             }
           }
-
           // don't free ENRU model if CONV model is loaded.
           if convmodel_used.is_none() {
             let mut enru_used = bert::ENRUMODEL_USED.lock().await;

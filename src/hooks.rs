@@ -107,7 +107,7 @@ pub async fn unrecognised_command( ctx: &Context
     let lsm = {
       let data = ctx.data.read().await;
       if let Some(icontext) = data.get::<IContext>() {
-        *icontext
+        icontext.lazy_static_models
       } else { false }
     };
     chain::response(&ctx, &msg, lsm).await;

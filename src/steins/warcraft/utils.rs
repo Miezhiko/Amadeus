@@ -190,9 +190,17 @@ mod cyber_utils_tests {
   #[test]
   fn get_map_test() {
     assert_eq!(get_map("echoisles"), "Echo Isles");
+    assert_eq!(get_map_short("echoisles"), "EI");
+
     assert_eq!(get_map("autumnleaves201016"), "Autumn Leaves");
+    assert_eq!(get_map_short("autumnleaves201016"), "AL");
+
     assert_eq!(get_map("_1v1_autumnleaves_anon"), "Autumn Leaves");
+    assert_eq!(get_map_short("_1v1_autumnleaves_anon"), "AL");
+
     assert_eq!(get_map("_gnollwood_anon"), "Gnoll Wood");
+    assert_eq!(get_map_short("_gnollwood_anon"), "GW");
+
     assert_eq!(get_map("phantomgrovew3c201016"), "Phantom Grove");
     assert_eq!(get_map("PhantomGroveW3C"), "Phantom Grove");
     assert_eq!(get_map("DeadlockLV"), "Deadlock");

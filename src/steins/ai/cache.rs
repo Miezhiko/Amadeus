@@ -328,7 +328,7 @@ pub async fn actualize_cache(ctx: &Context, force: bool) {
     let data = ctx.data.read().await;
     let lsm =
       if let Some(icontext) = data.get::<IContext>() {
-        *icontext
+        icontext.lazy_static_models
       } else { false };
     if let Some(servers) = data.get::<AllGuilds>() {
       let server_ids = servers.iter()

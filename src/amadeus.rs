@@ -84,6 +84,8 @@ pub async fn run(opts: &IOptions) ->
   all_guilds.push( IServer { id: opts.guild, kind: CoreGuild::HEmo } );
   all_guilds.push( IServer { id: opts.amadeus_guild, kind: CoreGuild::Storage } );
 
+  let context = IContext { lazy_static_models: opts.lazy_static_models };
+
   // mut is used in cfg flo
   #[allow(unused_mut)]
   let mut std_framework =
@@ -148,7 +150,7 @@ pub async fn run(opts: &IOptions) ->
     data.insert::<PubCreds>(Arc::new(creds));
     data.insert::<CoreGuilds>(Arc::new(core_guilds));
     data.insert::<AllGuilds>(Arc::new(all_guilds));
-    data.insert::<IContext>(opts.lazy_static_models);
+    data.insert::<IContext>(Arc::new(context));
   }
 
   // start listening for events by starting a single shard

@@ -29,7 +29,7 @@ async fn bert_translate( ctx: &Context
     let lsm = {
       let data = ctx.data.read().await;
       if let Some(icontext) = data.get::<IContext>() {
-        *icontext
+        icontext.lazy_static_models
       } else { false }
     };
     if source_lang == Language::Russian {

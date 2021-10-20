@@ -60,8 +60,12 @@ impl TypeMapKey for ReqwestClient {
   type Value = Arc<Reqwest>;
 }
 
-pub struct IContext;
+
+#[derive(Deserialize)]
+pub struct IContext {
+  pub lazy_static_models: bool
+}
 
 impl TypeMapKey for IContext {
-  type Value = bool;
+  type Value = Arc<IContext>;
 }

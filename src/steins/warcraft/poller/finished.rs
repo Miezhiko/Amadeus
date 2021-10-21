@@ -22,7 +22,9 @@ pub async fn check_match( matchid: &str
   if let Ok(res) = rqcl.get(&url).send().await {
     match res.json::<MD>().await {
       Ok(md) => {
-        if_md = Some(md);
+        if md.match_data.is_some() && md.playerScores.is_some() {
+          if_md = Some(md);
+        }
       }, Err(err) => {
         warn!("Failed parse by-ongoing-match {:?}, url: {}", err, url);
       }
@@ -55,7 +57,8 @@ pub async fn check_match( matchid: &str
   }
 
   if let Some(md) = if_md {
-    let m = md.match_data;
+    let m = md.match_data?;
+    let ps = md.playerScores?;
     let address = format!("https://www.w3champions.com/match/{}", &m.id);
     let mut losers: Vec<(u64, bool)> = vec![];
     let mstr_o =
@@ -167,9 +170,9 @@ pub async fn check_match( matchid: &str
     if let Some(mstr) = mstr_o {
       let mut maybe_hero_png = None;
       let duration_in_minutes = m.durationInSeconds / 60;
-      if md.playerScores.len() > 1 && m.gameMode == 1 {
-        set! { p1 = &md.playerScores[0]
-             , p2 = &md.playerScores[1]
+      if ps.len() > 1 && m.gameMode == 1 {
+        set! { p1 = &ps[0]
+             , p2 = &ps[1]
              , s1 = p1.battleTag.clone()
              , s2 = p2.battleTag.clone() };
         let s3 = format!("hero kills: {}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}"
@@ -189,9 +192,9 @@ pub async fn check_match( matchid: &str
         let btag = &playaz[0].player.battletag;
         let player_scores =
           if btag == &s1 {
-            &md.playerScores[0]
+            &ps[0]
           } else {
-            &md.playerScores[1]
+            &ps[1]
           };
         let a1 = if let Some(aka) = check_aka(&s1, rqcl).await
                   { aka } else {
@@ -227,13 +230,13 @@ pub async fn check_match( matchid: &str
           , additional_fields: scores
           , hero_png: maybe_hero_png
           });
-      } else if (m.gameMode == 6 || m.gameMode == 2) && md.playerScores.len() > 3 {
+      } else if (m.gameMode == 6 || m.gameMode == 2) && ps.len() > 3 {
         // Again, to display hero icon / scores we use 1st playa
         let btag = &playaz[0].player.battletag;
         let player_scores =
-          if let Some(scores) = &md.playerScores.iter().find(|s| {
+          if let Some(scores) = &ps.iter().find(|s| {
             &s.battleTag == btag
-          }) { scores } else { &md.playerScores[0] };
+          }) { scores } else { &ps[0] };
         if !player_scores.heroes.is_empty() {
           maybe_hero_png = Some(get_hero_png(
             &player_scores.heroes[0].icon)
@@ -243,9 +246,9 @@ pub async fn check_match( matchid: &str
         // or if two or more clan players in then clan players
         let teammate_scores =
           if playaz.len() > 1 {
-            if let Some(scores) = &md.playerScores.iter().find(|s| {
+            if let Some(scores) = &ps.iter().find(|s| {
               s.battleTag == playaz[1].player.battletag
-            }) { scores } else { &md.playerScores[1] }
+            }) { scores } else { &ps[1] }
           } else if let Some(team) = m.teams.iter().find(|t| {
             t.players.iter().any(|p| {
                 &p.battleTag == btag
@@ -254,13 +257,13 @@ pub async fn check_match( matchid: &str
             if let Some(not_me) = team.players.iter().find(|p| {
               &p.battleTag != btag
             }) {
-              if let Some(scores) = &md.playerScores.iter().find(|s| {
+              if let Some(scores) = &ps.iter().find(|s| {
                 s.battleTag == not_me.battleTag
               }) {
                 scores
-              } else { &md.playerScores[1] }
-            } else { &md.playerScores[1] }
-          } else { &md.playerScores[1] };
+              } else { &ps[1] }
+            } else { &ps[1] }
+          } else { &ps[1] };
 
         setm!{ t0_ping = String::new()
              , t1_ping = String::new() };
@@ -320,9 +323,9 @@ pub async fn check_match( matchid: &str
       } else if m.gameMode == 4 {
         let btag = &playaz[0].player.battletag;
         let player_scores =
-          if let Some(scores) = &md.playerScores.iter().find(|s| {
+          if let Some(scores) = &ps.iter().find(|s| {
             &s.battleTag == btag
-          }) { scores } else { &md.playerScores[0] };
+          }) { scores } else { &ps[0] };
         if !player_scores.heroes.is_empty() {
           maybe_hero_png = Some(get_hero_png(
             &player_scores.heroes[0].icon)

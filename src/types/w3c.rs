@@ -190,8 +190,8 @@ pub_struct!(PlayerScore {
 #[derive(Deserialize, Debug)]
 pub struct MD {
   #[serde(rename = "match")]
-  pub match_data: Match,
-  pub playerScores: Vec<PlayerScore>
+  pub match_data: Option<Match>,
+  pub playerScores: Option<Vec<PlayerScore>>
 }
 
 pub_struct!(Season {

@@ -3,7 +3,7 @@ use crate::{
          , options::IOptions
          , tracking::{ TrackingGame
                      , Bet, GameMode }
-         , twitch::Twitch
+         , twitch::{ Twitch, TWITCH_WC3 }
          , goodgame::GoodGameData },
   common::{ db::trees::points
           , aka },
@@ -131,15 +131,17 @@ pub async fn activate_games_tracking(
                   Ok(t) => {
                     if !t.data.is_empty() {
                       let twd = &t.data[0];
-                      let url = format!("https://www.twitch.tv/{}", twd.user_name);
-                      let pic = twd.thumbnail_url.replace("{width}", "800")
-                                                 .replace("{height}", "450");
-                      if twd.type_string == "live" {
-                        let titurl = format!("{}\n{}", &twd.title, url);
-                        additional_fields.push(("Live on twitch", titurl, false));
-                        image       = Some(pic);
-                        em_url      = Some(url);
-                        twitch_live = true;
+                      if &twd.game_id == TWITCH_WC3 {
+                        let url = format!("https://www.twitch.tv/{}", twd.user_name);
+                        let pic = twd.thumbnail_url.replace("{width}", "800")
+                                                   .replace("{height}", "450");
+                        if twd.type_string == "live" {
+                          let titurl = format!("{}\n{}", &twd.title, url);
+                          additional_fields.push(("Live on twitch", titurl, false));
+                          image       = Some(pic);
+                          em_url      = Some(url);
+                          twitch_live = true;
+                        }
                       }
                     }
                   }, Err(why) => {

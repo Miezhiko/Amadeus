@@ -24,7 +24,7 @@ jobs:
       with:
         toolchain: 1.56.0
         override: true
-        components: clippy
+        components: clippy, rustfmt
 
     - name: Build
       run: cargo build --verbose

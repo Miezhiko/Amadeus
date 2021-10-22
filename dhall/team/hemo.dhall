@@ -36,6 +36,7 @@ let playersList : List Playerx =
   , p "Pechenka#21766"      677187656857419792
   , p "EnragedOxy#2999"     576662560120766474
   , p "OwerPidor#2503"      862690932931559464
+  , p "WindWalker#21184"    720938816810254338
   ]
 
 let discord : Discordx = { uid      = 611822838831251466

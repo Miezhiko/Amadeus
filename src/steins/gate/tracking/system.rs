@@ -44,8 +44,28 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>, lsm: bool) {
             let since_last_use: Duration = nao - *conv_model_used_time;
             if since_last_use > Duration::minutes(10) {
               let mut convmodel = bert::CONVMODEL.lock().await;
+
+              if let Ok(memory_mb) = system::stats::get_memory_mb().await {
+                if memory_mb >= 1024.0 {
+                  let memory_gb = memory_mb / 1024f32;
+                  info!("[DEBUG] Memory before model clean: {:.3} GB", memory_gb)
+                } else {
+                  info!("[DEBUG] Memory before model clean: {:.3} MB", memory_mb)
+                };
+              }
+
               *convmodel = None;
               *convmodel_used = None;
+
+              if let Ok(memory_mb) = system::stats::get_memory_mb().await {
+                if memory_mb >= 1024.0 {
+                  let memory_gb = memory_mb / 1024f32;
+                  info!("[DEBUG] Memory after model clean: {:.3} GB", memory_gb)
+                } else {
+                  info!("[DEBUG] Memory after model clean: {:.3} MB", memory_mb)
+                };
+              }
+
             }
           }
           // don't free ENRU model if CONV model is loaded.

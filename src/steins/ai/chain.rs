@@ -111,7 +111,7 @@ pub async fn generate_with_language(ctx: &Context, russian: bool) -> String {
 pub async fn correct(msg: &str) -> String {
   let nlp = NLPR_RULES.lock().await;
   let tokenizer = NLPR_TOKENIZER.lock().await;
-  nlp.correct(&msg, &tokenizer)
+  nlp.correct(msg, &tokenizer)
 }
 
 pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> String {
@@ -222,7 +222,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
               answer },
             Err(why) => {
               error!("Failed to bert ask {:?}" , why);
-              generate(&ctx, &msg, Some(russian)).await
+              generate(ctx, msg, Some(russian)).await
             }
           }
         } else {
@@ -232,7 +232,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
               answer },
             Err(why) => {
               error!("Failed to bert chat with question {:?}" , why);
-              generate(&ctx, &msg, Some(russian)).await
+              generate(ctx, msg, Some(russian)).await
             }
           }
         }
@@ -243,7 +243,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
             answer },
           Err(why) => {
             error!("Failed to bert chat {:?}" , why);
-            generate(&ctx, &msg, Some(russian)).await
+            generate(ctx, msg, Some(russian)).await
           }
         }
       }
@@ -251,7 +251,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
       if gtry > 9 {
         warn!("Failed to generate normal response after 10 tryes!, msg was: {}", &msg.content);
       }
-      generate(&ctx, &msg, Some(russian)).await
+      generate(ctx, msg, Some(russian)).await
     };
   if russian && !answer.is_empty() {
     if bert_generated {
@@ -305,9 +305,9 @@ pub async fn chat(ctx: &Context, msg: &Message, lsm: bool) {
   if !answer.is_empty() {
     let rnd = rand::thread_rng().gen_range(0..3);
     if rnd == 1 {
-      reply(&ctx, &msg, &answer).await;
+      reply(ctx, msg, &answer).await;
     } else {
-      channel_message(&ctx, &msg, &answer).await;
+      channel_message(ctx, msg, &answer).await;
     }
   }
 }
@@ -315,6 +315,6 @@ pub async fn chat(ctx: &Context, msg: &Message, lsm: bool) {
 pub async fn response(ctx: &Context, msg: &Message, lsm: bool) {
   let answer = generate_response(ctx, msg, 0, lsm).await;
   if !answer.is_empty() {
-    reply(&ctx, &msg, &answer).await;
+    reply(ctx, msg, &answer).await;
   }
 }

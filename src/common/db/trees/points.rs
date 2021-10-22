@@ -134,17 +134,15 @@ pub async fn get_points(guild_id: u64, user_id: u64) -> anyhow::Result<u64> {
   task::spawn_blocking(move || {
     let u64_2: u128 = (guild_id as u128) << 64 | user_id as u128; // >
     let lump_id: LumpId = LumpId::new(u64_2);
-    if let Ok(mbdata) = storage.get(&lump_id) {
-      if let Some(mut data) = mbdata {
-        let byte_data: &mut [u8] = data.as_bytes_mut();
-        match bincode::deserialize::<Points>(byte_data) {
-          Ok(points) => return Ok(points.count),
-          Err(get_error) => {
-            error!("Get error: {:?}", get_error);
-            return Ok(0);
-          }
-        };
-      }
+    if let Ok(Some(mut data)) = storage.get(&lump_id) {
+      let byte_data: &mut [u8] = data.as_bytes_mut();
+      match bincode::deserialize::<Points>(byte_data) {
+        Ok(points) => return Ok(points.count),
+        Err(get_error) => {
+          error!("Get error: {:?}", get_error);
+          return Ok(0);
+        }
+      };
     }
     Ok(0)
   }).await?

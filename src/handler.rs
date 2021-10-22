@@ -191,27 +191,25 @@ impl EventHandler for Handler {
   }
 
   async fn reaction_add(&self, ctx: Context, add_reaction: Reaction) {
-    match &add_reaction.emoji {
-      ReactionType::Custom{animated: _, id, name: _} => {
-        if let Some(user_id) = &add_reaction.user_id {
-          if let Ok(msg) = &add_reaction.message(&ctx).await {
-            if let Some(channel) = msg.channel(&ctx).await {
-              if let Some(guild_channel) = channel.guild() {
-                let user_u64 = user_id.as_u64();
-                let guild_u64 = guild_channel.guild_id.as_u64();
-                if let Ok(Some(emoji_roles)) = emojis::message_roles(guild_u64, add_reaction.message_id.as_u64()).await {
-                  if let Some(role) = emoji_roles.get(id.as_u64()) {
-                    if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
-                      if let Ok(mut member) = guild.member(&ctx, user_id).await {
-                        if let Err(why) = member.add_role(&ctx, RoleId(*role)).await {
-                          error!("Failed to assign role {:?}", why);
-                        } else {
-                          let mut roles_vector : Vec<u64> = Vec::new();
-                          for role in &member.roles {
-                            roles_vector.push(role.as_u64().clone());
-                          }
-                          roles::update_roles(guild_u64, user_u64, &roles_vector).await;
+    if let ReactionType::Custom{animated: _, id, name: _} = &add_reaction.emoji {
+      if let Some(user_id) = &add_reaction.user_id {
+        if let Ok(msg) = &add_reaction.message(&ctx).await {
+          if let Some(channel) = msg.channel(&ctx).await {
+            if let Some(guild_channel) = channel.guild() {
+              let user_u64 = user_id.as_u64();
+              let guild_u64 = guild_channel.guild_id.as_u64();
+              if let Ok(Some(emoji_roles)) = emojis::message_roles(guild_u64, add_reaction.message_id.as_u64()).await {
+                if let Some(role) = emoji_roles.get(id.as_u64()) {
+                  if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
+                    if let Ok(mut member) = guild.member(&ctx, user_id).await {
+                      if let Err(why) = member.add_role(&ctx, RoleId(*role)).await {
+                        error!("Failed to assign role {:?}", why);
+                      } else {
+                        let mut roles_vector : Vec<u64> = Vec::new();
+                        for role in &member.roles {
+                          roles_vector.push(*role.as_u64());
                         }
+                        roles::update_roles(guild_u64, user_u64, &roles_vector).await;
                       }
                     }
                   }
@@ -220,32 +218,30 @@ impl EventHandler for Handler {
             }
           }
         }
-      }, _ => {}
+      }
     }
   }
 
   async fn reaction_remove(&self, ctx: Context, add_reaction: Reaction) {
-    match &add_reaction.emoji {
-      ReactionType::Custom{animated: _, id, name: _} => {
-        if let Some(user_id) = &add_reaction.user_id {
-          if let Ok(msg) = &add_reaction.message(&ctx).await {
-            if let Some(channel) = msg.channel(&ctx).await {
-              if let Some(guild_channel) = channel.guild() {
-                let user_u64 = user_id.as_u64();
-                let guild_u64 = guild_channel.guild_id.as_u64();
-                if let Ok(Some(emoji_roles)) = emojis::message_roles(guild_u64, add_reaction.message_id.as_u64()).await {
-                  if let Some(role) = emoji_roles.get(id.as_u64()) {
-                    if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
-                      if let Ok(mut member) = guild.member(&ctx, user_id).await {
-                        if let Err(why) = member.remove_role(&ctx, RoleId(*role)).await {
-                          error!("Failed to remove role {:?}", why);
-                        } else {
-                          let mut roles_vector : Vec<u64> = Vec::new();
-                          for role in &member.roles {
-                            roles_vector.push(role.as_u64().clone());
-                          }
-                          roles::update_roles(guild_u64, user_u64, &roles_vector).await;
+    if let ReactionType::Custom{animated: _, id, name: _} = &add_reaction.emoji {
+      if let Some(user_id) = &add_reaction.user_id {
+        if let Ok(msg) = &add_reaction.message(&ctx).await {
+          if let Some(channel) = msg.channel(&ctx).await {
+            if let Some(guild_channel) = channel.guild() {
+              let user_u64 = user_id.as_u64();
+              let guild_u64 = guild_channel.guild_id.as_u64();
+              if let Ok(Some(emoji_roles)) = emojis::message_roles(guild_u64, add_reaction.message_id.as_u64()).await {
+                if let Some(role) = emoji_roles.get(id.as_u64()) {
+                  if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
+                    if let Ok(mut member) = guild.member(&ctx, user_id).await {
+                      if let Err(why) = member.remove_role(&ctx, RoleId(*role)).await {
+                        error!("Failed to remove role {:?}", why);
+                      } else {
+                        let mut roles_vector : Vec<u64> = Vec::new();
+                        for role in &member.roles {
+                          roles_vector.push(*role.as_u64());
                         }
+                        roles::update_roles(guild_u64, user_u64, &roles_vector).await;
                       }
                     }
                   }
@@ -254,7 +250,7 @@ impl EventHandler for Handler {
             }
           }
         }
-      }, _ => {}
+      }
     }
   }
 

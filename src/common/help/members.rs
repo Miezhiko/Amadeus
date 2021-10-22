@@ -16,7 +16,7 @@ use futures_util::{
 pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> anyhow::Result<Member> {
   if meme.starts_with("<@") && meme.ends_with('>') {
     static RE: Lazy<Regex> = Lazy::new(|| Regex::new("[<@!>]").unwrap() );
-    let member_id = RE.replace_all(&meme, "").into_owned();
+    let member_id = RE.replace_all(meme, "").into_owned();
     let member = msg.guild_id.unwrap().member(
       ctx, UserId(member_id.parse::<u64>().unwrap())).await;
     match member {
@@ -67,7 +67,7 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
       }
     }
     if members.is_empty() {
-      let similar_members = &guild.members_containing(&member_name, false, false).await;
+      let similar_members = &guild.members_containing(member_name, false, false).await;
       let mut members_string =  stream::iter(similar_members.iter())
         .map(|m| async move {
           let member = &m.0.user;

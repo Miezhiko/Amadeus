@@ -17,7 +17,7 @@ pub async fn register_message( guild_id: &u64
     if let Some(data) = mbdata {
       let byte_data: &[u8] = data.as_bytes();
       if let Ok(emoji_roles) = bincode::deserialize::<HashMap<u64, u64>>(byte_data) {
-        let mut emoji_role: HashMap<u64, u64> = emoji_roles.clone();
+        let mut emoji_role: HashMap<u64, u64> = emoji_roles;
         emoji_role.insert(*emoji_id, *role_id);
         { // delte existing node
           let _ = storage.delete(&lump_id);
@@ -70,17 +70,15 @@ pub async fn message_roles(guild_id: &u64, message_id: &u64) -> anyhow::Result<O
   let u64_2: u128 = (*guild_id as u128) << 64 | *message_id as u128; // >
   task::spawn_blocking(move || {
     let lump_id: LumpId = LumpId::new(u64_2);
-    if let Ok(mbdata) = storage.get(&lump_id) {
-      if let Some(mut data) = mbdata {
-        let byte_data: &mut [u8] = data.as_bytes_mut();
-        match bincode::deserialize::<HashMap<u64, u64>>(byte_data) {
-          Ok(roles) => return Ok(Some(roles)),
-          Err(error) => {
-            error!("Error trying to restore roles: {:?}", error);
-            return Ok(None);
-          }
-        };
-      }
+    if let Ok(Some(mut data)) = storage.get(&lump_id) {
+      let byte_data: &mut [u8] = data.as_bytes_mut();
+      match bincode::deserialize::<HashMap<u64, u64>>(byte_data) {
+        Ok(roles) => return Ok(Some(roles)),
+        Err(error) => {
+          error!("Error trying to restore roles: {:?}", error);
+          return Ok(None);
+        }
+      };
     }
     Ok(None)
   }).await?

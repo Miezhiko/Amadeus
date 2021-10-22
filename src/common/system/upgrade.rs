@@ -66,7 +66,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
       static LINKS_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.https.*)").unwrap());
       if let Ok(cargo_update_out) = &String::from_utf8(cargo_update.stderr) {
         static GIT_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.Updating git.*)").unwrap());
-        let mut update_str = LINKS_RE.replace_all(&cargo_update_out, "").to_string();
+        let mut update_str = LINKS_RE.replace_all(cargo_update_out, "").to_string();
         update_str = GIT_RE.replace_all(&update_str, "").to_string();
         update_str = update_str.replace("/data/contrib/rust/", "");
         update_str = update_str.lines()

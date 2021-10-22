@@ -38,7 +38,7 @@ async fn set(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         if let Ok(level) = args.single::<u32>() {
           ACTIVITY_LEVEL.store(level, Ordering::Relaxed);
           let chan_msg = format!("Activity level is: {} now", level);
-          channel_message(&ctx, &msg, &chan_msg).await;
+          channel_message(ctx, msg, &chan_msg).await;
         },
       _ => ()
     }
@@ -84,7 +84,7 @@ async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> Command
         Err(_err) => (),
       };
     }
-    direct_message(ctx, &msg, &format!("Deleted {} messages", countdown)).await;
+    direct_message(ctx, msg, &format!("Deleted {} messages", countdown)).await;
   } else if args.len() == 2 {
     let countdown: usize = args.find().unwrap_or_default();
     let counter: usize = args.find().unwrap_or_default();
@@ -102,7 +102,7 @@ async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> Command
         Err(_err) => (),
       };
     }
-    direct_message(ctx, &msg, &format!("Deleted {} messages", countdown)).await;
+    direct_message(ctx, msg, &format!("Deleted {} messages", countdown)).await;
   }
   Ok(())
 }
@@ -114,7 +114,7 @@ async fn clear_chain_cache(ctx: &Context, msg: &Message) -> CommandResult {
     error!("Error deleting original command {:?}", why);
   }
   clear_cache().await;
-  channel_message(&ctx, &msg, "Cache removed").await;
+  channel_message(ctx, msg, "Cache removed").await;
   Ok(())
 }
 
@@ -148,7 +148,7 @@ async fn twitch_token_update(ctx: &Context, msg: &Message) -> CommandResult {
     error!("Error deleting original command {:?}", why);
   }
   if system::hacks::twitch_update(ctx).await.is_ok() {
-    channel_message(&ctx, &msg, "twitch access token updated").await;
+    channel_message(ctx, msg, "twitch access token updated").await;
   }
   Ok(())
 }
@@ -168,7 +168,7 @@ async fn register_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandR
                             , &message_id
                             , &emoji_id
                             , &role_id ).await;
-    direct_message(ctx, &msg, &format!("Message role {} registered", role_id)).await;
+    direct_message(ctx, msg, &format!("Message role {} registered", role_id)).await;
   }
   Ok(())
 }
@@ -184,7 +184,7 @@ async fn list_message_roles(ctx: &Context, msg: &Message, mut args: Args) -> Com
     let message_id = args.single::<u64>()?;
     if let Ok(Some(mr)) = emojis::message_roles( guild_id.as_u64()
                                                , &message_id ).await {
-      channel_message(&ctx, &msg, &format!("message roles: {:?}", mr)).await;
+      channel_message(ctx, msg, &format!("message roles: {:?}", mr)).await;
     }
   }
   Ok(())

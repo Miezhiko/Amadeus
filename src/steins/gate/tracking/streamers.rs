@@ -53,18 +53,19 @@ async fn clear_channel(channel: ChannelId, ctx: &Context) {
   }
 }
 
+#[allow(clippy::branches_sharing_code)]
 pub async fn activate_streamers_tracking(
                      ctx:       &Arc<Context>
                    , options:   &IOptions
                    , token:     String
                    , servers:   Vec<GuildId> ) {
 
-  set!{ ctx_clone     = Arc::clone(&ctx)
+  set!{ ctx_clone     = Arc::clone(ctx)
       , options_clone = options.clone() };
 
   for (d, df) in DISCORDS.iter() {
     if let Some(sc) = df.streams {
-      clear_channel(ChannelId(sc), &ctx).await;
+      clear_channel(ChannelId(sc), ctx).await;
     }
     let guild_id = GuildId(*d);
     if let Ok(g) = guild_id.to_partial_guild(&ctx).await {
@@ -289,7 +290,7 @@ pub async fn activate_streamers_tracking(
                    , blue  = rand::thread_rng().gen_range(0..255) };
 
               for d in &p.discords {
-              if let Some(ds) = DISCORDS.get(&d) {
+              if let Some(ds) = DISCORDS.get(d) {
               if let Some(sc) = ds.streams {
 
               match ChannelId(sc).send_message(&ctx_clone, |m| m

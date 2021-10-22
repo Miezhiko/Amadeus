@@ -42,8 +42,8 @@ fn get_discord_players() -> Vec<DiscordPlayer> {
   discord_players
 }
 
-pub static DISCORDS: Lazy<Discords> = Lazy::new(|| get_discord_servers());
-pub static PLAYERS: Lazy<Vec<DiscordPlayer>> = Lazy::new(|| get_discord_players());
+pub static DISCORDS: Lazy<Discords> = Lazy::new(get_discord_servers);
+pub static PLAYERS: Lazy<Vec<DiscordPlayer>> = Lazy::new(get_discord_players);
 
 #[cfg(test)]
 mod stuff_dhall_tests {

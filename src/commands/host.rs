@@ -200,7 +200,6 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
       handicap: 100,
       status: 2,
       race: race_num2,
-      ..Default::default()
     };
 
     let res = rpc
@@ -212,12 +211,10 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
           CreateGameSlot {
             player_id: Some(p.id),
             settings: Some(player_slot_settings),
-            ..Default::default()
           },
           CreateGameSlot {
             player_id: None,
             settings: Some(amadeus_slot_settings),
-            ..Default::default()
           }
         ],
         ..Default::default()
@@ -324,12 +321,10 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
             CreateGameSlot {
               player_id: Some(p1.id),
               settings: Some(player1_slot_settings),
-              ..Default::default()
             },
             CreateGameSlot {
               player_id: Some(p2.id),
               settings: Some(player2_slot_settings),
-              ..Default::default()
             }
           ],
           ..Default::default()

@@ -50,7 +50,7 @@ pub fn get_map() -> anyhow::Result<Map> {
       MapPlayer { name: "Player 2".to_string(), r#type: 1, flags: 0, ..Default::default() }
     ],
     forces: vec![
-      MapForce { name: "Force 1".to_string(), flags: 0, player_set: 4294967295, ..Default::default() }
+      MapForce { name: "Force 1".to_string(), flags: 0, player_set: 4294967295 }
     ]
   };
   Ok(map)
@@ -128,7 +128,7 @@ pub async fn get_map_by_name(name: &str) -> anyhow::Result<Map> {
         MapForce { name: fname
                  , flags: fflags as u32
                  , player_set: fplayer_set as u32
-                 , ..Default::default() };
+                 };
       forces.push(map_force);
     }
   }

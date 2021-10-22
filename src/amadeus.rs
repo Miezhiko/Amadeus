@@ -142,7 +142,7 @@ pub async fn run(opts: &IOptions) ->
                                  )
                     )
       .framework(std_framework)
-      .register_songbird_with(songbird.into()).await?;
+      .register_songbird_with(songbird).await?;
   {
     let mut data = client.data.write().await;
     data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));

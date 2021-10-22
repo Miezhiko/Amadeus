@@ -36,12 +36,10 @@ pub fn read(key: &str) -> Result<String> {
 pub fn list() -> Result<String> {
   let sled = get_db_handle()?;
   let mut result = vec![];
-  for key in sled.iter().keys() {
-    if let Ok(k) = key {
-      if let Ok(kk) = String::from_utf8(k.to_vec())
-                        .map_err(|error| anyhow!("Failed to parse utf8 {:?}", error)) {
-        result.push(kk);
-      }
+  for k in sled.iter().keys().flatten() {
+    if let Ok(kk) = String::from_utf8(k.to_vec())
+                      .map_err(|error| anyhow!("Failed to parse utf8 {:?}", error)) {
+      result.push(kk);
     }
   }
   Ok(result.join("\n"))

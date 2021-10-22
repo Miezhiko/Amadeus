@@ -11,6 +11,7 @@ use crate::{
     }
 };
 
+#[allow(clippy::needless_range_loop)]
 pub async fn check_match( matchid: &str
                         , playaz: &[DiscordPlayer]
                         , rqcl: &reqwest::Client
@@ -197,21 +198,17 @@ pub async fn check_match( matchid: &str
             &ps[1]
           };
         let a1 = if let Some(aka) = check_aka(&s1, rqcl).await
-                  { aka } else {
-                    if s1.contains('#') {
+                  { aka } else if s1.contains('#') {
                       s1.split('#').collect::<Vec<&str>>()[0].to_string()
                     } else {
                       s1.clone()
-                    }
-                  };
+                    };
         let a2 = if let Some(aka) = check_aka(&s2, rqcl).await
-                  { aka } else {
-                    if s2.contains('#') {
+                  { aka } else if s2.contains('#') {
                       s2.split('#').collect::<Vec<&str>>()[0].to_string()
                     } else {
                       s2.clone()
-                    }
-                  };
+                    };
         let scores = if m.teams[0].players[0].battleTag == s1 {
             Some((a1,a2,s3,s4))
           } else {
@@ -283,21 +280,17 @@ pub async fn check_match( matchid: &str
         }
 
         let s1 = if let Some(aka) = check_aka(&player_scores.battleTag, rqcl).await
-                  { aka } else {
-                    if player_scores.battleTag.contains('#') {
+                  { aka } else if player_scores.battleTag.contains('#') {
                       player_scores.battleTag.split('#').collect::<Vec<&str>>()[0].to_string()
                     } else {
                       player_scores.battleTag.clone()
-                    }
-                  };
+                    };
         let s2 = if let Some(aka) = check_aka(&teammate_scores.battleTag, rqcl).await
-                  { aka } else {
-                    if teammate_scores.battleTag.contains('#') {
+                  { aka } else if teammate_scores.battleTag.contains('#') {
                       teammate_scores.battleTag.split('#').collect::<Vec<&str>>()[0].to_string()
                     } else {
                       teammate_scores.battleTag.clone()
-                    }
-                  };
+                    };
         let s3 = format!("hero kills: {}{}\nexperience: {}\nproduced: {}\nkilled: {}\ngold: {}"
             , player_scores.heroScore.heroesKilled
             , t0_ping

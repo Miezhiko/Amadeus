@@ -20,7 +20,7 @@ use rand::Rng;
 static POLL_PERIOD_SECONDS: u64 = 30 * 60;
 
 pub async fn activate_social_skils(ctx: &Arc<Context>) {
-  let ctx_clone = Arc::clone(&ctx);
+  let ctx_clone = Arc::clone(ctx);
   tokio::spawn(async move {
     loop {
       let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 10;

@@ -63,7 +63,7 @@ pub async fn process( ioptions: &IOptions
                 if !some_permissions.administrator() {
                   BLAME.store(true, Ordering::Relaxed);
                   for _ in 0..10u8 {
-                    channel_message(&ctx, &msg,
+                    channel_message(ctx, &msg,
                       "Set administrator role for me, please!").await;
                   }
                   BLAME.store(false, Ordering::Relaxed);
@@ -123,7 +123,7 @@ pub async fn process( ioptions: &IOptions
       }
     }
     if !msg.content.is_empty() && !msg.content.starts_with("http") {
-      channel_message(&ctx, &msg, &msg.content).await;
+      channel_message(ctx, &msg, &msg.content).await;
     }
     for embed in &msg.embeds {
       let mut not_stupid_zephyr = true;
@@ -154,7 +154,7 @@ pub async fn process( ioptions: &IOptions
               , amention2 = format!("<@!{}>", amadeus_id) };
           if !msg.content.starts_with(&amention1)
           && !msg.content.starts_with(&amention2) {
-            chain::response(&ctx, &msg, ioptions.lazy_static_models).await;
+            chain::response(ctx, &msg, ioptions.lazy_static_models).await;
           }
         }
       } else {
@@ -164,7 +164,7 @@ pub async fn process( ioptions: &IOptions
             if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg.channel_id.0
                                          || df.games2.unwrap_or(0) == msg.channel_id.0
                                          || df.games2.unwrap_or(0) == msg.channel_id.0) {
-              if !attach_replay(&ctx, &msg, file).await {
+              if !attach_replay(ctx, &msg, file).await {
                 warn!("Failed to attach an replay to log!");
               } else {
                 info!("Relay attached successfully");
@@ -181,15 +181,15 @@ pub async fn process( ioptions: &IOptions
                       .timeout(Duration::from_secs(3600)).await {
                   let emoji = &reaction.as_inner_ref().emoji;
                   if emoji.as_data().as_str() == "🌈" {
-                    if let Err(why) = replay_embed(&ctx, &msg, file).await {
+                    if let Err(why) = replay_embed(ctx, &msg, file).await {
                       error!("Failed to analyze replay:\n{:?}", why);
                     }
-                    if let Err(why) = msg.delete_reactions(&ctx).await {
+                    if let Err(why) = msg.delete_reactions(ctx).await {
                       error!("failed to delte msg reactions {:?}", why);
                     }
                   }
                 } else {
-                  if let Err(why) = msg.delete_reactions(&ctx).await {
+                  if let Err(why) = msg.delete_reactions(ctx).await {
                     error!("failed to delte msg reactions {:?}", why);
                   }
                   break;
@@ -212,14 +212,14 @@ pub async fn process( ioptions: &IOptions
 
         let rndx: u8 = rand::thread_rng().gen_range(0..3);
         if rndx != 1 {
-          if let Some(nick) = msg.author.nick_in(&ctx, &guild_id).await {
+          if let Some(nick) = msg.author.nick_in(ctx, &guild_id).await {
             ctx.set_activity(Activity::listening(&nick)).await;
           } else {
             ctx.set_activity(Activity::listening(&msg.author.name)).await;
           }
           ctx.online().await;
         } else {
-          let activity = chain::generate(&ctx, &msg, None).await;
+          let activity = chain::generate(ctx, &msg, None).await;
           if !activity.is_empty() {
             if activity.contains('<') && activity.contains('>') {
               static RE_IB: Lazy<Regex> =
@@ -239,7 +239,7 @@ pub async fn process( ioptions: &IOptions
           let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed);
           let rnd = rand::thread_rng().gen_range(0..activity_level);
           if rnd == 1 {
-            chain::chat(&ctx, &msg, ioptions.lazy_static_models).await;
+            chain::chat(ctx, &msg, ioptions.lazy_static_models).await;
           }
           let rnd2: u16 = rand::thread_rng().gen_range(0..2);
           if rnd2 == 1 {
@@ -251,8 +251,8 @@ pub async fn process( ioptions: &IOptions
               name: Some(emoji.name.clone())
             };
 
-            if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-              if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
+            if let Ok(guild) = guild_id.to_partial_guild(ctx).await {
+              if let Ok(mut member) = guild.member(ctx, msg.author.id).await {
                 if let Some(role) = guild.role_by_name(UNBLOCK_ROLE) {
 
                   let normal_people_rnd: u16 = rand::thread_rng().gen_range(0..9);
@@ -262,7 +262,7 @@ pub async fn process( ioptions: &IOptions
                                       .any(|s| s.id    == guild_id.0
                                             && s.kind  == CoreGuild::Safe) {
 
-                    if let Err(why) = msg.react(&ctx, reaction).await {
+                    if let Err(why) = msg.react(ctx, reaction).await {
                       error!("Failed to react: {:?}", why);
                       if why.to_string().contains("blocked")
                       && !member.roles.contains(&role.id) {
@@ -275,16 +275,16 @@ pub async fn process( ioptions: &IOptions
                           } else {
                             format!("Seems like {} doesn't respect me :(", &nick)
                           };
-                          channel_message(&ctx, &msg, &repl).await;
+                          channel_message(ctx, &msg, &repl).await;
                           let new_nick: String = format!("Hater {}", &msg.author.name);
-                          if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m|
+                          if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, |m|
                             m.nickname(new_nick)).await {
                             error!("Failed to change user's nick {:?}", why2);
                           }
                         }
                       }
                     } else if member.roles.contains(&role.id) {
-                      if let Err(why) = member.remove_role(&ctx, role).await {
+                      if let Err(why) = member.remove_role(ctx, role).await {
                         error!("Failed to remove gay role {:?}", why);
                       } else {
                         let repl = if lang::is_russian(&msg.content) {
@@ -292,8 +292,8 @@ pub async fn process( ioptions: &IOptions
                         } else {
                           format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name)
                         };
-                        channel_message(&ctx, &msg, &repl).await;
-                        if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m| m.nickname("")).await {
+                        channel_message(ctx, &msg, &repl).await;
+                        if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, |m| m.nickname("")).await {
                           error!("Failed to reset user's nick {:?}", why2);
                         }
                       }
@@ -302,10 +302,10 @@ pub async fn process( ioptions: &IOptions
 
                   if member.roles.contains(&role.id) {
                     let new_nick = format!("Hater {}", msg.author.name);
-                    if let Err(why2) = guild_id.edit_member(&ctx, msg.author.id, |m| m.nickname(new_nick)).await {
+                    if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, |m| m.nickname(new_nick)).await {
                       error!("Failed to change user's nick {:?}", why2);
                     }
-                    if let Err(why) = &msg.delete(&ctx).await {
+                    if let Err(why) = &msg.delete(ctx).await {
                       error!("Error replacing bad people {:?}", why);
                     }
                     if !msg.content.is_empty() && !msg.content.starts_with("http") {
@@ -314,13 +314,13 @@ pub async fn process( ioptions: &IOptions
                         "говорит"
                       } else { "says" };
                       let rm = format!("{} {} {} {}", msg.author.name, says, new_words, &msg.content);
-                      channel_message(&ctx, &msg, &rm).await;
+                      channel_message(ctx, &msg, &rm).await;
                     }
                   }
 
                   let rnd3: u8 = rand::thread_rng().gen_range(0..9);
                   if rnd3 != 1 {
-                    if let Err(why) = msg.delete_reactions(&ctx).await {
+                    if let Err(why) = msg.delete_reactions(ctx).await {
                       error!("Failed to remove all the reactions {:?}", why);
                     }
                   }

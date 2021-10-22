@@ -17,7 +17,7 @@ use chrono::{ Duration, DateTime, Utc };
 
 #[allow(clippy::single_element_loop)]
 pub async fn activate_w3info_tracking(ctx: &Arc<Context> ) {
-  let ctx_clone = Arc::clone(&ctx);
+  let ctx_clone = Arc::clone(ctx);
   tokio::spawn(async move {
     loop {
       let today: DateTime<Utc> = Utc::now();

@@ -229,7 +229,7 @@ async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
       Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
     static RE2: Lazy<Regex> =
       Lazy::new(|| Regex::new(r"Date.*").unwrap());
-    let mut descr = RE1.replace_all(&git_log_stdout, "").to_string();
+    let mut descr = RE1.replace_all(git_log_stdout, "").to_string();
     descr = RE2.replace_all(&descr, "").to_string();
     descr = descr.lines()
                  .filter(|l| !l.trim().is_empty())

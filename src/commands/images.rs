@@ -131,6 +131,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
   Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn gifs<C: Into<Colour>>( ctx: &Context
                                   , user: &User
                                   , msg: &mut Message
@@ -169,7 +170,7 @@ pub async fn gifs<C: Into<Colour>>( ctx: &Context
         msg.edit(ctx, |m| m.content("")
                            .embed(|e| e.color(color)
                            .author(|a| a.icon_url(&user.face()).name(&nick))
-                           .description(format!("{} {}", t, arg.unwrap_or(String::new())))
+                           .description(format!("{} {}", t, arg.unwrap_or_default()))
                            .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
       GType::Own(o) => {

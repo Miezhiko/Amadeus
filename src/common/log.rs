@@ -16,7 +16,7 @@ pub async fn log_any<F> ( ctx: &Context
                         , f: F)
     where for <'a, 'b> F: FnOnce(&'b mut CreateMessage<'a>) -> &'b mut CreateMessage<'a> {
   if let Ok(channels) = guild_id.channels(ctx).await {
-    if let Some((channel, _)) = channel_by_name(&ctx, &channels, "log").await {
+    if let Some((channel, _)) = channel_by_name(ctx, &channels, "log").await {
       if let Err(why) = channel.send_message(ctx, f).await {
         error!("Failed to log new user {:?}", why);
       }
@@ -54,7 +54,7 @@ async fn channel_message(ctx: &Context, chan: &GuildChannel, text: &str) {
 #[allow(dead_code)]
 pub async fn log(ctx: &Context, guild_id: &GuildId, text: &str) {
   if let Ok(channels) = guild_id.channels(ctx).await {
-    if let Some((_, guild_channel)) = channel_by_name(&ctx, &channels, "log").await {
+    if let Some((_, guild_channel)) = channel_by_name(ctx, &channels, "log").await {
       channel_message(ctx, guild_channel, text).await;
     }
   }

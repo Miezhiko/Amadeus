@@ -18,7 +18,7 @@ async fn analyze_ts(path: &str) -> anyhow::Result<String> {
 #[allow(clippy::type_complexity)]
 fn prettify_analyze_ts(j: &str, minimal: bool)
   -> anyhow::Result<(String, Vec<(String, Vec<String>, Vec<u64>)>)> {
-  let json: Value = serde_json::from_str(&j)?;
+  let json: Value = serde_json::from_str(j)?;
   let mut out = String::new();
   let mut pls = vec![];
   if !minimal {

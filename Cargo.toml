@@ -1,13 +1,14 @@
 [package]
-name        = "amadeus"
-version     = "7.3.4"
-authors     = [ "Miezhiko" ]
-repository  = "https://github.com/Miezhiko/Amadeus"
-readme      = "README.md"
-keywords    = [ "discord", "bot" ]
-edition     = "2018"
-description = "memory storage and artificial intelligence system"
-license     = "AGPL-3.0-only"
+name            = "amadeus"
+version         = "7.4.0"
+authors         = [ "Miezhiko" ]
+repository      = "https://github.com/Miezhiko/Amadeus"
+readme          = "README.md"
+keywords        = [ "discord", "bot" ]
+edition         = "2021"
+description     = "memory storage and artificial intelligence system"
+license         = "AGPL-3.0-only"
+rust-version    = "1.56.0"
 
 [features]
 default = ["trackers", "flo"]
@@ -43,7 +44,7 @@ async-recursion     = "0.3"
 unic-langid         = "0.9"
 fluent-templates    = "0.6"
 sled                = "0.34"
-kathoey             = "1.0.7"
+kathoey             = "1.0.10"
 serde_dhall         = "0.10"
 nlprule             = "0.6.4"
 tch                 = "0.5"

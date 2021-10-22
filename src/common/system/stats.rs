@@ -105,12 +105,10 @@ pub async fn get_uptime(start: &str) -> (String, String) {
       } else {
         uptime_string = format!("{} {}s", uptime_string, since_start_time.num_seconds());
       }
+    } else if mm > 0 {
+      uptime_string = format!("{} {}m", uptime_string, mm);
     } else {
-      if mm > 0 {
-        uptime_string = format!("{} {}m", uptime_string, mm);
-      } else {
-        uptime_string = format!("{} {}s", uptime_string, since_start_time.num_seconds() - dd*24*60*60);
-      }
+      uptime_string = format!("{} {}s", uptime_string, since_start_time.num_seconds() - dd*24*60*60);
     }
   }
 

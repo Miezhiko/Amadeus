@@ -51,7 +51,7 @@ pub async fn activate_games_tracking(
                    , token:     String
                    , amadeus:   u64 ) {
 
-  set!{ ctx_clone     = Arc::clone(&ctx)
+  set!{ ctx_clone     = Arc::clone(ctx)
       , options_clone = options.clone() };
 
   { // AKA lock scope
@@ -131,7 +131,7 @@ pub async fn activate_games_tracking(
                   Ok(t) => {
                     if !t.data.is_empty() {
                       let twd = &t.data[0];
-                      if &twd.game_id == TWITCH_WC3 {
+                      if twd.game_id == TWITCH_WC3 {
                         let url = format!("https://www.twitch.tv/{}", twd.user_name);
                         let pic = twd.thumbnail_url.replace("{width}", "800")
                                                    .replace("{height}", "450");
@@ -194,7 +194,7 @@ pub async fn activate_games_tracking(
           let nick = nickname_maybe.unwrap_or_else(|| user.name.clone());
 
           for d in playa.discords.iter() {
-            if let Some(ds) = DISCORDS.get(&d) {
+            if let Some(ds) = DISCORDS.get(d) {
 
             let game_channel_maybe = match game.mode {
               GameMode::Solo  => ds.games,

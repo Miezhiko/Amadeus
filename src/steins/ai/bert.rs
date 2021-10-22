@@ -82,7 +82,7 @@ pub static CONVMODEL_USED: Lazy<Mutex<Option<DateTime<Utc>>>> =
   Lazy::new(|| Mutex::new(None));
 
 #[allow(clippy::type_complexity)]
-pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32, u32)>>>
+pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32)>>>
   = Lazy::new(|| Mutex::new(HashMap::new()));
 
 pub async fn reinit() {
@@ -253,7 +253,7 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String>
     if let Some(conversation_model) = &mut *conversation {
       let cache_eng_vec = cache_eng_hs.iter().collect::<Vec<&String>>();
       let output =
-        if let Some((tracking_conversation, passed, x)) = chat_context.get_mut(&user_id) {
+        if let Some((tracking_conversation, x)) = chat_context.get_mut(&user_id) {
           if *x > 5 {
             chat_context.remove(&user_id);
             let mut conversation_manager = ConversationManager::new();
@@ -266,17 +266,17 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String>
               cm.load_from_history(cache_slices, encoded_history);
             }
             chat_context.insert( user_id
-                               , ( conversation_manager, 0, 0 )
+                               , ( conversation_manager, 0 )
                                );
             if let Some(chat_cont) = chat_context.get_mut(&user_id) {
-              let (registered_conversation, _, _) = chat_cont;
+              let (registered_conversation, _) = chat_cont;
               conversation_model.generate_responses(registered_conversation)
             } else {
               return Err(anyhow!("Failed to cregister conversation for {}", &user_id));
             }
           } else {
             tracking_conversation.create(&something);
-            *passed = 0; *x += 1;
+            *x += 1;
             conversation_model.generate_responses(tracking_conversation)
           }
         } else {
@@ -290,12 +290,10 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String>
             cm.load_from_history(cache_slices, encoded_history);
           }
 
-          chat_context.insert( user_id
-                             , ( conversation_manager, 0, 0 )
-                             );
+          chat_context.insert( user_id, ( conversation_manager, 0 ) );
 
           if let Some(chat_cont) = chat_context.get_mut(&user_id) {
-            let (registered_conversation, _, _) = chat_cont;
+            let (registered_conversation, _) = chat_cont;
             conversation_model.generate_responses(registered_conversation)
           } else {
             return Err(anyhow!("Failed to cregister conversation for {}", &user_id));

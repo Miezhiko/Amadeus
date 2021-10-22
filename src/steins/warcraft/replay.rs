@@ -109,14 +109,12 @@ pub async fn replay_embed( ctx: &Context
             .axis_style(&RGBColor(80, 80, 80))
             .draw()?;
           let colors = gen_colors(fields3.len());
-          let mut i = 0;
-          for (k, plx) in fields3 {
+          for (i, (k, plx)) in fields3.into_iter().enumerate() {
             let (red, green, blue) = colors[i];
             let color = RGBColor(red, green, blue);
             cc.draw_series(LineSeries::new(plx, &color))?
               .label(&k)
               .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &color));
-            i += 1;
           }
           cc.configure_series_labels()
             .position(SeriesLabelPosition::LowerRight)
@@ -250,12 +248,10 @@ pub async fn attach_replay( ctx: &Context
             let p_name =
               if let Some(aka) = check_aka(btag.as_str(), &rqcl).await {
                 aka
+              } else if btag.contains('#') {
+                btag.split('#').collect::<Vec<&str>>()[0].to_string()
               } else {
-                if btag.contains('#') {
-                  btag.split('#').collect::<Vec<&str>>()[0].to_string()
-                } else {
-                  btag.clone()
-                }
+                btag.clone()
               };
             fields1.push((p_name, vv[0].clone()));
           }
@@ -333,14 +329,12 @@ pub async fn attach_replay( ctx: &Context
                           .axis_style(&RGBColor(80, 80, 80))
                           .draw().unwrap();
                         let colors = gen_colors(fields3.len());
-                        let mut i = 0;
-                        for (k, plx) in fields3 {
+                        for (i, (k, plx)) in fields3.into_iter().enumerate() {
                           let (red, green, blue) = colors[i];
                           let color = RGBColor(red, green, blue);
                           cc.draw_series(LineSeries::new(plx, &color)).unwrap()
                             .label(&k)
                             .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &color));
-                          i += 1;
                         }
                         cc.configure_series_labels()
                           .position(SeriesLabelPosition::LowerRight)

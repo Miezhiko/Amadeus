@@ -110,7 +110,7 @@ pub async fn unrecognised_command( ctx: &Context
         icontext.lazy_static_models
       } else { false }
     };
-    chain::response(&ctx, &msg, lsm).await;
+    chain::response(ctx, msg, lsm).await;
   }
 }
 

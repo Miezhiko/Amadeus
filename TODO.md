@@ -4,7 +4,6 @@
  - Some of slash commands are still missing (vs command, etc...)
  - Stream announce (e.g. steam in 30 mins or something like that) + stream announce role
  - Use Summarization model for large texts and just sometimes with context cache!
- - Logging for memory changes.
 
 ```rust
     let summarization_model = SummarizationModel::new(Default::default())?;

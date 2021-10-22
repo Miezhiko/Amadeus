@@ -14,13 +14,13 @@ fn hsv(huy: f32, sat: f32, val: f32) -> (u8, u8, u8) {
       , tmpcol = chrome * (1.0 - ((huyhuy % 2.0) - 1.0).abs())
       , midval = val - chrome };
   let c = match huyhuy {
-    h if (h >= 0.0 && h < 1.0) => (chrome, tmpcol, 0.0),
-    h if (h >= 1.0 && h < 2.0) => (tmpcol, chrome, 0.0),
-    h if (h >= 2.0 && h < 3.0) => (0.0, chrome, tmpcol),
-    h if (h >= 3.0 && h < 4.0) => (0.0, tmpcol, chrome),
-    h if (h >= 4.0 && h < 5.0) => (tmpcol, 0.0, chrome),
-    h if (h >= 5.0 && h < 6.0) => (chrome, 0.0, tmpcol),
-    _                          => (0.0, 0.0, 0.0) };
+    h if (0.0..1.0).contains(&h) => (chrome, tmpcol, 0.0),
+    h if (1.0..2.0).contains(&h) => (tmpcol, chrome, 0.0),
+    h if (2.0..3.0).contains(&h) => (0.0, chrome, tmpcol),
+    h if (3.0..4.0).contains(&h) => (0.0, tmpcol, chrome),
+    h if (4.0..5.0).contains(&h) => (tmpcol, 0.0, chrome),
+    h if (5.0..6.0).contains(&h) => (chrome, 0.0, tmpcol),
+    _                            => (0.0, 0.0, 0.0) };
   ( unfloat (c.0 + midval)
   , unfloat (c.1 + midval)
   , unfloat (c.2 + midval) )

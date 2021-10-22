@@ -89,7 +89,7 @@ pub fn process_message_for_gpt(s: &str) -> String {
 }
 
 pub fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String, ChannelLanguage)> {
-  let mut result_string = process_message_for_gpt(&s);
+  let mut result_string = process_message_for_gpt(s);
   result_string = result_string.replace(
     |c: char| !c.is_whitespace() && !c.is_alphabetic(), "");
   let result = result_string.trim();
@@ -97,7 +97,7 @@ pub fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String,
   if !result.is_empty() && !result.contains('$') && !is_http {
     let mut result_str = result.to_string();
     let l = if lang == ChannelLanguage::Bilingual {
-        if lang::is_russian(&result) {
+        if lang::is_russian(result) {
           ChannelLanguage::Russian
         } else {
           ChannelLanguage::English

@@ -423,11 +423,11 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       }
     } else {
       let resp = format!("User {} not found", args_msg);
-      channel_message(&ctx, &msg, &resp).await;
+      channel_message(ctx, msg, &resp).await;
     }
   } else {
     let resp = format!("Search on {} found no users", args_msg);
-    channel_message(&ctx, &msg, &resp).await;
+    channel_message(ctx, msg, &resp).await;
   }
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -499,7 +499,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         };
 
       if race_vs_num == 0 {
-        channel_message(&ctx, &msg, "Can't parse that race").await;
+        channel_message(ctx, msg, "Can't parse that race").await;
         if let Ok(typing) = start_typing {
           typing.stop();
         }
@@ -572,7 +572,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     }
 
   } else {
-    channel_message(&ctx, &msg, "Search found no users with that nickname").await;
+    channel_message(ctx, msg, "Search found no users with that nickname").await;
   }
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);
@@ -637,10 +637,10 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             let flo_info =
               if m.serverInfo.provider == Some("BNET".to_string()) {
                 String::from("BNET")
+              } else if let Some(si) = &m.serverInfo.name {
+                si.clone()
               } else {
-                if let Some(si) = &m.serverInfo.name {
-                  si.clone()
-                } else { "BNET".to_string() }
+                "BNET".to_string()
               };
             let mut p1s = String::new();
             let mut p2s = String::new();
@@ -693,13 +693,13 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
           error!("Error sending veto message: {:?}", why);
         }
       } else {
-        channel_message(&ctx, &msg, "No games for those players in selected seasons").await;
+        channel_message(ctx, msg, "No games for those players in selected seasons").await;
       }
     } else {
-      channel_message(&ctx, &msg, &format!("Can't find {}", p2)).await;
+      channel_message(ctx, msg, &format!("Can't find {}", p2)).await;
     }
   } else {
-    channel_message(&ctx, &msg, &format!("Can't find {}", p1)).await;
+    channel_message(ctx, msg, &format!("Can't find {}", p1)).await;
   }
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);

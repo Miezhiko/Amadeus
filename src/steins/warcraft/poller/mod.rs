@@ -32,6 +32,7 @@ use once_cell::sync::Lazy;
 pub static GAMES: Lazy<Mutex<HashMap<String, TrackingGame>>>
   = Lazy::new(|| Mutex::new(HashMap::new()));
 
+#[allow(clippy::needless_range_loop)]
 pub async fn check<'a>( ctx: &Context
                       , guild_id: u64
                       , rqcl: &reqwest::Client
@@ -46,7 +47,7 @@ pub async fn check<'a>( ctx: &Context
         let guild = GuildId( guild_id );
         for m in going.matches {
           let server_info = m.serverInfo.clone();
-          let host = server_info.name.unwrap_or("no information about host".into());
+          let host = server_info.name.unwrap_or_else(|| "no information about host".into());
           if m.gameMode == 1 { // solo
             if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
               let playaz = PLAYERS.iter().filter( |p|
@@ -406,7 +407,7 @@ pub async fn check<'a>( ctx: &Context
             let playa = track.players[0].clone();
 
             for d in playa.discords.iter() {
-            if let Some(ds) = DISCORDS.get(&d) {
+            if let Some(ds) = DISCORDS.get(d) {
 
             let game_channel_maybe = match track.mode {
               GameMode::Solo  => ds.games,
@@ -471,9 +472,7 @@ pub async fn check<'a>( ctx: &Context
                       let amadeus_maybe = {
                         let data = ctx.data.read().await;
                         if let Some(core_guilds) = data.get::<CoreGuilds>() {
-                          if let Some(amadeus) = core_guilds.get(&CoreGuild::Amadeus) {
-                            Some(*amadeus)
-                          } else { None }
+                          core_guilds.get(&CoreGuild::Amadeus).copied()
                         } else { None }
                       };
                       // There is complicated bet win calculation

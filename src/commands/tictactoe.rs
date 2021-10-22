@@ -119,7 +119,7 @@ impl Board {
 #[min_args(1)]
 #[description("play tictactoe (optionally for points)")]
 async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  let other_player_copy = parse_member(ctx, &msg, args.single_quoted::<String>()?).await?;
+  let other_player_copy = parse_member(ctx, msg, args.single_quoted::<String>()?).await?;
   let other_player = &other_player_copy.user;
   let points_count =
     if let Ok(first) = args.single::<u64>() { first

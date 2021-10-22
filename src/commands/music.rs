@@ -188,7 +188,7 @@ pub async fn leave(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
       options::put_roptions(&conf).await?;
     }
   } else {
-    reply(ctx, &msg, "I'm not in a voice channel").await;
+    reply(ctx, msg, "I'm not in a voice channel").await;
   }
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {:?}", why);

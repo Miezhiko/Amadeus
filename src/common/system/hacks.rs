@@ -27,7 +27,7 @@ pub async fn twitch_update(ctx: &Context) -> anyhow::Result<()> {
     .await
     .expect("failed to run curl");
   if let Ok(curl_out) = &String::from_utf8(curl.stdout) {
-    let json: Value = serde_json::from_str(&curl_out)?;
+    let json: Value = serde_json::from_str(curl_out)?;
     if let Some(token_type) = json.pointer("/token_type") {
       let mut out = capital_first(token_type.as_str().unwrap());
       if let Some(access_token) = json.pointer("/access_token") {

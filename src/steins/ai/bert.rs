@@ -317,7 +317,7 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String>
 }
 
 pub async fn chat(something: String, user_id: u64, lsm: bool) -> Result<String> {
-  let rndx = rand::thread_rng().gen_range(0..4);
+  let rndx = rand::thread_rng().gen_range(0..5);
   let mut input = process_message_for_gpt(&something);
   if input.len() > GPT_LIMIT {
     if let Some((i, _)) = input.char_indices().rev().nth(GPT_LIMIT) {

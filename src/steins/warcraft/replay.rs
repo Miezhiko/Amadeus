@@ -112,9 +112,12 @@ pub async fn replay_embed( ctx: &Context
           for (i, (k, plx)) in fields3.into_iter().enumerate() {
             let (red, green, blue) = colors[i];
             let color = RGBColor(red, green, blue);
-            cc.draw_series(LineSeries::new(plx, &color))?
+            let style = 
+              if i < 4 { ShapeStyle::from(color) }
+              else { color.stroke_width(1 + (i as u32 / 4)) };
+            cc.draw_series(LineSeries::new(plx, style.clone()))?
               .label(&k)
-              .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &color));
+              .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], style.clone()));
           }
           cc.configure_series_labels()
             .position(SeriesLabelPosition::LowerRight)
@@ -196,7 +199,7 @@ pub async fn replay_embed( ctx: &Context
 
 pub async fn attach_replay( ctx: &Context
                           , msg: &Message
-                          , file: &Attachment ) -> bool {
+                          , file: &Attachment ) -> anyhow::Result<()> {
   // this is only for teammates
   if let Some(playa) = HEMO.players.iter().find(|p|
     p.discord == msg.author.id.0) {
@@ -207,7 +210,7 @@ pub async fn attach_replay( ctx: &Context
         Err(why) => {
           error!("Error creating file: {:?}", why);
           channel_message(ctx, msg, "Error getting replay").await;
-          return false;
+          return Err(anyhow!("Error creating file"));
         }
       };
       if let Err(why) = fw3g.write_all(&bytes).await {
@@ -215,7 +218,7 @@ pub async fn attach_replay( ctx: &Context
         if let Err(why2) = fs::remove_file(&file.filename).await {
           error!("Error removing file: {:?}", why2);
         }
-        return false;
+        return Err(anyhow!("Error writing to file"));
       }
       let _ = fw3g.sync_data().await;
       let data_maybe = analyze(&file.filename, true).await;
@@ -224,9 +227,9 @@ pub async fn attach_replay( ctx: &Context
         if let Err(why) = fs::remove_file(&file.filename).await {
           error!("Error removing file: {:?}", why);
         }
-        return false;
+        return Err(anyhow!("Corrupted replay file"));
       }
-      let (_, flds) = data_maybe.unwrap();
+      let (_, flds) = data_maybe?;
       // only 2x2 and solo games
       if flds.len() == 2 || flds.len() == 4 {
         setm!{ found = false
@@ -317,30 +320,32 @@ pub async fn attach_replay( ctx: &Context
                       let len: f32 = first_amp_list.len() as f32 - 1_f32;
                       { // because of Rc < > in BitMapBackend I need own scope here
                         let root_area = BitMapBackend::new(&fname_apm, (1024, 768)).into_drawing_area();
-                        root_area.fill(&RGBColor(47, 49, 54)).unwrap(); //2f3136
+                        root_area.fill(&RGBColor(47, 49, 54))?; //2f3136
                         let mut cc = ChartBuilder::on(&root_area)
                           .margin(5)
                           .set_all_label_area_size(50)
-                          .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)
-                          .unwrap();
+                          .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)?;
                         cc.configure_mesh()
                           .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
                           .y_labels(10)
                           .axis_style(&RGBColor(80, 80, 80))
-                          .draw().unwrap();
+                          .draw()?;
                         let colors = gen_colors(fields3.len());
                         for (i, (k, plx)) in fields3.into_iter().enumerate() {
                           let (red, green, blue) = colors[i];
                           let color = RGBColor(red, green, blue);
-                          cc.draw_series(LineSeries::new(plx, &color)).unwrap()
+                          let style = 
+                            if i < 4 { ShapeStyle::from(color) }
+                            else { color.stroke_width(1 + (i as u32 / 4)) };
+                          cc.draw_series(LineSeries::new(plx, style.clone()))?
                             .label(&k)
-                            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &color));
+                            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], style.clone()));
                         }
                         cc.configure_series_labels()
                           .position(SeriesLabelPosition::LowerRight)
                           .border_style(&BLACK)
                           .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
-                          .draw().unwrap();
+                          .draw()?;
                       }
                       match APM_PICS.send_message(&ctx, |m|
                         m.add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
@@ -397,7 +402,7 @@ pub async fn attach_replay( ctx: &Context
                       if let Err(why) = fs::remove_file(&file.filename).await {
                         error!("Error removing file: {:?}", why);
                       }
-                      return true;
+                      return Ok(());
                     }
                     break;
                   }
@@ -412,5 +417,5 @@ pub async fn attach_replay( ctx: &Context
   if let Err(why) = fs::remove_file(&file.filename).await {
     error!("Error removing file: {:?}", why);
   }
-  false
+  Err(anyhow!("Failed to attach replay"))
 }

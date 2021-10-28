@@ -164,10 +164,10 @@ pub async fn process( ioptions: &IOptions
             if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg.channel_id.0
                                          || df.games2.unwrap_or(0) == msg.channel_id.0
                                          || df.games2.unwrap_or(0) == msg.channel_id.0) {
-              if !attach_replay(ctx, &msg, file).await {
-                warn!("Failed to attach an replay to log!");
-              } else {
+              if attach_replay(ctx, &msg, file).await.is_ok() {
                 info!("Relay attached successfully");
+              } else {
+                warn!("Failed to attach an replay to log!");
               }
               if let Err(why) = &msg.delete(&ctx).await {
                 error!("failed to clean attachment from log {:?}", why);

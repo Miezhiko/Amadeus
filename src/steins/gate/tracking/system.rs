@@ -1,4 +1,5 @@
 use crate::{
+  types::serenity::IContext,
   common::{ system
           , constants::MODERATION },
   steins::ai::{ bert, reinit }
@@ -13,7 +14,7 @@ use std::{ time, sync::Arc };
 /* every 30 minutes */
 static POLL_PERIOD_SECONDS: u64 = 30 * 60;
 
-pub async fn activate_system_tracker(ctx: &Arc<Context>, lsm: bool) {
+pub async fn activate_system_tracker(ctx: &Arc<Context>) {
   let ctx_clone = Arc::clone(ctx);
   tokio::spawn(async move {
     loop {
@@ -22,6 +23,12 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>, lsm: bool) {
         let mut chat_context = bert::CHAT_CONTEXT.lock().await;
         chat_context.clear();
 
+        let lsm = {
+          let data = ctx_clone.data.read().await;
+          if let Some(icontext) = data.get::<IContext>() {
+            icontext.lazy_static_models
+          } else { false }
+        };
         if !lsm {
           let mut convmodel_used = bert::CONVMODEL_USED.lock().await;
           if let Some(conv_model_used_time) = &*convmodel_used {

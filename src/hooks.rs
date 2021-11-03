@@ -2,7 +2,6 @@ use crate::{ collections::{ base::GREETINGS
                           , channels::IGNORED }
            , common::i18n::{ help_i18n, US_ENG }
            , steins::ai::chain
-           , types::serenity::IContext
            };
 
 use serenity::{
@@ -104,13 +103,7 @@ pub async fn unrecognised_command( ctx: &Context
       }
     }
   } else {
-    let lsm = {
-      let data = ctx.data.read().await;
-      if let Some(icontext) = data.get::<IContext>() {
-        icontext.lazy_static_models
-      } else { false }
-    };
-    chain::response(ctx, msg, lsm).await;
+    chain::response(ctx, msg).await;
   }
 }
 

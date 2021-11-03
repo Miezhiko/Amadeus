@@ -1,5 +1,6 @@
 use crate::{
-  types::serenity::{ ChannelLanguage
+  types::serenity::{ IContext
+                   , ChannelLanguage
                    , AllGuilds },
   common::{ help::lang
           , db::trees::messages::{ register, check_registration }
@@ -300,7 +301,13 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
   }
 }
 
-pub async fn chat(ctx: &Context, msg: &Message, lsm: bool) {
+pub async fn chat(ctx: &Context, msg: &Message) {
+  let lsm = {
+    let data = ctx.data.read().await;
+    if let Some(icontext) = data.get::<IContext>() {
+      icontext.lazy_static_models
+    } else { false }
+  };
   let answer = generate_response(ctx, msg, 0, lsm).await;
   if !answer.is_empty() {
     let rnd = rand::thread_rng().gen_range(0..3);
@@ -312,7 +319,13 @@ pub async fn chat(ctx: &Context, msg: &Message, lsm: bool) {
   }
 }
 
-pub async fn response(ctx: &Context, msg: &Message, lsm: bool) {
+pub async fn response(ctx: &Context, msg: &Message) {
+  let lsm = {
+    let data = ctx.data.read().await;
+    if let Some(icontext) = data.get::<IContext>() {
+      icontext.lazy_static_models
+    } else { false }
+  };
   let answer = generate_response(ctx, msg, 0, lsm).await;
   if !answer.is_empty() {
     reply(ctx, msg, &answer).await;

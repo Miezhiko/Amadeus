@@ -1,4 +1,5 @@
 use crate::{
+  types::serenity::IContext,
   common::{
     db::trees::emojis,
     msg::{ channel_message
@@ -22,7 +23,10 @@ use serenity::{
   }
 };
 
-use std::sync::atomic::Ordering;
+use std::sync::{
+  atomic::Ordering,
+  Arc
+};
 
 #[command]
 #[min_args(2)]
@@ -39,6 +43,30 @@ async fn set(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
           ACTIVITY_LEVEL.store(level, Ordering::Relaxed);
           let chan_msg = format!("Activity level is: {} now", level);
           channel_message(ctx, msg, &chan_msg).await;
+        },
+      "lsm" =>
+        if let Ok(on_off) = args.single::<String>() {
+          if let Some(on_off_bool) = match on_off.to_lowercase().as_str() {
+                                      "on"  => Some(true),
+                                      "off" => Some(false),
+                                      _     => None
+                                    } {
+            let mut mast_rewrite = false;
+            {
+              let data = ctx.data.read().await;
+              if let Some(icontext) = data.get::<IContext>() {
+                if icontext.lazy_static_models != on_off_bool {
+                  mast_rewrite = true;
+                }
+              }
+            }
+            if mast_rewrite {
+              let mut data = ctx.data.write().await;
+              if let Some(icontext) = data.get_mut::<IContext>() {
+                *icontext = Arc::new( IContext { lazy_static_models: on_off_bool } );
+              }
+            }
+          }
         },
       _ => ()
     }

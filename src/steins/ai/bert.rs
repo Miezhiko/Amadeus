@@ -263,7 +263,7 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String>
             let encoded_history = conversation_model.encode_prompts(&cache_slices);
             let conv_id = conversation_manager.create(&something);
             if let Some(cm) = conversation_manager.get(&conv_id) {
-              cm.load_from_history(cache_slices, encoded_history);
+              cm.load_from_history(&cache_slices, &encoded_history);
             }
             chat_context.insert( user_id
                                , ( conversation_manager, 0 )
@@ -287,7 +287,7 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String>
           let encoded_history = conversation_model.encode_prompts(&cache_slices);
           let conv_id = conversation_manager.create(&something);
           if let Some(cm) = conversation_manager.get(&conv_id) {
-            cm.load_from_history(cache_slices, encoded_history);
+            cm.load_from_history(&cache_slices, &encoded_history);
           }
 
           chat_context.insert( user_id, ( conversation_manager, 0 ) );

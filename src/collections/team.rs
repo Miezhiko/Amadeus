@@ -2,15 +2,13 @@ use crate::types::team::{Discords, DiscordFields, DiscordPlayer, DiscordServer};
 
 use once_cell::sync::Lazy;
 
-use std::fs;
-
 fn grab_servers() -> Vec<DiscordServer> {
-  if let Ok(rds) = fs::read_dir("dhall/team/") {
-    let paths = rds.filter_map(|r| r.ok())
-                   .filter_map(|r| r.path()
-                                    .into_os_string()
-                                    .into_string().ok());
-    return paths.map(|p| dhall!(p)).collect::<Vec<DiscordServer>>();
+  if let Ok(dfs) = glob::glob("dhall/team/teams/*.dhall") {
+    return dfs.filter_map(|d| d.ok())
+              .filter_map(|r| r.into_os_string()
+                               .into_string().ok())
+              .filter_map(|p| serde_dhall::from_file(p).parse().ok())
+              .collect::<Vec<DiscordServer>>();
   }
   vec![]
 }

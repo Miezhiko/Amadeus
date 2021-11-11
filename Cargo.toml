@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "7.5.2"
+version         = "7.5.3"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -19,6 +19,7 @@ full = ["flo", "voice_analysis", "trackers"]
 
 [dependencies]
 chrono              = "0.4"
+glob                = "0.3"
 chrono-tz           = "0.6"
 tracing             = "0.1"
 tracing-log         = "0.1"

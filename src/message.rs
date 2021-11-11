@@ -12,7 +12,7 @@ use crate::{
           , constants::UNBLOCK_ROLE
           },
   collections::{ base::{ REACTIONS, WHITELIST }
-               , channels::{ AI_ALLOWED, EXCEPTIONS, IGNORED }
+               , channels::{ AI_ALLOWED, IGNORED }
                , team::DISCORDS
                }
 };
@@ -89,7 +89,7 @@ pub async fn process( ioptions: &IOptions
         return;
       }
     }
-    if EXCEPTIONS.contains(&msg.channel_id.0) {
+    if IGNORED.contains(&msg.channel_id.0) {
       return;
     }
     let mut is_file = false;
@@ -145,9 +145,6 @@ pub async fn process( ioptions: &IOptions
     }
   } else if !msg.content.starts_with('~') {
     if let Some(guild_id) = msg.guild_id {
-      if IGNORED.contains(&msg.channel_id.0) {
-        return;
-      }
       if (&msg.mentions).iter().any(|u| u.bot) {
         if (&msg.mentions).iter().any(|u| u.bot && u.id == amadeus_id) {
           set!{ amention1 = format!("<@{}>", amadeus_id)

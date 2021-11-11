@@ -46,13 +46,15 @@ pub async fn check<'a>( ctx: &Context
       if !going.matches.is_empty() {
         let guild = GuildId( guild_id );
         for m in going.matches {
+          // TODO: clone when needed (after players check)
           let server_info = m.serverInfo.clone();
           let host = server_info.name.unwrap_or_else(|| "no information about host".into());
           if m.gameMode == 1 { // solo
             if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
-              let playaz = PLAYERS.iter().filter( |p|
+              let playaz = PLAYERS.iter().copied().filter( |p|
                    m.teams[0].players[0].battleTag == p.player.battletag
-                || m.teams[1].players[0].battleTag == p.player.battletag ).collect::<Vec<&DiscordPlayer>>();
+                || m.teams[1].players[0].battleTag == p.player.battletag )
+                .collect::<Vec<&DiscordPlayer>>();
               if !playaz.is_empty() {
                 set!{ g_map   = get_map(&m.map)
                     , race1   = get_race2(m.teams[0].players[0].race)
@@ -160,11 +162,12 @@ pub async fn check<'a>( ctx: &Context
             }
           } else if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode 2x2
             if m.teams.len() > 1 && m.teams[0].players.len() > 1 && m.teams[1].players.len() > 1 {
-              let playaz = PLAYERS.iter().filter( |p|
+              let playaz = PLAYERS.iter().copied().filter( |p|
                    m.teams[0].players[0].battleTag == p.player.battletag
                 || m.teams[1].players[0].battleTag == p.player.battletag
                 || m.teams[0].players[1].battleTag == p.player.battletag
-                || m.teams[1].players[1].battleTag == p.player.battletag ).collect::<Vec<&DiscordPlayer>>();
+                || m.teams[1].players[1].battleTag == p.player.battletag )
+                .collect::<Vec<&DiscordPlayer>>();
 
               if !playaz.is_empty() {
                 let g_map = get_map(&m.map);
@@ -281,7 +284,7 @@ pub async fn check<'a>( ctx: &Context
             }
           } else if m.gameMode == 4 && // 4x4
             m.teams.len() > 1 && m.teams[0].players.len() > 3 && m.teams[1].players.len() > 3 {
-            let playaz = PLAYERS.iter().filter( |p|
+            let playaz = PLAYERS.iter().copied().filter( |p|
                  m.teams[0].players[0].battleTag == p.player.battletag || m.teams[0].players[2].battleTag == p.player.battletag
               || m.teams[1].players[0].battleTag == p.player.battletag || m.teams[1].players[2].battleTag == p.player.battletag
               || m.teams[0].players[1].battleTag == p.player.battletag || m.teams[0].players[3].battleTag == p.player.battletag

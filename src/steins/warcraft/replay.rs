@@ -4,7 +4,7 @@ use crate::{
           , constants::APM_PICS
           , colors::gen_colors
           },
-  collections::team::HEMO,
+  collections::team::PLAYERS,
   steins::warcraft::{
     aka_checker::check_aka,
     w3g::analyze
@@ -200,10 +200,9 @@ pub async fn replay_embed( ctx: &Context
 pub async fn attach_replay( ctx: &Context
                           , msg: &Message
                           , file: &Attachment ) -> anyhow::Result<()> {
-  // this is only for teammates
-  if let Some(playa) = HEMO.players.iter().find(|p|
-    p.discord == msg.author.id.0) {
-    let battletag = playa.battletag.clone();
+  if let Some(playa) = PLAYERS.iter().find(|p|
+    !p.player.battletag.is_empty() && p.player.discord == msg.author.id.0) {
+    let battletag = playa.player.battletag.clone();
     if let Ok(bytes) = file.download().await {
       let mut fw3g = match File::create(&file.filename).await {
         Ok(replay) => replay,

@@ -1,10 +1,10 @@
-let Playerx : Type = ./types/player_type.dhall
-let Discordx : Type = ./types/discord_type.dhall
+let Playerx : Type = ./../types/player_type.dhall
+let Discordx : Type = ./../types/discord_type.dhall
 
-let p = ./functions/p.dhall
-let t = ./functions/t.dhall
-let g = ./functions/g.dhall
-let b = ./functions/b.dhall
+let p = ./../functions/p.dhall
+let t = ./../functions/t.dhall
+let g = ./../functions/g.dhall
+let b = ./../functions/b.dhall
 
 let playersList : List Playerx =
   [ t "Miezhiko#2635"       510368731378089984 "Miezhiko"

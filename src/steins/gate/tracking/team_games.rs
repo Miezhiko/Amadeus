@@ -250,7 +250,8 @@ pub async fn activate_games_tracking(
                       , TrackingGame { tracking_msg_id: vec![(*d, msg_id.id.0)]
                                     , passed_time: 0
                                     , still_live: false
-                                    , players: game.players.clone().into_iter().cloned().collect()
+                                    , players: game.players.clone().into_iter()
+                                                           .cloned().collect()
                                     , bets: vec![]
                                     , fails: 0
                                     , mode: game.mode } );

@@ -2,17 +2,24 @@ use crate::types::team::{Discords, DiscordFields, DiscordPlayer, DiscordServer};
 
 use once_cell::sync::Lazy;
 
-static HEMOD: &str   = "dhall/team/hemo.dhall";
-static RAVENSD: &str = "dhall/team/ravens.dhall";
-static NEEJITD: &str = "dhall/team/neejit.dhall";
+use std::fs;
 
-pub static HEMO: Lazy<DiscordServer>    = Lazy::new(|| dhall!(HEMOD));
-pub static RAVENS: Lazy<DiscordServer>  = Lazy::new(|| dhall!(RAVENSD));
-pub static NEEJIT: Lazy<DiscordServer>  = Lazy::new(|| dhall!(NEEJITD));
+fn grab_servers() -> Vec<DiscordServer> {
+  if let Ok(rds) = fs::read_dir("dhall/team/") {
+    let paths = rds.filter_map(|r| r.ok())
+                   .filter_map(|r| r.path()
+                                    .into_os_string()
+                                    .into_string().ok());
+    return paths.map(|p| dhall!(p)).collect::<Vec<DiscordServer>>();
+  }
+  vec![]
+}
+
+pub static SERVERS: Lazy<Vec<DiscordServer>> = Lazy::new(grab_servers);
 
 fn get_discord_servers() -> Discords {
   let mut discord_servers: Discords = Discords::new();
-  for disc in &[&HEMO, &RAVENS, &NEEJIT] {
+  for disc in SERVERS.iter() {
     let discord = DiscordFields
                     { games:    disc.games
                     , games2:   disc.games2
@@ -26,7 +33,7 @@ fn get_discord_servers() -> Discords {
 
 fn get_discord_players() -> Vec<DiscordPlayer> {
   let mut discord_players = vec![];
-  for disc in &[&HEMO, &RAVENS, &NEEJIT] {
+  for disc in SERVERS.iter() {
     for player in disc.players.iter() {
       if let Some(existing) =
         discord_players.iter_mut()
@@ -43,7 +50,13 @@ fn get_discord_players() -> Vec<DiscordPlayer> {
 }
 
 pub static DISCORDS: Lazy<Discords> = Lazy::new(get_discord_servers);
-pub static PLAYERS: Lazy<Vec<DiscordPlayer>> = Lazy::new(get_discord_players);
+pub static ALL: Lazy<Vec<DiscordPlayer>> = Lazy::new(get_discord_players);
+
+fn get_only_battlenet_players() -> Vec<&'static DiscordPlayer> {
+  ALL.iter().filter(|dp| !dp.player.battletag.is_empty()).collect::<Vec<&DiscordPlayer>>()
+}
+
+pub static PLAYERS: Lazy<Vec<&DiscordPlayer>> = Lazy::new(get_only_battlenet_players);
 
 #[cfg(test)]
 mod stuff_dhall_tests {
@@ -54,10 +67,6 @@ mod stuff_dhall_tests {
       Err(de) => Err(format!("Failed to parse {:?}", de))
     }
   }
-  #[test]
-  fn hemo() -> Result<(), String> { dhall_players(HEMOD) }
-  #[test]
-  fn ravens() -> Result<(), String> { dhall_players(RAVENSD) }
  #[test]
   fn discords() -> Result<(), String> { 
     let discords = get_discord_servers();

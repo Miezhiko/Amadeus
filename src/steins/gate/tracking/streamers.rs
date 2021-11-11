@@ -3,7 +3,7 @@ use crate::{
          , tracking::{ TrackingGame, GameMode }
          , twitch::Twitch
          , goodgame::GoodGameData },
-  collections::team::{ PLAYERS, DISCORDS },
+  collections::team::{ ALL, DISCORDS },
   common::{
     constants::{ LIVE_ROLE
                , STREAM_PICS }
@@ -69,7 +69,7 @@ pub async fn activate_streamers_tracking(
     }
     let guild_id = GuildId(*d);
     if let Ok(g) = guild_id.to_partial_guild(&ctx).await {
-      for p in PLAYERS.iter() {
+      for p in ALL.iter() {
         if p.discords.contains(d) {
           if let Ok(mut m) = g.member(&ctx.http, p.player.discord).await {
             if let Some(r) = g.role_by_name(LIVE_ROLE) {
@@ -102,7 +102,7 @@ pub async fn activate_streamers_tracking(
         streams_lock.remove(&ktd);
       }
       trace!("streams check");
-      for p in PLAYERS.iter() {
+      for p in ALL.iter() {
         if let Ok(user) = ctx_clone.http.get_user(p.player.discord).await {
           setm!{ twitch_live        = false
                , additional_fields  = Vec::new()

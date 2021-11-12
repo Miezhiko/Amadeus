@@ -1,6 +1,5 @@
 ##REALLY PLANNED:
 
- - Don't go live LOL
  - Restructure team_checker module (code quality)
  - Some of slash commands are still missing (vs command, etc...)
  - Stream announce (e.g. steam in 30 mins or something like that) + stream announce role

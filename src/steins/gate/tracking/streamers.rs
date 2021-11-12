@@ -109,7 +109,7 @@ pub async fn activate_streamers_tracking(
                , title              = String::new()
                , image              = None
                , em_url             = None };
-          if p.player.streams.is_some() {
+          if p.player.streams.is_some() && !user.bot {
             let streams = p.player.streams.clone().unwrap();
             if streams.twitch.is_some() {
               let client = reqwest::Client::new();

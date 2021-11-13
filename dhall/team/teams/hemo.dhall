@@ -9,7 +9,6 @@ let b = ./../functions/b.dhall
 let playersList : List Playerx =
   [ t "PriesT#12658"        180213339111161856 "PriesTwc3"
   , t "Muffy#2299"          196231768880185344 "muffy_supergosu"
-  , t "Trunks#2116"         297810232254398466 "trynkzzz"
   , t "Miezhiko#2635"       510368731378089984 "Miezhiko"
   , t "Маша#21485"          714711512282824755 "Miezhiko"
   , t "hhh#2991"            510732278025027596 "hotwussy"
@@ -25,7 +24,6 @@ let playersList : List Playerx =
   , b "НееЖить#2559"        703241941114028032 "masterv_64" "Ghost_OL"
   , t "Fingon#2350"         361930230375514112 "Skyrimoon"
   , t "YoungUndead#2289"    332258705456234497 "youngundeadd"
-  , p "Alaster#21225"       743770620671819776
   , p "FreeMasha#2272"      743770620671819776
   , p "Edek#1800"           298003054110965762
   , p "RiplEy#21126"        137314790769950720

@@ -10,5 +10,6 @@ pub static MODERATION: ChannelId      = ChannelId( 740913303278321704 );
 
 pub static LIVE_ROLE: &str            = "🔴 LIVE";
 pub static UNBLOCK_ROLE: &str         = "UNBLOCK AMADEUS";
+pub static MUTED_ROLE: &str           = "muted";
 
 pub static W3C_API: &str = "https://statistic-service.w3champions.com/api";

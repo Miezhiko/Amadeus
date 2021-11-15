@@ -8,6 +8,7 @@ use crate::{
   common::{ db::trees::{ points, roles, emojis }
           , constants::{ UNBLOCK_ROLE
                        , LIVE_ROLE
+                       , MUTED_ROLE
                        , MODERATION }
           },
   collections::channels::AI_ALLOWED,
@@ -94,6 +95,17 @@ impl EventHandler for Handler {
                         error!("Failed to create LIVE role, {:?}", why);
                       }
                     }
+                    if guild.role_by_name(MUTED_ROLE).is_none() {
+                      if let Err(why) =
+                        guild.create_role(&ctx,
+                          |r| r.colour(Colour::from_rgb(113,113,113).0 as u64)
+                              .hoist(true)
+                              .position(100) // bigger = higher
+                              .mentionable(false)
+                              .name(MUTED_ROLE)).await {
+                        error!("Failed to create muted role, {:?}", why);
+                      }
+                    }
                   }
                 }
               }
@@ -134,7 +146,7 @@ impl EventHandler for Handler {
     if muted_lock.contains(&member.user.id) {
       if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
         if let Ok(mut member) = guild.member(&ctx, member.user.id).await {
-          if let Some(role) = guild.role_by_name("muted") {
+          if let Some(role) = guild.role_by_name(MUTED_ROLE) {
             if !member.roles.contains(&role.id) {
               if let Err(why) = member.add_role(&ctx, role).await {
                 error!("Failed to assign muted role {:?}", why);
@@ -168,7 +180,7 @@ impl EventHandler for Handler {
     let _was_on_chat = points::clear_points(guild_id.0, user.id.0).await;
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       if let Ok(member) = guild.member(&ctx, user.id).await {
-        if let Some(role) = guild.role_by_name("muted") {
+        if let Some(role) = guild.role_by_name(MUTED_ROLE) {
           if member.roles.contains(&role.id) {
             let mut muted_lock = MUTED.lock().await;
             if !muted_lock.contains(&member.user.id) {

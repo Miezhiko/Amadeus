@@ -1,4 +1,7 @@
-use crate::types::team::{Discords, DiscordFields, DiscordPlayer, DiscordServer};
+use crate::types::team::{ Discords
+                        , DiscordFields
+                        , DiscordPlayer
+                        , DiscordServer };
 
 use once_cell::sync::Lazy;
 

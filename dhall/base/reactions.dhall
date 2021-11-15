@@ -12,11 +12,14 @@ let rList : List Reaction =
   , { id = 641635941756174355, name = "HestiaNo" }
   , { id = 657178236937043968, name = "evul" }
   , { id = 657179213056704522, name = "eee" }
-  , { id = 679215075092987914, name = "sad" }
   , { id = 641638050945957904, name = "CocoSmug" }
   , { id = 611889889755004936, name = "antifa_heart" }
   , { id = 633733924773822474, name = "Egolilyal" }
+  , { id = 853634592363905044, name = "EgoMawa" }
   , { id = 763653216754860052, name = "daijoubu" }
+  , { id = 806785509799231488, name = "elfsmirk" }
+  , { id = 763653437078372362, name = "cocona" }
+  , { id = 899211671535505419, name = "smirkawoo" }
   ]
 
 in rList

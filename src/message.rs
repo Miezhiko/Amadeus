@@ -40,7 +40,6 @@ use rand::{ Rng
 use regex::Regex;
 use once_cell::sync::Lazy;
 
-pub static BLAME: AtomicBool    = AtomicBool::new(false);
 pub static RESTORE: AtomicBool  = AtomicBool::new(false);
 
 pub static BACKUP: Lazy<Mutex<VecDeque<(MessageId, Message)>>> =
@@ -52,34 +51,12 @@ pub async fn process( ioptions: &IOptions
                     , msg: Message) {
 
   if msg.is_own(&ctx).await {
-    let blame_check = BLAME.load(Ordering::Relaxed);
-    if !blame_check {
-      if let Some(g) = msg.guild_id {
-        if ioptions.servers.iter().any(|s| s.id == g.0
-                                        && s.kind == CoreGuild::Unsafe) {
-          if let Ok(guild) = g.to_partial_guild(&ctx).await {
-            if let Ok(member) = guild.member(&ctx, &msg.author.id).await {
-              if let Ok(some_permissions) = member.permissions(&ctx).await {
-                if !some_permissions.administrator() {
-                  BLAME.store(true, Ordering::Relaxed);
-                  for _ in 0..10u8 {
-                    channel_message(ctx, &msg,
-                      "Set administrator role for me, please!").await;
-                  }
-                  BLAME.store(false, Ordering::Relaxed);
-                }
-              }
-            }
-          }
-        }
+    if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
+      let mut backup_deq = BACKUP.lock().await;
+      if backup_deq.len() == backup_deq.capacity() {
+        backup_deq.pop_front();
       }
-      if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
-        let mut backup_deq = BACKUP.lock().await;
-        if backup_deq.len() == backup_deq.capacity() {
-          backup_deq.pop_front();
-        }
-        backup_deq.push_back((msg.id, msg));
-      }
+      backup_deq.push_back((msg.id, msg));
     }
   } else if msg.author.bot {
     if let Some(g) = msg.guild_id {

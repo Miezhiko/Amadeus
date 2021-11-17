@@ -51,16 +51,16 @@ async fn set(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                                       "off" => Some(false),
                                       _     => None
                                     } {
-            let mut mast_rewrite = false;
+            let mut must_rewrite = false;
             {
               let data = ctx.data.read().await;
               if let Some(icontext) = data.get::<IContext>() {
                 if icontext.lazy_static_models != on_off_bool {
-                  mast_rewrite = true;
+                  must_rewrite = true;
                 }
               }
             }
-            if mast_rewrite {
+            if must_rewrite {
               let mut data = ctx.data.write().await;
               if let Some(icontext) = data.get_mut::<IContext>() {
                 *icontext = Arc::new( IContext { lazy_static_models: on_off_bool } );

@@ -6,14 +6,17 @@ use crate::types::team::{ Discords
 use once_cell::sync::Lazy;
 
 fn grab_servers() -> Vec<DiscordServer> {
-  if let Ok(dfs) = glob::glob("dhall/team/teams/*.dhall") {
-    return dfs.filter_map(|d| d.ok())
-              .filter_map(|r| r.into_os_string()
-                               .into_string().ok())
-              .filter_map(|p| serde_dhall::from_file(p).parse().ok())
-              .collect::<Vec<DiscordServer>>();
+  match glob::glob("dhall/team/teams/*.dhall") {
+    Ok(dfs) => dfs.filter_map(|d| d.ok())
+                  .filter_map(|r| r.into_os_string()
+                                   .into_string().ok())
+                  .filter_map(|p| serde_dhall::from_file(p).parse().ok())
+                  .collect::<Vec<DiscordServer>>(),
+    Err(why) => {
+      error!("Missing dhall/team/teams/: {}", why);
+      vec![]
+    }
   }
-  vec![]
 }
 
 pub static SERVERS: Lazy<Vec<DiscordServer>> = Lazy::new(grab_servers);
@@ -54,7 +57,8 @@ pub static DISCORDS: Lazy<Discords> = Lazy::new(get_discord_servers);
 pub static ALL: Lazy<Vec<DiscordPlayer>> = Lazy::new(get_discord_players);
 
 fn get_only_battlenet_players() -> Vec<&'static DiscordPlayer> {
-  ALL.iter().filter(|dp| !dp.player.battletag.is_empty()).collect::<Vec<&DiscordPlayer>>()
+  ALL.iter().filter(|dp| !dp.player.battletag.is_empty())
+            .collect::<Vec<&DiscordPlayer>>()
 }
 
 pub static PLAYERS: Lazy<Vec<&DiscordPlayer>> = Lazy::new(get_only_battlenet_players);
@@ -62,12 +66,6 @@ pub static PLAYERS: Lazy<Vec<&DiscordPlayer>> = Lazy::new(get_only_battlenet_pla
 #[cfg(test)]
 mod stuff_dhall_tests {
   use super::*;
-  fn dhall_players(f: &str) -> Result<(), String> {
-    match serde_dhall::from_file(f).parse::<DiscordServer>() {
-      Ok(_) => Ok(()),
-      Err(de) => Err(format!("Failed to parse {:?}", de))
-    }
-  }
  #[test]
   fn discords() -> Result<(), String> { 
     let discords = get_discord_servers();

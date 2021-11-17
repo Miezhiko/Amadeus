@@ -25,11 +25,7 @@ use std::{
 };
 
 use chrono::DateTime;
-use once_cell::sync::Lazy;
 use rand::Rng;
-
-pub static STREAMS: Lazy<Mutex<HashMap<u64, TrackingGame>>>
-  = Lazy::new(|| Mutex::new(HashMap::new()));
 
 async fn clear_channel(channel: ChannelId, ctx: &Context) {
   if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(25)).await {
@@ -86,10 +82,10 @@ pub async fn activate_streamers_tracking(
   }
 
   tokio::spawn(async move {
-    let mut streams_lock = STREAMS.lock().await;
+    let mut streams: HashMap<u64, TrackingGame> = HashMap::new();
     loop {
       let mut k_to_del: Vec<u64> = Vec::new();
-      for (k, track) in streams_lock.iter_mut() {
+      for (k, track) in streams.iter_mut() {
         if track.passed_time < (60 * 24) {
           // for real it's 60 + some time for processing
           track.passed_time += 1;
@@ -99,7 +95,7 @@ pub async fn activate_streamers_tracking(
       }
       for ktd in k_to_del {
         warn!("stream {} out with timeout", ktd);
-        streams_lock.remove(&ktd);
+        streams.remove(&ktd);
       }
       trace!("streams check");
       for p in ALL.iter() {
@@ -203,7 +199,7 @@ pub async fn activate_streamers_tracking(
             if title.is_empty() {
               title = String::from("LIVE");
             }
-            if let Some(track) = streams_lock.get(&p.player.discord) {
+            if let Some(track) = streams.get(&p.player.discord) {
 
             for t_msg in &track.tracking_msg_id {
             if let Some(discord) = DISCORDS.get(&t_msg.0) {
@@ -313,12 +309,12 @@ pub async fn activate_streamers_tracking(
               )).await {
                 Ok(msg_id) => {
                   let playa_for_stream = p.clone();
-                  if let Some(inserted) = streams_lock.get_mut(&playa_for_stream.player.discord) {
+                  if let Some(inserted) = streams.get_mut(&playa_for_stream.player.discord) {
                     if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.0)) {
                       inserted.tracking_msg_id.push((*d, msg_id.id.0));
                     }
                   } else {
-                    streams_lock.insert(playa_for_stream.player.discord, TrackingGame {
+                    streams.insert(playa_for_stream.player.discord, TrackingGame {
                       // TODO: get discord from player
                       tracking_msg_id: vec![(*d, msg_id.id.0)],
                       passed_time: 0,
@@ -365,7 +361,7 @@ pub async fn activate_streamers_tracking(
               } // discords for
 
             }
-          } else if let Some(track) = streams_lock.get(&p.player.discord) {
+          } else if let Some(track) = streams.get(&p.player.discord) {
             // stream finished
 
             for t_msg in &track.tracking_msg_id {
@@ -447,7 +443,7 @@ pub async fn activate_streamers_tracking(
             } // if let some discord
             } // for discord servers
 
-            streams_lock.remove(&p.player.discord);
+            streams.remove(&p.player.discord);
           }
         }
         tokio::time::sleep(time::Duration::from_millis(200)).await;

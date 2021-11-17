@@ -1,6 +1,5 @@
 ##REALLY PLANNED:
 
- - Use PyTorch from system install
  - Restructure team_checker module (code quality)
  - Stream announce (e.g. steam in 30 mins or something like that) + stream announce role
  - Use Summarization model for large texts and just sometimes with context cache!
@@ -20,3 +19,4 @@
  - Finetune GTP2 model
  - Documentation
  - Rework config files for simpler/wider usage
+ - Youtube streams support

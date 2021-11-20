@@ -220,8 +220,7 @@ async fn list_message_roles(ctx: &Context, msg: &Message, mut args: Args) -> Com
 
 #[command]
 #[owners_only]
-#[min_args(1)]
-async fn unban_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+async fn unban_all(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
     let guild = guild_id.to_partial_guild(ctx).await?;
     let bans = guild.bans(ctx).await?;

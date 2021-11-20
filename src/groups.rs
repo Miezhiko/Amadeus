@@ -58,7 +58,7 @@ pub struct Info;
 #[owners_only]
 #[checks(Admin)]
 #[commands(say, set, clear_messages, upgrade
-  , update_cache, clear_chain_cache
+  , update_cache, clear_chain_cache, unban_all
   , twitch_token_update, register_role, list_message_roles)]
 pub struct Owner;
 

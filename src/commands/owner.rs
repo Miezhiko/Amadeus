@@ -217,3 +217,22 @@ async fn list_message_roles(ctx: &Context, msg: &Message, mut args: Args) -> Com
   }
   Ok(())
 }
+
+#[command]
+#[owners_only]
+#[min_args(1)]
+async fn unban_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  if let Err(why) = msg.delete(ctx).await {
+    error!("Error deleting original command {:?}", why);
+  }
+  if let Some(guild_id) = msg.guild_id {
+    let guild = guild_id.to_partial_guild(&ctx).await?;
+    let bans = guild.bans?;
+    for ban in bans {
+      if let Err(why) = guild.unban(ctx, ban.user.id).await {
+        error!("Failed to unban user: {}" user.name)
+      }
+    }
+  }
+  Ok(())
+}

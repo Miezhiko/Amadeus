@@ -224,7 +224,7 @@ async fn list_message_roles(ctx: &Context, msg: &Message, mut args: Args) -> Com
 async fn unban_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
     let guild = guild_id.to_partial_guild(ctx).await?;
-    let bans = guild.bans(ctx)?;
+    let bans = guild.bans(ctx).await?;
     for ban in bans {
       if let Err(why) = guild.unban(ctx, ban.user.id).await {
         error!("Failed to unban user: {}" user.name)

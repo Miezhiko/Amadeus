@@ -227,7 +227,7 @@ async fn unban_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
     let bans = guild.bans(ctx).await?;
     for ban in bans {
       if let Err(why) = guild.unban(ctx, ban.user.id).await {
-        error!("Failed to unban user: {}", user.name);
+        error!("Failed to unban user: {}, {}", ban.user.name, why);
       }
     }
     channel_message(ctx, msg, "Everyone unbanned =_=").await;

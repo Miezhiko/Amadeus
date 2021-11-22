@@ -64,7 +64,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   }
 
   // updating ai:chain cache
-  cache::update_cache(&ctx, &all_channels, options.lazy_static_models).await;
+  cache::update_cache(&ctx, &all_channels).await;
 
   let ac = std::sync::Arc::new(ctx);
   activate_system_tracker(&ac).await;

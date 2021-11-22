@@ -1,5 +1,5 @@
 use crate::{
-  types::serenity::{ AllGuilds, ChannelLanguage, IContext },
+  types::serenity::{ AllGuilds, ChannelLanguage },
   common::{ help::lang
           , db::trees::{ messages::{ register, check_registration }
                        , LSUF, ZSUF, RSUF, MSUF }
@@ -7,7 +7,6 @@ use crate::{
   collections::base::{ CONFUSION
                      , CONFUSION_RU },
   collections::channels::AI_LEARN,
-  steins::ai::bert,
   message::RESTORE
 };
 
@@ -44,9 +43,6 @@ static NLPRULE_RULES: &str = "nlprule/en_rules.bin";
 // WILL NOT WORK WITH ANYTHING MORE THAN 200
 // NO IDEA WHY...
 static CHANNEL_CACHE_MAX: u64 = 199;
-
-// Note: machine learning based translation is very hard without cuda
-static TRANSLATION_MAX: u32 = 5;
 
 pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(90);
 
@@ -92,8 +88,7 @@ pub fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String,
   result_string = result_string.replace(
     |c: char| !c.is_whitespace() && !c.is_alphabetic(), "");
   let result = result_string.trim();
-  let is_http = result.starts_with("http");
-  if !result.is_empty() && !result.contains('$') && !is_http {
+  if !result.is_empty() && !result.contains('$') {
     let mut result_str = result.to_string();
     let l = if lang == ChannelLanguage::Bilingual {
         if lang::is_russian(result) {
@@ -120,7 +115,6 @@ pub fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String,
 
 pub async fn update_cache( ctx: &Context
                          , channels: &HashMap<ChannelId, GuildChannel>
-                         , lsm: bool
                          ) {
 
   info!("updating AI chain has started");
@@ -168,8 +162,6 @@ pub async fn update_cache( ctx: &Context
     }
   }
 
-  let mut ru_messages_for_translation: Vec<String> = vec![];
-
   let m_count = CHANNEL_CACHE_MAX * AI_LEARN.len() as u64;
   let progress_step = m_count / 5;
   let mut m_progress: u64 = 0; // progress for all channels
@@ -182,7 +174,6 @@ pub async fn update_cache( ctx: &Context
         let mut messages = chan.messages_iter(&ctx).boxed();
 
         info!("updating ai chain from {}", &c_name);
-        let mut i_ru_for_translation: u32 = 0;
         let mut i: u64 = 0;
 
         while let Some(message_result) = messages.next().await {
@@ -209,10 +200,6 @@ pub async fn update_cache( ctx: &Context
                       ChannelLanguage::Russian => {
                         debug!("#adding to russian {}", &result);
                         cache_ru.feed_str(&result);
-                        if i_ru_for_translation < TRANSLATION_MAX {
-                          ru_messages_for_translation.push(result.to_string());
-                          i_ru_for_translation += 1;
-                        }
                       },
                       ChannelLanguage::English => {
                         debug!("#adding to english {}", &result);
@@ -260,21 +247,6 @@ pub async fn update_cache( ctx: &Context
     } else {
       error!("failed to serialize cache to yaml");
     }
-  }
-
-  if !ru_messages_for_translation.is_empty() {
-    info!("Translating cache");
-    tokio::spawn(async move {
-      tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-      if let Ok(translated) = bert::ru2en_many(ru_messages_for_translation, lsm).await {
-        if !translated.is_empty() {
-          for tr in translated.into_iter() {
-            cache_eng_str.insert(tr);
-          }
-          info!("Cache translation complete");
-        }
-      }
-    });
   }
 
   info!("Updating cache complete");
@@ -325,10 +297,6 @@ pub async fn actualize_cache(ctx: &Context, force: bool) {
   if since_last_update > Duration::hours(2) || force {
     let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
     let data = ctx.data.read().await;
-    let lsm =
-      if let Some(icontext) = data.get::<IContext>() {
-        icontext.lazy_static_models
-      } else { false };
     if let Some(servers) = data.get::<AllGuilds>() {
       let server_ids = servers.iter()
                               .map(|srv| GuildId(srv.id))
@@ -338,7 +306,7 @@ pub async fn actualize_cache(ctx: &Context, force: bool) {
           all_channels.extend(serv_channels);
         }
       }
-      update_cache(ctx, &all_channels, lsm).await;
+      update_cache(ctx, &all_channels).await;
       *last_update = nao;
     }
   }

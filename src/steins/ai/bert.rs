@@ -157,34 +157,6 @@ pub async fn ru2en(text: String, lsm: bool) -> Result<String> {
   }).await.unwrap()
 }
 
-pub async fn ru2en_many(texts: Vec<String>, lsm: bool) -> Result<Vec<String>> {
-  if texts.is_empty() {
-    return Ok(vec![]);
-  }
-  let mut enru_model = ENRUMODEL.lock().await;
-  if enru_model.is_none() {
-    *enru_model = Some( enru_model_loader() );
-  }
-  if ! lsm {
-    let mut enru_model_model_used = ENRUMODEL_USED.lock().await;
-    *enru_model_model_used = Some(Utc::now());
-  }
-  task::spawn_blocking(move || {
-    if let Some(ru2en_model) = &mut *enru_model {
-      let ttt = texts.iter().map(|t| t.as_str()).collect::<Vec<&str>>();
-      let output = ru2en_model.translate(&ttt, Some(Language::Russian)
-                                             , Language::English)?;
-      if output.is_empty() {
-        Ok(Vec::new())
-      } else {
-        Ok(output)
-      }
-    } else {
-      Err(anyhow!("Empty ENRU model"))
-    }
-  }).await.unwrap()
-}
-
 pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
   info!("Generating GPT2 QA response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;

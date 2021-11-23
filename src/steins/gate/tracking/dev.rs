@@ -10,8 +10,8 @@ use serde_json::Value;
 
 use rand::Rng;
 
-/* every two minutes (maybe every minute is too much) */
-static POLL_PERIOD_SECONDS: u64 = 2 * 60;
+/* every 5 minutes (maybe every minute is too much) */
+static POLL_PERIOD_SECONDS: u64 = 5 * 60;
 
 async fn parse_notification(ctx: &Context, github: &str, json_str: &str) -> anyhow::Result<bool> {
   let mut was_something = true;

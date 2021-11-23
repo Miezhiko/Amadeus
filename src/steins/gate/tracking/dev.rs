@@ -61,7 +61,7 @@ async fn parse_notification(ctx: &Context, github: &str, json_str: &str) -> anyh
                       if !body.is_empty() {
                         e = e.description(body);
                       }
-                      if !author.is_empty() {
+                      if !author.0.is_empty() {
                         e = e.footer(|f| f.text(&format!("author: {}", author.0)));
                       }
                       e

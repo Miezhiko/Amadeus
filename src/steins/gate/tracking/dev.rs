@@ -11,6 +11,8 @@ use tokio::process::Command;
 
 use serde_json::Value;
 
+use rand::Rng;
+
 /* every two minutes (maybe every minute is too much) */
 static POLL_PERIOD_SECONDS: u64 = 2 * 60;
 
@@ -25,11 +27,11 @@ async fn parse_notification(ctx: &Context, rqcl: &reqwest::Client, json_str: &st
       if let Some(subject) = json.pointer("/subject") {
         if let Some(last_read_at) = json.pointer("/last_read_at") {
           if last_read_at.is_null() {
-            let title = subject.pointer("/title").unwrap_or(&Value::Null).as_str().unwrap_or_default();
-            let url = subject.pointer("/url").unwrap_or(&Value::Null).as_str().unwrap_or_default();
-            let res = rqcl.get(url).send().await?;
-            let j = res.json::<Value>().await?;
-            let state = j.pointer("/state").unwrap_or(&Value::Null).as_str().unwrap_or_default();
+            set!{ title = subject.pointer("/title").unwrap_or(&Value::Null).as_str().unwrap_or_default()
+                , url   = subject.pointer("/url").unwrap_or(&Value::Null).as_str().unwrap_or_default()
+                , res   = rqcl.get(url).send().await?
+                , j     = res.json::<Value>().await?
+                , state = j.pointer("/state").unwrap_or(&Value::Null).as_str().unwrap_or_default() };
             if state != "closed" {
               let body = j.pointer("/body").unwrap_or(&Value::Null).as_str().unwrap_or_default();
               let html_url = j.pointer("/html_url").unwrap_or(&Value::Null).as_str().unwrap_or_default();
@@ -43,9 +45,13 @@ async fn parse_notification(ctx: &Context, rqcl: &reqwest::Client, json_str: &st
                   if let Some(u) = json.pointer("/user") {
                     u.pointer("/login").unwrap_or(&Value::Null).as_str().unwrap_or_default()
                   } else { "" };
+                set!{ red   = rand::thread_rng().gen_range(0..255)
+                    , green = rand::thread_rng().gen_range(0..255)
+                    , blue  = rand::thread_rng().gen_range(0..255) };
                 GITHUB_PRS.send_message(ctx, |m| m
                   .embed(|e| { let mut e = e.title(&title)
                                             .author(|a| a.icon_url(avi).name(&repository))
+                                            .colour((red, green, blue))
                                             .url(&html_url);
                     if !body.is_empty() {
                       e = e.description(body);

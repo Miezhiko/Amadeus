@@ -14,9 +14,13 @@ use serde_json::Value;
 /* every two minutes (maybe every minute is too much) */
 static POLL_PERIOD_SECONDS: u64 = 2 * 60;
 
-async fn parse_notification(ctx: &Context, rqcl: &reqwest::Client, json_str: &str) -> anyhow::Result<()> {
+async fn parse_notification(ctx: &Context, rqcl: &reqwest::Client, json_str: &str) -> anyhow::Result<bool> {
+  let mut was_something = true;
   let json_array = serde_json::from_str::<Value>(json_str)?;
   if let Some(array) = json_array.as_array() {
+    if array.is_empty() {
+      was_something = false;
+    }
     for json in array {
       if let Some(subject) = json.pointer("/subject") {
         if let Some(last_read_at) = json.pointer("/last_read_at") {
@@ -59,7 +63,7 @@ async fn parse_notification(ctx: &Context, rqcl: &reqwest::Client, json_str: &st
       }
     }
   }
-  Ok(())
+  Ok(was_something)
 }
 
 pub async fn activate_dev_tracker( ctx: &Arc<Context>
@@ -81,21 +85,24 @@ pub async fn activate_dev_tracker( ctx: &Arc<Context>
           .output()
           .await
           .expect("failed to run dev GET curl");
+        let mut was_something = true;
         if let Ok(curl_out) = &String::from_utf8(curl.stdout) {
           if !curl_out.is_empty() {
-            if let Err(why) = parse_notification(&ctx_clone, &rqcl, &curl_out).await {
-              error!("Failed to parse github notifications {}", why);
-            }
+            match parse_notification(&ctx_clone, &rqcl, curl_out).await {
+              Ok(r)     => was_something = r,
+              Err(why)  => error!("Failed to parse github notifications {}", why)
+            };
           }
         }
-        // TODO: do this only if there was something really
-        let put_command = format!("curl -u {} -X PUT -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/notifications -d '{{\"read\":true}}'", &github);
-        let _curl_put = Command::new("sh")
-          .arg("-c")
-          .arg(&put_command)
-          .output()
-          .await
-          .expect("failed to run dev POST curl");
+        if was_something {
+          let put_command = format!("curl -u {} -X PUT -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/notifications -d '{{\"read\":true}}'", &github);
+          let _curl_put = Command::new("sh")
+            .arg("-c")
+            .arg(&put_command)
+            .output()
+            .await
+            .expect("failed to run dev POST curl");
+        }
       }
       tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
     }

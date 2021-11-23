@@ -88,13 +88,7 @@ async fn eix(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       .expect("failed to run eix");
     if let Ok(eix_out) = &String::from_utf8(eix.stdout) {
       if !eix_out.is_empty() {
-        let mut reply_msg = msg.reply(ctx, "...").await?;
-        reply_msg.edit(ctx, |m|
-          m.content("")
-           .embed(|e| e.colour((200, 50, 70))
-                       .description( &format!("```{}```", &eix_out) )
-          )
-        ).await?;
+        msg.reply(ctx, &format!("```{}```", &eix_out)).await?;
       }
     }
   }

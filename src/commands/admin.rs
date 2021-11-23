@@ -7,8 +7,11 @@ use serenity::{
   model::channel::*,
   prelude::*,
   framework::standard::{ CommandResult
-                       , macros::command }
+                       , macros::command
+                       , Args }
 };
+
+use tokio::process::Command;
 
 #[command]
 #[required_permissions(ADMINISTRATOR)]
@@ -52,6 +55,46 @@ async fn unmute(ctx: &Context, msg: &Message) -> CommandResult {
             }
           }
         }
+      }
+    }
+  }
+  Ok(())
+}
+
+#[command]
+#[required_permissions(ADMINISTRATOR)]
+async fn eix_update(ctx: &Context, msg: &Message) -> CommandResult {
+  let _update = Command::new("zsh")
+    .arg("-c")
+    .arg("wupdate")
+    .output()
+    .await
+    .expect("failed to run packages update");
+  channel_message(ctx, msg, "update complete").await;
+  Ok(())
+}
+
+#[command]
+#[required_permissions(ADMINISTRATOR)]
+#[min_args(1)]
+async fn eix(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  if let Ok(package) = args.single::<String>() {
+    let eix_command = format!("eix {}", package);
+    let eix = Command::new("sh")
+      .arg("-c")
+      .arg(&eix_command)
+      .output()
+      .await
+      .expect("failed to run eix");
+    if let Ok(eix_out) = &String::from_utf8(eix.stdout) {
+      if !eix_out.is_empty() {
+        let mut reply_msg = msg.reply(ctx, "...").await?;
+        reply_msg.edit(ctx, |m|
+          m.content("")
+           .embed(|e| e.colour((200, 50, 70))
+                       .description( &format!("```{}```", &eix_out) )
+          )
+        ).await?;
       }
     }
   }

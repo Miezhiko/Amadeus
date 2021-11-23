@@ -28,9 +28,10 @@ async fn parse_notification(ctx: &Context, rqcl: &reqwest::Client, json_str: &st
         if let Some(last_read_at) = json.pointer("/last_read_at") {
           if last_read_at.is_null() {
             set!{ title = subject.pointer("/title").unwrap_or(&Value::Null).as_str().unwrap_or_default()
-                , url   = subject.pointer("/url").unwrap_or(&Value::Null).as_str().unwrap_or_default()
-                , res   = rqcl.get(url).send().await?
-                , j     = res.json::<Value>().await?
+                , url   = subject.pointer("/url").unwrap_or(&Value::Null).as_str().unwrap_or_default() };
+            set!{ res   = rqcl.get(url).send().await?
+                , jtext = res.text().await?
+                , j     = serde_json::from_str::<Value>(&jtext)?
                 , state = j.pointer("/state").unwrap_or(&Value::Null).as_str().unwrap_or_default() };
             if state != "closed" {
               let body = j.pointer("/body").unwrap_or(&Value::Null).as_str().unwrap_or_default();

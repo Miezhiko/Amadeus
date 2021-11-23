@@ -23,4 +23,5 @@ in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
    , tenor_key            = "AAAA"
    , flo_secret           = "AAAAAAAAAAAAAAA"
    , lazy_static_models   = True
+   , github_auth          = "AccountName:access_token"
    }

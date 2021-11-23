@@ -7,7 +7,8 @@ use crate::{
                     , team_games::activate_games_tracking
                     , social::activate_social_skils
                     , streamers::activate_streamers_tracking
-                    , w3info::activate_w3info_tracking },
+                    , w3info::activate_w3info_tracking
+                    , dev::activate_dev_tracker },
     ai::cache
   },
   commands::w3c::update_current_season
@@ -82,4 +83,5 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
        , amadeus.0
        ).await;
   activate_w3info_tracking(&ac).await;
+  activate_dev_tracker(&ac, &options.github_auth).await;
 }

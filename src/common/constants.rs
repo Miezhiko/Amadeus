@@ -7,6 +7,7 @@ pub static MIST_CHANNEL: ChannelId    = ChannelId( 827151604053835807 );
 pub static STREAM_PICS: ChannelId     = ChannelId( 740153825272266822 );
 pub static APM_PICS: ChannelId        = ChannelId( 752538491312930878 );
 pub static MODERATION: ChannelId      = ChannelId( 740913303278321704 );
+pub static GITHUB_PRS: ChannelId      = ChannelId( 912241728243769395 );
 
 pub static LIVE_ROLE: &str            = "🔴 LIVE";
 pub static UNBLOCK_ROLE: &str         = "UNBLOCK AMADEUS";

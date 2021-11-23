@@ -11,8 +11,8 @@ use tokio::process::Command;
 
 use serde_json::Value;
 
-/* every minute (stupid clippy doesn't allow me to use 1 * 60) */
-static POLL_PERIOD_SECONDS: u64 = 60;
+/* every two minutes (maybe every minute is too much) */
+static POLL_PERIOD_SECONDS: u64 = 2 * 60;
 
 async fn parse_notification(ctx: &Context, rqcl: &reqwest::Client, json_str: &str) -> anyhow::Result<()> {
   let json_array = serde_json::from_str::<Value>(json_str)?;
@@ -32,15 +32,22 @@ async fn parse_notification(ctx: &Context, rqcl: &reqwest::Client, json_str: &st
               if let Some(repo) = json.pointer("/repository") {
                 let repository = repo.pointer("/full_name").unwrap_or(&Value::Null).as_str().unwrap_or_default();
                 let avi =
-                  if let Some(owner) = json.pointer("/owner") {
+                  if let Some(owner) = repo.pointer("/owner") {
                     owner.pointer("/avatar_url").unwrap_or(&Value::Null).as_str().unwrap_or_default()
                   } else { "https://cdn-icons-png.flaticon.com/512/25/25231.png" };
+                let author =
+                  if let Some(u) = json.pointer("/user") {
+                    u.pointer("/login").unwrap_or(&Value::Null).as_str().unwrap_or_default()
+                  } else { "" };
                 GITHUB_PRS.send_message(ctx, |m| m
                   .embed(|e| { let mut e = e.title(&title)
                                             .author(|a| a.icon_url(avi).name(&repository))
                                             .url(&html_url);
                     if !body.is_empty() {
                       e = e.description(body);
+                    }
+                    if !author.is_empty() {
+                      e = e.footer(|f| f.text(&format!("author: {}", author)));
                     }
                     e
                   })
@@ -81,6 +88,7 @@ pub async fn activate_dev_tracker( ctx: &Arc<Context>
             }
           }
         }
+        // TODO: do this only if there was something really
         let put_command = format!("curl -u {} -X PUT -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/notifications -d '{{\"read\":true}}'", &github);
         let _curl_put = Command::new("sh")
           .arg("-c")

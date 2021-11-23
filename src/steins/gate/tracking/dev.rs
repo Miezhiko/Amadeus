@@ -1,4 +1,7 @@
-use crate::common::constants::GITHUB_PRS;
+use crate::{
+  types::serenity::ReqwestClient,
+  common::constants::GITHUB_PRS
+};
 
 use serenity::prelude::*;
 
@@ -11,7 +14,7 @@ use serde_json::Value;
 /* every minute (stupid clippy doesn't allow me to use 1 * 60) */
 static POLL_PERIOD_SECONDS: u64 = 60;
 
-async fn parse_notification(ctx: &Context, json_str: &str) -> anyhow::Result<()> {
+async fn parse_notification(ctx: &Context, rqcl: &reqwest::Client, json_str: &str) -> anyhow::Result<()> {
   let json_array = serde_json::from_str::<Value>(json_str)?;
   if let Some(array) = json_array.as_array() {
     for json in array {
@@ -20,17 +23,29 @@ async fn parse_notification(ctx: &Context, json_str: &str) -> anyhow::Result<()>
           if last_read_at.is_null() {
             let title = subject.pointer("/title").unwrap_or(&Value::Null).as_str().unwrap_or_default();
             let url = subject.pointer("/url").unwrap_or(&Value::Null).as_str().unwrap_or_default();
-            if let Some(repo) = json.pointer("/repository") {
-              let repository = repo.pointer("/full_name").unwrap_or(&Value::Null).as_str().unwrap_or_default();
-              let avi =
-                if let Some(owner) = json.pointer("/owner") {
-                  owner.pointer("/avatar_url").unwrap_or(&Value::Null).as_str().unwrap_or_default()
-                } else { "https://cdn-icons-png.flaticon.com/512/25/25231.png" };
-              GITHUB_PRS.send_message(ctx, |m| m
-                .embed(|e| e.title(&title)
-                            .author(|a| a.icon_url(avi).name(&repository))
-                            .url(&url)
-              )).await?;
+            let res = rqcl.get(url).send().await?;
+            let j = res.json::<Value>().await?;
+            let state = j.pointer("/state").unwrap_or(&Value::Null).as_str().unwrap_or_default();
+            if state != "closed" {
+              let body = j.pointer("/body").unwrap_or(&Value::Null).as_str().unwrap_or_default();
+              let html_url = j.pointer("/html_url").unwrap_or(&Value::Null).as_str().unwrap_or_default();
+              if let Some(repo) = json.pointer("/repository") {
+                let repository = repo.pointer("/full_name").unwrap_or(&Value::Null).as_str().unwrap_or_default();
+                let avi =
+                  if let Some(owner) = json.pointer("/owner") {
+                    owner.pointer("/avatar_url").unwrap_or(&Value::Null).as_str().unwrap_or_default()
+                  } else { "https://cdn-icons-png.flaticon.com/512/25/25231.png" };
+                GITHUB_PRS.send_message(ctx, |m| m
+                  .embed(|e| { let mut e = e.title(&title)
+                                            .author(|a| a.icon_url(avi).name(&repository))
+                                            .url(&html_url);
+                    if !body.is_empty() {
+                      e = e.description(body);
+                    }
+                    e
+                  })
+                ).await?;
+              }
             }
           }
         }
@@ -45,6 +60,11 @@ pub async fn activate_dev_tracker( ctx: &Arc<Context>
   let ctx_clone = Arc::clone(ctx);
   let github: String = github_auth.to_string();
   tokio::spawn(async move {
+    let rqcl = {
+      set!{ data = ctx_clone.data.read().await
+          , rqcl = data.get::<ReqwestClient>().unwrap() };
+      rqcl.clone()
+    };
     loop {
       {
         let fetch_command = format!("curl -u {} https://api.github.com/notifications?unread=true", &github);
@@ -56,7 +76,7 @@ pub async fn activate_dev_tracker( ctx: &Arc<Context>
           .expect("failed to run dev GET curl");
         if let Ok(curl_out) = &String::from_utf8(curl.stdout) {
           if !curl_out.is_empty() {
-            if let Err(why) = parse_notification(&ctx_clone, &curl_out).await {
+            if let Err(why) = parse_notification(&ctx_clone, &rqcl, &curl_out).await {
               error!("Failed to parse github notifications {}", why);
             }
           }

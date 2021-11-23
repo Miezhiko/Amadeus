@@ -6,6 +6,24 @@ use serenity::{
 };
 
 #[check]
+#[name = "Moderator"]
+#[check_in_help(true)]
+#[display_in_help(true)]
+pub async fn moderator_check( ctx: &Context
+                            , msg: &Message
+                            , _: &mut Args
+                            , _: &CommandOptions ) -> Result<(), Reason> {
+  if let Ok(member) = msg.member(ctx).await {
+    if let Ok(permissions) = member.permissions(&ctx).await {
+      if permissions.ban_members() {
+        return Ok(());
+      }
+    }
+  }
+  Err(Reason::User("Lacked moderator permission".to_string()))
+}
+
+#[check]
 #[name = "Admin"]
 #[check_in_help(true)]
 #[display_in_help(true)]

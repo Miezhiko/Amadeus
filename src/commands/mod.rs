@@ -10,6 +10,7 @@ pub mod translation;
 pub mod bets;
 pub mod info;
 pub mod music;
+pub mod moderator;
 
 #[cfg(feature = "flo")]
 pub mod host;

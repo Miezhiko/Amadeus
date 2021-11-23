@@ -50,6 +50,7 @@
  - Transfer learning using chats context (models: [DialoGPT](https://github.com/microsoft/DialoGPT) [GPT-Neo](https://github.com/EleutherAI/gpt-neo), [DistilBERT](https://arxiv.org/abs/1910.01108) fine-tuned on SQuAD)
  - [Dhall](https://dhall-lang.org) and YAML config files, dhall for per-guild teams configurations
  - Multi-server streams notifications/trackers for twitch and goodgame.ru (using channels from dhall conf)
+ - Tracking pull requests of watching by some user repositories on GitHub and posting detailed PR embeds
  - If lazy_static_models option is `False` conv model unloads after use (DialoGPT wait for 10-30 mins)
  - Veto helper (for banning maps against some player) using W3C statistics (`~veto` command)
  - Versus command showing score for one player against another for x seasons (`~vs` command)

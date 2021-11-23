@@ -8,8 +8,37 @@ use tokio::process::Command;
 
 use serde_json::Value;
 
-/* every minute */
-static POLL_PERIOD_SECONDS: u64 = 1* 60;
+/* every minute (stupid clippy doesn't allow me to use 1 * 60) */
+static POLL_PERIOD_SECONDS: u64 = 60;
+
+async fn parse_notification(ctx: &Context, json_str: &str) -> anyhow::Result<()> {
+  let json_array = serde_json::from_str::<Value>(json_str)?;
+  if let Some(array) = json_array.as_array() {
+    for json in array {
+      if let Some(subject) = json.pointer("/subject") {
+        if let Some(last_read_at) = json.pointer("/last_read_at") {
+          if last_read_at.is_null() {
+            let title = subject.pointer("/title").unwrap_or(&Value::Null).as_str().unwrap_or_default();
+            let url = subject.pointer("/url").unwrap_or(&Value::Null).as_str().unwrap_or_default();
+            if let Some(repo) = json.pointer("/repository") {
+              let repository = repo.pointer("/full_name").unwrap_or(&Value::Null).as_str().unwrap_or_default();
+              let avi =
+                if let Some(owner) = json.pointer("/owner") {
+                  owner.pointer("/avatar_url").unwrap_or(&Value::Null).as_str().unwrap_or_default()
+                } else { "https://cdn-icons-png.flaticon.com/512/25/25231.png" };
+              GITHUB_PRS.send_message(ctx, |m| m
+                .embed(|e| e.title(&title)
+                            .author(|a| a.icon_url(avi).name(&repository))
+                            .url(&url)
+              )).await?;
+            }
+          }
+        }
+      }
+    }
+  }
+  Ok(())
+}
 
 pub async fn activate_dev_tracker( ctx: &Arc<Context>
                                  , github_auth: &str ) {
@@ -26,35 +55,9 @@ pub async fn activate_dev_tracker( ctx: &Arc<Context>
           .await
           .expect("failed to run dev GET curl");
         if let Ok(curl_out) = &String::from_utf8(curl.stdout) {
-          if let Ok(json_array) = serde_json::from_str::<Value>(curl_out) {
-            if let Some(array) = json_array.as_array() {
-              for json in array {
-                if let Some(subject) = json.pointer("/subject") {
-                  if let Some(last_read_at) = json.pointer("/last_read_at") {
-                    if last_read_at.is_null() {
-                      let title = subject.pointer("/title").unwrap().as_str().unwrap();
-                      let url = subject.pointer("/url").unwrap().as_str().unwrap();
-                      if let Some(repo) = json.pointer("/repository") {
-                        let repository = repo.pointer("/full_name").unwrap().as_str().unwrap();
-                        let avi =
-                          if let Some(owner) = json.pointer("/owner") {
-                            owner.pointer("/avatar_url").unwrap().as_str().unwrap()
-                          } else {
-                            "https://cdn-icons-png.flaticon.com/512/25/25231.png"
-                          };
-                        if let Err(why) =
-                          GITHUB_PRS.send_message(&ctx_clone, |m| m
-                            .embed(|e| e.title(&title)
-                                        .author(|a| a.icon_url(avi).name(&repository))
-                                        .url(&url)
-                          )).await {
-                          error!("failed to post PR notification: {}", why);
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+          if !curl_out.is_empty() {
+            if let Err(why) = parse_notification(&ctx_clone, &curl_out).await {
+              error!("Failed to parse github notifications {}", why);
             }
           }
         }

@@ -3,6 +3,7 @@ use crate::{
                    , ChannelLanguage
                    , AllGuilds },
   common::{ help::lang
+          , constants::PREFIX
           , db::trees::messages::{ register, check_registration }
           , msg::{ reply, channel_message }
   },
@@ -67,7 +68,7 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
           r.limit(100) // 100 is max
         ).await {
           for mmm in messages {
-            if mmm.author.id == author_id && !mmm.content.starts_with('~') {
+            if mmm.author.id == author_id && !mmm.content.starts_with(PREFIX) {
               let mut result_string = RE1.replace_all(&mmm.content, "").to_string();
               result_string = RE2.replace_all(&result_string, "").to_string();
               result_string = RE3.replace_all(&result_string, "").to_string();

@@ -2,6 +2,8 @@ use std::str;
 
 use serenity::model::id::ChannelId;
 
+pub static PREFIX: char               = '~';
+
 pub static MAIN_CHANNEL: ChannelId    = ChannelId( 611822932897038341 );
 pub static MIST_CHANNEL: ChannelId    = ChannelId( 827151604053835807 );
 pub static STREAM_PICS: ChannelId     = ChannelId( 740153825272266822 );

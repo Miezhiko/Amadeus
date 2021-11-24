@@ -1,5 +1,6 @@
 use crate::{
   common::{
+    constants::PREFIX,
     db::trees::points,
     msg::channel_message
   },
@@ -23,7 +24,7 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
     let (target, the_points) =
       if !msg.mentions.is_empty() &&
-         !(msg.mentions.len() == 1 && !msg.content.starts_with('~') && msg.mentions[0].bot) {
+         !(msg.mentions.len() == 1 && !msg.content.starts_with(PREFIX) && msg.mentions[0].bot) {
         let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
         if let Ok(p) = points::get_points( guild_id.0, target_user.id.0 ).await {
           ( &target_user.name, p )
@@ -97,7 +98,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
     if !msg.mentions.is_empty() &&
-       !(msg.mentions.len() == 1 && !msg.content.starts_with('~') && msg.mentions[0].bot) {
+       !(msg.mentions.len() == 1 && !msg.content.starts_with(PREFIX) && msg.mentions[0].bot) {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
       if target_user.id == msg.author.id {
         channel_message(ctx, msg, "you don't give points to yourself").await;

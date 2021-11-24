@@ -6,6 +6,7 @@ use crate::{
     options::IOptions
   },
   common::{ options
+          , constants::PREFIX
           , system::ShardManagerContainer
           , voice::DECODE_TYPE },
   handler::Handler,
@@ -94,7 +95,7 @@ pub async fn run(opts: &IOptions) ->
      .configure(|c| c
       .owners(owners)
       .on_mention(Some(amadeus_id))
-      .prefix("~")
+      .prefix(&PREFIX.to_string())
       .delimiters(vec![" ", "\n", "\t"])
       .case_insensitivity(true))
       .on_dispatch_error(on_dispatch_error)

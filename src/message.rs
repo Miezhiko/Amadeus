@@ -9,7 +9,7 @@ use crate::{
   common::{ db::trees::points
           , help::lang
           , msg::channel_message
-          , constants::UNBLOCK_ROLE
+          , constants::{ PREFIX, UNBLOCK_ROLE }
           },
   collections::{ base::{ REACTIONS, WHITELIST }
                , channels::{ AI_ALLOWED, IGNORED }
@@ -120,7 +120,7 @@ pub async fn process( ioptions: &IOptions
         }
       }
     }
-  } else if !msg.content.starts_with('~') {
+  } else if !msg.content.starts_with(PREFIX) {
     if let Some(guild_id) = msg.guild_id {
       if (&msg.mentions).iter().any(|u| u.bot) {
         if (&msg.mentions).iter().any(|u| u.bot && u.id == amadeus_id) {

@@ -27,7 +27,7 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
       let rndx = rand::thread_rng().gen_range(0..activity_level);
       if rndx < 2 {
         let (chanz, ru) = match rndx {
-          0 => { (MAIN_CHANNEL, false) },
+          0 => { (MAIN_CHANNEL, true) },
           _ => { (MIST_CHANNEL, true) }
         };
         let ai_text = chain::generate_with_language(&ctx_clone, ru).await;

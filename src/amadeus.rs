@@ -87,7 +87,7 @@ pub async fn run(opts: &IOptions) ->
 
   let context = IContext { lazy_static_models: opts.lazy_static_models };
 
-  // mut is used in cfg flo
+  // mut is used for optional groups
   #[allow(unused_mut)]
   let mut std_framework =
     StandardFramework::new()
@@ -95,7 +95,7 @@ pub async fn run(opts: &IOptions) ->
       .owners(owners)
       .on_mention(Some(amadeus_id))
       .prefix(&PREFIX.to_string())
-      .delimiters(vec![" ", "\n", "\t"])
+      .delimiters(vec![" ", ";", "\n", "\t"])
       .case_insensitivity(true))
       .on_dispatch_error(on_dispatch_error)
       .before(before)

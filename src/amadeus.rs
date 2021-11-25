@@ -75,7 +75,6 @@ pub async fn run(opts: &IOptions) ->
   creds.insert("twitch_client".to_string(), opts.twitch_client_id.clone());
   creds.insert("twitch_secret".to_string(), opts.twitch_client_secret.clone());
   creds.insert("flo".to_string(), opts.flo_secret.clone());
-  //creds.insert("github_auth".to_string(), opts.github_auth.clone());
 
   let mut core_guilds = HashMap::new();
   core_guilds.insert(CoreGuild::HEmo, opts.guild);

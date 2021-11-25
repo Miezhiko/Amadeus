@@ -200,8 +200,11 @@ pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
         let my_answers = &answers[0];
 
         // we have several answers (hope they sorted by score)
-        let answer = &my_answers[0];
-        Ok(answer.answer.clone())
+        if let Some(answer) = my_answers.get(0) {
+          Ok(answer.answer.clone())
+        } else {
+          Err(anyhow!("empty answer by GPT QA model"))
+        }
       }
     } else {
       Err(anyhow!("Empty QA model"))
@@ -289,7 +292,7 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String>
 }
 
 pub async fn chat(something: String, user_id: u64, lsm: bool) -> Result<String> {
-  let rndx = rand::thread_rng().gen_range(0..5);
+  let rndx = rand::thread_rng().gen_range(0..7);
   let mut input = process_message_for_gpt(&something);
   if input.len() > GPT_LIMIT {
     if let Some((i, _)) = input.char_indices().rev().nth(GPT_LIMIT) {

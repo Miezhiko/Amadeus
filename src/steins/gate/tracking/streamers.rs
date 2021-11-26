@@ -96,7 +96,6 @@ pub async fn activate_streamers_tracking(
         warn!("stream {} out with timeout", ktd);
         streams.remove(&ktd);
       }
-      trace!("streams check");
       for p in ALL.iter() {
         if let Ok(user) = ctx_clone.http.get_user(p.player.discord).await {
           setm!{ twitch_live        = false

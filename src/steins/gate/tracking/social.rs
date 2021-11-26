@@ -1,8 +1,6 @@
 use crate::{
-  common::{
-    constants::{ MAIN_CHANNEL
-               , MIST_CHANNEL }
-  },
+  common::constants::{ MAIN_CHANNEL
+                     , MIST_CHANNEL },
   steins::ai::{ cache, chain }
 };
 

@@ -41,7 +41,7 @@ fn get_discord_players() -> Vec<DiscordPlayer> {
     for player in disc.players.iter() {
       if let Some(existing) =
         discord_players.iter_mut()
-                       .find(|dp: &&mut DiscordPlayer| (**dp).player.battletag == player.battletag) {
+                       .find(|dp: &&mut DiscordPlayer| (**dp).player.discord == player.discord) {
         existing.discords.push(disc.uid);
       } else {
         let discord_player = DiscordPlayer{ player: player.clone()

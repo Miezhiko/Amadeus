@@ -76,7 +76,6 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
 
   activate_streamers_tracking(
     &ac, options, access_token.clone()
-       , servers
        ).await;
   activate_games_tracking(
     &ac, options, access_token

@@ -27,7 +27,7 @@ let discord : Discordx = { uid      = 249111029668249601
                          , games    = None Natural
                          , games2   = None Natural
                          , games4   = None Natural
-                         , streams  = None Natural
+                         , streams  = Some 913860369112506419
                          , events   = None Natural
                          , players  = playersList }
 

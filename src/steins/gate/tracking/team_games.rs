@@ -103,7 +103,6 @@ pub async fn activate_games_tracking(
         }
       }
 
-      trace!("check");
       let our_gsx = poller::check( &ctx_clone
                                  , options_clone.guild
                                  , &rqcl

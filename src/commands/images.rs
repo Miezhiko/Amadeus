@@ -20,6 +20,7 @@ struct Response {
   results: Vec<GifResult>
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct GifResult {
   url: String,

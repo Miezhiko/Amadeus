@@ -97,6 +97,7 @@ async fn qrcode(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   Ok(())
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize, Clone)]
 struct Definition {
   definition: String,

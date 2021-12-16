@@ -47,12 +47,12 @@ async fn clean_games_channel(channel: &ChannelId, ctx: &Context) {
 
 pub async fn activate_games_tracking(
                      ctx:       &Arc<Context>
-                   , options:   &IOptions
+                   , options:   &Arc<IOptions>
                    , token:     String
                    , amadeus:   u64 ) {
 
   set!{ ctx_clone     = Arc::clone(ctx)
-      , options_clone = options.clone() };
+      , options_clone = Arc::clone(options) };
 
   { // AKA lock scope
     let mut aka_lock = AKA.lock().await;

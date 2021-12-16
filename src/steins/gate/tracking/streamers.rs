@@ -4,10 +4,9 @@ use crate::{
          , twitch::Twitch
          , goodgame::GoodGameData },
   collections::team::{ ALL, DISCORDS },
-  common::{
-    constants::{ LIVE_ROLE
-               , STREAM_PICS }
-  }
+  common::constants::{ LIVE_ROLE
+                     , STREAM_PICS
+                     , MODERATION }
 };
 
 use serenity::{
@@ -28,7 +27,7 @@ use chrono::DateTime;
 use rand::Rng;
 
 async fn clear_channel(channel: ChannelId, ctx: &Context) {
-  if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(25)).await {
+  if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(10)).await {
     let mut vec_id = Vec::new();
     for message in vec_msg {
       for embed in message.embeds {
@@ -52,11 +51,11 @@ async fn clear_channel(channel: ChannelId, ctx: &Context) {
 #[allow(clippy::branches_sharing_code)]
 pub async fn activate_streamers_tracking(
                      ctx:       &Arc<Context>
-                   , options:   &IOptions
+                   , options:   &Arc<IOptions>
                    , token:     String ) {
 
   set!{ ctx_clone     = Arc::clone(ctx)
-      , options_clone = options.clone() };
+      , options_clone = Arc::clone(options) };
 
   for (d, df) in DISCORDS.iter() {
     if let Some(sc) = df.streams {
@@ -104,6 +103,25 @@ pub async fn activate_streamers_tracking(
                , image              = None
                , em_url             = None };
           if p.player.streams.is_some() && !user.bot {
+
+            // check if user is still being member of discord server
+            // TODO: recode to .any()
+            let mut do_continue = false;
+            for d in &p.discords {
+              let discord_guild_id = GuildId(*d);
+              if let Ok(guild) = discord_guild_id.to_partial_guild(&ctx_clone).await {
+                if guild.member(&ctx_clone.http, user.id).await.is_err() {
+                  if let Err(why) = MODERATION.say(&ctx_clone, &format!("streamers: missing user: {} on {}", p.player.discord, d)).await {
+                    error!("streamers: failed to report leaving user {}", why);
+                  }
+                  do_continue = true;
+                }
+              }
+            }
+            if do_continue {
+              continue;
+            }
+
             let streams = p.player.streams.clone().unwrap();
             if streams.twitch.is_some() {
               let client = reqwest::Client::new();
@@ -429,6 +447,8 @@ pub async fn activate_streamers_tracking(
 
             streams.remove(&p.player.discord);
           }
+        } else if let Err(why) = MODERATION.say(&ctx_clone, &format!("streamers: missing user: {}", p.player.discord)).await {
+          error!("failed to report missing user {}", why);
         }
         tokio::time::sleep(time::Duration::from_millis(200)).await;
       }

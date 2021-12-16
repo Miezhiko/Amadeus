@@ -68,6 +68,8 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   cache::update_cache(&ctx, &all_channels).await;
 
   let ac = std::sync::Arc::new(ctx);
+  let oc = std::sync::Arc::new(options.clone());
+
   activate_system_tracker(&ac).await;
   activate_social_skils(&ac).await;
 
@@ -75,10 +77,10 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   let access_token = opts.twitch;
 
   activate_streamers_tracking(
-    &ac, options, access_token.clone()
+    &ac, &oc, access_token.clone()
        ).await;
   activate_games_tracking(
-    &ac, options, access_token
+    &ac, &oc, access_token
        , amadeus.0
        ).await;
   activate_w3info_tracking(&ac).await;

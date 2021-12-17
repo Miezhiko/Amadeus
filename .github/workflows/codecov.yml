@@ -21,6 +21,10 @@ jobs:
       - name: Install libtorch
         run: sudo apt install libtorch
 
+      - name: Do a dirty hack for libtorch
+        run: |
+          sudo cp /usr/lib/libtorch.so /usr/lib/libtorch-cpu.so
+
       - name: Run cargo-tarpaulin
         uses: actions-rs/tarpaulin@v0.1
 

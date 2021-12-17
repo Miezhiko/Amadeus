@@ -28,6 +28,8 @@ use std::sync::{
   Arc
 };
 
+use tokio::process::Command;
+
 #[command]
 #[min_args(2)]
 #[owners_only]
@@ -230,6 +232,27 @@ async fn unban_all(ctx: &Context, msg: &Message) -> CommandResult {
       }
     }
     channel_message(ctx, msg, "Everyone unbanned =_=").await;
+  }
+  Ok(())
+}
+
+#[command]
+#[owners_only]
+#[min_args(1)]
+async fn eix(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  if let Ok(package) = args.single::<String>() {
+    let eix_command = format!("eix {}", package);
+    let eix = Command::new("sh")
+      .arg("-c")
+      .arg(&eix_command)
+      .output()
+      .await
+      .expect("failed to run eix");
+    if let Ok(eix_out) = &String::from_utf8(eix.stdout) {
+      if !eix_out.is_empty() {
+        msg.reply(ctx, &format!("```{}```", &eix_out)).await?;
+      }
+    }
   }
   Ok(())
 }

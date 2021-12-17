@@ -58,7 +58,7 @@ pub struct Info;
 #[owners_only]
 #[checks(Admin)]
 #[commands(say, set, clear_messages, upgrade
-  , update_cache, clear_chain_cache, unban_all
+  , update_cache, clear_chain_cache, unban_all, eix
   , twitch_token_update, register_role, list_message_roles)]
 pub struct Owner;
 
@@ -71,7 +71,7 @@ pub struct Admin;
 #[group("Moderator")]
 #[checks(Moderator)]
 #[help_available(false)]
-#[commands(mute, unmute, eix, eix_update)]
+#[commands(mute, unmute, move_discussion)]
 pub struct Moderator;
 
 #[cfg(feature = "flo")]

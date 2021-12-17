@@ -21,7 +21,7 @@
 [![Appveyor](https://ci.appveyor.com/api/projects/status/8cd1qi1aykujkyd2?svg=true)](https://ci.appveyor.com/project/Miezhiko/amadeus)
 [![GitHub contributors](https://img.shields.io/github/contributors/Miezhiko/Amadeus.svg?style=flat)]()
 [![GitHub last commit](https://img.shields.io/github/last-commit/Miezhiko/Amadeus.svg?style=flat)]()
-[![codecov](https://codecov.io/gh/Miezhiko/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Qeenon/Amadeus)
+[![codecov](https://codecov.io/gh/Miezhiko/Amadeus/branch/master/graph/badge.svg)](https://codecov.io/gh/Miezhiko/Amadeus)
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Miezhiko/Amadeus)
 [![Discord](https://img.shields.io/discord/611822838831251466?label=Discord&color=pink)](https://discord.gg/GdzjVvD)
 [![Twitter Follow](https://img.shields.io/twitter/follow/Miezhiko.svg?style=social)](https://twitter.com/Miezhiko)

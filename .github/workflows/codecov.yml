@@ -18,18 +18,12 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Install libtorch
-        run: sudo apt install libtorch
-
-      - name: Do a dirty hack for libtorch
-        run: |
-          sudo cp /usr/lib/libtorch.so.3.0.0 /usr/lib/libtorch.so
-          sudo cp /usr/lib/libtorch.so.3.0.0 /usr/lib/libtorch-cpu.so
-
       - name: Run cargo-tarpaulin
+        continue-on-error: true
         uses: actions-rs/tarpaulin@v0.1
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1.0.2
+        continue-on-error: true
         with:
           token: ${{secrets.CODECOV_TOKEN}}

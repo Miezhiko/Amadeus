@@ -14,14 +14,14 @@ use std::{
 
 use rand::Rng;
 
-/* every 30 minutes */
-static POLL_PERIOD_SECONDS: u64 = 30 * 60;
+/* every 2 hours */
+static POLL_PERIOD_SECONDS: u64 = 2 * 60 * 60;
 
 pub async fn activate_social_skils(ctx: &Arc<Context>) {
   let ctx_clone = Arc::clone(ctx);
   tokio::spawn(async move {
     loop {
-      let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 10;
+      let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 20;
       let rndx = rand::thread_rng().gen_range(0..activity_level);
       if rndx < 2 {
         let (chanz, ru) = match rndx {

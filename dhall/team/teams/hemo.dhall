@@ -9,7 +9,12 @@ let b = ./../functions/b.dhall
 let playersList : List Playerx =
   [ t "PriesT#12658"        180213339111161856 "PriesTwc3"
   , t "Muffy#2299"          196231768880185344 "muffy_supergosu"
-  , t "Miezhiko#2635"       510368731378089984 "Miezhiko"
+  , { battletag = "Miezhiko#2635"
+    , discord   = 510368731378089984
+    , streams   = Some { ggru = None Text
+                       , twitch = Some "Miezhiko"
+                       }
+    , other_acc = None "Маша#21485" }
   , t "hhh#2991"            510732278025027596 "hotwussy"
   , b "Reyenir#2169"        287914378513088515 "reyenir" "Cherry-Phoenix"
   , b "ag3nt#21617"         293268448212156416 "ag3ntik" "ag3nt"
@@ -27,7 +32,11 @@ let playersList : List Playerx =
   , p "RavenTT#2656"        277555411584942080
   , p "EnragedOxy#2999"     576662560120766474
   , p "OwerPidor#2503"      862690932931559464
-  , p "WindWalker#21184"    720938816810254338
+  , p     
+  , { battletag = "WindWalker#21184"
+    , discord   = 720938816810254338
+    , streams   = None Streams
+    , other_acc = None "War3Alex#2898" }
   ]
 
 let discord : Discordx = { uid      = 611822838831251466

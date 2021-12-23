@@ -30,6 +30,13 @@ let playersList : List Playerx =
   , t "" 530987638392487948 "mortada_killer0"
   , t "" 341088451644620800 "tuxlovesyou"
   , t "" 635520103701807104 "star4fun"
+  , t "" 399647015287521292 "octaasc"
+  , t "" 403340271825190933 "nihil8492"
+  , t "" 274938691900669953 "zaechus"
+  , t "" 295561288325791745 "sindibad363"
+  , t "" 265995727409381377 "hersen"
+  , t "" 371432625815945226 "fernandino456"
+  , t "" 371432625815945226 "djinnks"
   ]
 
 let discord : Discordx = { uid      = 249111029668249601

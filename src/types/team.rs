@@ -10,7 +10,8 @@ pub struct Streams {
 pub struct Player {
   pub battletag: String,
   pub discord: u64,
-  pub streams: Option<Streams>
+  pub streams: Option<Streams>,
+  pub other_acc: Option<String>
 }
 
 #[derive(Debug, Clone, Deserialize)]

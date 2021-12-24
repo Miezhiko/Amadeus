@@ -111,8 +111,8 @@ pub async fn generate_with_language(ctx: &Context, russian: bool) -> String {
 }
 
 pub async fn correct(msg: &str) -> String {
-  let nlp = NLPR_RULES.lock().await;
-  let tokenizer = NLPR_TOKENIZER.lock().await;
+  set!{ nlp = NLPR_RULES.lock().await
+      , tokenizer = NLPR_TOKENIZER.lock().await };
   nlp.correct(msg, &tokenizer)
 }
 
@@ -147,6 +147,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
       out = uwu::spell(&out);
     }
   }
+  #[cfg(feature = "torch")]
   if !russian && rndx < 30 {
     out = correct(&out).await;
   }
@@ -204,6 +205,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
   let rndx: u32 = rand::thread_rng().gen_range(0..30);
   let mut bert_generated = false;
   let in_case = CASELIST.iter().any(|u| *u == msg.author.id.0);
+  #[cfg(feature = "torch")]
   let mut answer =
     if rndx != 1 && !in_case && gtry < 10 {
       let text = if russian {
@@ -255,6 +257,8 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
       }
       generate(ctx, msg, Some(russian)).await
     };
+  #[cfg(not(feature = "torch"))]
+  let mut answer = generate(ctx, msg, Some(russian)).await;
   if russian && !answer.is_empty() {
     if bert_generated {
       match bert::en2ru(answer.clone(), lsm).await {

@@ -88,7 +88,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
       }
       let cargo_build = Command::new("sh")
                 .arg("-c")
-                .arg("cargo build --release --features trackers")
+                .arg("cargo build --release --features trackers,torch")
                 .output()
                 .await
                 .expect("failed to compile new version");

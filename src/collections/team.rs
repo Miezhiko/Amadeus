@@ -88,15 +88,6 @@ mod stuff_dhall_tests {
     }
   }
   #[test]
-  fn discords() -> Result<(), String> { 
-    let discords = get_discord_servers();
-    if discords.is_empty() {
-      Err("Can't get discord servers".into())
-    } else {
-      Ok(())
-    }
-  }
-  #[test]
   fn players() -> Result<(), String> { 
     let discord_players = get_discord_players();
     if discord_players.is_empty() {

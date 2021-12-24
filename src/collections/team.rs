@@ -13,8 +13,7 @@ fn grab_servers() -> Vec<DiscordServer> {
                   .filter_map(|p| serde_dhall::from_file(p).parse().ok())
                   .collect::<Vec<DiscordServer>>(),
     Err(why) => {
-      error!("Missing dhall/team/teams/: {}", why);
-      vec![]
+      error!("Missing dhall/team/teams/: {}", why); vec![]
     }
   }
 }
@@ -69,7 +68,26 @@ pub static PLAYERS: Lazy<Vec<&DiscordPlayer>> = Lazy::new(get_only_battlenet_pla
 #[cfg(test)]
 mod stuff_dhall_tests {
   use super::*;
- #[test]
+  #[test]
+  fn parsing_test() -> Result<(), String> {
+    match glob::glob("dhall/team/teams/*.dhall") {
+      Ok(dfs) => {
+        let fnames = dfs.filter_map(|d| d.ok())
+                        .filter_map(|r| r.into_os_string()
+                                         .into_string().ok());
+        for f in fnames {
+          if let Err(dhall_error) = serde_dhall::from_file(&f).parse::<DiscordServer>() {
+            return Err(format!("Failed to parese {}, error: {}", f, dhall_error));
+          }
+        }
+        Ok(())
+      },
+      Err(why) => {
+        Err(format!("Missing dhall/team/teams/: {}", why))
+      }
+    }
+  }
+  #[test]
   fn discords() -> Result<(), String> { 
     let discords = get_discord_servers();
     if discords.is_empty() {

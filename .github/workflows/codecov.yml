@@ -17,6 +17,7 @@ jobs:
         with:
           toolchain: nightly
           override: true
+          components: rustfmt
 
       - name: Run cargo-tarpaulin
         continue-on-error: true

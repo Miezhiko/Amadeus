@@ -33,7 +33,7 @@ use chrono::Timelike;
 #[aliases(версия)]
 #[description = "shows current version"]
 async fn version(ctx: &Context, msg: &Message) -> CommandResult {
-  let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());
+  let version = format!("Version {}", env!("CARGO_PKG_VERSION"));
   if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
     .embed(|e| e
       .title("Amadeus")
@@ -142,8 +142,8 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     msg.channel_id.say(ctx, format!("The term '{}' has no Urban Definitions", term)).await?;
   } else {
     let choice = &resp.list[0];
-    let parsed_definition = &choice.definition.replace("[", "").replace("]", "");
-    let parsed_example = &choice.example.replace("[", "").replace("]", "");
+    let parsed_definition = &choice.definition.replace('[', "").replace(']', "");
+    let parsed_example = &choice.example.replace('[', "").replace(']', "");
     let mut fields = vec![
       ("Definition", parsed_definition, false),
     ];
@@ -190,7 +190,7 @@ async fn info(ctx: &Context, msg: &Message) -> CommandResult {
       , sys_info      = get_system_info(ctx).await
       , footer = format!("Requested by {}", msg.author.name) };
 
-  eb.title(format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string()));
+  eb.title(format!("Amadeus {}", env!("CARGO_PKG_VERSION")));
   eb.color(0xf51010);
   eb.description(format!(
 "```

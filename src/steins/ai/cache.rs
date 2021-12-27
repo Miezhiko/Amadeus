@@ -256,7 +256,7 @@ pub async fn update_cache( ctx: &Context
   // enable backup/restore functionality
   RESTORE.store(true, Ordering::Relaxed);
 
-  let version = format!("Version {}", env!("CARGO_PKG_VERSION").to_string());
+  let version = format!("Version {}", env!("CARGO_PKG_VERSION"));
   ctx.set_activity(Activity::playing(&version)).await;
 }
 

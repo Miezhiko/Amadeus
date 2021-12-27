@@ -74,7 +74,7 @@ pub async fn tour_internal( ctx: &Context
                             if msk_h >= 24 {
                                msk_h -= 24;
                             }
-                            format!(" ({}:{} MSK)", msk_h.to_string(), str_min)
+                            format!(" ({}:{} MSK)", msk_h, str_min)
                           } else { String::from("") };
                         tvstr = format!("• {}:{} CET {}", str_hour, str_min, msk);
                       }

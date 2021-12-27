@@ -15,7 +15,7 @@ static_loader! {
 }
 
 pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) {
-  let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
+  let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION"));
   if let Err(why) = msg.channel_id.send_message(ctx, |m| m
     .embed(|e| e
       .title("Amadeus")
@@ -46,7 +46,7 @@ pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) 
 }
 
 pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIdentifier) {
-  let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
+  let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION"));
   if let Err(why) = msg.edit(ctx, |m| m
     .content("")
     .embed(|e| e

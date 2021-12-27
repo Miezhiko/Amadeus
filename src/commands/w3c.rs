@@ -182,7 +182,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   };
   let season = current_season();
   if let Some(userx) = get_player(&rqcl, args_msg, &season).await? {
-    let user = userx.replace("#","%23");
+    let user = userx.replace('#',"%23");
     let game_mode_uri = format!("{}/players/{}/game-mode-stats?season={}&gateWay=20", W3C_API, user, season);
     let game_mode_res = rqcl.get(&game_mode_uri).send().await?;
     let game_mode_stats: Vec<GMStats> =
@@ -466,7 +466,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   };
 
   if let Some(userx) = get_player(&rqcl, &args_msg, &season_str).await? {
-    let user = userx.replace("#","%23");
+    let user = userx.replace('#',"%23");
 
     let uri2 = format!("{}/player-stats/{}/race-on-map-versus-race?season={}", W3C_API, user, season);
     let res2 = rqcl.get(&uri2).send().await?;
@@ -616,8 +616,8 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       let name1 = &userx1.split('#').collect::<Vec<&str>>()[0];
       let name2 = &userx2.split('#').collect::<Vec<&str>>()[0];
 
-      let user1 = userx1.replace("#","%23");
-      let user2 = userx2.replace("#","%23");
+      let user1 = userx1.replace('#',"%23");
+      let user2 = userx2.replace('#',"%23");
 
       let mut match_strings = vec![];
       let mut wins = 0;

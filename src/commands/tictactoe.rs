@@ -225,7 +225,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
             let _ = m.delete_reactions(ctx).await;
             return Ok(());
           }
-        } else if !x.is_none() && !y.is_none() {
+        } else if x.is_some() && y.is_some() {
           let piece = Piece {
             pos_x: x.unwrap_or(0),
             pos_y: y.unwrap_or(0),

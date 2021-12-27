@@ -79,10 +79,10 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
         }).await;
       let message = {
         if members_string.is_empty() {
-          format!("No member named '{}' was found.", member_name.replace("@", ""))
+          format!("No member named '{}' was found.", member_name.replace('@', ""))
         } else {
           members_string.pop();
-          format!("No member named '{}' was found.\nDid you mean: {}", member_name.replace("@", ""), members_string.replace("@", ""))
+          format!("No member named '{}' was found.\nDid you mean: {}", member_name.replace('@', ""), members_string.replace('@', ""))
         }
       };
       Err(message)

@@ -2,7 +2,7 @@ use crate::checks::*;
 use crate::commands::{
   meta::*, chat::*
 , warcraft::*, w3c::*
-, owner::*, admin::*, moderator::*
+, owner::*, moderator::*
 , tictactoe::*, images::*
 , translation::*, info::*
 , bets::*, music::*
@@ -62,16 +62,10 @@ pub struct Info;
   , twitch_token_update, register_role, list_message_roles)]
 pub struct Owner;
 
-#[group("Admin")]
-#[checks(Admin)]
-#[help_available(false)]
-#[commands(ban)]
-pub struct Admin;
-
 #[group("Moderator")]
 #[checks(Moderator)]
 #[help_available(false)]
-#[commands(mute, unmute, move_discussion)]
+#[commands(ban, mute, unmute, move_discussion)]
 pub struct Moderator;
 
 #[cfg(feature = "flo")]

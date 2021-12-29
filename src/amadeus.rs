@@ -109,7 +109,6 @@ pub async fn run(opts: &IOptions) ->
       .group(&PAD_GROUP)
       .group(&INFO_GROUP)
       .group(&OWNER_GROUP)
-      .group(&ADMIN_GROUP)
       .group(&MODERATOR_GROUP)
       .help(&HELP_COMMAND);
 

@@ -2,7 +2,7 @@ use crate::{
   types::{ serenity::CoreGuild
          , options::* },
   steins::{ gate
-          , ai::{ cache, chain }
+          , ai::{ cache, chain, response }
           , warcraft::replay::{ replay_embed
                               , attach_replay }
           },
@@ -128,7 +128,7 @@ pub async fn process( ioptions: &IOptions
               , amention2 = format!("<@!{}>", amadeus_id) };
           if !msg.content.starts_with(&amention1)
           && !msg.content.starts_with(&amention2) {
-            chain::response(ctx, &msg).await;
+            response::response(ctx, &msg).await;
           }
         }
       } else {
@@ -213,7 +213,7 @@ pub async fn process( ioptions: &IOptions
           let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed);
           let rnd = rand::thread_rng().gen_range(0..activity_level);
           if rnd == 1 {
-            chain::chat(ctx, &msg).await;
+            response::chat(ctx, &msg).await;
           }
           let rnd2: u16 = rand::thread_rng().gen_range(0..2);
           if rnd2 == 1 {

@@ -1,7 +1,5 @@
 #![type_length_limit="2792949"]
 
-#![feature(stmt_expr_attributes)]
-
 #[macro_use] extern crate serde;
 #[macro_use] extern crate anyhow;
 #[macro_use] extern crate tracing;

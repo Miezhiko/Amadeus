@@ -1,7 +1,7 @@
 use crate::{ collections::{ base::GREETINGS
                           , channels::IGNORED }
            , common::i18n::{ help_i18n, US_ENG }
-           , steins::ai::chain
+           , steins::ai::response
            };
 
 use serenity::{
@@ -103,7 +103,7 @@ pub async fn unrecognised_command( ctx: &Context
       }
     }
   } else {
-    chain::response(ctx, msg).await;
+    response::response(ctx, msg).await;
   }
 }
 

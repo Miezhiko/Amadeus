@@ -214,14 +214,17 @@ impl EventHandler for Handler {
                 if let Some(role) = emoji_roles.get(id.as_u64()) {
                   if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                     if let Ok(mut member) = guild.member(&ctx, user_id).await {
-                      if let Err(why) = member.add_role(&ctx, RoleId(*role)).await {
-                        error!("Failed to assign role {:?}", why);
-                      } else {
-                        let mut roles_vector : Vec<u64> = Vec::new();
-                        for role in &member.roles {
-                          roles_vector.push(*role.as_u64());
+                      let role_id = RoleId(*role);
+                      if !member.roles.contains(&role_id) {
+                        if let Err(why) = member.add_role(&ctx, role_id).await {
+                          error!("Failed to assign role {:?}", why);
+                        } else {
+                          let mut roles_vector : Vec<u64> = Vec::new();
+                          for role in &member.roles {
+                            roles_vector.push(*role.as_u64());
+                          }
+                          roles::update_roles(guild_u64, user_u64, &roles_vector).await;
                         }
-                        roles::update_roles(guild_u64, user_u64, &roles_vector).await;
                       }
                     }
                   }
@@ -246,14 +249,17 @@ impl EventHandler for Handler {
                 if let Some(role) = emoji_roles.get(id.as_u64()) {
                   if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                     if let Ok(mut member) = guild.member(&ctx, user_id).await {
-                      if let Err(why) = member.remove_role(&ctx, RoleId(*role)).await {
-                        error!("Failed to remove role {:?}", why);
-                      } else {
-                        let mut roles_vector : Vec<u64> = Vec::new();
-                        for role in &member.roles {
-                          roles_vector.push(*role.as_u64());
+                      let role_id = RoleId(*role);
+                      if member.roles.contains(&role_id) {
+                        if let Err(why) = member.remove_role(&ctx, role_id).await {
+                          error!("Failed to remove role {:?}", why);
+                        } else {
+                          let mut roles_vector : Vec<u64> = Vec::new();
+                          for role in &member.roles {
+                            roles_vector.push(*role.as_u64());
+                          }
+                          roles::update_roles(guild_u64, user_u64, &roles_vector).await;
                         }
-                        roles::update_roles(guild_u64, user_u64, &roles_vector).await;
                       }
                     }
                   }

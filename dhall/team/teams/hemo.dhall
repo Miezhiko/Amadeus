@@ -10,7 +10,7 @@ let b = ./../functions/b.dhall
 let playersList : List Playerx =
   [ t "PriesT#12658"        180213339111161856 "PriesTwc3"
   , t "Muffy#2299"          196231768880185344 "muffy_supergosu"
-  , { battletag = "Miezhiko#2635"
+  , { battletag = "Маша#21229"
     , discord   = 510368731378089984
     , streams   = Some { ggru = None Text
                        , twitch = Some "Miezhiko"

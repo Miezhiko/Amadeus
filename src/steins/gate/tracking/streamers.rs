@@ -450,9 +450,10 @@ pub async fn activate_streamers_tracking(
         } else if let Err(why) = MODERATION.say(&ctx_clone, &format!("streamers: missing user: {}", p.player.discord)).await {
           error!("failed to report missing user {}", why);
         }
-        tokio::time::sleep(time::Duration::from_millis(200)).await;
+	// with 5 sec delay for each
+        tokio::time::sleep(time::Duration::from_secs(5)).await;
       }
-      /* every minute */
+      /* every 10 minutes */
       tokio::time::sleep(time::Duration::from_secs(60)).await;
     }
   });

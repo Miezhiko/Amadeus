@@ -5,6 +5,13 @@ use flo_grpc::game::*;
 use async_std::fs;
 use serde_json::Value;
 
+use tonic::{
+  codegen::InterceptedService,
+  Request, Status,
+};
+
+use once_cell::sync::OnceCell;
+
 pub fn get_race_num(race_x: &str) -> i32 {
   let race_vs_lower = race_x.to_lowercase();
   if race_vs_lower.starts_with('h') {
@@ -21,17 +28,27 @@ pub fn get_race_num(race_x: &str) -> i32 {
   }
 }
 
-pub async fn get_grpc_client(flo_secret: String) -> flo_controller_client::FloControllerClient<Channel> {
+// TODO : better way to pass flo secret in here
+static FLO_SECRET: OnceCell<String> = OnceCell::new();
+
+fn intercept(mut req: Request<()>) -> Result<Request<()>, Status> {
+  let flo_secret = FLO_SECRET.get().unwrap();
+  req.metadata_mut().insert("x-flo-secret", flo_secret.parse().unwrap());
+  Ok(req)
+}
+
+pub async fn get_grpc_client(flo_secret: String)
+  -> flo_controller_client::FloControllerClient<
+    InterceptedService<Channel, fn(tonic::Request<()>)
+      -> Result<tonic::Request<()>, Status>>
+  > {
   let channel = Channel::from_static("tcp://service.w3flo.com:3549")
     .connect()
     .await
     .unwrap();
-  flo_controller_client::FloControllerClient::with_interceptor(
-    channel, move |mut req: tonic::Request<()>| {
-      req.metadata_mut()
-         .insert("x-flo-secret", flo_secret.parse().unwrap());
-    Ok(req)
-  })
+  FLO_SECRET.set(flo_secret).unwrap();
+  flo_controller_client::FloControllerClient::with_interceptor( channel
+                                                              , intercept )
 }
 
 // that's very default map when map name is not provided

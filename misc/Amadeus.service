@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 Environment=DEFAULT_NODE_PATH=/usr/lib64/node_modules
 WorkingDirectory=/data/contrib/rust/Amadeus
-ExecStart=/bin/bash -c 'NODE_PATH=$DEFAULT_NODE_PATH cargo run --release --features trackers,torch'
+ExecStart=/bin/bash -c 'NODE_PATH=$DEFAULT_NODE_PATH cargo run --release --features flo,trackers,torch'
 ExecStop=killall Amadeus
 
 [Install]

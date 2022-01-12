@@ -31,7 +31,7 @@ use std::{ time::Duration
          , sync::atomic::Ordering::Relaxed
          , sync::atomic::AtomicU32 };
 
-pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(9);
+pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(10);
 static ONGOING_PAGE_SIZE: usize = 15;
 
 #[cfg(feature = "trackers")]

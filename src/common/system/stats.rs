@@ -80,8 +80,8 @@ pub async fn get_system_info(ctx: &Context) -> SysInfo {
 }
 
 pub async fn get_uptime(start: &str) -> (String, String) {
-  let nao = Utc::now();
-  let start_time = START_TIME.lock().await;
+  set!{ nao = Utc::now()
+      , start_time = START_TIME.lock().await }
   let since_start_time: Duration = nao - *start_time;
   let mut uptime_string = String::from(start);
 

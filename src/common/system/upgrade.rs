@@ -19,7 +19,6 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
                   .output()
                   .await
                   .expect("failed to execute git fetch");
-  // TODO: maybe make aka db update optional
   let _git_adak = Command::new("sh")
                   .arg("-c")
                   .arg("git add aka.yml")

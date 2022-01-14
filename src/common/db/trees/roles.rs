@@ -14,7 +14,7 @@ pub async fn update_roles( guild_id: &u64
     if mbdata.is_some() {
       let _ = storage.delete(&lump_id);
       if let Err(khm) = storage.journal_sync() {
-        error!("failed to sync {:?}", khm);
+        error!("failed to sync {khm}");
       }
     }
     if let Ok(encoded) = bincode::serialize(roles) {
@@ -25,11 +25,11 @@ pub async fn update_roles( guild_id: &u64
               error!("error on msg registration");
             }
           }, Err(not_added) => {
-            error!("error on msg registration {:?}", not_added);
+            error!("error on msg registration {not_added}");
           }
         }
         if let Err(khm) = storage.journal_sync() {
-          error!("failed to sync {:?}", khm);
+          error!("failed to sync {khm}");
         }
       }
     }
@@ -46,7 +46,7 @@ pub async fn restore_roles(guild_id: &u64, user_id: &u64) -> anyhow::Result<Vec<
       match bincode::deserialize::<Vec<u64>>(byte_data) {
         Ok(roles) => return Ok(roles),
         Err(error) => {
-          error!("Error trying to restore roles: {:?}", error);
+          error!("Error trying to restore roles: {error}");
           return Ok(vec![]);
         }
       };

@@ -61,7 +61,7 @@ pub async fn run(opts: &IOptions) ->
       }
       (owners, info.id)
     },
-    Err(why) => panic!("Could not access application info: {:?}", why),
+    Err(why) => panic!("Could not access application info: {why}"),
   };
 
   info!("application info loaded");
@@ -156,7 +156,7 @@ pub async fn run(opts: &IOptions) ->
 
   // start listening for events by starting a single shard
   if let Err(why) = client.start_autosharded().await {
-    eprintln!("An error occurred while running the client: {:?}", why);
+    eprintln!("An error occurred while running the client: {why}");
   }
 
   Ok(())

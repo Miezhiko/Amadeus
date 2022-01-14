@@ -29,14 +29,14 @@ pub async fn activate_w3info_tracking(ctx: &Arc<Context> ) {
                                     , &chan, today
                                     , false, false
                                     ).await {
-            error!("Failed to post today tour events {:?}", why);
+            error!("Failed to post today tour events, {why}");
           }
           if let Err(why) =
             warcraft::tour_internal( &ctx_clone
                                     , &chan, today + Duration::days(1)
                                     , false, false
                                     ).await {
-            error!("Failed to post tomorrow tour events {:?}", why);
+            error!("Failed to post tomorrow tour events, {why}");
           }
         }
       }

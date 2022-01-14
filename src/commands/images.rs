@@ -45,7 +45,7 @@ async fn fetch_gifs(ctx: &Context, search: &str, amount: u32, filter: &str)
   let url = Url::parse_with_params("https://api.tenor.com/v1/search",
             &[ ("q", search)
              , ("key", &tenor_key)
-             , ("limit", &format!("{}", amount))
+             , ("limit", &format!("{amount}"))
              , ("contentfilter", filter)
              ])?;
 
@@ -79,7 +79,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
     GType::Nothing => true
   } {
     if let Err(why) = msg.delete(&ctx).await {
-      error!("Error deleting original command {:?}", why);
+      error!("Error deleting original command {why}");
     }
     let filter = if nsfw {
         if msg.channel(ctx).await.unwrap().is_nsfw() {
@@ -106,7 +106,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
         msg.channel_id.send_message(ctx, |m|
           m.embed(|e| e.color(color)
                        .author(|a| a.icon_url(&msg.author.face()).name(&nick))
-                       .description(format!("{} {}", t, target_user.name))
+                       .description(format!("{t} {}", target_user.name))
                        .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
       GType::Own(o) => {
@@ -171,7 +171,7 @@ pub async fn gifs<C: Into<Colour>>( ctx: &Context
         msg.edit(ctx, |m| m.content("")
                            .embed(|e| e.color(color)
                            .author(|a| a.icon_url(&user.face()).name(&nick))
-                           .description(format!("{} {}", t, arg.unwrap_or_default()))
+                           .description(format!("{t} {}", arg.unwrap_or_default()))
                            .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
       GType::Own(o) => {
@@ -582,7 +582,7 @@ async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     return Ok(())
   }
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   let search_string = args.message();
   let filter = 

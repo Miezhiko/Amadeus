@@ -26,7 +26,7 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let points_count = args.single::<u64>()?;
     if let Ok(p) = points::get_points( guild_id.0, msg.author.id.0 ).await {
       if p < points_count {
-        let err = format!("{} only has {}, need {}", msg.author.name, p, points_count);
+        let err = format!("{} only has {p}, need {points_count}", msg.author.name);
         channel_message(ctx, msg, &err).await;
         return Ok(());
       }
@@ -61,9 +61,9 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                 if succ {
                   track.bets.push(bet);
                   if let Err(why) = msg.delete(&ctx).await {
-                    error!("Error deleting original command {:?}", why);
+                    error!("Error deleting original command {why}");
                   }
-                  let out = format!("bets **{}** on **{}**", points_count, meme.user.name);
+                  let out = format!("bets **{points_count}** on **{}**", meme.user.name);
                   let nickname_maybe =
                     if let Some(guild_id) = msg.guild_id {
                       msg.author.nick_in(&ctx, &guild_id).await
@@ -76,7 +76,7 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                     .color(0xed3e7f)
                     .author(|a| a.icon_url(&msg.author.face()).name(&nick))
                   )).await {
-                    error!("Failed to post bet {:?}", why);
+                    error!("Failed to post bet {why}");
                   }
                 } else {
                   channel_message(ctx, msg, &rst).await;

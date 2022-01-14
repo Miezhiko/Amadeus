@@ -188,7 +188,7 @@ pub async fn update_cache( ctx: &Context
                 }
                 if i_progress > progress_step {
                   let part = ((m_progress as f64/m_count as f64) * 100.0).round();
-                  let status = format!("Learning {}%", part);
+                  let status = format!("Learning {part}%");
                   ctx.set_activity(Activity::listening(&status)).await;
                   i_progress = 0;
                 } else {
@@ -234,17 +234,17 @@ pub async fn update_cache( ctx: &Context
 
   info!("Dumping chains!");
   if let Err(err) = cache_eng.save(CACHE_ENG_YML) {
-    error!("failed to save eng yml cache: {:?}", err);
+    error!("failed to save eng yml cache: {err}");
   }
   if let Err(err) = cache_ru.save(CACHE_RU_YML) {
-    error!("failed to save ru yml cache: {:?}", err);
+    error!("failed to save ru yml cache: {err}");
   }
 
   {
     let cache_str_to_save = cache_eng_str.clone();
     if let Ok(yml) = serde_yaml::to_string(&cache_str_to_save) {
       if let Err(why) = fs::write(CACHE_YML, yml).await {
-        error!("failed save yaml cache str {:?}", why);
+        error!("failed save yaml cache str {why}");
       }
     } else {
       error!("failed to serialize cache to yaml");
@@ -262,11 +262,11 @@ pub async fn update_cache( ctx: &Context
 
 // TODO: error checks
 pub async fn clear_cache() {
-  setm!{ cache_eng = CACHE_ENG.lock().await
-       , cache_ru = CACHE_RU.lock().await
-       , cache_eng_str = CACHE_ENG_STR.lock().await };
-  *cache_eng = Chain::new();
-  *cache_ru = Chain::new();
+  setm!{ cache_eng      = CACHE_ENG.lock().await
+       , cache_ru       = CACHE_RU.lock().await
+       , cache_eng_str  = CACHE_ENG_STR.lock().await };
+  *cache_eng  = Chain::new();
+  *cache_ru   = Chain::new();
   cache_eng_str.clear();
   if fs::metadata(CACHE_ENG_YML).await.is_ok() {
     let _ = fs::remove_file(CACHE_ENG_YML).await;

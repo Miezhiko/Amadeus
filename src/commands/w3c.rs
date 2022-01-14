@@ -41,7 +41,7 @@ pub async fn update_current_season(ctx: &Context) {
         , rqcl = data.get::<ReqwestClient>().unwrap() };
     rqcl.clone()
   };
-  if let Ok(res) = rqcl.get(&format!("{}/ladder/seasons", W3C_API))
+  if let Ok(res) = rqcl.get(&format!("{W3C_API}/ladder/seasons"))
                        .send()
                        .await {
     if let Ok(seasons) = res.json::<Vec<Season>>().await {
@@ -55,21 +55,21 @@ pub async fn update_current_season(ctx: &Context) {
 
 fn current_season() -> String {
   let atom = CURRENT_SEASON.load(Relaxed);
-  format!("{}", atom)
+  format!("{atom}")
 }
 
 #[command]
 #[description("shows ongoing matches on W3Champions")]
 async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let rqcl = {
     set!{ data = ctx.data.read().await
         , rqcl = data.get::<ReqwestClient>().unwrap() };
     rqcl.clone()
   };
-  let url = format!("{}/matches/ongoing?offset=0&gameMode=1", W3C_API);
+  let url = format!("{W3C_API}/matches/ongoing?offset=0&gameMode=1");
   let res = rqcl.get(&url).send().await?;
   let going: Going = res.json().await?;
   if !going.matches.is_empty() {
@@ -146,8 +146,7 @@ async fn get_player(rqcl: &Arc<reqwest::Client>, target: &str, season: &str) -> 
   }
   else {
     let search_uri =
-      format!("{}/ladder/search?gateWay=20&searchFor={}&season={}"
-             , W3C_API, target, season);
+      format!("{W3C_API}/ladder/search?gateWay=20&searchFor={target}&season={season}");
     let search: Vec<Search> = rqcl.get(&search_uri).send().await?.json::<Vec<Search>>().await?;
     if !search.is_empty() {
       // search for ToD will give toy Toddy at first, so we search for exact match
@@ -183,7 +182,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let season = current_season();
   if let Some(userx) = get_player(&rqcl, args_msg, &season).await? {
     let user = userx.replace('#',"%23");
-    let game_mode_uri = format!("{}/players/{}/game-mode-stats?season={}&gateWay=20", W3C_API, user, season);
+    let game_mode_uri = format!("{W3C_API}/players/{user}/game-mode-stats?season={season}&gateWay=20");
     let game_mode_res = rqcl.get(&game_mode_uri).send().await?;
     let game_mode_stats: Vec<GMStats> =
       match game_mode_res.json::<Vec<GMStats>>().await {
@@ -191,7 +190,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         Err(wha) => {
           let game_mode_res2 = rqcl.get(&game_mode_uri).send().await?;
           if let Ok(text_res) = game_mode_res2.text().await {
-            error!("{:?} on {}", wha, text_res);
+            error!("{wha} on {text_res}");
           }
           vec![]
         }
@@ -213,13 +212,13 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           } else {
             league_avi = get_league_png(lid);
             if lid > 1 {
-              format!("*League*: **{}** *Division:* **{}**", league_str, gmstat.division)
+              format!("*League*: **{league_str}** *Division:* **{}**", gmstat.division)
             } else {
-              format!("*League*: **{}**", league_str)
+              format!("*League*: **{league_str}**")
             }
           };
-        league_info = format!("**Winrate**: **{}%** **MMR**: __**{}**__\n{} *Rank*: **{}**",
-          winrate, gmstat.mmr, &league_division, gmstat.rank);
+        league_info = format!("**Winrate**: **{winrate}%** **MMR**: __**{}**__\n{} *Rank*: **{}**",
+          gmstat.mmr, &league_division, gmstat.rank);
       } else if gmstat.gameMode == 2 {
         set!{ lid         = gmstat.leagueOrder
             , league_str  = get_league(lid)
@@ -227,12 +226,12 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         let league_division = if gmstat.games < 5 {
           String::from("Calibrating")
         } else if lid > 1 {
-          format!("**{}** *div:* **{}**", league_str, gmstat.division)
+          format!("**{league_str}** *div:* **{}**", gmstat.division)
         } else {
-          format!("**{}**", league_str)
+          format!("**{league_str}**")
         };
-        rt_string = format!("{} *games* {} *Rank*: {} __**{}%**__ *MMR*: __**{}**__",
-          gmstat.games, league_division, gmstat.rank, winrate, gmstat.mmr);
+        rt_string = format!("{} *games* {league_division} *Rank*: {} __**{winrate}%**__ *MMR*: __**{}**__",
+          gmstat.games, gmstat.rank, gmstat.mmr);
       } else if gmstat.gameMode == 5 {
         set!{ lid         = gmstat.leagueOrder
             , league_str  = get_league(lid)
@@ -240,12 +239,12 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         let league_division = if gmstat.games < 5 {
           String::from("Calibrating")
         } else if lid > 1 {
-          format!("**{}** *Division:* **{}**", league_str, gmstat.division)
+          format!("**{league_str}** *Division:* **{}**", gmstat.division)
         } else {
-          format!("**{}**", league_str)
+          format!("**{league_str}**")
         };
-        ffa_info = format!("{} *Rank*: **{}** *Winrate*: **{}%** *MMR*: __**{}**__",
-          league_division, gmstat.rank, winrate, gmstat.mmr);
+        ffa_info = format!("{league_division} *Rank*: **{}** *Winrate*: **{winrate}%** *MMR*: __**{}**__",
+          gmstat.rank, gmstat.mmr);
       } else if gmstat.gameMode == 6 {
         let players = gmstat.playerIds;
         let mut player_str = String::new();
@@ -261,12 +260,12 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         let league_division = if gmstat.games < 5 {
           String::from("Calibrating")
         } else if lid > 1 {
-          format!("**{}** *div:* **{}**", league_str, gmstat.division)
+          format!("**{league_str}** *div:* **{}**", gmstat.division)
         } else {
-          format!("**{}**", league_str)
+          format!("**{league_str}**")
         };
-        let strnfo = format!("__**{}**__ {} *games* {} *Rank*: {} __**{}%**__ *MMR*: __**{}**__",
-          &player_str, gmstat.games, league_division, gmstat.rank, winrate, gmstat.mmr);
+        let strnfo = format!("__**{}**__ {} *games* {league_division} *Rank*: {} __**{winrate}%**__ *MMR*: __**{}**__",
+          &player_str, gmstat.games, gmstat.rank, gmstat.mmr);
         at_list.push((gmstat.mmr, strnfo));
       }
     }
@@ -279,7 +278,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       }
     }
 
-    let uri = format!("{}/players/{}/race-stats?season={}&gateWay=20", W3C_API, user, season);
+    let uri = format!("{W3C_API}/players/{user}/race-stats?season={season}&gateWay=20");
     let res = rqcl.get(&uri).send().await?;
     let stats: Vec<Stats> =
       match res.json::<Vec<Stats>>().await {
@@ -315,7 +314,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       for stat in &stats {
         let race = get_race(stat.race);
         let winrate = (stat.winrate * 100.0).round();
-        stats_by_races = format!("{}\n**{}**\t: *wins*: {}, *loses*: {}, *winrate*: **{}%**", stats_by_races, race, stat.wins, stat.losses, winrate);
+        stats_by_races = format!("{stats_by_races}\n**{race}**\t: *wins*: {}, *loses*: {}, *winrate*: **{winrate}%**", stat.wins, stat.losses);
       }
 
       let max_games: Option<&Stats> = stats.iter().max_by_key(|s| s.games);
@@ -342,7 +341,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
       let mut description = format!("[{}] {}\n", &userx, &league_info);
 
-      let uri2 = format!("{}/player-stats/{}/race-on-map-versus-race?season={}", W3C_API, user, season);
+      let uri2 = format!("{W3C_API}/player-stats/{user}/race-on-map-versus-race?season={season}");
       let res2 = rqcl.get(&uri2).send().await?;
       let stats2_mb: Option<Stats2> =
         match res2.json::<Stats2>().await {
@@ -350,7 +349,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           Err(wha2) => {
             let sms2_res_2 = rqcl.get(&uri2).send().await?;
             if let Ok(text_res) = sms2_res_2.text().await {
-              error!("{:?} on {}", wha2, text_res);
+              error!("{wha2} on {text_res}");
             }
             None
           }
@@ -372,7 +371,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                 let mut scores: HashMap<u32, String> = HashMap::new();
                 for s5 in &s4.winLosses {
                   let vs_winrate = (s5.winrate * 100.0).round();
-                  let text = format!("{}%", vs_winrate);
+                  let text = format!("{vs_winrate}%");
                   scores.insert(s5.race, text);
                 }
                 table.add_row(vec![
@@ -390,7 +389,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
             }
           }
         }
-        description = format!("{}```\n{}\n```", description, table);
+        description = format!("{description}```\n{table}\n```");
       }
 
       let footer = if !msg.author.bot {
@@ -419,18 +418,18 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           .fields(additional_info)
           .colour(main_race_colors)
           .footer(|f| f.text(footer)))).await {
-        error!("Error sending stats message: {:?}", why);
+        error!("Error sending stats message: {why}");
       }
     } else {
-      let resp = format!("User {} not found", args_msg);
+      let resp = format!("User {args_msg} not found");
       channel_message(ctx, msg, &resp).await;
     }
   } else {
-    let resp = format!("Search on {} found no users", args_msg);
+    let resp = format!("Search on {args_msg} found no users");
     channel_message(ctx, msg, &resp).await;
   }
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   if let Ok(typing) = start_typing {
     typing.stop();
@@ -468,7 +467,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(userx) = get_player(&rqcl, &args_msg, &season_str).await? {
     let user = userx.replace('#',"%23");
 
-    let uri2 = format!("{}/player-stats/{}/race-on-map-versus-race?season={}", W3C_API, user, season);
+    let uri2 = format!("{W3C_API}/player-stats/{user}/race-on-map-versus-race?season={season}");
     let res2 = rqcl.get(&uri2).send().await?;
     let stats2_mb: Option<Stats2> =
       match res2.json::<Stats2>().await {
@@ -476,7 +475,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         Err(wha2) => {
           let sms2_res_2 = rqcl.get(&uri2).send().await?;
           if let Ok(text_res) = sms2_res_2.text().await {
-            error!("{:?} on {}", wha2, text_res);
+            error!("{wha2} on {text_res}");
           }
           None
         }
@@ -545,7 +544,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
       for sx in 0..seasons {
         let previous_season = season - sx;
-        let uri3 = format!("{}/player-stats/{}/race-on-map-versus-race?season={}", W3C_API, user, previous_season);
+        let uri3 = format!("{W3C_API}/player-stats/{user}/race-on-map-versus-race?season={previous_season}");
         if let Ok(res3) = rqcl.get(&uri3).send().await {
           if let Ok(stats3) = res3.json::<Stats2>().await {
             process_stats2(stats3);
@@ -557,7 +556,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
       let mut out = String::new();
       for (w, m, ww, ll) in winrate_maps {
-        out = format!("{}**{}**\t\t{}% **{}**W - **{}**L\n", out, m, w, ww, ll);
+        out = format!("{out}**{m}**\t\t{w}% **{ww}**W - **{ll}**L\n");
       }
 
       let footer = format!("Requested by {}", msg.author.name);
@@ -565,9 +564,9 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
           .embed(|e| e
           .title(&format!("{} vs {}", &userx, &race_vs))
           .description(out)
-          .url(&format!("https://www.w3champions.com/player/{}/statistics", user))
+          .url(&format!("https://www.w3champions.com/player/{user}/statistics"))
           .footer(|f| f.text(footer)))).await {
-        error!("Error sending veto message: {:?}", why);
+        error!("Error sending veto message: {why}");
       }
     }
 
@@ -575,7 +574,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     channel_message(ctx, msg, "Search found no users with that nickname").await;
   }
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   if let Ok(typing) = start_typing {
     typing.stop();
@@ -627,7 +626,7 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         let vs_uri = format!("{}/matches/search?playerId={}&gateway=20&offset=0&opponentId={}&season={}",
                                 W3C_API, user1, user2, previous_season);
 
-        debug!("VS: {}", vs_uri);
+        debug!("VS: {vs_uri}");
         let ress = rqcl.get(&vs_uri).send().await?;
         let rest: Going = ress.json().await?;
         for m in rest.matches.iter() {
@@ -661,9 +660,9 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                   } else {
                     loses += 1;
                   }
-                  p1s = format!("{} ({}) {}", name1, race, if_ping);
+                  p1s = format!("{name1} ({race}) {if_ping}");
                 } else {
-                  p2s = format!("{} ({}) {}", name2, race, if_ping);
+                  p2s = format!("{name2} ({race}) {if_ping}");
                 }
               }
             }
@@ -690,19 +689,19 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
             .description(match_strings.join("\n"))
             .footer(|f| f.text(footer)))).await {
-          error!("Error sending veto message: {:?}", why);
+          error!("Error sending veto message: {why}");
         }
       } else {
         channel_message(ctx, msg, "No games for those players in selected seasons").await;
       }
     } else {
-      channel_message(ctx, msg, &format!("Can't find {}", p2)).await;
+      channel_message(ctx, msg, &format!("Can't find {p2}")).await;
     }
   } else {
-    channel_message(ctx, msg, &format!("Can't find {}", p1)).await;
+    channel_message(ctx, msg, &format!("Can't find {p1}")).await;
   }
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   if let Ok(typing) = start_typing {
     typing.stop();

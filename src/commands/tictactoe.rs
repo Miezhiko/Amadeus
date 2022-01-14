@@ -64,7 +64,7 @@ impl Display for Board {
     for (index, i) in self.table.iter().enumerate() {
       if index % 3 == 0 {
         x+=1;
-        board += &format!("\n{} ", x);
+        board += &format!("\n{x} ");
       }
       board += &format!("| {} ", {
         if let Some(piece) = &i.typ {
@@ -74,7 +74,7 @@ impl Display for Board {
         }
       });
     }
-    write!(f, "{}", board)
+    write!(f, "{board}")
   }
 }
 
@@ -131,20 +131,20 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
   if points_count > 0 {
     if let Ok(p1) = points::get_points( guild_id.0, msg.author.id.0 ).await {
       if p1 < points_count {
-        let err = format!("{} only has {}, need {}", msg.author.name, p1, points_count);
+        let err = format!("{} only has {p1}, need {points_count}", msg.author.name);
         channel_message(ctx, msg, &err).await;
         return Ok(());
       }
     }
     if let Ok(p2) = points::get_points( guild_id.0, other_player.id.0 ).await {
       if p2 < points_count {
-        let err = format!("{} only has {}, need {}", other_player.name, p2, points_count);
+        let err = format!("{} only has {p2}, need {points_count}", other_player.name);
         channel_message(ctx, msg, &err).await;
         return Ok(());
       }
     }
   }
-  let mut confirmation = msg.channel_id.say(ctx, format!("{}: Will you play TicTacToe for {} points?", other_player.mention(), points_count)).await?;
+  let mut confirmation = msg.channel_id.say(ctx, format!("{}: Will you play TicTacToe for {points_count} points?", other_player.mention())).await?;
   confirmation.react(ctx, '✅').await?;
   confirmation.react(ctx, '❌').await?;
   loop {
@@ -256,13 +256,13 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
                                              , winner.id.0
                                              , points_count ).await;
         if succ {
-          let out = format!("{} to {}", rst, winner.name);
+          let out = format!("{rst} to {}", winner.name);
           if let Err(why) = msg.channel_id.send_message(ctx, |m| m
             .embed(|e| e
             .description(&out)
             .footer(|f| f.text(&loser.name))
           )).await {
-            error!("Failed to post give {:?}", why);
+            error!("Failed to post give {why}");
           }
         } else {
           channel_message(ctx, msg, &rst).await;

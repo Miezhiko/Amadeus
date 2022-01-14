@@ -40,18 +40,18 @@ pub async fn rejoin_voice_channel(ctx: &Context, conf: &ROptions) {
     let (_call, j) = manager.join(last_guild_conf, last_channel_conf).await;
 
     if j.is_ok() {
-      info!("Rejoined voice channel: {}", last_channel_conf);
+      info!("Rejoined voice channel: {last_channel_conf}");
       if !conf.last_stream.is_empty() {
         if let Some(handler_lock) = manager.get(last_guild_conf) {
           let mut handler = handler_lock.lock().await;
           match songbird::ytdl(&conf.last_stream).await {
             Ok(source) => { handler.play_source(source); },
-            Err(why)   => { error!("Err starting source {:?}", why); }
+            Err(why)   => { error!("Err starting source {why}"); }
           };
         }
       }
     } else {
-      error!("Failed to rejoin voice channel: {}", last_channel_conf);
+      error!("Failed to rejoin voice channel: {last_channel_conf}");
     }
   }
 }
@@ -106,13 +106,13 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
     }
 
     if let Err(why) = msg.channel_id.say(&ctx, &format!("I've joined {}", connect_to.mention())).await {
-      error!("failed to say joined {:?}", why);
+      error!("failed to say joined {why}");
     }
   } else {
     direct_message(ctx, msg, "Some error joining the channel...").await;
   }
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   Ok(())
 }
@@ -126,7 +126,7 @@ pub async fn join_slash(ctx: &Context, user: &User, guild: &Guild) -> anyhow::Re
     Some(channel) => channel,
     None => {
       if let Err(why) = user.dm(ctx, |m| m.content("You're not in a voice channel")).await {
-        error!("Error DMing user: {:?}", why);
+        error!("Error DMing user: {why}");
       }
       return Ok(());
     }
@@ -179,7 +179,7 @@ pub async fn leave(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
   let has_handler = manager.get(guild_id).is_some();
   if has_handler {
     if let Err(why) = manager.remove(guild_id).await {
-      error!("Error removing songbird manager from guild: {:?}", why);
+      error!("Error removing songbird manager from guild: {why}");
     }
     let _ = msg.channel_id.say(&ctx, "I left voice channel");
     let mut conf = options::get_roptions().await?;
@@ -191,7 +191,7 @@ pub async fn leave(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
     reply(ctx, msg, "I'm not in a voice channel").await;
   }
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   Ok(())
 }
@@ -230,8 +230,8 @@ pub async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
     let source = match songbird::ytdl(&url).await {
       Ok(source) => source,
       Err(why) => {
-        error!("Err starting source {:?}", why);
-        reply(ctx, msg, &format!("Sorry, error sourcing ffmpeg {:?}", why)).await;
+        error!("Err starting source {why}");
+        reply(ctx, msg, &format!("Sorry, error sourcing ffmpeg {why}")).await;
         return Ok(());
       }
     };
@@ -242,12 +242,12 @@ pub async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
       conf.last_stream = url.clone();
       options::put_roptions(&conf).await?;
     }
-    reply(ctx, msg, &format!("playing stream: {}", url)).await;
+    reply(ctx, msg, &format!("playing stream: {url}")).await;
   } else {
     reply(ctx, msg, "Not in a voice channel to play in...").await;
   }
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   Ok(())
 }

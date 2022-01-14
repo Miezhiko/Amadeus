@@ -22,7 +22,7 @@ pub async fn register_message( guild_id: &u64
         { // delte existing node
           let _ = storage.delete(&lump_id);
           if let Err(khm) = storage.journal_sync() {
-            error!("failed to sync {:?}", khm);
+            error!("failed to sync {khm}");
           }
         }
         if let Ok(encoded) = bincode::serialize(&emoji_role) {
@@ -33,10 +33,10 @@ pub async fn register_message( guild_id: &u64
                   error!("error updating message emoji roles");
                 }
                 if let Err(khm) = storage.journal_sync() {
-                  error!("failed to sync {:?}", khm);
+                  error!("failed to sync {khm}");
                 }
               }, Err(ecn) => {
-                error!("Something wrong with cannyls: {:?}", ecn);
+                error!("Something wrong with cannyls: {ecn}");
               }
             }
           }
@@ -53,11 +53,11 @@ pub async fn register_message( guild_id: &u64
                 error!("error on msg registration");
               }
             }, Err(not_added) => {
-              error!("error on msg registration {:?}", not_added);
+              error!("error on msg registration {not_added}");
             }
           }
           if let Err(khm) = storage.journal_sync() {
-            error!("failed to sync {:?}", khm);
+            error!("failed to sync {khm}");
           }
         }
       }
@@ -75,7 +75,7 @@ pub async fn message_roles(guild_id: &u64, message_id: &u64) -> anyhow::Result<O
       match bincode::deserialize::<HashMap<u64, u64>>(byte_data) {
         Ok(roles) => return Ok(Some(roles)),
         Err(error) => {
-          error!("Error trying to restore roles: {:?}", error);
+          error!("Error trying to restore roles: {error}");
           return Ok(None);
         }
       };

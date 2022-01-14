@@ -81,7 +81,7 @@ impl EventHandler for Handler {
                               .hoist(false)
                               .mentionable(false)
                               .name(UNBLOCK_ROLE)).await {
-                        error!("Failed to create UNBLOCK role, {:?}", why);
+                        error!("Failed to create UNBLOCK role, {why}");
                       }
                     }
                     if guild.role_by_name(LIVE_ROLE).is_none() {
@@ -92,7 +92,7 @@ impl EventHandler for Handler {
                               .position(100) // bigger = higher
                               .mentionable(false)
                               .name(LIVE_ROLE)).await {
-                        error!("Failed to create LIVE role, {:?}", why);
+                        error!("Failed to create LIVE role, {why}");
                       }
                     }
                     if guild.role_by_name(MUTED_ROLE).is_none() {
@@ -103,7 +103,7 @@ impl EventHandler for Handler {
                               .position(100) // bigger = higher
                               .mentionable(false)
                               .name(MUTED_ROLE)).await {
-                        error!("Failed to create muted role, {:?}", why);
+                        error!("Failed to create muted role, {why}");
                       }
                     }
                   }
@@ -114,7 +114,7 @@ impl EventHandler for Handler {
         } else {
           info!("leaving guild: {:?}", guild_id.0);
           if let Err(why) = guild_id.leave(&ctx).await {
-            error!("Failed to leave guild {:?}", why);
+            error!("Failed to leave guild {why}");
           }
         }
       } else {
@@ -149,7 +149,7 @@ impl EventHandler for Handler {
           if let Some(role) = guild.role_by_name(MUTED_ROLE) {
             if !member.roles.contains(&role.id) {
               if let Err(why) = member.add_role(&ctx, role).await {
-                error!("Failed to assign muted role {:?}", why);
+                error!("Failed to assign muted role {why}");
               } else {
                 let mut found_users = vec![];
                 for (i, u) in muted_lock.iter().enumerate() {
@@ -170,7 +170,7 @@ impl EventHandler for Handler {
                                            , member.user.id.as_u64() ).await {
       for role in roles {
         if let Err(why) = member.add_role(&ctx, role).await {
-          error!("Failed to reset role for user {:?}", why);
+          error!("Failed to reset role for user {why}");
         }
       }
     }
@@ -198,7 +198,7 @@ impl EventHandler for Handler {
           .title(title)
           .timestamp(chrono::Utc::now().to_rfc3339())
         })).await {
-      error!("Failed to log leaving user {:?}", why);
+      error!("Failed to log leaving user {why}");
     }
   }
 
@@ -217,7 +217,7 @@ impl EventHandler for Handler {
                       let role_id = RoleId(*role);
                       if !member.roles.contains(&role_id) {
                         if let Err(why) = member.add_role(&ctx, role_id).await {
-                          error!("Failed to assign role {:?}", why);
+                          error!("Failed to assign role {why}");
                         } else {
                           let mut roles_vector : Vec<u64> = Vec::new();
                           for role in &member.roles {
@@ -252,7 +252,7 @@ impl EventHandler for Handler {
                       let role_id = RoleId(*role);
                       if member.roles.contains(&role_id) {
                         if let Err(why) = member.remove_role(&ctx, role_id).await {
-                          error!("Failed to remove role {:?}", why);
+                          error!("Failed to remove role {why}");
                         } else {
                           let mut roles_vector : Vec<u64> = Vec::new();
                           for role in &member.roles {
@@ -277,6 +277,7 @@ impl EventHandler for Handler {
                          , channel_id: ChannelId
                          , deleted_message_id: MessageId
                          , _guild_id: Option<GuildId> ) {
+
     if RESTORE.load(Ordering::Relaxed) {
       if !AI_ALLOWED.iter().any(|c| c.id == channel_id.0) {
         return;
@@ -297,7 +298,8 @@ impl EventHandler for Handler {
                   if let Ok(deleter) = ctx.http.get_user(entry.user_id.0).await {
                     if !deleter.bot {
                       // message was removed by admin or by author
-                      info!("{} or {} was trying to remove message", deleter.name, msg.author.name);
+                      info!("{} or {} was trying to remove message", deleter.name
+                                                                   , msg.author.name);
                       // log(&ctx, &guild_id, &log_text).await;
                       // But I don't allow it
                       for file in &msg.attachments {
@@ -307,7 +309,7 @@ impl EventHandler for Handler {
                             filename: String::from(&file.filename)
                           };
                           if let Err(why) = channel_id.send_message(&ctx, |m| m.add_file(cow)).await {
-                            error!("Failed to download and post attachment {:?}", why);
+                            error!("Failed to download and post attachment {why}");
                           }
                         }
                       }
@@ -315,7 +317,7 @@ impl EventHandler for Handler {
                         if let Err(why) = channel_id.send_message(&ctx, |m|
                             m.content(&msg.content)
                           ).await {
-                          error!("Failed to post my message again, {:?}", why);
+                          error!("Failed to post my message again, {why}");
                         };
                       }
                       for embed in &msg.embeds {
@@ -324,7 +326,7 @@ impl EventHandler for Handler {
                             *e = CreateEmbed::from(embed.clone());
                             e })
                         }).await {
-                          error!("Error reposting embed {:?}", why);
+                          error!("Error reposting embed {why}");
                         }
                       }
                     }

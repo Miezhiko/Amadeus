@@ -131,7 +131,7 @@ pub async fn ru2en(text: String, lsm: bool) -> Result<String> {
   if enru_model.is_none() {
     *enru_model = Some( enru_model_loader() );
   }
-  if ! lsm {
+  if !lsm {
     let mut enru_model_model_used = ENRUMODEL_USED.lock().await;
     *enru_model_model_used = Some(Utc::now());
   }

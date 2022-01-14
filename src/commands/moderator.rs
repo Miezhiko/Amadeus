@@ -24,7 +24,7 @@ async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
           if let Some(role) = guild.role_by_name(MUTED_ROLE) {
             if !member.roles.contains(&role.id) {
               if let Err(why) = member.add_role(&ctx, role).await {
-                error!("Failed to assign muted role {:?}", why);
+                error!("Failed to assign muted role {why}");
               }
             }
           }
@@ -48,7 +48,7 @@ async fn unmute(ctx: &Context, msg: &Message) -> CommandResult {
           if let Some(role) = guild.role_by_name(MUTED_ROLE) {
             if member.roles.contains(&role.id) {
               if let Err(why) = member.remove_role(&ctx, role).await {
-                error!("Failed to unassign muted role {:?}", why);
+                error!("Failed to unassign muted role {why}");
               }
             }
           }

@@ -71,10 +71,10 @@ async fn bert_translate( ctx: &Context
 pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{}\n", text), false),
+    ("Text", format!("{text}\n"), false),
   ];
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
@@ -88,7 +88,7 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
   match bert_translate(ctx, text.clone(), Language::English, Language::Russian).await {
     Ok(out) => {
       let fields = vec![
-        ("Text", format!("{}\n", text), false),
+        ("Text", format!("{text}\n"), false),
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
@@ -103,7 +103,7 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
       }
     },
     Err(why) => {
-      error!("Translation failed: {:?}", why);
+      error!("Translation failed: {why}");
     }
   }
   Ok(())
@@ -116,10 +116,10 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
 pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{}\n", text), false),
+    ("Text", format!("{text}\n"), false),
   ];
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
@@ -133,7 +133,7 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
   match bert_translate(ctx, text.clone(), Language::Russian, Language::English).await {
     Ok(out) => {
       let fields = vec![
-        ("Text", format!("{}\n", text), false),
+        ("Text", format!("{text}\n"), false),
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
@@ -148,7 +148,7 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
       }
     },
     Err(why) => {
-      error!("Translation failed: {:?}", why);
+      error!("Translation failed: {why}");
     }
   }
   Ok(())
@@ -160,10 +160,10 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
 async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{}\n", text), false),
+    ("Text", format!("{text}\n"), false),
   ];
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
@@ -177,7 +177,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   match bert_translate(ctx, text.clone(), Language::English, Language::German).await {
     Ok(out) => {
       let fields = vec![
-        ("Text", format!("{}\n", text), false),
+        ("Text", format!("{text}\n"), false),
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
@@ -192,7 +192,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       }
     },
     Err(why) => {
-      error!("Translation failed: {:?}", why);
+      error!("Translation failed: {why}");
     }
   }
   Ok(())
@@ -204,10 +204,10 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{}\n", text), false),
+    ("Text", format!("{text}\n"), false),
   ];
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
@@ -221,7 +221,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   match bert_translate(ctx, text.clone(), Language::German, Language::English).await {
     Ok(out) => {
       let fields = vec![
-        ("Text", format!("{}\n", text), false),
+        ("Text", format!("{text}\n"), false),
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
@@ -236,7 +236,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       }
     },
     Err(why) => {
-      error!("Translation failed: {:?}", why);
+      error!("Translation failed: {why}");
     }
   }
   Ok(())
@@ -248,10 +248,10 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{}\n", text), false),
+    ("Text", format!("{text}\n"), false),
   ];
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
@@ -265,7 +265,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   match bert_translate(ctx, text.clone(), Language::English, Language::French).await {
     Ok(out) => {
       let fields = vec![
-        ("Text", format!("{}\n", text), false),
+        ("Text", format!("{text}\n"), false),
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
@@ -280,7 +280,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       }
     },
     Err(why) => {
-      error!("Translation failed: {:?}", why);
+      error!("Translation failed: {why}");
     }
   }
   Ok(())
@@ -292,10 +292,10 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let text = args.message().to_string();
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{}\n", text), false),
+    ("Text", format!("{text}\n"), false),
   ];
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
@@ -309,7 +309,7 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   match bert_translate(ctx, text.clone(), Language::French, Language::English).await {
     Ok(out) => {
       let fields = vec![
-        ("Text", format!("{}\n", text), false),
+        ("Text", format!("{text}\n"), false),
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
@@ -324,7 +324,7 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       }
     },
     Err(why) => {
-      error!("Translation failed: {:?}", why);
+      error!("Translation failed: {why}");
     }
   }
   Ok(())

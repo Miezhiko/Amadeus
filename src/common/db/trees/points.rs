@@ -33,7 +33,7 @@ pub async fn add_points( guild_id: u64
                     error!("error updating points");
                   }
                 }, Err(not_added) => {
-                  error!("failed to add points {:?}", not_added);
+                  error!("failed to add points {not_added}");
                 }
               }
             }
@@ -48,17 +48,17 @@ pub async fn add_points( guild_id: u64
                     error!("error on points initialization");
                   }
                 }, Err(not_added) => {
-                  error!("error on points initialization {:?}", not_added);
+                  error!("error on points initialization {not_added}");
                 }
               }
             }
           }
         }
         if let Err(khm) = storage.journal_sync() {
-          error!("failed to sync {:?}", khm);
+          error!("failed to sync {khm}");
         }
       }, Err(why) => {
-        error!("Failed to get key: {:?}", why);
+        error!("Failed to get key: {why}");
       }
     }
   }).await.unwrap();
@@ -110,9 +110,9 @@ pub async fn give_points( guild_id: u64
               if let Err(khm) = storage.journal_sync() {
                 error!("failed to sync {:?}", khm);
               }
-              (true, format!("{} points transfered", points_count))
+              (true, format!("{points_count} points transfered"))
             }, Err(why) => {
-              error!("Failed to get key: {:?}", why);
+              error!("Failed to get key: {why}");
               (false, String::from("error accessing points"))
             }
           }
@@ -123,7 +123,7 @@ pub async fn give_points( guild_id: u64
         (false, String::from("you have no points to give"))
       }
     }, Err(why) => {
-      error!("Failed to get key: {:?}", why);
+      error!("Failed to get key: {why}");
       (false, String::from("error accessing points"))
     }
   }
@@ -139,7 +139,7 @@ pub async fn get_points(guild_id: u64, user_id: u64) -> anyhow::Result<u64> {
       match bincode::deserialize::<Points>(byte_data) {
         Ok(points) => return Ok(points.count),
         Err(get_error) => {
-          error!("Get error: {:?}", get_error);
+          error!("Get error: {get_error}");
           return Ok(0);
         }
       };
@@ -182,11 +182,11 @@ pub async fn add_win_points( guild_id: u64
                     error!("error updating points");
                   }
                   if let Err(khm) = storage.journal_sync() {
-                    error!("failed to sync {:?}", khm);
+                    error!("failed to sync {khm}");
                   }
                   points.streak
                 }, Err(ecn) => {
-                  error!("Something wrong with cannyls: {:?}", ecn);
+                  error!("Something wrong with cannyls: {ecn}");
                   0
                 }
               }
@@ -201,7 +201,7 @@ pub async fn add_win_points( guild_id: u64
                   error!("error on points initialization");
                 }
                 if let Err(khm) = storage.journal_sync() {
-                  error!("failed to sync {:?}", khm);
+                  error!("failed to sync {khm}");
                 }
                 1
               } else {
@@ -212,7 +212,7 @@ pub async fn add_win_points( guild_id: u64
           } else { 0 }
         }
       }, Err(why) => {
-        error!("Failed to get key: {:?}", why);
+        error!("Failed to get key: {why}");
         0
       }
     }
@@ -238,14 +238,14 @@ pub async fn break_streak( guild_id: u64
                   error!("error updating points");
                 }
                 if let Err(khm) = storage.journal_sync() {
-                  error!("failed to sync {:?}", khm);
+                  error!("failed to sync {khm}");
                 }
               }
             }
           }
         }
       }, Err(why) => {
-        error!("Failed to get key: {:?}", why);
+        error!("Failed to get key: {why}");
       }
     }
   }).await.unwrap();

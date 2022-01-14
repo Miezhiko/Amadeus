@@ -34,7 +34,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   // clean up global application commands
   if let Err(why) = ApplicationCommand::set_global_application_commands(&ctx.http, |cs| cs
   ).await {
-    error!("Failed to clean global application commands {}", why);
+    error!("Failed to clean global application commands, {why}");
   }
 
   // set actual season for pad statistics
@@ -42,7 +42,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
 
   // generate new twitch toke
   if let Err(why) = system::hacks::twitch_update(&ctx).await {
-    error!("Twitch token update failed {:?}", why);
+    error!("Twitch token update failed, {why}");
   }
 
   info!("loading Kathoey");

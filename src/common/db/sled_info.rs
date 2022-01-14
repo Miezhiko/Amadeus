@@ -26,10 +26,10 @@ pub fn read(key: &str) -> Result<String> {
   match sled.get(key) {
     Ok(Some(value)) => {
       String::from_utf8(value.to_vec())
-        .map_err(|error| anyhow!("Failed to parse utf8 {:?}", error))
+        .map_err(|error| anyhow!("Failed to parse utf8 {error}"))
     },
     Ok(None) => Err(anyhow!("value not found")),
-    Err(e) => Err(anyhow!("operational problem encountered: {}", e))
+    Err(e) => Err(anyhow!("operational problem encountered: {e}"))
   }
 }
 
@@ -38,7 +38,7 @@ pub fn list() -> Result<String> {
   let mut result = vec![];
   for k in sled.iter().keys().flatten() {
     if let Ok(kk) = String::from_utf8(k.to_vec())
-                      .map_err(|error| anyhow!("Failed to parse utf8 {:?}", error)) {
+                      .map_err(|error| anyhow!("Failed to parse utf8 {error}")) {
       result.push(kk);
     }
   }

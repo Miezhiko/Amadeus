@@ -39,7 +39,7 @@ async fn clean_games_channel(channel: &ChannelId, ctx: &Context) {
     if !vec_id.is_empty() {
       match channel.delete_messages(&ctx, vec_id.as_slice()).await {
         Ok(nothing)  => nothing,
-        Err(err) => warn!("Failed to clean live messages {}", err),
+        Err(err) => warn!("Failed to clean live messages {err}"),
       };
     }
   }
@@ -58,7 +58,7 @@ pub async fn activate_games_tracking(
     let mut aka_lock = AKA.lock().await;
     match aka::get_aka().await {
       Ok(aka) => { *aka_lock = aka; },
-      Err(wa) => { warn!("something with aka.rs, {:?}", wa); }
+      Err(wa) => { warn!("something with aka.rs, {wa}"); }
     }
   }
 
@@ -98,7 +98,7 @@ pub async fn activate_games_tracking(
           }
         }
         for ktd in k_to_del {
-          warn!("match {} out with timeout", ktd);
+          warn!("match {ktd} out with timeout");
           games_lock.remove(&ktd);
         }
       }
@@ -120,7 +120,7 @@ pub async fn activate_games_tracking(
 
           if let Some(streams) = &playa.player.streams {
             if let Some(twitch_stream) = &streams.twitch {
-              let getq = format!("https://api.twitch.tv/helix/streams?user_login={}", twitch_stream);
+              let getq = format!("https://api.twitch.tv/helix/streams?user_login={twitch_stream}");
               if let Ok(res) = rqcl
                 .get(&getq)
                 .header("Authorization", token.clone())
@@ -135,7 +135,7 @@ pub async fn activate_games_tracking(
                         let pic = twd.thumbnail_url.replace("{width}", "800")
                                                    .replace("{height}", "450");
                         if twd.type_string == "live" {
-                          let titurl = format!("{}\n{}", &twd.title, url);
+                          let titurl = format!("{}\n{url}", &twd.title);
                           additional_fields.push(("Live on twitch", titurl, false));
                           image       = Some(pic);
                           em_url      = Some(url);
@@ -144,21 +144,21 @@ pub async fn activate_games_tracking(
                       }
                     }
                   }, Err(why) => {
-                    error!("Failed to parse twitch structs {:?}", why);
+                    error!("Failed to parse twitch structs {why}");
                   }
                 }
               }
             }
             if let Some(ggru) = &streams.ggru {
-              let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", ggru);
+              let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{ggru}");
               if let Ok(gg) = rqcl.get(&ggru_link).send().await {
                 match gg.json::<GoodGameData>().await {
                   Ok(ggdata) => {
                     if ggdata.status == "Live" {
-                      let url = format!("https://goodgame.ru/channel/{}", ggru);
+                      let url = format!("https://goodgame.ru/channel/{ggru}");
                       if twitch_live {
                         let titurl =
-                          format!("{}\n{}", &ggdata.channel.title, url);
+                          format!("{}\n{url}", &ggdata.channel.title);
                         additional_fields.push(("Live on ggru", titurl, true));
                       } else {
                         let title = if ggdata.channel.title.is_empty() {
@@ -178,7 +178,7 @@ pub async fn activate_games_tracking(
                       }
                     }
                   }, Err(why) => {
-                    error!("Failed to parse good game structs {:?} on request {}", why, &ggru_link);
+                    error!("Failed to parse good game structs {why} on request {}", &ggru_link);
                   }
                 };
               }
@@ -313,7 +313,7 @@ pub async fn activate_games_tracking(
                 });
               },
               Err(why) => {
-                error!("Failed to post live match {:?}", why);
+                error!("Failed to post live match {why}");
                 error!("Fields: {:?}\n{:?}\n{:?}\n", game.description, image, em_url);
               }
             }

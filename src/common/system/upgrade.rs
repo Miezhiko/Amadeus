@@ -48,7 +48,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
                   .expect("failed to reset on remote branch");
   if let Ok(git_fetch_out) = &String::from_utf8(git_fetch.stdout) {
     if let Ok(git_reset_out) = &String::from_utf8(git_reset.stdout) {
-      let mut description = format!("{}\n{}", git_fetch_out, git_reset_out);
+      let mut description = format!("{git_fetch_out}\n{git_reset_out}");
       let mut mmm = channel_id.send_message(&ctx, |m|
         m.embed(|e| e.title("Updating")
                      .colour((220, 20, 100))
@@ -77,7 +77,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
             update_str = update_str[i..].to_string();
           }
         }
-        description = format!("{}\n{}", &description, update_str);
+        description = format!("{}\n{update_str}", &description);
         mmm.edit(&ctx, |m|
           m.embed(|e| e.title("Compiling")
                        .colour((230, 10, 50))
@@ -100,7 +100,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
             cut_paths = cut_paths[i..].to_string();
           }
         }
-        description = format!("{}\n{}", &description, cut_paths);
+        description = format!("{}\n{cut_paths}", &description);
         mmm.edit(&ctx, |m|
           m.embed(|e| e.title("Upgrading")
                        .colour((250, 0, 0))

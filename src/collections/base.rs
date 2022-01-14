@@ -31,7 +31,7 @@ mod base_dhall_tests {
         } else {
           Err(String::from("empty structure loaded"))
         }
-      }, Err(de) => Err(format!("Failed to parse {:?}", de))
+      }, Err(de) => Err(format!("Failed to parse {de}"))
     }
   }
   #[test]
@@ -53,7 +53,7 @@ mod base_dhall_tests {
         } else {
           Err(String::from("empty structure loaded for whitelist"))
         }
-      }, Err(de) => Err(format!("Failed to parse {:?}", de))
+      }, Err(de) => Err(format!("Failed to parse {de}"))
     }
   }
   #[test]
@@ -65,7 +65,7 @@ mod base_dhall_tests {
         } else {
           Err(String::from("empty structure loaded for case"))
         }
-      }, Err(de) => Err(format!("Failed to parse {:?}", de))
+      }, Err(de) => Err(format!("Failed to parse {de}"))
     }
   }
   #[test]
@@ -77,7 +77,7 @@ mod base_dhall_tests {
         } else {
           Err(String::from("empty structure loaded for reactions"))
         }
-      }, Err(de) => Err(format!("Failed to parse {:?}", de))
+      }, Err(de) => Err(format!("Failed to parse {de}"))
     }
   }
 }

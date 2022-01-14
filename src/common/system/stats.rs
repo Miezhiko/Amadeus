@@ -70,7 +70,7 @@ pub async fn get_system_info(ctx: &Context) -> SysInfo {
         format!("{:.3} MB", db_mb)
         } else { format!("{:.3} KB", db_kb) };
     } else {
-      error!("Failed to parse: {}", db_size_str);
+      error!("Failed to parse: {db_size_str}");
       sys_info.db_size = String::from("?");
     }
   } else {
@@ -87,28 +87,28 @@ pub async fn get_uptime(start: &str) -> (String, String) {
 
   let dd = since_start_time.num_days();
   if dd > 0 {
-    uptime_string = format!("{} {}d", uptime_string, dd);
+    uptime_string = format!("{uptime_string} {dd}d");
   }
   let hh = since_start_time.num_hours() - dd*24;
   if hh > 0 {
-    uptime_string = format!("{} {}h", uptime_string, hh);
+    uptime_string = format!("{uptime_string} {hh}h");
     if dd == 0 {
       let mm = since_start_time.num_minutes() - hh*60;
-      uptime_string = format!("{} {}m", uptime_string, mm);
+      uptime_string = format!("{uptime_string} {mm}m");
     }
   } else {
     let mm = since_start_time.num_minutes() - dd*24*60;
     if dd == 0 {
       if mm > 0 {
-        uptime_string = format!("{} {}m {}s", uptime_string, mm
-                                            , since_start_time.num_seconds() - mm*60);
+        uptime_string = format!("{uptime_string} {mm}m {}s"
+                               , since_start_time.num_seconds() - mm*60);
       } else {
-        uptime_string = format!("{} {}s", uptime_string, since_start_time.num_seconds());
+        uptime_string = format!("{uptime_string} {}s", since_start_time.num_seconds());
       }
     } else if mm > 0 {
-      uptime_string = format!("{} {}m", uptime_string, mm);
+      uptime_string = format!("{uptime_string} {mm}m");
     } else {
-      uptime_string = format!("{} {}s", uptime_string, since_start_time.num_seconds() - dd*24*60*60);
+      uptime_string = format!("{uptime_string} {}s", since_start_time.num_seconds() - dd*24*60*60);
     }
   }
 

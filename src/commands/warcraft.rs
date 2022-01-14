@@ -74,9 +74,9 @@ pub async fn tour_internal( ctx: &Context
                             if msk_h >= 24 {
                                msk_h -= 24;
                             }
-                            format!(" ({}:{} MSK)", msk_h, str_min)
+                            format!(" ({msk_h}:{str_min} MSK)")
                           } else { String::from("") };
-                        tvstr = format!("• {}:{} CET {}", str_hour, str_min, msk);
+                        tvstr = format!("• {str_hour}:{str_min} CET {msk}");
                       }
                     }
                   }
@@ -89,7 +89,7 @@ pub async fn tour_internal( ctx: &Context
                 }
                 if ep.name == "DESCRIPTION" {
                   if let Some(val2) = &ep.value {
-                    evstr = format!("{}\n<{}>", evstr, val2);
+                    evstr = format!("{evstr}\n<{val2}>");
                   }
                 }
               }
@@ -99,13 +99,13 @@ pub async fn tour_internal( ctx: &Context
             }
           }
         },
-        Err(e) => error!("Failed to parse calendar line {:?}", e)
+        Err(e) => error!("Failed to parse calendar line {e}")
       }
     }
 
     if !eventos.is_empty() {
-      let date_str_x = on.format("%e-%b (%A)").to_string();
-      let title = format!("Events on {}", date_str_x);
+      set!{ date_str_x = on.format("%e-%b (%A)").to_string()
+          , title = format!("Events on {date_str_x}") };
 
       // So we have title now, let check if it's posted already or not
       // In case if that was posted, check if we need to update it
@@ -148,7 +148,7 @@ pub async fn tour_internal( ctx: &Context
               .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
               .fields(eventos)
               .colour((255, 192, 203)))).await {
-            error!("Error editing w3info event: {:?}", why);
+            error!("Error editing w3info event: {why}");
           }
         }
       } else if !do_nothing {
@@ -158,14 +158,14 @@ pub async fn tour_internal( ctx: &Context
             .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
             .fields(eventos)
             .colour((240, 160, 203)))).await {
-          error!("Error sending w3info events: {:?}", why);
+          error!("Error sending w3info events: {why}");
         }
       }
     } else if report_no_events {
       if let Err(why) = channel_id.send_message(&ctx, |m|
         m.content("I am sorry but I can't find anything at the momenet")
       ).await {
-        error!("Error sending w3info error: {:?}", why);
+        error!("Error sending w3info error: {why}");
       }
     }
   }
@@ -183,7 +183,7 @@ pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
   let yesterday: DateTime<Utc> = Utc::now() - Duration::days(1); 
   tour(ctx, msg, yesterday).await?;
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   Ok(())
 }
@@ -195,7 +195,7 @@ pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
   let today: DateTime<Utc> = Utc::now(); 
   tour_internal(ctx, &msg.channel_id, today, true, true).await?;
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   Ok(())
 }
@@ -207,7 +207,7 @@ pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
   let tomorrow: DateTime<Utc> = Utc::now() + Duration::days(1); 
   tour(ctx, msg, tomorrow).await?;
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   Ok(())
 }
@@ -231,7 +231,7 @@ pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
     tour(ctx, msg, tomorrow).await?;
   }
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   Ok(())
 }

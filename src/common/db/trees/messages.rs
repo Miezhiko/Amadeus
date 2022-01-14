@@ -16,11 +16,11 @@ pub async fn register( channel_id: u64
               error!("error on msg registration");
             }
           }, Err(not_added) => {
-            error!("error on msg registration {:?}", not_added);
+            error!("error on msg registration {not_added}");
           }
         }
         if let Err(khm) = storage.journal_sync() {
-          error!("failed to sync {:?}", khm);
+          error!("failed to sync {khm}");
         }
       }
     }

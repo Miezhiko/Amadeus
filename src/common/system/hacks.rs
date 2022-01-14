@@ -31,7 +31,7 @@ pub async fn twitch_update(ctx: &Context) -> anyhow::Result<()> {
     if let Some(token_type) = json.pointer("/token_type") {
       let mut out = capital_first(token_type.as_str().unwrap());
       if let Some(access_token) = json.pointer("/access_token") {
-        out = format!("{} {}", out, access_token.as_str().unwrap());
+        out = format!("{out} {}", access_token.as_str().unwrap());
         let mut opts = options::get_roptions().await?;
         opts.twitch = out;
         options::put_roptions(&opts).await?;

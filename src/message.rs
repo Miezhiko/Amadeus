@@ -116,7 +116,7 @@ pub async fn process( ioptions: &IOptions
             *e = CreateEmbed::from(embed.clone());
             e })
         }).await {
-          error!("Error replacing other bots embeds {:?}", why);
+          error!("Error replacing other bots embeds {why}");
         }
       }
     }
@@ -144,7 +144,7 @@ pub async fn process( ioptions: &IOptions
                 warn!("Failed to attach an replay to log!");
               }
               if let Err(why) = &msg.delete(&ctx).await {
-                error!("failed to clean attachment from log {:?}", why);
+                error!("failed to clean attachment from log {why}");
               }
             } else {
               let rainbow = ReactionType::Unicode(String::from("🌈"));
@@ -156,15 +156,15 @@ pub async fn process( ioptions: &IOptions
                   let emoji = &reaction.as_inner_ref().emoji;
                   if emoji.as_data().as_str() == "🌈" {
                     if let Err(why) = replay_embed(ctx, &msg, file).await {
-                      error!("Failed to analyze replay:\n{:?}", why);
+                      error!("Failed to analyze replay:\n{why}");
                     }
                     if let Err(why) = msg.delete_reactions(ctx).await {
-                      error!("failed to delte msg reactions {:?}", why);
+                      error!("failed to delte msg reactions {why}");
                     }
                   }
                 } else {
                   if let Err(why) = msg.delete_reactions(ctx).await {
-                    error!("failed to delte msg reactions {:?}", why);
+                    error!("failed to delte msg reactions {why}");
                   }
                   break;
                 }
@@ -178,7 +178,7 @@ pub async fn process( ioptions: &IOptions
                                      || df.games2.unwrap_or(0) == msg.channel_id.0
                                      || df.games2.unwrap_or(0) == msg.channel_id.0) {
           if let Err(why) = &msg.delete(&ctx).await {
-            error!("failed to clean junk from log {:?}", why);
+            error!("failed to clean junk from log {why}");
           }
           return;
         }
@@ -237,11 +237,11 @@ pub async fn process( ioptions: &IOptions
                                             && s.kind  == CoreGuild::Safe) {
 
                     if let Err(why) = msg.react(ctx, reaction).await {
-                      error!("Failed to react: {:?}", why);
+                      error!("Failed to react: {why}");
                       if why.to_string().contains("blocked")
                       && !member.roles.contains(&role.id) {
                         if let Err(why) = member.add_role(&ctx, role).await {
-                          error!("Failed to assign hater role {:?}", why);
+                          error!("Failed to assign hater role {why}");
                         } else {
                           let nick = member.nick.unwrap_or_else(|| msg.author.name.clone());
                           let repl = if lang::is_russian(&msg.content) {
@@ -253,13 +253,13 @@ pub async fn process( ioptions: &IOptions
                           let new_nick: String = format!("Hater {}", &msg.author.name);
                           if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, |m|
                             m.nickname(new_nick)).await {
-                            error!("Failed to change user's nick {:?}", why2);
+                            error!("Failed to change user's nick {why2}");
                           }
                         }
                       }
                     } else if member.roles.contains(&role.id) {
                       if let Err(why) = member.remove_role(ctx, role).await {
-                        error!("Failed to remove gay role {:?}", why);
+                        error!("Failed to remove gay role {why}");
                       } else {
                         let repl = if lang::is_russian(&msg.content) {
                           format!("Пчел {} извини если что, давай останемся друзьями", msg.author.name)
@@ -268,7 +268,7 @@ pub async fn process( ioptions: &IOptions
                         };
                         channel_message(ctx, &msg, &repl).await;
                         if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, |m| m.nickname("")).await {
-                          error!("Failed to reset user's nick {:?}", why2);
+                          error!("Failed to reset user's nick {why2}");
                         }
                       }
                     }
@@ -277,17 +277,19 @@ pub async fn process( ioptions: &IOptions
                   if member.roles.contains(&role.id) {
                     let new_nick = format!("Hater {}", msg.author.name);
                     if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, |m| m.nickname(new_nick)).await {
-                      error!("Failed to change user's nick {:?}", why2);
+                      error!("Failed to change user's nick {why2}");
                     }
                     if let Err(why) = &msg.delete(ctx).await {
-                      error!("Error replacing bad people {:?}", why);
+                      error!("Error replacing bad people {why}");
                     }
                     if !msg.content.is_empty() && !msg.content.starts_with("http") {
                       let new_words = chain::obfuscate(&msg.content);
                       let says = if lang::is_russian(&new_words) {
                         "говорит"
                       } else { "says" };
-                      let rm = format!("{} {} {} {}", msg.author.name, says, new_words, &msg.content);
+                      let rm = format!("{} {} {} {}", msg.author.name
+                                                    , says, new_words
+                                                    , &msg.content);
                       channel_message(ctx, &msg, &rm).await;
                     }
                   }
@@ -295,14 +297,14 @@ pub async fn process( ioptions: &IOptions
                   let rnd3: u8 = rand::thread_rng().gen_range(0..9);
                   if rnd3 != 1 {
                     if let Err(why) = msg.delete_reactions(ctx).await {
-                      error!("Failed to remove all the reactions {:?}", why);
+                      error!("Failed to remove all the reactions {why}");
                     }
                   }
                 } else if let Err(why) =
                   guild.create_role(&ctx,
                       |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
                            .name(UNBLOCK_ROLE)).await {
-                  error!("Failed to create UNBLOCK role, {:?}", why);
+                  error!("Failed to create UNBLOCK role, {why}");
                 }
               }
             }

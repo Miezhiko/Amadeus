@@ -32,7 +32,7 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
         if let Err(why) = chanz.send_message(&ctx_clone, |m| {
           m.content(ai_text)
         }).await {
-          error!("Failed to post periodic message {:?}", why);
+          error!("Failed to post periodic message {why}");
         }
       }
       tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;

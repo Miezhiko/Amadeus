@@ -18,7 +18,7 @@ pub async fn log_any<F> ( ctx: &Context
   if let Ok(channels) = guild_id.channels(ctx).await {
     if let Some((channel, _)) = channel_by_name(ctx, &channels, "log").await {
       if let Err(why) = channel.send_message(ctx, f).await {
-        error!("Failed to log new user {:?}", why);
+        error!("Failed to log new user {why}");
       }
     }
   }
@@ -26,7 +26,7 @@ pub async fn log_any<F> ( ctx: &Context
 
 async fn serenity_channel_message_single(ctx: &Context, chan: &GuildChannel, text: &str) {
   if let Err(why) = chan.say(ctx, text).await {
-    error!("Error sending log message: {:?}", why);
+    error!("Error sending log message: {why}");
   }
 }
 async fn serenity_channel_message_multi(ctx: &Context, chan: &GuildChannel, texts: Vec<&str>) {

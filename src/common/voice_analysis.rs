@@ -119,17 +119,17 @@ impl VoiceEventHandler for Receiver {
                     if let Err(dmerr) =
                       u.direct_message(&context.http
                         , |m| { m.content(r) }).await {
-                      error!("failed to dm speaker {:?}", dmerr);
+                      error!("failed to dm speaker {dmerr}");
                     }
                   } else {
-                    warn!("failed to find user {}", uid);
+                    warn!("failed to find user {uid}");
                   }
                 } else {
                   warn!("empty response from stt");
                 }
               }
               Err(e) => {
-                error!("Failed to run speech-to-text! {}", e);
+                error!("Failed to run speech-to-text! {e}");
               }
             };
           });

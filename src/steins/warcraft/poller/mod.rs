@@ -39,7 +39,7 @@ pub async fn check<'a>( ctx: &Context
                       ) -> Vec<StartingGame<'a>> {
   let mut out: Vec<StartingGame> = Vec::new();
   if let Ok(res) =
-    rqcl.get(&format!("{}/matches/ongoing?offset=0", W3C_API))
+    rqcl.get(&format!("{W3C_API}/matches/ongoing?offset=0"))
         .send()
         .await {
     if let Ok(going) = res.json::<Going>().await {
@@ -82,16 +82,16 @@ pub async fn check<'a>( ctx: &Context
                 }
 
                 let mvec =
-                  vec![ format!("Map: **{}**", g_map)
-                      , format!("({}) **{}** [{}]{}", race1, t0_name, m.teams[0].players[0].oldMmr, t0_ping)
-                      , format!("({}) **{}** [{}]{}", race2, t1_name, m.teams[1].players[0].oldMmr, t1_ping) ];
+                  vec![ format!("Map: **{g_map}**")
+                      , format!("({race1}) **{t0_name}** [{}]{}", m.teams[0].players[0].oldMmr, t0_ping)
+                      , format!("({race2}) **{t1_name}** [{}]{}", m.teams[1].players[0].oldMmr, t1_ping) ];
 
                 { // games lock scope
                   let mut games_lock = GAMES.lock().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
                     track.still_live = true;
-                    set!{ minutes     = track.passed_time / 2
-                        , footer      = format!("Passed: {} min", minutes)
+                    set!{ minutes     = track.passed_time // team_games.rs poll time
+                        , footer      = format!("Passed: {minutes} min")
                         , playa       = playaz[0].player.discord
                         , bet_fields  = generate_bet_fields(ctx, track).await };
                     for t in track.tracking_msg_id.iter() {
@@ -144,7 +144,7 @@ pub async fn check<'a>( ctx: &Context
                             e
                           }
                         )).await {
-                          error!("Failed to post live match {:?}", why);
+                          error!("Failed to post live match {why}");
                         }
                       }
                     }
@@ -200,7 +200,7 @@ pub async fn check<'a>( ctx: &Context
                     let team2 = format!("({}) **{}**\n({}) **{}**\n{} MMR"
                       , race2, aka_names[1][0]
                       , race22, aka_names[1][1], m.teams[1].players[0].oldMmr);
-                    vec![ format!("Map: **{}**", g_map), team1, team2 ]
+                    vec![ format!("Map: **{g_map}**"), team1, team2 ]
                   } else {
                     let team1 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
                       , race1, aka_names[0][0], m.teams[0].players[0].oldMmr
@@ -208,15 +208,15 @@ pub async fn check<'a>( ctx: &Context
                     let team2 = format!("({}) **{}** [{}]\n({}) **{}** [{}]"
                       , race2, aka_names[1][0], m.teams[1].players[0].oldMmr
                       , race22, aka_names[1][1], m.teams[1].players[1].oldMmr);
-                    vec![ format!("Map: **{}**", g_map), team1, team2 ]
+                    vec![ format!("Map: **{g_map}**"), team1, team2 ]
                   };
 
                 { // games lock scope
                   let mut games_lock = GAMES.lock().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
                     track.still_live = true;
-                    set!{ minutes = track.passed_time / 2
-                        , footer  = format!("Passed: {} min", minutes) };
+                    set!{ minutes = track.passed_time // team_games.rs poll time
+                        , footer  = format!("Passed: {minutes} min") };
 
                     let bet_fields = generate_bet_fields(ctx, track).await;
                     for t in track.tracking_msg_id.iter() {
@@ -270,7 +270,7 @@ pub async fn check<'a>( ctx: &Context
                             e
                           }
                         )).await {
-                          error!("Failed to post live match {:?}", why);
+                          error!("Failed to post live match {why}");
                         }
                       }
                     }
@@ -330,15 +330,15 @@ pub async fn check<'a>( ctx: &Context
                     , race22, aka_names[1][1], m.teams[1].players[1].oldMmr
                     , race23, aka_names[1][2], m.teams[1].players[2].oldMmr
                     , race24, aka_names[1][3], m.teams[1].players[3].oldMmr);
-                  vec![ format!("Map: **{}**", g_map), team1, team2 ]
+                  vec![ format!("Map: **{g_map}**"), team1, team2 ]
                 };
 
               { // games lock scope
                 let mut games_lock = GAMES.lock().await;
                 if let Some(track) = games_lock.get_mut(&m.match_id) {
                   track.still_live = true;
-                  set!{ minutes = track.passed_time / 2
-                      , footer = format!("Passed: {} min", minutes) };
+                  set!{ minutes = track.passed_time
+                      , footer = format!("Passed: {minutes} min") };
 
                   let bet_fields = generate_bet_fields(ctx, track).await;
                   for t in track.tracking_msg_id.iter() {
@@ -392,7 +392,7 @@ pub async fn check<'a>( ctx: &Context
                           e
                         }
                       )).await {
-                        error!("Failed to post live match {:?}", why);
+                        error!("Failed to post live match {why}");
                       }
                     }
                   }
@@ -459,7 +459,7 @@ pub async fn check<'a>( ctx: &Context
                        , bet_fields     = None };
                   for (pw, is_win) in &fgame.winners {
                     if *is_win {
-                      trace!("Registering win for {}", pw);
+                      trace!("Registering win for {pw}");
                       let streak = points::add_win_points( guild_id
                                                          , *pw
                                                          ).await;
@@ -476,11 +476,11 @@ pub async fn check<'a>( ctx: &Context
                                        , 11 => "WICKED SICK"
                                        , 12 => "ALPHA"
                                        , _  => "FRENETIC" };
-                        let dd = format!("Doing _**{}**_ kills in a row**!**", streak);
+                        let dd = format!("Doing _**{streak}**_ kills in a row**!**");
                         streak_fields = Some(vec![("Winning streak", dd, false)]);
                       }
                     } else {
-                      trace!("Registering lose for {}", pw);
+                      trace!("Registering lose for {pw}");
                       points::break_streak(guild_id, *pw).await;
                     }
                     if !track.bets.is_empty() && bet_fields.is_none() {
@@ -533,18 +533,18 @@ pub async fn check<'a>( ctx: &Context
                                                  , *mpp
                                                  , *wpp ).await;
                             if !succ {
-                              error!("failed to give bet win points: {}", rst);
+                              error!("failed to give bet win points: {rst}");
                             } else {
                               let user_id = UserId( *mpp );
                               if let Ok(user) = user_id.to_user(&ctx).await {
                                 let pure_win = *wpp - *ppp;
                                 output.push(
-                                  format!("**{}** wins **{}**", user.name, pure_win)
+                                  format!("**{}** wins **{pure_win}**", user.name)
                                 );
                               }
                             }
                           }
-                          let title = format!("Bets coefficient: {}", k);
+                          let title = format!("Bets coefficient: {k}");
                           if !output.is_empty() || !losers_output.is_empty() {
                             let mut out_fields = vec![];
                             if !output.is_empty() {

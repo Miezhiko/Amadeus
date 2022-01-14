@@ -168,7 +168,7 @@ pub fn get_map_short(m: &str) -> String {
 
 pub fn get_league_png(lid: u32) -> String {
   let base = "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/leagueFlags/";
-  format!("{}{}.png", base
+  format!("{base}{}.png"
     , match lid { 0 => "grandmaster"
                 , 1 => "master"
                 , 2 => "diamond"
@@ -181,7 +181,7 @@ pub fn get_league_png(lid: u32) -> String {
 
 pub fn get_hero_png(hero: &str) -> String {
   let base = "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/heroes/";
-  format!("{}{}.png", base, hero)
+  format!("{base}{hero}.png")
 }
 
 #[cfg(test)]

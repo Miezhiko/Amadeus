@@ -30,7 +30,7 @@ mod channels_dhall_tests {
         } else {
           Err(String::from("empty structure loaded"))
         }
-      }, Err(de) => Err(format!("Failed to parse {:?}", de))
+      }, Err(de) => Err(format!("Failed to parse {de}"))
     }
   }
   #[test]
@@ -42,7 +42,7 @@ mod channels_dhall_tests {
         } else {
           Err(String::from("empty structure loaded"))
         }
-      }, Err(de) => Err(format!("Failed to parse AI_ALLOWED channels {:?}", de))
+      }, Err(de) => Err(format!("Failed to parse AI_ALLOWED channels {de}"))
     }
   }
   #[test]
@@ -54,7 +54,7 @@ mod channels_dhall_tests {
         } else {
           Err(String::from("empty structure loaded"))
         }
-      }, Err(de) => Err(format!("Failed to parse AI_LEARN channels {:?}", de))
+      }, Err(de) => Err(format!("Failed to parse AI_LEARN channels {de}"))
     }
   }
   #[test]

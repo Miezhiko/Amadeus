@@ -37,7 +37,7 @@ use tokio::process::Command;
 #[owners_only]
 async fn set(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   if let Ok(property) = args.single::<String>() {
     #[allow(clippy::single_match)]
@@ -45,7 +45,7 @@ async fn set(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       "activity" =>
         if let Ok(level) = args.single::<u32>() {
           ACTIVITY_LEVEL.store(level, Ordering::Relaxed);
-          let chan_msg = format!("Activity level is: {} now", level);
+          let chan_msg = format!("Activity level is: {level} now");
           channel_message(ctx, msg, &chan_msg).await;
         },
       "lsm" =>
@@ -83,7 +83,7 @@ async fn set(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[owners_only]
 async fn say(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   let last_channel_u64 = gate::LAST_CHANNEL.load(Ordering::Relaxed);
   if last_channel_u64 != 0 {
@@ -92,7 +92,7 @@ async fn say(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       let text = args.message();
       if !text.is_empty() {
         if let Err(why) = last_channel_conf.say(ctx, text).await {
-          error!("Failed say {:?}", why);
+          error!("Failed say {why}");
         }
       }
     }
@@ -116,7 +116,7 @@ async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> Command
         Err(_err) => (),
       };
     }
-    direct_message(ctx, msg, &format!("Deleted {} messages", countdown)).await;
+    direct_message(ctx, msg, &format!("Deleted {countdown} messages")).await;
   } else if args.len() == 2 {
     let countdown: usize = args.find().unwrap_or_default();
     let counter: usize = args.find().unwrap_or_default();
@@ -134,7 +134,7 @@ async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> Command
         Err(_err) => (),
       };
     }
-    direct_message(ctx, msg, &format!("Deleted {} messages", countdown)).await;
+    direct_message(ctx, msg, &format!("Deleted {countdown} messages")).await;
   }
   Ok(())
 }
@@ -143,7 +143,7 @@ async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> Command
 #[owners_only]
 async fn clear_chain_cache(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   clear_cache().await;
   channel_message(ctx, msg, "Cache removed").await;
@@ -154,7 +154,7 @@ async fn clear_chain_cache(ctx: &Context, msg: &Message) -> CommandResult {
 #[owners_only]
 async fn update_cache(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   actualize_cache(ctx, true).await;
   channel_message(ctx, msg, "Cache updated").await;
@@ -165,10 +165,10 @@ async fn update_cache(ctx: &Context, msg: &Message) -> CommandResult {
 #[owners_only]
 async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   if let Err(why) = system::upgrade::upgrade_amadeus(ctx, &msg.channel_id).await {
-    error!("Failed to upgrade Amadeus {:?}", why);
+    error!("Failed to upgrade Amadeus, {why}");
   }
   Ok(())
 }
@@ -177,7 +177,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
 #[owners_only]
 async fn twitch_token_update(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   if system::hacks::twitch_update(ctx).await.is_ok() {
     channel_message(ctx, msg, "twitch access token updated").await;
@@ -190,7 +190,7 @@ async fn twitch_token_update(ctx: &Context, msg: &Message) -> CommandResult {
 #[min_args(3)]
 async fn register_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   if let Some(guild_id) = msg.guild_id {
     let message_id = args.single::<u64>()?;
@@ -200,7 +200,7 @@ async fn register_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandR
                             , &message_id
                             , &emoji_id
                             , &role_id ).await;
-    direct_message(ctx, msg, &format!("Message role {} registered", role_id)).await;
+    direct_message(ctx, msg, &format!("Message role {role_id} registered")).await;
   }
   Ok(())
 }
@@ -210,7 +210,7 @@ async fn register_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandR
 #[min_args(1)]
 async fn list_message_roles(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   if let Some(guild_id) = msg.guild_id {
     let message_id = args.single::<u64>()?;
@@ -230,7 +230,7 @@ async fn unban_all(ctx: &Context, msg: &Message) -> CommandResult {
     let bans = guild.bans(ctx).await?;
     for ban in bans {
       if let Err(why) = guild.unban(ctx, ban.user.id).await {
-        error!("Failed to unban user: {}, {}", ban.user.name, why);
+        error!("Failed to unban user: {}, {why}", ban.user.name);
       }
     }
     channel_message(ctx, msg, "Everyone unbanned =_=").await;
@@ -243,7 +243,7 @@ async fn unban_all(ctx: &Context, msg: &Message) -> CommandResult {
 #[min_args(1)]
 async fn eix(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Ok(package) = args.single::<String>() {
-    let eix_command = format!("eix {}", package);
+    let eix_command = format!("eix \"{package}\"");
     let eix = Command::new("sh")
       .arg("-c")
       .arg(&eix_command)
@@ -287,7 +287,7 @@ async fn catch_up_with_roles(ctx: &Context, _msg: &Message, mut args: Args) -> C
                     let role_id = RoleId(role);
                     if !member.roles.contains(&role_id) {
                       if let Err(why) = member.add_role(&ctx, role_id).await {
-                        error!("Failed to assign role {:?}", why);
+                        error!("Failed to assign role {why}");
                       } else {
                         let mut roles_vector : Vec<u64> = Vec::new();
                         for role in &member.roles {

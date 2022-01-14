@@ -41,7 +41,7 @@ async fn version(ctx: &Context, msg: &Message) -> CommandResult {
       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
     )
    ).await {
-    error!("Error sending version message: {:?}", why);
+    error!("Error sending version message, {why}");
   }
   Ok(())
 }
@@ -57,7 +57,7 @@ async fn help_ru(ctx: &Context, msg: &Message) -> CommandResult {
 #[min_args(2)]
 async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let nickname_maybe =
     if let Some(guild_id) = msg.guild_id {
@@ -82,7 +82,7 @@ async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[command]
 async fn qrcode(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let words = args.message();
   if let Ok(code) = QrCode::new(words) {
@@ -90,7 +90,7 @@ async fn qrcode(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         .dark_color(unicode::Dense1x2::Light)
         .light_color(unicode::Dense1x2::Dark)
         .build();
-    msg.channel_id.say(ctx, format!("```{}```", image)).await?;
+    msg.channel_id.say(ctx, format!("```{image}```")).await?;
   } else {
     msg.channel_id.say(ctx, "failed to get qr code").await?;
   }
@@ -123,7 +123,7 @@ struct ApiResponse {
 #[min_args(1)]
 async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let term = args.message();
   let reqwest_client = {
@@ -139,7 +139,7 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       .send().await?.json::<ApiResponse>().await?;
 
   if resp.list.is_empty() {
-    msg.channel_id.say(ctx, format!("The term '{}' has no Urban Definitions", term)).await?;
+    msg.channel_id.say(ctx, format!("The term '{term}' has no Urban Definitions")).await?;
   } else {
     let choice = &resp.list[0];
     let parsed_definition = &choice.definition.replace('[', "").replace(']', "");
@@ -178,7 +178,7 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[aliases(about)]
 async fn info(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
 
   let mut eb = CreateEmbed::default();
@@ -216,7 +216,7 @@ Latency:  {}
 #[command]
 async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
 
   let git_log = Command::new("sh")
@@ -262,7 +262,7 @@ async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
 #[description("display shard uptime since last restart")]
 async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
   let mut eb = CreateEmbed::default();
   let footer = format!("Requested by {}", msg.author.name);
@@ -271,7 +271,7 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
 
   eb.color(0xe535cc);
   eb.title(uptime_string);
-  eb.description(format!("start time: {}", start_time));
+  eb.description(format!("start time: {start_time}"));
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
   eb.footer(|f| f.text(footer));
 
@@ -336,14 +336,14 @@ async fn time_internal(msg: &Message, args: Args) -> anyhow::Result<CreateEmbed>
       , est_emoji = get_emoji(est_pattern) };
 
   let mut desc =
-    format!("**CET**: {} {}\n**MSK**: {} {}\n**EST**: {} {}", cet, cet_emoji, msk, msk_emoji, est, est_emoji);
+    format!("**CET**: {cet} {cet_emoji}\n**MSK**: {msk} {msk_emoji}\n**EST**: {est} {est_emoji}");
 
   if let Ok(tz) = mb_tz.parse::<chrono_tz::Tz>() {
     let tz_time = utc.with_timezone(&tz).time();
     let tz_fmt = tz_time.format(time_format);
     let tz_pattern = (est_time.hour12().1, munutes_first_half);
     let tz_emoji = get_emoji(tz_pattern);
-    desc = format!("{}\n**{}**: {} {}", desc, mb_tz, tz_fmt, tz_emoji);
+    desc = format!("{desc}\n**{mb_tz}**: {tz_fmt} {tz_emoji}");
   }
 
   let mut eb = CreateEmbed::default();
@@ -365,7 +365,7 @@ async fn time_internal(msg: &Message, args: Args) -> anyhow::Result<CreateEmbed>
 #[description("display current time")]
 pub async fn time(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command, {why}");
   }
 
   let eb = time_internal(msg, args).await?;

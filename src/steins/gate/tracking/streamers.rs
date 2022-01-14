@@ -69,7 +69,7 @@ pub async fn activate_streamers_tracking(
             if let Some(r) = g.role_by_name(LIVE_ROLE) {
               if m.roles.contains(&r.id) {
                 if let Err(why) = m.remove_role(&ctx, r).await {
-                  error!("Failed to remove live streaming role {:?} on seerver {:?}", why, d);
+                  error!("Failed to remove live streaming role {why} on seerver {:?}", d);
                 }
               }
             }
@@ -92,7 +92,7 @@ pub async fn activate_streamers_tracking(
         }
       }
       for ktd in k_to_del {
-        warn!("stream {} out with timeout", ktd);
+        warn!("stream {ktd} out with timeout");
         streams.remove(&ktd);
       }
       for p in ALL.iter() {
@@ -204,7 +204,7 @@ pub async fn activate_streamers_tracking(
                       }
                     }
                   }, Err(why) => {
-                    error!("Failed to parse good game structs {:?} on request {}", why, &ggru_link);
+                    error!("Failed to parse good game structs {why} on request {}", &ggru_link);
                   }
                 };
               }
@@ -226,7 +226,7 @@ pub async fn activate_streamers_tracking(
                 let footer = if track.passed_time > 60 {
                     let hours: u32 = track.passed_time / 60;
                     let minutes = track.passed_time % 60;
-                    format!("Passed: {} hours {} min", hours, minutes)
+                    format!("Passed: {hours} hours {minutes} min")
                   } else {
                     format!("Passed: {} min", track.passed_time)
                   };
@@ -262,7 +262,7 @@ pub async fn activate_streamers_tracking(
                     e
                   }
                 )).await {
-                  error!("Failed to edit stream msg {:?}", why);
+                  error!("Failed to edit stream msg {why}");
                 }
               }
 
@@ -290,7 +290,7 @@ pub async fn activate_streamers_tracking(
                           }
                         },
                         Err(why) => {
-                          error!("Failed to download and post stream img {:?}", why);
+                          error!("Failed to download and post stream img {why}");
                         }
                       };
                     }
@@ -310,7 +310,7 @@ pub async fn activate_streamers_tracking(
                   if let Some(role) = guild.role_by_name(LIVE_ROLE) {
                     if !member.roles.contains(&role.id) {
                       if let Err(why) = member.add_role(&ctx_clone, role).await {
-                        error!("Failed to assign live streaming role {:?}", why);
+                        error!("Failed to assign live streaming role {why}");
                       }
                     }
                   }
@@ -355,7 +355,7 @@ pub async fn activate_streamers_tracking(
                   }
                 },
                 Err(why) => {
-                  error!("Failed to post stream {:?}", why);
+                  error!("Failed to post stream {why}");
                 }
               }
 
@@ -388,7 +388,7 @@ pub async fn activate_streamers_tracking(
                 if let Some(role) = guild.role_by_name(LIVE_ROLE) {
                   if member.roles.contains(&role.id) {
                     if let Err(why) = member.remove_role(&ctx_clone, role).await {
-                      error!("Failed to remove live streaming role {:?}", why);
+                      error!("Failed to remove live streaming role {why}");
                     }
                   }
                 }
@@ -402,7 +402,7 @@ pub async fn activate_streamers_tracking(
               let footer = if track.passed_time > 60 {
                   let hours: u32 = track.passed_time / 60;
                   let minutes = track.passed_time % 60;
-                  format!("Passed: {} hours {} min", hours, minutes)
+                  format!("Passed: {hours} hours {minutes} min")
                 } else {
                   format!("Passed: {} min", track.passed_time)
                 };
@@ -437,7 +437,7 @@ pub async fn activate_streamers_tracking(
                   e
                 }
               )).await {
-                error!("Failed to edit stream msg {:?}", why);
+                error!("Failed to edit stream msg {why}");
               }
             }
 
@@ -448,9 +448,9 @@ pub async fn activate_streamers_tracking(
             streams.remove(&p.player.discord);
           }
         } else if let Err(why) = MODERATION.say(&ctx_clone, &format!("streamers: missing user: {}", p.player.discord)).await {
-          error!("failed to report missing user {}", why);
+          error!("failed to report missing user {why}");
         }
-	// with 5 sec delay for each
+	      // with 5 sec delay for each
         tokio::time::sleep(time::Duration::from_secs(5)).await;
       }
       /* every 10 minutes */

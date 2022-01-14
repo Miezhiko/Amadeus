@@ -4,7 +4,7 @@ use serde_json::Value;
 async fn analyze_ts(path: &str) -> anyhow::Result<String> {
   let ts_node_out = Command::new("sh")
         .arg("-c")
-        .arg(&format!("ts-node typescript/w3g_parse.ts {}", path))
+        .arg(&format!("ts-node typescript/w3g_parse.ts {path}"))
         .output()
         .await?;
   let ts_node_stdout = String::from_utf8(ts_node_out.stdout)?;
@@ -53,11 +53,11 @@ fn prettify_analyze_ts(j: &str, minimal: bool)
             "R" => "Reptile",
             _   => "Dog"
           };
-          s = format!("**race**: {}\n", race_pretty);
+          s = format!("**race**: {race_pretty}\n");
         }
       }
       if let Some(apm) = playa.pointer("/apm") {
-        s = format!("{}**apm**: {}", s, apm.as_u64().unwrap());
+        s = format!("{s}**apm**: {}", apm.as_u64().unwrap());
       }
       if let Some(actions) = playa.pointer("/actions") {
         if let Some(timed) = actions.pointer("/timed") {
@@ -70,13 +70,13 @@ fn prettify_analyze_ts(j: &str, minimal: bool)
       if let Some(heroes) = playa.pointer("/heroes") {
         let heroz = heroes.as_array().unwrap();
         if !heroz.is_empty() {
-          s = format!("{}\n\n*heroes*", s);
+          s = format!("{s}\n\n*heroes*");
           for hero in heroz.iter() {
             if let Some(id) = hero.pointer("/id") {
-              s = format!("{}\n**{}**", s, id.as_str().unwrap());
+              s = format!("{s}\n**{}**", id.as_str().unwrap());
             }
             if let Some(level) = hero.pointer("/level") {
-              s = format!("{} level {}", s, level.as_u64().unwrap());
+              s = format!("{s} level {}", level.as_u64().unwrap());
             }
           }
         }
@@ -87,7 +87,7 @@ fn prettify_analyze_ts(j: &str, minimal: bool)
             if let Some(sum) = summary.as_object() {
               su = String::from("\n");
               for (k, v) in sum {
-                su = format!("{}\n**{}**: {}", su, k, v);
+                su = format!("{su}\n**{k}**: {v}");
               }
             }
           }
@@ -99,7 +99,7 @@ fn prettify_analyze_ts(j: &str, minimal: bool)
   if !minimal {
     if let Some(duration) = json.pointer("/duration") {
       let dhuman = duration.as_u64().unwrap()/60/1000;
-      out = format!("{}**duration**: {}min", out, dhuman);
+      out = format!("{out}**duration**: {dhuman}min");
     }
     if let Some(chat_object) = json.pointer("/chat") {
       let chat = chat_object.as_array().unwrap();
@@ -119,9 +119,9 @@ fn prettify_analyze_ts(j: &str, minimal: bool)
             if chat_p.contains('#') {
               chat_p = chat_p.split('#').collect::<Vec<&str>>()[0].to_string();
             }
-            let chat_part = format!("{}: {}", chat_p, chat_m);
+            let chat_part = format!("{chat_p}: {chat_m}");
             if chat_part_previous != chat_part {
-              chat_string = format!("{}\n{}",chat_string, chat_part);
+              chat_string = format!("{chat_string}\n{chat_part}");
               chat_part_previous = chat_part;
             }
           }
@@ -131,7 +131,7 @@ fn prettify_analyze_ts(j: &str, minimal: bool)
             chat_string = chat_string[i..].to_string();
           }
         }
-        out = format!("{}\n**chat:**```{}```", out, chat_string);
+        out = format!("{out}\n**chat:**```{chat_string}```");
       }
     }
   }
@@ -158,7 +158,7 @@ mod cyber_w3g_tests {
           assert_eq!(2, ps.len());
           Ok(())
         }, Err(err) => {
-          Err(format!("Error parsing {:?}", err))
+          Err(format!("Error parsing {err}"))
         }
       }
     } else {

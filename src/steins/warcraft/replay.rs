@@ -37,23 +37,23 @@ pub async fn replay_embed( ctx: &Context
       Ok(replay) => replay,
       Err(why) => {
         channel_message(ctx, msg, "Error getting replay").await;
-        return Err(anyhow!("Error creating file: {:?}", why));
+        return Err(anyhow!("Error creating file: {why}"));
       }
     };
     if let Err(why) = fw3g.write_all(&bytes).await {
       if let Err(why2) = fs::remove_file(&file.filename).await {
-        error!("Error removing file: {:?}", why2);
+        error!("Error removing file: {why2}");
       }
-      return Err(anyhow!("Error writing to file: {:?}", why));
+      return Err(anyhow!("Error writing to file: {why}"));
     }
     let _ = fw3g.sync_data().await;
     info!("Parsing replay");
     let data_maybe = analyze(&file.filename, false).await;
     if let Err(why) = data_maybe {
       if let Err(why2) = fs::remove_file(&file.filename).await {
-        error!("Error removing file: {:?}", why2);
+        error!("Error removing file: {why2}");
       }
-      return Err(anyhow!("Corrupted replay file? {:?}", why));
+      return Err(anyhow!("Corrupted replay file? {why}"));
     }
     let (d, flds) = data_maybe?;
     setm!{ eb1 = CreateEmbed::default()
@@ -134,7 +134,7 @@ pub async fn replay_embed( ctx: &Context
             }
           },
           Err(why) => {
-            error!("Failed to download and post stream img {:?}", why);
+            error!("Failed to download and post stream img {why}");
           }
         };
       }
@@ -176,7 +176,7 @@ pub async fn replay_embed( ctx: &Context
               e.0 = embeds[page].0.clone(); e
             })
           ).await {
-            error!("Shit happens {:?}", err);
+            error!("Shit happens {err}");
           }
           let _ = reaction.as_inner_ref().delete(&ctx).await;
         } else {
@@ -188,10 +188,10 @@ pub async fn replay_embed( ctx: &Context
       error!("Failed to post replay analyze data");
     }
     if let Err(why1) = fs::remove_file(&fname_apm).await {
-      error!("Error removing apm png {:?}", why1);
+      error!("Error removing apm png {why1}");
     }
     if let Err(why2) = fs::remove_file(&file.filename).await {
-      error!("Error removing file: {:?}", why2);
+      error!("Error removing file: {why2}");
     }
   }
   Ok(())
@@ -213,18 +213,18 @@ pub async fn attach_replay( ctx: &Context
         }
       };
       if let Err(why) = fw3g.write_all(&bytes).await {
-        error!("Error writing to file: {:?}", why);
+        error!("Error writing to file: {why}");
         if let Err(why2) = fs::remove_file(&file.filename).await {
-          error!("Error removing file: {:?}", why2);
+          error!("Error removing file: {why2}");
         }
         return Err(anyhow!("Error writing to file"));
       }
       let _ = fw3g.sync_data().await;
       let data_maybe = analyze(&file.filename, true).await;
       if let Err(why) = data_maybe {
-        error!("Corrupted replay file? {:?}", why);
+        error!("Corrupted replay file? {why}");
         if let Err(why) = fs::remove_file(&file.filename).await {
-          error!("Error removing file: {:?}", why);
+          error!("Error removing file: {why}");
         }
         return Err(anyhow!("Corrupted replay file"));
       }
@@ -355,7 +355,7 @@ pub async fn attach_replay( ctx: &Context
                           }
                         },
                         Err(why) => {
-                          error!("Failed to download and post stream img {:?}", why);
+                          error!("Failed to download and post stream img {why}");
                         }
                       };
                     }
@@ -392,14 +392,14 @@ pub async fn attach_replay( ctx: &Context
                       m = m.add_file(AttachmentType::Path(std::path::Path::new(&file.filename)));
                       m
                     }).await {
-                      error!("Failed to attach replay {:?}", why);
+                      error!("Failed to attach replay {why}");
                     } else {
                       // Success
                       if let Err(why) = mmm.delete(ctx).await {
-                        error!("Failed to remove replaced message {:?}", why);
+                        error!("Failed to remove replaced message {why}");
                       }
                       if let Err(why) = fs::remove_file(&file.filename).await {
-                        error!("Error removing file: {:?}", why);
+                        error!("Error removing file: {why}");
                       }
                       return Ok(());
                     }
@@ -414,7 +414,7 @@ pub async fn attach_replay( ctx: &Context
     }
   }
   if let Err(why) = fs::remove_file(&file.filename).await {
-    error!("Error removing file: {:?}", why);
+    error!("Error removing file: {why}");
   }
   Err(anyhow!("Failed to attach replay"))
 }

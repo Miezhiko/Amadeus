@@ -41,7 +41,7 @@ pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) 
            , LOCALES.lookup(lang, "warcraft-commands"), false)
       .footer(|f| f.text(LOCALES.lookup(lang, "footer")))
       .colour((246, 111, 0)))).await {
-    error!("Error sending help message: {:?}", why);
+    error!("Error sending help message: {why}");
   }
 }
 
@@ -73,7 +73,7 @@ pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIde
            , LOCALES.lookup(lang, "warcraft-commands"), false)
       .footer(|f| f.text(LOCALES.lookup(lang, "footer")))
       .colour((246, 111, 0)))).await {
-    error!("Error editing help message: {:?}", why);
+    error!("Error editing help message: {why}");
   }
 }
 

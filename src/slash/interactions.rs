@@ -47,9 +47,9 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                 if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {
                   response
                     .kind(InteractionResponseType::ChannelMessageWithSource)
-                    .interaction_response_data( |message| message.content( format!("Failed to join {:?}", err) ) )
+                    .interaction_response_data( |message| message.content( format!("Failed to join {err}") ) )
                 }).await {
-                  error!("Failed to create boris interaction response {:?}", why);
+                  error!("Failed to create boris interaction response {why}");
                 }
               } else if let Err(why) =
                 ac.create_interaction_response(&ctx.http, |response| {
@@ -57,7 +57,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                   .kind(InteractionResponseType::ChannelMessageWithSource)
                   .interaction_response_data( |message| message.content( "I've joined voice channel" ) )
               }).await {
-                error!("Failed to create boris interaction response {:?}", why);
+                error!("Failed to create boris interaction response {why}");
               }
             }
           }
@@ -73,7 +73,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                   .kind(InteractionResponseType::ChannelMessageWithSource)
                   .interaction_response_data( |message| message.content( boris::spell(t) ) )
               }).await {
-                error!("Failed to create boris interaction response {:?}", why);
+                error!("Failed to create boris interaction response {why}");
               }
 
             }
@@ -90,7 +90,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                   .kind(InteractionResponseType::ChannelMessageWithSource)
                   .interaction_response_data( |message| message.content( uwu::spell(t) ) )
               }).await {
-                error!("Failed to create uwu interaction response {:?}", why);
+                error!("Failed to create uwu interaction response {why}");
               }
 
             }
@@ -104,7 +104,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           response
             .kind(InteractionResponseType::DeferredChannelMessageWithSource)
         }).await {
-          error!("Failed to set DeferredChannelMessageWithSource {:?}", why);
+          error!("Failed to set DeferredChannelMessageWithSource {why}");
         }
 
         match c {
@@ -115,7 +115,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               Ok(mut msg) => {
                 edit_help_i18n(ctx, &mut msg, &US_ENG).await;
               }, Err(why) => {
-                error!("Failed to create help interaction response {:?}", why);
+                error!("Failed to create help interaction response {why}");
               }
             };
           },
@@ -132,10 +132,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x3252e3
                                 , images::own("waves")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -153,10 +153,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x126223
                                 , images::own("crying")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -174,10 +174,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x22c2c1
                                 , images::own("clapping")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -195,10 +195,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x424203
                                 , images::own("Angry!")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -216,10 +216,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x3292e3
                                 , images::own("Confused...")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -237,10 +237,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x3252e3
                                 , images::own("Feeling nervous")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -258,10 +258,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x3f22a3
                                 , images::own("Feeling sleepy")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -279,10 +279,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xaf52e3
                                 , images::own("Annoyed")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -300,10 +300,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x3252e3
                                 , images::own("Feeling sad :(")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -321,10 +321,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x6252e3
                                 , images::own("Feeling happy")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -342,10 +342,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x3252e3
                                 , images::own(r"shrugs ¯\_(ツ)_/¯")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -363,10 +363,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xf252c1
                                 , images::GType::Nothing
                                 , true, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -384,10 +384,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x22b2c1
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -405,10 +405,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xaf52e3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -426,10 +426,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x6f52f3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -447,10 +447,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x6f52f3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -468,10 +468,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x6f52f3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -489,10 +489,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x6f52f3
                                 , images::own("smirks")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -510,10 +510,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x6f52f3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -531,10 +531,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xafb2e3
                                 , images::own("smiles")
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -552,10 +552,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x722223
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -573,10 +573,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xaf52e3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -594,10 +594,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xaf52e3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -615,10 +615,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xaf52e3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -636,10 +636,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xaf5233
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -657,10 +657,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x2a62e3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -678,10 +678,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x2a3211
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -699,10 +699,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xad52c3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -720,10 +720,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xbd22c3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -741,10 +741,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x0d22f3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -762,10 +762,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xad4213
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -783,10 +783,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xcd5253
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -804,10 +804,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xaf82e3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -825,10 +825,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xaf52e3
                                 , images::GType::Nothing
                                 , false, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -846,10 +846,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0xa656e3
                                 , images::GType::Nothing
                                 , true, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -867,10 +867,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                 , 0x111111
                                 , images::GType::Nothing
                                 , true, None).await {
-                    error!("Failed do gif emoji {:?}", err);
+                    error!("Failed do gif emoji {err}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create help interaction response {:?}", why);
+                  error!("Failed to create help interaction response {why}");
                 }
               };
             }
@@ -892,10 +892,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                       , 0xed9e2f
                                       , images::target("hugs")
                                       , false, Some(t.into())).await {
-                          error!("Failed do gif emoji {:?}", err);
+                          error!("Failed do gif emoji {err}");
                         }
                       }, Err(why) => {
-                        error!("Failed to create help interaction response {:?}", why);
+                        error!("Failed to create help interaction response {why}");
                       }
                     };
                   }
@@ -921,10 +921,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                       , 0x27e6d9
                                       , images::target("pats")
                                       , false, Some(t.into())).await {
-                          error!("Failed do gif emoji {:?}", err);
+                          error!("Failed do gif emoji {err}");
                         }
                       }, Err(why) => {
-                        error!("Failed to create help interaction response {:?}", why);
+                        error!("Failed to create help interaction response {why}");
                       }
                     };
                   }
@@ -950,10 +950,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                       , 0xd62929
                                       , images::target("slaps")
                                       , false, Some(t.into())).await {
-                          error!("Failed do gif emoji {:?}", err);
+                          error!("Failed do gif emoji {err}");
                         }
                       }, Err(why) => {
-                        error!("Failed to create help interaction response {:?}", why);
+                        error!("Failed to create help interaction response {why}");
                       }
                     };
                   }
@@ -978,10 +978,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                                       , t, 0x8e613b
                                       , images::GType::Nothing
                                       , true, None ).await {
-                          error!("Failed do gif emoji {:?}", err);
+                          error!("Failed do gif emoji {err}");
                         }
                       }, Err(why) => {
-                        error!("Failed to create help interaction response {:?}", why);
+                        error!("Failed to create help interaction response {why}");
                       }
                     };
                   }

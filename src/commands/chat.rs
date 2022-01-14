@@ -36,14 +36,14 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
         } else {
           ( &msg.author.name, 0 )
         };
-    let out = format!("Score for {}: {}", target, the_points);
+    let out = format!("Score for {target}: {the_points}");
     let footer = format!("Requested by {}", msg.author.name);
     if let Err(why) = msg.channel_id.send_message(ctx, |m| m
       .embed(|e| e
       .description(&out)
       .footer(|f| f.text(footer))
     )).await {
-      error!("Failed to post score for {}, {:?}", target, why);
+      error!("Failed to post score for {target}, {why}");
     }
   }
   Ok(())
@@ -53,7 +53,7 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
 #[description("displays ton N users by score")]
 async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   let top_x =
     if let Ok(first) = args.single::<usize>() {
@@ -74,9 +74,9 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let mut out: Vec<String> = Vec::new();
     for (i, (m, p)) in members_with_points.iter().take(top_x).enumerate() {
       let n = i + 1;
-      out.push(format!("{}. **{}**: **{}**", n, m.user.name, p));
+      out.push(format!("{n}. **{}**: **{p}**", m.user.name));
     }
-    let title = format!("Top {} points", top_x);
+    let title = format!("Top {top_x} points");
     let footer = format!("Requested by {}", msg.author.name);
     if !out.is_empty() {
       if let Err(why) = msg.channel_id.send_message(ctx, |m| m
@@ -85,7 +85,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         .description(out.join("\n"))
         .footer(|f| f.text(footer))
       )).await {
-        error!("Failed to post top of users, {:?}", why);
+        error!("Failed to post top of users, {why}");
       }
     }
   }
@@ -115,13 +115,13 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                                                , target_user.id.0
                                                , points_count ).await;
           if succ {
-            let out = format!("{} to {}", rst, target_user.name);
+            let out = format!("{rst} to {}", target_user.name);
             if let Err(why) = msg.channel_id.send_message(ctx, |m| m
               .embed(|e| e
               .description(&out)
               .footer(|f| f.text(&msg.author.name))
             )).await {
-              error!("Failed to post give {:?}", why);
+              error!("Failed to post give {why}");
             }
           } else {
             channel_message(ctx, msg, &rst).await;
@@ -149,7 +149,7 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
         .description(q)
         .footer(|f| f.text(footer))
       )).await {
-        error!("Failed to quote {}, {:?}", target.name, why);
+        error!("Failed to quote {}, {why}", target.name);
       }
     } else {
       channel_message( ctx

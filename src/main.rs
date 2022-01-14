@@ -21,9 +21,9 @@ mod amadeus;
 #[tokio::main(worker_threads=8)]
 async fn main() -> anyhow::Result<()> {
   let iopts = common::options::get_ioptions()
-                .map_err(|e| anyhow!("Failed to parse Dhall config {:?}", e))?;
+                .map_err(|e| anyhow!("Failed to parse Dhall config {e}"))?;
   if let Err(err) = amadeus::run(&iopts).await {
-    panic!("Amadeus died {:?}", err)
+    panic!("Amadeus died {err}")
   }
   Ok(())
 }
@@ -35,7 +35,7 @@ mod main_tests {
   #[test]
   fn conf_dhall() -> Result<(), String> {
     if let Err(why) = common::options::get_ioptions() {
-      Err(format!("Bad config {:?}", why))
+      Err(format!("Bad config {why}"))
     } else {
       Ok(())
     }

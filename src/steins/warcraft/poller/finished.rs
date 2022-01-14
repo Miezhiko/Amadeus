@@ -16,7 +16,7 @@ pub async fn check_match( matchid: &str
                         , playaz: &[DiscordPlayer]
                         , rqcl: &reqwest::Client
                         ) -> Option<FinishedGame> {
-  let url = format!("{}/matches/by-ongoing-match-id/{}", W3C_API, matchid);
+  let url = format!("{W3C_API}/matches/by-ongoing-match-id/{matchid}");
 
   let mut if_md: Option<MD> = None;
 
@@ -27,27 +27,27 @@ pub async fn check_match( matchid: &str
           if_md = Some(md);
         }
       }, Err(err) => {
-        warn!("Failed parse by-ongoing-match {:?}, url: {}", err, url);
+        warn!("Failed parse by-ongoing-match {err}, url: {url}");
       }
     }
   }
 
   // fallback mode when by-ongoing-match-id fails
   if if_md.is_none() {
-    if let Ok(wtf) = rqcl.get(&format!("{}/matches?offset=0", W3C_API))
+    if let Ok(wtf) = rqcl.get(&format!("{W3C_API}/matches?offset=0"))
                          .send()
                          .await {
       if let Ok(going) = wtf.json::<Going>().await {
         for mm in &going.matches {
           if mm.match_id == matchid {
-            let url = format!("{}/matches/{}", W3C_API, mm.id);
+            let url = format!("{W3C_API}/matches/{}", mm.id);
             if let Ok(res) = rqcl.get(&url).send().await {
               match res.json::<MD>().await {
                 Ok(md) => {
                   if_md = Some(md);
                   break;
                 }, Err(err) => {
-                  error!("Failed parse match/id result {:?}", err);
+                  error!("Failed parse match/id result {err}");
                 }
               }
             }

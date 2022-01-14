@@ -32,9 +32,9 @@ pub async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchErro
         if given == 0  && min == 1{
           "I need an argument to run this command".to_string()
         } else if given == 0 {
-          format!("I need atleast {} arguments to run this command", min)
+          format!("I need atleast {min} arguments to run this command")
         } else {
-          format!("I need {} arguments to run this command, but i was only given {}.", min, given)
+          format!("I need {min} arguments to run this command, but i was only given {given}.")
         }
       };
       // Send the message, but supress any errors that may occur.
@@ -75,7 +75,7 @@ pub async fn after( ctx: &Context
     error!("Error while running command {}", &cmd_name);
     error!("{:?}", &error);
     if let Err(why) = msg.channel_id.say(ctx, &why).await {
-      error!("Unable to send messages on channel {} {:?}", &msg.channel_id.0, why);
+      error!("Unable to send messages on channel {} {why}", &msg.channel_id.0);
     }
   }
 }
@@ -89,6 +89,7 @@ fn greeting_regex_from_str(c: &str) -> Option<Regex> {
 pub async fn unrecognised_command( ctx: &Context
                                  , msg: &Message
                                  , _command_name: &str ) {
+
   static GREETINGS_CHECKS: Lazy<Vec<Regex>> =
     Lazy::new(||
       GREETINGS.iter().filter_map(|c|
@@ -99,7 +100,7 @@ pub async fn unrecognised_command( ctx: &Context
     let mut rng = StdRng::from_entropy();
     if let Some(hi_reply) = GREETINGS.choose(&mut rng) {
       if let Err(why) = msg.reply(&ctx, hi_reply).await {
-        error!("Error sending greeting reply: {:?}", why);
+        error!("Error sending greeting reply: {why}");
       }
     }
   } else {

@@ -27,7 +27,7 @@ use async_recursion::async_recursion;
 async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -> String {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
   if gtry > 0 {
-    warn!("Failed to generate normal respons, try: {}", gtry);
+    warn!("Failed to generate normal respons, try: {gtry}");
   }
   let russian =
     if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0) {
@@ -54,7 +54,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
         match bert::ru2en(msg.content.clone(), lsm).await {
           Ok(translated) => translated,
           Err(why) => {
-            error!("Failed to translate msg content {:?}" , why);
+            error!("Failed to translate msg content {why}");
             msg.content.clone()
           }
         }
@@ -67,7 +67,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
               bert_generated = true;
               answer },
             Err(why) => {
-              error!("Failed to bert ask {:?}" , why);
+              error!("Failed to bert ask {why}");
               generate(ctx, msg, Some(russian)).await
             }
           }
@@ -77,7 +77,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
               bert_generated = true;
               answer },
             Err(why) => {
-              error!("Failed to bert chat with question {:?}" , why);
+              error!("Failed to bert chat with question {why}");
               generate(ctx, msg, Some(russian)).await
             }
           }
@@ -88,7 +88,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
             bert_generated = true;
             answer },
           Err(why) => {
-            error!("Failed to bert chat {:?}" , why);
+            error!("Failed to bert chat {why}");
             generate(ctx, msg, Some(russian)).await
           }
         }
@@ -117,7 +117,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
             answer = translated;
           }
         }, Err(why) => {
-          error!("Failed to translate answer to Russian {:?}" , why);
+          error!("Failed to translate answer to Russian {why}");
         }
       }
     } else {
@@ -151,7 +151,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
 async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -> String {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
   if gtry > 0 {
-    warn!("Failed to generate normal respons, try: {}", gtry);
+    warn!("Failed to generate normal respons, try: {gtry}");
   }
   let russian =
     if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0) {

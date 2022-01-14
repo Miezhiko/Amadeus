@@ -20,9 +20,9 @@ async fn register(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
   let key = &args.single::<String>()?;
   let value = args.rest();
   if let Err(why) = sled_info::store(key, value) {
-    error!("Failed to register {}, {:?}", key, why);
+    error!("Failed to register {key}, {why}");
   } else {
-    channel_message(ctx, msg, &format!("Registered {}", key)).await;
+    channel_message(ctx, msg, &format!("Registered {key}")).await;
   }
   Ok(())
 }
@@ -35,7 +35,7 @@ async fn show(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     Ok(val) => {
       channel_message(ctx, msg, &val).await;
     }, Err(why) => {
-      error!("Failed to get {}, {:?}", key, why);
+      error!("Failed to get {key}, {why}");
     }
   }
   Ok(())
@@ -47,7 +47,7 @@ async fn list(ctx: &Context, msg: &Message) -> CommandResult {
     Ok(val) => {
       channel_message(ctx, msg, &val).await;
     }, Err(why) => {
-      error!("Failed to show info list {:?}", why);
+      error!("Failed to show info list, {why}");
     }
   }
   Ok(())
@@ -59,9 +59,9 @@ async fn delete(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let key = &args.single::<String>()?;
   match sled_info::delete(key) {
     Ok(_) => {
-      channel_message(ctx, msg, &format!("Deleted {}", key)).await;
+      channel_message(ctx, msg, &format!("Deleted {key}")).await;
     }, Err(why) => {
-      error!("Failed to get {}, {:?}", key, why);
+      error!("Failed to get {key}, {why}");
     }
   }
   Ok(())

@@ -254,6 +254,6 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       })
     )
   }).await {
-    error!("Failed to register global application commands {:?}", why);
+    error!("Failed to register global application commands {why}");
   }
 }

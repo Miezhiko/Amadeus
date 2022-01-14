@@ -13,7 +13,7 @@ fn grab_servers() -> Vec<DiscordServer> {
                   .filter_map(|p| serde_dhall::from_file(p).parse().ok())
                   .collect::<Vec<DiscordServer>>(),
     Err(why) => {
-      error!("Missing dhall/team/teams/: {}", why); vec![]
+      error!("Missing dhall/team/teams/: {why}"); vec![]
     }
   }
 }
@@ -77,13 +77,13 @@ mod stuff_dhall_tests {
                                          .into_string().ok());
         for f in fnames {
           if let Err(dhall_error) = serde_dhall::from_file(&f).parse::<DiscordServer>() {
-            return Err(format!("Failed to parese {}, error: {}", f, dhall_error));
+            return Err(format!("Failed to parese {f}, error: {dhall_error}"));
           }
         }
         Ok(())
       },
       Err(why) => {
-        Err(format!("Missing dhall/team/teams/: {}", why))
+        Err(format!("Missing dhall/team/teams/: {why}"))
       }
     }
   }

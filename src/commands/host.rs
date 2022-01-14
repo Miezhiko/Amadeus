@@ -29,7 +29,7 @@ async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
     data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
   };
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   let mut rpc = get_grpc_client(flo_secret).await;
   let nodes_reply = rpc.list_nodes(()).await?;
@@ -47,7 +47,7 @@ async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
     .description(n_strs.join("\n"))
     .footer(|f| f.text(footer))
   )).await {
-    error!("Failed to post nodes {:?}", why);
+    error!("Failed to post nodes {why}");
   }
   Ok(())
 }
@@ -59,7 +59,7 @@ async fn flo_bans(ctx: &Context, msg: &Message) -> CommandResult {
     data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
   };
   if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command {:?}", why);
+    error!("Error deleting original command {why}");
   }
   let mut rpc = get_grpc_client(flo_secret).await;
   let bans_reply = rpc.list_player_bans(ListPlayerBansRequest {
@@ -86,7 +86,7 @@ async fn flo_bans(ctx: &Context, msg: &Message) -> CommandResult {
     .description(n_strs.join("\n"))
     .footer(|f| f.text(footer))
   )).await {
-    error!("Failed to post bans {:?}", why);
+    error!("Failed to post bans {why}");
   }
   Ok(())
 }
@@ -181,8 +181,6 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
       4
     };
 
-  // direct_message(ctx, msg, &format!("your token: {}", user_secret_res.token)).await;
-
   if let Some(p) = user_secret_res.player {
     let player_slot_settings = SlotSettings {
       team: 0,
@@ -228,7 +226,7 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
       .await?
       .into_inner();
 
-    channel_message(ctx, msg, &format!("Game {} started: {:?}", id, game_start)).await;
+    channel_message(ctx, msg, &format!("Game {id} started: {:?}", game_start)).await;
   } else {
     channel_message(ctx, msg, "Failed to get player").await;
   }
@@ -286,11 +284,6 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
       4
     };
 
-  /*
-  direct_message(ctx, msg, &format!("your token: {}\nopponent token: {}"
-                           , user_secret_res1.token, user_secret_res2.token)).await;
-  */
-
   if let Some(p1) = user_secret_res1.player {
     if let Some(p2) = user_secret_res2.player {
 
@@ -338,7 +331,7 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
         .await?
         .into_inner();
 
-      channel_message(ctx, msg, &format!("Game {} started: {:?}", id, game_start)).await;
+      channel_message(ctx, msg, &format!("Game {id} started: {:?}", game_start)).await;
     }
   }
 

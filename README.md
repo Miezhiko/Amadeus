@@ -62,7 +62,7 @@
 ## Cooking
 
  - Amadeus needs to link with [PyTorch](https://pytorch.org/), instructions on [tch-rs](https://github.com/LaurentMazare/tch-rs)
- - to compile just use `cargo build --release`
+ - to compile just use `cargo build --release` or `hake`
  - `cp conf.example.dhall conf.dhall` (initial constant options)
  - `cp conf.example.yml conf.yml` (those options may change in runtime)
  - generate token here: https://discord.com/developers/applications

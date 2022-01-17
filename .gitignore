@@ -15,6 +15,9 @@ misc/secret
 *.w3g
 *.out
 *.lock
+*.hi
+*.o
+hake
 
 # deepseach models
 ds/

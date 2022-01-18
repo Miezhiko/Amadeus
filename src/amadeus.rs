@@ -72,8 +72,14 @@ pub async fn run(opts: &IOptions) ->
 
   let mut creds = HashMap::new();
   creds.insert("tenor".to_string(), opts.tenor_key.clone());
-  creds.insert("twitch_client".to_string(), opts.twitch_client_id.clone());
-  creds.insert("twitch_secret".to_string(), opts.twitch_client_secret.clone());
+
+  #[cfg(feature = "trackers")]
+  {
+    creds.insert("twitch_client".to_string(), opts.twitch_client_id.clone());
+    creds.insert("twitch_secret".to_string(), opts.twitch_client_secret.clone());
+  }
+
+  #[cfg(feature = "flo")]
   creds.insert("flo".to_string(), opts.flo_secret.clone());
 
   let mut core_guilds = HashMap::new();

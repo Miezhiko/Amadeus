@@ -1,5 +1,6 @@
 use crate::{ collections::{ base::GREETINGS
                           , channels::IGNORED }
+           , common::constants::PREFIX
            , common::i18n::{ help_i18n, US_ENG }
            , steins::ai::response
            };
@@ -89,7 +90,11 @@ fn greeting_regex_from_str(c: &str) -> Option<Regex> {
 pub async fn unrecognised_command( ctx: &Context
                                  , msg: &Message
                                  , _command_name: &str ) {
-
+  if msg.content.starts_with(PREFIX) {
+    // Don't chat with prefix like ~hell how are you
+    // Only reply if was mentioned
+    return;
+  }
   static GREETINGS_CHECKS: Lazy<Vec<Regex>> =
     Lazy::new(||
       GREETINGS.iter().filter_map(|c|

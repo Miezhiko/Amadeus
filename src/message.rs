@@ -104,9 +104,10 @@ pub async fn process( ioptions: &IOptions
     }
     for embed in &msg.embeds {
       let mut not_stupid_zephyr = true;
-      
+
       if let Some(desc) = &embed.description {
-        if desc.contains("DiscordAPIError") {
+        if desc.contains("DiscordAPIError")
+        || desc.contains("Unknown Message") {
           not_stupid_zephyr = false;
         }
       }

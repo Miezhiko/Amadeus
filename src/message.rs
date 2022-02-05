@@ -9,7 +9,7 @@ use crate::{
   common::{ db::trees::points
           , help::lang
           , msg::channel_message
-          , constants::{ PREFIX, UNBLOCK_ROLE }
+          , constants::{ PREFIX, MODERATION, UNBLOCK_ROLE }
           },
   collections::{ base::{ REACTIONS, WHITELIST }
                , channels::{ AI_ALLOWED, IGNORED }
@@ -122,6 +122,19 @@ pub async fn process( ioptions: &IOptions
       }
     }
   } else if !msg.content.starts_with(PREFIX) {
+    if msg.content.contains("disocrds.gift") {
+      if let Err(why) = &msg.delete(&ctx).await {
+        error!("Error deleting spam {:?}", why);
+      }
+      if let Err(why) = MODERATION.send_message(&ctx, |m| m
+        .embed(|e| {
+          e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+            .title("SCAM MESSAGE BLOCKED")
+            .timestamp(chrono::Utc::now().to_rfc3339())
+          })).await {
+        error!("Failed to log leaving user {why}");
+      }
+    }
     if let Some(guild_id) = msg.guild_id {
       if (&msg.mentions).iter().any(|u| u.bot) {
         if (&msg.mentions).iter().any(|u| u.bot && u.id == amadeus_id) {

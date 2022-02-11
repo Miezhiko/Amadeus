@@ -10,12 +10,7 @@ let b = ./../functions/b.dhall
 let playersList : List Playerx =
   [ t "PriesT#12658"        180213339111161856 "PriesTwc3"
   , t "Muffy#2299"          196231768880185344 "muffy_supergosu"
-  , { battletag = "Маша#21229"
-    , discord   = 510368731378089984
-    , streams   = Some { ggru = None Text
-                       , twitch = Some "Miezhiko"
-                       }
-    , other_acc = Some "Маша#21485" }
+  , t "Маша#21229"          510368731378089984 "Miezhiko"
   , t "hhh#2991"            510732278025027596 "hotwussy"
   , b "Reyenir#2169"        287914378513088515 "reyenir" "Cherry-Phoenix"
   , b "ag3nt#21617"         293268448212156416 "ag3ntik" "ag3nt"

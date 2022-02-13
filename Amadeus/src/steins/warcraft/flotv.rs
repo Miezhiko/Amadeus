@@ -5,19 +5,13 @@ mod schema {
 }
 
 #[derive(cynic::QueryFragment, Debug)]
-#[cynic(
-    schema_path = "../schemas/flotv.graphql",
-    query_module = "schema"
-)]
+#[cynic(schema_path = "../schemas/flotv.graphql")]
 pub struct Player {
   pub name: String
 }
 
 #[derive(cynic::QueryFragment, Debug)]
-#[cynic(
-    schema_path = "../schemas/flotv.graphql",
-    query_module = "schema"
-)]
+#[cynic(schema_path = "../schemas/flotv.graphql")]
 pub struct GameSnapshot {
   pub id: i32,
   pub players: Vec<Player>
@@ -37,7 +31,7 @@ struct GameSnapshotQuery {
 mod queries {
   use super::schema;
 
-  #[derive(cynic::FragmentArguments, Debug)]
+  #[derive(cynic::QueryVariables, Debug)]
   pub struct CreateObserverTokenArguments {
     pub game_id: i32
   }
@@ -50,24 +44,25 @@ mod queries {
   #[derive(cynic::QueryFragment, Debug)]
   #[cynic(
       graphql_type = "MutationRoot",
-      argument_struct = "CreateObserverTokenArguments"
+      variables = "CreateObserverTokenArguments"
   )]
   pub struct CreateObserverToken {
-    #[arguments(game_id = args.game_id)]
+    #[arguments(gameId: $game_id)]
     pub create_observer_token: ObserverTokenPayload
   }
 }
 
-fn build_query() -> cynic::Operation<'static, GameSnapshotQuery> {
+fn build_query() -> cynic::Operation<GameSnapshotQuery> {
   use cynic::QueryBuilder;
   GameSnapshotQuery::build(())
 }
 
-fn build_query_mutation(game_id: i32) -> cynic::Operation<'static, queries::CreateObserverToken> {
+fn build_query_mutation(game_id: i32)
+  -> cynic::Operation<queries::CreateObserverToken, queries::CreateObserverTokenArguments> {
   use cynic::MutationBuilder;
   use queries::{CreateObserverToken, CreateObserverTokenArguments};
 
-  CreateObserverToken::build(&CreateObserverTokenArguments {
+  CreateObserverToken::build(CreateObserverTokenArguments {
     game_id
   })
 }
@@ -103,7 +98,9 @@ pub async fn get_flotv( rqcl: &reqwest::Client
           p.player.battletag == pp.name
         )
       ) {
-        let grapql_mutation_result = run_query_mutation(rqcl, game.id).await?;
+        let grapql_mutation_result = run_query_mutation( rqcl
+                                                       , game.id
+                                                       ).await?;
         if let Some(r) = grapql_mutation_result.data {
           return Ok( Some( r.create_observer_token.token ) );
         } else {

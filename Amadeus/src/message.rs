@@ -13,9 +13,11 @@ use crate::{
   collections::{ base::{ REACTIONS, WHITELIST }
                , channels::{ AI_ALLOWED, IGNORED }
                , team::DISCORDS
-               },
-  spam::spam_check
+               }
 };
+
+#[cfg(feature = "spam_filter")]
+use crate::spam::spam_check;
 
 #[cfg(not(target_os = "windows"))]
 use crate::steins::ai::{ cache, chain, response };
@@ -124,6 +126,7 @@ pub async fn process( ioptions: &IOptions
     }
   } else if !msg.content.starts_with(PREFIX) {
     if let Some(guild_id) = msg.guild_id {
+      #[cfg(feature = "spam_filter")]
       spam_check(&guild_id, ctx, &msg).await;
       if (&msg.mentions).iter().any(|u| u.bot) {
         if (&msg.mentions).iter().any(|u| u.bot && u.id == amadeus_id) {

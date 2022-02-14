@@ -12,7 +12,11 @@ mod types;
 #[macro_use] mod common;
 
 mod collections; mod commands; mod steins;
-mod spam; mod message; mod handler; mod checks;
+
+#[cfg(feature = "spam_filter")]
+mod spam;
+
+mod message; mod handler; mod checks;
 mod slash; mod hooks; mod groups; mod amadeus;
 
 #[tokio::main(worker_threads=8)]

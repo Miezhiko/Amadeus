@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "10.2.1"
+version         = "10.2.2"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -14,6 +14,7 @@ rust-version    = "1.58.0"
 default = ["trackers", "torch", "flo"]
 trackers = []
 torch = []
+spam_filter = []
 flo = ["tonic", "hex", "flo-grpc"]
 voice_analysis = ["dasp_interpolate", "dasp_signal", "deepspeech"]
 full = ["flo", "voice_analysis", "trackers"]

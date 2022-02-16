@@ -359,6 +359,11 @@ pub async fn check_match( matchid: &str
         let player_scores =
           if let Some(scores) = &ps.iter().find(|s| {
             &s.battleTag == btag
+            || if !playaz[0].player.alt_accounts.is_empty() {
+              playaz[0].player.alt_accounts.iter().any(|other_acc|
+                other_acc == &s.battleTag
+              )
+            } else { false }
           }) { scores } else { &ps[0] };
         if !player_scores.heroes.is_empty() {
           maybe_hero_png = Some(get_hero_png(

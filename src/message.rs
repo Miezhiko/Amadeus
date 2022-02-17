@@ -122,20 +122,28 @@ pub async fn process( ioptions: &IOptions
       }
     }
   } else if !msg.content.starts_with(PREFIX) {
-    if msg.content.contains("disocrds.gift") {
-      if let Err(why) = &msg.delete(&ctx).await {
-        error!("Error deleting spam {:?}", why);
-      }
-      if let Err(why) = MODERATION.send_message(&ctx, |m| m
-        .embed(|e| {
-          e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-            .title("SCAM MESSAGE BLOCKED")
-            .timestamp(chrono::Utc::now().to_rfc3339())
-          })).await {
-        error!("Failed to log leaving user {why}");
-      }
-    }
     if let Some(guild_id) = msg.guild_id {
+      if msg.content.contains("disocrds.gift") {
+        if let Err(why) = &msg.delete(&ctx).await {
+          error!("Error deleting spam {:?}", why);
+        }
+        if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+          if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
+            let timeout = chrono::Utc::now() + chrono::Duration::days(1);
+            if let Err(why) = member.disable_communication_until_datetime(ctx, timeout).await {
+              error!("Failed to timeout user for a day {why}");
+            }
+          }
+        }
+        if let Err(why) = MODERATION.send_message(&ctx, |m| m
+          .embed(|e| {
+            e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+              .title("SCAM MESSAGE BLOCKED")
+              .timestamp(chrono::Utc::now().to_rfc3339())
+            })).await {
+          error!("Failed to log leaving user {why}");
+        }
+      }
       if (&msg.mentions).iter().any(|u| u.bot) {
         if (&msg.mentions).iter().any(|u| u.bot && u.id == amadeus_id) {
           set!{ amention1 = format!("<@{}>", amadeus_id)

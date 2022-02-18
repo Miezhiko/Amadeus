@@ -10,6 +10,7 @@ mod common;
 mod collections;
 mod commands;
 mod steins;
+mod spam;
 mod message;
 mod handler;
 mod checks;

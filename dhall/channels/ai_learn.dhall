@@ -25,6 +25,9 @@ let channels : List Channel =
   , ru 827154134163390535 -- nejit2
   , en 907157109655883786 -- learn something
   , en 249111029668249601 -- learn something else
+  , ru 766697158245089310 -- krch main
+  , ru 766759137760903200 -- krch wc3
+  , ru 936300983154258011 -- krch slon
   ]
 
 in channels

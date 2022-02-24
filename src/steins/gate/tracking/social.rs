@@ -1,10 +1,12 @@
 use crate::{
-  common::constants::{ MAIN_CHANNEL
-                     , MIST_CHANNEL },
+  common::constants::MAIN_CHANNEL,
   steins::ai::{ cache, chain }
 };
 
-use serenity::prelude::*;
+use serenity::{
+  prelude::*,
+  model::id::ChannelId
+};
 
 use std::{
   sync::atomic::Ordering,
@@ -23,10 +25,11 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
     loop {
       let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 20;
       let rndx = rand::thread_rng().gen_range(0..activity_level);
-      if rndx < 2 {
+      if rndx < 3 {
         let (chanz, ru) = match rndx {
           0 => { (MAIN_CHANNEL, true) },
-          _ => { (MIST_CHANNEL, true) }
+          1 => { ( ChannelId(766697158245089310), true) } // krch
+          _ => { ( ChannelId(827151604053835807), true) } // mist
         };
         let ai_text = chain::generate_with_language(&ctx_clone, ru).await;
         if let Err(why) = chanz.send_message(&ctx_clone, |m| {

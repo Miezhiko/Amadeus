@@ -12,7 +12,7 @@ use rust_bert::gpt_neo::{
 use rust_bert::{
   pipelines::common::ModelType,
   pipelines::text_generation::{TextGenerationConfig, TextGenerationModel},
-  resources::{RemoteResource, Resource}
+  resources::RemoteResource
 };
 
 use once_cell::sync::Lazy;
@@ -21,16 +21,16 @@ use tokio::{ task, sync::Mutex };
 use rand::seq::SliceRandom;
 
 fn neo_model_loader() -> TextGenerationModel {
-  let config_resource = Resource::Remote(RemoteResource::from_pretrained(
+  let config_resource = Box::new(RemoteResource::from_pretrained(
     GptNeoConfigResources::GPT_NEO_1_3B,
   ));
-  let vocab_resource = Resource::Remote(RemoteResource::from_pretrained(
+  let vocab_resource = Box::new(RemoteResource::from_pretrained(
     GptNeoVocabResources::GPT_NEO_1_3B,
   ));
-  let merges_resource = Resource::Remote(RemoteResource::from_pretrained(
+  let merges_resource = Box::new(RemoteResource::from_pretrained(
     GptNeoMergesResources::GPT_NEO_1_3B,
   ));
-  let model_resource = Resource::Remote(RemoteResource::from_pretrained(
+  let model_resource = Box::new(RemoteResource::from_pretrained(
     GptNeoModelResources::GPT_NEO_1_3B,
   ));
   let generate_config = TextGenerationConfig {

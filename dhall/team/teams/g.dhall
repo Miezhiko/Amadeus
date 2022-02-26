@@ -12,7 +12,6 @@ let playersList : List Playerx =
   , t "" 313372908627951616 "upsilondiesbackwards"
   , t "" 597418436683104266 "allenchen632293"
   , t "" 666971070972166145 "maxxolox"
-  , t "" 485255323502772255 "oterminal"
   , t "" 617111721080913975 "tommyluco"
   , t "" 652282204889546782 "thowilwin0"
   , t "" 452615881516646420 "blox_caster"

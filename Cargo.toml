@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "7.8.19"
+version         = "7.8.20"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -60,6 +60,7 @@ tch = "0.6.1"
 default-features = false
 git = "https://github.com/guillaume-be/rust-bert.git"
 branch = "master"
+features = [ "remote" ]
 
 [dependencies.songbird]
 default-features = false

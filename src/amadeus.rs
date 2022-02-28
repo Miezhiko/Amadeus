@@ -61,7 +61,7 @@ pub async fn run(opts: &IOptions) ->
       }
       (owners, info.id)
     },
-    Err(why) => panic!("Could not access application info: {why}"),
+    Err(why) => panic!("Could not access application info: {why}")
   };
 
   info!("application info loaded");
@@ -142,7 +142,7 @@ pub async fn run(opts: &IOptions) ->
               | GatewayIntents::GUILD_VOICE_STATES
               | GatewayIntents::GUILD_MEMBERS
               | GatewayIntents::GUILD_PRESENCES
-        )
+              )
       .event_handler(Handler::new( opts
                                  , runtime_options
                                  , amadeus_id

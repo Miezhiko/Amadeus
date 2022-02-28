@@ -4,7 +4,6 @@ use crate::{
            , RESTORE, BACKUP },
   types::{ serenity::CoreGuild
          , options::* },
-  steins::ai::chain,
   common::{ db::trees::{ points, roles, emojis }
           , constants::{ UNBLOCK_ROLE
                        , LIVE_ROLE
@@ -192,15 +191,12 @@ impl EventHandler for Handler {
         }
       }
     }
-    let ai_text = chain::generate_with_language(&ctx, false).await;
-    let title = format!("has left, {}", &ai_text);
-
     if let Some(ds) = DISCORDS.get(&guild_id.0) {
       if let Some(log) = ds.log {
         if let Err(why) = log.send_message(&ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&user.face()).name(&user.name))
-              .title(title)
+              .title("has left (or was kicked)")
               .timestamp(chrono::Utc::now().to_rfc3339())
             })).await {
           error!("Failed to log leaving user {why}");

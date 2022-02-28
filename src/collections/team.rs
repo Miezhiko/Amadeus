@@ -20,7 +20,7 @@ fn grab_servers() -> Vec<DiscordServer> {
   }
 }
 
-pub static SERVERS: Lazy<Vec<DiscordServer>> = Lazy::new(grab_servers);
+static SERVERS: Lazy<Vec<DiscordServer>> = Lazy::new(grab_servers);
 
 fn get_discord_servers() -> Discords {
   let mut discord_servers: Discords = Discords::new();

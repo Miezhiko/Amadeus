@@ -3,10 +3,7 @@ use crate::{
   commands::warcraft
 };
 
-use serenity::{
-  prelude::*,
-  model::id::ChannelId
-};
+use serenity::prelude::*;
 
 use std::{
   time,
@@ -22,8 +19,7 @@ pub async fn activate_w3info_tracking(ctx: &Arc<Context> ) {
     loop {
       let today: DateTime<Utc> = Utc::now();
       for (_, df) in DISCORDS.iter() {
-        if let Some(news_channel) = df.events {
-          let chan = ChannelId(news_channel);
+        if let Some(chan) = df.events {
           if let Err(why) =
             warcraft::tour_internal( &ctx_clone
                                     , &chan, today

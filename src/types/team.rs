@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use serenity::model::id::ChannelId;
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Streams {
   pub ggru: Option<String>,
@@ -22,6 +24,7 @@ pub struct DiscordServer {
   pub games4: Option<u64>,
   pub streams: Option<u64>,
   pub events: Option<u64>,
+  pub log: Option<u64>,
   pub players: Vec<Player>
 }
 
@@ -31,7 +34,8 @@ pub struct DiscordFields {
   pub games2: Option<u64>,
   pub games4: Option<u64>,
   pub streams: Option<u64>,
-  pub events: Option<u64>,
+  pub events: Option<ChannelId>,
+  pub log: Option<ChannelId>,
 }
 
 pub type Discords = HashMap<u64, DiscordFields>;

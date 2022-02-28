@@ -39,6 +39,7 @@ let discord : Discordx = { uid      = 611822838831251466
                          , games4   = Some 864417767415349248
                          , streams  = Some 698766464420937768
                          , events   = Some 635912696675565608
+                         , log      = Some 740913303278321704
                          , players  = playersList }
 
 in discord

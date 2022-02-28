@@ -5,5 +5,6 @@ in { uid: Natural
    , games4: Optional Natural
    , streams: Optional Natural
    , events: Optional Natural
+   , log: Optional Natural
    , players: List Player
    }

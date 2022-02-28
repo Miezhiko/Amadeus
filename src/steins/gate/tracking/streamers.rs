@@ -5,8 +5,7 @@ use crate::{
          , goodgame::GoodGameData },
   collections::team::{ ALL, DISCORDS },
   common::constants::{ LIVE_ROLE
-                     , STREAM_PICS
-                     , MODERATION }
+                     , STREAM_PICS }
 };
 
 use serenity::{
@@ -111,8 +110,15 @@ pub async fn activate_streamers_tracking(
               let discord_guild_id = GuildId(*d);
               if let Ok(guild) = discord_guild_id.to_partial_guild(&ctx_clone).await {
                 if guild.member(&ctx_clone.http, user.id).await.is_err() {
-                  if let Err(why) = MODERATION.say(&ctx_clone, &format!("streamers: missing user: {} on {}", p.player.discord, d)).await {
-                    error!("streamers: failed to report leaving user {}", why);
+                  for d in &p.discords {
+                    if let Some(ds) = DISCORDS.get(d) {
+                      if let Some(log) = ds.log {
+                        if let Err(why) = log
+                          .say(&ctx_clone, &format!("streamers: missing user: {}", p.player.discord)).await {
+                            error!("streamers: failed to report leaving user {why}");
+                        }
+                      }
+                    }
                   }
                   do_continue = true;
                 }
@@ -447,8 +453,16 @@ pub async fn activate_streamers_tracking(
 
             streams.remove(&p.player.discord);
           }
-        } else if let Err(why) = MODERATION.say(&ctx_clone, &format!("streamers: missing user: {}", p.player.discord)).await {
-          error!("failed to report missing user {why}");
+        } else {
+          for d in &p.discords {
+            if let Some(ds) = DISCORDS.get(d) {
+              if let Some(log) = ds.log {
+                if let Err(why) = log.say(&ctx_clone, &format!("streamers: missing user: {}", p.player.discord)).await {
+                  error!("failed to report missing user {why}");
+                }
+              }
+            }
+          }
         }
 	      // with 5 sec delay for each
         tokio::time::sleep(time::Duration::from_secs(5)).await;

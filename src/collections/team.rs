@@ -3,6 +3,8 @@ use crate::types::team::{ Discords
                         , DiscordPlayer
                         , DiscordServer };
 
+use serenity::model::id::ChannelId;
+
 use once_cell::sync::Lazy;
 
 fn grab_servers() -> Vec<DiscordServer> {
@@ -28,7 +30,9 @@ fn get_discord_servers() -> Discords {
                     , games2:   disc.games2
                     , games4:   disc.games4
                     , streams:  disc.streams
-                    , events:   disc.events };
+                    , events:   disc.events.map(ChannelId)
+                    , log:      disc.log.map(ChannelId)
+                    };
     discord_servers.insert(disc.uid, discord);
   }
   discord_servers

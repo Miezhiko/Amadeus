@@ -1,6 +1,4 @@
-use crate::{
-  common::constants::MODERATION
-};
+use crate::collections::team::DISCORDS;
 
 use serenity::{
   prelude::*,
@@ -25,13 +23,17 @@ pub async fn spam_check(
         }
       }
     }
-    if let Err(why) = MODERATION.send_message(&ctx, |m| m
-      .embed(|e| {
-        e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-          .title("SCAM MESSAGE BLOCKED")
-          .timestamp(chrono::Utc::now().to_rfc3339())
-        })).await {
-      error!("Failed to log leaving user {why}");
+    if let Some(ds) = DISCORDS.get(&guild_id.0) {
+      if let Some(log) = ds.log {
+        if let Err(why) = log.send_message(&ctx, |m| m
+          .embed(|e| {
+            e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+              .title("SCAM MESSAGE BLOCKED")
+              .timestamp(chrono::Utc::now().to_rfc3339())
+            })).await {
+          error!("Failed to log leaving user {why}");
+        }
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 use crate::{
   types::serenity::IContext,
   common::{ system
-          , constants::MODERATION },
+          , constants::GITHUB_PRS },
   steins::ai::{ bert, reinit }
 };
 
@@ -59,7 +59,7 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
         if let Ok(mem_mb) = system::stats::get_memory_mb().await {
           // USE 24 GB RAM LIMIT FOR NOW
           if mem_mb > 1024.0 * 24.0 {
-            if let Err(why) = system::upgrade::upgrade_amadeus(&ctx_clone, &MODERATION).await {
+            if let Err(why) = system::upgrade::upgrade_amadeus(&ctx_clone, &GITHUB_PRS).await {
               error!("Failed to run upgrade {:?}", why);
             }
           } else if mem_mb > 1024.0 * 13.0 {

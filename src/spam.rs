@@ -28,7 +28,7 @@ pub async fn spam_check(
         if let Err(why) = log.send_message(&ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-              .title("SCAM MESSAGE BLOCKED")
+              .title(&format!("SCAM MESSAGE BLOCKED\nUser UID: {}", msg.author.id.0))
               .timestamp(chrono::Utc::now().to_rfc3339())
             })).await {
           error!("Failed to log leaving user {why}");

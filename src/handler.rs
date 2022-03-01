@@ -196,7 +196,7 @@ impl EventHandler for Handler {
         if let Err(why) = log.send_message(&ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&user.face()).name(&user.name))
-              .title("has left (or was kicked)")
+              .title(&format!("has left (or was kicked)\nUID: {}", user.id.0))
               .timestamp(chrono::Utc::now().to_rfc3339())
             })).await {
           error!("Failed to log leaving user {why}");

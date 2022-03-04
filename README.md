@@ -56,6 +56,8 @@
  - Bets on live games with `~bet` and emojis under Live tracking games
  - Warcraft 3 commands `~stats`, `~today` and more with info from wacraft3.info and W3C ladder
  - Warcraft 3 hostbot API integration (creating games) using flo services and tonic for RPC
+ - Some anti-spam protection (Free nitro scam and maybe more)
+ - Query package atoms from [Zugaina](http://gpo.zugaina.org)
 
 
 ## Cooking

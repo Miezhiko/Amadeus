@@ -297,7 +297,8 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
   if let Ok(mut statusmsg2) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG2).await {
 
     let weekly = get_weekly(ctx).await?;
-    let now = chrono::Utc::now();
+    let utc_now = chrono::Utc::now();
+    let now = utc_now.with_timezone(&chrono_tz::Europe::Moscow);
     // only check on midnight
     if now.hour() == 0 {
       let now_day = now.date_naive().day();

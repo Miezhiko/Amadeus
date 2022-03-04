@@ -89,7 +89,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.4.10"
+version = "10.4.11"
 dependencies = [
  "anyhow",
  "async-recursion",

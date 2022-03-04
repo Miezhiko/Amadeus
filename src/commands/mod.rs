@@ -10,6 +10,7 @@ pub mod bets;
 pub mod info;
 pub mod music;
 pub mod moderator;
+pub mod gentoo;
 
 #[cfg(feature = "flo")]
 pub mod host;

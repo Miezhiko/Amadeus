@@ -5,7 +5,7 @@ use crate::commands::{
 , owner::*, moderator::*
 , tictactoe::*, images::*
 , translation::*, info::*
-, bets::*, music::*
+, bets::*, music::*, gentoo::*
 };
 
 #[cfg(feature = "flo")]
@@ -73,3 +73,8 @@ pub struct Moderator;
 #[help_available(false)]
 #[commands(flo_nodes, flo_bans, register_player, register_me, host_vs, host_vs_amadeus)]
 pub struct Flo;
+
+#[group("Gentoo")]
+#[help_available(true)]
+#[commands(zugaina)]
+pub struct Gentoo;

@@ -19,7 +19,7 @@ pub static MSUF: &str = "trees/mtree.lusf";
 
 fn get_storage(tree: &str) -> Storage<FileNvm> {
   if !Path::new(tree).exists() {
-    let f = FileNvm::create(tree, 666666666).unwrap();
+    let f = FileNvm::create(tree, 6666666666).unwrap();
     let storage: Storage<FileNvm> = Storage::create(f).unwrap();
     storage
   } else {

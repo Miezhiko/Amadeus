@@ -32,8 +32,6 @@ let playersList : List Playerx =
   , t "" 274938691900669953 "zaechus"
   , t "" 295561288325791745 "sindibad363"
   , t "" 265995727409381377 "hersen"
-  , t "" 371432625815945226 "fernandino456"
-  , t "" 371432625815945226 "djinnks"
   ]
 
 let discord : Discordx = { uid      = 249111029668249601

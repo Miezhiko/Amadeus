@@ -134,9 +134,7 @@ async fn generate_response( ctx: &Context
     }
     *answer = answer.as_str().trim().to_string();
   }
-  if let Ok(typing) = start_typing {
-    typing.stop();
-  }
+  start_typing.stop();
   #[allow(clippy::manual_filter)]
   if let Some(answer) = answer_option {
     if answer.is_empty() || answer.len() < 3 {
@@ -191,9 +189,7 @@ async fn generate_response( ctx: &Context
         };
     }
   }
-  if let Ok(typing) = start_typing {
-    typing.stop();
-  }
+  start_typing.stop();
   let trimmd = answer.as_str().trim();
   if trimmd.is_empty() || trimmd.len() < 3 {
     sleep(Duration::from_millis(100)).await;

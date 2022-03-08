@@ -122,8 +122,6 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: ChannelId) -> anyhow::Re
       }
     }
   }
-  if let Ok(typing) = start_typing {
-    typing.stop();
-  }
+  start_typing.stop();
   Ok(())
 }

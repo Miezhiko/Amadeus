@@ -132,9 +132,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
   } else {
     msg.channel_id.say(ctx, "Please mention a person!").await?;
   }
-  if let Ok(typing) = start_typing {
-    typing.stop();
-  }
+  start_typing.stop();
   Ok(())
 }
 
@@ -197,9 +195,7 @@ pub async fn gifs<C: Into<Colour>>( ctx: &Context
   } else {
     msg.edit(ctx, EditMessage::default().content("Please mention a person!")).await?;
   }
-  if let Ok(typing) = start_typing {
-    typing.stop();
-  }
+  start_typing.stop();
   Ok(())
 }
 

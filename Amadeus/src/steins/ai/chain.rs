@@ -80,15 +80,11 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
       }
     }
     if have_something {
-      if let Ok(typing) = start_typing {
-        typing.stop();
-      }
+      start_typing.stop();
       return Some(chain.generate_str());
     }
   }
-  if let Ok(typing) = start_typing {
-    typing.stop();
-  }
+  start_typing.stop();
   None
 }
 

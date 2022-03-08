@@ -208,9 +208,7 @@ pub async fn update_cache( ctx: &Context
             }
           }
         }
-        if let Ok(typing) = start_typing {
-          typing.stop();
-        }
+        start_typing.stop();
       }
     }
   }

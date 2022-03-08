@@ -444,9 +444,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {why}");
   }
-  if let Ok(typing) = start_typing {
-    typing.stop();
-  }
+  start_typing.stop();
   Ok(())
 }
 
@@ -512,9 +510,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
       if race_vs_num == 0 {
         channel_message(ctx, msg, "Can't parse that race").await;
-        if let Ok(typing) = start_typing {
-          typing.stop();
-        }
+        start_typing.stop();
         return Ok(());
       }
 
@@ -589,9 +585,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {why}");
   }
-  if let Ok(typing) = start_typing {
-    typing.stop();
-  }
+  start_typing.stop();
   Ok(())
 }
 
@@ -725,9 +719,7 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {why}");
   }
-  if let Ok(typing) = start_typing {
-    typing.stop();
-  }
+  start_typing.stop();
   Ok(())
 }
 

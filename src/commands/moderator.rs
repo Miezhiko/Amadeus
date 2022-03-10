@@ -1,14 +1,19 @@
-use crate::common::{
-  constants::MUTED_ROLE,
-  msg::channel_message
+use crate::{
+  collections::team::DISCORDS,
+  common::{
+    constants::MUTED_ROLE,
+    msg::channel_message
+  }
 };
 
 use serenity::{
-  model::{ id::ChannelId, channel::* },
+  model::{ id::{ ChannelId, UserId }
+         , channel::*
+         , permissions::Permissions },
   prelude::*,
   framework::standard::{ CommandResult
-                        , macros::command
-                        , Args }
+                       , macros::command
+                       , Args }
 };
 
 #[command]
@@ -94,6 +99,59 @@ async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> Comman
     target_channel.mention(),
     comefrom_message.link_ensured(ctx).await
   )).await;
+
+  Ok(())
+}
+
+#[command]
+#[required_permissions(BAN_MEMBERS)]
+#[min_args(2)]
+async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  set!{ timeout_channel = ChannelId( args.single::<u64>()? )
+      , user_id = UserId( args.single::<u64>()? )
+      , channel = timeout_channel.to_channel(ctx).await?
+      , msg_guild_id = msg.guild_id.unwrap_or_default() };
+  match channel.guild() {
+    Some(guild_channel) => {
+      if guild_channel.guild_id != msg_guild_id {
+        return Err("Can't timeout to different guild channel".into());
+      }
+    },
+    None => {
+      return Err("Only work for guild channels".into());
+    }
+  };
+
+  if let Ok(guild) = msg_guild_id.to_partial_guild(ctx).await {
+    if let Ok(mut member) = guild.member(ctx, user_id).await {
+      let timeout = chrono::Utc::now() + chrono::Duration::hours(1);
+      member.disable_communication_until_datetime(ctx, timeout).await?;
+      let allow = Permissions::SEND_MESSAGES | Permissions::READ_MESSAGES;
+      let overwrite = PermissionOverwrite {
+        allow, deny: Permissions::empty(),
+        kind: PermissionOverwriteType::Member(user_id)
+      };
+      timeout_channel.create_permission(ctx, &overwrite).await?;
+      timeout_channel.send_message(&ctx, |m| m
+        .embed(|e| {
+          e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+            .title(&format!("{} you was timed out by {}", member.user.mention(), msg.author.name))
+            .timestamp(chrono::Utc::now().to_rfc3339())
+          })).await?;
+      if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
+        if let Some(log) = ds.log {
+          log.send_message(ctx, |m| m
+            .embed(|e| {
+              e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                .title(&format!("{} timed out {}", msg.author.name, member.user.name))
+                .timestamp(chrono::Utc::now().to_rfc3339())
+              })).await?;
+        }
+      }
+    } else {
+      return Err("User is not member of guild".into());
+    }
+  }
 
   Ok(())
 }

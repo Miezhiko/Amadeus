@@ -24,14 +24,12 @@ async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
       channel_message(ctx, msg, "you need to target who to mute").await;
     } else {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-      if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-        if let Ok(mut member) = guild.member(&ctx, target_user.id).await {
-          if let Some(role) = guild.role_by_name(MUTED_ROLE) {
-            if !member.roles.contains(&role.id) {
-              if let Err(why) = member.add_role(&ctx, role).await {
-                error!("Failed to assign muted role {why}");
-              }
-            }
+      let guild = guild_id.to_partial_guild(&ctx).await?;
+      let mut member = guild.member(&ctx, target_user.id).await?;
+      if let Some(role) = guild.role_by_name(MUTED_ROLE) {
+        if !member.roles.contains(&role.id) {
+          if let Err(why) = member.add_role(&ctx, role).await {
+            error!("Failed to assign muted role {why}");
           }
         }
       }
@@ -48,14 +46,12 @@ async fn unmute(ctx: &Context, msg: &Message) -> CommandResult {
       channel_message(ctx, msg, "you need to target who to unmute").await;
     } else {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-      if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-        if let Ok(mut member) = guild.member(&ctx, target_user.id).await {
-          if let Some(role) = guild.role_by_name(MUTED_ROLE) {
-            if member.roles.contains(&role.id) {
-              if let Err(why) = member.remove_role(&ctx, role).await {
-                error!("Failed to unassign muted role {why}");
-              }
-            }
+      let guild = guild_id.to_partial_guild(&ctx).await?;
+      let mut member = guild.member(&ctx, target_user.id).await?;
+      if let Some(role) = guild.role_by_name(MUTED_ROLE) {
+        if member.roles.contains(&role.id) {
+          if let Err(why) = member.remove_role(&ctx, role).await {
+            error!("Failed to unassign muted role {why}");
           }
         }
       }
@@ -122,35 +118,34 @@ async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     }
   };
 
-  if let Ok(guild) = msg_guild_id.to_partial_guild(ctx).await {
-    if let Ok(mut member) = guild.member(ctx, user_id).await {
-      let timeout = chrono::Utc::now() + chrono::Duration::hours(1);
-      member.disable_communication_until_datetime(ctx, timeout).await?;
-      let allow = Permissions::SEND_MESSAGES | Permissions::READ_MESSAGES;
-      let overwrite = PermissionOverwrite {
-        allow, deny: Permissions::empty(),
-        kind: PermissionOverwriteType::Member(user_id)
-      };
-      timeout_channel.create_permission(ctx, &overwrite).await?;
-      timeout_channel.send_message(&ctx, |m| m
-        .embed(|e| {
-          e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-            .title(&format!("{} you was timed out by {}", member.user.mention(), msg.author.name))
-            .timestamp(chrono::Utc::now().to_rfc3339())
-          })).await?;
-      if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
-        if let Some(log) = ds.log {
-          log.send_message(ctx, |m| m
-            .embed(|e| {
-              e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                .title(&format!("{} timed out {}", msg.author.name, member.user.name))
-                .timestamp(chrono::Utc::now().to_rfc3339())
-              })).await?;
-        }
+  let guild = msg_guild_id.to_partial_guild(ctx).await?;
+  if let Ok(mut member) = guild.member(ctx, user_id).await {
+    let timeout = chrono::Utc::now() + chrono::Duration::hours(1);
+    member.disable_communication_until_datetime(ctx, timeout).await?;
+    let allow = Permissions::SEND_MESSAGES | Permissions::READ_MESSAGES;
+    let overwrite = PermissionOverwrite {
+      allow, deny: Permissions::empty(),
+      kind: PermissionOverwriteType::Member(user_id)
+    };
+    timeout_channel.create_permission(ctx, &overwrite).await?;
+    timeout_channel.send_message(&ctx, |m| m
+      .embed(|e| {
+        e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+          .title(&format!("{} you was timed out by {}", member.user.mention(), msg.author.name))
+          .timestamp(chrono::Utc::now().to_rfc3339())
+        })).await?;
+    if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
+      if let Some(log) = ds.log {
+        log.send_message(ctx, |m| m
+          .embed(|e| {
+            e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+              .title(&format!("{} timed out {}", msg.author.name, member.user.name))
+              .timestamp(chrono::Utc::now().to_rfc3339())
+            })).await?;
       }
-    } else {
-      return Err("User is not member of guild".into());
     }
+  } else {
+    return Err("User is not member of guild".into());
   }
 
   Ok(())

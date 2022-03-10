@@ -35,6 +35,7 @@ use serenity::{
 
 use std::{ borrow::Cow
          , sync::atomic::{ Ordering, AtomicBool }
+         , collections::HashSet
          };
 
 use once_cell::sync::Lazy;
@@ -53,8 +54,8 @@ impl Handler {
   }
 }
 
-pub static MUTED: Lazy<Mutex<Vec<UserId>>> =
-  Lazy::new(|| Mutex::new(Vec::new()));
+pub static MUTED: Lazy<Mutex<HashSet<UserId>>> =
+  Lazy::new(|| Mutex::new(HashSet::new()));
 
 #[async_trait]
 impl EventHandler for Handler {
@@ -146,22 +147,12 @@ impl EventHandler for Handler {
     let mut muted_lock = MUTED.lock().await;
     if muted_lock.contains(&member.user.id) {
       if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-        if let Ok(mut member) = guild.member(&ctx, member.user.id).await {
-          if let Some(role) = guild.role_by_name(MUTED_ROLE) {
-            if !member.roles.contains(&role.id) {
-              if let Err(why) = member.add_role(&ctx, role).await {
-                error!("Failed to assign muted role {why}");
-              } else {
-                let mut found_users = vec![];
-                for (i, u) in muted_lock.iter().enumerate() {
-                  if *u == member.user.id {
-                    found_users.push(i);
-                  }
-                }
-                for i in found_users {
-                  muted_lock.remove(i);
-                }
-              }
+        if let Some(role) = guild.role_by_name(MUTED_ROLE) {
+          if !member.roles.contains(&role.id) {
+            if let Err(why) = member.add_role(&ctx, role).await {
+              error!("Failed to assign muted role {why}");
+            } else {
+              muted_lock.remove(&member.user.id);
             }
           }
         }
@@ -177,15 +168,17 @@ impl EventHandler for Handler {
     }
   }
 
-  async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, _: Option<Member>) {
-    let _was_on_chat = points::clear_points(guild_id.0, user.id.0).await;
+  async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, m: Option<Member>) {
+    if let Err(why) = points::clear_points(guild_id.0, user.id.0).await {
+      error!("some problem with points: {why}");
+    }
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-      if let Ok(member) = guild.member(&ctx, user.id).await {
+      if let Some(member) = m {
         if let Some(role) = guild.role_by_name(MUTED_ROLE) {
           if member.roles.contains(&role.id) {
             let mut muted_lock = MUTED.lock().await;
             if !muted_lock.contains(&member.user.id) {
-              muted_lock.push(member.user.id);
+              muted_lock.insert(member.user.id);
             }
           }
         }

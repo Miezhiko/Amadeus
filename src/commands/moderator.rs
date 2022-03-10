@@ -131,7 +131,7 @@ async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     timeout_channel.send_message(&ctx, |m| m
       .embed(|e| {
         e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-          .title(&format!("{} you was timed out by {}", member.user.mention(), msg.author.name))
+          .title(&format!("{} you was timed out by {}", member.user.name, msg.author.name))
           .timestamp(chrono::Utc::now().to_rfc3339())
         })).await?;
     if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
@@ -140,6 +140,40 @@ async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
           .embed(|e| {
             e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
               .title(&format!("{} timed out {}", msg.author.name, member.user.name))
+              .timestamp(chrono::Utc::now().to_rfc3339())
+            })).await?;
+      }
+    }
+  } else {
+    return Err("User is not member of guild".into());
+  }
+
+  Ok(())
+}
+
+
+#[command]
+#[required_permissions(BAN_MEMBERS)]
+#[min_args(1)]
+async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  set!{ user_id = UserId( args.single::<u64>()? )
+      , msg_guild_id = msg.guild_id.unwrap_or_default() };
+
+  let guild = msg_guild_id.to_partial_guild(ctx).await?;
+  if let Ok(mut member) = guild.member(ctx, user_id).await {
+    member.enable_communication(ctx).await?;
+    msg.channel_id.send_message(&ctx, |m| m
+      .embed(|e| {
+        e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+          .title(&format!("{} was untimeouted out by {}", member.user.name, msg.author.name))
+          .timestamp(chrono::Utc::now().to_rfc3339())
+        })).await?;
+    if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
+      if let Some(log) = ds.log {
+        log.send_message(ctx, |m| m
+          .embed(|e| {
+            e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+              .title(&format!("{} removed time out from {}", msg.author.name, member.user.name))
               .timestamp(chrono::Utc::now().to_rfc3339())
             })).await?;
       }

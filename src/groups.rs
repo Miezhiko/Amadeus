@@ -65,7 +65,7 @@ pub struct Owner;
 #[group("Moderator")]
 #[checks(Moderator)]
 #[help_available(false)]
-#[commands(mute, unmute, move_discussion, timeout_to)]
+#[commands(mute, unmute, move_discussion, timeout_to, untimeout)]
 pub struct Moderator;
 
 #[cfg(feature = "flo")]

@@ -2,7 +2,8 @@ use crate::{
   collections::team::DISCORDS,
   common::{
     constants::MUTED_ROLE,
-    msg::channel_message
+    msg::channel_message,
+    help::channel::channel_by_name
   }
 };
 
@@ -102,14 +103,12 @@ async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> Comman
 #[command]
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
-async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   set!{ user_id = UserId( args.single::<u64>()? )
       , msg_guild_id = msg.guild_id.unwrap_or_default() };
 
   let reason = if args.len() > 1 {
-    if let Ok(r) = args.single::<String>() {
-      Some(r)
-    } else { None }
+    Some( args.rest() )
   } else { None };
 
   let guild = msg_guild_id.to_partial_guild(ctx).await?;
@@ -139,25 +138,18 @@ async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
       };
       permisssions_vec.push(muted_override);
     }
-    /*if let Some(mod_role) = guild.role_by_name("mod") {
-      let allow_mod = Permissions::MANAGE_CHANNELS;
-      let mod_override = PermissionOverwrite {
-        allow: allow_mod, deny: Permissions::empty(),
-        kind: PermissionOverwriteType::Role( mod_role.id )
-      };
-      permisssions_vec.push(mod_override);
-    }*/
+    let channel_name = format!("{}_timeout", member.user.name);
     let timeout_channel =
-      guild.create_channel(ctx, |c| c.name(&format!("{}_timeout", member.user.name))
-                                      .permissions(permisssions_vec)
-                                      .kind(ChannelType::Text)).await?;
+      guild.create_channel(ctx, |c| c.name(&channel_name)
+                                     .permissions(permisssions_vec)
+                                     .kind(ChannelType::Text)).await?;
 
     timeout_channel.send_message(&ctx, |m| m
       .embed(|e| {
         let mut e =
           e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-            .title(&format!("{} you was timed out by {}", member.user.name, msg.author.name))
-            .timestamp(chrono::Utc::now().to_rfc3339());
+           .title(&format!("{} you was timed out by {}", member.user.name, msg.author.name))
+           .timestamp(chrono::Utc::now().to_rfc3339());
         if let Some(r) = &reason {
           e = e.description(r);
         } e
@@ -167,8 +159,9 @@ async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
         log.send_message(ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-              .title(&format!("{} timed out {}", msg.author.name, member.user.name))
-              .timestamp(chrono::Utc::now().to_rfc3339())
+             .title(&format!("{} timed out {}", msg.author.name, member.user.name))
+             .timestamp(chrono::Utc::now().to_rfc3339())
+             .footer(|f| f.text(&format!("~j #{}", &channel_name)))
           })).await?;
       }
     }
@@ -176,6 +169,38 @@ async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     return Err("User is not member of guild".into());
   }
 
+  Ok(())
+}
+
+#[command]
+#[required_permissions(BAN_MEMBERS)]
+#[min_args(1)]
+async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  set!{ channel_name = args.single::<String>()?
+      , msg_guild_id = msg.guild_id.unwrap_or_default() };
+  if let Ok(channels) = msg_guild_id.channels(ctx).await {
+    if let Some((channel, _)) = channel_by_name(ctx, &channels, &channel_name).await {
+      let allow = Permissions::SEND_MESSAGES | Permissions::READ_MESSAGES;
+      let overwrite_moderator = PermissionOverwrite {
+        allow, deny: Permissions::empty(),
+        kind: PermissionOverwriteType::Member(msg.author.id)
+      };
+      channel.create_permission(ctx, &overwrite_moderator).await?;
+      if let Err(why) = channel.send_message(ctx, |m| m.content(&format!("{} has joined", msg.author.name))).await {
+        error!("Failed to log new user {why}");
+      }
+      if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
+        if let Some(log) = ds.log {
+          log.send_message(ctx, |m| m
+            .embed(|e| {
+              e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+               .title(&format!("{} joined {}", msg.author.name, &channel_name))
+               .timestamp(chrono::Utc::now().to_rfc3339())
+            })).await?;
+        }
+      }
+    }
+  }
   Ok(())
 }
 

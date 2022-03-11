@@ -7,7 +7,7 @@ use crate::{
 };
 
 use serenity::{
-  model::{ id::{ ChannelId, UserId }
+  model::{ id::{ ChannelId, UserId, RoleId }
          , channel::*
          , permissions::Permissions },
   prelude::*,
@@ -101,39 +101,63 @@ async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> Comman
 
 #[command]
 #[required_permissions(BAN_MEMBERS)]
-#[min_args(2)]
+#[min_args(1)]
 async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  set!{ timeout_channel = ChannelId( args.single::<u64>()? )
-      , user_id = UserId( args.single::<u64>()? )
-      , channel = timeout_channel.to_channel(ctx).await?
+  set!{ user_id = UserId( args.single::<u64>()? )
       , msg_guild_id = msg.guild_id.unwrap_or_default() };
-  match channel.guild() {
-    Some(guild_channel) => {
-      if guild_channel.guild_id != msg_guild_id {
-        return Err("Can't timeout to different guild channel".into());
-      }
-    },
-    None => {
-      return Err("Only work for guild channels".into());
-    }
-  };
+
+  let reason = if args.len() > 1 {
+    if let Ok(r) = args.single::<String>() {
+      Some(r)
+    } else { None }
+  } else { None };
 
   let guild = msg_guild_id.to_partial_guild(ctx).await?;
   if let Ok(mut member) = guild.member(ctx, user_id).await {
     let timeout = chrono::Utc::now() + chrono::Duration::hours(1);
     member.disable_communication_until_datetime(ctx, timeout).await?;
     let allow = Permissions::SEND_MESSAGES | Permissions::READ_MESSAGES;
-    let overwrite = PermissionOverwrite {
+    let deny = Permissions::READ_MESSAGES;
+    let overwrite_user = PermissionOverwrite {
       allow, deny: Permissions::empty(),
-      kind: PermissionOverwriteType::Member(user_id)
+      kind: PermissionOverwriteType::Member(member.user.id)
     };
-    timeout_channel.create_permission(ctx, &overwrite).await?;
+    let overwrite_all = PermissionOverwrite {
+      allow: Permissions::empty(), deny,
+      kind: PermissionOverwriteType::Role( RoleId( msg_guild_id.0 ))
+    };
+    let mut permisssions_vec = vec![overwrite_user, overwrite_all];
+    if let Some(muted_role) = guild.role_by_name(MUTED_ROLE) {
+      let allow_muted = Permissions::SEND_MESSAGES;
+      let muted_override = PermissionOverwrite {
+        allow: allow_muted, deny: Permissions::empty(),
+        kind: PermissionOverwriteType::Role( muted_role.id )
+      };
+      permisssions_vec.push(muted_override);
+    }
+    /*if let Some(mod_role) = guild.role_by_name("mod") {
+      let allow_mod = Permissions::MANAGE_CHANNELS;
+      let mod_override = PermissionOverwrite {
+        allow: allow_mod, deny: Permissions::empty(),
+        kind: PermissionOverwriteType::Role( mod_role.id )
+      };
+      permisssions_vec.push(mod_override);
+    }*/
+    let timeout_channel =
+      guild.create_channel(ctx, |c| c.name(&format!("{}_timeout", member.user.name))
+                                      .permissions(permisssions_vec)
+                                      .kind(ChannelType::Text)).await?;
+
     timeout_channel.send_message(&ctx, |m| m
       .embed(|e| {
-        e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-          .title(&format!("{} you was timed out by {}", member.user.name, msg.author.name))
-          .timestamp(chrono::Utc::now().to_rfc3339())
-        })).await?;
+        let mut e =
+          e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+            .title(&format!("{} you was timed out by {}", member.user.name, msg.author.name))
+            .timestamp(chrono::Utc::now().to_rfc3339());
+        if let Some(r) = &reason {
+          e = e.description(r);
+        } e
+      })).await?;
     if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
       if let Some(log) = ds.log {
         log.send_message(ctx, |m| m
@@ -141,7 +165,7 @@ async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
             e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
               .title(&format!("{} timed out {}", msg.author.name, member.user.name))
               .timestamp(chrono::Utc::now().to_rfc3339())
-            })).await?;
+          })).await?;
       }
     }
   } else {
@@ -150,7 +174,6 @@ async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 
   Ok(())
 }
-
 
 #[command]
 #[required_permissions(BAN_MEMBERS)]

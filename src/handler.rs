@@ -26,8 +26,10 @@ use serenity::{
   model::{ guild::ActionMessage
          , id::{ GuildId, MessageId, UserId, ChannelId, RoleId }
          , event::ResumedEvent, gateway::Ready, guild::Member
-         , channel::{ Message, Reaction, ReactionType }
+         , channel::{ Message, Reaction, ReactionType
+                    , PermissionOverwrite, PermissionOverwriteType }
          , user::User, interactions::Interaction
+         , permissions::Permissions
          },
   http::AttachmentType,
   builder::CreateEmbed
@@ -71,10 +73,10 @@ impl EventHandler for Handler {
         if let Some(serv) = self.ioptions.servers.iter().find(|s| s.id == guild_id.0) {
           if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
             definitions::create_app_commands(&ctx, &guild).await;
-            if serv.kind == CoreGuild::Unsafe {
-              if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
-                if let Ok(some_permissions) = member.permissions(&ctx).await {
-                  if some_permissions.administrator() {
+            if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
+              if let Ok(some_permissions) = member.permissions(&ctx).await {
+                if some_permissions.administrator() {
+                  if serv.kind == CoreGuild::Unsafe {
                     if guild.role_by_name(UNBLOCK_ROLE).is_none() {
                       if let Err(why) =
                         // Hadouken
@@ -106,6 +108,20 @@ impl EventHandler for Handler {
                               .mentionable(false)
                               .name(MUTED_ROLE)).await {
                         error!("Failed to create muted role, {why}");
+                      }
+                    }
+                  }
+                  if let Some(muted_role) = guild.role_by_name(MUTED_ROLE) {
+                    if let Ok(channels) = guild.channels(&ctx).await {
+                      for (chan, _) in channels {
+                        let deny = Permissions::SEND_MESSAGES;
+                        let overwrite = PermissionOverwrite {
+                          allow: Permissions::empty(), deny,
+                          kind: PermissionOverwriteType::Role(muted_role.id)
+                        };
+                        if let Err(why) = chan.create_permission(&ctx, &overwrite).await {
+                          error!("Failed to create channel override for muted role, {why}");
+                        }
                       }
                     }
                   }

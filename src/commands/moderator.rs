@@ -122,11 +122,15 @@ async fn timeout_to(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
       allow, deny: Permissions::empty(),
       kind: PermissionOverwriteType::Member(member.user.id)
     };
+    let overwrite_moderator = PermissionOverwrite {
+      allow, deny: Permissions::empty(),
+      kind: PermissionOverwriteType::Member(msg.author.id)
+    };
     let overwrite_all = PermissionOverwrite {
       allow: Permissions::empty(), deny,
       kind: PermissionOverwriteType::Role( RoleId( msg_guild_id.0 ))
     };
-    let mut permisssions_vec = vec![overwrite_user, overwrite_all];
+    let mut permisssions_vec = vec![overwrite_user, overwrite_moderator, overwrite_all];
     if let Some(muted_role) = guild.role_by_name(MUTED_ROLE) {
       let allow_muted = Permissions::SEND_MESSAGES;
       let muted_override = PermissionOverwrite {

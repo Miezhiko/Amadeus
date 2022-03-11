@@ -161,7 +161,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
             e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
              .title(&format!("{} timed out {}", msg.author.name, member.user.name))
              .timestamp(chrono::Utc::now().to_rfc3339())
-             .footer(|f| f.text(&format!("~j #{}", &channel_name)))
+             .footer(|f| f.text(&format!("~j {}", &timeout_channel.name)))
           })).await?;
       }
     }

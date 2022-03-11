@@ -21,8 +21,6 @@ let channels : List Channel =
   , ru 827151604053835807 -- nejit1
   , ru 827154134163390535 -- nejit2
   , en 907157109655883786 -- talks
-  , ru 766697158245089310 -- krch main
-  , ru 766759137760903200 -- krch wc3
   ]
 
 in channels

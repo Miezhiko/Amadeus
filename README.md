@@ -58,6 +58,7 @@
  - Warcraft 3 hostbot API integration (creating games) using flo services and tonic for RPC
  - Some anti-spam protection (Free nitro scam and maybe more)
  - Query package atoms from [Zugaina](http://gpo.zugaina.org)
+ - Some moderation automation, like timeout commands creating room for communicating with target user.
 
 
 ## Cooking

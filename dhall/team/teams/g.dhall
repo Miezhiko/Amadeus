@@ -8,7 +8,6 @@ let playersList : List Playerx =
   , t "" 82981134597619712 "nopjmp"
   , t "" 267080914134237184 "ethannij"
   , t "" 85124478685675520  "xartin"
-  , t "" 725303688192720977 "mdddmmmm"
   , t "" 313372908627951616 "upsilondiesbackwards"
   , t "" 597418436683104266 "allenchen632293"
   , t "" 666971070972166145 "maxxolox"

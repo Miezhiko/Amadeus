@@ -144,6 +144,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     let timeout_channel =
       guild.create_channel(ctx, |c| c.name(&channel_name)
                                      .permissions(permisssions_vec)
+                                     .rate_limit_per_user(2*60) // seconds
                                      .kind(ChannelType::Text)).await?;
 
     timeout_channel.send_message(&ctx, |m| m

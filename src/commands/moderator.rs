@@ -148,10 +148,11 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
                                      .kind(ChannelType::Text)).await?;
 
     timeout_channel.send_message(&ctx, |m| m
+      .content(&format!("{}\n", msg.author.mention()))
       .embed(|e| {
         let mut e =
           e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-           .title(&format!("{} you was timed out by {}", member.user.name, msg.author.name))
+           .title(&format!("You was timed out by {}", msg.author.name))
            .timestamp(chrono::Utc::now().to_rfc3339());
         if let Some(r) = &reason {
           e = e.description(r);

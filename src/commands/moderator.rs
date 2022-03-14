@@ -112,9 +112,11 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
   } else { None };
 
   let guild = msg_guild_id.to_partial_guild(ctx).await?;
-  if let Ok(mut member) = guild.member(ctx, user_id).await {
+  if let Ok(/*mut*/ member) = guild.member(ctx, user_id).await {
+    /*
     let timeout = chrono::Utc::now() + chrono::Duration::hours(1);
     member.disable_communication_until_datetime(ctx, timeout).await?;
+    */
     let allow = Permissions::SEND_MESSAGES | Permissions::READ_MESSAGES;
     let deny = Permissions::READ_MESSAGES;
     let overwrite_user = PermissionOverwrite {

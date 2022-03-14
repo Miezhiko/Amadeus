@@ -114,7 +114,19 @@ impl EventHandler for Handler {
                   if let Some(muted_role) = guild.role_by_name(MUTED_ROLE) {
                     if let Ok(channels) = guild.channels(&ctx).await {
                       for (chan, _) in channels {
-                        let deny = Permissions::SEND_MESSAGES;
+                        let deny = Permissions::SEND_MESSAGES
+                                 | Permissions::ADD_REACTIONS
+                                 | Permissions::STREAM
+                                 | Permissions::SEND_TTS_MESSAGES
+                                 | Permissions::ATTACH_FILES
+                                 | Permissions::EMBED_LINKS
+                                 | Permissions::SPEAK
+                                 | Permissions::CHANGE_NICKNAME
+                                 | Permissions::MANAGE_EMOJIS
+                                 | Permissions::USE_SLASH_COMMANDS
+                                 | Permissions::CREATE_PUBLIC_THREADS
+                                 | Permissions::CREATE_PRIVATE_THREADS
+                                 | Permissions::SEND_MESSAGES_IN_THREADS;
                         let overwrite = PermissionOverwrite {
                           allow: Permissions::empty(), deny,
                           kind: PermissionOverwriteType::Role(muted_role.id)

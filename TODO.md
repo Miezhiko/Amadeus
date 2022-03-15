@@ -1,6 +1,5 @@
 ##REALLY PLANNED:
 
- - Show rooms with prisoned people
  - Ban bad words
  - Select menu roles
  - Restructure team_checker module (code quality)

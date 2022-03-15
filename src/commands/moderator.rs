@@ -240,3 +240,24 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
 
   Ok(())
 }
+
+#[command]
+#[required_permissions(BAN_MEMBERS)]
+async fn prison(ctx: &Context, msg: &Message) -> CommandResult {
+  set!{ msg_guild_id = msg.guild_id.unwrap_or_default()
+      , guild = msg_guild_id.to_partial_guild(ctx).await?
+      , channels = guild.channels(&ctx).await? };
+  let mut prison_channels = vec![];
+  for (chan_id, chan) in channels {
+    if chan.name.ends_with("_timeout") {
+      let name = chan.name.replace("_timeout", "");
+      prison_channels.push(format!("{name}: {}", chan_id.mention()));
+    }
+  }
+  if !prison_channels.is_empty() {
+    channel_message(ctx, msg, prison_channels.join("\n").as_str()).await;
+  } else {
+    channel_message(ctx, msg, "no prison rooms found").await;
+  }
+  Ok(())
+}

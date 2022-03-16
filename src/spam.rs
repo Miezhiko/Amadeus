@@ -21,9 +21,6 @@ async fn delete( guild_id: &GuildId
                , disable_communication: bool
                , reason: &str
                ) {
-  if let Err(why) = &msg.delete(&ctx).await {
-    error!("Error deleting spam {:?}", why);
-  }
   if disable_communication {
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
@@ -47,6 +44,15 @@ async fn delete( guild_id: &GuildId
         error!("Failed to log leaving user {why}");
       }
     }
+  }
+  if let Err(why) = &msg.delete(&ctx).await {
+    error!("Error deleting spam {why}");
+  }
+  if let Err(why) =
+    msg.author.direct_message(ctx, |m|
+      m.content(&format!("your message was removed with reason: {reason}\n please contact moderators if you think it was done by mistake"))
+    ).await {
+    error!("Error sending message from spam blocker {why}");
   }
 }
 

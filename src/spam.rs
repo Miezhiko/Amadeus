@@ -10,10 +10,11 @@ use serenity::{
 use regex::Regex;
 use once_cell::sync::Lazy;
 
-//TODO: russian slurs
 static SLUR: Lazy<Regex> =
   Lazy::new(||
-    Regex::new(r"(fag(g|got|tard)?\b|cock\s?sucker(s|ing)?|ni((g{2,}|q)+|[gq]{2,})[e3r]+(s|z)?|bitch(es|ing|y)?|whor(es?|ing)|retard(ed)?s?)").unwrap());
+    Regex::new(
+      r"(fag(g|got|tard)?\b|cock\s?sucker(s|ing)?|ni((g{2,}|q)+|[gq]{2,})[ae3r]+(s|z)?|bitch(es|ing|y)?|whor(es?|ing)|(bas|re)tard(ed)?s?)"
+    ).unwrap());
 
 async fn delete( guild_id: &GuildId
                , ctx: &Context
@@ -72,8 +73,25 @@ pub async fn spam_check(
       }
     }
   }
-  if SLUR.is_match(&msg.content) {
+  if SLUR.is_match(&msg.content.to_lowercase()) {
     delete( guild_id, ctx, msg, false
           , "SLUR USED" ).await;
+  }
+}
+
+#[cfg(test)]
+mod antispam_tests {
+  use super::*;
+  #[test]
+  fn slurs_test() {
+    assert_eq!(
+      SLUR.is_match("bastard"), true
+    );
+    assert_eq!(
+      SLUR.is_match("hi nigga"), true
+    );
+    assert_eq!(
+      SLUR.is_match("Hello my friend"), false
+    );
   }
 }

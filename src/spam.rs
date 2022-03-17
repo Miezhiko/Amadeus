@@ -13,13 +13,20 @@ use once_cell::sync::Lazy;
 static SLUR: Lazy<Regex> =
   Lazy::new(||
     Regex::new(
-      r"(fag(g|got|tard)?\b|cock\s?sucker(s|ing)?|ni((g{2,}|q)+|[gq]{2,})[ae3r]+(s|z)?|bitch(es|ing|y)?|whor(es?|ing)|(bas|re)tard(ed)?s?)"
+      r"(fag(g|got|tard)?\b|slut|cock\s?sucker(s|ing)?|ni((g{2,}|q)+|[gq]{2,})[ae3r]+(s|z)?s?)"
     ).unwrap());
+
+static LIGHT_SLUR_LOL: Lazy<Regex> =
+    Lazy::new(||
+      Regex::new(
+        r"(bitch(es|ing|y)?|whor(es?|ing)|(bas|re)tard(ed)?s?)"
+      ).unwrap());
 
 async fn delete( guild_id: &GuildId
                , ctx: &Context
                , msg: &Message
                , disable_communication: bool
+               , really_delete: bool
                , reason: &str
                ) {
   if disable_communication {
@@ -46,14 +53,23 @@ async fn delete( guild_id: &GuildId
       }
     }
   }
-  if let Err(why) = &msg.delete(&ctx).await {
-    error!("Error deleting spam {why}");
-  }
-  if let Err(why) =
-    msg.author.direct_message(ctx, |m|
-      m.content(&format!("your message was removed with reason: {reason}\n please contact moderators if you think it was done by mistake"))
-    ).await {
-    error!("Error sending message from spam blocker {why}");
+  if really_delete {
+    if let Err(why) = &msg.delete(&ctx).await {
+      error!("Error deleting spam {why}");
+    }
+    if let Err(why) =
+      msg.author.direct_message(ctx, |m|
+        m.content(&format!("your message was removed with reason: {reason}\n please contact moderators if you think it was done by mistake"))
+      ).await {
+      error!("Error sending message from spam blocker {why}");
+    }
+  } else {
+    if let Err(why) =
+      msg.author.direct_message(ctx, |m|
+        m.content(&format!("please, try to avoid using bad words"))
+      ).await {
+      error!("Error sending message from spam blocker {why}");
+    }
   }
 }
 
@@ -61,21 +77,26 @@ pub async fn spam_check(
       guild_id: &GuildId
     , ctx: &Context
     , msg: &Message) {
-  if msg.content.contains("disocrds.gift") {
-    delete( guild_id, ctx, msg, true
+  let lowercase = msg.content.to_lowercase();
+  if lowercase.contains("disocrds.gift") {
+    delete( guild_id, ctx, msg, true, true
           , "SCAM MESSAGE BLOCKED" ).await;
   }
   for embed in &msg.embeds {
     if let Some(url) = &embed.url {
       if url.contains("disocrds.gift") {
-        delete( guild_id, ctx, msg, true
+        delete( guild_id, ctx, msg, true, true
               , "SCAM MESSAGE BLOCKED" ).await;
       }
     }
   }
-  if SLUR.is_match(&msg.content.to_lowercase()) {
-    delete( guild_id, ctx, msg, false
+  if SLUR.is_match(&lowercase) {
+    delete( guild_id, ctx, msg, false, true
           , "SLUR USED" ).await;
+  }
+  if LIGHT_SLUR_LOL.is_match(&lowercase) {
+    delete( guild_id, ctx, msg, false, false
+          , "LIGHT SLUR USED" ).await;
   }
 }
 
@@ -85,7 +106,10 @@ mod antispam_tests {
   #[test]
   fn slurs_test() {
     assert_eq!(
-      SLUR.is_match("bastard"), true
+      SLUR.is_match("retard"), false
+    );
+    assert_eq!(
+      LIGHT_SLUR_LOL.is_match("bastard"), true
     );
     assert_eq!(
       SLUR.is_match("hi nigga"), true

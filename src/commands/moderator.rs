@@ -112,11 +112,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
   } else { None };
 
   let guild = msg_guild_id.to_partial_guild(ctx).await?;
-  if let Ok(/*mut*/ member) = guild.member(ctx, user_id).await {
-    /*
-    let timeout = chrono::Utc::now() + chrono::Duration::hours(1);
-    member.disable_communication_until_datetime(ctx, timeout).await?;
-    */
+  if let Ok(mut member) = guild.member(ctx, user_id).await {
     let allow = Permissions::SEND_MESSAGES | Permissions::READ_MESSAGES;
     let deny = Permissions::READ_MESSAGES;
     let overwrite_user = PermissionOverwrite {
@@ -133,12 +129,16 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     };
     let mut permisssions_vec = vec![overwrite_user, overwrite_moderator, overwrite_all];
     if let Some(muted_role) = guild.role_by_name(MUTED_ROLE) {
+      member.add_role(ctx, muted_role).await?;
       let allow_muted = Permissions::SEND_MESSAGES;
       let muted_override = PermissionOverwrite {
         allow: allow_muted, deny: Permissions::empty(),
         kind: PermissionOverwriteType::Role( muted_role.id )
       };
       permisssions_vec.push(muted_override);
+    } else {
+      let timeout = chrono::Utc::now() + chrono::Duration::hours(1);
+      member.disable_communication_until_datetime(ctx, timeout).await?;
     }
     let channel_name = format!("{}_timeout", member.user.name);
     let timeout_channel =
@@ -148,7 +148,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
                                      .kind(ChannelType::Text)).await?;
 
     timeout_channel.send_message(&ctx, |m| m
-      .content(&format!("{}\n", msg.author.mention()))
+      .content(&format!("{}\n", member.mention()))
       .embed(|e| {
         let mut e =
           e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
@@ -217,6 +217,11 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
 
   let guild = msg_guild_id.to_partial_guild(ctx).await?;
   if let Ok(mut member) = guild.member(ctx, user_id).await {
+    if let Some(muted_role) = guild.role_by_name(MUTED_ROLE) {
+      if member.roles.contains(&muted_role.id) {
+        member.remove_role(ctx, muted_role).await?;
+      }
+    }
     member.enable_communication(ctx).await?;
     msg.channel_id.send_message(&ctx, |m| m
       .embed(|e| {

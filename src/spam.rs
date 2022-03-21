@@ -13,7 +13,7 @@ use once_cell::sync::Lazy;
 static SLUR: Lazy<Regex> =
   Lazy::new(||
     Regex::new(
-      r"(fag(g|got|tard)?\b|slut|cock\s?sucker(s|ing)?|ni((g{2,}|q)+|[gq]{2,})[ae3r]+(s|z)?s?)"
+      r"(fag(g|got|tard)?\b|cunt|cock\s?sucker(s|ing)?|ni((g{2,}|q)+|[gq]{2,})[ae3r]+(s|z)?s?)"
     ).unwrap());
 
 static LIGHT_SLUR_LOL: Lazy<Regex> =

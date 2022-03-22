@@ -111,6 +111,50 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
 
 #[command]
 #[min_args(1)]
+#[description("Translate Ukrainian to Russian")]
+pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  let text = args.message().to_string();
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command, {why}");
+  }
+  let fields = vec![
+    ("Text", format!("{text}\n"), false),
+  ];
+  let mmm = msg.channel_id.send_message(ctx, |m|
+            m.embed(|e|
+             e.title("Translating From **Ukrainian** to **Russian**...")
+              .fields(fields)
+              .author(|a| a.icon_url(&msg.author.face())
+                           .name(&msg.author.name)
+                      )
+            )
+          ).await;
+  match bert_translate(ctx, text.clone(), Language::Ukrainian, Language::Russian).await {
+    Ok(out) => {
+      let fields = vec![
+        ("Text", format!("{text}\n"), false),
+        ("Translation", out, false)
+      ];
+      if let Ok(mut mm) = mmm {
+        mm.edit(ctx, |m|
+          m.embed(|e|
+            e.fields(fields)
+             .author(|a| a.icon_url(&msg.author.face())
+                          .name(&msg.author.name)
+                    )
+          )
+        ).await?;
+      }
+    },
+    Err(why) => {
+      error!("Translation failed: {why}");
+    }
+  }
+  Ok(())
+}
+
+#[command]
+#[min_args(1)]
 #[description("Translate Russian to English")]
 #[aliases(ru2en)]
 pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
@@ -131,6 +175,50 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
             )
           ).await;
   match bert_translate(ctx, text.clone(), Language::Russian, Language::English).await {
+    Ok(out) => {
+      let fields = vec![
+        ("Text", format!("{text}\n"), false),
+        ("Translation", out, false)
+      ];
+      if let Ok(mut mm) = mmm {
+        mm.edit(ctx, |m|
+          m.embed(|e|
+            e.fields(fields)
+             .author(|a| a.icon_url(&msg.author.face())
+                          .name(&msg.author.name)
+                    )
+          )
+        ).await?;
+      }
+    },
+    Err(why) => {
+      error!("Translation failed: {why}");
+    }
+  }
+  Ok(())
+}
+
+#[command]
+#[min_args(1)]
+#[description("Translate Russian to Ukrainian")]
+pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  let text = args.message().to_string();
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command, {why}");
+  }
+  let fields = vec![
+    ("Text", format!("{text}\n"), false),
+  ];
+  let mmm = msg.channel_id.send_message(ctx, |m|
+            m.embed(|e|
+             e.title("Translating From **Russian** to **Ukrainian**...")
+              .fields(fields)
+              .author(|a| a.icon_url(&msg.author.face())
+                           .name(&msg.author.name)
+                      )
+            )
+          ).await;
+  match bert_translate(ctx, text.clone(), Language::Russian, Language::Ukrainian).await {
     Ok(out) => {
       let fields = vec![
         ("Text", format!("{text}\n"), false),

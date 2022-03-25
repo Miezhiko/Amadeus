@@ -22,13 +22,13 @@ pub async fn check_aka( battletag: &str
       if let Ok(res) = rqcl.get(&url).send().await {
         match res.json::<PlayerAPI>().await {
           Ok(papi) => {
-            if let Some(aka) = papi.playerAkaData {
-              if let Some(aka_name) = aka.name {
+            if let Some(aka) = &papi.playerAkaData {
+              if let Some(aka_name) = &aka.name {
                 aka_lock.insert(battletag.to_string(), Some(aka_name.clone()));
                 if let Err(err) = aka::put_aka(&*aka_lock).await {
                   error!("failed to update aka rs db {:?}", err);
                 }
-                return Some(aka_name);
+                return Some(aka_name.to_string());
               } else {
                 aka_lock.insert(battletag.to_string(), None);
                 if let Err(err) = aka::put_aka(&*aka_lock).await {
@@ -43,6 +43,11 @@ pub async fn check_aka( battletag: &str
             }
           }, Err(err) => {
             warn!("Failed parse player api {:?}, url: {}", err, url);
+            if let Ok(res2) = rqcl.get(&url).send().await {
+              if let Ok(player_api_text) = res2.text().await {
+                warn!("Text for url {}: {}", url, player_api_text);
+              }
+            }
           }
         }
       } else {

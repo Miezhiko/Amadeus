@@ -7,6 +7,11 @@ use serenity::{
          }
 };
 
+use std::{
+  collections::HashSet,
+  fs
+};
+
 use regex::Regex;
 use once_cell::sync::Lazy;
 
@@ -21,6 +26,20 @@ static LIGHT_SLUR_LOL: Lazy<Regex> =
       Regex::new(
         r"(bitch(es|ing|y)?|whor(es?|ing)|(bas|re)tard(ed)?s?)"
       ).unwrap());
+
+const BAN_LIST_FILE_NAME: &str = "ban-list.json";
+
+#[derive(serde::Deserialize, Debug)]
+struct BanList {
+  domains: HashSet<String>
+}
+
+fn get_banlist() -> anyhow::Result<BanList> {
+  let contents = fs::read_to_string(BAN_LIST_FILE_NAME)?;
+  serde_json::from_str(&contents).map_err(|e| anyhow!("Failed to parse ban list {e}"))
+}
+
+static BAN_LIST: Lazy<BanList> = Lazy::new(|| get_banlist().unwrap() );
 
 async fn delete( guild_id: &GuildId
                , ctx: &Context
@@ -63,13 +82,11 @@ async fn delete( guild_id: &GuildId
       ).await {
       error!("Error sending message from spam blocker {why}");
     }
-  } else {
-    if let Err(why) =
-      msg.author.direct_message(ctx, |m|
-        m.content(&format!("please, try to avoid using bad words"))
-      ).await {
-      error!("Error sending message from spam blocker {why}");
-    }
+  } else if let Err(why) =
+    msg.author.direct_message(ctx, |m|
+      m.content("please, try to avoid using bad words!")
+    ).await {
+    error!("Error sending message from spam blocker {why}");
   }
 }
 
@@ -78,7 +95,7 @@ pub async fn spam_check(
     , ctx: &Context
     , msg: &Message) {
   let lowercase = msg.content.to_lowercase();
-  if lowercase.contains("disocrds.gift") {
+  if BAN_LIST.domains.iter().any(|c| lowercase.contains(c)) {
     delete( guild_id, ctx, msg, true, true
           , "SCAM MESSAGE BLOCKED" ).await;
   }

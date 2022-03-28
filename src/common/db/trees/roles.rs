@@ -17,20 +17,19 @@ pub async fn update_roles( guild_id: &u64
         error!("failed to sync {khm}");
       }
     }
-    if let Ok(encoded) = bincode::serialize(roles) {
-      if let Ok(lump_data) = LumpData::new(encoded) {
-        match storage.put(&lump_id, &lump_data) {
-          Ok(not_added) => {
-            if !not_added {
-              error!("error on msg registration");
-            }
-          }, Err(not_added) => {
-            error!("error on msg registration {not_added}");
+    let encoded: Vec<u8> = roles.iter().flat_map(|val| val.to_be_bytes()).collect();
+    if let Ok(lump_data) = LumpData::new(encoded) {
+      match storage.put(&lump_id, &lump_data) {
+        Ok(not_added) => {
+          if !not_added {
+            error!("error on msg registration");
           }
+        }, Err(not_added) => {
+          error!("error on msg registration {not_added}");
         }
-        if let Err(khm) = storage.journal_sync() {
-          error!("failed to sync {khm}");
-        }
+      }
+      if let Err(khm) = storage.journal_sync() {
+        error!("failed to sync {khm}");
       }
     }
   }
@@ -43,8 +42,8 @@ pub async fn restore_roles(guild_id: &u64, user_id: &u64) -> anyhow::Result<Vec<
     let lump_id: LumpId = LumpId::new(u64_2);
     if let Ok(Some(mut data)) = storage.get(&lump_id) {
       let byte_data: &mut [u8] = data.as_bytes_mut();
-      match bincode::deserialize::<Vec<u64>>(byte_data) {
-        Ok(roles) => return Ok(roles),
+      match bincode::decode_from_slice(byte_data, bincode::config::standard()) {
+        Ok((roles, _len)) => return Ok(roles),
         Err(error) => {
           error!("Error trying to restore roles: {error}");
           return Ok(vec![]);

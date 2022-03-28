@@ -359,7 +359,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         let mut table = Table::new();
 
         table.set_content_arrangement(ContentArrangement::Dynamic)
-             .set_table_width(40)
+             .set_width(40)
              .set_header(vec!["Map", "vs HU", "vs O", "vs NE", "vs UD"]);
 
         if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {

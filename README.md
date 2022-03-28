@@ -56,9 +56,10 @@
  - Bets on live games with `~bet` and emojis under Live tracking games
  - Warcraft 3 commands `~stats`, `~today` and more with info from wacraft3.info and W3C ladder
  - Warcraft 3 hostbot API integration (creating games) using flo services and tonic for RPC
- - Some anti-spam protection (Free nitro scam and maybe more)
+ - Some anti-spam protection (Free nitro scam and maybe more) using [this](https://raw.githubusercontent.com/nikolaischunk/discord-phishing-links/main/domain-list.json)
  - Query package atoms from [Zugaina](http://gpo.zugaina.org)
  - Some moderation automation, like timeout commands creating room for communicating with target user.
+ - Slur words auto-removal / warnings system.
 
 
 ## Cooking

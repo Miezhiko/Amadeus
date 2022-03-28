@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "7.8.42"
+version         = "7.8.43"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -49,7 +49,7 @@ sled                = "0.34.7"
 kathoey             = "1.0.10"
 serde_dhall         = "0.11.0"
 nlprule             = "0.6.4"
-scraper             = "0.12.0"
+nipper              = "0.1.9"
 
 rand    = { version = "0.8.5",  features = ["std", "std_rng"] }
 reqwest = { version = "0.11.10", features = ["json", "blocking"] }

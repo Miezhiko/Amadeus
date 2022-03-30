@@ -1,8 +1,12 @@
 parameters:
   name: ''
   vmImage: ''
-  toolchain: 'stable'
-  features: 'flo,trackers,torch'
+  toolchain: 'nightly'
+  features: 'trackers,torch'
+
+variables:
+- name: CARGO_INCREMENTAL
+  value: 0 
 
 jobs:
 - job: ${{ parameters.name }}
@@ -28,15 +32,6 @@ jobs:
       curl -o rustup-init.sh https://sh.rustup.rs -sSf
       sh rustup-init.sh --default-toolchain $(tc) -y
     displayName: 'Install Rust'
-
-  - bash: |
-      source $HOME/.cargo/env
-      if [[ "$(features)" == "all" ]]; then
-        cargo build --all-features
-      else
-        cargo build --no-default-features --features "$(features)"
-      fi
-    displayName: 'Build Amadeus'
 
   - bash: |
       source $HOME/.cargo/env

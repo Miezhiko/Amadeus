@@ -5,23 +5,23 @@ pub static MESSAGE_LIMIT: usize = 2000;
 
 async fn serenity_direct_message_single(ctx: &Context, msg: &Message, text: &str) {
   if let Err(why) = msg.author.dm(ctx, |m| m.content(text)).await {
-    error!("Error DMing user: {why}");
+    error!("Error DMing user: {why}, text: {text}, user: {}", msg.author.name);
   }
 }
 
 async fn serenity_reply_single(ctx: &Context, msg: &Message, text: &str) {
   if text.starts_with(' ') {
     if let Err(why) = msg.reply(ctx, text.trim_start()).await {
-      error!("Error replieng to user: {why}");
+      error!("Error replieng to user: {why}, text: {text}");
     }
   } else if let Err(why) = msg.reply(ctx, text).await {
-    error!("Error replieng to user: {why}");
+    error!("Error replieng to user: {why}, text: {text}");
   }
 }
 
 async fn serenity_channel_message_single(ctx: &Context, msg: &Message, text: &str) {
   if let Err(why) = msg.channel_id.say(&ctx, text).await {
-    error!("Error sending message to channel: {why}");
+    error!("Error sending message to channel: {why}, text: {text}");
   }
 }
 

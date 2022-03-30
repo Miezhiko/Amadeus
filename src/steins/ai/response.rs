@@ -8,7 +8,7 @@ use crate::{
   collections::channels::AI_ALLOWED,
   steins::ai::{ cache::KATHOEY
               , bert
-              , chain::{ generate } }
+              , chain::generate }
 };
 
 use serenity::{
@@ -77,7 +77,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
               bert_generated = true;
               answer },
             Err(why) => {
-              error!("Failed to bert chat with question {why}");
+              error!("Failed to bert chat with question {why}, input: {}", &msg.content);
               generate(ctx, msg, Some(russian)).await
             }
           }
@@ -88,7 +88,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
             bert_generated = true;
             answer },
           Err(why) => {
-            error!("Failed to bert chat {why}");
+            error!("Failed to bert chat {why}, input: {}", &msg.content);
             generate(ctx, msg, Some(russian)).await
           }
         }

@@ -86,7 +86,7 @@ async fn delete( guild_id: &GuildId
     msg.author.direct_message(ctx, |m|
       m.content("please, try to avoid using bad words!")
     ).await {
-    error!("Error sending message from spam blocker {why}");
+    warn!("Error sending message from spam blocker {why}");
   }
 }
 

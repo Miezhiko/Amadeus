@@ -49,7 +49,7 @@ pub static BACKUP: Lazy<Mutex<VecDeque<(MessageId, Message)>>> =
 pub async fn process( ioptions: &IOptions
                     , amadeus_id: UserId
                     , ctx: &Context
-                    , msg: Message) {
+                    , msg: Message ) {
 
   if msg.is_own(&ctx).await {
     if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
@@ -238,9 +238,8 @@ pub async fn process( ioptions: &IOptions
                   && !ioptions.servers.iter()
                                       .any(|s| s.id    == guild_id.0
                                             && s.kind  == CoreGuild::Safe) {
-
                     if let Err(why) = msg.react(ctx, reaction).await {
-                      error!("Failed to react: {why}");
+                      error!("Failed to react with {}: {why}", emoji.name);
                       if why.to_string().contains("blocked")
                       && !member.roles.contains(&role.id) {
                         if let Err(why) = member.add_role(&ctx, role).await {

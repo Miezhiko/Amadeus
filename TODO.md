@@ -1,6 +1,5 @@
 ##REALLY PLANNED:
 
- - Ban bad words
  - Select menu roles
  - Restructure team_checker module (code quality)
  - Stream announce (e.g. steam in 30 mins or something like that) + stream announce role

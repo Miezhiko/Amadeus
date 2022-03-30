@@ -171,10 +171,10 @@ pub async fn activate_streamers_tracking(
                       .header("Client-ID", options_clone.twitch_client_id.clone())
                       .send().await {
                       if let Ok(some_text) = res.text().await {
-                        error!("Failed to parse twitch structs\nrequest: {}\nerror: {:?}\ntext: {}", &getq, why, some_text);
+                        error!("Failed to parse twitch structs, request: {}, error: {:?}, text: {}", &getq, why, some_text);
                       }
                     } else {
-                      error!("Failed to parse twitch structs\nrequest: {}\nerror: {:?}", &getq, why);
+                      error!("Failed to parse twitch structs, request: {}, error: {:?}", &getq, why);
                     }
                   }
                 }

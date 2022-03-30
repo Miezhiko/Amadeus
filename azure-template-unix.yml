@@ -4,10 +4,6 @@ parameters:
   toolchain: 'nightly'
   features: 'trackers,torch'
 
-variables:
-- name: CARGO_INCREMENTAL
-  value: 0 
-
 jobs:
 - job: ${{ parameters.name }}
   pool:

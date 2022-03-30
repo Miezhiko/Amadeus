@@ -20,7 +20,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         rust: [nightly]
-        make: [cargo test, cargo clippy]
+        make: [cargo test]
         include:
           - os: ubuntu-latest
             sccache-path: /home/runner/.cache/sccache
@@ -28,11 +28,6 @@ jobs:
             sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
           - os: windows-latest
             sccache-path: C:\\Users\\runner\\AppData\\Local\\Mozilla\\sccache\\cache
-        exclude:
-          - os: ubuntu-latest
-            make: cargo clippy
-          - os: macos-latest
-            make: cargo clippy
     env:
       RUST_BACKTRACE: full
       RUSTC_WRAPPER: sccache

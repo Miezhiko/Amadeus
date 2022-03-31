@@ -104,12 +104,12 @@ pub async fn activate_streamers_tracking(
           if p.player.streams.is_some() && !user.bot {
 
             // check if user is still being member of discord server
-            // TODO: recode to .any()
             let mut do_continue = false;
             for d in &p.discords {
               let discord_guild_id = GuildId(*d);
               if let Ok(guild) = discord_guild_id.to_partial_guild(&ctx_clone).await {
                 if guild.member(&ctx_clone.http, user.id).await.is_err() {
+                  let mut reported = false;
                   for d in &p.discords {
                     if let Some(ds) = DISCORDS.get(d) {
                       if let Some(log) = ds.log {
@@ -117,8 +117,13 @@ pub async fn activate_streamers_tracking(
                           .say(&ctx_clone, &format!("streamers: missing user: {}", p.player.discord)).await {
                             error!("streamers: failed to report leaving user {} on {d}, {why}", p.player.discord);
                         }
+                        reported = true;
                       }
                     }
+                  }
+                  // in case if there is no log channel
+                  if !reported {
+                    error!("Leaving user {} on {d}", p.player.discord);
                   }
                   do_continue = true;
                 }

@@ -266,3 +266,30 @@ async fn prison(ctx: &Context, msg: &Message) -> CommandResult {
   }
   Ok(())
 }
+
+#[command]
+#[required_permissions(BAN_MEMBERS)]
+async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  let mut users = vec![];
+  for arg in args.iter::<u64>() {
+    if let Ok(id) = &arg {
+      users.push( *id );
+    }
+  }
+  if users.is_empty() {
+    channel_message(ctx, msg, "no users found").await;
+    return Ok(());
+  }
+  if let Ok(msgs) = msg.channel_id.messages(ctx,
+      |g| g.before(msg.id).limit(100)
+    ).await {
+    let mut messages = vec![];
+    for message in msgs {
+      if users.iter().any(|u| *u == msg.author.id.0) {
+        messages.push(message.id);
+      }
+    }
+    msg.channel_id.delete_messages(ctx, messages.as_slice()).await?;
+  }
+  Ok(())
+}

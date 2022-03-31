@@ -26,6 +26,9 @@ main = hake $ do
       >>= checkExitCode
 
  where
+  appName ∷ String
+  appName = "amadeus"
+
   targetPath ∷ FilePath
   targetPath = "target"
 
@@ -43,5 +46,5 @@ main = hake $ do
   amadeusExecutable ∷ FilePath
   amadeusExecutable =
     {- HLINT ignore "Redundant multi-way if" -}
-    if | os ∈ ["win32", "mingw32", "cygwin32"] → buildPath </> "amadeus.exe"
-       | otherwise → buildPath </> "amadeus"
+    if | os ∈ ["win32", "mingw32", "cygwin32"] → buildPath </> appName ++ ".exe"
+       | otherwise → buildPath </> appName

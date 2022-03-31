@@ -115,7 +115,7 @@ pub async fn activate_streamers_tracking(
                       if let Some(log) = ds.log {
                         if let Err(why) = log
                           .say(&ctx_clone, &format!("streamers: missing user: {}", p.player.discord)).await {
-                            error!("streamers: failed to report leaving user {why}");
+                            error!("streamers: failed to report leaving user {} on {d}, {why}", p.player.discord);
                         }
                       }
                     }

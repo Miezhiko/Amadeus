@@ -193,7 +193,7 @@ impl EventHandler for Handler {
                                            , member.user.id.as_u64() ).await {
       for role in roles {
         if let Err(why) = member.add_role(&ctx, role).await {
-          error!("Failed to reset role for user {why}");
+          error!("Failed to reset role {} for user {} on {}, {why}", role, member.user.name, guild_id);
         }
       }
     }

@@ -18,7 +18,7 @@ let rList : List Reaction =
   , { id = 763653216754860052, name = "daijoubu" }
   , { id = 806785509799231488, name = "elfsmirk" }
   , { id = 763653437078372362, name = "cocona" }
-  , { id = 899211671535505419, name = "smirkawoo" }
+  , { id = 911573872917237790, name = "smirkawoo" }
   , { id = 857181999264301097, name = "coke" }
   , { id = 773165854602559549, name = "dabb" }
   ]

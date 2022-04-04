@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "7.9.3"
+version         = "7.9.4"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -95,7 +95,7 @@ version = "0.4.3"
 optional = true
 
 [dependencies.tonic]
-version = "0.6.2"
+version = "0.7.0"
 optional = true
 
 [dependencies.flo-grpc]

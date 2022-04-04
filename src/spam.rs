@@ -68,7 +68,7 @@ async fn delete( guild_id: &GuildId
                                 , msg.author.id.0, &msg.content))
            .timestamp(chrono::Utc::now().to_rfc3339())
         })).await {
-        error!("Failed to log leaving user {why}");
+        error!("Failed to log leaving user {}, {why}", msg.author.name);
       }
     }
   }
@@ -80,13 +80,13 @@ async fn delete( guild_id: &GuildId
       msg.author.direct_message(ctx, |m|
         m.content(&format!("your message was removed with reason: {reason}\n please contact moderators if you think it was done by mistake"))
       ).await {
-      error!("Error sending message from spam blocker {why}");
+      error!("Error sending message to {} from spam blocker {why}", msg.author.name);
     }
   } else if let Err(why) =
     msg.author.direct_message(ctx, |m|
       m.content("please, try to avoid using bad words!")
     ).await {
-    warn!("Error sending message from spam blocker {why}");
+    warn!("Error sending message to {} from spam blocker {why}", msg.author.name);
   }
 }
 

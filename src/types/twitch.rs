@@ -5,6 +5,7 @@ pub static TWITCH_WC3: &str = "12924";
 pub struct TwitchData {
   pub id: String,
   pub user_id: String,
+  pub user_login: Option<String>,
   pub user_name: String,
   pub game_id: String, // 12924 = wc3
   pub game_name: Option<String>, // "Warcraft III"
@@ -15,8 +16,8 @@ pub struct TwitchData {
   pub started_at: String,
   pub language: String,
   pub thumbnail_url: String,
-  pub tag_ids: Vec<String>,
-  pub is_mature: bool // Twitch allows 18+ content now?
+  pub tag_ids: Option<Vec<String>>,
+  pub is_mature: bool // Twitch allows 18+ content?
 }
 
 #[allow(non_snake_case)]

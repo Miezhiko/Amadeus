@@ -11,6 +11,8 @@ use crate::{
   message::RESTORE
 };
 
+use mozart::bert::chat::CACHE_ENG_STR;
+
 use serenity::{
   prelude::*,
   model::{ id::{ GuildId, ChannelId }
@@ -50,8 +52,6 @@ pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(199);
 
 pub static CACHE_ENG: Lazy<Mutex<Chain<String>>> =
   Lazy::new(|| Mutex::new(Chain::new()));
-pub static CACHE_ENG_STR: Lazy<Mutex<HashSet<String>>> =
-  Lazy::new(|| Mutex::new(HashSet::new()));
 pub static CACHE_RU: Lazy<Mutex<Chain<String>>> =
   Lazy::new(|| Mutex::new(Chain::new()));
 pub static LAST_UPDATE: Lazy<Mutex<DateTime<Utc>>> =

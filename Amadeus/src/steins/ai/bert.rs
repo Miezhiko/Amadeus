@@ -1,14 +1,9 @@
 use crate::{
-  steins::ai::cache::{
-    CACHE_ENG_STR,
-    process_message_for_gpt
-  }
+  steins::ai::cache::process_message_for_gpt,
+  common::salieri::SALIERI
 };
 
 use rust_bert::pipelines::{
-  conversation::{ ConversationManager
-                , ConversationModel
-                , ConversationConfig },
   question_answering::{ QaInput
                       , QuestionAnsweringModel
                       , QuestionAnsweringConfig },
@@ -22,19 +17,16 @@ use tokio::{ task, sync::Mutex };
 use once_cell::sync::Lazy;
 use chrono::{ Utc, DateTime };
 
-use std::collections::HashMap;
-
 use anyhow::Result;
 
 use rand::{ seq::SliceRandom, Rng };
 
 use super::neo::chat_neo;
 
+use mozart::bert::chat::{ DEVICE, CACHE_ENG_STR };
+
 pub static TRANSLATION_LIMIT: usize = 512;
 static GPT_LIMIT: usize = 1000;
-
-// models
-pub static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
 
 pub fn enru_model_loader() -> TranslationModel {
   TranslationModelBuilder::new()
@@ -62,33 +54,6 @@ fn qa_model_loader() -> QuestionAnsweringModel {
 
 static QAMODEL: Lazy<Mutex<Option<QuestionAnsweringModel>>> =
   Lazy::new(|| Mutex::new(Some(qa_model_loader())));
-
-fn conv_model_loader() -> ConversationModel {
-  ConversationModel::new(
-    ConversationConfig {
-      min_length: 3,
-      max_length: 64,
-      min_length_for_response: 5,
-      device: *DEVICE,
-      ..Default::default()
-    }
-  ).unwrap()
-}
-
-pub static CONVMODEL: Lazy<Mutex<Option<ConversationModel>>> =
-  Lazy::new(|| Mutex::new(Some(conv_model_loader())));
-
-pub static CONVMODEL_USED: Lazy<Mutex<Option<DateTime<Utc>>>> =
-  Lazy::new(|| Mutex::new(None));
-
-#[allow(clippy::type_complexity)]
-pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32)>>>
-  = Lazy::new(|| Mutex::new(HashMap::new()));
-
-pub async fn reinit() {
-  let mut chat_context = CHAT_CONTEXT.lock().await;
-  chat_context.clear();
-}
 
 pub async fn en2ru(text: String, lsm: bool) -> Result<String> {
   if text.is_empty() {
@@ -213,82 +178,13 @@ pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
 }
 
 async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String> {
-  info!("Generating GPT2 response");
-  let cache_eng_hs = CACHE_ENG_STR.lock().await;
-  let mut conversation = CONVMODEL.lock().await;
-  if conversation.is_none() {
-    *conversation = Some( conv_model_loader() );
+  let salieri_lock = SALIERI.lock().await;
+  if let Some(_salieri) = &*salieri_lock {
+    //let result = salieri.send_task(CHAT_GPT2::new(something, user_id, lsm)).await?;
+    mozart::bert::chat::chat_gpt2(something, user_id, lsm).await
+  } else {
+    Err(anyhow!("chat_gpt2: failed to connecto to Salieri"))
   }
-  if ! lsm {
-    let mut conv_model_used = CONVMODEL_USED.lock().await;
-    *conv_model_used = Some(Utc::now());
-  }
-  let mut chat_context = CHAT_CONTEXT.lock().await;
-  task::spawn_blocking(move || {
-    if let Some(conversation_model) = &mut *conversation {
-      let cache_eng_vec = cache_eng_hs.iter().collect::<Vec<&String>>();
-      let output =
-        if let Some((tracking_conversation, x)) = chat_context.get_mut(&user_id) {
-          if *x > 5 {
-            chat_context.remove(&user_id);
-            let mut conversation_manager = ConversationManager::new();
-            let cache_slices = cache_eng_vec
-                              .choose_multiple(&mut rand::thread_rng(), 32)
-                              .map(AsRef::as_ref).collect::<Vec<&str>>();
-            let encoded_history = conversation_model.encode_prompts(&cache_slices);
-            let conv_id = conversation_manager.create(&something);
-            if let Some(cm) = conversation_manager.get(&conv_id) {
-              cm.load_from_history(&cache_slices, &encoded_history);
-            }
-            chat_context.insert( user_id
-                               , ( conversation_manager, 0 )
-                               );
-            if let Some(chat_cont) = chat_context.get_mut(&user_id) {
-              let (registered_conversation, _) = chat_cont;
-              conversation_model.generate_responses(registered_conversation)
-            } else {
-              return Err(anyhow!("Failed to cregister conversation for {}", &user_id));
-            }
-          } else {
-            tracking_conversation.create(&something);
-            *x += 1;
-            conversation_model.generate_responses(tracking_conversation)
-          }
-        } else {
-          let mut conversation_manager = ConversationManager::new();
-          let cache_slices = cache_eng_vec
-                            .choose_multiple(&mut rand::thread_rng(), 5)
-                            .map(AsRef::as_ref).collect::<Vec<&str>>();
-          let encoded_history = conversation_model.encode_prompts(&cache_slices);
-          let conv_id = conversation_manager.create(&something);
-          if let Some(cm) = conversation_manager.get(&conv_id) {
-            cm.load_from_history(&cache_slices, &encoded_history);
-          }
-
-          chat_context.insert( user_id, ( conversation_manager, 0 ) );
-
-          if let Some(chat_cont) = chat_context.get_mut(&user_id) {
-            let (registered_conversation, _) = chat_cont;
-            conversation_model.generate_responses(registered_conversation)
-          } else {
-            return Err(anyhow!("Failed to cregister conversation for {}", &user_id));
-          }
-        };
-
-      let out_values = output.values()
-                             .cloned()
-                             .map(str::to_string)
-                             .collect::<Vec<String>>();
-
-      if out_values.is_empty() {
-        Err(anyhow!("no output from GPT 2 model"))
-      } else {
-        Ok(out_values[0].clone())
-      }
-    } else {
-      Err(anyhow!("Empty GPT 2 model"))
-    }
-  }).await.unwrap()
 }
 
 pub async fn chat(something: String, user_id: u64, lsm: bool) -> Result<String> {

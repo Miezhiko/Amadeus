@@ -1,10 +1,6 @@
-use crate::{
-  steins::ai::cache::{
-    process_message_for_gpt,
-    CACHE_ENG_STR
-  },
-  steins::ai::bert::DEVICE
-};
+use crate::steins::ai::cache::process_message_for_gpt;
+
+use mozart::bert::chat::{ DEVICE, CACHE_ENG_STR };
 
 use rust_bert::gpt_neo::{
     GptNeoConfigResources, GptNeoMergesResources, GptNeoModelResources, GptNeoVocabResources,

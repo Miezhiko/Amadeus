@@ -5,6 +5,8 @@ use crate::{
   steins::ai::{ bert, reinit }
 };
 
+use mozart::bert::chat::{ CHAT_CONTEXT, CONVMODEL_USED, CONVMODEL };
+
 use serenity::prelude::*;
 
 use chrono::{ Duration, Utc };
@@ -20,7 +22,7 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
     loop {
       { // this scope is needed for async locks!
         // clean up old bert model conversation id-s
-        let mut chat_context = bert::CHAT_CONTEXT.lock().await;
+        let mut chat_context = CHAT_CONTEXT.lock().await;
         chat_context.clear();
 
         let lsm = {
@@ -30,12 +32,12 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
           } else { false }
         };
         if !lsm {
-          let mut convmodel_used = bert::CONVMODEL_USED.lock().await;
+          let mut convmodel_used = CONVMODEL_USED.lock().await;
           if let Some(conv_model_used_time) = &*convmodel_used {
             let nao = Utc::now();
             let since_last_use: Duration = nao - *conv_model_used_time;
             if since_last_use > Duration::minutes(10) {
-              let mut convmodel = bert::CONVMODEL.lock().await;
+              let mut convmodel = CONVMODEL.lock().await;
               *convmodel = None;
               *convmodel_used = None;
             }

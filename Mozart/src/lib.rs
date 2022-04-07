@@ -1,5 +1,8 @@
 #[macro_use] extern crate log;
+#[macro_use] extern crate anyhow;
 extern crate serde;
+
+pub mod bert;
 
 use celery::{ Celery, self, prelude::* };
 
@@ -28,7 +31,9 @@ pub async fn TASK(input_string: String) -> TaskResult<String> {
 pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryError> {
   celery::app!(
     broker = AMQPBroker { String::from( ampq ) },
-    tasks = [ TASK ],
+    tasks = [ TASK
+            , bert::chat::CHAT_GPT2
+            ],
     task_routes = [
       "*" => SALIERI_SERVICE,
     ],

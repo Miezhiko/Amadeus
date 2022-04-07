@@ -4,16 +4,29 @@ description = "Amadeus services library"
 version = "0.0.1"
 edition = "2021"
 
+[lib]
+doctest = false
+
 [dependencies]
 serde       = "1"
 env_logger  = "0.9.0"
 log         = "0.4.16"
 anyhow      = "1"
+once_cell   = "1.10"
+rand        = "0.8.5"
+chrono      = "0.4.19"
+
+tch = "0.7"
+[dependencies.rust-bert]
+default-features = false
+git = "https://github.com/guillaume-be/rust-bert.git"
+branch = "master"
+features = [ "remote" ]
 
 [dependencies.tokio]
 version = "1.17"
 features = ["full"]
 
 [dependencies.celery]
-git = "https://github.com/rusty-celery/rusty-celery.git"
-branch = "main"
+git = "https://github.com/Qeenon/rusty-celery.git"
+branch = "mawa"

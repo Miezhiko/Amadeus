@@ -8,7 +8,7 @@ use serenity::model::id::ChannelId;
 use once_cell::sync::Lazy;
 
 fn grab_servers() -> Vec<DiscordServer> {
-  match glob::glob("dhall/team/teams/*.dhall") {
+  match glob::glob(relative!("dhall/team/teams/*.dhall")) {
     Ok(dfs) => dfs.filter_map(|d| d.ok())
                   .filter_map(|r| r.into_os_string()
                                    .into_string().ok())

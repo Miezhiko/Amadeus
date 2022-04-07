@@ -5,7 +5,10 @@
 #[macro_use] extern crate tracing;
 #[macro_use] mod macros;
 
-mod types; mod common; mod collections; mod commands; mod steins;
+mod types;
+#[macro_use] mod common;
+
+mod collections; mod commands; mod steins;
 mod spam; mod message; mod handler; mod checks;
 mod slash; mod hooks; mod groups; mod amadeus;
 

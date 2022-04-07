@@ -2,14 +2,14 @@ use crate::types::serenity::Reaction;
 
 use once_cell::sync::Lazy;
 
-static GREETINGSD: &str      = "dhall/base/greetings.dhall";
-static CONFUSION_RUD: &str   = "dhall/base/confusion_ru.dhall";
-static CONFUSIOND: &str      = "dhall/base/confusion.dhall";
-static OBFUSCATION_RUD: &str = "dhall/base/obfuscation_ru.dhall";
-static OBFUSCATIOND: &str    = "dhall/base/obfuscation.dhall";
-static WHITELISTD: &str      = "dhall/base/whitelist.dhall";
-static CASELISTD: &str       = "dhall/base/case.dhall";
-static REACTIONSD: &str      = "dhall/base/reactions.dhall";
+static GREETINGSD: &str      = relative!("dhall/base/greetings.dhall");
+static CONFUSION_RUD: &str   = relative!("dhall/base/confusion_ru.dhall");
+static CONFUSIOND: &str      = relative!("dhall/base/confusion.dhall");
+static OBFUSCATION_RUD: &str = relative!("dhall/base/obfuscation_ru.dhall");
+static OBFUSCATIOND: &str    = relative!("dhall/base/obfuscation.dhall");
+static WHITELISTD: &str      = relative!("dhall/base/whitelist.dhall");
+static CASELISTD: &str       = relative!("dhall/base/case.dhall");
+static REACTIONSD: &str      = relative!("dhall/base/reactions.dhall");
 
 pub static GREETINGS: Lazy<Vec<String>>      = Lazy::new(|| dhall!(GREETINGSD));
 pub static CONFUSION_RU: Lazy<Vec<String>>   = Lazy::new(|| dhall!(CONFUSION_RUD));

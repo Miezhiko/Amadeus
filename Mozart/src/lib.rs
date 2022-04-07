@@ -5,7 +5,7 @@ use celery::{ Celery, self, prelude::* };
 
 use std::sync::Arc;
 
-pub const SALIERI: &str = "salieri";
+pub const SALIERI_SERVICE: &str = "salieri";
 
 // 5672 is default AMPQ port
 pub const SALIERI_AMPQ: &str = "amqp://localhost:5672//";
@@ -30,7 +30,7 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryEr
     broker = AMQPBroker { String::from( ampq ) },
     tasks = [ TASK ],
     task_routes = [
-      "*" => SALIERI,
+      "*" => SALIERI_SERVICE,
     ],
   ).await
 }

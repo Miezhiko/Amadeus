@@ -11,7 +11,7 @@ async fn main() -> anyhow::Result<()> {
 
   let my_app = celery_init(SALIERI_AMPQ).await?;
   my_app.display_pretty().await;
-  my_app.consume_from(&[SALIERI]).await?;
+  my_app.consume_from(&[SALIERI_SERVICE]).await?;
 
   Ok(())
 }

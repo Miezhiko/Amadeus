@@ -1,6 +1,6 @@
 use crate::{
   types::options::IOptions,
-  common::{ options, system },
+  common::{ options, system, salieri },
   steins::{
     gate::START_TIME,
     gate::tracking::{ system::activate_system_tracker
@@ -38,11 +38,8 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   }
 
   info!("connecting to Salieri");
-  if let Ok(salieri) = mozart::celery_init(mozart::SALIERI_AMPQ).await {
-    info!("testing Salier task");
-    if let Err(err) = salieri.send_task(mozart::TASK::new( "test".to_string() )).await {
-      error!("Salier services error: {err}");
-    }
+  if let Err(why) = salieri::salieri_init().await {
+    error!("failed to init Salieri services {why}");
   }
 
   // set actual season for pad statistics

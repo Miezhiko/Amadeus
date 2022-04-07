@@ -28,13 +28,6 @@ macro_rules! setm {
   };
 }
 
-#[macro_export]
-macro_rules! dhall {
-  ($f:expr) => {
-    serde_dhall::from_file($f).parse().unwrap()
-  }
-}
-
 macro_rules! bjr {
   ($from:expr => $to:expr) => {
     #[allow(clippy::trivial_regex)]

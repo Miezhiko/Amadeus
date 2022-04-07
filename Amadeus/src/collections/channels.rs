@@ -5,15 +5,15 @@ use once_cell::sync::Lazy;
 /*
  * Channels where I can spam (well, chat actually)
  */
-static AI_ALLOWEDD: &str = "dhall/channels/ai_allowed.dhall";
+static AI_ALLOWEDD: &str = relative!("dhall/channels/ai_allowed.dhall");
 /*
  * Channels where I can learn
  */
-static AI_LEARND: &str   = "dhall/channels/ai_learn.dhall";
+static AI_LEARND: &str   = relative!("dhall/channels/ai_learn.dhall");
 /*
  * Ignored channels
  */
-static IGNOREDD: &str   = "dhall/channels/ignored.dhall";
+static IGNOREDD: &str   = relative!("dhall/channels/ignored.dhall");
 
 pub static AI_ALLOWED: Lazy<Vec<LChannel>> = Lazy::new(|| dhall!(AI_ALLOWEDD));
 pub static AI_LEARN: Lazy<Vec<LChannel>>   = Lazy::new(|| dhall!(AI_LEARND));

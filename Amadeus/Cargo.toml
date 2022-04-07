@@ -1,0 +1,126 @@
+[package]
+name            = "amadeus"
+version         = "7.90.0"
+authors         = [ "Miezhiko" ]
+repository      = "https://github.com/Miezhiko/Amadeus"
+readme          = "README.md"
+keywords        = [ "discord", "bot" ]
+edition         = "2021"
+description     = "memory storage and artificial intelligence system"
+license         = "AGPL-3.0-only"
+rust-version    = "1.58.0"
+
+[features]
+default = ["trackers", "torch"]
+trackers = []
+torch = []
+flo = ["tonic", "hex", "flo-grpc"]
+voice_analysis = ["dasp_interpolate", "dasp_signal", "deepspeech"]
+full = ["flo", "voice_analysis", "trackers"]
+
+[dependencies]
+mozart              = { path = "../Mozart" }
+chrono              = "0.4.19"
+glob                = "0.3.0"
+chrono-tz           = "0.6.1"
+tracing             = "0.1.32"
+tracing-log         = "0.1.2"
+tracing-futures     = "0.2.5"
+tracing-subscriber  = "0.3.9"
+regex               = "1.5.5"
+serde               = "1.0.136"
+serde_derive        = "1.0.136"
+serde_json          = "1.0.79"
+serde_yaml          = "0.8.23"
+once_cell           = "1.10"
+ucd                 = "0.1.1"
+comfy-table         = "6.0.0-rc.1"
+async-std           = "1.11"
+futures-util        = "0.3.21"
+qrcode              = "0.12"
+cannyls             = "0.10"
+bincode             = "2.0.0-rc.1"
+itertools           = "0.10.3"
+plotters            = "0.3.1"
+anyhow              = "1.0.56"
+async-recursion     = "1.0.0"
+unic-langid         = "0.9"
+fluent-templates    = "0.7.1"
+sled                = "0.34.7"
+kathoey             = "1.0.10"
+serde_dhall         = "0.11.0"
+nlprule             = "0.6.4"
+nipper              = "0.1.9"
+
+rand    = { version = "0.8.5",  features = ["std", "std_rng"] }
+reqwest = { version = "0.11.10", features = ["json", "blocking"] }
+ical    = { version = "0.7",  features = ["ical"] }
+markov  = { version = "1.1",  features = ["yaml"] }
+
+tch = "0.7"
+[dependencies.rust-bert]
+default-features = false
+git = "https://github.com/guillaume-be/rust-bert.git"
+branch = "master"
+features = [ "remote" ]
+
+[dependencies.songbird]
+default-features = false
+git = "https://github.com/serenity-rs/songbird.git"
+branch = "current"
+features = [ "yt-dlp"
+           , "serenity-rustls"
+           , "driver"
+           , "gateway"
+           ]
+
+[dependencies.serenity]
+default-features = false
+version = "0.10.10"
+features = [ "cache"
+           , "builder"
+           , "model"
+           , "framework"
+           , "standard_framework"
+           , "voice"
+           , "client"
+           , "http"
+           , "native_tls_backend"
+           , "utils"
+           , "collector"
+           , "unstable_discord_api"
+           ]
+
+[dependencies.hex]
+version = "0.4.3"
+optional = true
+
+[dependencies.tonic]
+version = "0.7.1"
+optional = true
+
+[dependencies.flo-grpc]
+git = "https://github.com/w3champions/flo-grpc.git"
+branch = "main"
+optional = true
+
+[dependencies.tokio]
+version = "1.17"
+features = ["full"]
+
+[dependencies.dasp_signal]
+version = "0.11"
+optional = true
+
+[dependencies.dasp_interpolate]
+version = "0.11"
+optional = true
+features = ["linear"]
+
+[dependencies.deepspeech]
+version = "0.9.1"
+optional = true
+
+[dependencies.celery]
+git = "https://github.com/rusty-celery/rusty-celery.git"
+branch = "main"

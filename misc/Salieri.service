@@ -1,0 +1,15 @@
+[Unit]
+Description=Salieri
+After=network.target
+After=multi-user.target
+After=rabbitmq.target
+
+[Service]
+Type=simple
+User=mawa
+WorkingDirectory=/data/contrib/rust/Amadeus
+ExecStart=/bin/bash -c 'cargo run -p salieri --release'
+ExecStop=killall Salieri
+
+[Install]
+WantedBy=multi-user.target

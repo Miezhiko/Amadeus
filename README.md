@@ -10,6 +10,8 @@
   •
   <a href="#cooking">Cooking</a>
   •
+  <a href="#development">Development</a>
+  •
   <a href="#service">Service</a>
   •
   <a href="#notes">Notes</a>
@@ -60,10 +62,12 @@
  - Query package atoms from [Zugaina](http://gpo.zugaina.org)
  - Some moderation automation, like timeout commands creating room for communicating with target user.
  - Slur words auto-removal / warnings system.
+ - Using [Celery](https://github.com/rusty-celery/rusty-celery) and [RabbitMQ](https://www.rabbitmq.com) for distributed tasks queue.
 
 
 ## Cooking
 
+ - Salieri needs [RabbitMQ](https://www.rabbitmq.com) to work properly
  - Amadeus needs to link with [PyTorch](https://pytorch.org/), instructions on [tch-rs](https://github.com/LaurentMazare/tch-rs)
  - to compile just use `cargo build --release` or `hake`
  - `cp conf.example.dhall conf.dhall` (initial constant options)
@@ -127,9 +131,18 @@ node node_modules/ts-node/dist/bin.js ./js/w3g_parse.ts ./LastReplay.w3g > gg.ou
 Note: will lag at first run due pre-trained models downloading.
 The models will be downloaded to the environment variable `RUSTBERT_CACHE` if it exists, otherwise to `~/.cache/.rustbert`
 
+## Development
+
+ - **Amadeus** is discord bot service on Serenity
+ - **Mozart** is set of tasks running on distributed tasks queue
+ - **Salieri** is celery daemon running on rabbitmq and processing tasks
+
+*rustfmt usage is forbidden*
+
 ## Service
 
 ```shell
+cp misc/Salieri.service /etc/systemd/system/Salieri.service
 cp misc/Amadeus.service /etc/systemd/system/Amadeus.service
 systemctl daemon-reload
 systemctl enable Amadeus

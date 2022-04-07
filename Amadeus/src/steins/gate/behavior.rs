@@ -37,6 +37,14 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
     error!("Failed to clean global application commands, {why}");
   }
 
+  info!("connecting to Salieri");
+  if let Ok(salieri) = mozart::celery_init(mozart::SALIERI_AMPQ).await {
+    info!("testing Salier task");
+    if let Err(err) = salieri.send_task(mozart::TASK::new( "test".to_string() )).await {
+      error!("Salier services error: {err}");
+    }
+  }
+
   // set actual season for pad statistics
   update_current_season(&ctx).await;
 

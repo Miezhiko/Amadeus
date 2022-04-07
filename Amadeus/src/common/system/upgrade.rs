@@ -87,7 +87,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
       }
       let cargo_build = Command::new("sh")
                 .arg("-c")
-                .arg("cargo build --release --features trackers,torch")
+                .arg("hake")
                 .output()
                 .await
                 .expect("failed to compile new version");
@@ -107,7 +107,14 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
                        .description(&description)
           )
         ).await?;
-        ctx.set_activity(Activity::listening("Restarting")).await;
+        ctx.set_activity(Activity::listening("Restarting Salieri")).await;
+        let _systemctl = Command::new("sh")
+                .arg("-c")
+                .arg("sudo systemctl restart Salieri")
+                .output()
+                .await
+                .expect("failed to restart Salieri service");
+        ctx.set_activity(Activity::listening("Restarting Amadeus")).await;
         let _systemctl = Command::new("sh")
                 .arg("-c")
                 .arg("sudo systemctl restart Amadeus")

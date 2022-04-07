@@ -1,0 +1,19 @@
+[package]
+name = "mozart"
+description = "Amadeus services library"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+serde       = "1"
+env_logger  = "0.9.0"
+log         = "0.4.16"
+anyhow      = "1"
+
+[dependencies.tokio]
+version = "1.17"
+features = ["full"]
+
+[dependencies.celery]
+git = "https://github.com/rusty-celery/rusty-celery.git"
+branch = "main"

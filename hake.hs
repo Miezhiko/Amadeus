@@ -13,11 +13,14 @@ main = hake $ do
 
   "update | update dependencies" ∫ cargo ["update"]
 
+  salieriExecutable ♯
+    cargo <| "build" : buildFlagsSalieri
+
   amadeusExecutable ♯
-    cargo <| "build" : buildFlags
+    cargo <| "build" : buildFlagsAmadeus
 
   "install | install to system" ◉ [amadeusExecutable] ∰
-    cargo <| "install" : buildFlags
+    cargo <| "install" : buildFlagsAmadeus
 
   "test | build and test" ◉ [amadeusExecutable] ∰ do
     cargo ["test"]
@@ -26,8 +29,11 @@ main = hake $ do
       >>= checkExitCode
 
  where
-  appName ∷ String
-  appName = "amadeus"
+  appNameSalieri ∷ String
+  appNameSalieri = "salieri"
+
+  appNameAmadeus ∷ String
+  appNameAmadeus = "amadeus"
 
   targetPath ∷ FilePath
   targetPath = "target"
@@ -39,12 +45,22 @@ main = hake $ do
   features = [ "trackers"
              , "torch" ]
 
-  buildFlags ∷ [String]
-  buildFlags = [ "--release", "--features"
-               , intercalate "," features ]
+  buildFlagsSalieri ∷ [String]
+  buildFlagsSalieri = [ "-p", appNameSalieri, "--release" ]
+
+  buildFlagsAmadeus ∷ [String]
+  buildFlagsAmadeus = [ "-p", appNameAmadeus
+                      , "--release", "--features"
+                      , intercalate "," features ]
+
+  salieriExecutable ∷ FilePath
+  salieriExecutable =
+    {- HLINT ignore "Redundant multi-way if" -}
+    if | os ∈ ["win32", "mingw32", "cygwin32"] → buildPath </> appNameSalieri ++ ".exe"
+       | otherwise → buildPath </> appNameSalieri
 
   amadeusExecutable ∷ FilePath
   amadeusExecutable =
     {- HLINT ignore "Redundant multi-way if" -}
-    if | os ∈ ["win32", "mingw32", "cygwin32"] → buildPath </> appName ++ ".exe"
-       | otherwise → buildPath </> appName
+    if | os ∈ ["win32", "mingw32", "cygwin32"] → buildPath </> appNameAmadeus ++ ".exe"
+       | otherwise → buildPath </> appNameAmadeus

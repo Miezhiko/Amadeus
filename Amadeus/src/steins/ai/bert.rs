@@ -23,7 +23,13 @@ use rand::{ seq::SliceRandom, Rng };
 
 use super::neo::chat_neo;
 
-use mozart::bert::chat::{ DEVICE, CACHE_ENG_STR };
+use mozart::{
+  cache::DEVICE,
+  bert::chat::CHAT_GPT2
+};
+
+//TODO
+use mozart::cache::CACHE_ENG_STR;
 
 pub static TRANSLATION_LIMIT: usize = 512;
 static GPT_LIMIT: usize = 1000;
@@ -122,7 +128,7 @@ pub async fn ru2en(text: String, lsm: bool) -> Result<String> {
   }).await.unwrap()
 }
 
-pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
+pub async fn ask(msg_content: String, lsm: bool) -> Result<Option<String>> {
   info!("Generating GPT2 QA response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
   let mut qa = QAMODEL.lock().await;
@@ -149,6 +155,7 @@ pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
       cache = cache[i..].to_string();
     }
   }
+  Ok(Some(
   task::spawn_blocking(move || {
     if let Some(qa_model) = &mut *qa {
       let qa_input = QaInput {
@@ -174,20 +181,34 @@ pub async fn ask(msg_content: String, lsm: bool) -> Result<String> {
     } else {
       Err(anyhow!("Empty QA model"))
     }
-  }).await.unwrap()
+  }).await.unwrap()?
+  ))
 }
 
-async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> Result<String> {
+async fn chat_gpt2( msg: Option<u64>
+                  , chan: u64
+                  , something: String
+                  , user_id: u64
+                  , lsm: bool ) -> Result<Option<String>> {
   let salieri_lock = SALIERI.lock().await;
-  if let Some(_salieri) = &*salieri_lock {
-    //let result = salieri.send_task(CHAT_GPT2::new(something, user_id, lsm)).await?;
-    mozart::bert::chat::chat_gpt2(something, user_id, lsm).await
+  if let Some(salieri) = &*salieri_lock {
+    salieri.send_task(
+      CHAT_GPT2::new(msg, chan, something, user_id, lsm)
+    ).await?;
+    Ok(None)
   } else {
-    Err(anyhow!("chat_gpt2: failed to connecto to Salieri"))
+    error!("chat_gpt2: failed to connecto to Salieri");
+    Ok(
+      Some(mozart::bert::chat::chat_gpt2(something, user_id, lsm).await?)
+    )
   }
 }
 
-pub async fn chat(something: String, user_id: u64, lsm: bool) -> Result<String> {
+pub async fn chat( msg: Option<u64>
+                 , chan: u64
+                 , something: String
+                 , user_id: u64
+                 , lsm: bool) -> Result<Option<String>> {
   let rndx = rand::thread_rng().gen_range(0..7);
   let mut input = process_message_for_gpt(&something);
   if input.len() > GPT_LIMIT {
@@ -199,7 +220,7 @@ pub async fn chat(something: String, user_id: u64, lsm: bool) -> Result<String> 
     return Err(anyhow!("empty input"));
   }
   match rndx {
-    0 => chat_neo(input, lsm).await,
-    _ => chat_gpt2(input, user_id, lsm).await
+    0 => Ok(Some( chat_neo(input, lsm).await? )),
+    _ => chat_gpt2(msg, chan, input, user_id, lsm).await
   }
 }

@@ -1,46 +1,22 @@
+use crate::cache::*;
+
 use celery::{ self, prelude::* };
 
 use rust_bert::pipelines::{
-  conversation::{ ConversationManager
-                , ConversationModel
-                , ConversationConfig }
+  conversation::ConversationManager
 };
 
-use std::collections::{ HashSet, HashMap };
+use std::{ 
+  os::unix::net::UnixStream,
+  io::prelude::*
+};
 
-use tch::Device;
-use tokio::{ task, sync::Mutex };
-use once_cell::sync::Lazy;
-use chrono::{ Utc, DateTime };
+use tokio::task;
+use chrono::Utc;
 
 use rand::seq::SliceRandom;
 
-pub static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
-
-pub static CACHE_ENG_STR: Lazy<Mutex<HashSet<String>>> =
-  Lazy::new(|| Mutex::new(HashSet::new()));
-
-fn conv_model_loader() -> ConversationModel {
-  ConversationModel::new(
-    ConversationConfig {
-      min_length: 3,
-      max_length: 64,
-      min_length_for_response: 5,
-      device: *DEVICE,
-      ..Default::default()
-    }
-  ).unwrap()
-}
-
-pub static CONVMODEL: Lazy<Mutex<Option<ConversationModel>>> =
-  Lazy::new(|| Mutex::new(Some(conv_model_loader())));
-
-pub static CONVMODEL_USED: Lazy<Mutex<Option<DateTime<Utc>>>> =
-  Lazy::new(|| Mutex::new(None));
-
-#[allow(clippy::type_complexity)]
-pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32)>>>
-  = Lazy::new(|| Mutex::new(HashMap::new()));
+pub const LUKASHENKO: &str = "lukashenko";
 
 pub async fn reinit() {
   let mut chat_context = CHAT_CONTEXT.lock().await;
@@ -127,14 +103,36 @@ pub async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> anyhow::Re
   }).await.unwrap()
 }
 
+async fn chat_gpt2_send( msg: Option<u64>
+                       , chan: u64
+                       , something: String
+                       , user_id: u64
+                       , lsm: bool ) -> anyhow::Result<()> {
+  let result = chat_gpt2(something, user_id, lsm).await?;
+  let temp_dir = std::env::temp_dir();
+  let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
+  let config = bincode::config::standard();
+  let package = crate::types::ChatResponse {
+    message: msg,
+    channel: chan,
+    response: result
+  };
+  let encoded = bincode::	encode_to_vec(&package, config)?;
+  lukashenko.write_all(&encoded)?;
+  Ok(())
+}
+
 #[celery::task]
-pub async fn CHAT_GPT2(something: String, user_id: u64, lsm: bool) -> TaskResult<String> {
-  let result = chat_gpt2(something, user_id, lsm).await;
-  match result {
-    Ok(r) => Ok(r),
-    Err(why) => {
-      error!("Failed to generate response, {why}");
-      Err( TaskError::ExpectedError( why.to_string() ) )
-    }
+pub async fn CHAT_GPT2( msg: Option<u64>
+                      , chan: u64
+                      , something: String
+                      , user_id: u64
+                      , lsm: bool ) -> TaskResult<()> {
+  if let Err(why) = chat_gpt2_send(msg, chan, something, user_id, lsm).await {
+    error!("Failed to generate response, {why}");
+    Err( TaskError::ExpectedError( why.to_string() ) )
+  } else {
+    info!("GPT2 response sent to {LUKASHENKO}!");
+    Ok(())
   }
 }

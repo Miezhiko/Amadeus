@@ -2,7 +2,10 @@
 #[macro_use] extern crate anyhow;
 extern crate serde;
 
+pub mod types;
+pub mod cache;
 pub mod bert;
+pub mod commands;
 
 use celery::{ Celery, self, prelude::* };
 

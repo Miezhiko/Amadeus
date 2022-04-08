@@ -37,11 +37,6 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
     error!("Failed to clean global application commands, {why}");
   }
 
-  info!("connecting to Salieri");
-  if let Err(why) = salieri::salieri_init().await {
-    error!("failed to init Salieri services {why}");
-  }
-
   // set actual season for pad statistics
   update_current_season(&ctx).await;
 
@@ -74,6 +69,11 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
 
   let ac = std::sync::Arc::new(ctx);
   let oc = std::sync::Arc::new(options.clone());
+
+  info!("connecting to Salieri");
+  if let Err(why) = salieri::salieri_init(&ac).await {
+    error!("failed to init Salieri services {why}");
+  }
 
   activate_system_tracker(&ac).await;
   activate_social_skils(&ac).await;

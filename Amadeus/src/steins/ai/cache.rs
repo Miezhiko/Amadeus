@@ -11,7 +11,7 @@ use crate::{
   message::RESTORE
 };
 
-use mozart::bert::chat::CACHE_ENG_STR;
+use mozart::cache::CACHE_ENG_STR;
 
 use serenity::{
   prelude::*,

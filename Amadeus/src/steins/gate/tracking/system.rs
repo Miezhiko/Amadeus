@@ -5,7 +5,7 @@ use crate::{
   steins::ai::{ bert, reinit }
 };
 
-use mozart::bert::chat::{ CHAT_CONTEXT, CONVMODEL_USED, CONVMODEL };
+use mozart::cache::{ CHAT_CONTEXT, CONVMODEL_USED, CONVMODEL };
 
 use serenity::prelude::*;
 

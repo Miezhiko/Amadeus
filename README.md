@@ -63,6 +63,7 @@
  - Some moderation automation, like timeout commands creating room for communicating with target user.
  - Slur words auto-removal / warnings system.
  - Using [Celery](https://github.com/rusty-celery/rusty-celery) and [RabbitMQ](https://www.rabbitmq.com) for distributed tasks queue.
+ - Using tokio [UnixStream](https://docs.rs/tokio/1.17.0/tokio/net/struct.UnixStream.html#method.try_read_buf) on various sockets for IPC
 
 
 ## Cooking

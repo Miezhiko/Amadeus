@@ -24,8 +24,13 @@ use async_recursion::async_recursion;
 
 #[cfg(feature = "torch")]
 #[async_recursion]
-async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -> String {
+async fn generate_response( ctx: &Context
+                          , msg: &Message
+                          , gtry: u32
+                          , lsm: bool
+                          , is_response: bool ) -> Option<String> {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
+  let message_id = if is_response { Some(msg.id.0) } else { None };
   if gtry > 0 {
     warn!("Failed to generate normal respons, try: {gtry}");
   }
@@ -48,7 +53,7 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
   let rndx: u32 = rand::thread_rng().gen_range(0..30);
   let mut bert_generated = false;
   let in_case = CASELIST.iter().any(|u| *u == msg.author.id.0);
-  let mut answer =
+  let mut answer_option =
     if rndx != 1 && !in_case && gtry < 10 {
       let text = if russian {
         match bert::ru2en(msg.content.clone(), lsm).await {
@@ -68,28 +73,28 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
               answer },
             Err(why) => {
               error!("Failed to bert ask {why}");
-              generate(ctx, msg, Some(russian)).await
+              Some( generate(ctx, msg, Some(russian)).await )
             }
           }
         } else {
-          match bert::chat(text, msg.author.id.0, lsm).await {
+          match bert::chat(message_id, msg.channel_id.0, text, msg.author.id.0, lsm).await {
             Ok(answer) => {
               bert_generated = true;
               answer },
             Err(why) => {
               error!("Failed to bert chat with question {why}, input: {}", &msg.content);
-              generate(ctx, msg, Some(russian)).await
+              Some( generate(ctx, msg, Some(russian)).await )
             }
           }
         }
       } else {
-        match bert::chat(text, msg.author.id.0, lsm).await {
+        match bert::chat(message_id, msg.channel_id.0, text, msg.author.id.0, lsm).await {
           Ok(answer) => {
             bert_generated = true;
             answer },
           Err(why) => {
             error!("Failed to bert chat {why}, input: {}", &msg.content);
-            generate(ctx, msg, Some(russian)).await
+            Some( generate(ctx, msg, Some(russian)).await )
           }
         }
       }
@@ -97,58 +102,68 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
       if gtry > 9 {
         warn!("Failed to generate normal response after 10 tryes!, msg was: {}", &msg.content);
       }
-      generate(ctx, msg, Some(russian)).await
+      Some( generate(ctx, msg, Some(russian)).await )
     };
-  if russian && !answer.is_empty() {
-    if bert_generated {
-      match bert::en2ru(answer.clone(), lsm).await {
-        Ok(translated) => {
-          let rnda: u32 = rand::thread_rng().gen_range(0..10);
-          if rnda != 1 {
-            let kathoey = KATHOEY.lock().await;
-            let rndy: u32 = rand::thread_rng().gen_range(0..30);
-            answer =
-              if rndy == 1 {
-                kathoey.extreme_feminize(&translated)
-              } else {
-                kathoey.feminize(&translated)
-              };
-          } else {
-            answer = translated;
+  if let Some(ref mut answer) = answer_option {
+    if russian && !answer.is_empty() {
+      if bert_generated {
+        match bert::en2ru(answer.clone(), lsm).await {
+          Ok(translated) => {
+            let rnda: u32 = rand::thread_rng().gen_range(0..10);
+            if rnda != 1 {
+              let kathoey = KATHOEY.lock().await;
+              let rndy: u32 = rand::thread_rng().gen_range(0..30);
+              *answer =
+                if rndy == 1 {
+                  kathoey.extreme_feminize(&translated)
+                } else {
+                  kathoey.feminize(&translated)
+                };
+            } else {
+              *answer = translated;
+            }
+          }, Err(why) => {
+            error!("Failed to translate answer to Russian {why}");
           }
-        }, Err(why) => {
-          error!("Failed to translate answer to Russian {why}");
+        }
+      } else {
+        let rndxx: u32 = rand::thread_rng().gen_range(0..2);
+        if rndxx == 1 {
+          let kathoey = KATHOEY.lock().await;
+          let rndxxx: u32 = rand::thread_rng().gen_range(0..30);
+          *answer =
+            if rndxxx == 1 {
+              kathoey.extreme_feminize(&answer)
+            } else {
+              kathoey.feminize(&answer)
+            };
         }
       }
-    } else {
-      let rndxx: u32 = rand::thread_rng().gen_range(0..2);
-      if rndxx == 1 {
-        let kathoey = KATHOEY.lock().await;
-        let rndxxx: u32 = rand::thread_rng().gen_range(0..30);
-        answer =
-          if rndxxx == 1 {
-            kathoey.extreme_feminize(&answer)
-          } else {
-            kathoey.feminize(&answer)
-          };
-      }
     }
+    *answer = answer.as_str().trim().to_string();
   }
   if let Ok(typing) = start_typing {
     typing.stop();
   }
-  let trimmd = answer.as_str().trim();
-  if trimmd.is_empty() || trimmd.len() < 3 {
-    sleep(Duration::from_millis(100)).await;
-    generate_response(ctx, msg, gtry + 1, lsm).await
+  if let Some(answer) = answer_option {
+    if answer.is_empty() || answer.len() < 3 {
+      sleep(Duration::from_millis(100)).await;
+      generate_response(ctx, msg, gtry + 1, lsm, is_response).await
+    } else {
+      Some(answer)
+    }
   } else {
-    answer
+    None
   }
 }
 
 #[cfg(not(feature = "torch"))]
 #[async_recursion]
-async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -> String {
+async fn generate_response( ctx: &Context
+                          , msg: &Message
+                          , gtry: u32
+                          , lsm: bool
+                          , is_response: bool ) -> Option<String> {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
   if gtry > 0 {
     warn!("Failed to generate normal respons, try: {gtry}");
@@ -189,9 +204,9 @@ async fn generate_response(ctx: &Context, msg: &Message, gtry: u32, lsm: bool) -
   let trimmd = answer.as_str().trim();
   if trimmd.is_empty() || trimmd.len() < 3 {
     sleep(Duration::from_millis(100)).await;
-    generate_response(ctx, msg, gtry + 1, lsm).await
+    generate_response(ctx, msg, gtry + 1, lsm, is_response).await
   } else {
-    answer
+    Some(answer)
   }
 }
 
@@ -202,13 +217,14 @@ pub async fn chat(ctx: &Context, msg: &Message) {
       icontext.lazy_static_models
     } else { false }
   };
-  let answer = generate_response(ctx, msg, 0, lsm).await;
-  if !answer.is_empty() {
-    let rnd = rand::thread_rng().gen_range(0..3);
-    if rnd == 1 {
-      reply(ctx, msg, &answer).await;
-    } else {
-      channel_message(ctx, msg, &answer).await;
+  if let Some(answer) = generate_response(ctx, msg, 0, lsm, false).await {
+    if !answer.is_empty() {
+      let rnd = rand::thread_rng().gen_range(0..3);
+      if rnd == 1 {
+        reply(ctx, msg, &answer).await;
+      } else {
+        channel_message(ctx, msg, &answer).await;
+      }
     }
   }
 }
@@ -220,8 +236,9 @@ pub async fn response(ctx: &Context, msg: &Message) {
       icontext.lazy_static_models
     } else { false }
   };
-  let answer = generate_response(ctx, msg, 0, lsm).await;
-  if !answer.is_empty() {
-    reply(ctx, msg, &answer).await;
+  if let Some(answer) = generate_response(ctx, msg, 0, lsm, true).await {
+    if !answer.is_empty() {
+      reply(ctx, msg, &answer).await;
+    }
   }
 }

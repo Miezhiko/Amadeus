@@ -930,9 +930,9 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
   // each 20 minutes half stored search time
   if since_last_update > chrono::Duration::minutes(20) {
     *last_update = nao;
-    if qt1m > 1 { qt1m /= 2; }
-    if qt2m > 1 { qt2m /= 2; }
-    if qt4m > 1 { qt4m /= 2; }
+    if qt1m > 1 && !qtime1.is_empty() { qt1m /= 2; }
+    if qt2m > 1 && !qtime2.is_empty() { qt2m /= 2; }
+    if qt4m > 1 && !qtime4.is_empty() { qt4m /= 2; }
   }
   qmax1 = std::cmp::max( qmax1, qt1m );
   qmax2 = std::cmp::max( qmax2, qt2m );

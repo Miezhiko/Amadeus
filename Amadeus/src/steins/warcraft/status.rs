@@ -71,6 +71,7 @@ pub async fn add_to_weekly(ctx: &Context, p: &str, win: bool, solo: bool) -> any
 }
 
 async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
+  // TODO: generate graph of players activity, not popular hours maybe
   let poplar_hours =
     if let Some(generated_image) = generate_popularhours(ctx).await? {
       generated_image

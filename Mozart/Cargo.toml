@@ -9,7 +9,6 @@ doctest = false
 
 [dependencies]
 serde       = "1"
-env_logger  = "0.9.0"
 log         = "0.4.16"
 anyhow      = "1"
 once_cell   = "1.10"

@@ -10,7 +10,6 @@ use crate::{
   collections::channels::AI_LEARN,
   steins::ai::{ cache::{ CACHE_RU
                        , CACHE_ENG
-                       , RE1, RE2, RE3
                        , NLPR_RULES, NLPR_TOKENIZER
                        , process_message_string
                        , self }
@@ -34,6 +33,8 @@ use rand::Rng;
 use tokio::sync::MutexGuard;
 
 use std::collections::HashMap;
+
+use mozart::bert::{ RE1, RE2, RE3 };
 
 pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Option<String> {
   let start_typing = ctx.http.start_typing(msg.channel_id.0);

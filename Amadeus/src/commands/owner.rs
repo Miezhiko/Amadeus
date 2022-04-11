@@ -185,6 +185,7 @@ async fn twitch_token_update(ctx: &Context, msg: &Message) -> CommandResult {
   Ok(())
 }
 
+// ~register_role 913474954111094844 913443636245561344 913469701529698334
 #[command]
 #[owners_only]
 #[min_args(3)]

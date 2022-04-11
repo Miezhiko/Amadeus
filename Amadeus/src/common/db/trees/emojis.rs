@@ -4,8 +4,6 @@ use std::collections::HashMap;
 
 use cannyls::lump::{ LumpData, LumpId };
 
-use tokio::task;
-
 use bincode::config;
 
 pub async fn register_message( guild_id: &u64
@@ -28,9 +26,8 @@ pub async fn register_message( guild_id: &u64
             error!("failed to sync {khm}");
           }
         }
-        let mut encoded = [0u8; 16];
-        if let Ok(_bytes_written) = bincode::encode_into_slice(&emoji_role, &mut encoded, config::standard()) {
-          if let Ok(lump_data) = LumpData::new(encoded.into()) {
+        if let Ok(encoded) = bincode::encode_to_vec(&emoji_role, config::standard()) {
+          if let Ok(lump_data) = LumpData::new(encoded) {
             match storage.put(&lump_id, &lump_data) {
               Ok(not_added) => {
                 if !not_added {
@@ -49,9 +46,8 @@ pub async fn register_message( guild_id: &u64
     } else {
       let mut emoji_role: HashMap<u64, u64> = HashMap::new();
       emoji_role.insert(*emoji_id, *role_id);
-      let mut encoded = [0u8; 16];
-      if let Ok(_bytes_written) = bincode::encode_into_slice(&emoji_role, &mut encoded, config::standard()) {
-        if let Ok(lump_data) = LumpData::new(encoded.into()) {
+      if let Ok(encoded) = bincode::encode_to_vec(&emoji_role, config::standard()) {
+        if let Ok(lump_data) = LumpData::new(encoded) {
           match storage.put(&lump_id, &lump_data) {
             Ok(added) => {
               if !added {
@@ -64,27 +60,31 @@ pub async fn register_message( guild_id: &u64
           if let Err(khm) = storage.journal_sync() {
             error!("failed to sync {khm}");
           }
+        } else {
+          error!("failed to convert data to lump");
         }
       }
     }
   }
 }
 
-pub async fn message_roles(guild_id: &u64, message_id: &u64) -> anyhow::Result<Option<HashMap<u64, u64>>> {
+pub async fn message_roles( guild_id: &u64
+                          , message_id: &u64
+                          ) -> anyhow::Result<Option<HashMap<u64, u64>>> {
   let mut storage = trees::MTREE.lock().await;
   let u64_2: u128 = (*guild_id as u128) << 64 | *message_id as u128; // >
-  task::spawn_blocking(move || {
-    let lump_id: LumpId = LumpId::new(u64_2);
-    if let Ok(Some(mut data)) = storage.get(&lump_id) {
-      let byte_data: &mut [u8] = data.as_bytes_mut();
-      match bincode::decode_from_slice( byte_data, config::standard() ) {
-        Ok((roles, _len)) => return Ok(Some(roles)),
-        Err(error) => {
-          error!("Error trying to restore roles: {error}");
-          return Ok(None);
-        }
-      };
+  let lump_id: LumpId = LumpId::new(u64_2);
+  if let Ok(Some(mut data)) = storage.get(&lump_id) {
+    let byte_data: &mut [u8] = data.as_bytes_mut();
+    match bincode::decode_from_slice( byte_data, config::standard() ) {
+      Ok((roles, _len)) => Ok(Some(roles)),
+      Err(error) => {
+        error!("Error trying to get message roles roles: {error}");
+        Ok(None)
+      }
     }
+  } else {
+    warn!("found no node in database for current message");
     Ok(None)
-  }).await?
+  }
 }

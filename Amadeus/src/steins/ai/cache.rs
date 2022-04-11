@@ -27,7 +27,6 @@ use serenity::{
 use std::sync::atomic::Ordering;
 use async_std::fs;
 
-use regex::Regex;
 use markov::Chain;
 
 use std::collections::{ HashMap, HashSet };

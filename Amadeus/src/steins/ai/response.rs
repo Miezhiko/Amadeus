@@ -133,9 +133,9 @@ async fn generate_response( ctx: &Context
           let rndxxx: u32 = rand::thread_rng().gen_range(0..30);
           *answer =
             if rndxxx == 1 {
-              kathoey.extreme_feminize(&answer)
+              kathoey.extreme_feminize(answer)
             } else {
-              kathoey.feminize(&answer)
+              kathoey.feminize(answer)
             };
         }
       }

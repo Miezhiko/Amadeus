@@ -1,5 +1,6 @@
 use crate::{
   cache::*,
+  prelude::*,
   bert::LUKASHENKO
 };
 
@@ -111,13 +112,12 @@ async fn chat_gpt2_send( msg: Option<u64>
   let result = chat_gpt2(something, user_id, lsm).await?;
   let temp_dir = std::env::temp_dir();
   let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
-  let config = bincode::config::standard();
   let package = crate::types::ChatResponse {
     message: msg,
     channel: chan,
     response: result
   };
-  let encoded = bincode::	encode_to_vec(&package, config)?;
+  let encoded = bincode::	encode_to_vec(&package, BINCODE_CONFIG)?;
   lukashenko.write_all(&encoded)?;
   Ok(())
 }

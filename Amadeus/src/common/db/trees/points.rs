@@ -4,7 +4,7 @@ use cannyls::lump::{ LumpData, LumpId };
 
 use tokio::task;
 
-use bincode::config;
+use mozart::prelude::BINCODE_CONFIG;
 
 #[derive(bincode::Encode, bincode::Decode)]
 struct Points {
@@ -23,9 +23,9 @@ pub async fn add_points( guild_id: u64
       Ok(mbdata) => {
         if let Some(mut data) = mbdata {
           let byte_data: &mut [u8] = data.as_bytes_mut();
-          if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, config::standard()) {
+          if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, BINCODE_CONFIG) {
             points.count += new_points;
-            if let Ok(new_bytes) = bincode::encode_to_vec(&points, config::standard()) {
+            if let Ok(new_bytes) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
               (*byte_data).copy_from_slice(&new_bytes[..]);
               match storage.put(&lump_id, &data) {
                 Ok(added) => {
@@ -40,7 +40,7 @@ pub async fn add_points( guild_id: u64
           }
         } else {
           let points = Points { count: 0, streak: 0 };
-          if let Ok(encoded) = bincode::encode_to_vec(&points, config::standard()) {
+          if let Ok(encoded) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
             if let Ok(lump_data) = LumpData::new(encoded) {
               match storage.put(&lump_id, &lump_data) {
                 Ok(added) => {
@@ -79,10 +79,10 @@ pub async fn give_points( guild_id: u64
     Ok(mbdata) => {
       if let Some(mut data) = mbdata {
         let byte_data: &mut [u8] = data.as_bytes_mut();
-        if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, config::standard()) {
+        if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, BINCODE_CONFIG) {
           if points.count >= points_count {
             points.count -= points_count;
-            if let Ok(new_bytes) = bincode::encode_to_vec(&points, config::standard()) {
+            if let Ok(new_bytes) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
               (*byte_data).copy_from_slice(&new_bytes[..]);
               if let Ok(added) = storage.put(&lump_id, &data) {
                 if added {
@@ -96,9 +96,9 @@ pub async fn give_points( guild_id: u64
               Ok(tmbdata) => {
                 if let Some(mut tdata) = tmbdata {
                   let tbyte_data: &mut [u8] = tdata.as_bytes_mut();
-                  if let Ok((mut tpoints, _len)) = bincode::decode_from_slice::<Points,_>(tbyte_data, config::standard()) {
+                  if let Ok((mut tpoints, _len)) = bincode::decode_from_slice::<Points,_>(tbyte_data, BINCODE_CONFIG) {
                     tpoints.count += points_count;
-                    if let Ok(tnew_bytes) = bincode::encode_to_vec(&tpoints, config::standard()) {
+                    if let Ok(tnew_bytes) = bincode::encode_to_vec(&tpoints, BINCODE_CONFIG) {
                       (*tbyte_data).copy_from_slice(&tnew_bytes[..]);
                       if let Ok(tadded) = storage.put(&target_lump_id, &tdata) {
                         if tadded {
@@ -111,7 +111,7 @@ pub async fn give_points( guild_id: u64
                   }
                 } else {
                   let tpoints = Points { count: points_count, streak: 0 };
-                  if let Ok(tencoded) = bincode::encode_to_vec(&tpoints, config::standard()) {
+                  if let Ok(tencoded) = bincode::encode_to_vec(&tpoints, BINCODE_CONFIG) {
                     if let Ok(tlump_data) = LumpData::new(tencoded) {
                       if let Ok(tadded) = storage.put(&target_lump_id, &tlump_data) {
                         if !tadded {
@@ -155,7 +155,7 @@ pub async fn get_points(guild_id: u64, user_id: u64) -> anyhow::Result<u64> {
     let lump_id: LumpId = LumpId::new(u64_2);
     if let Ok(Some(mut data)) = storage.get(&lump_id) {
       let byte_data: &mut [u8] = data.as_bytes_mut();
-      match bincode::decode_from_slice::<Points,_>(byte_data, config::standard()) {
+      match bincode::decode_from_slice::<Points,_>(byte_data, BINCODE_CONFIG) {
         Ok((points, _len)) => return Ok(points.count),
         Err(get_error) => {
           error!("Get error: {get_error}");
@@ -192,14 +192,14 @@ pub async fn add_win_points( guild_id: u64
       Ok(mbdata) => {
         if let Some(mut data) = mbdata {
           let byte_data: &mut [u8] = data.as_bytes_mut();
-          if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, config::standard()) {
+          if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, BINCODE_CONFIG) {
             points.count += 10;
             points.streak += 1;
             if points.streak > 3 {
               let points_multiplier = points.streak - 3;
               points.count += 5 * points_multiplier;
             }
-            if let Ok(new_bytes) = bincode::encode_to_vec(&points, config::standard()) {
+            if let Ok(new_bytes) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
               (*byte_data).copy_from_slice(&new_bytes[..]);
               match storage.put(&lump_id, &data) {
                 Ok(added) => {
@@ -221,7 +221,7 @@ pub async fn add_win_points( guild_id: u64
           } else { 0 }
         } else {
           let points = Points { count: 10, streak: 1 };
-          if let Ok(encoded) = bincode::encode_to_vec(&points, config::standard()) {
+          if let Ok(encoded) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
             if let Ok(lump_data) = LumpData::new(encoded) {
               if let Ok(added) = storage.put(&lump_id, &lump_data) {
                 if !added {
@@ -263,9 +263,9 @@ pub async fn break_streak( guild_id: u64
       Ok(mbdata) => {
         if let Some(mut data) = mbdata {
           let byte_data: &mut [u8] = data.as_bytes_mut();
-          if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, config::standard()) {
+          if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, BINCODE_CONFIG) {
             points.streak = 0;
-            if let Ok(new_bytes) = bincode::encode_to_vec(&points, config::standard()) {
+            if let Ok(new_bytes) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
               (*byte_data).copy_from_slice(&new_bytes[..]);
               if let Ok(added) = storage.put(&lump_id, &data) {
                 if added {

@@ -6,6 +6,7 @@ pub mod types;
 pub mod cache;
 pub mod bert;
 pub mod commands;
+pub mod prelude;
 
 use celery::{ Celery, self, prelude::* };
 

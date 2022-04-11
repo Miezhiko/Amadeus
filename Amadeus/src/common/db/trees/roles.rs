@@ -4,6 +4,8 @@ use cannyls::lump::{ LumpData, LumpId };
 
 use tokio::task;
 
+use mozart::prelude::BINCODE_CONFIG;
+
 pub async fn update_roles( guild_id: &u64
                          , user_id: &u64
                          , roles: &[u64] ) {
@@ -42,7 +44,7 @@ pub async fn restore_roles(guild_id: &u64, user_id: &u64) -> anyhow::Result<Vec<
     let lump_id: LumpId = LumpId::new(u64_2);
     if let Ok(Some(mut data)) = storage.get(&lump_id) {
       let byte_data: &mut [u8] = data.as_bytes_mut();
-      match bincode::decode_from_slice(byte_data, bincode::config::standard()) {
+      match bincode::decode_from_slice(byte_data, BINCODE_CONFIG) {
         Ok((roles, _len)) => return Ok(roles),
         Err(error) => {
           error!("Error trying to restore roles: {error}");

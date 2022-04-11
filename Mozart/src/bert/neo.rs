@@ -1,6 +1,7 @@
 use crate::{
   bert::{ process_message_for_gpt, LUKASHENKO },
-  cache::{ DEVICE, CACHE_ENG_STR }
+  cache::{ DEVICE, CACHE_ENG_STR },
+  prelude::*
 };
 
 use celery::prelude::*;
@@ -135,13 +136,12 @@ async fn chat_neo_send( msg: Option<u64>
   let result = chat_neo(something, lsm).await?;
   let temp_dir = std::env::temp_dir();
   let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
-  let config = bincode::config::standard();
   let package = crate::types::ChatResponse {
     message: msg,
     channel: chan,
     response: result
   };
-  let encoded = bincode::	encode_to_vec(&package, config)?;
+  let encoded = bincode::	encode_to_vec(&package, BINCODE_CONFIG)?;
   lukashenko.write_all(&encoded)?;
   Ok(())
 }

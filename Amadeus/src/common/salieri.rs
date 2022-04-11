@@ -15,7 +15,8 @@ use celery::{ Celery, broker::AMQPBroker };
 use mozart::{
   types::ChatResponse,
   commands::{ SALIERI_SOCKET, self },
-  bert::LUKASHENKO
+  bert::LUKASHENKO,
+  prelude::*
 };
 
 use serenity::{
@@ -74,8 +75,7 @@ async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Result<
       }
     }
 
-    let config = bincode::config::standard();
-    let (decoded, _len): (ChatResponse, usize) = bincode::decode_from_slice(&buf[..], config)?;
+    let (decoded, _len): (ChatResponse, usize) = bincode::decode_from_slice(&buf[..], BINCODE_CONFIG)?;
     let chan: ChannelId = ChannelId( decoded.channel );
     if let Some(msg_id) = &decoded.message {
       if let Ok(msg) = chan.message(ctx, MessageId( *msg_id )).await {

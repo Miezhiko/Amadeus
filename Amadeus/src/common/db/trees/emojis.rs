@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use cannyls::lump::{ LumpData, LumpId };
 
-use bincode::config;
+use mozart::prelude::BINCODE_CONFIG;
 
 pub async fn register_message( guild_id: &u64
                              , message_id: &u64
@@ -17,7 +17,7 @@ pub async fn register_message( guild_id: &u64
     if let Some(data) = mbdata {
       let byte_data: &[u8] = data.as_bytes();
       if let Ok((emoji_roles, _len)) = bincode::decode_from_slice( byte_data
-                                                                 , config::standard() ) {
+                                                                 , BINCODE_CONFIG ) {
         let mut emoji_role: HashMap<u64, u64> = emoji_roles;
         emoji_role.insert(*emoji_id, *role_id);
         { // delte existing node
@@ -26,7 +26,7 @@ pub async fn register_message( guild_id: &u64
             error!("failed to sync {khm}");
           }
         }
-        if let Ok(encoded) = bincode::encode_to_vec(&emoji_role, config::standard()) {
+        if let Ok(encoded) = bincode::encode_to_vec(&emoji_role, BINCODE_CONFIG) {
           if let Ok(lump_data) = LumpData::new(encoded) {
             match storage.put(&lump_id, &lump_data) {
               Ok(not_added) => {
@@ -46,7 +46,7 @@ pub async fn register_message( guild_id: &u64
     } else {
       let mut emoji_role: HashMap<u64, u64> = HashMap::new();
       emoji_role.insert(*emoji_id, *role_id);
-      if let Ok(encoded) = bincode::encode_to_vec(&emoji_role, config::standard()) {
+      if let Ok(encoded) = bincode::encode_to_vec(&emoji_role, BINCODE_CONFIG) {
         if let Ok(lump_data) = LumpData::new(encoded) {
           match storage.put(&lump_id, &lump_data) {
             Ok(added) => {
@@ -76,7 +76,7 @@ pub async fn message_roles( guild_id: &u64
   let lump_id: LumpId = LumpId::new(u64_2);
   if let Ok(Some(mut data)) = storage.get(&lump_id) {
     let byte_data: &mut [u8] = data.as_bytes_mut();
-    match bincode::decode_from_slice( byte_data, config::standard() ) {
+    match bincode::decode_from_slice( byte_data, BINCODE_CONFIG ) {
       Ok((roles, _len)) => Ok(Some(roles)),
       Err(error) => {
         error!("Error trying to get message roles roles: {error}");

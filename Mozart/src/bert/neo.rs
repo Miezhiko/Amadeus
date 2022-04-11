@@ -141,7 +141,7 @@ async fn chat_neo_send( msg: Option<u64>
     channel: chan,
     response: result
   };
-  let encoded = bincode::	encode_to_vec(&package, BINCODE_CONFIG)?;
+  let encoded = bincode::encode_to_vec(&package, BINCODE_CONFIG)?;
   lukashenko.write_all(&encoded)?;
   Ok(())
 }

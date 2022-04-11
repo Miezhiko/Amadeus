@@ -56,7 +56,8 @@ async fn generate_response( ctx: &Context
   let mut answer_option =
     if rndx != 1 && !in_case && gtry < 10 {
       let text = if russian {
-        match bert::ru2en(msg.content.clone(), lsm).await {
+        //TODO: port to sockets
+        match mozart::bert::translation::ru2en(msg.content.clone(), lsm).await {
           Ok(translated) => translated,
           Err(why) => {
             error!("Failed to translate msg content {why}");
@@ -67,7 +68,7 @@ async fn generate_response( ctx: &Context
       if msg.content.ends_with('?') {
         let rndxqa: u32 = rand::thread_rng().gen_range(0..2);
         if rndxqa == 1 {
-          match bert::ask(text, lsm).await {
+          match bert::ask(message_id, msg.channel_id.0, text, lsm).await {
             Ok(answer) => {
               bert_generated = true;
               answer },
@@ -107,7 +108,8 @@ async fn generate_response( ctx: &Context
   if let Some(ref mut answer) = answer_option {
     if russian && !answer.is_empty() {
       if bert_generated {
-        match bert::en2ru(answer.clone(), lsm).await {
+        //TODO:: port this code to sockets
+        match mozart::bert::translation::en2ru(answer.clone(), lsm).await {
           Ok(translated) => {
             let rnda: u32 = rand::thread_rng().gen_range(0..10);
             if rnda != 1 {

@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "7.93.2"
+version         = "8.0.0"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -56,13 +56,6 @@ rand    = { version = "0.8.5",  features = ["std", "std_rng"] }
 reqwest = { version = "0.11.10", features = ["json", "blocking"] }
 ical    = { version = "0.7",  features = ["ical"] }
 markov  = { version = "1.1",  features = ["yaml"] }
-
-tch = "0.7"
-[dependencies.rust-bert]
-default-features = false
-git = "https://github.com/guillaume-be/rust-bert.git"
-branch = "master"
-features = [ "remote" ]
 
 [dependencies.songbird]
 default-features = false

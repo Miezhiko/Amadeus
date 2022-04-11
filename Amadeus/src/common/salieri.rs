@@ -37,7 +37,7 @@ async fn handle_salieri(_ctx: &Context, stream: UnixStream) -> anyhow::Result<()
     match stream.try_read_buf(&mut buf) {
       Ok(0) => break,
       Ok(n) => {
-        println!("read {} bytes", n);
+        info!("read {} bytes", n);
       }
       Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
         continue;
@@ -65,7 +65,7 @@ async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Result<
     match stream.try_read_buf(&mut buf) {
       Ok(0) => break,
       Ok(n) => {
-        println!("read {} bytes", n);
+        info!("read {} bytes", n);
       }
       Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
         continue;
@@ -87,6 +87,39 @@ async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Result<
   }
   Ok(())
 }
+
+/*
+async fn handle_translation(ctx: &Context, stream: UnixStream) -> anyhow::Result<()> {
+  loop {
+    stream.readable().await?;
+
+    let mut buf = Vec::with_capacity(4096);
+    match stream.try_read_buf(&mut buf) {
+      Ok(0) => break,
+      Ok(n) => {
+        info!("read {} bytes", n);
+      }
+      Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
+        continue;
+      }
+      Err(e) => {
+        return Err(e.into());
+      }
+    }
+
+    let (decoded, _len): (ChatResponse, usize) = bincode::decode_from_slice(&buf[..], BINCODE_CONFIG)?;
+    let chan: ChannelId = ChannelId( decoded.channel );
+    if let Some(msg_id) = &decoded.message {
+      if let Ok(msg) = chan.message(ctx, MessageId( *msg_id )).await {
+        reply(ctx, &msg, &decoded.response).await;
+      }
+    } else {
+      chan.send_message(ctx, |m| m.content(&decoded.response)).await?;
+    }
+  }
+  Ok(())
+}
+*/
 
 async fn process_salieri(ctx: &Context, salieri_socket: &UnixListener) {
   match salieri_socket.accept().await {
@@ -110,6 +143,19 @@ async fn process_lukashenko(ctx: &Context, lukashenko: &UnixListener) {
   }
 }
 
+/*
+async fn process_translation(ctx: &Context, translation: &UnixListener) {
+  match translation.accept().await {
+    Ok((stream, _addr)) => {
+      if let Err(err) = handle_translation(ctx, stream).await {
+        error!("Failed to handle translation client {err}");
+      }
+    }
+    Err(e) => error!("{TRANSLATION} connection failed {e}")
+  }
+}
+*/
+
 pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
   match mozart::celery_init(mozart::SALIERI_AMPQ).await {
     Ok(c) => {
@@ -122,18 +168,21 @@ pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
   }
   let salieri_lock = SALIERI.lock().await;
   if let Some(salieri) = &*salieri_lock {
-    salieri.send_task(mozart::TASK::new( "test".to_string() )).await?;
+    salieri.send_task(mozart::AMADEUS_INIT::new()).await?;
 
     let temp_dir = std::env::temp_dir();
 
-    set!{ salieri_address = temp_dir.join(SALIERI_SOCKET)
-        , lukashenko_address = temp_dir.join(LUKASHENKO) };
+    set!{ salieri_address     = temp_dir.join(SALIERI_SOCKET)
+        , lukashenko_address  = temp_dir.join(LUKASHENKO) };
+        //, translation_address = temp_dir.join(TRANSLATION) };
 
     fs::remove_file(&salieri_address)?;
     fs::remove_file(&lukashenko_address)?;
+    //fs::remove_file(&translation_address)?;
 
-    set!{ salieri_socket = UnixListener::bind(salieri_address)?
-        , lukashenko = UnixListener::bind(lukashenko_address)? };
+    set!{ salieri_socket  = UnixListener::bind(salieri_address)?
+        , lukashenko      = UnixListener::bind(lukashenko_address)? };
+        //, translation     = UnixListener::bind(translation_address)? };
 
     let ctx_clone = Arc::clone(ctx);
 
@@ -142,6 +191,7 @@ pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
         select! {
           _ = process_salieri(&ctx_clone, &salieri_socket) => {},
           _ = process_lukashenko(&ctx_clone, &lukashenko) => {}
+          //_ = process_translation(&ctx_clone, &translation) => {},
         }
       }
     });

@@ -1,11 +1,18 @@
+pub mod translation;
 pub mod chat;
+pub mod qa;
 pub mod neo;
 
 use regex::Regex;
 
 use once_cell::sync::Lazy;
 
-pub const LUKASHENKO: &str = "lukashenko";
+pub const LUKASHENKO: &str  = "lukashenko";
+
+// translation is not used on MQ for now
+//pub const TRANSLATION: &str = "translation";
+
+pub static GPT_LIMIT: usize = 1000;
 
 pub static RE1: Lazy<Regex> = Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
 pub static RE2: Lazy<Regex> = Lazy::new(|| Regex::new(r":(.*?):").unwrap());

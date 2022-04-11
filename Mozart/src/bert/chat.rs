@@ -1,6 +1,9 @@
-use crate::cache::*;
+use crate::{
+  cache::*,
+  bert::LUKASHENKO
+};
 
-use celery::{ self, prelude::* };
+use celery::prelude::*;
 
 use rust_bert::pipelines::{
   conversation::ConversationManager
@@ -16,15 +19,12 @@ use chrono::Utc;
 
 use rand::seq::SliceRandom;
 
-pub const LUKASHENKO: &str = "lukashenko";
-
 pub async fn reinit() {
   let mut chat_context = CHAT_CONTEXT.lock().await;
   chat_context.clear();
 }
 
-// temporary pub!
-pub async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> anyhow::Result<String> {
+async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> anyhow::Result<String> {
   info!("Generating GPT2 response");
   let cache_eng_hs = CACHE_ENG_STR.lock().await;
   let mut conversation = CONVMODEL.lock().await;

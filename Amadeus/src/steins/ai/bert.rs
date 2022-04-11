@@ -1,7 +1,4 @@
-use crate::{
-  steins::ai::cache::process_message_for_gpt,
-  common::salieri::SALIERI
-};
+use crate::common::salieri::SALIERI;
 
 use rust_bert::pipelines::{
   question_answering::{ QaInput
@@ -21,11 +18,10 @@ use anyhow::Result;
 
 use rand::{ seq::SliceRandom, Rng };
 
-use super::neo::chat_neo;
-
 use mozart::{
   cache::DEVICE,
-  bert::chat::CHAT_GPT2
+  bert::process_message_for_gpt,
+  bert::{ chat::CHAT_GPT2, neo::CHAT_NEO }
 };
 
 //TODO
@@ -197,10 +193,22 @@ async fn chat_gpt2( msg: Option<u64>
     ).await?;
     Ok(None)
   } else {
-    error!("chat_gpt2: failed to connecto to Salieri");
-    Ok(
-      Some(mozart::bert::chat::chat_gpt2(something, user_id, lsm).await?)
-    )
+    Err(anyhow!("chat_gpt2: failed to connecto to Salieri"))
+  }
+}
+
+async fn chat_neo( msg: Option<u64>
+                 , chan: u64
+                 , something: String
+                 , lsm: bool ) -> Result<Option<String>> {
+  let salieri_lock = SALIERI.lock().await;
+  if let Some(salieri) = &*salieri_lock {
+    salieri.send_task(
+      CHAT_NEO::new(msg, chan, something, lsm)
+    ).await?;
+    Ok(None)
+  } else {
+    Err(anyhow!("chat_neo: failed to connecto to Salieri"))
   }
 }
 
@@ -220,7 +228,7 @@ pub async fn chat( msg: Option<u64>
     return Err(anyhow!("empty input"));
   }
   match rndx {
-    0 => Ok(Some( chat_neo(input, lsm).await? )),
+    0 => chat_neo(msg, chan, input, lsm).await,
     _ => chat_gpt2(msg, chan, input, user_id, lsm).await
   }
 }

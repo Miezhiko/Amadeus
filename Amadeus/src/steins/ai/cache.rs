@@ -11,7 +11,10 @@ use crate::{
   message::RESTORE
 };
 
-use mozart::cache::CACHE_ENG_STR;
+use mozart::{
+  cache::CACHE_ENG_STR,
+  bert::process_message_for_gpt
+};
 
 use serenity::{
   prelude::*,
@@ -64,25 +67,12 @@ pub static NLPR_TOKENIZER: Lazy<Mutex<Tokenizer>> =
 pub static NLPR_RULES: Lazy<Mutex<Rules>> =
   Lazy::new(|| Mutex::new( Rules::new(NLPRULE_RULES).unwrap() ));
 
-pub static RE1: Lazy<Regex> = Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
-pub static RE2: Lazy<Regex> = Lazy::new(|| Regex::new(r":(.*?):").unwrap());
-pub static RE3: Lazy<Regex> = Lazy::new(|| Regex::new(r"&(.*?);").unwrap());
-pub static RE4: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+").unwrap());
-
 pub async fn reinit() {
   let mut cache_eng_str = CACHE_ENG_STR.lock().await;
   *cache_eng_str = cache_eng_str.clone()
                                 .into_iter()
                                 .take(666)
                                 .collect::<HashSet<String>>();
-}
-
-pub fn process_message_for_gpt(s: &str) -> String {
-  let mut result_string = RE1.replace_all(s, "").to_string();
-  result_string = RE2.replace_all(&result_string, "").to_string();
-  result_string = RE3.replace_all(&result_string, "").to_string();
-  result_string = RE4.replace_all(&result_string, " ").to_string();
-  result_string.trim().to_string()
 }
 
 pub fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String, ChannelLanguage)> {

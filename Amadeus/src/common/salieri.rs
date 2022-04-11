@@ -15,7 +15,7 @@ use celery::{ Celery, broker::AMQPBroker };
 use mozart::{
   types::ChatResponse,
   commands::{ SALIERI_SOCKET, self },
-  bert::chat::LUKASHENKO
+  bert::LUKASHENKO
 };
 
 use serenity::{

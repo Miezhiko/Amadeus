@@ -24,7 +24,7 @@ static SLUR: Lazy<Regex> =
 static LIGHT_SLUR_LOL: Lazy<Regex> =
     Lazy::new(||
       Regex::new(
-        r"(bitch(es|ing|y)?|whor(es?|ing)|(bas|re)tard(ed)?s?)"
+        r"(bitch(es|ing|y)?|whor(es?|ing)|bastard)"
       ).unwrap());
 
 const BAN_LIST_FILE_NAME: &str = "ban-list.json";

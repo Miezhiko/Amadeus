@@ -1,6 +1,7 @@
 use crate::{
   types::serenity::{ AllGuilds, ChannelLanguage },
   common::{ help::lang
+          , salieri::SALIERI
           , constants::PREFIX
           , db::trees::{ messages::{ register, check_registration }
                        , LSUF, ZSUF, RSUF, MSUF }
@@ -29,7 +30,7 @@ use async_std::fs;
 
 use markov::Chain;
 
-use std::collections::{ HashMap, HashSet };
+use std::collections::HashMap;
 use std::sync::atomic::AtomicU32;
 use chrono::{ Duration, Utc, DateTime };
 use once_cell::sync::Lazy;
@@ -67,11 +68,14 @@ pub static NLPR_RULES: Lazy<Mutex<Rules>> =
   Lazy::new(|| Mutex::new( Rules::new(NLPRULE_RULES).unwrap() ));
 
 pub async fn reinit() {
-  let mut cache_eng_str = CACHE_ENG_STR.lock().await;
-  *cache_eng_str = cache_eng_str.clone()
-                                .into_iter()
-                                .take(666)
-                                .collect::<HashSet<String>>();
+  let salieri_lock = SALIERI.lock().await;
+  if let Some(salieri) = &*salieri_lock {
+    if let Err(why) = salieri.send_task(
+                        mozart::cache::REINIT_CACHE::new()
+                      ).await {
+      error!("failed to reinit cache {why}");
+    }
+  }
 }
 
 pub fn process_message_string(s: &str, lang: ChannelLanguage) -> Option<(String, ChannelLanguage)> {
@@ -240,6 +244,20 @@ pub async fn update_cache( ctx: &Context
     }
   }
 
+  {
+    {
+      let salieri_lock = SALIERI.lock().await;
+      if let Some(salieri) = &*salieri_lock {
+        let cache_str_to_save = cache_eng_str.clone();
+        if let Err(why) = salieri.send_task(
+                            mozart::cache::SET_CACHE::new(cache_str_to_save)
+                          ).await {
+          error!("failed to reinit cache {why}");
+        }
+      }
+    }
+  }
+
   info!("Updating cache complete");
 
   // enable backup/restore functionality
@@ -249,7 +267,6 @@ pub async fn update_cache( ctx: &Context
   ctx.set_activity(Activity::playing(&version)).await;
 }
 
-// TODO: error checks
 pub async fn clear_cache() {
   setm!{ cache_eng      = CACHE_ENG.lock().await
        , cache_ru       = CACHE_RU.lock().await
@@ -257,6 +274,17 @@ pub async fn clear_cache() {
   *cache_eng  = Chain::new();
   *cache_ru   = Chain::new();
   cache_eng_str.clear();
+  {
+    let salieri_lock = SALIERI.lock().await;
+    if let Some(salieri) = &*salieri_lock {
+      let cache_str_to_save = cache_eng_str.clone();
+      if let Err(why) = salieri.send_task(
+                          mozart::cache::SET_CACHE::new(cache_str_to_save)
+                        ).await {
+        error!("failed to clear cache on salieri {why}");
+      }
+    }
+  }
   if fs::metadata(CACHE_ENG_YML).await.is_ok() {
     let _ = fs::remove_file(CACHE_ENG_YML).await;
   }

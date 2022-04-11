@@ -13,7 +13,6 @@ use celery::{ Celery, self, prelude::* };
 use std::sync::Arc;
 
 pub const SALIERI_SERVICE: &str = "salieri";
-pub const AMADEUS: &str = "amadeus";
 
 // 5672 is default AMPQ port
 pub const SALIERI_AMPQ: &str = "amqp://localhost:5672//";
@@ -30,6 +29,8 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryEr
     tasks = [ AMADEUS_INIT
             , cache::CONTEXT_CLEAR
             , cache::MODELS_REINIT
+            , cache::REINIT_CACHE
+            , cache::SET_CACHE
             //, bert::translation::EN2RU
             //, bert::translation::RU2EN
             , bert::chat::CHAT_GPT2

@@ -49,8 +49,7 @@ async fn handle_salieri(_ctx: &Context, stream: UnixStream) -> anyhow::Result<()
 
     let s = String::from_utf8(buf)?;
     match s.as_str() {
-      commands::GET_CACHE => (),
-      commands::SET_CACHE => (),
+      commands::ERROR_HANDLE => (),
       _ => ()
     }
   }

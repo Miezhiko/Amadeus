@@ -18,6 +18,7 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
   let ctx_clone = Arc::clone(ctx);
   tokio::spawn(async move {
     loop {
+      tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
       { // this scope is needed for async locks!
         // clean up old bert model conversation id-s
         let salieri_lock = SALIERI.lock().await;
@@ -56,7 +57,6 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
           }
         }
       }
-      tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
     }
   });
 }

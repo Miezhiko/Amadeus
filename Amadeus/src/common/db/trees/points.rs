@@ -21,20 +21,23 @@ pub async fn add_points( guild_id: u64
   if let Err(awhy) = task::spawn_blocking(move || {
     match storage.get(&lump_id) {
       Ok(mbdata) => {
-        if let Some(mut data) = mbdata {
-          let byte_data: &mut [u8] = data.as_bytes_mut();
+        if let Some(data) = mbdata {
+          let byte_data: &[u8] = data.as_bytes();
           if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, BINCODE_CONFIG) {
             points.count += new_points;
             if let Ok(new_bytes) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
-              (*byte_data).copy_from_slice(&new_bytes[..]);
-              match storage.put(&lump_id, &data) {
-                Ok(added) => {
-                  if added {
-                    error!("error updating points");
+              if let Ok(lump_data_new) = LumpData::new(new_bytes) {
+                match storage.put(&lump_id, &lump_data_new) {
+                  Ok(added) => {
+                    if added {
+                      error!("error updating points");
+                    }
+                  }, Err(not_added) => {
+                    error!("failed to add points {not_added}");
                   }
-                }, Err(not_added) => {
-                  error!("failed to add points {not_added}");
                 }
+              } else {
+                error!("LumpData error");
               }
             }
           }
@@ -83,11 +86,14 @@ pub async fn give_points( guild_id: u64
           if points.count >= points_count {
             points.count -= points_count;
             if let Ok(new_bytes) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
-              (*byte_data).copy_from_slice(&new_bytes[..]);
-              if let Ok(added) = storage.put(&lump_id, &data) {
-                if added {
-                  error!("Some strange error updating giver points");
+              if let Ok(lump_data_new) = LumpData::new(new_bytes) {
+                if let Ok(added) = storage.put(&lump_id, &lump_data_new) {
+                  if added {
+                    error!("Some strange error updating giver points");
+                  }
                 }
+              } else {
+                error!("LumpData Error");
               }
             } else {
               error!("Error encoding ponts");
@@ -99,11 +105,14 @@ pub async fn give_points( guild_id: u64
                   if let Ok((mut tpoints, _len)) = bincode::decode_from_slice::<Points,_>(tbyte_data, BINCODE_CONFIG) {
                     tpoints.count += points_count;
                     if let Ok(tnew_bytes) = bincode::encode_to_vec(&tpoints, BINCODE_CONFIG) {
-                      (*tbyte_data).copy_from_slice(&tnew_bytes[..]);
-                      if let Ok(tadded) = storage.put(&target_lump_id, &tdata) {
-                        if tadded {
-                          error!("Some strange error updating receiver points");
+                      if let Ok(lump_data_new) = LumpData::new(tnew_bytes) {
+                        if let Ok(tadded) = storage.put(&target_lump_id, &lump_data_new) {
+                          if tadded {
+                            error!("Some strange error updating receiver points");
+                          }
                         }
+                      } else {
+                        error!("LumpData Error");
                       }
                     } else {
                       error!("Error encoding ponts");
@@ -190,8 +199,8 @@ pub async fn add_win_points( guild_id: u64
   match task::spawn_blocking(move || {
     match storage.get(&lump_id) {
       Ok(mbdata) => {
-        if let Some(mut data) = mbdata {
-          let byte_data: &mut [u8] = data.as_bytes_mut();
+        if let Some(data) = mbdata {
+          let byte_data: &[u8] = data.as_bytes();
           if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, BINCODE_CONFIG) {
             points.count += 10;
             points.streak += 1;
@@ -200,20 +209,23 @@ pub async fn add_win_points( guild_id: u64
               points.count += 5 * points_multiplier;
             }
             if let Ok(new_bytes) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
-              (*byte_data).copy_from_slice(&new_bytes[..]);
-              match storage.put(&lump_id, &data) {
-                Ok(added) => {
-                  if added {
-                    error!("error updating points");
+              if let Ok(lump_data_tnew) = LumpData::new(new_bytes) {
+                match storage.put(&lump_id, &lump_data_tnew) {
+                  Ok(added) => {
+                    if added {
+                      error!("error updating points");
+                    }
+                    if let Err(khm) = storage.journal_sync() {
+                      error!("failed to sync {khm}");
+                    }
+                    points.streak
+                  }, Err(ecn) => {
+                    error!("Something wrong with cannyls: {ecn}");
+                    0
                   }
-                  if let Err(khm) = storage.journal_sync() {
-                    error!("failed to sync {khm}");
-                  }
-                  points.streak
-                }, Err(ecn) => {
-                  error!("Something wrong with cannyls: {ecn}");
-                  0
                 }
+              } else {
+                error!("Error putting new ponts to LumpData"); 0
               }
             } else {
               error!("Error encoding ponts"); 0
@@ -261,19 +273,22 @@ pub async fn break_streak( guild_id: u64
   if let Err(why) = task::spawn_blocking(move || {
     match storage.get(&lump_id) {
       Ok(mbdata) => {
-        if let Some(mut data) = mbdata {
-          let byte_data: &mut [u8] = data.as_bytes_mut();
+        if let Some(data) = mbdata {
+          let byte_data: &[u8] = data.as_bytes();
           if let Ok((mut points, _len)) = bincode::decode_from_slice::<Points,_>(byte_data, BINCODE_CONFIG) {
             points.streak = 0;
             if let Ok(new_bytes) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
-              (*byte_data).copy_from_slice(&new_bytes[..]);
-              if let Ok(added) = storage.put(&lump_id, &data) {
-                if added {
-                  error!("error updating points");
+              if let Ok(lump_data_new) = LumpData::new(new_bytes) {
+                if let Ok(added) = storage.put(&lump_id, &lump_data_new) {
+                  if added {
+                    error!("error updating points");
+                  }
+                  if let Err(khm) = storage.journal_sync() {
+                    error!("failed to sync {khm}");
+                  }
                 }
-                if let Err(khm) = storage.journal_sync() {
-                  error!("failed to sync {khm}");
-                }
+              } else {
+                error!("LumpData Error")
               }
             } else {
               error!("Error encoding ponts");

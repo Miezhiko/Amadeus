@@ -19,7 +19,8 @@ main = hake $ do
   amadeusExecutable ♯
     cargo <| "build" : buildFlagsAmadeus
 
-  "install | install to system" ◉ [amadeusExecutable] ∰
+  "install | install to system" ◉ [ salieriExecutable
+                                  , amadeusExecutable ] ∰
     cargo <| "install" : buildFlagsAmadeus
 
   "test | build and test" ◉ [amadeusExecutable] ∰ do
@@ -27,6 +28,11 @@ main = hake $ do
     cargo ["clippy"]
     rawSystem amadeusExecutable ["--version"]
       >>= checkExitCode
+
+  "restart | restart services" ◉ [ salieriExecutable
+                                 , amadeusExecutable ] ∰ do
+    systemctl ["restart", appNameSalieri]
+    systemctl ["restart", appNameAmadeus]
 
  where
   appNameSalieri ∷ String

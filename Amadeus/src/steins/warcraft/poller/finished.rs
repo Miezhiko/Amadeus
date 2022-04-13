@@ -14,6 +14,7 @@ use crate::{
 #[allow(clippy::needless_range_loop)]
 pub async fn check_match( matchid: &str
                         , playaz: &[DiscordPlayer]
+                        , track_mode: &GameMode
                         , rqcl: &reqwest::Client
                         ) -> Option<FinishedGame> {
   let url = format!("{W3C_API}/matches/by-ongoing-match-id/{matchid}");
@@ -34,7 +35,12 @@ pub async fn check_match( matchid: &str
 
   // fallback mode when by-ongoing-match-id fails
   if if_md.is_none() {
-    if let Ok(wtf) = rqcl.get(&format!("{W3C_API}/matches?offset=0"))
+    let game_mode = match track_mode {
+      GameMode::Solo  => "gameMode=1",
+      GameMode::Team2 => "gameMode=2",
+      GameMode::Team4 => "gameMode=4"
+    };
+    if let Ok(wtf) = rqcl.get(&format!("{W3C_API}/matches?offset=0&{game_mode}"))
                          .send()
                          .await {
       if let Ok(going) = wtf.json::<Going>().await {

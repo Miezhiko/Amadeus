@@ -434,7 +434,7 @@ pub async fn check<'a>( ctx: &Context
             if let Some(gc) = game_channel_maybe {
             let game_channel = ChannelId(gc);
 
-            if let Some(finished_game) = check_match(k, &track.players, rqcl).await {
+            if let Some(finished_game) = check_match(k, &track.players, &track.mode, rqcl).await {
               let fgame = &finished_game;
               if let Ok(mut msg) = ctx.http.get_message( game_channel.0
                                                        , track.tracking_msg_id[0].1 ).await {

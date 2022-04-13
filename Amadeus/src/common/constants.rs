@@ -13,6 +13,7 @@ pub static LIVE_ROLE: &str            = "🔴 LIVE";
 pub static UNBLOCK_ROLE: &str         = "UNBLOCK AMADEUS";
 pub static MUTED_ROLE: &str           = "muted";
 
-pub static MUTED_ROOM: &str           = "sobering-up-station";
+pub static MUTED_ROOMS: &[ChannelId]  = &[ ChannelId( 958705907099918386 )
+                                         , ChannelId( 958712754951323718 ) ];
 
 pub static W3C_API: &str = "https://statistic-service.w3champions.com/api";

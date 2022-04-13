@@ -45,7 +45,8 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
         }
 
         // memory check!
-        if let Ok(mem_mb) = system::stats::get_memory_mb().await {
+        if let Ok((amadeus_mb, salier_mb)) = system::stats::get_memory_mb().await {
+          let mem_mb = amadeus_mb + salier_mb;
           // USE 24 GB RAM LIMIT FOR NOW
           if mem_mb > 1024.0 * 24.0 {
             if let Err(why) = system::upgrade::upgrade_amadeus(&ctx_clone, &GITHUB_PRS).await {

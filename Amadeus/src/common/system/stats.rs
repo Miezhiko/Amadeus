@@ -15,10 +15,11 @@ use tokio::process::Command;
 pub struct SysInfo {
   pub shard_latency: String,
   pub memory: String,
+  pub memory_saliery: String,
   pub db_size: String
 }
 
-pub async fn get_memory_mb() -> anyhow::Result<f32> {
+pub async fn get_memory_mb() -> anyhow::Result<(f32, f32)> {
   let pid = std::process::id().to_string();
   let mem_stdout = Command::new("sh")
           .arg("-c")
@@ -26,7 +27,20 @@ pub async fn get_memory_mb() -> anyhow::Result<f32> {
           .output()
           .await?;
   let mem_used = &String::from_utf8(mem_stdout.stdout)?;
-  Ok(mem_used[..mem_used.len() - 2].parse::<f32>().unwrap_or(0f32)/1024f32)
+  let salieri_id_cmd = Command::new("sh")
+          .arg("-c")
+          .arg("pidof salieri")
+          .output()
+          .await?;
+  let salieri_id = &String::from_utf8(salieri_id_cmd.stdout)?;
+  let mem_salieri_stdout = Command::new("sh")
+          .arg("-c")
+          .arg(&format!("pmap {} | tail -n 1 | awk '/[0-9]K/{{print $2}}'", salieri_id.trim()))
+          .output()
+          .await?;
+  let mem_salieri = &String::from_utf8(mem_salieri_stdout.stdout)?;
+  Ok(( mem_used[..mem_used.len() - 2].parse::<f32>().unwrap_or(0f32)/1024f32
+     , mem_salieri[..mem_salieri.len() - 2].parse::<f32>().unwrap_or(0f32)/1024f32 ))
 }
 
 pub async fn get_system_info(ctx: &Context) -> SysInfo {
@@ -49,11 +63,15 @@ pub async fn get_system_info(ctx: &Context) -> SysInfo {
     },
     ..Default::default()
   };
-  if let Ok(memory_mb) = get_memory_mb().await {
+  if let Ok((memory_mb, memori_saliery)) = get_memory_mb().await {
     sys_info.memory = if memory_mb >= 1024.0 {
       let memory_gb = memory_mb / 1024f32;
       format!("{:.3} GB", memory_gb)
       } else { format!("{:.3} MB", memory_mb) };
+    sys_info.memory_saliery = if memori_saliery >= 1024.0 {
+      let memory_gb = memori_saliery / 1024f32;
+      format!("{:.3} GB", memory_gb)
+      } else { format!("{:.3} MB", memori_saliery) };
   } else {
     error!("Failed to parse mem stdout");
   }

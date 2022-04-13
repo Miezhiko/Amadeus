@@ -198,10 +198,17 @@ Servers:  {}
 Channels: {}
 Users:    {}
 Memory:   {}
+Salieri:  {}
 Database: {}
 Latency:  {}
 {}
-```", guild_count, channel_count, user_count, sys_info.memory, sys_info.db_size, sys_info.shard_latency
+```", guild_count
+    , channel_count
+    , user_count
+    , sys_info.memory
+    , sys_info.memory_saliery
+    , sys_info.db_size
+    , sys_info.shard_latency
     , uptime_string ));
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
   eb.footer(|f| f.text(footer));

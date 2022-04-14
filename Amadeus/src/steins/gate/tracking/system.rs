@@ -11,8 +11,8 @@ use std::{
   time, sync::Arc
 };
 
-/* every 30 minutes */
-static POLL_PERIOD_SECONDS: u64 = 30 * 60;
+/* every 60 minutes */
+static POLL_PERIOD_SECONDS: u64 = 60 * 60;
 
 pub async fn activate_system_tracker(ctx: &Arc<Context>) {
   let ctx_clone = Arc::clone(ctx);

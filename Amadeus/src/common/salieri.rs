@@ -176,8 +176,12 @@ pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
         , lukashenko_address  = temp_dir.join(LUKASHENKO) };
         //, translation_address = temp_dir.join(TRANSLATION) };
 
-    fs::remove_file(&salieri_address)?;
-    fs::remove_file(&lukashenko_address)?;
+    if salieri_address.as_path().exists() {
+      fs::remove_file(&salieri_address)?;
+    }
+    if lukashenko_address.as_path().exists() {
+      fs::remove_file(&lukashenko_address)?;
+    }
     //fs::remove_file(&translation_address)?;
 
     set!{ salieri_socket  = UnixListener::bind(salieri_address)?

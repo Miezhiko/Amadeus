@@ -19,6 +19,7 @@ use tokio::task;
 use chrono::Utc;
 
 use rand::seq::SliceRandom;
+use async_recursion::async_recursion;
 
 pub async fn reinit() {
   let mut chat_context = CHAT_CONTEXT.lock().await;
@@ -104,22 +105,38 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> anyhow::Result
   }).await.unwrap()
 }
 
-async fn chat_gpt2_send( msg: Option<u64>
+#[async_recursion]
+pub async fn chat_gpt2_send( msg: Option<u64>
                        , chan: u64
                        , something: String
                        , user_id: u64
-                       , lsm: bool ) -> anyhow::Result<()> {
-  let result = chat_gpt2(something, user_id, lsm).await?;
-  let temp_dir = std::env::temp_dir();
-  let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
-  let package = crate::types::ChatResponse {
-    message: msg,
-    channel: chan,
-    response: result
-  };
-  let encoded = bincode::encode_to_vec(&package, BINCODE_CONFIG)?;
-  lukashenko.write_all(&encoded)?;
-  Ok(())
+                       , lsm: bool
+                       , gtry: u32 ) -> anyhow::Result<()> {
+  if gtry > 0 {
+    warn!("GPT2: trying again: {gtry}");
+  }
+  match chat_gpt2(something.clone(), user_id, lsm).await {
+    Ok(result) => {
+      let temp_dir = std::env::temp_dir();
+      let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
+      let package = crate::types::ChatResponse {
+        message: msg,
+        channel: chan,
+        response: result
+      };
+      let encoded = bincode::encode_to_vec(&package, BINCODE_CONFIG)?;
+      lukashenko.write_all(&encoded)?;
+      Ok(())
+    }, Err(why) => {
+      error!("GPT2: Failed to generate response: {why}");
+      if gtry > 9 {
+        error!("GPT2: failed to generate response 10 times!");
+        Err( why )
+      } else {
+        chat_gpt2_send(msg, chan, something, user_id, lsm, gtry + 1).await
+      }
+    }
+  }
 }
 
 #[celery::task]
@@ -128,7 +145,7 @@ pub async fn CHAT_GPT2( msg: Option<u64>
                       , something: String
                       , user_id: u64
                       , lsm: bool ) -> TaskResult<()> {
-  if let Err(why) = chat_gpt2_send(msg, chan, something, user_id, lsm).await {
+  if let Err(why) = chat_gpt2_send(msg, chan, something, user_id, lsm, 0).await {
     error!("Failed to generate response, {why}");
     Err( TaskError::ExpectedError( why.to_string() ) )
   } else {

@@ -30,11 +30,12 @@ async fn chat_gpt2( msg: Option<u64>
 async fn chat_neo( msg: Option<u64>
                  , chan: u64
                  , something: String
+                 , user_id: u64
                  , lsm: bool ) -> Result<Option<String>> {
   let salieri_lock = SALIERI.lock().await;
   if let Some(salieri) = &*salieri_lock {
     salieri.send_task(
-      CHAT_NEO::new(msg, chan, something, lsm)
+      CHAT_NEO::new(msg, chan, something, user_id, lsm)
     ).await?;
     Ok(None)
   } else {
@@ -45,11 +46,12 @@ async fn chat_neo( msg: Option<u64>
 pub async fn ask( msg: Option<u64>
                 , chan: u64
                 , something: String
+                , user_id: u64
                 , lsm: bool ) -> Result<Option<String>> {
   let salieri_lock = SALIERI.lock().await;
   if let Some(salieri) = &*salieri_lock {
     salieri.send_task(
-      ASK::new(msg, chan, something, lsm)
+      ASK::new(msg, chan, something, user_id, lsm)
     ).await?;
     Ok(None)
   } else {
@@ -73,7 +75,7 @@ pub async fn chat( msg: Option<u64>
     return Err(anyhow!("empty input"));
   }
   match rndx {
-    0 => chat_neo(msg, chan, input, lsm).await,
+    0 => chat_neo(msg, chan, input, user_id, lsm).await,
     _ => chat_gpt2(msg, chan, input, user_id, lsm).await
   }
 }

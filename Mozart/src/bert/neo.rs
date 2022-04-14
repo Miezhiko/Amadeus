@@ -1,5 +1,6 @@
 use crate::{
-  bert::{ process_message_for_gpt, LUKASHENKO },
+  bert::{ process_message_for_gpt, LUKASHENKO
+        , chat::chat_gpt2_send },
   cache::{ DEVICE, CACHE_ENG_STR },
   prelude::*
 };
@@ -44,7 +45,7 @@ fn neo_model_loader() -> TextGenerationModel {
     config_resource,
     vocab_resource,
     merges_resource,
-    min_length: 10,
+    min_length: 8,
     max_length: 32,
     do_sample: false,
     early_stopping: false,
@@ -80,27 +81,28 @@ async fn chat_neo(something: String, lsm: bool) -> anyhow::Result<String> {
     task::spawn_blocking(move || {
       if let Some(neo_model) = &mut *neo {
         let output = neo_model.generate(&[something.as_str()], None);
-        if output.is_empty() {
-          error!("Failed to chat with Neo Model");
-          Err(anyhow!("no output from GPT neo model"))
-        } else { Ok({
-          if ! lsm {
-            *neo = None;
-          }
-          if output.len() > 1 {
-            if let Some(r) = output.choose(&mut rand::thread_rng()) {
-              if r.contains("following code:") {
-                output[0].clone()
+        let result = if output.is_empty() {
+            error!("Failed to chat with Neo Model");
+            Err(anyhow!("no output from GPT neo model"))
+          } else { Ok({
+            if output.len() > 1 {
+              if let Some(r) = output.choose(&mut rand::thread_rng()) {
+                if r.contains("following code:") {
+                  output[0].clone()
+                } else {
+                  String::from(r)
+                }
               } else {
-                String::from(r)
+                output[1].clone()
               }
             } else {
-              output[1].clone()
-            }
-          } else {
-            output[0].clone()
-          } })
+              output[0].clone()
+            } })
+          };
+        if !lsm {
+          *neo = None;
         }
+        result
       } else {
         Err(anyhow!("Empty GPT Neo model"))
       }
@@ -132,30 +134,38 @@ async fn chat_neo(something: String, lsm: bool) -> anyhow::Result<String> {
 async fn chat_neo_send( msg: Option<u64>
                       , chan: u64
                       , something: String
+                      , user_id: u64
                       , lsm: bool ) -> anyhow::Result<()> {
-  let result = chat_neo(something, lsm).await?;
-  let temp_dir = std::env::temp_dir();
-  let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
-  let package = crate::types::ChatResponse {
-    message: msg,
-    channel: chan,
-    response: result
-  };
-  let encoded = bincode::encode_to_vec(&package, BINCODE_CONFIG)?;
-  lukashenko.write_all(&encoded)?;
-  Ok(())
+  match chat_neo(something.clone(), lsm).await {
+    Ok(result) => {
+      let temp_dir = std::env::temp_dir();
+      let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
+      let package = crate::types::ChatResponse {
+        message: msg,
+        channel: chan,
+        response: result
+      };
+      let encoded = bincode::encode_to_vec(&package, BINCODE_CONFIG)?;
+      lukashenko.write_all(&encoded)?;
+      Ok(())
+    }, Err(why) => {
+      error!("NEO: Failed to generate response: {why}, using fallback to GPT2");
+      chat_gpt2_send(msg, chan, something, user_id, lsm, 0).await
+    }
+  }
 }
 
 #[celery::task]
 pub async fn CHAT_NEO( msg: Option<u64>
                      , chan: u64
                      , something: String
+                     , user_id: u64
                      , lsm: bool ) -> TaskResult<()> {
-  if let Err(why) = chat_neo_send(msg, chan, something, lsm).await {
+  if let Err(why) = chat_neo_send(msg, chan, something, user_id, lsm).await {
     error!("Failed to generate NEO response, {why}");
     Err( TaskError::ExpectedError( why.to_string() ) )
   } else {
-    info!("NEO response sent to {LUKASHENKO}!");
+    info!("NEO: response sent to {LUKASHENKO}!");
     Ok(())
   }
 }

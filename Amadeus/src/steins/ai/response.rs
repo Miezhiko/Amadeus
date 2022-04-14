@@ -32,7 +32,7 @@ async fn generate_response( ctx: &Context
   let start_typing = ctx.http.start_typing(msg.channel_id.0);
   let message_id = if is_response { Some(msg.id.0) } else { None };
   if gtry > 0 {
-    warn!("Failed to generate normal respons, try: {gtry}");
+    warn!("Response: failed to generate normal response, try: {gtry}");
   }
   let russian =
     if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0) {
@@ -68,7 +68,7 @@ async fn generate_response( ctx: &Context
       if msg.content.ends_with('?') {
         let rndxqa: u32 = rand::thread_rng().gen_range(0..2);
         if rndxqa == 1 {
-          match bert::ask(message_id, msg.channel_id.0, text, lsm).await {
+          match bert::ask(message_id, msg.channel_id.0, text, msg.author.id.0, lsm).await {
             Ok(answer) => {
               bert_generated = true;
               answer },

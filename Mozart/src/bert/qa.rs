@@ -113,7 +113,7 @@ async fn ask_send( msg: Option<u64>
       lukashenko.write_all(&encoded)?;
       Ok(())
     }, Err(why) => {
-      error!("ASK: Failed to generate response: {why}, using fallback to GPT2");
+      error!("QA: Failed to generate response: {why}, using fallback to GPT2");
       chat_gpt2_send(msg, chan, something, user_id, lsm, 0).await
     }
   }
@@ -126,7 +126,7 @@ pub async fn ASK( msg: Option<u64>
                 , user_id: u64
                 , lsm: bool ) -> TaskResult<()> {
   if let Err(why) = ask_send(msg, chan, something, user_id, lsm).await {
-    error!("Failed to generate response, {why}");
+    error!("QA: Failed to generate response, {why}");
     Err( TaskError::ExpectedError( why.to_string() ) )
   } else {
     info!("ASK response sent to {LUKASHENKO}!");

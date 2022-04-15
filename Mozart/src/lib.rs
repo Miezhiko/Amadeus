@@ -36,6 +36,7 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryEr
             , bert::chat::CHAT_GPT2
             , bert::qa::ASK
             , bert::neo::CHAT_NEO
+            , bert::summarization::SUMMARIZE
             ],
     task_routes = [
       "*" => SALIERI_SERVICE,

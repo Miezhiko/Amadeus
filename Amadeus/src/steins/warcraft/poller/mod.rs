@@ -414,6 +414,7 @@ pub async fn check<'a>( ctx: &Context
           }
         }
 
+        { // games lock scope
         let mut k_to_del: Vec<String> = Vec::new();
         let mut games_lock = GAMES.lock().await;
         for (k, track) in games_lock.iter_mut() {
@@ -645,6 +646,7 @@ pub async fn check<'a>( ctx: &Context
         for ktd in k_to_del {
           games_lock.remove(&ktd);
         }
+        } // games lock scope end
 
       }
     }

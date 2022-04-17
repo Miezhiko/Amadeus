@@ -103,6 +103,7 @@ pub async fn activate_games_tracking(
         }
       }
 
+      { // additional scope for games lock
       let our_gsx = poller::check( &ctx_clone
                                  , options_clone.guild
                                  , &rqcl
@@ -219,9 +220,6 @@ pub async fn activate_games_tracking(
                     , (&game.host, "\u{200b}", false)
                     ];
                     e = e.fields(d_fields);
-                  } else {
-                    // TODO: drop it, this should never happen
-                    e = e.description(&game.description[0]);
                   }
                 }
                 if !additional_fields.is_empty() {
@@ -245,15 +243,14 @@ pub async fn activate_games_tracking(
                     }
                   } else {
                     games_lock.insert( game_key.clone()
-                      // TODO: get discord from a player
                       , TrackingGame { tracking_msg_id: vec![(*d, msg_id.id.0)]
-                                    , passed_time: 0
-                                    , still_live: false
-                                    , players: game.players.clone().into_iter()
-                                                           .cloned().collect()
-                                    , bets: vec![]
-                                    , fails: 0
-                                    , mode: game.mode } );
+                                     , passed_time: 0
+                                     , still_live: false
+                                     , players: game.players.clone().into_iter()
+                                                            .cloned().collect()
+                                     , bets: vec![]
+                                     , fails: 0
+                                     , mode: game.mode } );
                   }
                 }
                 let up = ReactionType::Unicode(String::from("👍🏻"));
@@ -324,6 +321,7 @@ pub async fn activate_games_tracking(
           }
         }
       }
+      } // additional scope for games lock
       tokio::time::sleep(time::Duration::from_secs(60)).await;
     }
   });

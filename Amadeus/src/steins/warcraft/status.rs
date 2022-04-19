@@ -32,6 +32,12 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         }
       }
     }
+    let tracking_str = 
+      if tracking_info.is_empty() {
+        String::from("currently no games")
+      } else {
+        tracking_info.join("\n")
+      };
     let stats_str = format!(
 "
 __**currently running:**__
@@ -46,13 +52,14 @@ __**currently playing:**__
 {}
 ```
 
+__**meta info:**__
 ```
 current season: {}
 ```"
     , stats.games_solo
     , stats.games_2x2
     , stats.games_4x4
-    , tracking_info.join("\n")
+    , tracking_str
     , season);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|

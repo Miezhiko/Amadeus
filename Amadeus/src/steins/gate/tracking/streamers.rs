@@ -10,7 +10,7 @@ use crate::{
 
 use serenity::{
   prelude::*,
-  http::AttachmentType,
+  model::channel::AttachmentType,
   model::id::{ ChannelId
              , GuildId }
 };
@@ -244,21 +244,20 @@ pub async fn activate_streamers_tracking(
                 let mut fields = Vec::new();
                 let mut img = None;
                 let mut url = None;
-                let mut color = (32, 32, 32);
+                let mut color = None;
                 if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
                   for f in msg.embeds[0].fields.clone() {
                     fields.push((f.name, f.value, f.inline));
                   }
                   img   = msg.embeds[0].image.clone();
                   url   = msg.embeds[0].url.clone();
-                  color = msg.embeds[0].colour.tuple();
+                  color = msg.embeds[0].colour;
                 };
                 let is_now_live = format!("{} is now live!", &user.name);
                 if let Err(why) = msg.edit(&ctx_clone.http, |m| m
                   .embed(|e|  {
                     let mut e = e
                       .title(&title)
-                      .colour(color)
                       .author(|a| a.icon_url(&user.face()).name(&is_now_live))
                       .footer(|f| f.text(&footer));
                     if !fields.is_empty() {
@@ -269,6 +268,9 @@ pub async fn activate_streamers_tracking(
                     }
                     if let Some(some_url) = &url {
                       e = e.url(some_url);
+                    }
+                    if let Some(colour) = color {
+                      e = e.colour(colour);
                     }
                     e
                   }
@@ -420,20 +422,19 @@ pub async fn activate_streamers_tracking(
               let mut fields = Vec::new();
               let mut img = None;
               let mut url = None;
-              let mut color = (32, 32, 32);
+              let mut color = None;
               if !msg.embeds.is_empty() && !msg.embeds[0].fields.is_empty() {
                 for f in msg.embeds[0].fields.clone() {
                   fields.push((f.name, f.value, f.inline));
                 }
                 img   = msg.embeds[0].image.clone();
                 url   = msg.embeds[0].url.clone();
-                color = msg.embeds[0].colour.tuple();
+                color = msg.embeds[0].colour;
               };
               if let Err(why) = msg.edit(&ctx_clone.http, |m| m
                 .embed(|e| {
                   let mut e = e
                     .title("FINISHED")
-                    .colour(color)
                     .author(|a| a.icon_url(&user.face()).name(&user.name))
                     .footer(|f| f.text(&footer));
                   if !fields.is_empty() {
@@ -444,6 +445,9 @@ pub async fn activate_streamers_tracking(
                   }
                   if let Some(some_url) = &url {
                     e = e.url(some_url);
+                  }
+                  if let Some(color) = color {
+                    e = e.color(color);
                   }
                   e
                 }

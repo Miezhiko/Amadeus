@@ -104,7 +104,7 @@ pub async fn check<'a>( ctx: &Context
                         setm!{ fields = Vec::new()
                              , img    = None
                              , url    = None
-                             , color  = (32,32,32) };
+                             , color  = None };
                         if !msg.embeds.is_empty() {
                           if !msg.embeds[0].fields.is_empty() {
                             for f in msg.embeds[0].fields.clone() {
@@ -115,7 +115,7 @@ pub async fn check<'a>( ctx: &Context
                           }
                           img   = msg.embeds[0].image.clone();
                           url   = msg.embeds[0].url.clone();
-                          color = msg.embeds[0].colour.tuple();
+                          color = msg.embeds[0].colour;
                         };
 
                         let nick = user.nick_in(&ctx.http, guild)
@@ -127,7 +127,6 @@ pub async fn check<'a>( ctx: &Context
                               .title("LIVE")
                               .author(|a| a.icon_url(&user.face()).name(&nick))
                               .description(&mvec[0])
-                              .colour(color)
                               .footer(|f| f.text(&footer));
                             if !fields.is_empty() {
                               e = e.fields(fields);
@@ -140,6 +139,9 @@ pub async fn check<'a>( ctx: &Context
                             }
                             if let Some(some_url) = url {
                               e = e.url(some_url);
+                            }
+                            if let Some(colour) = color {
+                              e = e.colour(colour);
                             }
                             e
                           }
@@ -230,7 +232,7 @@ pub async fn check<'a>( ctx: &Context
                         setm!{ fields = Vec::new()
                              , img    = None
                              , url    = None
-                             , color  = (32,32,32) };
+                             , color  = None };
                         if !msg.embeds.is_empty() {
                           if !msg.embeds[0].fields.is_empty() {
                             for f in msg.embeds[0].fields.clone() {
@@ -241,7 +243,7 @@ pub async fn check<'a>( ctx: &Context
                           }
                           img   = msg.embeds[0].image.clone();
                           url   = msg.embeds[0].url.clone();
-                          color = msg.embeds[0].colour.tuple();
+                          color = msg.embeds[0].colour;
                         };
 
                         let nick = user.nick_in(&ctx.http, guild)
@@ -253,7 +255,6 @@ pub async fn check<'a>( ctx: &Context
                               .title("LIVE")
                               .author(|a| a.icon_url(&user.face()).name(&nick))
                               .description(&mvec[0])
-                              .colour(color)
                               .footer(|f| f.text(&footer));
                             if !fields.is_empty() {
                               e = e.fields(fields);
@@ -266,6 +267,9 @@ pub async fn check<'a>( ctx: &Context
                             }
                             if let Some(some_url) = url {
                               e = e.url(some_url);
+                            }
+                            if let Some(colour) = color {
+                              e = e.colour(colour);
                             }
                             e
                           }
@@ -352,7 +356,7 @@ pub async fn check<'a>( ctx: &Context
                       setm!{ fields = Vec::new()
                            , img    = None
                            , url    = None
-                           , color  = (32,32,32) };
+                           , color  = None };
                       if !msg.embeds.is_empty() {
                         if !msg.embeds[0].fields.is_empty() {
                           for f in msg.embeds[0].fields.clone() {
@@ -363,7 +367,7 @@ pub async fn check<'a>( ctx: &Context
                         }
                         img   = msg.embeds[0].image.clone();
                         url   = msg.embeds[0].url.clone();
-                        color = msg.embeds[0].colour.tuple();
+                        color = msg.embeds[0].colour;
                       };
 
                       let nick = user.nick_in(&ctx.http, guild)
@@ -375,7 +379,6 @@ pub async fn check<'a>( ctx: &Context
                             .title("LIVE")
                             .author(|a| a.icon_url(&user.face()).name(&nick))
                             .description(&mvec[0])
-                            .colour(color)
                             .footer(|f| f.text(&footer));
                           if !fields.is_empty() {
                             e = e.fields(fields);
@@ -388,6 +391,9 @@ pub async fn check<'a>( ctx: &Context
                           }
                           if let Some(some_url) = url {
                             e = e.url(some_url);
+                          }
+                          if let Some(colour) = color {
+                            e = e.colour(colour);
                           }
                           e
                         }
@@ -442,7 +448,7 @@ pub async fn check<'a>( ctx: &Context
                 let footer: String = format!("Passed: {} min", fgame.passed_time);
                 if let Ok(user) = ctx.http.get_user(playa.player.discord).await {
                   let mut old_fields = Vec::new();
-                  let mut color = (32,32,32);
+                  let mut color = None;
                   if !msg.embeds.is_empty() {
                     if !msg.embeds[0].fields.is_empty() {
                       for f in msg.embeds[0].fields.clone() {
@@ -453,7 +459,7 @@ pub async fn check<'a>( ctx: &Context
                         }
                       }
                     }
-                    color = msg.embeds[0].colour.tuple();
+                    color = msg.embeds[0].colour;
                   };
                   setm!{ title          = "FINISHED"
                        , streak_fields  = None
@@ -576,7 +582,6 @@ pub async fn check<'a>( ctx: &Context
                       let mut e =
                         e.author(|a| a.icon_url(&user.face()).name(&nick))
                          .title(title)
-                         .colour(color)
                          .url(&fgame.link)
                          .footer(|f| f.text(footer));
                       if !fgame.desc.is_empty() {
@@ -609,6 +614,9 @@ pub async fn check<'a>( ctx: &Context
                       }
                       if let Some(hero) = &fgame.hero_png {
                         e.thumbnail(hero);
+                      }
+                      if let Some(colour) = color {
+                        e.colour(colour);
                       }
                       e
                     })

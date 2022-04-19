@@ -184,9 +184,9 @@ async fn info(ctx: &Context, msg: &Message) -> CommandResult {
   let mut eb = CreateEmbed::default();
   let (_, uptime_string) = get_uptime("Uptime:  ").await;
 
-  set!{ guild_count   = ctx.cache.guilds().await.len()
-      , channel_count = ctx.cache.guild_channel_count().await
-      , user_count    = ctx.cache.user_count().await
+  set!{ guild_count   = ctx.cache.guilds().len()
+      , channel_count = ctx.cache.guild_channel_count()
+      , user_count    = ctx.cache.user_count()
       , sys_info      = get_system_info(ctx).await
       , footer = format!("Requested by {}", msg.author.name) };
 

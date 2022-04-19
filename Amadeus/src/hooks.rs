@@ -7,8 +7,8 @@ use crate::{ collections::{ base::GREETINGS
 
 use serenity::{
   prelude::*,
-  framework::standard::{ DispatchError, Args
-                       , Reason, CommandResult
+  framework::standard::{ Args
+                       , CommandResult
                        , macros::{ hook, help }
                        , HelpOptions, CommandGroup, help_commands },
   model::{ channel::Message, id::UserId }
@@ -22,41 +22,6 @@ use once_cell::sync::Lazy;
 use rand::{ rngs::StdRng
           , seq::SliceRandom
           , SeedableRng };
-
-#[hook]
-pub async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
-  match error {
-    // Notify the user if the reason of the command failing to execute was because of
-    // inssufficient arguments.
-    DispatchError::NotEnoughArguments { min, given } => {
-      let s = {
-        if given == 0  && min == 1{
-          "I need an argument to run this command".to_string()
-        } else if given == 0 {
-          format!("I need atleast {min} arguments to run this command")
-        } else {
-          format!("I need {min} arguments to run this command, but i was only given {given}.")
-        }
-      };
-      // Send the message, but supress any errors that may occur.
-      let _ = msg.channel_id.say(ctx, s).await;
-    },
-    DispatchError::CheckFailed(_, reason) => {
-      if let Reason::User(r) = reason {
-        let _ = msg.channel_id.say(ctx, r).await;
-      }
-    },
-    DispatchError::Ratelimited(x) => {
-      let _ = msg.reply(ctx, format!("You can't run this command for {:#?} more.", x)).await;
-    }
-    // eprint prints to stderr rather than stdout.
-    _ => {
-      error!("Unhandled dispatch error: {:?}", error);
-      eprintln!("An unhandled dispatch error has occurred:");
-      eprintln!("{:?}", error);
-    }
-  }
-}
 
 #[hook]
 pub async fn before(_ctx: &Context, msg: &Message, cmd_name: &str) -> bool {
@@ -127,10 +92,8 @@ pub async fn help_command( ctx: &Context
                          , owners: HashSet<UserId> ) -> CommandResult {
   if args.is_empty() {
     help_i18n(ctx, msg, &US_ENG).await;
-  } else if help_commands::with_embeds( ctx, msg, args
+  } else  { help_commands::with_embeds( ctx, msg, args
                                       , help_options, groups, owners
-                                      ).await.is_none() {
-    warn!("empty help answer");
-  }
+                                      ).await?; }
   Ok(())
 }

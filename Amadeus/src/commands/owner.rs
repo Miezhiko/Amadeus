@@ -266,36 +266,35 @@ async fn eix(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 async fn catch_up_with_roles(ctx: &Context, _msg: &Message, mut args: Args) -> CommandResult {
   set!{ chan_id = args.single::<u64>()?
       , msg_id  = args.single::<u64>()?
-      , msg     = ctx.http.get_message(chan_id, msg_id).await? };
-  if let Some(channel) = msg.channel(&ctx).await {
-    if let Some(guild_channel) = channel.guild() {
-      let guild_u64 = guild_channel.guild_id.as_u64();
-      let guild = guild_channel.guild_id.to_partial_guild(ctx).await?;
-      if let Ok(Some(emoji_roles)) = emojis::message_roles(guild_u64, &msg_id).await {
-        let mut reaction_types = vec![];
-        for reaction in &msg.reactions {
-          if let ReactionType::Custom{animated: _, id, name: _} = &reaction.reaction_type {
-            if let Some(role) = emoji_roles.get(id.as_u64()) {
-              reaction_types.push( (reaction.reaction_type.clone(), *role) );
-            }
+      , msg     = ctx.http.get_message(chan_id, msg_id).await?
+      , channel = msg.channel(&ctx).await? };
+  if let Some(guild_channel) = channel.guild() {
+    let guild_u64 = guild_channel.guild_id.as_u64();
+    let guild = guild_channel.guild_id.to_partial_guild(ctx).await?;
+    if let Ok(Some(emoji_roles)) = emojis::message_roles(guild_u64, &msg_id).await {
+      let mut reaction_types = vec![];
+      for reaction in &msg.reactions {
+        if let ReactionType::Custom{animated: _, id, name: _} = &reaction.reaction_type {
+          if let Some(role) = emoji_roles.get(id.as_u64()) {
+            reaction_types.push( (reaction.reaction_type.clone(), *role) );
           }
         }
-        for (rt, role) in reaction_types {
-          if let Ok(rt_users) = msg.reaction_users(ctx, rt, None, None).await {
-            for user in rt_users {
-              let user_u64 = user.id.as_u64();
-              if let Ok(mut member) = guild.member(&ctx, user.id).await {
-                let role_id = RoleId(role);
-                if !member.roles.contains(&role_id) {
-                  if let Err(why) = member.add_role(&ctx, role_id).await {
-                    error!("Failed to assign role {why}");
-                  } else {
-                    let mut roles_vector : Vec<u64> = Vec::new();
-                    for role in &member.roles {
-                      roles_vector.push(*role.as_u64());
-                    }
-                    roles::update_roles(guild_u64, user_u64, &roles_vector).await;
+      }
+      for (rt, role) in reaction_types {
+        if let Ok(rt_users) = msg.reaction_users(ctx, rt, None, None).await {
+          for user in rt_users {
+            let user_u64 = user.id.as_u64();
+            if let Ok(mut member) = guild.member(&ctx, user.id).await {
+              let role_id = RoleId(role);
+              if !member.roles.contains(&role_id) {
+                if let Err(why) = member.add_role(&ctx, role_id).await {
+                  error!("Failed to assign role {why}");
+                } else {
+                  let mut roles_vector : Vec<u64> = Vec::new();
+                  for role in &member.roles {
+                    roles_vector.push(*role.as_u64());
                   }
+                  roles::update_roles(guild_u64, user_u64, &roles_vector).await;
                 }
               }
             }

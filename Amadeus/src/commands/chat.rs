@@ -59,7 +59,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     if let Ok(first) = args.single::<usize>() {
         first
       } else { 10 };
-  if let Some(guild) = msg.guild(ctx).await {
+  if let Some(guild) = msg.guild(ctx) {
     let mut members_with_points: Vec<(Member, u64)> = Vec::new();
     for (id, mem) in guild.members {
       debug!("scanning points for {}", &mem.user.name);

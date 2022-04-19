@@ -115,7 +115,7 @@ pub async fn tour_internal( ctx: &Context
       if !passed_check && !report_no_events {
         if let Ok(vec_msg) = channel_id.messages(&ctx, |g| g.limit(10)).await {
           for message in vec_msg {
-            if message.is_own(ctx).await {
+            if message.is_own(ctx) {
               for embed in message.embeds {
                 if let Some(e_title) = embed.title {
                   if title == e_title {

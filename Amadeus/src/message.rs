@@ -22,9 +22,9 @@ use serenity::{
   prelude::*,
   utils::Colour,
   model::{ id::{ EmojiId, MessageId, UserId }
-         , channel::Message, channel::ReactionType, gateway::Activity
+         , channel::{ Message, AttachmentType, ReactionType }
+         , gateway::Activity
          },
-  http::AttachmentType,
   builder::CreateEmbed
 };
 
@@ -51,7 +51,7 @@ pub async fn process( ioptions: &IOptions
                     , ctx: &Context
                     , msg: Message ) {
 
-  if msg.is_own(&ctx).await {
+  if msg.is_own(&ctx) {
     if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
       let mut backup_deq = BACKUP.lock().await;
       if backup_deq.len() == backup_deq.capacity() {

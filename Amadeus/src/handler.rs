@@ -23,15 +23,14 @@ use serenity::{
   prelude::*,
   async_trait,
   utils::Colour,
-  model::{ guild::ActionMessage
+  model::{ guild::MessageAction
          , id::{ GuildId, MessageId, UserId, ChannelId, RoleId }
          , event::ResumedEvent, gateway::Ready, guild::Member
-         , channel::{ Message, Reaction, ReactionType
+         , channel::{ Message, Reaction, ReactionType, AttachmentType
                     , PermissionOverwrite, PermissionOverwriteType }
          , user::User, interactions::Interaction
          , permissions::Permissions
          },
-  http::AttachmentType,
   builder::CreateEmbed
 };
 
@@ -74,7 +73,7 @@ impl EventHandler for Handler {
           if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
             definitions::create_app_commands(&ctx, &guild).await;
             if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
-              if let Ok(some_permissions) = member.permissions(&ctx).await {
+              if let Ok(some_permissions) = member.permissions(&ctx) {
                 if some_permissions.administrator() {
                   if serv.kind == CoreGuild::Unsafe {
                     if guild.role_by_name(UNBLOCK_ROLE).is_none() {
@@ -121,7 +120,7 @@ impl EventHandler for Handler {
                                 | Permissions::EMBED_LINKS
                                 | Permissions::SPEAK
                                 | Permissions::CHANGE_NICKNAME
-                                | Permissions::MANAGE_EMOJIS
+                                | Permissions::MANAGE_EMOJIS_AND_STICKERS
                                 | Permissions::USE_SLASH_COMMANDS
                                 | Permissions::CREATE_PUBLIC_THREADS
                                 | Permissions::CREATE_PRIVATE_THREADS
@@ -174,10 +173,10 @@ impl EventHandler for Handler {
     info!("Resumed");
   }
 
-  async fn guild_member_addition(&self, ctx: Context, guild_id: GuildId, mut member: Member) {
+  async fn guild_member_addition(&self, ctx: Context, mut member: Member) {
     let mut muted_lock = MUTED.lock().await;
     if muted_lock.contains(&member.user.id) {
-      if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+      if let Ok(guild) = member.guild_id.to_partial_guild(&ctx).await {
         if let Some(role) = guild.role_by_name(MUTED_ROLE) {
           if !member.roles.contains(&role.id) {
             if let Err(why) = member.add_role(&ctx, role).await {
@@ -189,11 +188,11 @@ impl EventHandler for Handler {
         }
       }
     }
-    if let Ok(roles) = roles::restore_roles( guild_id.as_u64()
+    if let Ok(roles) = roles::restore_roles( member.guild_id.as_u64()
                                            , member.user.id.as_u64() ).await {
       for role in roles {
         if let Err(why) = member.add_role(&ctx, role).await {
-          error!("Failed to reset role {} for user {} on {}, {why}", role, member.user.name, guild_id);
+          error!("Failed to reset role {} for user {} on {}, {why}", role, member.user.name, member.guild_id);
         }
       }
     }
@@ -233,7 +232,7 @@ impl EventHandler for Handler {
     if let ReactionType::Custom{animated: _, id, name: _} = &add_reaction.emoji {
       if let Some(user_id) = &add_reaction.user_id {
         if let Ok(msg) = &add_reaction.message(&ctx).await {
-          if let Some(channel) = msg.channel(&ctx).await {
+          if let Ok(channel) = msg.channel(&ctx).await {
             if let Some(guild_channel) = channel.guild() {
               let user_u64 = user_id.as_u64();
               let guild_u64 = guild_channel.guild_id.as_u64();
@@ -268,7 +267,7 @@ impl EventHandler for Handler {
     if let ReactionType::Custom{animated: _, id, name: _} = &add_reaction.emoji {
       if let Some(user_id) = &add_reaction.user_id {
         if let Ok(msg) = &add_reaction.message(&ctx).await {
-          if let Some(channel) = msg.channel(&ctx).await {
+          if let Ok(channel) = msg.channel(&ctx).await {
             if let Some(guild_channel) = channel.guild() {
               let user_u64 = user_id.as_u64();
               let guild_u64 = guild_channel.guild_id.as_u64();
@@ -312,15 +311,15 @@ impl EventHandler for Handler {
       let backup_deq = BACKUP.lock().await;
       if !backup_deq.is_empty() {
         if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
-          if msg.is_own(&ctx).await { // TODO: not sure whether we want to backup ALL
+          if msg.is_own(&ctx) { // TODO: not sure whether we want to backup ALL
             if let Some(guild_id) = msg.guild_id {
               if let Ok(audit) = ctx.http.get_audit_logs( guild_id.0
-                                                        , Some( ActionMessage::Delete as u8 )
+                                                        , Some( MessageAction::Delete as u8 )
                                                         , None
                                                         , None
                                                         , Some(1)).await {
                 // Here we just hope it's last in Audit log, very unsafe stuff
-                if let Some(entry) = audit.entries.values().next() {
+                for entry in audit.entries {
                   // that entry contains target_id: Option<u64> but nobody knows what's that
                   if let Ok(deleter) = ctx.http.get_user(entry.user_id.0).await {
                     if !deleter.bot {

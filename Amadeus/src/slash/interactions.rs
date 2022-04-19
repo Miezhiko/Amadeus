@@ -41,7 +41,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
     match ac.data.name.as_str() {
       "join" => {
         if let Some(guild_id) = &ac.guild_id {
-          if let Some(guild) = guild_id.to_guild_cached(ctx).await {
+          if let Some(guild) = guild_id.to_guild_cached(ctx) {
             if let Some(member) = &ac.member {
               if let Err(err) = music::join_slash(ctx, &member.user, &guild).await {
                 if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {

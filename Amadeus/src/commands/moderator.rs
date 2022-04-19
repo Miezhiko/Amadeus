@@ -9,7 +9,7 @@ use crate::{
 
 use serenity::{
   model::{ id::{ ChannelId, UserId, RoleId }
-         , channel::*
+         , channel::*, Timestamp
          , permissions::Permissions },
   prelude::*,
   framework::standard::{ CommandResult
@@ -113,8 +113,8 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
 
   let guild = msg_guild_id.to_partial_guild(ctx).await?;
   if let Ok(mut member) = guild.member(ctx, user_id).await {
-    let allow = Permissions::SEND_MESSAGES | Permissions::READ_MESSAGES;
-    let deny = Permissions::READ_MESSAGES;
+    let allow = Permissions::SEND_MESSAGES | Permissions::VIEW_CHANNEL;
+    let deny = Permissions::VIEW_CHANNEL;
     let overwrite_user = PermissionOverwrite {
       allow, deny: Permissions::empty(),
       kind: PermissionOverwriteType::Member(member.user.id)
@@ -138,7 +138,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
       permisssions_vec.push(muted_override);
     } else {
       let timeout = chrono::Utc::now() + chrono::Duration::hours(1);
-      member.disable_communication_until_datetime(ctx, timeout).await?;
+      member.disable_communication_until_datetime(ctx, Timestamp::from( timeout )).await?;
     }
     let channel_name = format!("{}_timeout", member.user.name);
     let timeout_channel =
@@ -184,7 +184,7 @@ async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       , msg_guild_id = msg.guild_id.unwrap_or_default() };
   if let Ok(channels) = msg_guild_id.channels(ctx).await {
     if let Some((channel, _)) = channel_by_name(ctx, &channels, &channel_name).await {
-      let allow = Permissions::SEND_MESSAGES | Permissions::READ_MESSAGES;
+      let allow = Permissions::SEND_MESSAGES | Permissions::VIEW_CHANNEL;
       let overwrite_moderator = PermissionOverwrite {
         allow, deny: Permissions::empty(),
         kind: PermissionOverwriteType::Member(msg.author.id)

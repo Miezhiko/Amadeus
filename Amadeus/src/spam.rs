@@ -3,7 +3,8 @@ use crate::collections::team::DISCORDS;
 use serenity::{
   prelude::*,
   model::{ id::GuildId
-         , channel::Message,
+         , channel::Message
+         , Timestamp
          }
 };
 
@@ -52,7 +53,7 @@ async fn delete( guild_id: &GuildId
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
         let timeout = chrono::Utc::now() + chrono::Duration::days(1);
-        if let Err(why) = member.disable_communication_until_datetime(ctx, timeout).await {
+        if let Err(why) = member.disable_communication_until_datetime(ctx, Timestamp::from( timeout) ).await {
           error!("Failed to timeout user for a day {why}");
         }
       }

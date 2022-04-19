@@ -24,7 +24,7 @@ pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> anyhow::Res
       Err(why) => Err(anyhow!(why))
     }
   } else {
-    if let Some(guild) = &msg.guild(ctx).await {
+    if let Some(guild) = &msg.guild(ctx) {
       if let Some(member_name) = meme.split('#').next() {
         for m in guild.members.values() {
           if m.display_name() == std::borrow::Cow::Borrowed(member_name) ||
@@ -39,26 +39,25 @@ pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> anyhow::Res
   }
 }
 
-pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> Result<Member, String> {
+pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> anyhow::Result<Member> {
   let mut members = Vec::new();
   if let Ok(id) = member_name.parse::<u64>() {
     let member = &msg.guild_id.unwrap().member(ctx, id).await;
     match member {
       Ok(m) => Ok(m.to_owned()),
-      Err(why) => Err(why.to_string()),
+      Err(why) => Err( anyhow!( why.to_string() )),
     }
   } else if member_name.starts_with("<@") && member_name.ends_with('>') {
-    static RE: Lazy<Regex> =
-      Lazy::new(|| Regex::new("[<@!>]").unwrap());
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new("[<@!>]").unwrap());
     let member_id = RE.replace_all(&member_name, "").into_owned();
-    let member = &msg.guild_id.unwrap().member(ctx, UserId(member_id.parse::<u64>().unwrap())).await;
+    let member = &msg.guild_id.unwrap().member(ctx, UserId(member_id.parse::<u64>()?)).await;
     match member {
       Ok(m) => Ok(m.to_owned()),
-      Err(why) => Err(why.to_string()),
+      Err(why) => Err( anyhow!( why.to_string() )),
     }
   } else {
-    let guild = &msg.guild(ctx).await.unwrap();
-    let member_name = member_name.split('#').next().unwrap();
+    let guild = &msg.guild(ctx).unwrap();
+    let member_name = member_name.split('#').next().unwrap_or_default();
     for m in guild.members.values() {
       if m.display_name() == std::borrow::Cow::Borrowed(member_name) ||
         m.user.name == member_name
@@ -85,7 +84,7 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
           format!("No member named '{}' was found.\nDid you mean: {}", member_name.replace('@', ""), members_string.replace('@', ""))
         }
       };
-      Err(message)
+      Err( anyhow!( message ))
     } else if members.len() == 1 {
       Ok(members[0].to_owned())
     } else {
@@ -100,7 +99,7 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
         }).await;
       members_string.pop();
       let message = format!("Multiple members with the same name where found: '{}'", &members_string);
-      Err(message)
+      Err( anyhow!(message) )
     }
   }
 }

@@ -21,7 +21,7 @@ use songbird::{
 
 use serenity::{
   framework::StandardFramework,
-  client::bridge::gateway::GatewayIntents
+  model::gateway::GatewayIntents
 };
 
 use tracing::{ Level, instrument };
@@ -47,7 +47,7 @@ pub async fn run(opts: &IOptions) ->
 
   info!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
 
-  let http = serenity::http::Http::new_with_token(&opts.discord);
+  let http = serenity::http::Http::new(&opts.discord);
 
   info!("http context created");
 
@@ -59,7 +59,10 @@ pub async fn run(opts: &IOptions) ->
       } else {
         owners.insert(info.owner.id);
       }
-      (owners, info.id)
+      match http.get_current_user().await {
+        Ok(bot_id) => (owners, bot_id.id),
+        Err(why) => panic!("Could not access the bot id: {:?}", why)
+      }
     },
     Err(why) => panic!("Could not access application info: {why}")
   };
@@ -103,7 +106,6 @@ pub async fn run(opts: &IOptions) ->
       .prefix(&PREFIX.to_string())
       .delimiters(vec![" ", ";", "\n", "\t"])
       .case_insensitivity(true))
-      .on_dispatch_error(on_dispatch_error)
       .before(before)
       .after(after)
       .unrecognised_command(unrecognised_command)
@@ -133,17 +135,15 @@ pub async fn run(opts: &IOptions) ->
       .decode_mode(DECODE_TYPE)
       .crypto_mode(CryptoMode::Normal),
   );
-
-  let mut client =
-    serenity::Client::builder(&opts.discord)
-      .application_id(opts.app_id)
-      .intents( GatewayIntents::GUILD_MESSAGES
+  let intents = GatewayIntents::GUILD_MESSAGES
               | GatewayIntents::GUILD_MESSAGE_REACTIONS
               | GatewayIntents::GUILDS
               | GatewayIntents::GUILD_VOICE_STATES
               | GatewayIntents::GUILD_MEMBERS
-              | GatewayIntents::GUILD_PRESENCES
-              )
+              | GatewayIntents::GUILD_PRESENCES;
+  let mut client =
+    serenity::Client::builder(&opts.discord, intents)
+      .application_id(opts.app_id)
       .event_handler(Handler::new( opts
                                  , runtime_options
                                  , amadeus_id

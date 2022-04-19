@@ -9,7 +9,7 @@ use std::time::Duration;
 
 use serenity::{
   prelude::Context,
-  model::misc::Mentionable,
+  model::mention::Mentionable,
   model::channel::{ Message
                   , ReactionType },
   model::id::UserId,

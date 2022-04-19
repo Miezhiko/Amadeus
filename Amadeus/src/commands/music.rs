@@ -17,7 +17,7 @@ use std::sync::Arc;
 use serenity::{
   prelude::*,
   model::{
-    misc::Mentionable,
+    mention::Mentionable,
     id::GuildId, id::ChannelId,
     user::User, guild::Guild,
     channel::*
@@ -60,7 +60,7 @@ pub async fn rejoin_voice_channel(ctx: &Context, conf: &ROptions) {
 #[only_in("guilds")]
 #[description("join voice channel")]
 async fn join(ctx: &Context, msg: &Message) -> CommandResult {
-  let guild = match msg.guild(&ctx).await {
+  let guild = match msg.guild(&ctx) {
     Some(guild) => guild,
     None => {
       direct_message(ctx, msg, "Groups and DMs not supported").await;
@@ -167,7 +167,7 @@ pub async fn join_slash(ctx: &Context, user: &User, guild: &Guild) -> anyhow::Re
 #[command]
 #[description("leave voice channel")]
 pub async fn leave(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
-  let guild_id = match ctx.cache.guild_channel(msg.channel_id).await {
+  let guild_id = match ctx.cache.guild_channel(msg.channel_id) {
     Some(channel) => channel.guild_id,
     None => {
       direct_message(ctx, msg, "Groups and DMs not supported").await;
@@ -216,7 +216,7 @@ pub async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
     reply(ctx, msg, "You must provide a valid URL").await;
     return Ok(());
   }
-  let guild_id = match ctx.cache.guild_channel(msg.channel_id).await {
+  let guild_id = match ctx.cache.guild_channel(msg.channel_id) {
     Some(channel) => channel.guild_id,
     None => {
       reply(ctx, msg, "Error finding channel info...").await;

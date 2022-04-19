@@ -100,12 +100,13 @@ pub async fn run(opts: &IOptions) ->
   #[allow(unused_mut)]
   let mut std_framework =
     StandardFramework::new()
-     .configure(|c| c
-      .owners(owners)
-      .on_mention(Some(amadeus_id))
-      .prefix(&PREFIX)
-      .delimiters(vec![" ", ";", "\n", "\t"])
-      .case_insensitivity(true))
+      .configure(|c| c
+        .owners(owners)
+        .on_mention(Some(amadeus_id))
+        .prefix(PREFIX)
+        .delimiters(vec![" ", ";", "\n", "\t"])
+        .case_insensitivity(true)
+      )
       .before(before)
       .after(after)
       .unrecognised_command(unrecognised_command)
@@ -136,6 +137,7 @@ pub async fn run(opts: &IOptions) ->
       .crypto_mode(CryptoMode::Normal),
   );
   let intents = GatewayIntents::GUILD_MESSAGES
+              | GatewayIntents::MESSAGE_CONTENT
               | GatewayIntents::GUILD_MESSAGE_REACTIONS
               | GatewayIntents::GUILDS
               | GatewayIntents::GUILD_VOICE_STATES

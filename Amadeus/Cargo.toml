@@ -65,11 +65,13 @@ features = [ "yt-dlp"
            , "serenity-rustls"
            , "driver"
            , "gateway"
+           , "serenity-deps"
            ]
 
 [dependencies.serenity]
 default-features = false
-version = "0.11.1"
+git = "https://github.com/serenity-rs/serenity"
+branch = "next"
 features = [ "cache"
            , "builder"
            , "model"

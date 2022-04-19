@@ -14,7 +14,8 @@ use crate::{
     poller::{ finished::check_match
             , bet_fields::generate_bet_fields },
     utils::{ get_race2
-           , get_map }
+           , get_map },
+    status::status_update
   }
 };
 
@@ -39,14 +40,17 @@ pub async fn check<'a>( ctx: &Context
                       ) -> Vec<StartingGame<'a>> {
   let guild = GuildId( guild_id );
   let mut out: Vec<StartingGame> = Vec::new();
+  let mut stats: W3CStats = W3CStats { ..Default::default() };
 
   if let Ok(res) =
     rqcl.get(&format!("{W3C_API}/matches/ongoing?offset=0&gameMode=1"))
         .send()
         .await {
-    info!("team games: checking solo matches");
+    trace!("team games: checking solo matches");
     if let Ok(going) = res.json::<Going>().await {
-      info!("team games: {} matches", going.matches.len());
+      let games_solo = going.matches.len();
+      trace!("team games: {} matches", games_solo);
+      stats.games_solo = games_solo;
       if !going.matches.is_empty() {
         for m in going.matches {
           if m.gameMode == 1 { // solo
@@ -87,7 +91,7 @@ pub async fn check<'a>( ctx: &Context
                       , format!("({race1}) **{t0_name}** [{}]{}", m.teams[0].players[0].oldMmr, t0_ping)
                       , format!("({race2}) **{t1_name}** [{}]{}", m.teams[1].players[0].oldMmr, t1_ping) ];
 
-                info!("team games: locking solo");
+                trace!("team games: locking solo");
                 { // games lock scope
                   let mut games_lock = GAMES.lock().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
@@ -179,9 +183,11 @@ pub async fn check<'a>( ctx: &Context
     rqcl.get(&format!("{W3C_API}/matches/ongoing?offset=0&gameMode=2"))
         .send()
         .await {
-      info!("team games: checking 2x2 matches");
+      trace!("team games: checking 2x2 matches");
       if let Ok(going) = res.json::<Going>().await {
-      info!("team games: {} matches", going.matches.len());
+      let games_2x2 = going.matches.len();
+      trace!("team games: {} matches", games_2x2);
+      stats.games_2x2 = games_2x2;
       if !going.matches.is_empty() {
         for m in going.matches {
            if m.gameMode == 6 || m.gameMode == 2 { // AT or RT mode 2x2
@@ -234,7 +240,7 @@ pub async fn check<'a>( ctx: &Context
 
                 let host = m.serverInfo.name.unwrap_or_else(|| "no information about host".into());
 
-                info!("team games: locking 2x2");
+                trace!("team games: locking 2x2");
                 { // games lock scope
                   let mut games_lock = GAMES.lock().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
@@ -328,9 +334,11 @@ pub async fn check<'a>( ctx: &Context
     rqcl.get(&format!("{W3C_API}/matches/ongoing?offset=0&gameMode=4"))
         .send()
         .await {
-    info!("team games: checking 4x4 matches");
+    trace!("team games: checking 4x4 matches");
     if let Ok(going) = res.json::<Going>().await {
-      info!("team games: {} matches", going.matches.len());
+      let games_4x4 = going.matches.len();
+      trace!("team games: {} matches", games_4x4);
+      stats.games_4x4 = games_4x4;
       if !going.matches.is_empty() {
         for m in going.matches {
           if m.gameMode == 4 && // 4x4
@@ -378,7 +386,7 @@ pub async fn check<'a>( ctx: &Context
 
               let host = m.serverInfo.name.unwrap_or_else(|| "no information about host".into());
 
-              info!("team games: locking 4x4");
+              trace!("team games: locking 4x4");
               { // games lock scope
                 let mut games_lock = GAMES.lock().await;
                 if let Some(track) = games_lock.get_mut(&m.match_id) {
@@ -467,8 +475,12 @@ pub async fn check<'a>( ctx: &Context
     }
   }
 
+  if let Err(what) = status_update(ctx, &stats).await {
+    error!("Failed to update W3C status: {what}");
+  }
+
   { // games lock scope
-    info!("team games: finishing checking");
+    trace!("team games: finishing checking");
     let mut k_to_del: Vec<String> = Vec::new();
     let mut games_lock = GAMES.lock().await;
     for (k, track) in games_lock.iter_mut() {

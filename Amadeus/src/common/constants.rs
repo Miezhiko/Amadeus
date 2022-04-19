@@ -1,19 +1,22 @@
 use std::str;
 
-use serenity::model::id::ChannelId;
+use serenity::model::id::{ ChannelId, MessageId };
 
-pub static PREFIX: char               = '~';
+pub const PREFIX: char                = '~';
 
-pub static MAIN_CHANNEL: ChannelId    = ChannelId( 611822932897038341 );
-pub static STREAM_PICS: ChannelId     = ChannelId( 740153825272266822 );
-pub static APM_PICS: ChannelId        = ChannelId( 752538491312930878 );
-pub static GITHUB_PRS: ChannelId      = ChannelId( 912241728243769395 );
+pub const MAIN_CHANNEL: ChannelId     = ChannelId( 611822932897038341 );
+pub const STREAM_PICS: ChannelId      = ChannelId( 740153825272266822 );
+pub const APM_PICS: ChannelId         = ChannelId( 752538491312930878 );
+pub const GITHUB_PRS: ChannelId       = ChannelId( 912241728243769395 );
 
-pub static LIVE_ROLE: &str            = "🔴 LIVE";
-pub static UNBLOCK_ROLE: &str         = "UNBLOCK AMADEUS";
-pub static MUTED_ROLE: &str           = "muted";
+pub const LIVE_ROLE: &str             = "🔴 LIVE";
+pub const UNBLOCK_ROLE: &str          = "UNBLOCK AMADEUS";
+pub const MUTED_ROLE: &str            = "muted";
 
-pub static MUTED_ROOMS: &[ChannelId]  = &[ ChannelId( 958705907099918386 )
+pub const MUTED_ROOMS: &[ChannelId]   = &[ ChannelId( 958705907099918386 )
                                          , ChannelId( 958712754951323718 ) ];
 
-pub static W3C_API: &str = "https://website-backend.w3champions.com/api";
+pub const W3C_STATS_ROOM: ChannelId   = ChannelId( 965968135666696322 );
+pub const W3C_STATS_MSG: MessageId    = MessageId( 965968232328609802 );
+
+pub const W3C_API: &str = "https://website-backend.w3champions.com/api";

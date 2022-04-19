@@ -46,3 +46,11 @@ pub struct StartingGame<'a> {
   pub host: String,
   pub mode: GameMode
 }
+
+#[derive(Default)]
+#[allow(non_snake_case)]
+pub struct W3CStats {
+  pub games_solo: usize,
+  pub games_2x2: usize,
+  pub games_4x4: usize
+}

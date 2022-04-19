@@ -41,6 +41,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   update_current_season(&ctx).await;
 
   // generate new twitch toke
+  info!("updating twitch token");
   if let Err(why) = system::hacks::twitch_update(&ctx).await {
     error!("Twitch token update failed, {why}");
   }
@@ -49,23 +50,25 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   Lazy::force(&cache::KATHOEY);
 
   info!("starting background threads");
-  // Now there are several lists of channels and several Guilds
-  let servers = options.servers.iter()
-                               .map(|srv| GuildId(srv.id))
-                               .collect::<Vec<GuildId>>();
-  let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
-  for server in &servers {
-    if let Ok(serv_channels) = server.channels(&ctx).await {
+  if options.gencache_on_start {
+    // Now there are several lists of channels and several Guilds
+    let servers = options.servers.iter()
+                                .map(|srv| GuildId(srv.id))
+                                .collect::<Vec<GuildId>>();
+    let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
+    for server in &servers {
+      if let Ok(serv_channels) = server.channels(&ctx).await {
+        all_channels.extend(serv_channels);
+      }
+    }
+    let home = GuildId(options.guild);
+    if let Ok(serv_channels) = home.channels(&ctx).await {
       all_channels.extend(serv_channels);
     }
-  }
-  let home = GuildId(options.guild);
-  if let Ok(serv_channels) = home.channels(&ctx).await {
-    all_channels.extend(serv_channels);
-  }
 
-  // updating ai:chain cache
-  cache::update_cache(&ctx, &all_channels).await;
+    // updating ai:chain cache
+    cache::update_cache(&ctx, &all_channels).await;
+  }
 
   let ac = std::sync::Arc::new(ctx);
   let oc = std::sync::Arc::new(options.clone());

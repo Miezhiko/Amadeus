@@ -87,6 +87,7 @@ pub async fn activate_games_tracking(
     loop {
 
       { // scope for GAMES lock
+        info!("team games: clearing");
         let mut games_lock = poller::GAMES.lock().await;
         let mut k_to_del: Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
@@ -236,6 +237,7 @@ pub async fn activate_games_tracking(
             )).await {
               Ok(msg_id) => {
                 { // scope for games_lock
+                  info!("team games: starting");
                   let mut games_lock = poller::GAMES.lock().await;
                   if let Some(inserted) = games_lock.get_mut(&game_key) {
                     if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.0)) {
@@ -276,23 +278,26 @@ pub async fn activate_games_tracking(
                               let emoji_data = emoji.as_data();
                               if emoji_data.as_str() == "👍🏻" || emoji_data.as_str() == "👎🏻" {
                                 let is_positive = emoji_data.as_str() == "👍🏻";
-                                let mut gl = poller::GAMES.lock().await;
-                                if let Some(track) = gl.get_mut(&game_key_clone) {
-                                  if track.still_live {
-                                    // you bet only once
-                                    if !track.bets.iter().any(|b| b.member == u.0) {
-                                      let bet = Bet { guild: g.0
-                                                    , member: u.0
-                                                    , points: 100
-                                                    , positive: is_positive
-                                                    , registered: false };
-                                      let (succ, rst) = points::give_points( g.0, u.0
-                                                                           , amadeus
-                                                                           , 100 ).await;
-                                      if succ {
-                                        track.bets.push(bet);
-                                      } else {
-                                        error!("Error on bet {:?}", rst);
+                                { // games lock scope
+                                  info!("team games: thumb was clicked");
+                                  let mut gl = poller::GAMES.lock().await;
+                                  if let Some(track) = gl.get_mut(&game_key_clone) {
+                                    if track.still_live {
+                                      // you bet only once
+                                      if !track.bets.iter().any(|b| b.member == u.0) {
+                                        let bet = Bet { guild: g.0
+                                                      , member: u.0
+                                                      , points: 100
+                                                      , positive: is_positive
+                                                      , registered: false };
+                                        let (succ, rst) = points::give_points( g.0, u.0
+                                                                            , amadeus
+                                                                            , 100 ).await;
+                                        if succ {
+                                          track.bets.push(bet);
+                                        } else {
+                                          error!("Error on bet {:?}", rst);
+                                        }
                                       }
                                     }
                                   }

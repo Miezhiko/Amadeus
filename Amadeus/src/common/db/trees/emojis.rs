@@ -84,7 +84,7 @@ pub async fn message_roles( guild_id: &u64
       }
     }
   } else {
-    warn!("found no node in database for current message");
+    warn!("found no node in database for current message, id: {message_id}, guild: {guild_id}");
     Ok(None)
   }
 }

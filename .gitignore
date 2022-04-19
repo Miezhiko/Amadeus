@@ -14,7 +14,6 @@ misc/secret
 *.png
 *.w3g
 *.out
-*.lock
 *.hi
 *.o
 hake

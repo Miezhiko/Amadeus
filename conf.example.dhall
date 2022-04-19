@@ -23,5 +23,6 @@ in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
    , tenor_key            = "AAAA"
    , flo_secret           = "AAAAAAAAAAAAAAA"
    , lazy_static_models   = True
+   , gencache_on_start    = True
    , github_auth          = "AccountName:access_token"
    }

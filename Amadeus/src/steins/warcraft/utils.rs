@@ -87,6 +87,7 @@ fn try_get_map_short(m: &str) -> String {
             , "banditsretreat"        => "BB"
             , "northmarshruin"        => "NR"
             , "mur'guloasis"          => "MO"
+            , "springtime"            => "ST"
             , _                       => "" })
 }
 
@@ -141,6 +142,7 @@ fn try_get_map(m: &str) -> String {
             , "banditsretreat"        => "Bandits Betreat"
             , "northmarshruin"        => "Northmarsh Ruin"
             , "mur'guloasis"          => "Mur'gul Oasis"
+            , "springtime"            => "Spring Time"
             , _                       => m /*""*/ })
 }
 
@@ -200,6 +202,8 @@ mod cyber_utils_tests {
 
     assert_eq!(get_map("_gnollwood_anon"), "Gnoll Wood");
     assert_eq!(get_map_short("_gnollwood_anon"), "GW");
+
+    assert_eq!(get_map_short("Springtimev1_1"), "ST");
 
     assert_eq!(get_map("phantomgrovew3c201016"), "Phantom Grove");
     assert_eq!(get_map("PhantomGroveW3C"), "Phantom Grove");

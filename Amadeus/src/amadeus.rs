@@ -103,7 +103,7 @@ pub async fn run(opts: &IOptions) ->
      .configure(|c| c
       .owners(owners)
       .on_mention(Some(amadeus_id))
-      .prefix(&PREFIX.to_string())
+      .prefix(&PREFIX)
       .delimiters(vec![" ", ";", "\n", "\t"])
       .case_insensitivity(true))
       .before(before)

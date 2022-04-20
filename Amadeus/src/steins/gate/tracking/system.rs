@@ -1,11 +1,11 @@
 use crate::{
-  types::serenity::IContext,
   common::{ system
           , constants::GITHUB_PRS }
 };
 
 #[cfg(not(target_os = "windows"))]
 use crate::{
+  types::serenity::IContext,
   common::salieri::SALIERI,
   steins::ai::reinit
 };

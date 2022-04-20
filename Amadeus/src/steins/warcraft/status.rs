@@ -18,6 +18,9 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
       let games_lock = GAMES.lock().await;
       for game in games_lock.values() {
         if let Some(fp) = game.players.first() {
+          let name = fp.player.battletag
+                       .split('#')
+                       .collect::<Vec<&str>>()[0];
           let game_mode_str = match game.mode {
             GameMode::Solo  => "1x1",
             GameMode::Team2 => "2x2",
@@ -25,7 +28,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
           };
           tracking_info.push(
             format!("{} playing {} game for {} minutes"
-            , fp.player.battletag
+            , name
             , game_mode_str
             , game.passed_time)
           );
@@ -63,8 +66,8 @@ current season: {}
     , season);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|
-              e.color((32, 32, 32))
-               .title("Status Grid")
+              e.color((64, 32, 32))
+               .title("☥ Status Grid ☥")
                .description(stats_str)
                .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
                .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")

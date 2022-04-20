@@ -15,8 +15,8 @@ use crate::{
 #[cfg(not(target_os = "windows"))]
 use crate::{
   common::salieri,
-  steins::ai::cache,
-  gate::tracking::social::activate_social_skils
+  steins::{ ai::cache,
+          , gate::tracking::social::activate_social_skils }
 };
 
 use serenity::{

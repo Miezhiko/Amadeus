@@ -22,6 +22,7 @@ let playersList : List Playerx =
   , t "Fingon#2350"         361930230375514112 "Skyrimoon"
   , t "YoungUndead#2289"    332258705456234497 "youngundeadd"
   , p "FreeMasha#2272"      743770620671819776
+  , p "Smurf#24244"         255345878917709824
   , p "Edek#1800"           298003054110965762
   , p "RiplEy#21126"        137314790769950720
   , p "RavenTT#2656"        277555411584942080

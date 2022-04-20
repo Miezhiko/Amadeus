@@ -5,12 +5,14 @@ pub mod w3c;
 pub mod chat;
 pub mod tictactoe;
 pub mod images;
-pub mod translation;
 pub mod bets;
 pub mod info;
 pub mod music;
 pub mod moderator;
 pub mod gentoo;
+
+#[cfg(not(target_os = "windows"))]
+pub mod translation;
 
 #[cfg(feature = "flo")]
 pub mod host;

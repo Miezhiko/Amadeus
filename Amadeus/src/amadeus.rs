@@ -112,7 +112,6 @@ pub async fn run(opts: &IOptions) ->
       .unrecognised_command(unrecognised_command)
       .group(&META_GROUP)
       .group(&CHAT_GROUP)
-      .group(&TRANSLATE_GROUP)
       .group(&IMAGES_GROUP)
       .group(&WARCRAFT_GROUP)
       .group(&PAD_GROUP)
@@ -121,6 +120,11 @@ pub async fn run(opts: &IOptions) ->
       .group(&MODERATOR_GROUP)
       .group(&GENTOO_GROUP)
       .help(&HELP_COMMAND);
+
+  #[cfg(not(target_os = "windows"))]
+  {
+    std_framework = std_framework.group(&TRANSLATE_GROUP)
+  }
 
   #[cfg(feature = "flo")]
   {

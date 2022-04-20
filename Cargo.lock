@@ -739,7 +739,7 @@ checksum = "2fff2a6927b3bb87f9595d67196a70493f627687a71d87a0d692242c33f58c11"
 [[package]]
 name = "celery"
 version = "0.4.666"
-source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#41663c64434e63426da6fb9232476f7e95d58197"
+source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#de6a5292aec90edcea24efd5c8c3054852f83641"
 dependencies = [
  "async-trait",
  "base64",
@@ -767,7 +767,7 @@ dependencies = [
 [[package]]
 name = "celery-codegen"
 version = "0.4.0-rcn.11"
-source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#41663c64434e63426da6fb9232476f7e95d58197"
+source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#de6a5292aec90edcea24efd5c8c3054852f83641"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -911,7 +911,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.0"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#c83ba2a1d61bf8e29638da26bab9f94dd0d90c0f"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#05e1d26ae917f46780dd1c6cce32346a530c2d2d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4608,7 +4608,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#c83ba2a1d61bf8e29638da26bab9f94dd0d90c0f"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#05e1d26ae917f46780dd1c6cce32346a530c2d2d"
 dependencies = [
  "async-trait",
  "async-tungstenite",
@@ -4642,7 +4642,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#c83ba2a1d61bf8e29638da26bab9f94dd0d90c0f"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#05e1d26ae917f46780dd1c6cce32346a530c2d2d"
 dependencies = [
  "bitflags",
  "enum_primitive",

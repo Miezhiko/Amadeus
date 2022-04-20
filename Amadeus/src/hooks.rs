@@ -2,8 +2,10 @@ use crate::{ collections::{ base::GREETINGS
                           , channels::IGNORED }
            , common::constants::PREFIX
            , common::i18n::{ help_i18n, US_ENG }
-           , steins::ai::response
-           };
+};
+
+#[cfg(not(target_os = "windows"))]
+use crate::steins::ai::response;
 
 use serenity::{
   prelude::*,
@@ -74,6 +76,7 @@ pub async fn unrecognised_command( ctx: &Context
       }
     }
   } else {
+    #[cfg(not(target_os = "windows"))]
     response::response(ctx, msg).await;
   }
 }

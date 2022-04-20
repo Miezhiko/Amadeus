@@ -3,8 +3,13 @@
 extern crate serde;
 
 pub mod types;
+
+#[cfg(not(target_os = "windows"))]
 pub mod cache;
+
+#[cfg(not(target_os = "windows"))]
 pub mod bert;
+
 pub mod commands;
 pub mod prelude;
 
@@ -23,6 +28,7 @@ pub async fn AMADEUS_INIT() -> TaskResult<()> {
   Ok(())
 }
 
+#[cfg(not(target_os = "windows"))]
 pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryError> {
   celery::app!(
     broker = AMQPBroker { String::from( ampq ) },

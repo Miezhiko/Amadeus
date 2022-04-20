@@ -1,12 +1,17 @@
 use crate::{
   message::RESTORE,
-  steins::{ ai::boris
-          , ai::uwu },
   common::i18n::{ edit_help_i18n, US_ENG },
   commands::{
-    translation, w3c::stats,
+    w3c::stats,
     chat, meta, music, images
   }
+};
+
+#[cfg(not(target_os = "windows"))]
+use crate::{
+  steins::{ ai::boris
+          , ai::uwu },
+  commands::translation
 };
 
 use serenity::{
@@ -67,7 +72,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
         if let Some(o) = ac.data.options.first() {
           if let Some(v) = o.value.clone() {
             if let Some(t) = v.as_str() {
-
+              #[cfg(not(target_os = "windows"))]
               if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {
                 response
                   .kind(InteractionResponseType::ChannelMessageWithSource)
@@ -84,7 +89,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
         if let Some(o) = ac.data.options.first() {
           if let Some(v) = o.value.clone() {
             if let Some(t) = v.as_str() {
-
+              #[cfg(not(target_os = "windows"))]
               if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {
                 response
                   .kind(InteractionResponseType::ChannelMessageWithSource)
@@ -129,7 +134,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "wave anime"
-                                , 0x3252e3
+                                , 0x3252e3i32
                                 , images::own("waves")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -150,7 +155,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "cry anime"
-                                , 0x126223
+                                , 0x126223i32
                                 , images::own("crying")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -171,7 +176,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "clap anime"
-                                , 0x22c2c1
+                                , 0x22c2c1i32
                                 , images::own("clapping")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -192,7 +197,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "angry anime"
-                                , 0x424203
+                                , 0x424203i32
                                 , images::own("Angry!")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -213,7 +218,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "confused anime"
-                                , 0x3292e3
+                                , 0x3292e3i32
                                 , images::own("Confused...")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -234,7 +239,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "nervous anime"
-                                , 0x3252e3
+                                , 0x3252e3i32
                                 , images::own("Feeling nervous")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -255,7 +260,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "sleepy anime"
-                                , 0x3f22a3
+                                , 0x3f22a3i32
                                 , images::own("Feeling sleepy")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -276,7 +281,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "annoyed anime"
-                                , 0xaf52e3
+                                , 0xaf52e3i32
                                 , images::own("Annoyed")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -297,7 +302,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "sad anime"
-                                , 0x3252e3
+                                , 0x3252e3i32
                                 , images::own("Feeling sad :(")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -318,7 +323,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "happy anime"
-                                , 0x6252e3
+                                , 0x6252e3i32
                                 , images::own("Feeling happy")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -339,7 +344,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "shrug anime"
-                                , 0x3252e3
+                                , 0x3252e3i32
                                 , images::own(r"shrugs ¯\_(ツ)_/¯")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -360,7 +365,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "ahegao anime"
-                                , 0xf252c1
+                                , 0xf252c1i32
                                 , images::GType::Nothing
                                 , true, None).await {
                     error!("Failed do gif emoji {err}");
@@ -381,7 +386,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "dancing anime"
-                                , 0x22b2c1
+                                , 0x22b2c1i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -402,7 +407,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "wink anime"
-                                , 0xaf52e3
+                                , 0xaf52e3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -423,7 +428,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "facepalm anime"
-                                , 0x6f52f3
+                                , 0x6f52f3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -444,7 +449,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "pout anime"
-                                , 0x6f52f3
+                                , 0x6f52f3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -465,7 +470,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "smug anime"
-                                , 0x6f52f3
+                                , 0x6f52f3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -486,7 +491,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "smirk anime"
-                                , 0x6f52f3
+                                , 0x6f52f3i32
                                 , images::own("smirks")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -507,7 +512,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "whatever anime"
-                                , 0x6f52f3
+                                , 0x6f52f3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -528,7 +533,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "smile anime"
-                                , 0xafb2e3
+                                , 0xafb2e3i32
                                 , images::own("smiles")
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -549,7 +554,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "dancing anime"
-                                , 0x722223
+                                , 0x722223i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -570,7 +575,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "awkward anime"
-                                , 0xaf52e3
+                                , 0xaf52e3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -591,7 +596,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "oops anime"
-                                , 0xaf52e3
+                                , 0xaf52e3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -612,7 +617,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "lazy anime"
-                                , 0xaf52e3
+                                , 0xaf52e3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -633,7 +638,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "hungry anime"
-                                , 0xaf5233
+                                , 0xaf5233i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -654,7 +659,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "stressed anime"
-                                , 0x2a62e3
+                                , 0x2a62e3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -675,7 +680,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "scared anime"
-                                , 0x2a3211
+                                , 0x2a3211i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -696,7 +701,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "bored anime"
-                                , 0xad52c3
+                                , 0xad52c3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -717,7 +722,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "yes anime"
-                                , 0xbd22c3
+                                , 0xbd22c3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -738,7 +743,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "no anime"
-                                , 0x0d22f3
+                                , 0x0d22f3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -759,7 +764,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "bye anime"
-                                , 0xad4213
+                                , 0xad4213i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -780,7 +785,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "sorry anime"
-                                , 0xcd5253
+                                , 0xcd5253i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -801,7 +806,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "ew anime"
-                                , 0xaf82e3
+                                , 0xaf82e3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -822,7 +827,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "omg anime"
-                                , 0xaf52e3
+                                , 0xaf52e3i32
                                 , images::GType::Nothing
                                 , false, None).await {
                     error!("Failed do gif emoji {err}");
@@ -843,7 +848,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "lol anime"
-                                , 0xa656e3
+                                , 0xa656e3i32
                                 , images::GType::Nothing
                                 , true, None).await {
                     error!("Failed do gif emoji {err}");
@@ -864,7 +869,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                     images::gifs( ctx, &member.user
                                 , &mut msg
                                 , "cringe"
-                                , 0x111111
+                                , 0x111111i32
                                 , images::GType::Nothing
                                 , true, None).await {
                     error!("Failed do gif emoji {err}");
@@ -889,7 +894,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                           images::gifs( ctx, &member.user
                                       , &mut msg
                                       , "hug anime"
-                                      , 0xed9e2f
+                                      , 0xed9e2fi32
                                       , images::target("hugs")
                                       , false, Some(t.into())).await {
                           error!("Failed do gif emoji {err}");
@@ -918,7 +923,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                           images::gifs( ctx, &member.user
                                       , &mut msg
                                       , "pat anime"
-                                      , 0x27e6d9
+                                      , 0x27e6d9i32
                                       , images::target("pats")
                                       , false, Some(t.into())).await {
                           error!("Failed do gif emoji {err}");
@@ -947,7 +952,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                           images::gifs( ctx, &member.user
                                       , &mut msg
                                       , "slap anime"
-                                      , 0xd62929
+                                      , 0xd62929i32
                                       , images::target("slaps")
                                       , false, Some(t.into())).await {
                           error!("Failed do gif emoji {err}");
@@ -975,7 +980,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                         if let Err(err) =
                           images::gifs( ctx, &member.user
                                       , &mut msg
-                                      , t, 0x8e613b
+                                      , t, 0x8e613bi32
                                       , images::GType::Nothing
                                       , true, None ).await {
                           error!("Failed do gif emoji {err}");
@@ -1129,6 +1134,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                   ).await {
                     Ok(msg) => {
                       let args = Args::new(t, &[Delimiter::Single(';')]);
+                      #[cfg(not(target_os = "windows"))]
                       if cmd == "translate" {
                         if let Err(terr) = translation::translate(ctx, &msg, args).await {
                           error!("Failed to translate to English on interaction {:?}", terr);

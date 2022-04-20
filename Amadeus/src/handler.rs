@@ -23,7 +23,7 @@ use serenity::{
   prelude::*,
   async_trait,
   utils::Colour,
-  model::{ guild::MessageAction
+  model::{ guild::audit_log::MessageAction
          , id::{ GuildId, MessageId, UserId, ChannelId, RoleId }
          , event::ResumedEvent, gateway::Ready, guild::Member
          , channel::{ Message, Reaction, ReactionType, AttachmentType

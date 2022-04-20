@@ -50,14 +50,13 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
     if let Ok(git_reset_out) = &String::from_utf8(git_reset.stdout) {
       let mut description = format!("{git_fetch_out}\n{git_reset_out}");
       let mut mmm = channel_id.send_message(&ctx, |m|
-        m.embed(|e| e.title("Compiling")
+        m.embed(|e| e.title("Updating")
                      .colour((220, 20, 100))
                      .description(&description)
         )
       ).await?;
       ctx.set_activity(Activity::playing("Compiling...")).await;
       static LINKS_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.https.*)").unwrap());
-      /* DO NOT RUN CARGO UPDATE
       let cargo_update = Command::new("sh")
                 .arg("-c")
                 .arg("cargo update")
@@ -86,7 +85,6 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
           )
         ).await?;
       }
-      */
       let cargo_build = Command::new("sh")
                 .arg("-c")
                 .arg("hake")

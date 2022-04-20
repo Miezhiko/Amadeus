@@ -1,17 +1,22 @@
 use crate::{
   types::options::IOptions,
-  common::{ options, system, salieri },
+  common::{ options, system },
   steins::{
     gate::START_TIME,
     gate::tracking::{ system::activate_system_tracker
                     , team_games::activate_games_tracking
-                    , social::activate_social_skils
                     , streamers::activate_streamers_tracking
                     , w3info::activate_w3info_tracking
-                    , dev::activate_dev_tracker },
-    ai::cache
+                    , dev::activate_dev_tracker }
   },
   commands::w3c::update_current_season
+};
+
+#[cfg(not(target_os = "windows"))]
+use crate::{
+  common::salieri,
+  steins::ai::cache,
+  gate::tracking::social::activate_social_skils
 };
 
 use serenity::{
@@ -46,8 +51,11 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
     error!("Twitch token update failed, {why}");
   }
 
-  info!("loading Kathoey");
-  Lazy::force(&cache::KATHOEY);
+  #[cfg(not(target_os = "windows"))]
+  {
+    info!("loading Kathoey");
+    Lazy::force(&cache::KATHOEY);
+  }
 
   info!("starting background threads");
   if options.gencache_on_start {
@@ -67,18 +75,24 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
     }
 
     // updating ai:chain cache
+    #[cfg(not(target_os = "windows"))]
     cache::update_cache(&ctx, &all_channels).await;
   }
 
   let ac = std::sync::Arc::new(ctx);
   let oc = std::sync::Arc::new(options.clone());
 
-  info!("connecting to Salieri");
-  if let Err(why) = salieri::salieri_init(&ac).await {
-    error!("failed to init Salieri services {why}");
+  #[cfg(not(target_os = "windows"))]
+  {
+    info!("connecting to Salieri");
+    if let Err(why) = salieri::salieri_init(&ac).await {
+      error!("failed to init Salieri services {why}");
+    }
   }
 
   activate_system_tracker(&ac).await;
+
+  #[cfg(not(target_os = "windows"))]
   activate_social_skils(&ac).await;
 
   let opts = options::get_roptions().await.unwrap();

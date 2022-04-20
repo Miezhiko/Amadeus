@@ -1,3 +1,5 @@
 pub mod gate;
-pub mod ai;
 pub mod warcraft;
+
+#[cfg(not(target_os = "windows"))]
+pub mod ai;

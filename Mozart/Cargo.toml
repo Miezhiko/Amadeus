@@ -19,7 +19,6 @@ regex           = "1.5.5"
 async-recursion = "1.0.0"
 tch              = "0.7"
 
-# fork: https://github.com/Qeenon/rust-bert.git / mawa
 [dependencies.rust-bert]
 default-features = false
 git = "https://github.com/guillaume-be/rust-bert.git"

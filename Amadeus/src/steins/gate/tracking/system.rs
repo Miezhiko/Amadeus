@@ -1,7 +1,12 @@
 use crate::{
   types::serenity::IContext,
-  common::{ system, salieri::SALIERI
-          , constants::GITHUB_PRS },
+  common::{ system
+          , constants::GITHUB_PRS }
+};
+
+#[cfg(not(target_os = "windows"))]
+use crate::{
+  common::salieri::SALIERI,
   steins::ai::reinit
 };
 
@@ -19,8 +24,9 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
   tokio::spawn(async move {
     loop {
       tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
-      { // this scope is needed for async locks!
-        // clean up old bert model conversation id-s
+
+      #[cfg(not(target_os = "windows"))]
+      { // clean up old bert model conversation id-s
         let salieri_lock = SALIERI.lock().await;
         if let Some(salieri) = &*salieri_lock {
           if let Err(why) = salieri.send_task(
@@ -43,19 +49,20 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
             }
           }
         }
+      }
 
-        // memory check!
-        if let Ok((amadeus_mb, salier_mb)) = system::stats::get_memory_mb().await {
-          let mem_mb = amadeus_mb + salier_mb;
-          // USE 24 GB RAM LIMIT FOR NOW
-          if mem_mb > 1024.0 * 24.0 {
-            if let Err(why) = system::upgrade::upgrade_amadeus(&ctx_clone, &GITHUB_PRS).await {
-              error!("Failed to run upgrade {:?}", why);
-            }
-          } else if mem_mb > 1024.0 * 13.0 {
-            // soft reset on 13 gb
-            reinit().await;
+      // memory check!
+      if let Ok((amadeus_mb, salier_mb)) = system::stats::get_memory_mb().await {
+        let mem_mb = amadeus_mb + salier_mb;
+        // USE 24 GB RAM LIMIT FOR NOW
+        if mem_mb > 1024.0 * 24.0 {
+          if let Err(why) = system::upgrade::upgrade_amadeus(&ctx_clone, &GITHUB_PRS).await {
+            error!("Failed to run upgrade {:?}", why);
           }
+        } else if mem_mb > 1024.0 * 13.0 {
+          // soft reset on 13 gb
+          #[cfg(not(target_os = "windows"))]
+          reinit().await;
         }
       }
     }

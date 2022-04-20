@@ -3,9 +3,11 @@ use crate::{
     constants::PREFIX,
     db::trees::points,
     msg::channel_message
-  },
-  steins::ai::{ cache, chain, boris, uwu }
+  }
 };
+
+#[cfg(not(target_os = "windows"))]
+use crate::steins::ai::{ cache, chain, boris, uwu };
 
 use serenity::{
   prelude::*,
@@ -141,6 +143,7 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
   if !(msg.mentions.is_empty() || !msg.mentions.len() == 1 && msg.mentions[0].bot) {
     let target = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
+    #[cfg(not(target_os = "windows"))]
     if let Some(q) = chain::make_quote(ctx, msg, target.id).await {
       let footer = format!("Requested by {}", msg.author.name);
       if let Err(why) = msg.channel_id.send_message(ctx, |m| m
@@ -166,6 +169,7 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
 #[aliases(борис)]
 #[description("metaphone for russian text")]
 async fn boris(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  #[cfg(not(target_os = "windows"))]
   channel_message( ctx
                  , msg
                  , &boris::spell(args.message())
@@ -177,6 +181,7 @@ async fn boris(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[min_args(1)]
 #[description("uwu")]
 async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+  #[cfg(not(target_os = "windows"))]
   channel_message( ctx
                  , msg
                  , &uwu::spell(args.message())
@@ -189,11 +194,14 @@ async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[aliases(fem)]
 #[description("feminize text")]
 pub async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let kathoey = cache::KATHOEY.lock().await;
-  channel_message( ctx
-                 , msg
-                 , &kathoey.feminize(args.message())
-                 ).await;
+  #[cfg(not(target_os = "windows"))]
+  {
+    let kathoey = cache::KATHOEY.lock().await;
+    channel_message( ctx
+                   , msg
+                   , &kathoey.feminize(args.message())
+                   ).await;
+  }
   Ok(())
 }
 
@@ -202,11 +210,14 @@ pub async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 #[aliases(ffem)]
 #[description("feminize text with extreme mode!")]
 async fn extreme_feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let kathoey = cache::KATHOEY.lock().await;
-  channel_message( ctx
-                 , msg
-                 , &kathoey.extreme_feminize(args.message())
-                 ).await;
+  #[cfg(not(target_os = "windows"))]
+  {
+    let kathoey = cache::KATHOEY.lock().await;
+    channel_message( ctx
+                   , msg
+                   , &kathoey.extreme_feminize(args.message())
+                   ).await;
+  }
   Ok(())
 }
 
@@ -214,10 +225,13 @@ async fn extreme_feminize(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 #[min_args(1)]
 #[description("grammar correction")]
 pub async fn correct(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let correction = chain::correct(args.message()).await;
-  channel_message( ctx
-                 , msg
-                 , &correction
-                 ).await;
+  #[cfg(not(target_os = "windows"))]
+  {
+    let correction = chain::correct(args.message()).await;
+    channel_message( ctx
+                   , msg
+                   , &correction
+                   ).await;
+  }
   Ok(())
 }

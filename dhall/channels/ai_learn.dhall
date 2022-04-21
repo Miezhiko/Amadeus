@@ -13,6 +13,7 @@ let bi = λ(id: Natural) → { id = id, lang = L.Bilingual }
 let channels : List Channel =
   [ bi 611822932897038341 -- "main"
   , bi 773830849124106250 -- "english"
+  , ru 948097924649353287 -- "okremiy"
   , bi 679723943535312903 -- "dating"
   , bi 611825511433240577 -- "warcraft"
   , bi 631379331515678720 -- "team-chat-en"

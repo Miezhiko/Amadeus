@@ -9,7 +9,8 @@ use mozart::{
         , chat::CHAT_GPT2
         , qa::ASK
         , neo::CHAT_NEO
-        , summarization::SUMMARIZE }
+        , summarization::SUMMARIZE
+        , xlnet::XLNET }
 };
 
 async fn salieri_request<T>( sig: celery::task::Signature<T>
@@ -56,12 +57,20 @@ pub async fn summarize( msg: Option<u64>
   salieri_request(SUMMARIZE::new(msg, chan, something, user_id, lsm)).await
 }
 
+pub async fn xlnet( msg: Option<u64>
+                  , chan: u64
+                  , something: String
+                  , user_id: u64
+                  , lsm: bool ) -> Result<Option<String>> {
+  salieri_request(XLNET::new(msg, chan, something, user_id, lsm)).await
+}
+
 pub async fn chat( msg: Option<u64>
                  , chan: u64
                  , something: String
                  , user_id: u64
                  , lsm: bool) -> Result<Option<String>> {
-  let rndx = rand::thread_rng().gen_range(0..8);
+  let rndx = rand::thread_rng().gen_range(0..9);
   let mut input = process_message_for_gpt(&something);
   if input.len() > GPT_LIMIT {
     if let Some((i, _)) = input.char_indices().rev().nth(GPT_LIMIT) {
@@ -74,6 +83,7 @@ pub async fn chat( msg: Option<u64>
   match rndx {
     0 => chat_neo(msg, chan, input, user_id, lsm).await,
     1 => summarize(msg, chan, input, user_id, lsm).await,
+    2 => xlnet(msg, chan, input, user_id, lsm).await,
     _ => chat_gpt2(msg, chan, input, user_id, lsm).await
   }
 }

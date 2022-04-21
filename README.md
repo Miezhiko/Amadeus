@@ -48,7 +48,7 @@
  - Using [Fluent](https://www.projectfluent.org/) for localization
  - [Sled](https://github.com/spacejam/sled) for editable info archive
  - Plays music streams using [Songbird](https://github.com/serenity-rs/songbird)! (`~join ~play`)
- - Transfer learning using chats context (models: [DialoGPT](https://github.com/microsoft/DialoGPT) [GPT-Neo](https://github.com/EleutherAI/gpt-neo), [DistilBERT](https://arxiv.org/abs/1910.01108) fine-tuned on SQuAD)
+ - Transfer learning using chats context (models: [DialoGPT](https://github.com/microsoft/DialoGPT) [GPT-Neo](https://github.com/EleutherAI/gpt-neo), [DistilBERT](https://arxiv.org/abs/1910.01108) fine-tuned on SQuAD) and more
  - [Dhall](https://dhall-lang.org) and YAML config files, dhall for per-guild teams configurations
  - Multi-server streams notifications/trackers for twitch and goodgame.ru (using channels from dhall conf)
  - Tracking pull requests of watching by some user repositories on GitHub and posting detailed PR embeds
@@ -64,6 +64,7 @@
  - Slur words auto-removal / warnings system.
  - Using [Celery](https://github.com/rusty-celery/rusty-celery) and [RabbitMQ](https://www.rabbitmq.com) for distributed tasks queue.
  - Using tokio [UnixStream](https://docs.rs/tokio/1.17.0/tokio/net/struct.UnixStream.html#method.try_read_buf) on various sockets for IPC
+ - Warcraft 3 Status Grid with active players on modes and weekly team players statistics.
 
 
 ## Cooking

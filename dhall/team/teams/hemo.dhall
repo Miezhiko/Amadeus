@@ -12,7 +12,7 @@ let playersList : List Playerx =
   , { battletag = "Маша#21229"
     , discord   = 510368731378089984
     , streams   = Some { ggru   = None Text
-                       , twitch = Some Miezhiko }
+                       , twitch = Some "Miezhiko" }
     , other_acc = Some "Miezhiko#2378" }
   , b "Reyenir#2169"        287914378513088515 "reyenir" "Cherry-Phoenix"
   , b "ag3nt#21617"         293268448212156416 "ag3ntik" "ag3nt"

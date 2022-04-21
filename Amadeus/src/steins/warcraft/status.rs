@@ -34,12 +34,7 @@ pub struct Weekly {
 
 pub async fn get_weekly() -> anyhow::Result<Weekly> {
   if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
-    let init = Weekly {
-      reset_week: chrono::Utc::now().iso_week().week(),
-      statistics: HashMap::new()
-    };
-    let yml = serde_yaml::to_string(&init)?;
-    fs::write(WEEKLY_STATS_FNAME, yml).await?;
+    clear_weekly(chrono::Utc::now().iso_week().week()).await?;
   }
   let contents = fs::read_to_string(WEEKLY_STATS_FNAME).await?;
   let yml = serde_yaml::from_str(&contents)?;
@@ -66,15 +61,12 @@ pub async fn add_to_weekly(p: &str, win: bool) -> anyhow::Result<()> {
   Ok(())
 }
 
-async fn clear_weekly() -> anyhow::Result<()> {
-  fs::write(WEEKLY_STATS_FNAME, "").await?;
-  Ok(())
-}
-
-async fn set_reset_week(week: u32) -> anyhow::Result<()> {
-  let mut current_weekly = get_weekly().await?;
-  current_weekly.reset_week = week;
-  let yml = serde_yaml::to_string(&current_weekly)?;
+async fn clear_weekly(week: u32) -> anyhow::Result<()> {
+  let init = Weekly {
+    reset_week: week,
+    statistics: HashMap::new()
+  };
+  let yml = serde_yaml::to_string(&init)?;
   fs::write(WEEKLY_STATS_FNAME, yml).await?;
   Ok(())
 }
@@ -88,8 +80,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     if now.hour() == 0 {
       let now_week = now.iso_week().week();
       if now_week != weekly.reset_week {
-        clear_weekly().await?;
-        set_reset_week(now_week).await?;
+        clear_weekly(now_week).await?;
       }
     }
 

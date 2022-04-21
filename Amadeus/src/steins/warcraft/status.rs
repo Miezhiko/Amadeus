@@ -33,6 +33,14 @@ pub struct Weekly {
 }
 
 pub async fn get_weekly() -> anyhow::Result<Weekly> {
+  if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
+    let init = Weekly {
+      reset_week: chrono::Utc::now().iso_week().week(),
+      statistics: HashMap::new()
+    };
+    let yml = serde_yaml::to_string(&init)?;
+    fs::write(WEEKLY_STATS_FNAME, yml).await?;
+  }
   let contents = fs::read_to_string(WEEKLY_STATS_FNAME).await?;
   let yml = serde_yaml::from_str(&contents)?;
   Ok(yml)

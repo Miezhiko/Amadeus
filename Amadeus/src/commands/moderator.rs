@@ -281,7 +281,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     return Ok(());
   }
   if let Ok(msgs) = msg.channel_id.messages(ctx,
-      |g| g.before(msg.id).limit(100)
+      |g| g.before(msg.id).limit(10)
     ).await {
     let mut messages = vec![];
     for message in msgs {

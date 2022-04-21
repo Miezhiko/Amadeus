@@ -13,7 +13,7 @@ use serenity::prelude::*;
 
 use std::{
   sync::atomic::Ordering::Relaxed,
-  collections::HashMap
+  collections::BTreeMap
 };
 
 use async_std::fs;
@@ -29,7 +29,7 @@ pub struct WeeklyWinLoses {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Weekly {
   pub reset_week: u32,
-  pub statistics: HashMap<String, WeeklyWinLoses>
+  pub statistics: BTreeMap<String, WeeklyWinLoses>
 }
 
 pub async fn get_weekly() -> anyhow::Result<Weekly> {
@@ -64,7 +64,7 @@ pub async fn add_to_weekly(p: &str, win: bool) -> anyhow::Result<()> {
 async fn clear_weekly(week: u32) -> anyhow::Result<()> {
   let init = Weekly {
     reset_week: week,
-    statistics: HashMap::new()
+    statistics: BTreeMap::new()
   };
   let yml = serde_yaml::to_string(&init)?;
   fs::write(WEEKLY_STATS_FNAME, yml).await?;
@@ -166,7 +166,7 @@ current season: {}
                .title("☥ Status Grid ☥")
                .description(stats_str)
                .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
-               .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
+             /*.image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")*/
                .timestamp(now.to_rfc3339())
     )).await?;
   }

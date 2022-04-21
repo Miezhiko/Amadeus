@@ -163,7 +163,7 @@ __**weekly team games:**__
     , stats.games_4x4
     , tracking_str
     , weekly_str[0]
-    , weekly_str[2]);
+    , weekly_str[1]);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|
               e.color((255, 20, 7))

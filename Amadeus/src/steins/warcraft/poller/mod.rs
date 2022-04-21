@@ -15,7 +15,10 @@ use crate::{
             , bet_fields::generate_bet_fields },
     utils::{ get_race2
            , get_map },
-    status::status_update
+    status::{
+      add_to_weekly,
+      status_update
+    }
   }
 };
 
@@ -38,6 +41,7 @@ pub async fn check<'a>( ctx: &Context
                       , guild_id: u64
                       , rqcl: &reqwest::Client
                       ) -> Vec<StartingGame<'a>> {
+
   let guild = GuildId( guild_id );
   let mut out: Vec<StartingGame> = Vec::new();
   let mut stats: W3CStats = W3CStats { ..Default::default() };
@@ -504,7 +508,7 @@ pub async fn check<'a>( ctx: &Context
         if let Some(finished_game) = check_match(k, &track.players, &track.mode, rqcl).await {
           let fgame = &finished_game;
           if let Ok(mut msg) = ctx.http.get_message( game_channel.0
-                                                    , track.tracking_msg_id[0].1 ).await {
+                                                   , track.tracking_msg_id[0].1 ).await {
             let footer: String = format!("Passed: {} min", fgame.passed_time);
             if let Ok(user) = ctx.http.get_user(playa.player.discord).await {
               let mut old_fields = Vec::new();
@@ -524,12 +528,15 @@ pub async fn check<'a>( ctx: &Context
               setm!{ title          = "FINISHED"
                    , streak_fields  = None
                    , bet_fields     = None };
-              for (pw, is_win) in &fgame.winners {
+              for ((pws, pw), is_win) in &fgame.winners {
+                if let Err(why) = add_to_weekly(pws, *is_win).await {
+                  error!("Failed to add daily stats: {why}");
+                }
                 if *is_win {
                   trace!("Registering win for {pw}");
                   let streak = points::add_win_points( guild_id
-                                                      , *pw
-                                                      ).await;
+                                                     , *pw
+                                                     ).await;
                   if playa.player.discord == *pw && streak >= 3 {
                     title =
                       match streak { 3  => "MULTIKILL"

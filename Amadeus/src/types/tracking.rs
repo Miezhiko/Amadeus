@@ -8,12 +8,14 @@ pub enum GameMode {
   Team4
 }
 
+pub type Winners = Vec<((String, u64), bool)>;
+
 #[allow(non_snake_case)]
 pub struct FinishedGame {
   pub desc: Vec<String>,
   pub passed_time: u32,
   pub link: String,
-  pub winners: Vec<(u64, bool)>,
+  pub winners: Winners,
   pub additional_fields: Option<(String, String, String, String)>,
   pub hero_png: Option<String>
 }

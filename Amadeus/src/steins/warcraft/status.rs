@@ -5,13 +5,85 @@ use crate::{
   steins::warcraft::poller::GAMES
 };
 
+use chrono::{
+  Timelike,
+  Datelike
+};
 use serenity::prelude::*;
 
-use std::sync::atomic::Ordering::Relaxed;
+use std::{
+  sync::atomic::Ordering::Relaxed,
+  collections::HashMap
+};
+
+use async_std::fs;
+
+const WEEKLY_STATS_FNAME: &str  = "weekly.yml";
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct WeeklyWinLoses {
+  pub wins: u64,
+  pub losses: u64
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Weekly {
+  pub reset_week: u32,
+  pub statistics: HashMap<String, WeeklyWinLoses>
+}
+
+pub async fn get_weekly() -> anyhow::Result<Weekly> {
+  let contents = fs::read_to_string(WEEKLY_STATS_FNAME).await?;
+  let yml = serde_yaml::from_str(&contents)?;
+  Ok(yml)
+}
+
+pub async fn add_to_weekly(p: &str, win: bool) -> anyhow::Result<()> {
+  let mut current_daily = get_weekly().await?;
+  if let Some(p_stats) = current_daily.statistics.get_mut(p) {
+    if win {
+      p_stats.wins += 1;
+    } else {
+      p_stats.losses += 1;
+    }
+  } else {
+    let stats = WeeklyWinLoses {
+      wins    : if win { 1 } else { 0 },
+      losses  : if win { 0 } else { 1 }
+    };
+    current_daily.statistics.insert(p.to_string(), stats);
+  }
+  let yml = serde_yaml::to_string(&current_daily)?;
+  fs::write(WEEKLY_STATS_FNAME, yml).await?;
+  Ok(())
+}
+
+async fn clear_weekly() -> anyhow::Result<()> {
+  fs::write(WEEKLY_STATS_FNAME, "").await?;
+  Ok(())
+}
+
+async fn set_reset_week(week: u32) -> anyhow::Result<()> {
+  let mut current_daily = get_weekly().await?;
+  current_daily.reset_week = week;
+  let yml = serde_yaml::to_string(&current_daily)?;
+  fs::write(WEEKLY_STATS_FNAME, yml).await?;
+  Ok(())
+}
 
 pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()> {
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
     let season = CURRENT_SEASON.load(Relaxed);
+    let daily = get_weekly().await?;
+    let now = chrono::Utc::now();
+    // only check on midnight (just because)
+    if now.hour() == 0 {
+      let now_week = now.iso_week().week();
+      if now_week != daily.reset_week {
+        clear_weekly().await?;
+        set_reset_week(now_week).await?;
+      }
+    }
 
     let mut tracking_info = vec![];
     { // Games lock scope
@@ -41,6 +113,25 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
       } else {
         tracking_info.join("\n")
       };
+    let daily_str =
+      if daily.statistics.is_empty() {
+        String::from("no daily statistic")
+      } else {
+        let mut daily_vec = vec![];
+        for (p, d) in daily.statistics {
+          let name = p.split('#')
+                      .collect::<Vec<&str>>()[0];
+          let winrate = ( (d.wins as f32 / (d.wins + d.losses) as f32) * 100.0).round();
+          daily_vec.push(
+            format!( "{}: {} wins, {} losses, {}%"
+                   , name
+                   , d.wins
+                   , d.losses
+                   , winrate )
+          );
+        }
+        daily_vec.join("\n")
+      };
     let stats_str = format!(
 "
 __**currently running:**__
@@ -55,6 +146,11 @@ __**currently playing:**__
 {}
 ```
 
+__**daily stats:**__
+```
+{}
+```
+
 __**meta info:**__
 ```
 current season: {}
@@ -63,6 +159,7 @@ current season: {}
     , stats.games_2x2
     , stats.games_4x4
     , tracking_str
+    , daily_str
     , season);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|
@@ -71,7 +168,7 @@ current season: {}
                .description(stats_str)
                .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
                .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
-               .timestamp(chrono::Utc::now().to_rfc3339())
+               .timestamp(now.to_rfc3339())
     )).await?;
   }
   Ok(())

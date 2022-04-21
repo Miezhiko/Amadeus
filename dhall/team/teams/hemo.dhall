@@ -8,9 +8,12 @@ let g = ./../functions/g.dhall
 let b = ./../functions/b.dhall
 
 let playersList : List Playerx =
-  [ t "PriesT#12658"        180213339111161856 "PriesTwc3"
-  , t "Muffy#2299"          196231768880185344 "muffy_supergosu"
-  , t "Маша#21229"          510368731378089984 "Miezhiko"
+  [ t "Muffy#2299"          196231768880185344 "muffy_supergosu"
+  , { battletag = "Маша#21229"
+    , discord   = 510368731378089984
+    , streams   = Some { ggru   = None Text
+                       , twitch = Some Miezhiko }
+    , other_acc = Some "Miezhiko#2378" }
   , b "Reyenir#2169"        287914378513088515 "reyenir" "Cherry-Phoenix"
   , b "ag3nt#21617"         293268448212156416 "ag3ntik" "ag3nt"
   , b "Rici#2903"           404379597568999425 "riciii" "Rici"
@@ -21,8 +24,12 @@ let playersList : List Playerx =
   , b "НееЖить#2559"        703241941114028032 "masterv_64" "Ghost_OL"
   , t "Fingon#2350"         361930230375514112 "Skyrimoon"
   , t "YoungUndead#2289"    332258705456234497 "youngundeadd"
+  , t "PriesT#12658"        180213339111161856 "PriesTwc3"
   , p "FreeMasha#2272"      743770620671819776
-  , p "Smurf#24244"         255345878917709824
+  , { battletag = "Smurf#24244"
+    , discord   = 255345878917709824
+    , streams   = None Streams
+    , other_acc = Some "Wayfarer#21400" }
   , p "Edek#1800"           298003054110965762
   , p "RiplEy#21126"        137314790769950720
   , p "RavenTT#2656"        277555411584942080

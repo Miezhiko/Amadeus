@@ -67,7 +67,7 @@ pub async fn check_match( matchid: &str
     let m = md.match_data?;
     let ps = md.playerScores?;
     let address = format!("https://www.w3champions.com/match/{}", &m.id);
-    let mut losers: Vec<(u64, bool)> = vec![];
+    let mut losers: Winners = vec![];
     let mstr_o =
       if m.gameMode == 1 {
         set!{ g_map = get_map(&m.map)
@@ -76,7 +76,8 @@ pub async fn check_match( matchid: &str
         for i in 0..2 {
           if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.player.battletag) {
             let won = m.teams[i].players[0].won;
-            losers.push((playa.player.discord, won));
+            losers.push(( (playa.player.battletag.clone(), playa.player.discord)
+                        , won ));
           }
         }
         set!{ t0_name = aka(&m.teams[0].players[0], rqcl).await
@@ -116,7 +117,8 @@ pub async fn check_match( matchid: &str
           for j in 0..2 {
             if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.player.battletag) {
               let won = m.teams[i].players[j].won;
-              losers.push((playa.player.discord, won));
+              losers.push(( (playa.player.battletag.clone(), playa.player.discord)
+                          , won ));
             }
             aka_names[i][j] = aka(&m.teams[i].players[j], rqcl).await;
           }
@@ -150,7 +152,8 @@ pub async fn check_match( matchid: &str
           for j in 0..4 {
             if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.player.battletag) {
               let won = m.teams[i].players[j].won;
-              losers.push((playa.player.discord, won));
+              losers.push(( (playa.player.battletag.clone(), playa.player.discord)
+                          , won ));
             }
             aka_names[i][j] = aka(&m.teams[i].players[j], rqcl).await;
           }

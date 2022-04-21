@@ -1,7 +1,6 @@
 use crate::{
   types::tracking::{ W3CStats, GameMode },
   common::constants::{ W3C_STATS_ROOM, W3C_STATS_MSG },
-  commands::w3c::CURRENT_SEASON,
   steins::warcraft::poller::GAMES
 };
 
@@ -10,12 +9,7 @@ use chrono::{
   Datelike
 };
 use serenity::prelude::*;
-
-use std::{
-  sync::atomic::Ordering::Relaxed,
-  collections::BTreeMap
-};
-
+use std::collections::BTreeMap;
 use async_std::fs;
 
 const WEEKLY_STATS_FNAME: &str  = "weekly.yml";
@@ -26,10 +20,13 @@ pub struct WeeklyWinLoses {
   pub losses: u64
 }
 
+type WeeklyStats = BTreeMap<String, WeeklyWinLoses>;
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Weekly {
   pub reset_week: u32,
-  pub statistics: BTreeMap<String, WeeklyWinLoses>
+  pub statistics: WeeklyStats,
+  pub statistics2: WeeklyStats
 }
 
 pub async fn get_weekly() -> anyhow::Result<Weekly> {
@@ -41,9 +38,12 @@ pub async fn get_weekly() -> anyhow::Result<Weekly> {
   Ok(yml)
 }
 
-pub async fn add_to_weekly(p: &str, win: bool) -> anyhow::Result<()> {
+pub async fn add_to_weekly(p: &str, win: bool, solo: bool) -> anyhow::Result<()> {
   let mut current_weekly = get_weekly().await?;
-  if let Some(p_stats) = current_weekly.statistics.get_mut(p) {
+  let weekly_stats: &mut WeeklyStats =
+    if solo { &mut current_weekly.statistics }
+       else { &mut current_weekly.statistics2 };
+  if let Some(p_stats) = weekly_stats.get_mut(p) {
     if win {
       p_stats.wins += 1;
     } else {
@@ -54,7 +54,7 @@ pub async fn add_to_weekly(p: &str, win: bool) -> anyhow::Result<()> {
       wins    : if win { 1 } else { 0 },
       losses  : if win { 0 } else { 1 }
     };
-    current_weekly.statistics.insert(p.to_string(), stats);
+    weekly_stats.insert(p.to_string(), stats);
   }
   let yml = serde_yaml::to_string(&current_weekly)?;
   fs::write(WEEKLY_STATS_FNAME, yml).await?;
@@ -64,7 +64,8 @@ pub async fn add_to_weekly(p: &str, win: bool) -> anyhow::Result<()> {
 async fn clear_weekly(week: u32) -> anyhow::Result<()> {
   let init = Weekly {
     reset_week: week,
-    statistics: BTreeMap::new()
+    statistics: BTreeMap::new(),
+    statistics2: BTreeMap::new()
   };
   let yml = serde_yaml::to_string(&init)?;
   fs::write(WEEKLY_STATS_FNAME, yml).await?;
@@ -73,7 +74,6 @@ async fn clear_weekly(week: u32) -> anyhow::Result<()> {
 
 pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()> {
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
-    let season = CURRENT_SEASON.load(Relaxed);
     let weekly = get_weekly().await?;
     let now = chrono::Utc::now();
     // only check on midnight (just because)
@@ -112,25 +112,29 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
       } else {
         tracking_info.join("\n")
       };
-    let weekly_str =
-      if weekly.statistics.is_empty() {
-        String::from("no weekly statistic")
-      } else {
-        let mut weekly_vec = vec![];
-        for (p, d) in weekly.statistics {
-          let name = p.split('#')
-                      .collect::<Vec<&str>>()[0];
-          let winrate = ( (d.wins as f32 / (d.wins + d.losses) as f32) * 100.0).round();
-          weekly_vec.push(
-            format!( "{}: {} wins, {} losses, {}%"
-                   , name
-                   , d.wins
-                   , d.losses
-                   , winrate )
-          );
+    let mut weekly_str = vec![];
+    for ws in &[weekly.statistics, weekly.statistics2] {
+      weekly_str.push(
+        if ws.is_empty() {
+          String::from("no weekly statistic")
+        } else {
+          let mut weekly_vec = vec![];
+          for (p, d) in ws {
+            let name = p.split('#')
+                        .collect::<Vec<&str>>()[0];
+            let winrate = ( (d.wins as f32 / (d.wins + d.losses) as f32) * 100.0).round();
+            weekly_vec.push(
+              format!( "{}: {} wins, {} losses, {}%"
+                    , name
+                    , d.wins
+                    , d.losses
+                    , winrate )
+            );
+          }
+          weekly_vec.join("\n")
         }
-        weekly_vec.join("\n")
-      };
+      );
+    }
     let stats_str = format!(
 "
 __**currently running:**__
@@ -145,21 +149,21 @@ __**currently playing:**__
 {}
 ```
 
-__**weekly stats:**__
+__**weekly solo:**__
 ```
 {}
 ```
 
-__**meta info:**__
+__**weekly team games:**__
 ```
-current season: {}
+{}
 ```"
     , stats.games_solo
     , stats.games_2x2
     , stats.games_4x4
     , tracking_str
-    , weekly_str
-    , season);
+    , weekly_str[0]
+    , weekly_str[2]);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|
               e.color((255, 20, 7))

@@ -65,8 +65,9 @@ async fn delete( guild_id: &GuildId
         .embed(|e| {
           e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
            .title(reason)
-           .description(&format!( "User UID: {}\n original message: {}"
-                                , msg.author.id.0, &msg.content))
+           .description(&format!( "User UID: {}\n original message: {}\n{}"
+                                , msg.author.id.0, &msg.content
+                                , msg.link() ))
            .timestamp(chrono::Utc::now().to_rfc3339())
         })).await {
         error!("Failed to log leaving user {}, {why}", msg.author.name);

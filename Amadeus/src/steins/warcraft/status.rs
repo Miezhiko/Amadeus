@@ -162,7 +162,7 @@ current season: {}
     , season);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|
-              e.color((64, 32, 32))
+              e.color((255, 20, 7))
                .title("☥ Status Grid ☥")
                .description(stats_str)
                .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")

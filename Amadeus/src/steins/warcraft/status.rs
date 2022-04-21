@@ -39,8 +39,8 @@ pub async fn get_weekly() -> anyhow::Result<Weekly> {
 }
 
 pub async fn add_to_weekly(p: &str, win: bool) -> anyhow::Result<()> {
-  let mut current_daily = get_weekly().await?;
-  if let Some(p_stats) = current_daily.statistics.get_mut(p) {
+  let mut current_weekly = get_weekly().await?;
+  if let Some(p_stats) = current_weekly.statistics.get_mut(p) {
     if win {
       p_stats.wins += 1;
     } else {
@@ -51,9 +51,9 @@ pub async fn add_to_weekly(p: &str, win: bool) -> anyhow::Result<()> {
       wins    : if win { 1 } else { 0 },
       losses  : if win { 0 } else { 1 }
     };
-    current_daily.statistics.insert(p.to_string(), stats);
+    current_weekly.statistics.insert(p.to_string(), stats);
   }
-  let yml = serde_yaml::to_string(&current_daily)?;
+  let yml = serde_yaml::to_string(&current_weekly)?;
   fs::write(WEEKLY_STATS_FNAME, yml).await?;
   Ok(())
 }
@@ -64,9 +64,9 @@ async fn clear_weekly() -> anyhow::Result<()> {
 }
 
 async fn set_reset_week(week: u32) -> anyhow::Result<()> {
-  let mut current_daily = get_weekly().await?;
-  current_daily.reset_week = week;
-  let yml = serde_yaml::to_string(&current_daily)?;
+  let mut current_weekly = get_weekly().await?;
+  current_weekly.reset_week = week;
+  let yml = serde_yaml::to_string(&current_weekly)?;
   fs::write(WEEKLY_STATS_FNAME, yml).await?;
   Ok(())
 }
@@ -74,12 +74,12 @@ async fn set_reset_week(week: u32) -> anyhow::Result<()> {
 pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()> {
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
     let season = CURRENT_SEASON.load(Relaxed);
-    let daily = get_weekly().await?;
+    let weekly = get_weekly().await?;
     let now = chrono::Utc::now();
     // only check on midnight (just because)
     if now.hour() == 0 {
       let now_week = now.iso_week().week();
-      if now_week != daily.reset_week {
+      if now_week != weekly.reset_week {
         clear_weekly().await?;
         set_reset_week(now_week).await?;
       }
@@ -113,16 +113,16 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
       } else {
         tracking_info.join("\n")
       };
-    let daily_str =
-      if daily.statistics.is_empty() {
-        String::from("no daily statistic")
+    let weekly_str =
+      if weekly.statistics.is_empty() {
+        String::from("no weekly statistic")
       } else {
-        let mut daily_vec = vec![];
-        for (p, d) in daily.statistics {
+        let mut weekly_vec = vec![];
+        for (p, d) in weekly.statistics {
           let name = p.split('#')
                       .collect::<Vec<&str>>()[0];
           let winrate = ( (d.wins as f32 / (d.wins + d.losses) as f32) * 100.0).round();
-          daily_vec.push(
+          weekly_vec.push(
             format!( "{}: {} wins, {} losses, {}%"
                    , name
                    , d.wins
@@ -130,7 +130,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
                    , winrate )
           );
         }
-        daily_vec.join("\n")
+        weekly_vec.join("\n")
       };
     let stats_str = format!(
 "
@@ -146,7 +146,7 @@ __**currently playing:**__
 {}
 ```
 
-__**daily stats:**__
+__**weekly stats:**__
 ```
 {}
 ```
@@ -159,7 +159,7 @@ current season: {}
     , stats.games_2x2
     , stats.games_4x4
     , tracking_str
-    , daily_str
+    , weekly_str
     , season);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|

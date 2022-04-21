@@ -61,13 +61,18 @@ async fn delete( guild_id: &GuildId
   }
   if let Some(ds) = DISCORDS.get(&guild_id.0) {
     if let Some(log) = ds.log {
+      let msg_link = if really_delete {
+          format!("{}", msg.channel_id.mention())
+        } else {
+          msg.link()
+        };
       if let Err(why) = log.send_message(&ctx, |m| m
         .embed(|e| {
           e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
            .title(reason)
            .description(&format!( "User UID: {}\n original message: {}\n{}"
                                 , msg.author.id.0, &msg.content
-                                , msg.link() ))
+                                , msg_link ))
            .timestamp(chrono::Utc::now().to_rfc3339())
         })).await {
         error!("Failed to log leaving user {}, {why}", msg.author.name);

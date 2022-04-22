@@ -1,4 +1,7 @@
-use crate::common::msg::reply;
+use crate::{
+  common::msg::reply,
+  steins::ai::cache::KATHOEY
+};
 
 use std::{
   sync::Arc,
@@ -11,6 +14,8 @@ use tokio::{ sync::Mutex, select
 
 use once_cell::sync::Lazy;
 use celery::{ Celery, broker::AMQPBroker };
+
+use rand::Rng;
 
 use mozart::{
   types::ChatResponse,
@@ -77,49 +82,42 @@ async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Result<
 
     let (decoded, _len): (ChatResponse, usize) = bincode::decode_from_slice(&buf[..], BINCODE_CONFIG)?;
     let chan: ChannelId = ChannelId( decoded.channel );
-    if let Some(msg_id) = &decoded.message {
-      if let Ok(msg) = chan.message(ctx, MessageId( *msg_id )).await {
-        reply(ctx, &msg, &decoded.response).await;
+    let response: String;
+    if decoded.russian {
+      match mozart::bert::translation::en2ru(decoded.response.clone(), true).await {
+        Ok(translated) => {
+          let rnda: u32 = rand::thread_rng().gen_range(0..10);
+          if rnda != 1 {
+            let kathoey = KATHOEY.lock().await;
+            let rndy: u32 = rand::thread_rng().gen_range(0..30);
+            response =
+              if rndy == 1 {
+                kathoey.extreme_feminize(&translated)
+              } else {
+                kathoey.feminize(&translated)
+              };
+          } else {
+            response = translated;
+          }
+        } Err(why) => {
+          error!("failed to translate salieri text to russian, {why}");
+          response = decoded.response;
+        }
       }
     } else {
-      chan.send_message(ctx, |m| m.content(&decoded.response)).await?;
+      response = decoded.response;
+    }
+
+    if let Some(msg_id) = &decoded.message {
+      if let Ok(msg) = chan.message(ctx, MessageId( *msg_id )).await {
+        reply(ctx, &msg, &response).await;
+      }
+    } else {
+      chan.send_message(ctx, |m| m.content(&response)).await?;
     }
   }
   Ok(())
 }
-
-/*
-async fn handle_translation(ctx: &Context, stream: UnixStream) -> anyhow::Result<()> {
-  loop {
-    stream.readable().await?;
-
-    let mut buf = Vec::with_capacity(4096);
-    match stream.try_read_buf(&mut buf) {
-      Ok(0) => break,
-      Ok(n) => {
-        info!("read {} bytes", n);
-      }
-      Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
-        continue;
-      }
-      Err(e) => {
-        return Err(e.into());
-      }
-    }
-
-    let (decoded, _len): (ChatResponse, usize) = bincode::decode_from_slice(&buf[..], BINCODE_CONFIG)?;
-    let chan: ChannelId = ChannelId( decoded.channel );
-    if let Some(msg_id) = &decoded.message {
-      if let Ok(msg) = chan.message(ctx, MessageId( *msg_id )).await {
-        reply(ctx, &msg, &decoded.response).await;
-      }
-    } else {
-      chan.send_message(ctx, |m| m.content(&decoded.response)).await?;
-    }
-  }
-  Ok(())
-}
-*/
 
 async fn process_salieri(ctx: &Context, salieri_socket: &UnixListener) {
   match salieri_socket.accept().await {
@@ -143,19 +141,6 @@ async fn process_lukashenko(ctx: &Context, lukashenko: &UnixListener) {
   }
 }
 
-/*
-async fn process_translation(ctx: &Context, translation: &UnixListener) {
-  match translation.accept().await {
-    Ok((stream, _addr)) => {
-      if let Err(err) = handle_translation(ctx, stream).await {
-        error!("Failed to handle translation client {err}");
-      }
-    }
-    Err(e) => error!("{TRANSLATION} connection failed {e}")
-  }
-}
-*/
-
 pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
   match mozart::celery_init(mozart::SALIERI_AMPQ).await {
     Ok(c) => {
@@ -174,7 +159,6 @@ pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
 
     set!{ salieri_address     = temp_dir.join(SALIERI_SOCKET)
         , lukashenko_address  = temp_dir.join(LUKASHENKO) };
-        //, translation_address = temp_dir.join(TRANSLATION) };
 
     if salieri_address.as_path().exists() {
       fs::remove_file(&salieri_address)?;
@@ -182,11 +166,9 @@ pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
     if lukashenko_address.as_path().exists() {
       fs::remove_file(&lukashenko_address)?;
     }
-    //fs::remove_file(&translation_address)?;
 
     set!{ salieri_socket  = UnixListener::bind(salieri_address)?
         , lukashenko      = UnixListener::bind(lukashenko_address)? };
-        //, translation     = UnixListener::bind(translation_address)? };
 
     let ctx_clone = Arc::clone(ctx);
 
@@ -195,7 +177,6 @@ pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
         select! {
           _ = process_salieri(&ctx_clone, &salieri_socket) => {},
           _ = process_lukashenko(&ctx_clone, &lukashenko) => {}
-          //_ = process_translation(&ctx_clone, &translation) => {},
         }
       }
     });

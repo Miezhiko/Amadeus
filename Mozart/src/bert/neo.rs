@@ -1,4 +1,5 @@
 use crate::{
+  types::ChatResponse,
   bert::{ process_message_for_gpt, LUKASHENKO
         , chat::chat_gpt2_send },
   cache::{ DEVICE, CACHE_ENG_STR },
@@ -135,22 +136,24 @@ async fn chat_neo_send( msg: Option<u64>
                       , chan: u64
                       , something: String
                       , user_id: u64
-                      , lsm: bool ) -> anyhow::Result<()> {
+                      , lsm: bool
+                      , russian: bool ) -> anyhow::Result<()> {
   match chat_neo(something.clone(), lsm).await {
     Ok(result) => {
       let temp_dir = std::env::temp_dir();
       let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
-      let package = crate::types::ChatResponse {
+      let package = ChatResponse {
         message: msg,
         channel: chan,
-        response: result
+        response: result,
+        russian
       };
       let encoded = bincode::encode_to_vec(&package, BINCODE_CONFIG)?;
       lukashenko.write_all(&encoded)?;
       Ok(())
     }, Err(why) => {
       error!("NEO: Failed to generate response: {why}, using fallback to GPT2");
-      chat_gpt2_send(msg, chan, something, user_id, lsm, 0).await
+      chat_gpt2_send(msg, chan, something, user_id, lsm, russian, 0).await
     }
   }
 }
@@ -160,8 +163,9 @@ pub async fn CHAT_NEO( msg: Option<u64>
                      , chan: u64
                      , something: String
                      , user_id: u64
-                     , lsm: bool ) -> TaskResult<()> {
-  if let Err(why) = chat_neo_send(msg, chan, something, user_id, lsm).await {
+                     , lsm: bool
+                     , russian: bool ) -> TaskResult<()> {
+  if let Err(why) = chat_neo_send(msg, chan, something, user_id, lsm, russian).await {
     error!("Failed to generate NEO response, {why}");
     Err( TaskError::ExpectedError( why.to_string() ) )
   } else {

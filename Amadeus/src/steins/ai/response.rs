@@ -19,7 +19,6 @@ use serenity::{
 use rand::Rng;
 
 use tokio::time::{ sleep, Duration };
-
 use async_recursion::async_recursion;
 
 #[cfg(feature = "torch")]
@@ -56,8 +55,7 @@ async fn generate_response( ctx: &Context
   let mut answer_option =
     if rndx != 1 && !in_case && gtry < 10 {
       let text = if russian {
-        //TODO: port to sockets
-        match mozart::bert::translation::ru2en(msg.content.clone(), lsm).await {
+        match mozart::bert::translation::ru2en(msg.content.clone(), true).await {
           Ok(translated) => translated,
           Err(why) => {
             error!("Failed to translate msg content {why}");
@@ -68,7 +66,12 @@ async fn generate_response( ctx: &Context
       if msg.content.ends_with('?') {
         let rndxqa: u32 = rand::thread_rng().gen_range(0..2);
         if rndxqa == 1 {
-          match bert::ask(message_id, msg.channel_id.0, text, msg.author.id.0, lsm).await {
+          match bert::ask( message_id
+                         , msg.channel_id.0
+                         , text
+                         , msg.author.id.0
+                         , lsm
+                         , russian ).await {
             Ok(answer) => {
               bert_generated = true;
               answer },
@@ -78,7 +81,12 @@ async fn generate_response( ctx: &Context
             }
           }
         } else {
-          match bert::chat(message_id, msg.channel_id.0, text, msg.author.id.0, lsm).await {
+          match bert::chat( message_id
+                          , msg.channel_id.0
+                          , text
+                          , msg.author.id.0
+                          , lsm
+                          , russian ).await {
             Ok(answer) => {
               bert_generated = true;
               answer },
@@ -89,7 +97,12 @@ async fn generate_response( ctx: &Context
           }
         }
       } else {
-        match bert::chat(message_id, msg.channel_id.0, text, msg.author.id.0, lsm).await {
+        match bert::chat( message_id
+                        , msg.channel_id.0
+                        , text
+                        , msg.author.id.0
+                        , lsm
+                        , russian ).await {
           Ok(answer) => {
             bert_generated = true;
             answer },
@@ -107,28 +120,7 @@ async fn generate_response( ctx: &Context
     };
   if let Some(ref mut answer) = answer_option {
     if russian && !answer.is_empty() {
-      if bert_generated {
-        //TODO:: port this code to sockets
-        match mozart::bert::translation::en2ru(answer.clone(), lsm).await {
-          Ok(translated) => {
-            let rnda: u32 = rand::thread_rng().gen_range(0..10);
-            if rnda != 1 {
-              let kathoey = KATHOEY.lock().await;
-              let rndy: u32 = rand::thread_rng().gen_range(0..30);
-              *answer =
-                if rndy == 1 {
-                  kathoey.extreme_feminize(&translated)
-                } else {
-                  kathoey.feminize(&translated)
-                };
-            } else {
-              *answer = translated;
-            }
-          }, Err(why) => {
-            error!("Failed to translate answer to Russian {why}");
-          }
-        }
-      } else {
+      if !bert_generated {
         let rndxx: u32 = rand::thread_rng().gen_range(0..2);
         if rndxx == 1 {
           let kathoey = KATHOEY.lock().await;

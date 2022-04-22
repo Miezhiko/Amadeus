@@ -29,47 +29,53 @@ async fn chat_gpt2( msg: Option<u64>
                   , chan: u64
                   , something: String
                   , user_id: u64
-                  , lsm: bool ) -> Result<Option<String>> {
-  salieri_request(CHAT_GPT2::new(msg, chan, something, user_id, lsm)).await
+                  , lsm: bool
+                  , russian: bool ) -> Result<Option<String>> {
+  salieri_request(CHAT_GPT2::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
 async fn chat_neo( msg: Option<u64>
                  , chan: u64
                  , something: String
                  , user_id: u64
-                 , lsm: bool ) -> Result<Option<String>> {
-  salieri_request(CHAT_NEO::new(msg, chan, something, user_id, lsm)).await
+                 , lsm: bool
+                 , russian: bool ) -> Result<Option<String>> {
+  salieri_request(CHAT_NEO::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
 pub async fn ask( msg: Option<u64>
                 , chan: u64
                 , something: String
                 , user_id: u64
-                , lsm: bool ) -> Result<Option<String>> {
-  salieri_request(ASK::new(msg, chan, something, user_id, lsm)).await
+                , lsm: bool
+                , russian: bool ) -> Result<Option<String>> {
+  salieri_request(ASK::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
 pub async fn summarize( msg: Option<u64>
                       , chan: u64
                       , something: String
                       , user_id: u64
-                      , lsm: bool ) -> Result<Option<String>> {
-  salieri_request(SUMMARIZE::new(msg, chan, something, user_id, lsm)).await
+                      , lsm: bool
+                      , russian: bool ) -> Result<Option<String>> {
+  salieri_request(SUMMARIZE::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
 pub async fn xlnet( msg: Option<u64>
                   , chan: u64
                   , something: String
                   , user_id: u64
-                  , lsm: bool ) -> Result<Option<String>> {
-  salieri_request(XLNET::new(msg, chan, something, user_id, lsm)).await
+                  , lsm: bool
+                  , russian: bool ) -> Result<Option<String>> {
+  salieri_request(XLNET::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
 pub async fn chat( msg: Option<u64>
                  , chan: u64
                  , something: String
                  , user_id: u64
-                 , lsm: bool) -> Result<Option<String>> {
+                 , lsm: bool
+                 , russian: bool ) -> Result<Option<String>> {
   let rndx = rand::thread_rng().gen_range(0..9);
   let mut input = process_message_for_gpt(&something);
   if input.len() > GPT_LIMIT {
@@ -81,9 +87,9 @@ pub async fn chat( msg: Option<u64>
     return Err(anyhow!("empty input"));
   }
   match rndx {
-    0 => chat_neo(msg, chan, input, user_id, lsm).await,
-    1 => summarize(msg, chan, input, user_id, lsm).await,
-    2 => xlnet(msg, chan, input, user_id, lsm).await,
-    _ => chat_gpt2(msg, chan, input, user_id, lsm).await
+    0 => chat_neo(msg, chan, input, user_id, lsm, russian).await,
+    1 => summarize(msg, chan, input, user_id, lsm, russian).await,
+    2 => xlnet(msg, chan, input, user_id, lsm, russian).await,
+    _ => chat_gpt2(msg, chan, input, user_id, lsm, russian).await
   }
 }

@@ -1,4 +1,5 @@
 use crate::{
+  types::ChatResponse,
   cache::*,
   prelude::*,
   bert::{ LUKASHENKO
@@ -94,22 +95,24 @@ async fn summarize_send( msg: Option<u64>
                        , chan: u64
                        , something: String
                        , user_id: u64
-                       , lsm: bool ) -> anyhow::Result<()> {
+                       , lsm: bool
+                       , russian: bool ) -> anyhow::Result<()> {
   match summarize(something.clone(), lsm).await {
     Ok(result) => {
       let temp_dir = std::env::temp_dir();
       let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
-      let package = crate::types::ChatResponse {
+      let package = ChatResponse {
         message: msg,
         channel: chan,
-        response: result
+        response: result,
+        russian
       };
       let encoded = bincode::encode_to_vec(&package, BINCODE_CONFIG)?;
       lukashenko.write_all(&encoded)?;
       Ok(())
     }, Err(why) => {
       error!("Summarization: Failed to generate response: {why}, using fallback to GPT2");
-      chat_gpt2_send(msg, chan, something, user_id, lsm, 0).await
+      chat_gpt2_send(msg, chan, something, user_id, lsm, russian, 0).await
     }
   }
 }
@@ -119,8 +122,9 @@ pub async fn SUMMARIZE( msg: Option<u64>
                       , chan: u64
                       , something: String
                       , user_id: u64
-                      , lsm: bool ) -> TaskResult<()> {
-  if let Err(why) = summarize_send(msg, chan, something, user_id, lsm).await {
+                      , lsm: bool
+                      , russian: bool ) -> TaskResult<()> {
+  if let Err(why) = summarize_send(msg, chan, something, user_id, lsm, russian).await {
     error!("Summarization: Failed to generate response, {why}");
     Err( TaskError::ExpectedError( why.to_string() ) )
   } else {

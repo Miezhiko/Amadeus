@@ -31,6 +31,9 @@ use std::{ time::Duration
          , sync::atomic::Ordering::Relaxed
          , sync::atomic::AtomicU32 };
 
+use crate::common::constants::APM_PICS;
+use plotters::prelude::*;
+
 pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(11);
 static ONGOING_PAGE_SIZE: usize = 15;
 
@@ -705,6 +708,82 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   }
   if let Ok(typing) = start_typing {
     typing.stop();
+  }
+  Ok(())
+}
+
+#[command]
+#[description("Show popular hours on W3C")]
+async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
+  let rqcl = {
+    set!{ data = ctx.data.read().await
+        , rqcl = data.get::<ReqwestClient>().unwrap() };
+    rqcl.clone()
+  };
+  if let Ok(res3) = rqcl.get(format!("{W3C_API}/w3c-stats/play-hours")).send().await {
+    if let Ok(ph_modes) = res3.json::<Vec<PopularHours>>().await {
+      info!("got popular hours structure");
+      for ph in ph_modes {
+        if ph.gameMode == 2 {
+          let max_games = ph.playTimePerHour.iter().fold(0, |a, b| b.games.max(a));
+          /*
+          let max_games = ph.playTimePerHour.iter().max_by(|a, b| a.games.partial_cmp(&b.games)
+                                                                   .unwrap_or(Ordering::Equal))?;*/
+          let fname_popular_hours = format!("popular_hours_{}.png", ph.day);
+          let mut popular_games_image: Option<String> = None;
+          { // because of Rc < > in BitMapBackend I need own scope here
+            let root_area = BitMapBackend::new(&fname_popular_hours, (1024, 768)).into_drawing_area();
+            root_area.fill(&RGBColor(47, 49, 54))?;
+            let mut cc = ChartBuilder::on(&root_area)
+              .margin(5)
+              .set_all_label_area_size(50)
+              .build_cartesian_2d(0.0..24 as f64, 0.0..max_games as f64)?;
+            cc.configure_mesh()
+              .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
+              .y_labels(10)
+              .axis_style(&RGBColor(80, 80, 80))
+              .draw()?;
+            let color = RGBColor(150, 100, 200);
+            let style = ShapeStyle::from(color);
+            let plx = ph.playTimePerHour.iter().map(|p| {
+              (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
+            }).collect::<Vec<(f64, f64)>>();
+            cc.draw_series(LineSeries::new(plx, style.clone()))?
+              .label("2x2")
+              .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], style.clone()));
+            cc.configure_series_labels()
+              .position(SeriesLabelPosition::LowerRight)
+              .border_style(&BLACK)
+              .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
+              .draw()?;
+          }
+          match APM_PICS.send_message(&ctx, |m|
+            m.add_file(AttachmentType::Path(std::path::Path::new(&fname_popular_hours)))).await {
+            Ok(msg) => {
+              if !msg.attachments.is_empty() {
+                let img_attachment = &msg.attachments[0];
+                popular_games_image = Some(img_attachment.url.clone());
+              }
+            },
+            Err(why) => {
+              error!("Failed to download and post stream img {why}");
+            }
+          };
+          if let Some(img) = popular_games_image {
+            msg.channel_id.send_message(ctx, |m| m.content("")
+            .embed(|e|
+              e.color((40, 20, 200))
+               .title("2x2 popular hours")
+               .image(img)
+            )).await?;
+          }
+        }
+      }
+    } else {
+      error!("failed to parse");
+    }
+  } else {
+    error!("no rsponse from w3c");
   }
   Ok(())
 }

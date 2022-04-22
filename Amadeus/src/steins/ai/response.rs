@@ -119,19 +119,17 @@ async fn generate_response( ctx: &Context
       Some( generate(ctx, msg, Some(russian)).await )
     };
   if let Some(ref mut answer) = answer_option {
-    if russian && !answer.is_empty() {
-      if !bert_generated {
-        let rndxx: u32 = rand::thread_rng().gen_range(0..2);
-        if rndxx == 1 {
-          let kathoey = KATHOEY.lock().await;
-          let rndxxx: u32 = rand::thread_rng().gen_range(0..30);
-          *answer =
-            if rndxxx == 1 {
-              kathoey.extreme_feminize(answer)
-            } else {
-              kathoey.feminize(answer)
-            };
-        }
+    if russian && !answer.is_empty() && !bert_generated {
+      let rndxx: u32 = rand::thread_rng().gen_range(0..2);
+      if rndxx == 1 {
+        let kathoey = KATHOEY.lock().await;
+        let rndxxx: u32 = rand::thread_rng().gen_range(0..30);
+        *answer =
+          if rndxxx == 1 {
+            kathoey.extreme_feminize(answer)
+          } else {
+            kathoey.feminize(answer)
+          };
       }
     }
     *answer = answer.as_str().trim().to_string();

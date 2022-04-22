@@ -50,7 +50,7 @@ pub struct Warcraft;
 
 #[group("W3C")]
 #[description = "w3champions commands"]
-#[commands(stats, ongoing, veto, vs, bet)]
+#[commands(stats, ongoing, veto, vs, bet, popularhours)]
 pub struct Pad;
 
 #[group("Database")]

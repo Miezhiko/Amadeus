@@ -223,3 +223,15 @@ pub struct PlayerAPI {
   pub playerAkaData: Option<PlayerAka>,
   pub winLosses: Vec<WinLose>
 }
+
+pub_struct!(PlayTimePerHour {
+  games: u32,
+  hours: u32,
+  minutes: u32,
+});
+
+pub_struct!(PopularHours {
+  day: String,
+  gameMode: u32,
+  playTimePerHour: Vec<PlayTimePerHour>,
+});

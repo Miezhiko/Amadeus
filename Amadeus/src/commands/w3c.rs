@@ -712,14 +712,13 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   Ok(())
 }
 
-#[command]
-#[description("Show popular hours on W3C")]
-async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
+pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<String>> {
   let rqcl = {
     set!{ data = ctx.data.read().await
         , rqcl = data.get::<ReqwestClient>().unwrap() };
     rqcl.clone()
   };
+  let mut popular_games_image: Option<String> = None;
   if let Ok(res3) = rqcl.get(format!("{W3C_API}/w3c-stats/play-hours")).send().await {
     if let Ok(ph_modes) = res3.json::<Vec<PopularHours>>().await {
       info!("got popular hours structure");
@@ -727,21 +726,20 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
         if ph.gameMode == 2 {
           let max_games = ph.playTimePerHour.iter().fold(0, |a, b| b.games.max(a));
           let fname_popular_hours = format!("popular_hours_{}.png", ph.day);
-          let mut popular_games_image: Option<String> = None;
           { // because of Rc < > in BitMapBackend I need own scope here
-            let root_area = BitMapBackend::new(&fname_popular_hours, (1024, 768)).into_drawing_area();
+            let root_area = BitMapBackend::new(&fname_popular_hours, (1024, 384)).into_drawing_area();
             root_area.fill(&RGBColor(47, 49, 54))?;
             let mut cc = ChartBuilder::on(&root_area)
               .margin(5)
               .set_all_label_area_size(50)
-              .build_cartesian_2d(0.0..24 as f64, 0.0..max_games as f64)?;
+              .build_cartesian_2d(0.0..24_f64, 0.0..max_games as f64)?;
             cc.configure_mesh()
               .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
               .y_labels(10)
               .axis_style(&RGBColor(80, 80, 80))
               .draw()?;
-            let color = RGBColor(100, 20, 250);
-            let style = ShapeStyle::from(color);
+            let color = RGBColor(180, 120, 255);
+            let style: ShapeStyle = ShapeStyle::from(color);
             let plx = ph.playTimePerHour.iter().map(|p| {
               (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
             }).collect::<Vec<(f64, f64)>>();
@@ -766,16 +764,6 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
               error!("Failed to download and post stream img {why}");
             }
           };
-          if let Some(img) = popular_games_image {
-            let footer = format!("Requested by {}", msg.author.name);
-            msg.channel_id.send_message(ctx, |m| m.content("")
-            .embed(|e|
-              e.color((40, 20, 200))
-               .title("2x2 popular hours")
-               .image(img)
-               .footer(|f| f.text(&footer))
-            )).await?;
-          }
         }
       }
     } else {
@@ -784,8 +772,25 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
   } else {
     error!("no rsponse from w3c");
   }
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command, {why}");
+  Ok(popular_games_image)
+}
+
+#[command]
+#[description("Show popular hours on W3C")]
+async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
+  let popular_games_image = generate_popularhours(ctx).await;
+  if let Some(img) = popular_games_image? {
+    let footer = format!("Requested by {}", msg.author.name);
+    msg.channel_id.send_message(ctx, |m| m.content("")
+    .embed(|e|
+      e.color((40, 20, 200))
+       .title("2x2 popular hours")
+       .image(img)
+       .footer(|f| f.text(&footer))
+    )).await?;
+    if let Err(why) = msg.delete(&ctx).await {
+      error!("Error deleting original command, {why}");
+    }
   }
   Ok(())
 }

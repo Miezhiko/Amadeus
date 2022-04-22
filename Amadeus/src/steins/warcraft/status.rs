@@ -1,7 +1,8 @@
 use crate::{
   types::tracking::{ W3CStats, GameMode },
   common::constants::{ W3C_STATS_ROOM, W3C_STATS_MSG },
-  steins::warcraft::poller::GAMES
+  steins::warcraft::poller::GAMES,
+  commands::w3c::generate_popularhours
 };
 
 use chrono::{
@@ -26,20 +27,21 @@ type WeeklyStats = BTreeMap<String, WeeklyWinLoses>;
 pub struct Weekly {
   pub reset_week: u32,
   pub statistics: WeeklyStats,
-  pub statistics2: WeeklyStats
+  pub statistics2: WeeklyStats,
+  pub popular_hours: String
 }
 
-pub async fn get_weekly() -> anyhow::Result<Weekly> {
+pub async fn get_weekly(ctx: &Context) -> anyhow::Result<Weekly> {
   if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
-    clear_weekly(chrono::Utc::now().iso_week().week()).await?;
+    clear_weekly(ctx, chrono::Utc::now().iso_week().week()).await?;
   }
   let contents = fs::read_to_string(WEEKLY_STATS_FNAME).await?;
   let yml = serde_yaml::from_str(&contents)?;
   Ok(yml)
 }
 
-pub async fn add_to_weekly(p: &str, win: bool, solo: bool) -> anyhow::Result<()> {
-  let mut current_weekly = get_weekly().await?;
+pub async fn add_to_weekly(ctx: &Context, p: &str, win: bool, solo: bool) -> anyhow::Result<()> {
+  let mut current_weekly = get_weekly(ctx).await?;
   let weekly_stats: &mut WeeklyStats =
     if solo { &mut current_weekly.statistics }
        else { &mut current_weekly.statistics2 };
@@ -61,11 +63,18 @@ pub async fn add_to_weekly(p: &str, win: bool, solo: bool) -> anyhow::Result<()>
   Ok(())
 }
 
-async fn clear_weekly(week: u32) -> anyhow::Result<()> {
+async fn clear_weekly(ctx: &Context, week: u32) -> anyhow::Result<()> {
+  let poplar_hours =
+    if let Some(generated_image) = generate_popularhours(ctx).await? {
+      generated_image
+    } else {
+      "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
+    };
   let init = Weekly {
     reset_week: week,
     statistics: BTreeMap::new(),
-    statistics2: BTreeMap::new()
+    statistics2: BTreeMap::new(),
+    popular_hours: poplar_hours
   };
   let yml = serde_yaml::to_string(&init)?;
   fs::write(WEEKLY_STATS_FNAME, yml).await?;
@@ -74,13 +83,13 @@ async fn clear_weekly(week: u32) -> anyhow::Result<()> {
 
 pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()> {
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
-    let weekly = get_weekly().await?;
+    let weekly = get_weekly(ctx).await?;
     let now = chrono::Utc::now();
     // only check on midnight (just because)
     if now.hour() == 0 {
       let now_week = now.iso_week().week();
       if now_week != weekly.reset_week {
-        clear_weekly(now_week).await?;
+        clear_weekly(ctx, now_week).await?;
       }
     }
 
@@ -98,7 +107,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
             GameMode::Team4 => "4x4"
           };
           tracking_info.push(
-            format!("{} playing {} game for {} minutes"
+            format!("{} play {} for {} mins"
             , name
             , game_mode_str
             , game.passed_time)
@@ -124,7 +133,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
                         .collect::<Vec<&str>>()[0];
             let winrate = ( (d.wins as f32 / (d.wins + d.losses) as f32) * 100.0).round();
             weekly_vec.push(
-              format!( "{}: {} wins, {} losses, {}%"
+              format!( "{}: {}W, {}L, {}%"
                     , name
                     , d.wins
                     , d.losses
@@ -137,40 +146,38 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     }
     let stats_str = format!(
 "
+__**weekly solo:**__
+```
+{}
+```
+__**weekly team games:**__
+```
+{}
+```
 __**currently running:**__
 ```
 SOLO GAMES: {}
 2x2  GAMES: {}
 4x4  GAMES: {}
 ```
-
 __**currently playing:**__
 ```
 {}
 ```
-
-__**weekly solo:**__
-```
-{}
-```
-
-__**weekly team games:**__
-```
-{}
-```"
+__**2x2 popular hours:**__"
+    , weekly_str[0]
+    , weekly_str[1]
     , stats.games_solo
     , stats.games_2x2
     , stats.games_4x4
-    , tracking_str
-    , weekly_str[0]
-    , weekly_str[1]);
+    , tracking_str);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|
               e.color((255, 20, 7))
-               .title("☥ Status Grid ☥")
+               .title("Warcraft III Activity ☥ Status Grid")
                .description(stats_str)
                .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
-             /*.image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")*/
+               .image(weekly.popular_hours)
                .timestamp(now.to_rfc3339())
     )).await?;
   }

@@ -726,9 +726,6 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
       for ph in ph_modes {
         if ph.gameMode == 2 {
           let max_games = ph.playTimePerHour.iter().fold(0, |a, b| b.games.max(a));
-          /*
-          let max_games = ph.playTimePerHour.iter().max_by(|a, b| a.games.partial_cmp(&b.games)
-                                                                   .unwrap_or(Ordering::Equal))?;*/
           let fname_popular_hours = format!("popular_hours_{}.png", ph.day);
           let mut popular_games_image: Option<String> = None;
           { // because of Rc < > in BitMapBackend I need own scope here
@@ -743,7 +740,7 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
               .y_labels(10)
               .axis_style(&RGBColor(80, 80, 80))
               .draw()?;
-            let color = RGBColor(150, 100, 200);
+            let color = RGBColor(100, 20, 250);
             let style = ShapeStyle::from(color);
             let plx = ph.playTimePerHour.iter().map(|p| {
               (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
@@ -770,11 +767,13 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
             }
           };
           if let Some(img) = popular_games_image {
+            let footer = format!("Requested by {}", msg.author.name);
             msg.channel_id.send_message(ctx, |m| m.content("")
             .embed(|e|
               e.color((40, 20, 200))
                .title("2x2 popular hours")
                .image(img)
+               .footer(|f| f.text(&footer))
             )).await?;
           }
         }
@@ -784,6 +783,9 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
     }
   } else {
     error!("no rsponse from w3c");
+  }
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command, {why}");
   }
   Ok(())
 }

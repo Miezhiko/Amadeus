@@ -798,7 +798,12 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
 
 const MMM_FNAME: &str = "mmm.yml";
 
-pub async fn get_mmm(ctx: &Context) -> anyhow::Result<()> {
+fn avg(numbers: &[u32]) -> u32 {
+  let avg = numbers.iter().sum::<u32>() as f32 / numbers.len() as f32;
+  avg.round() as u32
+}
+
+pub async fn get_mmm(ctx: &Context) -> anyhow::Result<(u32, u32, u32)> {
   let rqcl = {
     set!{ data = ctx.data.read().await
         , rqcl = data.get::<ReqwestClient>().unwrap() };
@@ -807,10 +812,20 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<()> {
   let res = rqcl.get("https://matchmaking-service.w3champions.com/queue/snapshots").send().await?;
   let parsed = res.json::<Vec<QueueSnapshot>>().await?;
   info!("parsed mmm");
+  setm!{ qtime1 = vec![]
+       , qtime2 = vec![]
+       , qtime4 = vec![] };
   if !std::path::Path::new(MMM_FNAME).exists() {
     let mut data: BTreeMap<String, PlayerData> = BTreeMap::new();
     for qs in parsed {
       for s in qs.snapshot {
+        if qs.gameMode == 1 {
+          qtime1.push( s.queueTime );
+        } else if qs.gameMode == 2 {
+          qtime2.push( s.queueTime );
+        } else if qs.gameMode == 4 {
+          qtime4.push( s.queueTime );
+        }
         for p in s.playerData {
           let p_clone = p.clone();
           data.insert(p.battleTag, p_clone);
@@ -839,14 +854,16 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<()> {
     let yml = serde_yaml::to_string(&data)?;
     fs::write(MMM_FNAME, yml).await?;
   }
-  Ok(())
+  Ok(( avg(&qtime1)
+     , avg(&qtime2)
+     , avg(&qtime4) ))
 }
 
 #[command]
 #[description("Get")]
 #[owners_only]
 async fn mmm(ctx: &Context, msg: &Message) -> CommandResult {
-  get_mmm(ctx).await?;
+  let _qtime = get_mmm(ctx).await?;
   let footer = format!("Requested by {}", msg.author.name);
   msg.channel_id.send_message(ctx, |m| m.content("")
   .embed(|e|

@@ -92,7 +92,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         clear_weekly(ctx, now_week).await?;
       }
     }
-
+    let (q1, q2, q3) = get_mmm(ctx).await?;
     let mut tracking_info = vec![];
     { // Games lock scope
       let games_lock = GAMES.lock().await;
@@ -156,9 +156,9 @@ __**weekly team games:**__
 ```
 __**currently running:**__
 ```
-SOLO GAMES: {}
-2x2  GAMES: {}
-4x4  GAMES: {}
+SOLO searching for: {}, GAMES: {}
+2x2 searching for: {}, GAMES: {}
+4x4 searching for: {}, GAMES: {}
 ```
 __**currently playing:**__
 ```
@@ -167,9 +167,9 @@ __**currently playing:**__
 __**2x2 popular hours:**__"
     , weekly_str[0]
     , weekly_str[1]
-    , stats.games_solo
-    , stats.games_2x2
-    , stats.games_4x4
+    , q1, stats.games_solo
+    , q2, stats.games_2x2
+    , q3, stats.games_4x4
     , tracking_str);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|
@@ -181,6 +181,5 @@ __**2x2 popular hours:**__"
                .timestamp(now.to_rfc3339())
     )).await?;
   }
-  get_mmm(ctx).await?;
   Ok(())
 }

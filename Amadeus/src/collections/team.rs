@@ -49,6 +49,12 @@ fn get_discord_players() -> Vec<DiscordPlayer> {
         if existing.player.battletag.is_empty() && !player.battletag.is_empty() {
           existing.player.battletag = player.battletag.clone();
         }
+        if existing.player.other_acc.is_none() && player.other_acc.is_some() {
+          existing.player.other_acc = player.other_acc.clone();
+        }
+        if existing.player.streams.is_none() && player.streams.is_some() {
+          existing.player.streams = player.streams.clone();
+        }
       } else {
         let discord_player = DiscordPlayer{ player: player.clone()
                                           , discords: vec![disc.uid] };

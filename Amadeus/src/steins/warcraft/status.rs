@@ -2,7 +2,7 @@ use crate::{
   types::tracking::{ W3CStats, GameMode },
   common::constants::{ W3C_STATS_ROOM, W3C_STATS_MSG },
   steins::warcraft::poller::GAMES,
-  commands::w3c::{ generate_popularhours, get_mmm }
+  commands::w3c::{ generate_popularhours, get_mmm, secs_to_str }
 };
 
 use chrono::{
@@ -81,22 +81,6 @@ async fn clear_weekly(ctx: &Context, week: u32) -> anyhow::Result<()> {
   Ok(())
 }
 
-fn secs_to_str(secs: u32) -> String {
-  if secs > 60 {
-    let mins: u32 = secs / 60;
-    let secs_after_mins = secs % 60;
-    if mins > 60 {
-      let hours: u32 = mins / 60;
-      let mins_after_hours = mins % 60;
-      format!("{hours}h {mins_after_hours}m {secs_after_mins}s")
-    } else {
-      format!("{mins}m {secs_after_mins}s")
-    }
-  } else {
-    format!("{secs}s")
-  }
-}
-
 pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()> {
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
     let weekly = get_weekly(ctx).await?;
@@ -108,11 +92,13 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         clear_weekly(ctx, now_week).await?;
       }
     }
-    let (q1, q2, q3) = get_mmm(ctx).await?;
+    let (q1, q2, q3, searching) = get_mmm(ctx).await?;
     let (q1s, q2s, q3s) = ( secs_to_str(q1)
                           , secs_to_str(q2)
                           , secs_to_str(q3) );
+
     let mut tracking_info = vec![];
+    let mut tracking_players = vec![];
     { // Games lock scope
       let games_lock = GAMES.lock().await;
       for game in games_lock.values() {
@@ -125,6 +111,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
             GameMode::Team2 => "2x2",
             GameMode::Team4 => "4x4"
           };
+          tracking_players.push(fp.player.battletag.clone());
           tracking_info.push(
             format!("{} play {} for {} mins"
             , name
@@ -134,11 +121,32 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         }
       }
     }
+    let mut searching_info = vec![];
+    for (ps, ss) in searching {
+      if !tracking_players.iter().any(|tp| tp == &ps) {
+        let name = ps.split('#')
+                     .collect::<Vec<&str>>()[0];
+        searching_info.push(
+          format!("{name} {ss}")
+        );
+      }
+    }
     let tracking_str = 
       if tracking_info.is_empty() {
-        String::from("currently no games")
+        if searching_info.is_empty() {
+          String::from("currently no games")
+        } else {
+          searching_info.join("\n")
+        }
       } else {
-        tracking_info.join("\n")
+        if searching_info.is_empty() {
+          tracking_info.join("\n")
+        } else {
+          format!("{}\n{}"
+            , searching_info.join("\n")
+            , tracking_info.join("\n")
+          )
+        }
       };
     let mut weekly_str = vec![];
     for ws in &[weekly.statistics, weekly.statistics2] {

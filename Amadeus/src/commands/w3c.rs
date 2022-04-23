@@ -1,12 +1,14 @@
 use crate::{
   types::{
     serenity::ReqwestClient,
+    team::DiscordPlayer,
     w3c::*
   },
   common::{
     constants::W3C_API,
     msg::channel_message
   },
+  collections::team::PLAYERS,
   steins::warcraft::
     utils::{ get_race, get_race2
            , get_league, get_map_short
@@ -803,7 +805,25 @@ fn avg(numbers: &[u32]) -> u32 {
   avg.round() as u32
 }
 
-pub async fn get_mmm(ctx: &Context) -> anyhow::Result<(u32, u32, u32)> {
+pub type MMM_RESULT = (u32, u32, u32, Vec<(String, String)>);
+
+pub fn secs_to_str(secs: u32) -> String {
+  if secs > 60 {
+    let mins: u32 = secs / 60;
+    let secs_after_mins = secs % 60;
+    if mins > 60 {
+      let hours: u32 = mins / 60;
+      let mins_after_hours = mins % 60;
+      format!("{hours}h {mins_after_hours}m {secs_after_mins}s")
+    } else {
+      format!("{mins}m {secs_after_mins}s")
+    }
+  } else {
+    format!("{secs}s")
+  }
+}
+
+pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MMM_RESULT> {
   let rqcl = {
     set!{ data = ctx.data.read().await
         , rqcl = data.get::<ReqwestClient>().unwrap() };
@@ -814,7 +834,8 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<(u32, u32, u32)> {
   trace!("parsed mmm");
   setm!{ qtime1 = vec![]
        , qtime2 = vec![]
-       , qtime4 = vec![] };
+       , qtime4 = vec![]
+       , searching_players = vec![] };
   if !std::path::Path::new(MMM_FNAME).exists() {
     let mut data: BTreeMap<String, PlayerData> = BTreeMap::new();
     for qs in parsed {
@@ -847,6 +868,27 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<(u32, u32, u32)> {
           qtime4.push( s.queueTime );
         }
         for p in s.playerData {
+
+          let playaz = PLAYERS.iter().copied().find( |pxxx|
+               p.battleTag == pxxx.player.battletag
+            || if let Some(other_acc) = &pxxx.player.other_acc {
+               &p.battleTag == other_acc
+          } else { false });
+
+          if let Some(_sp) = playaz {
+            let mode_str =
+              match qs.gameMode {
+                  1 => "solo"
+                , 2 => "2x2"
+                , 4 => "4x4"
+                , _ => "custom"
+              };
+            searching_players.push((
+              p.battleTag.clone(),
+              format!("search {mode_str} for {}", secs_to_str(s.queueTime))
+            ));
+          }
+
           let p_clone = p.clone();
           if let Some(d) = data.get_mut(&p.battleTag) {
             // override if exists
@@ -863,5 +905,6 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<(u32, u32, u32)> {
   }
   Ok(( avg(&qtime1)
      , avg(&qtime2)
-     , avg(&qtime4) ))
+     , avg(&qtime4)
+     , searching_players ))
 }

@@ -2,7 +2,7 @@ use crate::{
   types::tracking::{ W3CStats, GameMode },
   common::constants::{ W3C_STATS_ROOM, W3C_STATS_MSG },
   steins::warcraft::poller::GAMES,
-  commands::w3c::generate_popularhours
+  commands::w3c::{ generate_popularhours, get_mmm }
 };
 
 use chrono::{
@@ -181,5 +181,6 @@ __**2x2 popular hours:**__"
                .timestamp(now.to_rfc3339())
     )).await?;
   }
+  get_mmm(ctx).await?;
   Ok(())
 }

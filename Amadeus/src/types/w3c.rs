@@ -235,3 +235,64 @@ pub_struct!(PopularHours {
   gameMode: u32,
   playTimePerHour: Vec<PlayTimePerHour>,
 });
+
+s_struct!(Quantiles {
+  quantile: f32,
+  activityQuantile: f32,
+});
+
+s_struct!(FloPings {
+  nodeId: u32,
+  currentPing: u32,
+  avgPing: u32,
+  lossRate: u32,
+  matchmakingPing: u32,
+});
+
+s_struct!(ClosestSettings {
+  isDisabled: bool,
+  isCnOptimized: bool,
+  _id: u32,
+  _created_at: String,
+  _updated_at: String,
+});
+
+s_struct!(Proxies {
+  id: String,
+  nodeId: u32,
+  port: u32,
+  address: String,
+  name: String,
+});
+
+s_struct!(ClosestNode {
+  defaultPort: u32,
+  settings: ClosestSettings,
+  proxies: Vec<Proxies>,
+});
+
+s_struct!(FloInfo {
+  floPings: Vec<FloPings>,
+  closestNode: ClosestNode,
+});
+
+s_struct!(PlayerData {
+  battleTag: String,
+  floInfo: FloInfo,
+  location: String,
+});
+
+pub_struct!(Snapshot {
+  mmr: f32,
+  rd: u32,
+  quantiles: Quantiles,
+  queueTime: u32,
+  isFloConnected: bool,
+  playerData: Vec<PlayerData>,
+});
+
+pub_struct!(QueueSnapshot {
+  gameMode: u32,
+  snapshot: Vec<Snapshot>,
+  activePlayersMedian: u32,
+});

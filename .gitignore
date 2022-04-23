@@ -10,6 +10,7 @@ package-lock.json
 conf.dhall
 conf.yml
 weekly.yml
+mmm.yml
 
 # secret commands, tokens and stuff
 misc/secret

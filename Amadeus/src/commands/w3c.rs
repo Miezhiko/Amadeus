@@ -26,10 +26,11 @@ use serde_json::Value;
 use comfy_table::*;
 
 use std::{ time::Duration
-         , collections::HashMap
+         , collections::{ HashMap, BTreeMap }
          , sync::Arc
          , sync::atomic::Ordering::Relaxed
          , sync::atomic::AtomicU32 };
+use async_std::fs;
 
 use crate::common::constants::APM_PICS;
 use plotters::prelude::*;
@@ -791,6 +792,70 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
     if let Err(why) = msg.delete(&ctx).await {
       error!("Error deleting original command, {why}");
     }
+  }
+  Ok(())
+}
+
+const MMM_FNAME: &str = "mmm.yml";
+
+pub async fn get_mmm(ctx: &Context) -> anyhow::Result<()> {
+  let rqcl = {
+    set!{ data = ctx.data.read().await
+        , rqcl = data.get::<ReqwestClient>().unwrap() };
+    rqcl.clone()
+  };
+  let res = rqcl.get("https://matchmaking-service.w3champions.com/queue/snapshots").send().await?;
+  let parsed = res.json::<Vec<QueueSnapshot>>().await?;
+  info!("parsed mmm");
+  if !std::path::Path::new(MMM_FNAME).exists() {
+    let mut data: BTreeMap<String, PlayerData> = BTreeMap::new();
+    for qs in parsed {
+      for s in qs.snapshot {
+        for p in s.playerData {
+          let p_clone = p.clone();
+          data.insert(p.battleTag, p_clone);
+        }
+      }
+    }
+    let yml = serde_yaml::to_string(&data)?;
+    fs::write(MMM_FNAME, yml).await?;
+  } else {
+    let contents = fs::read_to_string(MMM_FNAME).await?;
+    let mut data: BTreeMap<String, PlayerData> = serde_yaml::from_str(&contents)?;
+    for qs in parsed {
+      for s in qs.snapshot {
+        for p in s.playerData {
+          let p_clone = p.clone();
+          if let Some(d) = data.get_mut(&p.battleTag) {
+            // override if exists
+            *d = p_clone;
+          } else {
+            let p_clone = p.clone();
+            data.insert(p.battleTag, p_clone);
+          }
+        }
+      }
+    }
+    let yml = serde_yaml::to_string(&data)?;
+    fs::write(MMM_FNAME, yml).await?;
+  }
+  Ok(())
+}
+
+#[command]
+#[description("Get")]
+#[owners_only]
+async fn mmm(ctx: &Context, msg: &Message) -> CommandResult {
+  get_mmm(ctx).await?;
+  let footer = format!("Requested by {}", msg.author.name);
+  msg.channel_id.send_message(ctx, |m| m.content("")
+  .embed(|e|
+    e.color((40, 20, 200))
+      .title("Ok")
+      .footer(|f| f.text(&footer))
+  )).await?;
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command, {why}");
   }
   Ok(())
 }

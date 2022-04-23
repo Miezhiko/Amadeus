@@ -811,7 +811,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<(u32, u32, u32)> {
   };
   let res = rqcl.get("https://matchmaking-service.w3champions.com/queue/snapshots").send().await?;
   let parsed = res.json::<Vec<QueueSnapshot>>().await?;
-  info!("parsed mmm");
+  trace!("parsed mmm");
   setm!{ qtime1 = vec![]
        , qtime2 = vec![]
        , qtime4 = vec![] };
@@ -864,22 +864,4 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<(u32, u32, u32)> {
   Ok(( avg(&qtime1)
      , avg(&qtime2)
      , avg(&qtime4) ))
-}
-
-#[command]
-#[description("Get")]
-#[owners_only]
-async fn mmm(ctx: &Context, msg: &Message) -> CommandResult {
-  let _qtime = get_mmm(ctx).await?;
-  let footer = format!("Requested by {}", msg.author.name);
-  msg.channel_id.send_message(ctx, |m| m.content("")
-  .embed(|e|
-    e.color((40, 20, 200))
-      .title("Ok")
-      .footer(|f| f.text(&footer))
-  )).await?;
-  if let Err(why) = msg.delete(&ctx).await {
-    error!("Error deleting original command, {why}");
-  }
-  Ok(())
 }

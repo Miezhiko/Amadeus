@@ -81,6 +81,22 @@ async fn clear_weekly(ctx: &Context, week: u32) -> anyhow::Result<()> {
   Ok(())
 }
 
+fn secs_to_str(secs: u32) -> String {
+  if secs > 60 {
+    let mins: u32 = secs / 60;
+    let secs_after_mins = secs % 60;
+    if mins > 60 {
+      let hours: u32 = mins / 60;
+      let mins_after_hours = mins % 60;
+      format!("{hours}h {mins_after_hours}m {secs_after_mins}s")
+    } else {
+      format!("{mins}m {secs_after_mins}s")
+    }
+  } else {
+    format!("{secs}s")
+  }
+}
+
 pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()> {
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
     let weekly = get_weekly(ctx).await?;
@@ -93,6 +109,9 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
       }
     }
     let (q1, q2, q3) = get_mmm(ctx).await?;
+    let (q1s, q2s, q3s) = ( secs_to_str(q1)
+                          , secs_to_str(q2)
+                          , secs_to_str(q3) );
     let mut tracking_info = vec![];
     { // Games lock scope
       let games_lock = GAMES.lock().await;
@@ -167,9 +186,9 @@ __**currently playing:**__
 __**2x2 popular hours:**__"
     , weekly_str[0]
     , weekly_str[1]
-    , q1, stats.games_solo
-    , q2, stats.games_2x2
-    , q3, stats.games_4x4
+    , q1s, stats.games_solo
+    , q2s, stats.games_2x2
+    , q3s, stats.games_4x4
     , tracking_str);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|

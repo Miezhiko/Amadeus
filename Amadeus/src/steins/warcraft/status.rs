@@ -194,7 +194,7 @@ __**currently playing:**__
 ```
 {}
 ```
-__**2x2 popular hours:**__"
+__**popular hours:**__"
     , weekly_str[0]
     , weekly_str[1]
     , z1, q1s, stats.games_solo

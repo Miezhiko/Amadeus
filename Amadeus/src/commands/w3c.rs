@@ -724,50 +724,75 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
   if let Ok(res3) = rqcl.get(format!("{W3C_API}/w3c-stats/play-hours")).send().await {
     if let Ok(ph_modes) = res3.json::<Vec<PopularHours>>().await {
       info!("got popular hours structure");
-      for ph in ph_modes {
-        if ph.gameMode == 2 {
-          let max_games = ph.playTimePerHour.iter().fold(0, |a, b| b.games.max(a));
-          let fname_popular_hours = format!("popular_hours_{}.png", ph.day);
-          { // because of Rc < > in BitMapBackend I need own scope here
-            let root_area = BitMapBackend::new(&fname_popular_hours, (1024, 384)).into_drawing_area();
-            root_area.fill(&RGBColor(47, 49, 54))?;
-            let mut cc = ChartBuilder::on(&root_area)
-              .margin(5)
-              .set_all_label_area_size(50)
-              .build_cartesian_2d(0.0..23_f64, 0.0..max_games as f64)?;
-            cc.configure_mesh()
-              .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
-              .y_labels(10)
-              .axis_style(&RGBColor(80, 80, 80))
-              .draw()?;
-            let color = RGBColor(180, 120, 255);
-            let style: ShapeStyle = ShapeStyle::from(color);
-            let plx = ph.playTimePerHour.iter().map(|p| {
-              (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
-            }).collect::<Vec<(f64, f64)>>();
-            cc.draw_series(LineSeries::new(plx, style.clone()))?
-              .label("2x2")
-              .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], style.clone()));
-            cc.configure_series_labels()
-              .position(SeriesLabelPosition::LowerRight)
-              .border_style(&BLACK)
-              .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
-              .draw()?;
+      let mut fname_popular_hours = String::new();
+      let mut plx_vec = vec![];
+      { // because of Rc < > in BitMapBackend I need own scope here
+        let mut max_games = 0;
+        for ph in ph_modes {
+          if fname_popular_hours.is_empty() {
+            fname_popular_hours = format!("popular_hours_{}.png", ph.day);
           }
-          match APM_PICS.send_message(&ctx, |m|
-            m.add_file(AttachmentType::Path(std::path::Path::new(&fname_popular_hours)))).await {
-            Ok(msg) => {
-              if !msg.attachments.is_empty() {
-                let img_attachment = &msg.attachments[0];
-                popular_games_image = Some(img_attachment.url.clone());
-              }
-            },
-            Err(why) => {
-              error!("Failed to download and post stream img {why}");
+          if ph.gameMode == 1 || ph.gameMode == 2 || ph.gameMode == 4 {
+            let ph_max_games = ph.playTimePerHour.iter().fold(0, |a, b| b.games.max(a));
+            max_games = std::cmp::max(max_games, ph_max_games);
+            if ph.gameMode == 1 {
+              let color = RGBColor(255, 50, 50);
+              let style: ShapeStyle = ShapeStyle::from(color);
+              let plx = ph.playTimePerHour.iter().map(|p| {
+                (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
+              }).collect::<Vec<(f64, f64)>>();
+              plx_vec.push((style, plx, "1x1"));
+            } else if ph.gameMode == 2 {
+              let color = RGBColor(180, 120, 255);
+              let style: ShapeStyle = ShapeStyle::from(color);
+              let plx = ph.playTimePerHour.iter().map(|p| {
+                (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
+              }).collect::<Vec<(f64, f64)>>();
+              plx_vec.push((style, plx, "2x2"));
+            } else if ph.gameMode == 4 {
+              let color = RGBColor(100, 200, 50);
+              let style: ShapeStyle = ShapeStyle::from(color);
+              let plx = ph.playTimePerHour.iter().map(|p| {
+                (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
+              }).collect::<Vec<(f64, f64)>>();
+              plx_vec.push((style, plx, "4x4"));
             }
-          };
+          }
         }
+        let root_area = BitMapBackend::new(&fname_popular_hours, (1024, 384)).into_drawing_area();
+        root_area.fill(&RGBColor(47, 49, 54))?;
+        let mut cc = ChartBuilder::on(&root_area)
+          .margin(5u32)
+          .set_all_label_area_size(50u32)
+          .build_cartesian_2d(0.0..23_f64, 0.0..max_games as f64)?;
+        cc.configure_mesh()
+          .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
+          .y_labels(10)
+          .axis_style(&RGBColor(80, 80, 80))
+          .draw()?;
+        for (st, plx, mode_str) in plx_vec {
+          cc.draw_series(LineSeries::new(plx, st.clone()))?
+            .label(mode_str)
+            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], st.clone()));
+        }
+        cc.configure_series_labels()
+          .position(SeriesLabelPosition::LowerRight)
+          .border_style(&BLACK)
+          .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
+          .draw()?;
       }
+      match APM_PICS.send_message(&ctx, |m|
+        m.add_file(AttachmentType::Path(std::path::Path::new(&fname_popular_hours)))).await {
+        Ok(msg) => {
+          if !msg.attachments.is_empty() {
+            let img_attachment = &msg.attachments[0];
+            popular_games_image = Some(img_attachment.url.clone());
+          }
+        },
+        Err(why) => {
+          error!("Failed to download and post stream img {why}");
+        }
+      };
     } else {
       error!("failed to parse");
     }

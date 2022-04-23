@@ -281,7 +281,7 @@ s_struct!(FloInfo {
 s_struct!(PlayerData {
   battleTag: String,
   floInfo: FloInfo,
-  location: String,
+  location: Option<String>,
 });
 
 pub_struct!(Snapshot {

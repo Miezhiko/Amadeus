@@ -284,7 +284,7 @@ s_struct!(PlayerData {
 
 pub_struct!(Snapshot {
   mmr: f32,
-  rd: u32,
+  rd: f32,
   quantiles: Quantiles,
   queueTime: u32,
   isFloConnected: bool,

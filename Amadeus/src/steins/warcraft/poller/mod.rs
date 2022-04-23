@@ -63,7 +63,6 @@ pub async fn check<'a>( ctx: &Context
                    m.teams[0].players[0].battleTag == p.player.battletag
                 || m.teams[1].players[0].battleTag == p.player.battletag
                 || if let Some(other_acc) = &p.player.other_acc {
-                  info!("CHECKING OTHER ACC: {other_acc}");
                      &m.teams[0].players[0].battleTag == other_acc
                   || &m.teams[1].players[0].battleTag == other_acc
                 } else { false }).collect::<Vec<&DiscordPlayer>>();
@@ -203,7 +202,6 @@ pub async fn check<'a>( ctx: &Context
                 || m.teams[0].players[1].battleTag == p.player.battletag
                 || m.teams[1].players[1].battleTag == p.player.battletag
                 || if let Some(other_acc) = &p.player.other_acc {
-                    info!("CHECKING OTHER ACC: {other_acc}");
                      &m.teams[0].players[0].battleTag == other_acc
                   || &m.teams[1].players[0].battleTag == other_acc
                   || &m.teams[0].players[1].battleTag == other_acc

@@ -839,6 +839,13 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<(u32, u32, u32)> {
     let mut data: BTreeMap<String, PlayerData> = serde_yaml::from_str(&contents)?;
     for qs in parsed {
       for s in qs.snapshot {
+        if qs.gameMode == 1 {
+          qtime1.push( s.queueTime );
+        } else if qs.gameMode == 2 {
+          qtime2.push( s.queueTime );
+        } else if qs.gameMode == 4 {
+          qtime4.push( s.queueTime );
+        }
         for p in s.playerData {
           let p_clone = p.clone();
           if let Some(d) = data.get_mut(&p.battleTag) {

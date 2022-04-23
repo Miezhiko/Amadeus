@@ -104,7 +104,6 @@ pub async fn activate_games_tracking(
         }
       }
 
-      { // additional scope for games lock
       let our_gsx = poller::check( &ctx_clone
                                  , options_clone.guild
                                  , &rqcl
@@ -326,7 +325,6 @@ pub async fn activate_games_tracking(
           }
         }
       }
-      } // additional scope for games lock
       tokio::time::sleep(time::Duration::from_secs(60)).await;
     }
   });

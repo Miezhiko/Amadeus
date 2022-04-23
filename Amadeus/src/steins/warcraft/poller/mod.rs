@@ -187,8 +187,8 @@ pub async fn check<'a>( ctx: &Context
     rqcl.get(&format!("{W3C_API}/matches/ongoing?offset=0&gameMode=2"))
         .send()
         .await {
-      trace!("team games: checking 2x2 matches");
-      if let Ok(going) = res.json::<Going>().await {
+    trace!("team games: checking 2x2 matches");
+    if let Ok(going) = res.json::<Going>().await {
       let games_2x2 = going.matches.len();
       trace!("team games: {} matches", games_2x2);
       stats.games_2x2 = games_2x2;

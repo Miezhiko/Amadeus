@@ -1,7 +1,6 @@
 use crate::{
   types::{
     serenity::ReqwestClient,
-    team::DiscordPlayer,
     w3c::*
   },
   common::{
@@ -805,7 +804,10 @@ fn avg(numbers: &[u32]) -> u32 {
   avg.round() as u32
 }
 
-pub type MMM_RESULT = (u32, u32, u32, Vec<(String, String)>);
+pub type MmmResult = ( (usize, u32)
+                     , (usize, u32)
+                     , (usize, u32)
+                     , Vec<(String, String)> );
 
 pub fn secs_to_str(secs: u32) -> String {
   if secs > 60 {
@@ -823,7 +825,7 @@ pub fn secs_to_str(secs: u32) -> String {
   }
 }
 
-pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MMM_RESULT> {
+pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
   let rqcl = {
     set!{ data = ctx.data.read().await
         , rqcl = data.get::<ReqwestClient>().unwrap() };
@@ -903,8 +905,8 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MMM_RESULT> {
     let yml = serde_yaml::to_string(&data)?;
     fs::write(MMM_FNAME, yml).await?;
   }
-  Ok(( avg(&qtime1)
-     , avg(&qtime2)
-     , avg(&qtime4)
+  Ok(( (qtime1.len(), avg(&qtime1))
+     , (qtime2.len(), avg(&qtime2))
+     , (qtime4.len(), avg(&qtime4))
      , searching_players ))
 }

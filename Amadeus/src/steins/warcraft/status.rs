@@ -92,7 +92,10 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         clear_weekly(ctx, now_week).await?;
       }
     }
-    let (q1, q2, q3, searching) = get_mmm(ctx).await?;
+    let ( (z1, q1)
+        , (z2, q2)
+        , (z3, q3)
+        , searching ) = get_mmm(ctx).await?;
     let (q1s, q2s, q3s) = ( secs_to_str(q1)
                           , secs_to_str(q2)
                           , secs_to_str(q3) );
@@ -183,9 +186,9 @@ __**weekly team games:**__
 ```
 __**currently running:**__
 ```
-SOLO searching for: {}, GAMES: {}
-2x2 searching for: {}, GAMES: {}
-4x4 searching for: {}, GAMES: {}
+SOLO {} search for {} GAMES: {}
+2x2 {} search for {} GAMES: {}
+4x4 {} search for {} GAMES: {}
 ```
 __**currently playing:**__
 ```
@@ -194,9 +197,9 @@ __**currently playing:**__
 __**2x2 popular hours:**__"
     , weekly_str[0]
     , weekly_str[1]
-    , q1s, stats.games_solo
-    , q2s, stats.games_2x2
-    , q3s, stats.games_4x4
+    , z1, q1s, stats.games_solo
+    , z2, q2s, stats.games_2x2
+    , z3, q3s, stats.games_4x4
     , tracking_str);
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|

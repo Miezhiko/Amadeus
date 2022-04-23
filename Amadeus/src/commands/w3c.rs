@@ -733,7 +733,7 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
             let mut cc = ChartBuilder::on(&root_area)
               .margin(5)
               .set_all_label_area_size(50)
-              .build_cartesian_2d(0.0..24_f64, 0.0..max_games as f64)?;
+              .build_cartesian_2d(0.0..23_f64, 0.0..max_games as f64)?;
             cc.configure_mesh()
               .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
               .y_labels(10)

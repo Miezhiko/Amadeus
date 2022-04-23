@@ -249,12 +249,14 @@ s_struct!(FloPings {
   matchmakingPing: u32,
 });
 
-s_struct!(ClosestSettings {
-  isDisabled: bool,
-  isCnOptimized: bool,
+/*
   _id: String,
   _created_at: String,
   _updated_at: String,
+ */
+s_struct!(ClosestSettings {
+  isDisabled: bool,
+  isCnOptimized: bool,
 });
 
 s_struct!(Proxies {

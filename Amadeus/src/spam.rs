@@ -49,12 +49,31 @@ async fn delete( guild_id: &GuildId
                , really_delete: bool
                , reason: &str
                ) {
-  if disable_communication {
-    if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-      if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
+  if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+    if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
+      if disable_communication {
         let timeout = chrono::Utc::now() + chrono::Duration::days(1);
         if let Err(why) = member.disable_communication_until_datetime(ctx, Timestamp::from( timeout) ).await {
           error!("Failed to timeout user for a day {why}");
+        }
+      } else {
+        if let Ok(permissions) = member.permissions(&ctx) {
+          if permissions.ban_members() {
+            if let Some(ds) = DISCORDS.get(&guild_id.0) {
+              if let Some(log) = ds.log {
+                if let Err(why) = log.send_message(&ctx, |m| m
+                  .embed(|e| {
+                    e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                     .title(reason)
+                     .description("ely used bad word again,\nignoring")
+                     .timestamp(chrono::Utc::now().to_rfc3339())
+                })).await {
+                  error!("Failed to log ely {}, {why}", msg.author.name);
+                }
+              }
+            }
+            return;
+          }
         }
       }
     }
@@ -74,8 +93,8 @@ async fn delete( guild_id: &GuildId
                                 , msg.author.id.0, &msg.content
                                 , msg_link ))
            .timestamp(chrono::Utc::now().to_rfc3339())
-        })).await {
-        error!("Failed to log leaving user {}, {why}", msg.author.name);
+       })).await {
+        error!("Failed to log on spam {}, {why}", msg.author.name);
       }
     }
   }

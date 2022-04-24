@@ -62,9 +62,11 @@ pub async fn check<'a>( ctx: &Context
               let playaz = PLAYERS.iter().copied().filter( |p|
                    m.teams[0].players[0].battleTag == p.player.battletag
                 || m.teams[1].players[0].battleTag == p.player.battletag
-                || if let Some(other_acc) = &p.player.other_acc {
+                || if !p.player.other_acc.is_empty() {
+                  p.player.other_acc.iter().any(|other_acc|
                      &m.teams[0].players[0].battleTag == other_acc
                   || &m.teams[1].players[0].battleTag == other_acc
+                  )
                 } else { false }).collect::<Vec<&DiscordPlayer>>();
               if !playaz.is_empty() {
                 set!{ g_map   = get_map(&m.map)
@@ -201,11 +203,13 @@ pub async fn check<'a>( ctx: &Context
                 || m.teams[1].players[0].battleTag == p.player.battletag
                 || m.teams[0].players[1].battleTag == p.player.battletag
                 || m.teams[1].players[1].battleTag == p.player.battletag
-                || if let Some(other_acc) = &p.player.other_acc {
+                || if !p.player.other_acc.is_empty() {
+                  p.player.other_acc.iter().any(|other_acc|
                      &m.teams[0].players[0].battleTag == other_acc
                   || &m.teams[1].players[0].battleTag == other_acc
                   || &m.teams[0].players[1].battleTag == other_acc
                   || &m.teams[1].players[1].battleTag == other_acc
+                  )
               } else { false }).collect::<Vec<&DiscordPlayer>>();
 
               if !playaz.is_empty() {
@@ -352,11 +356,13 @@ pub async fn check<'a>( ctx: &Context
               || m.teams[1].players[0].battleTag == p.player.battletag || m.teams[1].players[2].battleTag == p.player.battletag
               || m.teams[0].players[1].battleTag == p.player.battletag || m.teams[0].players[3].battleTag == p.player.battletag
               || m.teams[1].players[1].battleTag == p.player.battletag || m.teams[1].players[3].battleTag == p.player.battletag
-              || if let Some(other_acc) = &p.player.other_acc {
-                   &m.teams[0].players[0].battleTag == other_acc || &m.teams[0].players[2].battleTag == other_acc
+              || if !p.player.other_acc.is_empty() {
+                p.player.other_acc.iter().any(|other_acc|
+                  &m.teams[0].players[0].battleTag == other_acc || &m.teams[0].players[2].battleTag == other_acc
                 || &m.teams[1].players[0].battleTag == other_acc || &m.teams[1].players[2].battleTag == other_acc
                 || &m.teams[0].players[1].battleTag == other_acc || &m.teams[0].players[3].battleTag == other_acc
                 || &m.teams[1].players[1].battleTag == other_acc || &m.teams[1].players[3].battleTag == other_acc
+                )
             } else { false }).collect::<Vec<&DiscordPlayer>>();
 
             if !playaz.is_empty() {

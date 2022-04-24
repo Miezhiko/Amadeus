@@ -106,7 +106,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
       let games_lock = GAMES.lock().await;
       for game in games_lock.values() {
         if game.still_live {
-          if let Some(fp) = game.players.first() {
+          for fp in game.players.iter() {
             let name = fp.player.battletag
                         .split('#')
                         .collect::<Vec<&str>>()[0];
@@ -154,7 +154,9 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         }
       };
     let mut weekly_str = vec![];
-    for ws in &[weekly.statistics, weekly.statistics2] {
+    for wss in &[weekly.statistics, weekly.statistics2] {
+      let mut ws = Vec::from_iter(wss);
+      ws.sort_by( |&(_, a), &(_, b)| (b.wins + b.losses).cmp(&(a.wins + a.losses)) );
       weekly_str.push(
         if ws.is_empty() {
           String::from("no weekly statistic")

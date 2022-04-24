@@ -8,5 +8,5 @@ in λ(btag: Text)
   , streams   = Some { ggru = Some gg
                      , twitch = None Text
                      }
-  , other_acc = None Text
+  , other_acc = [] : List Text
   }

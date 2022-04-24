@@ -67,7 +67,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "9.1.13"
+version = "9.1.14"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -427,19 +427,20 @@ dependencies = [
 
 [[package]]
 name = "audiopus"
-version = "0.2.0"
+version = "0.3.0-rc.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3743519567e9135cf6f9f1a509851cb0c8e4cb9d66feb286668afb1923bec458"
+checksum = "ab55eb0e56d7c6de3d59f544e5db122d7725ec33be6a276ee8241f3be6473955"
 dependencies = [
  "audiopus_sys",
 ]
 
 [[package]]
 name = "audiopus_sys"
-version = "0.1.8"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "927791de46f70facea982dbfaf19719a41ce6064443403be631a85de6a58fff9"
+checksum = "62314a1546a2064e033665d658e88c620a62904be945f8147e6b16c3db9f8651"
 dependencies = [
+ "cmake",
  "log",
  "pkg-config",
 ]
@@ -4869,7 +4870,7 @@ dependencies = [
 [[package]]
 name = "songbird"
 version = "0.2.2"
-source = "git+https://github.com/serenity-rs/songbird.git?branch=next#ff7561aba727230fc846a76a5d24be3e5e138f64"
+source = "git+https://github.com/serenity-rs/songbird.git?branch=next#dabf73ba09934d3b1934aad0536b3213cf8fd0ef"
 dependencies = [
  "async-trait",
  "async-tungstenite",

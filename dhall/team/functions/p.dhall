@@ -4,4 +4,4 @@ in λ(btag: Text)
  → λ(disc: Natural) → { battletag = btag
                       , discord = disc
                       , streams = None Streams
-                      , other_acc = None Text }
+                      , other_acc = [] : List Text }

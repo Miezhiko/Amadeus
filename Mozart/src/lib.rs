@@ -3,8 +3,6 @@
 extern crate serde;
 
 pub mod types;
-
-#[cfg(not(target_os = "windows"))]
 pub mod cache;
 
 #[cfg(not(target_os = "windows"))]

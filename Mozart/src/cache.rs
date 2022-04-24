@@ -70,13 +70,14 @@ pub async fn MODELS_REINIT() -> TaskResult<()> {
   if let Some(conv_model_used_time) = &*convmodel_used {
     let nao = Utc::now();
     let since_last_use: Duration = nao - *conv_model_used_time;
-    if since_last_use > Duration::minutes(10) {
+    if since_last_use > Duration::minutes(60) {
       let mut convmodel = CONVMODEL.lock().await;
       *convmodel = None;
       *convmodel_used = None;
     }
   }
   // don't free ENRU model if CONV model is loaded.
+  /*
   if convmodel_used.is_none() {
     let mut enru_used = crate::bert::translation::ENRUMODEL_USED.lock().await;
     if let Some(enru_model_used_time) = &*enru_used {
@@ -89,6 +90,6 @@ pub async fn MODELS_REINIT() -> TaskResult<()> {
       }
     }
   }
-
+  */
   Ok(())
 }

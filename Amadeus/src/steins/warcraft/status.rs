@@ -105,22 +105,24 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     { // Games lock scope
       let games_lock = GAMES.lock().await;
       for game in games_lock.values() {
-        if let Some(fp) = game.players.first() {
-          let name = fp.player.battletag
-                       .split('#')
-                       .collect::<Vec<&str>>()[0];
-          let game_mode_str = match game.mode {
-            GameMode::Solo  => "1x1",
-            GameMode::Team2 => "2x2",
-            GameMode::Team4 => "4x4"
-          };
-          tracking_players.push(fp.player.battletag.clone());
-          tracking_info.push(
-            format!("{} play {} for {} mins"
-            , name
-            , game_mode_str
-            , game.passed_time)
-          );
+        if game.still_live {
+          if let Some(fp) = game.players.first() {
+            let name = fp.player.battletag
+                        .split('#')
+                        .collect::<Vec<&str>>()[0];
+            let game_mode_str = match game.mode {
+              GameMode::Solo  => "1x1",
+              GameMode::Team2 => "2x2",
+              GameMode::Team4 => "4x4"
+            };
+            tracking_players.push(fp.player.battletag.clone());
+            tracking_info.push(
+              format!("{} play {} for {} mins"
+              , name
+              , game_mode_str
+              , game.passed_time)
+            );
+          }
         }
       }
     }

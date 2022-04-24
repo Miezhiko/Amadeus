@@ -88,6 +88,7 @@ fn try_get_map_short(m: &str) -> String {
             , "northmarshruin"        => "NR"
             , "mur'guloasis"          => "MO"
             , "springtime"            => "ST"
+            , "rustycreek"            => "RC"
             , _                       => "" })
 }
 
@@ -143,6 +144,7 @@ fn try_get_map(m: &str) -> String {
             , "northmarshruin"        => "Northmarsh Ruin"
             , "mur'guloasis"          => "Mur'gul Oasis"
             , "springtime"            => "Spring Time"
+            , "rustycreek"            => "Rusty Creek"
             , _                       => m /*""*/ })
 }
 

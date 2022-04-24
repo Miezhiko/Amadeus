@@ -824,9 +824,11 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
 
 const MMM_FNAME: &str = "mmm.yml";
 
-fn avg(numbers: &[u32]) -> u32 {
-  let avg = numbers.iter().sum::<u32>() as f32 / numbers.len() as f32;
-  avg.round() as u32
+fn max(numbers: &[u32]) -> u32 {
+  match numbers.iter().max() {
+    Some(max) => *max,
+    None => 0
+  }
 }
 
 pub type MmmResult = ( (usize, u32)
@@ -930,8 +932,8 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
     let yml = serde_yaml::to_string(&data)?;
     fs::write(MMM_FNAME, yml).await?;
   }
-  Ok(( (qtime1.len(), avg(&qtime1))
-     , (qtime2.len(), avg(&qtime2))
-     , (qtime4.len(), avg(&qtime4))
+  Ok(( (qtime1.len(), max(&qtime1))
+     , (qtime2.len(), max(&qtime2))
+     , (qtime4.len(), max(&qtime4))
      , searching_players ))
 }

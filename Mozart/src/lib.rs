@@ -48,3 +48,19 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryEr
     ],
   ).await
 }
+
+#[cfg(target_os = "windows")]
+pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryError> {
+  celery::app!(
+    broker = AMQPBroker { String::from( ampq ) },
+    tasks = [ AMADEUS_INIT
+            , cache::CONTEXT_CLEAR
+            , cache::MODELS_REINIT
+            , cache::REINIT_CACHE
+            , cache::SET_CACHE
+            ],
+    task_routes = [
+      "*" => SALIERI_SERVICE,
+    ],
+  ).await
+}

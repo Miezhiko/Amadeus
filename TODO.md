@@ -1,5 +1,6 @@
 ##REALLY PLANNED:
 
+ - UnixSockets alternative for Windows
  - Select menu roles
  - Stream announce (e.g. steam in 30 mins or something like that) + stream announce role
  - CodeBERT

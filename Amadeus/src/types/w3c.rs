@@ -249,11 +249,6 @@ s_struct!(FloPings {
   matchmakingPing: u32,
 });
 
-/*
-  _id: String,
-  _created_at: String,
-  _updated_at: String,
- */
 s_struct!(ClosestSettings {
   isDisabled: bool,
   isCnOptimized: bool,

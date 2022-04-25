@@ -10,7 +10,7 @@ use crate::{
   collections::team::DISCORDS,
   steins::warcraft::{
     aka_checker::AKA,
-    poller
+    poller::{ self, checker }
   }
 };
 
@@ -104,10 +104,10 @@ pub async fn activate_games_tracking(
         }
       }
 
-      let our_gsx = poller::check( &ctx_clone
-                                 , options_clone.guild
-                                 , &rqcl
-                                 ).await;
+      let our_gsx = checker::check( &ctx_clone
+                                  , options_clone.guild
+                                  , &rqcl
+                                  ).await;
 
       for game in our_gsx {
         let game_key = game.key.clone();

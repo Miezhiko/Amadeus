@@ -14,14 +14,17 @@ main = hake $ do
   "update | update dependencies" ∫ cargo ["update"]
 
   salieriExecutable ♯
-    cargo <| "build" : buildFlagsSalieri
+    cargo <| "build" : buildFlagsSalieri False
 
   amadeusExecutable ◉ [salieriExecutable] ♯♯
-    cargo <| "build" : buildFlagsAmadeus
+    cargo <| "build" : buildFlagsAmadeus False
 
-  "install | install to system" ◉ [ salieriExecutable
-                                  , amadeusExecutable ] ∰
-    cargo <| "install" : buildFlagsAmadeus
+  "fat | build Amadeus and Salieri with fat LTO" ∫
+       cargo <| "build" : buildFlagsSalieri True
+    >> cargo <| "build" : buildFlagsAmadeus True
+
+  "install | install to system" ◉ [ "fat" ] ∰
+    cargo <| "install" : buildFlagsAmadeus True
 
   "test | build and test" ◉ [amadeusExecutable] ∰ do
     cargo ["test"]
@@ -51,13 +54,23 @@ main = hake $ do
   features = [ "trackers"
              , "torch" ]
 
-  buildFlagsSalieri ∷ [String]
-  buildFlagsSalieri = [ "-p", appNameSalieri, "--release" ]
+  fatArgs ∷ [String]
+  fatArgs = [ "--profile"
+            , "fat-release" ]
 
-  buildFlagsAmadeus ∷ [String]
-  buildFlagsAmadeus = [ "-p", appNameAmadeus
-                      , "--release", "--features"
-                      , intercalate "," features ]
+  buildFlagsSalieri ∷ Bool -> [String]
+  buildFlagsSalieri fat =
+    let defaultFlags = [ "-p", appNameSalieri, "--release" ]
+    in if fat then defaultFlags ++ fatArgs
+              else defaultFlags
+
+  buildFlagsAmadeus ∷ Bool -> [String]
+  buildFlagsAmadeus fat =
+    let defaultFlags = [ "-p", appNameAmadeus
+                       , "--release", "--features"
+                       , intercalate "," features ]
+    in if fat then defaultFlags ++ fatArgs
+              else defaultFlags
 
   salieriExecutable ∷ FilePath
   salieriExecutable =

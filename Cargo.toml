@@ -11,5 +11,9 @@ overflow-checks = false
 debug-assertions = false
 lto = "thin"
 
-# using thin due active development, will be fat later
-# lto = "fat"
+[profile.fat-release]
+inherits = "release"
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = "fat"

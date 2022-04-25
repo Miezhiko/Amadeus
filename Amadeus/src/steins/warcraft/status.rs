@@ -143,15 +143,13 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         } else {
           searching_info.join("\n")
         }
-      } else {
-        if searching_info.is_empty() {
+      } else if searching_info.is_empty() {
           tracking_info.join("\n")
-        } else {
-          format!("{}\n{}"
-            , searching_info.join("\n")
-            , tracking_info.join("\n")
-          )
-        }
+      } else {
+        format!("{}\n{}"
+          , searching_info.join("\n")
+          , tracking_info.join("\n")
+        )
       };
     let mut weekly_str = vec![];
     for wss in &[weekly.statistics, weekly.statistics2] {

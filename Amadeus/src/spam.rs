@@ -56,24 +56,22 @@ async fn delete( guild_id: &GuildId
         if let Err(why) = member.disable_communication_until_datetime(ctx, Timestamp::from( timeout) ).await {
           error!("Failed to timeout user for a day {why}");
         }
-      } else {
-        if let Ok(permissions) = member.permissions(&ctx) {
-          if permissions.ban_members() {
-            if let Some(ds) = DISCORDS.get(&guild_id.0) {
-              if let Some(log) = ds.log {
-                if let Err(why) = log.send_message(&ctx, |m| m
-                  .embed(|e| {
-                    e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                     .title(reason)
-                     .description("ely used bad word again,\nignoring")
-                     .timestamp(chrono::Utc::now().to_rfc3339())
-                })).await {
-                  error!("Failed to log ely {}, {why}", msg.author.name);
-                }
+      } else if let Ok(permissions) = member.permissions(&ctx) {
+        if permissions.ban_members() {
+          if let Some(ds) = DISCORDS.get(&guild_id.0) {
+            if let Some(log) = ds.log {
+              if let Err(why) = log.send_message(&ctx, |m| m
+                .embed(|e| {
+                  e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+                    .title(reason)
+                    .description("ely used bad word again,\nignoring")
+                    .timestamp(chrono::Utc::now().to_rfc3339())
+              })).await {
+                error!("Failed to log ely {}, {why}", msg.author.name);
               }
             }
-            return;
           }
+          return;
         }
       }
     }

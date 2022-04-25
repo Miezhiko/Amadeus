@@ -1,16 +1,20 @@
+use crate::common::constants::FLO_API;
+
 use flo_grpc::Channel;
-use flo_grpc::controller::*;
 use flo_grpc::game::*;
+use flo_grpc::controller::flo_controller_client::FloControllerClient;
 
 use async_std::fs;
 use serde_json::Value;
 
-use tonic::{
-  codegen::InterceptedService,
-  Request, Status,
+use tonic::service::{
+  Interceptor,
+  interceptor::InterceptedService
 };
 
 use once_cell::sync::OnceCell;
+
+pub static FLO_SECRET: OnceCell<String> = OnceCell::new();
 
 pub fn get_race_num(race_x: &str) -> i32 {
   let race_vs_lower = race_x.to_lowercase();
@@ -28,27 +32,27 @@ pub fn get_race_num(race_x: &str) -> i32 {
   }
 }
 
-// TODO : better way to pass flo secret in here
-static FLO_SECRET: OnceCell<String> = OnceCell::new();
+#[derive(Clone)]
+pub struct WithSecret;
 
-fn intercept(mut req: Request<()>) -> Result<Request<()>, Status> {
-  let flo_secret = FLO_SECRET.get().unwrap();
-  req.metadata_mut().insert("x-flo-secret", flo_secret.parse().unwrap());
-  Ok(req)
+impl Interceptor for WithSecret {
+  fn call(&mut self, mut req: tonic::Request<()>) -> Result<tonic::Request<()>, tonic::Status> {
+    req
+      .metadata_mut()
+      .insert("x-flo-secret", FLO_SECRET.get().unwrap()
+                                        .parse().unwrap());
+    Ok(req)
+  }
 }
 
-pub async fn get_grpc_client(flo_secret: String)
-  -> flo_controller_client::FloControllerClient<
-    InterceptedService<Channel, fn(tonic::Request<()>)
-      -> Result<tonic::Request<()>, Status>>
-  > {
-  let channel = Channel::from_static("tcp://service.w3flo.com:3549")
-    .connect()
-    .await
-    .unwrap();
-  FLO_SECRET.set(flo_secret).unwrap();
-  flo_controller_client::FloControllerClient::with_interceptor( channel
-                                                              , intercept )
+pub async fn get_grpc_client()
+  -> FloControllerClient<InterceptedService<Channel, WithSecret>> {
+    let channel = Channel::from_shared(FLO_API)
+      .unwrap()
+      .connect()
+      .await
+      .unwrap();
+  FloControllerClient::with_interceptor( channel, WithSecret )
 }
 
 // that's very default map when map name is not provided

@@ -1,5 +1,4 @@
 use crate::{
-  types::serenity::PubCreds,
   common::{ msg::channel_message
           , msg::direct_message
           , help::members::get_player },
@@ -24,14 +23,10 @@ use flo_grpc::game::*;
 #[command]
 #[aliases(nodes)]
 async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
-  let flo_secret = {
-    let data = ctx.data.read().await;
-    data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
-  };
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {why}");
   }
-  let mut rpc = get_grpc_client(flo_secret).await;
+  let mut rpc = get_grpc_client().await;
   let nodes_reply = rpc.list_nodes(()).await?;
   let nodes = nodes_reply.into_inner().nodes;
   let n_strs = nodes.iter()
@@ -54,14 +49,10 @@ async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 async fn flo_bans(ctx: &Context, msg: &Message) -> CommandResult {
-  let flo_secret = {
-    let data = ctx.data.read().await;
-    data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
-  };
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {why}");
   }
-  let mut rpc = get_grpc_client(flo_secret).await;
+  let mut rpc = get_grpc_client().await;
   let bans_reply = rpc.list_player_bans(ListPlayerBansRequest {
     ..Default::default()
   }).await?;
@@ -96,11 +87,7 @@ async fn flo_bans(ctx: &Context, msg: &Message) -> CommandResult {
 #[owners_only]
 async fn register_player(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let meme = get_player(&args.single_quoted::<String>()?, ctx, msg).await?;
-  let flo_secret = {
-    let data = ctx.data.read().await;
-    data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
-  };
-  let mut rpc = get_grpc_client(flo_secret).await;
+  let mut rpc = get_grpc_client().await;
   let res = rpc
     .update_and_get_player(UpdateAndGetPlayerRequest {
       source: PlayerSource::Api as i32,
@@ -119,11 +106,7 @@ async fn register_player(ctx: &Context, msg: &Message, mut args: Args) -> Comman
 
 #[command]
 async fn register_me(ctx: &Context, msg: &Message) -> CommandResult {
-  let flo_secret = {
-    let data = ctx.data.read().await;
-    data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
-  };
-  let mut rpc = get_grpc_client(flo_secret).await;
+  let mut rpc = get_grpc_client().await;
   let res = rpc
     .update_and_get_player(UpdateAndGetPlayerRequest {
       source: PlayerSource::Api as i32,
@@ -142,12 +125,7 @@ async fn register_me(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  let flo_secret = {
-    let data = ctx.data.read().await;
-    data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
-  };
-  let mut rpc = get_grpc_client(flo_secret).await;
-
+  let mut rpc = get_grpc_client().await;
   let user_secret_res = rpc
     .update_and_get_player(UpdateAndGetPlayerRequest {
       source: PlayerSource::Api as i32,
@@ -238,11 +216,7 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
 #[min_args(1)]
 async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let meme = get_player(&args.single_quoted::<String>()?, ctx, msg).await?;
-  let flo_secret = {
-    let data = ctx.data.read().await;
-    data.get::<PubCreds>().unwrap().get("flo").unwrap().as_str().to_string()
-  };
-  let mut rpc = get_grpc_client(flo_secret).await;
+  let mut rpc = get_grpc_client().await;
 
   let user_secret_res1 = rpc
     .update_and_get_player(UpdateAndGetPlayerRequest {

@@ -20,3 +20,6 @@ pub const W3C_STATS_ROOM: ChannelId   = ChannelId( 965968135666696322 );
 pub const W3C_STATS_MSG: MessageId    = MessageId( 965968232328609802 );
 
 pub const W3C_API: &str = "https://website-backend.w3champions.com/api";
+
+#[cfg(feature = "flo")]
+pub const FLO_API: &str = "tcp://service.w3flo.com:3549";

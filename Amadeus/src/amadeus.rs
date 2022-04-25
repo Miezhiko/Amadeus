@@ -13,6 +13,9 @@ use crate::{
   groups::*, hooks::*
 };
 
+#[cfg(feature = "flo")]
+use crate::steins::warcraft::flo::FLO_SECRET;
+
 use songbird::{
   Config as DriverConfig,
   driver::CryptoMode,
@@ -83,7 +86,11 @@ pub async fn run(opts: &IOptions) ->
   }
 
   #[cfg(feature = "flo")]
-  creds.insert("flo".to_string(), opts.flo_secret.clone());
+  {
+    if let Err(what) = FLO_SECRET.set(opts.flo_secret.clone()) {
+      error!("failed to set flo secret {what}");
+    }
+  }
 
   let mut core_guilds = HashMap::new();
   core_guilds.insert(CoreGuild::HEmo, opts.guild);

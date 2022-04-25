@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "9.1.17"
+version         = "9.1.18"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -11,7 +11,7 @@ license         = "AGPL-3.0-only"
 rust-version    = "1.58.0"
 
 [features]
-default = ["trackers", "torch"]
+default = ["trackers", "torch", "flo"]
 trackers = []
 torch = []
 flo = ["tonic", "hex", "flo-grpc"]
@@ -93,8 +93,10 @@ features = [ "cache"
 version = "0.4.3"
 optional = true
 
+# follow version on flo
+# https://github.com/w3champions/flo/blob/develop/crates/client/Cargo.toml
 [dependencies.tonic]
-version = "0.7.1"
+version = "0.6"
 optional = true
 
 [dependencies.flo-grpc]

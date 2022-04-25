@@ -236,12 +236,12 @@ pub_struct!(PopularHours {
   playTimePerHour: Vec<PlayTimePerHour>,
 });
 
-s_struct!(Quantiles {
+pub_struct!(Quantiles {
   quantile: f32,
   activityQuantile: f32,
 });
 
-s_struct!(FloPings {
+pub_struct!(FloPings {
   nodeId: u32,
   currentPing: u32,
   avgPing: f32,
@@ -249,12 +249,12 @@ s_struct!(FloPings {
   matchmakingPing: u32,
 });
 
-s_struct!(ClosestSettings {
+pub_struct!(ClosestSettings {
   isDisabled: bool,
   isCnOptimized: bool,
 });
 
-s_struct!(Proxies {
+pub_struct!(Proxies {
   id: String,
   nodeId: u32,
   port: u32,
@@ -262,20 +262,33 @@ s_struct!(Proxies {
   name: String,
 });
 
-s_struct!(ClosestNode {
+pub_struct!(ClosestNode {
   defaultPort: u32,
   settings: ClosestSettings,
   proxies: Vec<Proxies>,
+  name: String,
+  countryId: Option<String>,
+  location: Option<String>,
+  ipAddress: String,
+  port: u32,
 });
 
-s_struct!(FloInfo {
+pub_struct!(FloInfo {
   floPings: Vec<FloPings>,
   closestNode: ClosestNode,
 });
 
-s_struct!(PlayerData {
+pub_struct!(PlayerData {
   battleTag: String,
   floInfo: FloInfo,
+  location: Option<String>,
+});
+
+s_struct!(PlayerDataToStore {
+  closestNode: String,
+  countryId: Option<String>,
+  nodeLocation: Option<String>,
+  ipAddress: String,
   location: Option<String>,
 });
 

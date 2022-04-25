@@ -866,7 +866,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
        , qtime4 = vec![]
        , searching_players = vec![] };
   if !std::path::Path::new(MMM_FNAME).exists() {
-    let mut data: BTreeMap<String, PlayerData> = BTreeMap::new();
+    let mut data: BTreeMap<String, PlayerDataToStore> = BTreeMap::new();
     for qs in parsed {
       for s in qs.snapshot {
         if qs.gameMode == 1 {
@@ -877,8 +877,14 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
           qtime4.push( s.queueTime );
         }
         for p in s.playerData {
-          let p_clone = p.clone();
-          data.insert(p.battleTag, p_clone);
+          let pdts = PlayerDataToStore {
+            closestNode: p.floInfo.closestNode.name,
+            countryId: p.floInfo.closestNode.countryId,
+            nodeLocation: p.floInfo.closestNode.location,
+            ipAddress: p.floInfo.closestNode.ipAddress,
+            location: p.location
+          };
+          data.insert(p.battleTag, pdts);
         }
       }
     }
@@ -886,7 +892,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
     fs::write(MMM_FNAME, yml).await?;
   } else {
     let contents = fs::read_to_string(MMM_FNAME).await?;
-    let mut data: BTreeMap<String, PlayerData> = serde_yaml::from_str(&contents)?;
+    let mut data: BTreeMap<String, PlayerDataToStore> = serde_yaml::from_str(&contents)?;
     for qs in parsed {
       for s in qs.snapshot {
         if qs.gameMode == 1 {
@@ -918,13 +924,17 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
             ));
           }
 
-          let p_clone = p.clone();
+          let pdts = PlayerDataToStore {
+            closestNode: p.floInfo.closestNode.name,
+            countryId: p.floInfo.closestNode.countryId,
+            nodeLocation: p.floInfo.closestNode.location,
+            ipAddress: p.floInfo.closestNode.ipAddress,
+            location: p.location
+          };
           if let Some(d) = data.get_mut(&p.battleTag) {
-            // override if exists
-            *d = p_clone;
+            *d = pdts;
           } else {
-            let p_clone = p.clone();
-            data.insert(p.battleTag, p_clone);
+            data.insert(p.battleTag, pdts);
           }
         }
       }

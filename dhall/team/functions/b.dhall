@@ -9,5 +9,5 @@ in λ(btag: Text)
   , streams   = Some { ggru = Some gg
                      , twitch = Some tw
                      }
-  , other_acc = [] : List Text
+  , alt_accounts = [] : List Text
   }

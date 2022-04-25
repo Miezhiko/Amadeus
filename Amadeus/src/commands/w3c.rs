@@ -900,8 +900,8 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
 
           let playaz = PLAYERS.iter().copied().find( |pxxx|
                p.battleTag == pxxx.player.battletag
-            || if !pxxx.player.other_acc.is_empty() {
-              pxxx.player.other_acc.iter().any(|a| a == &p.battleTag )
+            || if !pxxx.player.alt_accounts.is_empty() {
+              pxxx.player.alt_accounts.iter().any(|a| a == &p.battleTag )
           } else { false });
 
           if let Some(_sp) = playaz {

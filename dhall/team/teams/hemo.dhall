@@ -13,7 +13,7 @@ let playersList : List Playerx =
     , discord   = 510368731378089984
     , streams   = Some { ggru   = None Text
                        , twitch = Some "Miezhiko" }
-    , other_acc = ["Miezhiko#2378"] }
+    , alt_accounts = ["Miezhiko#2378"] }
   , b "Reyenir#2169"        287914378513088515 "reyenir" "Cherry-Phoenix"
   , b "ag3nt#21617"         293268448212156416 "ag3ntik" "ag3nt"
   , b "Rici#2903"           404379597568999425 "riciii" "Rici"
@@ -29,7 +29,7 @@ let playersList : List Playerx =
   , { battletag = "Smurf#24244"
     , discord   = 255345878917709824
     , streams   = None Streams
-    , other_acc = ["Wayfarer#21400"] }
+    , alt_accounts = ["Wayfarer#21400"] }
   , p "Edek#1800"           298003054110965762
   , p "RiplEy#21126"        137314790769950720
   , p "RavenTT#2656"        277555411584942080
@@ -38,7 +38,7 @@ let playersList : List Playerx =
   , { battletag = "War3Alex#2898"
     , discord   = 720938816810254338
     , streams   = None Streams
-    , other_acc = ["WindWalker#21184", "Visor#21330"] }
+    , alt_accounts = ["WindWalker#21184", "Visor#21330"] }
   ]
 
 let discord : Discordx = { uid      = 611822838831251466

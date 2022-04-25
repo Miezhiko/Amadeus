@@ -74,9 +74,14 @@ pub async fn check_match( matchid: &str
             , race1 = get_race2(m.teams[0].players[0].race)
             , race2 = get_race2(m.teams[1].players[0].race) };
         for i in 0..2 {
-          if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.player.battletag) {
+          if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[0].battleTag == p.player.battletag
+          || if !p.player.alt_accounts.is_empty() {
+            p.player.alt_accounts.iter().any(|a| a == &m.teams[i].players[0].battleTag)
+          } else { false }
+          ) {
             let won = m.teams[i].players[0].won;
-            losers.push(( (playa.player.battletag.clone(), playa.player.discord)
+            losers.push(( ( playa.player.battletag.clone()
+                          , playa.player.discord )
                         , won ));
           }
         }
@@ -115,9 +120,14 @@ pub async fn check_match( matchid: &str
         let mut aka_names: [[String; 2]; 2] = Default::default();
         for i in 0..2 {
           for j in 0..2 {
-            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.player.battletag) {
+            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.player.battletag
+              || if !p.player.alt_accounts.is_empty() {
+                p.player.alt_accounts.iter().any(|a| a == &m.teams[i].players[j].battleTag)
+              } else { false }
+            ) {
               let won = m.teams[i].players[j].won;
-              losers.push(( (playa.player.battletag.clone(), playa.player.discord)
+              losers.push(( ( playa.player.battletag.clone()
+                            , playa.player.discord )
                           , won ));
             }
             aka_names[i][j] = aka(&m.teams[i].players[j], rqcl).await;
@@ -150,9 +160,14 @@ pub async fn check_match( matchid: &str
         let mut aka_names: [[String; 4]; 2] = Default::default();
         for i in 0..2 {
           for j in 0..4 {
-            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.player.battletag) {
+            if let Some(playa) = playaz.iter().find(|p| m.teams[i].players[j].battleTag == p.player.battletag
+              || if !p.player.alt_accounts.is_empty() {
+                p.player.alt_accounts.iter().any(|a| a == &m.teams[i].players[0].battleTag)
+              } else { false }
+            ) {
               let won = m.teams[i].players[j].won;
-              losers.push(( (playa.player.battletag.clone(), playa.player.discord)
+              losers.push(( ( playa.player.battletag.clone()
+                            , playa.player.discord )
                           , won ));
             }
             aka_names[i][j] = aka(&m.teams[i].players[j], rqcl).await;
@@ -254,6 +269,9 @@ pub async fn check_match( matchid: &str
           if playaz.len() > 1 {
             if let Some(scores) = &ps.iter().find(|s| {
               s.battleTag == playaz[1].player.battletag
+              || if !playaz[1].player.alt_accounts.is_empty() {
+                playaz[1].player.alt_accounts.iter().any(|a| a == &s.battleTag)
+              } else { false }
             }) { scores } else { &ps[1] }
           } else if let Some(team) = m.teams.iter().find(|t| {
             t.players.iter().any(|p| {

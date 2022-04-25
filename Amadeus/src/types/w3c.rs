@@ -244,7 +244,7 @@ s_struct!(Quantiles {
 s_struct!(FloPings {
   nodeId: u32,
   currentPing: u32,
-  avgPing: f32,
+  avgPing: u32,
   lossRate: u32,
   matchmakingPing: u32,
 });
@@ -291,5 +291,5 @@ pub_struct!(Snapshot {
 pub_struct!(QueueSnapshot {
   gameMode: u32,
   snapshot: Vec<Snapshot>,
-  activePlayersMedian: u32,
+  activePlayersMedian: f32,
 });

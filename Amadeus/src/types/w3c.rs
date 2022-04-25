@@ -244,7 +244,7 @@ s_struct!(Quantiles {
 s_struct!(FloPings {
   nodeId: u32,
   currentPing: u32,
-  avgPing: u32,
+  avgPing: f32,
   lossRate: u32,
   matchmakingPing: u32,
 });

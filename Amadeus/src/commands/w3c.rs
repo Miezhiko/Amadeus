@@ -35,6 +35,16 @@ use std::{ time::Duration
 use crate::common::constants::APM_PICS;
 use plotters::prelude::*;
 
+use chrono::{ Utc, DateTime };
+use once_cell::sync::Lazy;
+
+static Q1T: AtomicU32 = AtomicU32::new(0);
+static Q2T: AtomicU32 = AtomicU32::new(0);
+static Q4T: AtomicU32 = AtomicU32::new(0);
+
+static LAST_QTIME_UPDATE: Lazy<Mutex<DateTime<Utc>>> =
+  Lazy::new(|| Mutex::new(Utc::now()));
+
 pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(11);
 static ONGOING_PAGE_SIZE: usize = 15;
 
@@ -736,29 +746,29 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
             max_games = std::cmp::max(max_games, ph_max_games);
             if ph.gameMode == 1 {
               let color = RGBColor(255, 50, 50);
-              let style: ShapeStyle = ShapeStyle::from(color);
+              let style: ShapeStyle = ShapeStyle::from(color).stroke_width(2);
               let plx = ph.playTimePerHour.iter().map(|p| {
                 (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
               }).collect::<Vec<(f64, f64)>>();
               plx_vec.push((style, plx, "1x1"));
             } else if ph.gameMode == 2 {
               let color = RGBColor(180, 120, 255);
-              let style: ShapeStyle = ShapeStyle::from(color);
+              let style: ShapeStyle = ShapeStyle::from(color).stroke_width(3);
               let plx = ph.playTimePerHour.iter().map(|p| {
-                (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
+                (p.hours as f64 + (p.minutes as f64 / 64f64), (p.games * 2) as f64)
               }).collect::<Vec<(f64, f64)>>();
               plx_vec.push((style, plx, "2x2"));
             } else if ph.gameMode == 4 {
               let color = RGBColor(100, 200, 50);
-              let style: ShapeStyle = ShapeStyle::from(color);
+              let style: ShapeStyle = ShapeStyle::from(color).stroke_width(2);
               let plx = ph.playTimePerHour.iter().map(|p| {
-                (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
+                (p.hours as f64 + (p.minutes as f64 / 64f64), (p.games * 2) as f64)
               }).collect::<Vec<(f64, f64)>>();
               plx_vec.push((style, plx, "4x4"));
             }
           }
         }
-        let root_area = BitMapBackend::new(&fname_popular_hours, (1024, 384)).into_drawing_area();
+        let root_area = BitMapBackend::new(&fname_popular_hours, (1000, 500)).into_drawing_area();
         root_area.fill(&RGBColor(47, 49, 54))?;
         let mut cc = ChartBuilder::on(&root_area)
           .margin(5u32)
@@ -766,6 +776,7 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
           .build_cartesian_2d(0.0..23_f64, 0.0..max_games as f64)?;
         cc.configure_mesh()
           .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
+          .x_labels(24)
           .y_labels(10)
           .axis_style(&RGBColor(80, 80, 80))
           .draw()?;
@@ -898,8 +909,36 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
     }
   }
 
-  Ok(( (qtime1.len(), max(&qtime1))
-     , (qtime2.len(), max(&qtime2))
-     , (qtime4.len(), max(&qtime4))
+  let nao = Utc::now();
+  let mut last_update = LAST_QTIME_UPDATE.lock().await;
+
+  let (mut qmax1, mut qmax2, mut qmax4) =
+    ( max(&qtime1)
+    , max(&qtime2)
+    , max(&qtime4)
+    );
+  let since_last_update: chrono::Duration = nao - *last_update;
+  let (mut qt1m, mut qt2m, mut qt4m) =
+    ( Q1T.load(Relaxed)
+    , Q2T.load(Relaxed)
+    , Q4T.load(Relaxed)
+    );
+  // each 20 minutes half stored search time
+  if since_last_update > chrono::Duration::minutes(20) {
+    *last_update = nao;
+    if qt1m > 1 { qt1m /= 2; }
+    if qt2m > 1 { qt2m /= 2; }
+    if qt4m > 1 { qt4m /= 2; }
+  }
+  qmax1 = std::cmp::max( qmax1, qt1m );
+  qmax2 = std::cmp::max( qmax2, qt2m );
+  qmax4 = std::cmp::max( qmax4, qt4m );
+  Q1T.store(qmax1, Relaxed);
+  Q2T.store(qmax2, Relaxed);
+  Q4T.store(qmax4, Relaxed);
+
+  Ok(( ( qtime1.len(), qmax1 )
+     , ( qtime2.len(), qmax2 )
+     , ( qtime4.len(), qmax4 )
      , searching_players ))
 }

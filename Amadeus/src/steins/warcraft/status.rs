@@ -188,7 +188,7 @@ __**weekly team games:**__
 ```
 __**currently running:**__
 ```
-SOLO {} search for {} GAMES: {}
+1x1 {} search for {} GAMES: {}
 2x2 {} search for {} GAMES: {}
 4x4 {} search for {} GAMES: {}
 ```

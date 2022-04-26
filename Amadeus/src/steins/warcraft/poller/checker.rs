@@ -120,7 +120,8 @@ pub async fn check<'a>( ctx: &Context
                         if !msg.embeds.is_empty() {
                           if !msg.embeds[0].fields.is_empty() {
                             for f in msg.embeds[0].fields.clone() {
-                              if f.name != "Bets" {
+                              if f.name != "Bets"
+                              && f.name != "flo tv" {
                                 fields.push((f.name, f.value, f.inline));
                               }
                             }
@@ -282,7 +283,8 @@ pub async fn check<'a>( ctx: &Context
                         if !msg.embeds.is_empty() {
                           if !msg.embeds[0].fields.is_empty() {
                             for f in msg.embeds[0].fields.clone() {
-                              if f.name != "Bets" {
+                              if f.name != "Bets"
+                              && f.name != "flo tv" {
                                 fields.push((f.name, f.value, f.inline));
                               }
                             }
@@ -433,7 +435,8 @@ pub async fn check<'a>( ctx: &Context
                       if !msg.embeds.is_empty() {
                         if !msg.embeds[0].fields.is_empty() {
                           for f in msg.embeds[0].fields.clone() {
-                            if f.name != "Bets" {
+                            if f.name != "Bets"
+                            && f.name != "flo tv" {
                               fields.push((f.name, f.value, f.inline));
                             }
                           }

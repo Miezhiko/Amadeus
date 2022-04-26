@@ -220,18 +220,3 @@ async fn extreme_feminize(ctx: &Context, msg: &Message, args: Args) -> CommandRe
   }
   Ok(())
 }
-
-#[command]
-#[min_args(1)]
-#[description("grammar correction")]
-pub async fn correct(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  #[cfg(not(target_os = "windows"))]
-  {
-    let correction = chain::correct(args.message()).await;
-    channel_message( ctx
-                   , msg
-                   , &correction
-                   ).await;
-  }
-  Ok(())
-}

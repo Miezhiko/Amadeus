@@ -10,7 +10,6 @@ use crate::{
   collections::channels::AI_LEARN,
   steins::ai::{ cache::{ CACHE_RU
                        , CACHE_ENG
-                       , NLPR_RULES, NLPR_TOKENIZER
                        , process_message_string
                        , self }
               , boris, uwu }
@@ -103,12 +102,6 @@ pub async fn generate_with_language(ctx: &Context, russian: bool) -> String {
   chain.generate_str()
 }
 
-pub async fn correct(msg: &str) -> String {
-  set!{ nlp = NLPR_RULES.lock().await
-      , tokenizer = NLPR_TOKENIZER.lock().await };
-  nlp.correct(msg, &tokenizer)
-}
-
 pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> String {
   let msg_content = &msg.content;
   let russian = if let Some(rus) = mbrussian
@@ -139,10 +132,6 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
     } else {
       out = uwu::spell(&out);
     }
-  }
-  #[cfg(feature = "torch")]
-  if !russian && rndx < 30 {
-    out = correct(&out).await;
   }
   out
 }

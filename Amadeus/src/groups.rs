@@ -24,7 +24,7 @@ pub struct Meta;
 
 #[group("Chat")]
 #[description = "Chat commands"]
-#[commands( quote, boris, owo, score, top, give, correct
+#[commands( quote, boris, owo, score, top, give
           , feminize, extreme_feminize )]
 pub struct Chat;
 

@@ -23,8 +23,8 @@ use serenity::{
 
 use std::sync::atomic::Ordering;
 
-static ASYNC_CMDS: [&str; 52] = [ "translate", "перевод", "help"
-                                , "stats", "феминизировать", "correct"
+static ASYNC_CMDS: [&str; 51] = [ "translate", "перевод", "help"
+                                , "stats", "феминизировать"
                                 , "time", "время", "leave"
                                 , "play", "repeat", "scared"
                                 , "wave", "cry", "hug"
@@ -1043,30 +1043,6 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
                       }
                     }, Err(why) => {
                       error!("Failed to create stats interaction response {:?}", why);
-                    }
-                  };
-                  RESTORE.store(true, Ordering::Relaxed);
-
-                }
-              }
-            }
-          },
-          "correct" => {
-            if let Some(o) = ac.data.options.first() {
-              if let Some(v) = o.value.clone() {
-                if let Some(t) = v.as_str() {
-
-                  RESTORE.store(false, Ordering::Relaxed);
-                  match ac.edit_original_interaction_response(&ctx.http, |response|
-                    response.content(&format!("Correcting {}", t))
-                  ).await {
-                    Ok(msg) => {
-                      let args = Args::new(t, &[Delimiter::Single(';')]);
-                      if let Err(serr) = chat::correct(ctx, &msg, args).await {
-                        error!("Failed to correct on interaction {:?}", serr);
-                      }
-                    }, Err(why) => {
-                      error!("Failed to correct on interaction response {:?}", why);
                     }
                   };
                   RESTORE.store(true, Ordering::Relaxed);

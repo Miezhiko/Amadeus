@@ -27,11 +27,10 @@ use serde_json::Value;
 use comfy_table::*;
 
 use std::{ time::Duration
-         , collections::{ HashMap, BTreeMap }
+         , collections::HashMap
          , sync::Arc
          , sync::atomic::Ordering::Relaxed
          , sync::atomic::AtomicU32 };
-use async_std::fs;
 
 use crate::common::constants::APM_PICS;
 use plotters::prelude::*;
@@ -822,8 +821,6 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
   Ok(())
 }
 
-const MMM_FNAME: &str = "mmm.yml";
-
 fn max(numbers: &[u32]) -> u32 {
   match numbers.iter().max() {
     Some(max) => *max,
@@ -865,83 +862,42 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
        , qtime2 = vec![]
        , qtime4 = vec![]
        , searching_players = vec![] };
-  if !std::path::Path::new(MMM_FNAME).exists() {
-    let mut data: BTreeMap<String, PlayerDataToStore> = BTreeMap::new();
-    for qs in parsed {
-      for s in qs.snapshot {
-        if qs.gameMode == 1 {
-          qtime1.push( s.queueTime );
-        } else if qs.gameMode == 2 {
-          qtime2.push( s.queueTime );
-        } else if qs.gameMode == 4 {
-          qtime4.push( s.queueTime );
+
+  for qs in parsed {
+    for s in qs.snapshot {
+      if qs.gameMode == 1 {
+        qtime1.push( s.queueTime );
+      } else if qs.gameMode == 2 {
+        qtime2.push( s.queueTime );
+      } else if qs.gameMode == 4 {
+        qtime4.push( s.queueTime );
+      }
+      for p in s.playerData {
+
+        let playaz = PLAYERS.iter().copied().find( |pxxx|
+              p.battleTag == pxxx.player.battletag
+          || if !pxxx.player.alt_accounts.is_empty() {
+            pxxx.player.alt_accounts.iter().any(|a| a == &p.battleTag )
+        } else { false });
+
+        if let Some(_sp) = playaz {
+          let mode_str =
+            match qs.gameMode {
+                1 => "solo"
+              , 2 => "2x2"
+              , 4 => "4x4"
+              , _ => "custom"
+            };
+          searching_players.push((
+            p.battleTag.clone(),
+            format!("search {mode_str} for {}", secs_to_str(s.queueTime))
+          ));
         }
-        for p in s.playerData {
-          let pdts = PlayerDataToStore {
-            closestNode: p.floInfo.closestNode.name,
-            countryId: p.floInfo.closestNode.countryId,
-            nodeLocation: p.floInfo.closestNode.location,
-            ipAddress: p.floInfo.closestNode.ipAddress,
-            location: p.location
-          };
-          data.insert(p.battleTag, pdts);
-        }
+
       }
     }
-    let yml = serde_yaml::to_string(&data)?;
-    fs::write(MMM_FNAME, yml).await?;
-  } else {
-    let contents = fs::read_to_string(MMM_FNAME).await?;
-    let mut data: BTreeMap<String, PlayerDataToStore> = serde_yaml::from_str(&contents)?;
-    for qs in parsed {
-      for s in qs.snapshot {
-        if qs.gameMode == 1 {
-          qtime1.push( s.queueTime );
-        } else if qs.gameMode == 2 {
-          qtime2.push( s.queueTime );
-        } else if qs.gameMode == 4 {
-          qtime4.push( s.queueTime );
-        }
-        for p in s.playerData {
-
-          let playaz = PLAYERS.iter().copied().find( |pxxx|
-               p.battleTag == pxxx.player.battletag
-            || if !pxxx.player.alt_accounts.is_empty() {
-              pxxx.player.alt_accounts.iter().any(|a| a == &p.battleTag )
-          } else { false });
-
-          if let Some(_sp) = playaz {
-            let mode_str =
-              match qs.gameMode {
-                  1 => "solo"
-                , 2 => "2x2"
-                , 4 => "4x4"
-                , _ => "custom"
-              };
-            searching_players.push((
-              p.battleTag.clone(),
-              format!("search {mode_str} for {}", secs_to_str(s.queueTime))
-            ));
-          }
-
-          let pdts = PlayerDataToStore {
-            closestNode: p.floInfo.closestNode.name,
-            countryId: p.floInfo.closestNode.countryId,
-            nodeLocation: p.floInfo.closestNode.location,
-            ipAddress: p.floInfo.closestNode.ipAddress,
-            location: p.location
-          };
-          if let Some(d) = data.get_mut(&p.battleTag) {
-            *d = pdts;
-          } else {
-            data.insert(p.battleTag, pdts);
-          }
-        }
-      }
-    }
-    let yml = serde_yaml::to_string(&data)?;
-    fs::write(MMM_FNAME, yml).await?;
   }
+
   Ok(( (qtime1.len(), max(&qtime1))
      , (qtime2.len(), max(&qtime2))
      , (qtime4.len(), max(&qtime4))

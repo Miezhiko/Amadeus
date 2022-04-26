@@ -36,7 +36,6 @@
  - Slash commands support (type `/`)
  - Chatty (`set activity 66` is default)
  - Automatic translation with bert models
- - Rule-based grammatical error correction
  - [Deepspeach](https://github.com/mozilla/DeepSpeech) for voice[WIP]
  - Live games tracking on [w3champions](https://www.w3champions.com)
  - W3info news tracking using calendar

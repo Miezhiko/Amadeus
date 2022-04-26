@@ -2,7 +2,6 @@
 /trees/
 /cache/
 /node_modules/
-/nlprule/
 /.vscode/
 
 package-lock.json

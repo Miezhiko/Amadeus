@@ -208,15 +208,6 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
           .required(true)
       })
     )
-      .create_application_command(|c| c.name("correct")
-      .description("Correct grammar for English text")
-      .create_option(|o| {
-          o.name("text")
-          .description("Text for correction")
-          .kind(ApplicationCommandOptionType::String)
-          .required(true)
-      })
-    )
       .create_application_command(|c| c.name("time")
       .description("Display current time")
       .create_option(|o| {

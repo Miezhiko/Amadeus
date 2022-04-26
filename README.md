@@ -64,6 +64,7 @@
  - Using [Celery](https://github.com/rusty-celery/rusty-celery) and [RabbitMQ](https://www.rabbitmq.com) for distributed tasks queue.
  - Using tokio [UnixStream](https://docs.rs/tokio/1.17.0/tokio/net/struct.UnixStream.html#method.try_read_buf) on various sockets for IPC
  - Warcraft 3 Status Grid with active players on modes and weekly team players statistics.
+ - [FloTV](https://w3flo.com/live) tokens generation using GraphQL API to [Flo Stats](https://stats.w3flo.com).
 
 
 ## Cooking

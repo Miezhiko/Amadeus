@@ -251,7 +251,7 @@ pub async fn activate_games_tracking(
                                                             .cloned().collect()
                                      , bets: vec![]
                                      , fails: 0
-                                     , mode: game.mode } );
+                                     , mode: game.mode, flo_tv: None } );
                   }
                 }
                 let up = ReactionType::Unicode(String::from("👍🏻"));

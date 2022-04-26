@@ -1,0 +1,166 @@
+schema {
+  query: QueryRoot
+  mutation: MutationRoot
+  subscription: SubscriptionRoot
+}
+
+type Action {
+  playerId: Int!
+  apm: Float!
+  total: Int!
+}
+
+type ActionStats {
+  time: Int!
+  data: [Action!]!
+}
+
+# Implement the DateTime<Utc> scalar
+#
+# The input/output is a string in RFC3339 format.
+scalar DateTime
+
+union GameListUpdateEvent =
+    GameListUpdateEventAdded
+  | GameListUpdateEventEnded
+  | GameListUpdateEventRemoved
+
+type GameListUpdateEventAdded {
+  snapshot: GameSnapshot!
+}
+
+type GameListUpdateEventEnded {
+  gameId: Int!
+  endedAt: DateTime!
+}
+
+union GameListUpdateEventItem =
+    GameListUpdateEventItemInitial
+  | GameListUpdateEventItemEvent
+
+type GameListUpdateEventItemEvent {
+  event: GameListUpdateEvent!
+}
+
+type GameListUpdateEventItemInitial {
+  snapshots: [GameSnapshot!]!
+}
+
+type GameListUpdateEventRemoved {
+  gameId: Int!
+}
+
+type GameSnapshot {
+  id: Int!
+  gameName: String!
+  mapName: String!
+  mapPath: String!
+  mapSha1: [Int!]!
+  mapChecksum: Int!
+  nodeId: Int!
+  nodeName: String!
+  startedAt: DateTime!
+  endedAt: DateTime
+  players: [Player!]!
+  randomSeed: Int!
+  gameVersion: String
+  maskPlayerNames: Boolean!
+}
+
+type GameSnapshotWithStats {
+  game: GameSnapshot!
+  stats: GameStatsSnapshot!
+}
+
+type GameStatsSnapshot {
+  ping: [PingStats!]!
+  action: [ActionStats!]!
+}
+
+type GameUpdateEvent {
+  gameId: Int!
+  data: GameUpdateEventData!
+}
+
+union GameUpdateEventData =
+    GameUpdateEventDataEnded
+  | GameUpdateEventDataRemoved
+  | PingStats
+  | ActionStats
+  | GameUpdateEventDataPlayerLeft
+
+type GameUpdateEventDataEnded {
+  endedAt: DateTime!
+  durationMillis: Int!
+}
+
+type GameUpdateEventDataPlayerLeft {
+  time: Int!
+  playerId: Int!
+  reason: PlayerLeaveReason!
+}
+
+type GameUpdateEventDataRemoved {
+  snapshot: GameSnapshot!
+}
+
+union GameUpdateEventItem = GameSnapshotWithStats | GameUpdateEvent
+
+type MutationRoot {
+  createObserverToken(gameId: Int!): ObserverTokenPayload!
+}
+
+type ObserverTokenPayload {
+  game: GameSnapshot!
+  delaySecs: Int
+  token: String!
+}
+
+type Ping {
+  playerId: Int!
+  min: Int!
+  max: Int!
+  avg: Float!
+  ticks: Int!
+}
+
+type PingStats {
+  time: Int!
+  data: [Ping!]!
+}
+
+type Player {
+  id: Int!
+  name: String!
+  race: Race!
+  team: Int!
+  leftAt: Int
+  leaveReason: PlayerLeaveReason
+}
+
+enum PlayerLeaveReason {
+  LEAVE_DISCONNECT
+  LEAVE_LOST
+  LEAVE_LOST_BUILDINGS
+  LEAVE_WON
+  LEAVE_DRAW
+  LEAVE_OBSERVER
+  LEAVE_UNKNOWN
+}
+
+type QueryRoot {
+  games: [GameSnapshot!]!
+}
+
+enum Race {
+  HUMAN
+  ORC
+  NIGHT_ELF
+  UNDEAD
+  RANDOM
+}
+
+type SubscriptionRoot {
+  gameListUpdateEvents: GameListUpdateEventItem!
+  gameUpdateEvents(id: Int!): GameUpdateEventItem!
+}

@@ -37,7 +37,8 @@ pub struct TrackingGame {
   pub players: Vec<DiscordPlayer>,
   pub bets: Vec<Bet>,
   pub fails: u32,
-  pub mode: GameMode
+  pub mode: GameMode,
+  pub flo_tv: Option<String>
 }
 
 #[allow(non_snake_case)]

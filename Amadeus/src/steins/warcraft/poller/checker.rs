@@ -16,7 +16,8 @@ use crate::{
     status::{
       add_to_weekly,
       status_update
-    }
+    },
+    flotv::get_flotv
   }
 };
 
@@ -106,6 +107,12 @@ pub async fn check<'a>( ctx: &Context
                     if let Ok(mut msg) = ctx.http.get_message(ch, t.1).await {
                       if let Ok(user) = ctx.http.get_user(playa).await {
 
+                        if track.flo_tv.is_none() {
+                          if let Ok(Some(flotv)) = get_flotv(rqcl, &playaz).await {
+                            track.flo_tv = Some(flotv);
+                          }
+                        };
+
                         setm!{ fields = Vec::new()
                              , img    = None
                              , url    = None
@@ -147,6 +154,9 @@ pub async fn check<'a>( ctx: &Context
                             }
                             if let Some(colour) = color {
                               e = e.colour(colour);
+                            }
+                            if let Some(flotv) = &track.flo_tv {
+                              e = e.fields([("flo tv", flotv, false)]);
                             }
                             e
                           }
@@ -258,6 +268,13 @@ pub async fn check<'a>( ctx: &Context
                       // get first player for discord
                       let playa = playaz[0].player.discord;
                       if let Ok(user) = ctx.http.get_user(playa).await {
+
+                        if track.flo_tv.is_none() {
+                          if let Ok(Some(flotv)) = get_flotv(rqcl, &playaz).await {
+                            track.flo_tv = Some(flotv);
+                          }
+                        };
+
                         setm!{ fields = Vec::new()
                              , img    = None
                              , url    = None
@@ -299,6 +316,9 @@ pub async fn check<'a>( ctx: &Context
                             }
                             if let Some(colour) = color {
                               e = e.colour(colour);
+                            }
+                            if let Some(flotv) = &track.flo_tv {
+                              e = e.fields([("flo tv", flotv, false)]);
                             }
                             e
                           }

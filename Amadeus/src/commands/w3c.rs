@@ -31,6 +31,7 @@ use std::{ time::Duration
          , sync::Arc
          , sync::atomic::Ordering::Relaxed
          , sync::atomic::AtomicU32 };
+use async_std::fs;
 
 use crate::common::constants::APM_PICS;
 use plotters::prelude::*;
@@ -803,6 +804,9 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
           error!("Failed to download and post stream img {why}");
         }
       };
+      if let Err(why) = fs::remove_file(&fname_popular_hours).await {
+        error!("Error removing popular hours png {why}");
+      }
     } else {
       error!("failed to parse");
     }

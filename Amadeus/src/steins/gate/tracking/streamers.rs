@@ -363,7 +363,7 @@ pub async fn activate_streamers_tracking(
                       passed_time: 0,
                       still_live: true,
                       players: vec![playa_for_stream], bets: vec![], fails: 0,
-                      mode: GameMode::Solo }
+                      mode: GameMode::Solo, flo_tv: None }
                     );
                   }
                 },
@@ -380,7 +380,7 @@ pub async fn activate_streamers_tracking(
                     passed_time: 0,
                     still_live: true,
                     players: vec![playa_for_stream], bets: vec![], fails: 0,
-                    mode: GameMode::Solo }
+                    mode: GameMode::Solo, flo_tv: None }
                   );
                 }
               }

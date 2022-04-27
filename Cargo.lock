@@ -73,12 +73,12 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "9.1.25"
+version = "9.1.26"
 dependencies = [
  "anyhow",
  "async-recursion",
  "async-std",
- "bincode 2.0.0-rc.1",
+ "bincode",
  "cannyls",
  "celery",
  "chrono",
@@ -477,15 +477,6 @@ name = "base64"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
-
-[[package]]
-name = "bincode"
-version = "1.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
-dependencies = [
- "serde",
-]
 
 [[package]]
 name = "bincode"
@@ -2572,14 +2563,12 @@ dependencies = [
 
 [[package]]
 name = "kathoey"
-version = "1.0.10"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c401edba75774c552b2c763aa9016a315d6f49cbb2c784854de0e231866b2537"
+checksum = "d3a91e341e4c3a7470d2bf432ee7a7835ef813afefaf0d927dacfcb9641b6420"
 dependencies = [
  "anyhow",
- "bincode 1.3.3",
- "serde",
- "serde_derive",
+ "bincode",
  "xmlparser",
 ]
 
@@ -2894,7 +2883,7 @@ version = "0.2.5"
 dependencies = [
  "anyhow",
  "async-recursion",
- "bincode 2.0.0-rc.1",
+ "bincode",
  "celery",
  "chrono",
  "log",

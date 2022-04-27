@@ -10,7 +10,7 @@ mod schema {
     query_module = "schema"
 )]
 pub struct Player {
-  pub name: String,
+  pub name: String
 }
 
 #[derive(cynic::QueryFragment, Debug)]
@@ -20,7 +20,6 @@ pub struct Player {
 )]
 pub struct GameSnapshot {
   pub id: i32,
-  pub map_name: String,
   pub players: Vec<Player>
 }
 
@@ -30,7 +29,7 @@ pub struct GameSnapshot {
     graphql_type = "QueryRoot"
 )]
 struct GameSnapshotQuery {
-  games: Vec<GameSnapshot>,
+  games: Vec<GameSnapshot>
 }
 
 
@@ -40,12 +39,12 @@ mod queries {
 
   #[derive(cynic::FragmentArguments, Debug)]
   pub struct CreateObserverTokenArguments {
-    pub game_id: i32,
+    pub game_id: i32
   }
 
   #[derive(cynic::QueryFragment, Debug)]
   pub struct ObserverTokenPayload {
-    pub token: String,
+    pub token: String
   }
 
   #[derive(cynic::QueryFragment, Debug)]
@@ -55,7 +54,7 @@ mod queries {
   )]
   pub struct CreateObserverToken {
     #[arguments(game_id = args.game_id)]
-    pub create_observer_token: ObserverTokenPayload,
+    pub create_observer_token: ObserverTokenPayload
   }
 }
 

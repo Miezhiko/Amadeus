@@ -164,3 +164,4 @@ systemctl restart Amadeus
  - You need libdeepspeech for voice analysis feature
  - Code open sourced just for my friend Sirius to be able to see it, please pay attention to license
  - Fingon is cute
+ - Additional thank to @fluxxu for removing my ban on W3C (this was kind of important for my motivation to improve flo/w3c aspects of Amadeus)

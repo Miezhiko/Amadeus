@@ -17,6 +17,7 @@ pub async fn check_match( matchid: &str
                         , track_mode: &GameMode
                         , rqcl: &reqwest::Client
                         ) -> Option<FinishedGame> {
+
   let url = format!("{W3C_API}/matches/by-ongoing-match-id/{matchid}");
 
   let mut if_md: Option<MD> = None;

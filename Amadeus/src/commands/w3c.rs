@@ -769,8 +769,7 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
             }
           }
         }
-        // keep width/height relation 0.75, 0.5 or lower looks fine on PC but bad on mobile
-        let root_area = BitMapBackend::new(&fname_popular_hours, (1024, 768)).into_drawing_area();
+        let root_area = BitMapBackend::new(&fname_popular_hours, (1000, 500)).into_drawing_area();
         root_area.fill(&RGBColor(47, 49, 54))?;
         let mut cc = ChartBuilder::on(&root_area)
           .margin(5u32)

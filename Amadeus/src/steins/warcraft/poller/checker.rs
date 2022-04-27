@@ -683,9 +683,9 @@ pub async fn check<'a>( ctx: &Context
                 .embed(|e| {
                   let mut e =
                     e.author(|a| a.icon_url(&user.face()).name(&nick))
-                      .title(title)
-                      .url(&fgame.link)
-                      .footer(|f| f.text(footer));
+                     .title(title)
+                     .url(&fgame.link)
+                     .footer(|f| f.text(footer));
                   if !fgame.desc.is_empty() {
                     e = e.description(&fgame.desc[0]);
                     if fgame.desc.len() > 2 {

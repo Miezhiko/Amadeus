@@ -73,7 +73,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "9.1.26"
+version = "9.1.27"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -691,7 +691,7 @@ checksum = "2fff2a6927b3bb87f9595d67196a70493f627687a71d87a0d692242c33f58c11"
 [[package]]
 name = "celery"
 version = "0.4.666"
-source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#de6a5292aec90edcea24efd5c8c3054852f83641"
+source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#116ed690ba3cefd700f3f89bd7c5e286dc16459e"
 dependencies = [
  "async-trait",
  "base64",
@@ -719,7 +719,7 @@ dependencies = [
 [[package]]
 name = "celery-codegen"
 version = "0.4.0-rcn.11"
-source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#de6a5292aec90edcea24efd5c8c3054852f83641"
+source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#116ed690ba3cefd700f3f89bd7c5e286dc16459e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1144,9 +1144,9 @@ dependencies = [
 
 [[package]]
 name = "curl-sys"
-version = "0.4.53+curl-7.82.0"
+version = "0.4.54+curl-7.83.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8092905a5a9502c312f223b2775f57ec5c5b715f9a15ee9d2a8591d1364a0352"
+checksum = "25debbc3365c3e7ee79e30918df5759e84dbd4485807a18829188abf1786ec4e"
 dependencies = [
  "cc",
  "libc",
@@ -2879,7 +2879,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.5"
+version = "0.2.6"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -4274,7 +4274,7 @@ checksum = "73b4b750c782965c211b42f022f59af1fbceabdd026623714f104152f1ec149f"
 
 [[package]]
 name = "salieri"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "celery",
@@ -5105,9 +5105,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.17.0"
+version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2af73ac49756f3f7c01172e34a23e5d0216f6c32333757c2c61feb2bbff5a5ee"
+checksum = "0f48b6d60512a392e34dbf7fd456249fd2de3c83669ab642e021903f4015185b"
 dependencies = [
  "bytes",
  "libc",

@@ -36,8 +36,6 @@ use std::{
   sync::Arc
 };
 
-use reqwest::Client as Reqwest;
-
 #[instrument]
 pub async fn run(opts: &IOptions) ->
   anyhow::Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -166,8 +164,11 @@ pub async fn run(opts: &IOptions) ->
       .register_songbird_with(songbird).await?;
   {
     let mut data = client.data.write().await;
+    let request_client = reqwest::Client::builder()
+                                .pool_max_idle_per_host(0)
+                                .build()?;
     data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
-    data.insert::<ReqwestClient>(Arc::new(Reqwest::new()));
+    data.insert::<ReqwestClient>(Arc::new(request_client));
     data.insert::<PubCreds>(Arc::new(creds));
     data.insert::<CoreGuilds>(Arc::new(core_guilds));
     data.insert::<AllGuilds>(Arc::new(all_guilds));

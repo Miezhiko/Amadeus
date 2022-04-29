@@ -4,9 +4,9 @@ use crate::{
 };
 
 use std::{
-  sync::Arc,
-  io, fs
+  sync::Arc, io
 };
+use async_std::fs;
 
 use tokio::{ sync::Mutex, select
            , net::{ UnixListener, UnixStream }
@@ -161,10 +161,10 @@ pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
         , lukashenko_address  = temp_dir.join(LUKASHENKO) };
 
     if salieri_address.as_path().exists() {
-      fs::remove_file(&salieri_address)?;
+      fs::remove_file(&salieri_address).await?;
     }
     if lukashenko_address.as_path().exists() {
-      fs::remove_file(&lukashenko_address)?;
+      fs::remove_file(&lukashenko_address).await?;
     }
 
     set!{ salieri_socket  = UnixListener::bind(salieri_address)?

@@ -501,8 +501,9 @@ pub async fn check<'a>( ctx: &Context
     }
   }
 
+  // TODO: too big logic for errors checking!
   if let Err(what) = status_update(ctx, &stats).await {
-    if !what.to_string().contains("disable connection pooling") {
+    if !what.to_string().contains("connection closed before message completed") {
       if let Ok(res_test) = rqcl.get("https://matchmaking-service.w3champions.com/queue/snapshots").send().await {
         if let Ok(text_res) = res_test.text().await {
           error!("Failed to update W3C status: {what} on {text_res}");

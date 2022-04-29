@@ -28,6 +28,7 @@ static LIGHT_SLUR_LOL: Lazy<Regex> =
         r"(bitch(es|ing|y)?|whor(es?|ing)|bastard)"
       ).unwrap());
 
+// https://raw.githubusercontent.com/nikolaischunk/discord-phishing-links/main/domain-list.json
 const BAN_LIST_FILE_NAME: &str = "ban-list.json";
 
 #[derive(serde::Deserialize, Debug)]

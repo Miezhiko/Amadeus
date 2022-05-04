@@ -145,6 +145,13 @@ fn try_get_map(m: &str) -> String {
             , "mur'guloasis"          => "Mur'gul Oasis"
             , "springtime"            => "Spring Time"
             , "rustycreek"            => "Rusty Creek"
+            , "arathor"               => "Abathur"
+            , "friends"               => "Gay Party"
+            , "nightopia"             => "Niggopia"
+            , "ekrezemsmaze"          => "Eklerzems Maze"
+            , "paintedworld"          => "Painted World"
+            , "snowblind"             => "Snow Blind"
+            , "dejavu"                => "Dejavu"
             , _                       => m /*""*/ })
 }
 

@@ -29,8 +29,8 @@ pub struct Daily {
   pub statistics2: StatusStats
 }
 
-impl Daily {
-  fn new() -> Daily {
+impl Default for Daily {
+  fn default() -> Self {
     Daily {
       statistics: BTreeMap::new(),
       statistics2: BTreeMap::new()
@@ -89,7 +89,7 @@ async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
   let init = if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
       Weekly {
         reset_day: day,
-        stats: [(); 7].map(|_| Daily::new()),
+        stats: Default::default(),
         popular_hours: poplar_hours
       }
     } else {

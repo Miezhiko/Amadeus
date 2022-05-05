@@ -570,7 +570,7 @@ pub async fn check<'a>( ctx: &Context
                   GameMode::Team4 => false
                 };
                 if let Err(why) = add_to_weekly(ctx, pws, *is_win, is_solo).await {
-                  error!("Failed to add daily stats: {why}");
+                  error!("Failed to add stats: {why}");
                 }
                 if *is_win {
                   trace!("Registering win for {pw}");

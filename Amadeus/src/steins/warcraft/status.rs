@@ -15,25 +15,41 @@ use async_std::fs;
 
 const WEEKLY_STATS_FNAME: &str  = "weekly.yml";
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct WeeklyWinLoses {
   pub wins: u64,
   pub losses: u64
 }
 
-type WeeklyStats = BTreeMap<String, WeeklyWinLoses>;
+type StatusStats = BTreeMap<String, WeeklyWinLoses>;
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Daily {
+  pub statistics: StatusStats,
+  pub statistics2: StatusStats
+}
+
+impl Daily {
+  fn new() -> Daily {
+    Daily {
+      statistics: BTreeMap::new(),
+      statistics2: BTreeMap::new()
+    }
+  }
+}
+
+type DailyStats = [Daily; 7];
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Weekly {
-  pub reset_week: u32,
-  pub statistics: WeeklyStats,
-  pub statistics2: WeeklyStats,
+  pub reset_day: u32,
+  pub stats: DailyStats,
   pub popular_hours: String
 }
 
 pub async fn get_weekly(ctx: &Context) -> anyhow::Result<Weekly> {
   if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
-    clear_weekly(ctx, chrono::Utc::now().iso_week().week()).await?;
+    clear_weekly(ctx, chrono::Utc::now().date().naive_utc().day()).await?;
   }
   let contents = fs::read_to_string(WEEKLY_STATS_FNAME).await?;
   let yml = serde_yaml::from_str(&contents)?;
@@ -42,9 +58,9 @@ pub async fn get_weekly(ctx: &Context) -> anyhow::Result<Weekly> {
 
 pub async fn add_to_weekly(ctx: &Context, p: &str, win: bool, solo: bool) -> anyhow::Result<()> {
   let mut current_weekly = get_weekly(ctx).await?;
-  let weekly_stats: &mut WeeklyStats =
-    if solo { &mut current_weekly.statistics }
-       else { &mut current_weekly.statistics2 };
+  let weekly_stats: &mut StatusStats =
+    if solo { &mut current_weekly.stats[0].statistics }
+       else { &mut current_weekly.stats[0].statistics2 };
   if let Some(p_stats) = weekly_stats.get_mut(p) {
     if win {
       p_stats.wins += 1;
@@ -63,19 +79,32 @@ pub async fn add_to_weekly(ctx: &Context, p: &str, win: bool, solo: bool) -> any
   Ok(())
 }
 
-async fn clear_weekly(ctx: &Context, week: u32) -> anyhow::Result<()> {
+async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
   let poplar_hours =
     if let Some(generated_image) = generate_popularhours(ctx).await? {
       generated_image
     } else {
       "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
     };
-  let init = Weekly {
-    reset_week: week,
-    statistics: BTreeMap::new(),
-    statistics2: BTreeMap::new(),
-    popular_hours: poplar_hours
-  };
+  let init = if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
+      Weekly {
+        reset_day: day,
+        stats: [(); 7].map(|_| Daily::new()),
+        popular_hours: poplar_hours
+      }
+    } else {
+      let contents = fs::read_to_string(WEEKLY_STATS_FNAME).await?;
+      let old: Weekly = serde_yaml::from_str(&contents)?;
+      let mut old_stats = old.stats;
+      old_stats[..].rotate_right(1);
+      old_stats[0].statistics.clear();
+      old_stats[0].statistics2.clear();
+      Weekly {
+        reset_day: day,
+        stats: old_stats,
+        popular_hours: poplar_hours
+      }
+    };
   let yml = serde_yaml::to_string(&init)?;
   fs::write(WEEKLY_STATS_FNAME, yml).await?;
   Ok(())
@@ -85,11 +114,11 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
     let weekly = get_weekly(ctx).await?;
     let now = chrono::Utc::now();
-    // only check on midnight (just because)
+    // only check on midnight
     if now.hour() == 0 {
-      let now_week = now.iso_week().week();
-      if now_week != weekly.reset_week {
-        clear_weekly(ctx, now_week).await?;
+      let now_day = now.date().naive_utc().day();
+      if now_day != weekly.reset_day {
+        clear_weekly(ctx, now_day).await?;
       }
     }
     let ( (z1, q1)
@@ -152,7 +181,13 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         )
       };
     let mut weekly_str = vec![];
-    for wss in &[weekly.statistics, weekly.statistics2] {
+    let mut weekly_statistics = StatusStats::new();
+    let mut weekly_statistics2 = StatusStats::new();
+    for stat in  weekly.stats {
+      weekly_statistics.extend(stat.statistics);
+      weekly_statistics2.extend(stat.statistics2);
+    }
+    for wss in &[weekly_statistics, weekly_statistics2] {
       let mut ws = Vec::from_iter(wss);
       ws.sort_by( |&(_, a), &(_, b)| (b.wins + b.losses).cmp(&(a.wins + a.losses)) );
       weekly_str.push(

@@ -213,11 +213,11 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     }
     let stats_str = format!(
 "
-__**weekly solo:**__
+__**solo stats for 7 days:**__
 ```
 {}
 ```
-__**weekly team games:**__
+__**2x2/4x4 for 7 days:**__
 ```
 {}
 ```

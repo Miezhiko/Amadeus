@@ -59,6 +59,10 @@ async fn delete( guild_id: &GuildId
         }
       } else if let Ok(permissions) = member.permissions(&ctx) {
         if permissions.ban_members() {
+          if !really_delete {
+            // completely ignore harmful words
+            return;
+          }
           if let Some(ds) = DISCORDS.get(&guild_id.0) {
             if let Some(log) = ds.log {
               if let Err(why) = log.send_message(&ctx, |m| m

@@ -110,6 +110,17 @@ async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
   Ok(())
 }
 
+fn merge_stats(s1: &mut StatusStats, s2: &StatusStats) {
+  for (btag, values) in s2.into_iter() {
+    if let Some(existing) = s1.get_mut(btag) {
+      existing.wins   += values.wins;
+      existing.losses += values.losses;
+    } else {
+      s1.insert(btag.clone(), values.clone());
+    }
+  }
+}
+
 pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()> {
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
     let weekly = get_weekly(ctx).await?;
@@ -184,8 +195,8 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     let mut weekly_statistics = StatusStats::new();
     let mut weekly_statistics2 = StatusStats::new();
     for stat in  weekly.stats {
-      weekly_statistics.extend(stat.statistics);
-      weekly_statistics2.extend(stat.statistics2);
+      merge_stats(&mut weekly_statistics, &stat.statistics);
+      merge_stats(&mut weekly_statistics2, &stat.statistics2);
     }
     for wss in &[weekly_statistics, weekly_statistics2] {
       let mut ws = Vec::from_iter(wss);

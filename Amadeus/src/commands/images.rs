@@ -127,7 +127,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
     msg.channel_id.say(ctx, "Please mention a person!").await?;
   }
   if let Ok(typing) = start_typing {
-    let a = typing.stop();
+    typing.stop();
   }
   Ok(())
 }

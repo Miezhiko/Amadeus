@@ -217,7 +217,12 @@ pub async fn check_match( matchid: &str
         // To display hero icon / scores we use 1st playa
         let btag = &playaz[0].player.battletag;
         let player_scores =
-          if btag == &s1 {
+          if btag == &s1
+          || if !playaz[0].player.alt_accounts.is_empty() {
+            playaz[0].player.alt_accounts.iter().any(|other_acc|
+              other_acc == &s1
+            )
+          } else { false } {
             &ps[0]
           } else {
             &ps[1]
@@ -258,6 +263,11 @@ pub async fn check_match( matchid: &str
         let player_scores =
           if let Some(scores) = &ps.iter().find(|s| {
             &s.battleTag == btag
+            || if !playaz[0].player.alt_accounts.is_empty() {
+              playaz[0].player.alt_accounts.iter().any(|other_acc|
+                other_acc == &s.battleTag
+              )
+            } else { false }
           }) { scores } else { &ps[0] };
         if !player_scores.heroes.is_empty() {
           maybe_hero_png = Some(get_hero_png(

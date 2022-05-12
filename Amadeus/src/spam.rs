@@ -25,7 +25,7 @@ static SLUR: Lazy<Regex> =
 static LIGHT_SLUR_LOL: Lazy<Regex> =
     Lazy::new(||
       Regex::new(
-        r"(bitch(es|ing|y)?|whor(es?|ing)|bastard)"
+        r"(bitch(es|ing|y)|whor(es?|ing)|bastard)"
       ).unwrap());
 
 // https://raw.githubusercontent.com/nikolaischunk/discord-phishing-links/main/domain-list.json
@@ -156,6 +156,9 @@ mod antispam_tests {
     );
     assert_eq!(
       LIGHT_SLUR_LOL.is_match("bastard"), true
+    );
+    assert_eq!(
+      LIGHT_SLUR_LOL.is_match("bitchute"), false
     );
     assert_eq!(
       SLUR.is_match("hi nigga"), true

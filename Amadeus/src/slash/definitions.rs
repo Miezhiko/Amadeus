@@ -1,7 +1,7 @@
 use serenity::{
   prelude::*,
   model::{ guild::PartialGuild
-         , interactions::application_command::ApplicationCommandOptionType
+         , application::command::CommandOptionType
          }
 };
 
@@ -123,7 +123,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("person")
           .description("Person to hug")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )
@@ -132,7 +132,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("person")
           .description("Person to pat")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )
@@ -141,7 +141,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("person")
           .description("Person to slap")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )
@@ -150,7 +150,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("animation")
           .description("Search for specific animation")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )
@@ -159,7 +159,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("text")
           .description("What will be translated")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )
@@ -168,7 +168,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("текст")
           .description("Текст для перевода")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )
@@ -177,7 +177,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("battletag")
           .description("Target player")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )
@@ -186,7 +186,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("текст")
           .description("Текст для Бориса")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )
@@ -195,7 +195,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("text")
           .description("Some text...")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )
@@ -204,7 +204,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("текст")
           .description("Текст для феминизации")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )
@@ -213,7 +213,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("timezone")
           .description("Optional timezone")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(false)
       })
     )
@@ -222,7 +222,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("город")
           .description("Дополнительный часовой пояс")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(false)
       })
     )
@@ -240,7 +240,7 @@ pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
       .create_option(|o| {
           o.name("url")
           .description("link for music to play")
-          .kind(ApplicationCommandOptionType::String)
+          .kind(CommandOptionType::String)
           .required(true)
       })
     )

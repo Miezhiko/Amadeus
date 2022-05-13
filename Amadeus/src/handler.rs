@@ -28,7 +28,7 @@ use serenity::{
          , event::ResumedEvent, gateway::Ready, guild::Member
          , channel::{ Message, Reaction, ReactionType, AttachmentType
                     , PermissionOverwrite, PermissionOverwriteType }
-         , user::User, interactions::Interaction
+         , user::User, application::interaction::Interaction
          , permissions::Permissions
          },
   builder::CreateEmbed

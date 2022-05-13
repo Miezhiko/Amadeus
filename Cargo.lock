@@ -73,7 +73,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "9.1.35"
+version = "9.1.36"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -876,7 +876,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.0"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#818a26fc597d4bea16c89b5abe017caa56fede0f"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#a00b3a395af39ec23c41e71399014f9b3846c6cf"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4121,7 +4121,7 @@ dependencies = [
 [[package]]
 name = "rust-bert"
 version = "0.17.0"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#c5faadcdf0bb859e2b34afa19d86ac38def1c339"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#8c81ab4207f2ce881f45e15bf3475f2c7d4490cc"
 dependencies = [
  "cached-path",
  "dirs",
@@ -4517,8 +4517,8 @@ dependencies = [
 
 [[package]]
 name = "serenity"
-version = "0.11.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#818a26fc597d4bea16c89b5abe017caa56fede0f"
+version = "0.11.2"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#a00b3a395af39ec23c41e71399014f9b3846c6cf"
 dependencies = [
  "async-trait",
  "async-tungstenite",
@@ -4552,7 +4552,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#818a26fc597d4bea16c89b5abe017caa56fede0f"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#a00b3a395af39ec23c41e71399014f9b3846c6cf"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -4924,9 +4924,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.93"
+version = "1.0.94"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04066589568b72ec65f42d65a1a52436e954b168773148893c020269563decf2"
+checksum = "a07e33e919ebcd69113d5be0e4d70c5707004ff45188910106854f38b960df4a"
 dependencies = [
  "proc-macro2",
  "quote",

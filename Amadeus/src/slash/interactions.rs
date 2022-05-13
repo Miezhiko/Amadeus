@@ -16,8 +16,8 @@ use crate::{
 
 use serenity::{
   prelude::*,
-  model::interactions::{ InteractionResponseType
-                       , Interaction },
+  model::application::interaction::{ InteractionResponseType
+                                   , Interaction },
   framework::standard::{ Args, Delimiter }
 };
 

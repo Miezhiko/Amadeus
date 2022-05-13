@@ -23,19 +23,10 @@ pub struct WeeklyWinLoses {
 
 type StatusStats = BTreeMap<String, WeeklyWinLoses>;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct Daily {
   pub statistics: StatusStats,
   pub statistics2: StatusStats
-}
-
-impl Default for Daily {
-  fn default() -> Self {
-    Daily {
-      statistics: BTreeMap::new(),
-      statistics2: BTreeMap::new()
-    }
-  }
 }
 
 type DailyStats = [Daily; 7];
@@ -111,13 +102,12 @@ async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
 }
 
 fn merge_stats(s1: &mut StatusStats, s2: &StatusStats) {
-  for (btag, values) in s2.into_iter() {
-    if let Some(existing) = s1.get_mut(btag) {
-      existing.wins   += values.wins;
-      existing.losses += values.losses;
-    } else {
-      s1.insert(btag.clone(), values.clone());
-    }
+  for (btag, values) in s2.iter() {
+    s1.entry(btag.to_string())
+      .and_modify(|existing| {
+        existing.wins   += values.wins;
+        existing.losses += values.losses;
+      }).or_insert(*values);
   }
 }
 

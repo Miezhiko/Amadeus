@@ -244,7 +244,7 @@ __**currently playing:**__
                .title("Warcraft III Activity ☥ Status Grid")
                .description(stats_str)
                .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
-               .image(weekly.popular_hours)
+               .image(&weekly.popular_hours)
                .timestamp(now.to_rfc3339())
     )).await?;
   }

@@ -154,7 +154,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
           e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
            .title(&format!("You was timed out by {}", msg.author.name))
            .timestamp(chrono::Utc::now().to_rfc3339());
-        if let Some(r) = &reason {
+        if let Some(r) = reason {
           e = e.description(r);
         } e
       })).await?;

@@ -1,3 +1,5 @@
+use crate::common::help::fields::FieldsVec2;
+
 use serenity::{
   prelude::*,
   model::channel::*,
@@ -24,7 +26,7 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
              e.title("Translating From **English** to **Russian**...")
-              .fields(fields)
+              .fields_vec2(fields)
               .author(|a| a.icon_url(&msg.author.face())
                            .name(&msg.author.name)
                       )
@@ -39,7 +41,7 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, |m|
           m.embed(|e|
-            e.fields(fields)
+            e.fields_vec2(fields)
              .author(|a| a.icon_url(&msg.author.face())
                           .name(&msg.author.name)
                     )
@@ -68,7 +70,7 @@ pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
              e.title("Translating From **Ukrainian** to **Russian**...")
-              .fields(fields)
+              .fields_vec2(fields)
               .author(|a| a.icon_url(&msg.author.face())
                            .name(&msg.author.name)
                       )
@@ -83,7 +85,7 @@ pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, |m|
           m.embed(|e|
-            e.fields(fields)
+            e.fields_vec2(fields)
              .author(|a| a.icon_url(&msg.author.face())
                           .name(&msg.author.name)
                     )
@@ -113,7 +115,7 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
              e.title("Translating From **Russian** to **English**...")
-              .fields(fields)
+              .fields_vec2(fields)
               .author(|a| a.icon_url(&msg.author.face())
                            .name(&msg.author.name)
                       )
@@ -128,7 +130,7 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, |m|
           m.embed(|e|
-            e.fields(fields)
+            e.fields_vec2(fields)
              .author(|a| a.icon_url(&msg.author.face())
                           .name(&msg.author.name)
                     )
@@ -157,7 +159,7 @@ pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
              e.title("Translating From **Russian** to **Ukrainian**...")
-              .fields(fields)
+              .fields_vec2(fields)
               .author(|a| a.icon_url(&msg.author.face())
                            .name(&msg.author.name)
                       )
@@ -172,7 +174,7 @@ pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, |m|
           m.embed(|e|
-            e.fields(fields)
+            e.fields_vec2(fields)
              .author(|a| a.icon_url(&msg.author.face())
                           .name(&msg.author.name)
                     )
@@ -201,7 +203,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
              e.title("Translating From **English** to **German**...")
-              .fields(fields)
+              .fields_vec2(fields)
               .author(|a| a.icon_url(&msg.author.face())
                            .name(&msg.author.name)
                       )
@@ -216,7 +218,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, |m|
           m.embed(|e|
-            e.fields(fields)
+            e.fields_vec2(fields)
              .author(|a| a.icon_url(&msg.author.face())
                           .name(&msg.author.name)
                     )
@@ -245,7 +247,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
              e.title("Translating From **German** to **English**...")
-              .fields(fields)
+              .fields_vec2(fields)
               .author(|a| a.icon_url(&msg.author.face())
                            .name(&msg.author.name)
                       )
@@ -260,7 +262,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, |m|
           m.embed(|e|
-            e.fields(fields)
+            e.fields_vec2(fields)
              .author(|a| a.icon_url(&msg.author.face())
                           .name(&msg.author.name)
                     )
@@ -289,7 +291,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
              e.title("Translating From **English** to **French**...")
-              .fields(fields)
+              .fields_vec2(fields)
               .author(|a| a.icon_url(&msg.author.face())
                            .name(&msg.author.name)
                       )
@@ -304,7 +306,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, |m|
           m.embed(|e|
-            e.fields(fields)
+            e.fields_vec2(fields)
              .author(|a| a.icon_url(&msg.author.face())
                           .name(&msg.author.name)
                     )
@@ -333,7 +335,7 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let mmm = msg.channel_id.send_message(ctx, |m|
             m.embed(|e|
              e.title("Translating From **French** to **English**...")
-              .fields(fields)
+              .fields_vec2(fields)
               .author(|a| a.icon_url(&msg.author.face())
                            .name(&msg.author.name)
                       )
@@ -348,7 +350,7 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, |m|
           m.embed(|e|
-            e.fields(fields)
+            e.fields_vec2(fields)
              .author(|a| a.icon_url(&msg.author.face())
                           .name(&msg.author.name)
                     )

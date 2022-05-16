@@ -81,7 +81,7 @@ async fn zugaina(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     );
     m
   }).await {
-    msg.channel_id.say(ctx, why).await?;
+    msg.channel_id.say(ctx, &format!("Error: {why}")).await?;
   };
 
   Ok(())

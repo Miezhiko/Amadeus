@@ -24,21 +24,21 @@ pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) 
       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
       .description(LOCALES.lookup(lang, "help-description"))
       .fields(vec![
-        (LOCALES.lookup(lang, "age"), "18", true),
-        (LOCALES.lookup(lang, "birthdate"), &LOCALES.lookup(lang, "amadeus-birthdate"), true),
-        (LOCALES.lookup(lang, "blood-type"), "A", true)
+        (LOCALES.lookup(lang, "age").as_str(), "18", true),
+        (LOCALES.lookup(lang, "birthdate").as_str(), LOCALES.lookup(lang, "amadeus-birthdate").as_str(), true),
+        (LOCALES.lookup(lang, "blood-type").as_str(), "A", true)
         ])
       .fields(vec![
-        (LOCALES.lookup(lang, "height"), &LOCALES.lookup(lang, "amadeus-height"), true),
-        (LOCALES.lookup(lang, "weight"), &LOCALES.lookup(lang, "amadeus-weight"), true),
-        (LOCALES.lookup(lang, "version"), &version, true)
+        (LOCALES.lookup(lang, "height").as_str(), LOCALES.lookup(lang, "amadeus-height").as_str(), true),
+        (LOCALES.lookup(lang, "weight").as_str(), LOCALES.lookup(lang, "amadeus-weight").as_str(), true),
+        (LOCALES.lookup(lang, "version").as_str(), version.as_str(), true)
         ])
-      .field(LOCALES.lookup(lang, "user-commands-title")
-           , LOCALES.lookup(lang, "user-commands"), false)
-      .field(LOCALES.lookup(lang, "music-commands-title")
-           , LOCALES.lookup(lang, "music-commands"), false)
-      .field(LOCALES.lookup(lang, "warcraft-commands-title")
-           , LOCALES.lookup(lang, "warcraft-commands"), false)
+      .field(LOCALES.lookup(lang, "user-commands-title").as_str()
+           , LOCALES.lookup(lang, "user-commands").as_str(), false)
+      .field(LOCALES.lookup(lang, "music-commands-title").as_str()
+           , LOCALES.lookup(lang, "music-commands").as_str(), false)
+      .field(LOCALES.lookup(lang, "warcraft-commands-title").as_str()
+           , LOCALES.lookup(lang, "warcraft-commands").as_str(), false)
       .footer(|f| f.text(LOCALES.lookup(lang, "footer")))
       .colour((246, 111, 0)))).await {
     error!("Error sending help message: {why}");
@@ -56,21 +56,21 @@ pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIde
       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
       .description(LOCALES.lookup(lang, "help-description"))
       .fields(vec![
-        (LOCALES.lookup(lang, "age"), "18", true),
-        (LOCALES.lookup(lang, "birthdate"), &LOCALES.lookup(lang, "amadeus-birthdate"), true),
-        (LOCALES.lookup(lang, "blood-type"), "A", true)
+        (LOCALES.lookup(lang, "age").as_str(), "18", true),
+        (LOCALES.lookup(lang, "birthdate").as_str(), LOCALES.lookup(lang, "amadeus-birthdate").as_str(), true),
+        (LOCALES.lookup(lang, "blood-type").as_str(), "A", true)
         ])
       .fields(vec![
-        (LOCALES.lookup(lang, "height"), &LOCALES.lookup(lang, "amadeus-height"), true),
-        (LOCALES.lookup(lang, "weight"), &LOCALES.lookup(lang, "amadeus-weight"), true),
-        (LOCALES.lookup(lang, "version"), &version, true)
+        (LOCALES.lookup(lang, "height").as_str(), LOCALES.lookup(lang, "amadeus-height").as_str(), true),
+        (LOCALES.lookup(lang, "weight").as_str(), LOCALES.lookup(lang, "amadeus-weight").as_str(), true),
+        (LOCALES.lookup(lang, "version").as_str(), version.as_str(), true)
         ])
-      .field(LOCALES.lookup(lang, "user-commands-title")
-           , LOCALES.lookup(lang, "user-commands"), false)
-      .field(LOCALES.lookup(lang, "music-commands-title")
-           , LOCALES.lookup(lang, "music-commands"), false)
-      .field(LOCALES.lookup(lang, "warcraft-commands-title")
-           , LOCALES.lookup(lang, "warcraft-commands"), false)
+      .field(LOCALES.lookup(lang, "user-commands-title").as_str()
+           , LOCALES.lookup(lang, "user-commands").as_str(), false)
+      .field(LOCALES.lookup(lang, "music-commands-title").as_str()
+           , LOCALES.lookup(lang, "music-commands").as_str(), false)
+      .field(LOCALES.lookup(lang, "warcraft-commands-title").as_str()
+           , LOCALES.lookup(lang, "warcraft-commands").as_str(), false)
       .footer(|f| f.text(LOCALES.lookup(lang, "footer")))
       .colour((246, 111, 0)))).await {
     error!("Error editing help message: {why}");

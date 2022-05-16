@@ -1,3 +1,5 @@
+use crate::common::help::fields::FieldsVec;
+
 use serenity::{
   prelude::*,
   model::{ channel::*
@@ -146,7 +148,7 @@ pub async fn tour_internal( ctx: &Context
             .embed(|e| e
               .title(title)
               .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
-              .fields(eventos)
+              .fields_vec(eventos)
               .colour((255, 192, 203)))).await {
             error!("Error editing w3info event: {why}");
           }
@@ -156,7 +158,7 @@ pub async fn tour_internal( ctx: &Context
           .embed(|e| e
             .title(title)
             .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
-            .fields(eventos)
+            .fields_vec(eventos)
             .colour((240, 160, 203)))).await {
           error!("Error sending w3info events: {why}");
         }

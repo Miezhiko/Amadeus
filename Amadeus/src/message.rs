@@ -209,7 +209,7 @@ pub async fn process( ioptions: &IOptions
                 Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
               let replaced = RE_IB.replace_all(&activity, "");
               if !replaced.is_empty() {
-                ctx.set_activity(Activity::competing(&replaced)).await;
+                ctx.set_activity(Activity::competing(&*replaced)).await;
               }
             } else {
               ctx.set_activity(Activity::playing(&activity)).await;

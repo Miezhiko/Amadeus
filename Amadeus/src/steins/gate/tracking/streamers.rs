@@ -4,8 +4,11 @@ use crate::{
          , twitch::Twitch
          , goodgame::GoodGameData },
   collections::team::{ ALL, DISCORDS },
-  common::constants::{ LIVE_ROLE
-                     , STREAM_PICS }
+  common::{
+    help::fields::{ FieldsVec, FieldsVec2 },
+    constants::{ LIVE_ROLE
+               , STREAM_PICS }
+  }
 };
 
 use serenity::{
@@ -261,10 +264,10 @@ pub async fn activate_streamers_tracking(
                       .author(|a| a.icon_url(&user.face()).name(&is_now_live))
                       .footer(|f| f.text(&footer));
                     if !fields.is_empty() {
-                      e = e.fields(fields.clone());
+                      e = e.fields_vec(fields.clone());
                     }
                     if let Some(some_img) = &img {
-                      e = e.image(some_img.url.clone());
+                      e = e.image(&some_img.url.clone());
                     }
                     if let Some(some_url) = &url {
                       e = e.url(some_url);
@@ -339,7 +342,7 @@ pub async fn activate_streamers_tracking(
                     .colour((red, green, blue))
                     .author(|a| a.icon_url(&user.face()).name(&is_now_live));
                   if !additional_fields.is_empty() {
-                    e = e.fields(additional_fields.clone());
+                    e = e.fields_vec2(additional_fields.clone());
                   }
                   if let Some(some_image) = &image {
                     e = e.image(some_image);
@@ -438,10 +441,10 @@ pub async fn activate_streamers_tracking(
                     .author(|a| a.icon_url(&user.face()).name(&user.name))
                     .footer(|f| f.text(&footer));
                   if !fields.is_empty() {
-                    e = e.fields(fields.clone());
+                    e = e.fields_vec(fields.clone());
                   }
                   if let Some(some_img) = &img {
-                    e = e.image(some_img.url.clone());
+                    e = e.image(&some_img.url.clone());
                   }
                   if let Some(some_url) = &url {
                     e = e.url(some_url);

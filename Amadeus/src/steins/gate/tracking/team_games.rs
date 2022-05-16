@@ -6,6 +6,7 @@ use crate::{
          , twitch::{ Twitch, TWITCH_WC3 }
          , goodgame::GoodGameData },
   common::{ db::trees::points
+          , help::fields::FieldsVec2
           , aka },
   collections::team::DISCORDS,
   steins::warcraft::{
@@ -223,7 +224,7 @@ pub async fn activate_games_tracking(
                   }
                 }
                 if !additional_fields.is_empty() {
-                  e = e.fields(additional_fields.clone());
+                  e = e.fields_vec2(additional_fields.clone());
                 }
                 if let Some(some_image) = &image {
                   e = e.image(some_image);

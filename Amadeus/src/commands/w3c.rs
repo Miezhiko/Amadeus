@@ -413,15 +413,15 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           String::from("Requested from /")
         };
 
-      let mut additional_info = vec![("Stats by races", &stats_by_races, false)];
+      let mut additional_info = vec![("Stats by races", stats_by_races.as_str(), false)];
       if !rt_string.is_empty() {
-        additional_info.push(("RT 2x2", &rt_string, false));
+        additional_info.push(("RT 2x2", rt_string.as_str(), false));
       }
       if !at_info.is_empty() {
-        additional_info.push(("AT 2x2", &at_info, false));
+        additional_info.push(("AT 2x2", at_info.as_str(), false));
       }
       if !ffa_info.is_empty() {
-        additional_info.push(("FFA", &ffa_info, false));
+        additional_info.push(("FFA", ffa_info.as_str(), false));
       }
 
       if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
@@ -826,7 +826,7 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
     .embed(|e|
       e.color((40, 20, 200))
        .title("2x2 popular hours")
-       .image(img)
+       .image(&img)
        .footer(|f| f.text(&footer))
     )).await?;
     if let Err(why) = msg.delete(&ctx).await {

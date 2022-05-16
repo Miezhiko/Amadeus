@@ -3,6 +3,7 @@ use crate::{
   common::{ msg::channel_message
           , constants::APM_PICS
           , colors::gen_colors
+          , help::fields::FieldsVec
           },
   collections::team::PLAYERS,
   steins::warcraft::{
@@ -60,7 +61,7 @@ pub async fn replay_embed( ctx: &Context
          , eb2 = CreateEmbed::default()
          , eb3 = CreateEmbed::default() };
     let footer = format!("Uploaded by {}", msg.author.name);
-    eb1.color(0xe535cc);        eb2.color(0xe535cc);        eb3.color(0xe535cc);
+    eb1.color(0xe535ccu32);     eb2.color(0xe535ccu32);     eb3.color(0xe535ccu32);
     eb1.title(&file.filename);  eb2.title(&file.filename);  eb3.title(&file.filename);
     eb1.description(&d);        eb2.description("units");   eb3.description("APM Graph");
     static AMADEUS_LOGO: &str = "https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png";
@@ -100,8 +101,8 @@ pub async fn replay_embed( ctx: &Context
           let root_area = BitMapBackend::new(&fname_apm, (1024, 768)).into_drawing_area();
           root_area.fill(&RGBColor(47, 49, 54))?; //2f3136
           let mut cc = ChartBuilder::on(&root_area)
-            .margin(5)
-            .set_all_label_area_size(50)
+            .margin(5u32)
+            .set_all_label_area_size(50u32)
             .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)?;
           cc.configure_mesh()
             .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
@@ -138,10 +139,10 @@ pub async fn replay_embed( ctx: &Context
           }
         };
       }
-      eb1.fields(fields1);
-      eb2.fields(fields2);
+      eb1.fields_vec(fields1);
+      eb2.fields_vec(fields2);
       if let Some(apm) = apm_image {
-        eb3.image(apm);
+        eb3.image(&apm);
       }
     }
     let embeds = vec![ eb1, eb3, eb2 ];
@@ -373,15 +374,15 @@ pub async fn attach_replay( ctx: &Context
                             .description(&mmm.embeds[0].description.clone().unwrap())
                             .footer(|f| f.text( mmm.embeds[0].footer.clone().unwrap().text ));
                           if !fields2.is_empty() {
-                            e = e.fields(fields2);
+                            e = e.fields_vec(fields2);
                           }
                           if let Some(apm) = apm_image {
-                            e = e.image(apm);
+                            e = e.image(&apm);
                           }
                           if let Some(some_img) = mmm.embeds[0].image.clone() {
-                            e = e.thumbnail(some_img.url);
+                            e = e.thumbnail(&some_img.url);
                           } else if let Some(hero) = mmm.embeds[0].thumbnail.clone() {
-                            e = e.thumbnail(hero.url);
+                            e = e.thumbnail(&hero.url);
                           }
                           if let Some(some_url) = &mmm.embeds[0].url {
                             e = e.url(some_url);

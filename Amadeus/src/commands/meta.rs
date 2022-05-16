@@ -145,10 +145,10 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let parsed_definition = &choice.definition.replace('[', "").replace(']', "");
     let parsed_example = &choice.example.replace('[', "").replace(']', "");
     let mut fields = vec![
-      ("Definition", parsed_definition, false),
+      ("Definition", parsed_definition.as_str(), false),
     ];
     if parsed_example != &"".to_string() {
-      fields.push(("Example", parsed_example, false));
+      fields.push(("Example", parsed_example.as_str(), false));
     }
     let footer = format!("Requested by {}", msg.author.name);
     if let Err(why) = msg.channel_id.send_message(ctx, |m| {
@@ -167,7 +167,7 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       if "Embed too large." == why.to_string() {
         msg.channel_id.say(ctx, &choice.permalink).await?;
       } else {
-        msg.channel_id.say(ctx, why).await?;
+        msg.channel_id.say(ctx, &format!("Error: {why}")).await?;
       }
     };
   }

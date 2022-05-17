@@ -212,7 +212,7 @@ pub async fn process( ioptions: &IOptions
                 ctx.set_activity(Activity::competing(&*replaced)).await;
               }
             } else {
-              ctx.set_activity(Activity::playing(&activity)).await;
+              ctx.set_activity(Activity::playing(activity)).await;
             }
             ctx.idle().await;
           }

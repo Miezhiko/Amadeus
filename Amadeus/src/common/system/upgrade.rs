@@ -14,35 +14,34 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
   ctx.set_activity(Activity::listening("Fetching changes")).await;
   ctx.idle().await;
   let git_fetch = Command::new("sh")
-                  .arg("-c")
-                  .arg("git fetch origin mawa")
+                  .arg("-c").arg("git fetch origin mawa")
                   .output()
                   .await
                   .expect("failed to execute git fetch");
   let _git_adak = Command::new("sh")
-                  .arg("-c")
-                  .arg("git add aka.yml")
+                  .arg("-c").arg("git add aka.yml")
                   .output()
                   .await
                   .expect("failed add aka.yml");
+  let _git_adcl = Command::new("sh")
+                  .arg("-c").arg("git add Cargo.lock")
+                  .output()
+                  .await
+                  .expect("failed add Cargo.lock");
   let _git_cmak = Command::new("sh")
-                  .arg("-c")
-                  .arg("git commit -m \"aka database update\"")
+                  .arg("-c").arg("git commit -m \"aka database update\"")
                   .output()
                   .await.unwrap(); // ignore error (if aka db not changed)
   let _gprbwtfk = Command::new("sh")
-                  .arg("-c")
-                  .arg("git pull --rebase origin mawa")
+                  .arg("-c").arg("git pull --rebase origin mawa")
                   .output()
                   .await.unwrap(); // ignore error (if aka db not changed)
   let _git_push = Command::new("sh")
-                  .arg("-c")
-                  .arg("git push origin mawa")
+                  .arg("-c").arg("git push origin mawa")
                   .output()
                   .await.unwrap(); // ignore error (if aka db not changed)
   let git_reset = Command::new("sh")
-                  .arg("-c")
-                  .arg("git reset --hard origin/mawa")
+                  .arg("-c").arg("git reset --hard origin/mawa")
                   .output()
                   .await
                   .expect("failed to reset on remote branch");
@@ -58,8 +57,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
       ctx.set_activity(Activity::playing("Compiling...")).await;
       static LINKS_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.https.*)").unwrap());
       let cargo_update = Command::new("sh")
-                .arg("-c")
-                .arg("cargo update")
+                .arg("-c").arg("cargo update")
                 .output()
                 .await
                 .expect("failed to update crates");
@@ -86,8 +84,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
         ).await?;
       }
       let cargo_build = Command::new("sh")
-                .arg("-c")
-                .arg("hake")
+                .arg("-c").arg("hake")
                 .output()
                 .await
                 .expect("failed to compile new version");
@@ -109,15 +106,13 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
         ).await?;
         ctx.set_activity(Activity::listening("Restarting Salieri")).await;
         let _systemctl = Command::new("sh")
-                .arg("-c")
-                .arg("sudo systemctl restart Salieri")
+                .arg("-c").arg("sudo systemctl restart Salieri")
                 .output()
                 .await
                 .expect("failed to restart Salieri service");
         ctx.set_activity(Activity::listening("Restarting Amadeus")).await;
         let _systemctl = Command::new("sh")
-                .arg("-c")
-                .arg("sudo systemctl restart Amadeus")
+                .arg("-c").arg("sudo systemctl restart Amadeus")
                 .output()
                 .await
                 .expect("failed to restart Amadeus service");

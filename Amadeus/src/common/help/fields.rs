@@ -20,7 +20,6 @@ impl FieldsVec for CreateEmbed {
   }
 }
 
-
 pub trait FieldsVec2 {
   fn fields_vec2<'a, It>(&mut self, fields: It) -> &mut Self
   where

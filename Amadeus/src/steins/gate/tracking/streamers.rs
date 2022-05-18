@@ -361,7 +361,6 @@ pub async fn activate_streamers_tracking(
                     }
                   } else {
                     streams.insert(playa_for_stream.player.discord, TrackingGame {
-                      // TODO: get discord from player
                       tracking_msg_id: vec![(*d, msg_id.id.0)],
                       passed_time: 0,
                       still_live: true,
@@ -395,22 +394,23 @@ pub async fn activate_streamers_tracking(
           } else if let Some(track) = streams.get(&p.player.discord) {
             // stream finished
 
-            for t_msg in &track.tracking_msg_id {
-            if let Some(discord) = DISCORDS.get(&t_msg.0) {
-
-            let discord_guild = GuildId(t_msg.0);
-            if let Ok(guild) = discord_guild.to_partial_guild(&ctx_clone).await {
-              if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
-                if let Some(role) = guild.role_by_name(LIVE_ROLE) {
-                  if member.roles.contains(&role.id) {
-                    if let Err(why) = member.remove_role(&ctx_clone, role).await {
-                      error!("Failed to remove live streaming role {why}");
+            for d in &p.discords {
+              let discord_guild = GuildId(*d);
+              if let Ok(guild) = discord_guild.to_partial_guild(&ctx_clone).await {
+                if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
+                  if let Some(role) = guild.role_by_name(LIVE_ROLE) {
+                    if member.roles.contains(&role.id) {
+                      if let Err(why) = member.remove_role(&ctx_clone, role).await {
+                        error!("Failed to remove live streaming role {why}");
+                      }
                     }
                   }
                 }
               }
             }
 
+            for t_msg in &track.tracking_msg_id {
+            if let Some(discord) = DISCORDS.get(&t_msg.0) {
             if let Some(streas_channel) = discord.streams {
 
             if let Ok(mut msg) = ctx_clone.http.get_message( streas_channel

@@ -73,7 +73,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "9.2.1"
+version = "9.2.2"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -1396,9 +1396,9 @@ dependencies = [
 
 [[package]]
 name = "dhall"
-version = "0.11.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49483fe619f146762fa89c7c840fa1fbf8b534cab0b59622106e8f434bbd4bca"
+checksum = "9093ee48621ca9db16cd4948c7acf24a8ecc9af41cc9e226e39ea719df06d8b5"
 dependencies = [
  "abnf_to_pest",
  "annotate-snippets",
@@ -2684,9 +2684,9 @@ dependencies = [
 
 [[package]]
 name = "loom"
-version = "0.5.5"
+version = "0.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85eb735cf3c8ebac6cc3655c5da2f4a088b6a19133aa482471a21ba0eb5d83ab"
+checksum = "ff50ecb28bb86013e935fb6683ab1f6d3a20016f123c76fd4c27470076ac30f5"
 dependencies = [
  "cfg-if 1.0.0",
  "generator",
@@ -2868,7 +2868,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.6"
+version = "0.2.7"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -3086,9 +3086,9 @@ checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
 
 [[package]]
 name = "once_cell"
-version = "1.10.0"
+version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87f3e037eac156d1775da914196f0f37741a274155e34a0b7e427c35d2a2ecb9"
+checksum = "7b10983b38c53aebdf33f542c6275b0f58a238129d00c4ae0e6fb59738d783ca"
 
 [[package]]
 name = "opaque-debug"
@@ -4121,7 +4121,7 @@ dependencies = [
 [[package]]
 name = "rust-bert"
 version = "0.17.0"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#3df5ea5d37b8ba6e84abd98a9b8127ac1e4dfbc7"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#6556ee3f13c752e6d76033113a7bdaffa9297753"
 dependencies = [
  "cached-path",
  "dirs",
@@ -4458,9 +4458,9 @@ dependencies = [
 
 [[package]]
 name = "serde_dhall"
-version = "0.11.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5212ade489a28b0763867bb60a15169e41d855f3c04c0b26aa3bea50f9770e12"
+checksum = "0f7791cbb53e9db687bc88935eee148bacb2c6b2fc56418a2f20d54e7a74ea47"
 dependencies = [
  "dhall",
  "dhall_proc_macros",

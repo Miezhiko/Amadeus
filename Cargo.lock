@@ -73,7 +73,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "9.2.4"
+version = "9.2.5"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -876,7 +876,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.0"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#086a184da694130af61f60ef3bd21025e2a96bf0"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#63b39a7c1b57cc841ff3e975c9f9f82b92b2904e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2868,7 +2868,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.8"
+version = "0.2.9"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -3086,9 +3086,9 @@ checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
 
 [[package]]
 name = "once_cell"
-version = "1.11.0"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b10983b38c53aebdf33f542c6275b0f58a238129d00c4ae0e6fb59738d783ca"
+checksum = "7709cef83f0c1f58f666e746a08b21e0085f7440fa6a29cc194d68aac97a4225"
 
 [[package]]
 name = "opaque-debug"
@@ -4518,7 +4518,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.2"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#086a184da694130af61f60ef3bd21025e2a96bf0"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#63b39a7c1b57cc841ff3e975c9f9f82b92b2904e"
 dependencies = [
  "async-trait",
  "async-tungstenite",
@@ -4552,7 +4552,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#086a184da694130af61f60ef3bd21025e2a96bf0"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#63b39a7c1b57cc841ff3e975c9f9f82b92b2904e"
 dependencies = [
  "bitflags",
  "enum_primitive",

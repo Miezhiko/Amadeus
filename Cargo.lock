@@ -273,9 +273,9 @@ dependencies = [
 
 [[package]]
 name = "async-io"
-version = "1.6.0"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a811e6a479f2439f0c04038796b5cfb3d2ad56c230e0f2d3f7b04d68cfee607b"
+checksum = "e5e18f61464ae81cde0a23e713ae8fd299580c54d697a35820cfd0625b8b0e07"
 dependencies = [
  "concurrent-queue",
  "futures-lite",
@@ -876,7 +876,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.0"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#63b39a7c1b57cc841ff3e975c9f9f82b92b2904e"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#eb8a25c7c8865dfb16d605089c327c842bf65683"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4518,7 +4518,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.2"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#63b39a7c1b57cc841ff3e975c9f9f82b92b2904e"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#eb8a25c7c8865dfb16d605089c327c842bf65683"
 dependencies = [
  "async-trait",
  "async-tungstenite",
@@ -4552,7 +4552,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#63b39a7c1b57cc841ff3e975c9f9f82b92b2904e"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#eb8a25c7c8865dfb16d605089c327c842bf65683"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -4779,7 +4779,7 @@ dependencies = [
 [[package]]
 name = "songbird"
 version = "0.2.2"
-source = "git+https://github.com/serenity-rs/songbird.git?branch=next#dabf73ba09934d3b1934aad0536b3213cf8fd0ef"
+source = "git+https://github.com/serenity-rs/songbird.git?branch=next#49c33461029f5c3a22e12e3d251319237d73b4a4"
 dependencies = [
  "async-trait",
  "async-tungstenite",

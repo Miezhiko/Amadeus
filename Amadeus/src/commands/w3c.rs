@@ -763,7 +763,7 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
               let color = RGBColor(100, 200, 50);
               let style: ShapeStyle = ShapeStyle::from(color).stroke_width(2);
               let plx = ph.playTimePerHour.iter().map(|p| {
-                (p.hours as f64 + (p.minutes as f64 / 64f64), (p.games * 2) as f64)
+                (p.hours as f64 + (p.minutes as f64 / 64f64), (p.games * 4) as f64)
               }).collect::<Vec<(f64, f64)>>();
               plx_vec.push((style, plx, "4x4"));
             }
@@ -930,9 +930,9 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
   // each 20 minutes half stored search time
   if since_last_update > chrono::Duration::minutes(20) {
     *last_update = nao;
-    if qt1m > 1 && !qtime1.is_empty() { qt1m /= 2; }
-    if qt2m > 1 && !qtime2.is_empty() { qt2m /= 2; }
-    if qt4m > 1 && !qtime4.is_empty() { qt4m /= 2; }
+    if qt1m > 2 && !qtime1.is_empty() { qt1m /= 2; }
+    if qt2m > 2 && !qtime2.is_empty() { qt2m /= 2; }
+    if qt4m > 2 && !qtime4.is_empty() { qt4m /= 2; }
   }
   qmax1 = std::cmp::max( qmax1, qt1m );
   qmax2 = std::cmp::max( qmax2, qt2m );

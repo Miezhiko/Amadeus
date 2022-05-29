@@ -76,7 +76,7 @@ pub async fn chat( msg: Option<u64>
                  , user_id: u64
                  , lsm: bool
                  , russian: bool ) -> Result<Option<String>> {
-  let rndx = rand::thread_rng().gen_range(0..9);
+  let rndx = rand::thread_rng().gen_range(0..30);
   let mut input = process_message_for_gpt(&something);
   if input.len() > GPT_LIMIT {
     if let Some((i, _)) = input.char_indices().rev().nth(GPT_LIMIT) {

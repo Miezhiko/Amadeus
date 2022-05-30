@@ -73,7 +73,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "9.2.5"
+version = "9.2.6"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -246,17 +246,16 @@ dependencies = [
 
 [[package]]
 name = "async-global-executor"
-version = "2.0.4"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c290043c9a95b05d45e952fb6383c67bcb61471f60cfa21e890dba6654234f43"
+checksum = "fd8b508d585e01084059b60f06ade4cb7415cd2e4084b71dd1cb44e7d3fb9880"
 dependencies = [
  "async-channel",
  "async-executor",
  "async-io",
- "async-mutex",
+ "async-lock",
  "blocking",
  "futures-lite",
- "num_cpus",
  "once_cell",
 ]
 
@@ -295,15 +294,6 @@ name = "async-lock"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e97a171d191782fba31bb902b14ad94e24a68145032b7eedf871ab0bc0d077b6"
-dependencies = [
- "event-listener",
-]
-
-[[package]]
-name = "async-mutex"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "479db852db25d9dbf6204e6cb6253698f175c15726470f78af0d918e99d6156e"
 dependencies = [
  "event-listener",
 ]
@@ -691,7 +681,7 @@ checksum = "2fff2a6927b3bb87f9595d67196a70493f627687a71d87a0d692242c33f58c11"
 [[package]]
 name = "celery"
 version = "0.4.666"
-source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#116ed690ba3cefd700f3f89bd7c5e286dc16459e"
+source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#03f2c6716144adc156d3610155dc813d1c52c64e"
 dependencies = [
  "async-trait",
  "base64",
@@ -713,13 +703,13 @@ dependencies = [
  "tokio-executor-trait",
  "tokio-reactor-trait",
  "tokio-stream",
- "uuid 0.8.2",
+ "uuid 1.1.0",
 ]
 
 [[package]]
 name = "celery-codegen"
-version = "0.4.0-rcn.11"
-source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#116ed690ba3cefd700f3f89bd7c5e286dc16459e"
+version = "0.4.0-rcn.666"
+source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#03f2c6716144adc156d3610155dc813d1c52c64e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3156,6 +3146,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ordered-float"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96bcbab4bfea7a59c2c0fe47211a1ac4e3e96bea6eb446d704f310bc5c732ae2"
+dependencies = [
+ "num-traits 0.2.15",
+]
+
+[[package]]
 name = "p12"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4119,20 +4118,20 @@ dependencies = [
 
 [[package]]
 name = "rust-bert"
-version = "0.17.0"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#6556ee3f13c752e6d76033113a7bdaffa9297753"
+version = "0.18.0"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#6b20da41de7fe482d213edeafd3e83fe36621f39"
 dependencies = [
  "cached-path",
  "dirs",
  "half",
  "lazy_static",
- "ordered-float",
+ "ordered-float 3.0.0",
  "rust_tokenizers",
  "serde",
  "serde_json",
  "tch",
  "thiserror",
- "uuid 0.8.2",
+ "uuid 1.1.0",
 ]
 
 [[package]]
@@ -4222,15 +4221,6 @@ dependencies = [
  "rustls-pemfile 1.0.0",
  "schannel",
  "security-framework",
-]
-
-[[package]]
-name = "rustls-pemfile"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5eebeaeb360c87bfb72e84abdb3447159c0eaececf1bef2aecd65a8be949d1c9"
-dependencies = [
- "base64",
 ]
 
 [[package]]
@@ -4430,7 +4420,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3a1a3341211875ef120e117ea7fd5228530ae7e7036a779fdc9117be6b3282c"
 dependencies = [
- "ordered-float",
+ "ordered-float 2.10.0",
  "serde",
 ]
 
@@ -4961,14 +4951,14 @@ dependencies = [
 
 [[package]]
 name = "tcp-stream"
-version = "0.24.3"
+version = "0.24.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8348c444d4227fb8ca9f7a17995b15b41640ec446a2782d91fc82b100a73a657"
+checksum = "09a4b0a70bac0a58ca6a7659d1328e34ee462339c70b0fa49f72bad1f278910a"
 dependencies = [
  "cfg-if 1.0.0",
  "p12",
  "rustls-connector",
- "rustls-pemfile 0.2.1",
+ "rustls-pemfile 1.0.0",
 ]
 
 [[package]]
@@ -5645,6 +5635,15 @@ name = "uuid"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
+dependencies = [
+ "getrandom 0.2.6",
+]
+
+[[package]]
+name = "uuid"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93bbc61e655a4833cf400d0d15bf3649313422fa7572886ad6dab16d79886365"
 dependencies = [
  "getrandom 0.2.6",
 ]

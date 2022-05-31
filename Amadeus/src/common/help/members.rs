@@ -66,7 +66,7 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
       }
     }
     if members.is_empty() {
-      let similar_members = &guild.members_containing(member_name, false, false).await;
+      let similar_members = &guild.members_containing(member_name, false, false);
       let mut members_string =  stream::iter(similar_members.iter())
         .map(|m| async move {
           let member = &m.0.user;

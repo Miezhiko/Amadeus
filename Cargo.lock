@@ -73,7 +73,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "9.2.6"
+version = "9.2.7"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -853,9 +853,9 @@ dependencies = [
 
 [[package]]
 name = "comfy-table"
-version = "6.0.0-rc.1"
+version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a1a275e66c69adb0600a13650aed718c99337d9a185d353efa13ff1e05576c4"
+checksum = "121d8a5b0346092c18a4b2fd6f620d7a06f0eb7ac0a45860939a0884bc579c56"
 dependencies = [
  "crossterm",
  "strum",
@@ -866,7 +866,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.0"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#eb8a25c7c8865dfb16d605089c327c842bf65683"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#5ac46dc367d200f2354c6f576d75f990992f0930"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1033,7 +1033,7 @@ dependencies = [
  "crossterm_winapi",
  "libc",
  "mio 0.8.3",
- "parking_lot 0.12.0",
+ "parking_lot 0.12.1",
  "signal-hook",
  "signal-hook-mio",
  "winapi 0.3.9",
@@ -1671,7 +1671,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f82b0f4c27ad9f8bfd1f3208d882da2b09c301bc1c828fd3a00d0216d2fbbff6"
 dependencies = [
  "crc32fast",
- "miniz_oxide 0.5.1",
+ "miniz_oxide 0.5.3",
 ]
 
 [[package]]
@@ -2594,7 +2594,7 @@ dependencies = [
  "flume",
  "futures-core",
  "futures-io",
- "parking_lot 0.12.0",
+ "parking_lot 0.12.1",
  "pinky-swear",
  "reactor-trait",
  "serde",
@@ -2805,9 +2805,9 @@ dependencies = [
 
 [[package]]
 name = "miniz_oxide"
-version = "0.5.1"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2b29bd4bc3f33391105ebee3589c19197c4271e3e5a9ec9bfe8127eeff8f082"
+checksum = "6f5c75688da582b8ffc1f1799e9db273f32133c49e048f614d22ec3256773ccc"
 dependencies = [
  "adler",
 ]
@@ -3190,9 +3190,9 @@ dependencies = [
 
 [[package]]
 name = "parking_lot"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87f5ec2493a61ac0506c0f4199f99070cbe83857b0337006a30f3e6719b8ef58"
+checksum = "3742b2c103b9f06bc9fff0a37ff4912935851bee6d36f3c02bcc755bcfec228f"
 dependencies = [
  "lock_api",
  "parking_lot_core 0.9.3",
@@ -3477,7 +3477,7 @@ checksum = "d894b67aa7a4bf295db5e85349078c604edaa6fa5c8721e8eca3c7729a27f2ac"
 dependencies = [
  "doc-comment",
  "flume",
- "parking_lot 0.12.0",
+ "parking_lot 0.12.1",
  "tracing",
 ]
 
@@ -4507,7 +4507,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.2"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#eb8a25c7c8865dfb16d605089c327c842bf65683"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#5ac46dc367d200f2354c6f576d75f990992f0930"
 dependencies = [
  "async-trait",
  "async-tungstenite",
@@ -4523,7 +4523,7 @@ dependencies = [
  "levenshtein",
  "mime",
  "mime_guess",
- "parking_lot 0.12.0",
+ "parking_lot 0.12.1",
  "percent-encoding",
  "reqwest",
  "serde",
@@ -4541,7 +4541,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#eb8a25c7c8865dfb16d605089c327c842bf65683"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#5ac46dc367d200f2354c6f576d75f990992f0930"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -4779,7 +4779,7 @@ dependencies = [
  "discortp",
  "flume",
  "futures 0.3.21",
- "parking_lot 0.12.0",
+ "parking_lot 0.12.1",
  "pin-project",
  "rand 0.8.5",
  "serde",
@@ -4849,7 +4849,7 @@ checksum = "213494b7a2b503146286049378ce02b482200519accc31872ee8be91fa820a08"
 dependencies = [
  "new_debug_unreachable",
  "once_cell",
- "parking_lot 0.12.0",
+ "parking_lot 0.12.1",
  "phf_shared 0.10.0",
  "precomputed-hash",
  "serde",
@@ -4875,17 +4875,17 @@ checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "strum"
-version = "0.23.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cae14b91c7d11c9a851d3fbc80a963198998c2a64eec840477fa92d8ce9b70bb"
+checksum = "e96acfc1b70604b8b2f1ffa4c57e59176c7dbb05d556c71ecd2f5498a1dee7f8"
 
 [[package]]
 name = "strum_macros"
-version = "0.23.1"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bb0dc7ee9c15cea6199cde9a127fa16a4c5819af85395457ad72d68edc85a38"
+checksum = "6878079b17446e4d3eba6192bb0a2950d5b14f0ed8424b852310e5a94345d0ef"
 dependencies = [
- "heck 0.3.3",
+ "heck 0.4.0",
  "proc-macro2",
  "quote",
  "rustversion",
@@ -5096,7 +5096,7 @@ dependencies = [
  "mio 0.8.3",
  "num_cpus",
  "once_cell",
- "parking_lot 0.12.0",
+ "parking_lot 0.12.1",
  "pin-project-lite",
  "signal-hook-registry",
  "socket2",

@@ -703,7 +703,7 @@ dependencies = [
  "tokio-executor-trait",
  "tokio-reactor-trait",
  "tokio-stream",
- "uuid 1.1.0",
+ "uuid 1.1.1",
 ]
 
 [[package]]
@@ -866,7 +866,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.0"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#5ac46dc367d200f2354c6f576d75f990992f0930"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#81c50f12d12b112f1cd370aa5e0d2fec45554701"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4131,7 +4131,7 @@ dependencies = [
  "serde_json",
  "tch",
  "thiserror",
- "uuid 1.1.0",
+ "uuid 1.1.1",
 ]
 
 [[package]]
@@ -4507,7 +4507,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.2"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#5ac46dc367d200f2354c6f576d75f990992f0930"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#81c50f12d12b112f1cd370aa5e0d2fec45554701"
 dependencies = [
  "async-trait",
  "async-tungstenite",
@@ -4541,7 +4541,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#5ac46dc367d200f2354c6f576d75f990992f0930"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#81c50f12d12b112f1cd370aa5e0d2fec45554701"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -5641,9 +5641,9 @@ dependencies = [
 
 [[package]]
 name = "uuid"
-version = "1.1.0"
+version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93bbc61e655a4833cf400d0d15bf3649313422fa7572886ad6dab16d79886365"
+checksum = "c6d5d669b51467dcf7b2f1a796ce0f955f05f01cafda6c19d6e95f730df29238"
 dependencies = [
  "getrandom 0.2.6",
 ]

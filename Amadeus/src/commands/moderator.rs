@@ -285,7 +285,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     ).await {
     let mut messages = vec![];
     for message in msgs {
-      if users.iter().any(|u| *u == msg.author.id.0) {
+      if users.iter().any(|u| *u == message.author.id.0) {
         messages.push(message.id);
       }
     }

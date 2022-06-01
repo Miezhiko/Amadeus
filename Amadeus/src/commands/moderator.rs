@@ -281,7 +281,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     return Ok(());
   }
   if let Ok(msgs) = msg.channel_id.messages(ctx,
-      |g| g.before(msg.id).limit(10)
+      |g| g.before(msg.id).limit(500)
     ).await {
     let mut messages = vec![];
     for message in msgs {
@@ -290,6 +290,20 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       }
     }
     msg.channel_id.delete_messages(ctx, messages.as_slice()).await?;
+    if let Err(why) = msg.delete(ctx).await {
+      error!("Error deleting original command, {why}");
+    }
+    let msg_guild_id = msg.guild_id.unwrap_or_default();
+    if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
+      if let Some(log) = ds.log {
+        log.send_message(ctx, |m| m
+          .embed(|e| {
+            e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
+              .title(&format!("{} purged messages from {:?}", msg.author.name, &users))
+              .timestamp(chrono::Utc::now().to_rfc3339())
+            })).await?;
+      }
+    }
   }
   Ok(())
 }

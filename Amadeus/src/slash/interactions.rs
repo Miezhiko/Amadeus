@@ -51,26 +51,24 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           } else {
             return;
           };
-          //if let Some(guild) = guild_id.to_guild_cached(ctx) {
-            if let Some(member) = &ac.member {
-              if let Err(err) = music::join_slash(ctx, &member.user, &guild).await {
-                if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {
-                  response
-                    .kind(InteractionResponseType::ChannelMessageWithSource)
-                    .interaction_response_data( |message| message.content( format!("Failed to join {err}") ) )
-                }).await {
-                  error!("Failed to create boris interaction response {why}");
-                }
-              } else if let Err(why) =
-                ac.create_interaction_response(&ctx.http, |response| {
+          if let Some(member) = &ac.member {
+            if let Err(err) = music::join_slash(ctx, &member.user, &guild).await {
+              if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {
                 response
                   .kind(InteractionResponseType::ChannelMessageWithSource)
-                  .interaction_response_data( |message| message.content( "I've joined voice channel" ) )
+                  .interaction_response_data( |message| message.content( format!("Failed to join {err}") ) )
               }).await {
                 error!("Failed to create boris interaction response {why}");
               }
+            } else if let Err(why) =
+              ac.create_interaction_response(&ctx.http, |response| {
+              response
+                .kind(InteractionResponseType::ChannelMessageWithSource)
+                .interaction_response_data( |message| message.content( "I've joined voice channel" ) )
+            }).await {
+              error!("Failed to create boris interaction response {why}");
             }
-          //}
+          }
         }
       }
       "борис" => {

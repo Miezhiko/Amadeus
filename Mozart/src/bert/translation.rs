@@ -9,8 +9,6 @@ use tokio::task;
 use tokio::sync::Mutex;
 use once_cell::sync::Lazy;
 
-use chrono::{ Utc, DateTime };
-
 pub static TRANSLATION_LIMIT: usize = 512;
 
 fn enru_model_loader() -> TranslationModel {
@@ -24,20 +22,13 @@ fn enru_model_loader() -> TranslationModel {
 pub static ENRUMODEL: Lazy<Mutex<Option<TranslationModel>>> =
   Lazy::new(|| Mutex::new( Some( enru_model_loader() ) ) );
 
-pub static ENRUMODEL_USED: Lazy<Mutex<Option<DateTime<Utc>>>> =
-  Lazy::new(|| Mutex::new(None));
-
-pub async fn en2ru(text: String, lsm: bool) -> anyhow::Result<String> {
+pub async fn en2ru(text: String) -> anyhow::Result<String> {
   if text.is_empty() {
     return Ok(String::new());
   }
   let mut enru_model = ENRUMODEL.lock().await;
   if enru_model.is_none() {
     *enru_model = Some( enru_model_loader() );
-  }
-  if !lsm {
-    let mut enru_model_model_used = ENRUMODEL_USED.lock().await;
-    *enru_model_model_used = Some(Utc::now());
   }
   task::spawn_blocking(move || {
     if let Some(en2ru_model) = &mut *enru_model {
@@ -60,17 +51,13 @@ pub async fn en2ru(text: String, lsm: bool) -> anyhow::Result<String> {
   }).await.unwrap()
 }
 
-pub async fn ru2en(text: String, lsm: bool) -> anyhow::Result<String> {
+pub async fn ru2en(text: String) -> anyhow::Result<String> {
   if text.is_empty() {
     return Ok(String::new());
   }
   let mut enru_model = ENRUMODEL.lock().await;
   if enru_model.is_none() {
     *enru_model = Some( enru_model_loader() );
-  }
-  if !lsm {
-    let mut enru_model_model_used = ENRUMODEL_USED.lock().await;
-    *enru_model_model_used = Some(Utc::now());
   }
   task::spawn_blocking(move || {
     if let Some(ru2en_model) = &mut *enru_model {
@@ -121,9 +108,9 @@ pub async fn bert_translate( text: String
   static RUEN_LANGS: &[Language; 2] = &[Language::Russian, Language::English];
   if RUEN_LANGS.contains(&source_lang) && RUEN_LANGS.contains(&target_lang) {
     if source_lang == Language::Russian {
-      ru2en(text, true).await
+      ru2en(text).await
     } else {
-      en2ru(text, true).await
+      en2ru(text).await
     }
   } else {
     task::spawn_blocking(move || {
@@ -151,69 +138,3 @@ pub async fn bert_translate( text: String
     }).await?
   }
 }
-
-/* unused for now
-
-async fn en2ru_send( msg: Option<u64>
-                 , chan: u64
-                 , something: String
-                 , lsm: bool ) -> anyhow::Result<()> {
-  let result = en2ru(something, lsm).await?;
-  let temp_dir = std::env::temp_dir();
-  let mut lukashenko = UnixStream::connect(temp_dir.join(TRANSLATION))?;
-  let package = crate::types::ChatResponse {
-    message: msg,
-    channel: chan,
-    response: result
-  };
-  let encoded = bincode::encode_to_vec(&package, BINCODE_CONFIG)?;
-  lukashenko.write_all(&encoded)?;
-  Ok(())
-}
-
-async fn ru2en_send( msg: Option<u64>
-                   , chan: u64
-                   , something: String
-                   , lsm: bool ) -> anyhow::Result<()> {
-  let result = ru2en(something, lsm).await?;
-  let temp_dir = std::env::temp_dir();
-  let mut lukashenko = UnixStream::connect(temp_dir.join(TRANSLATION))?;
-  let package = crate::types::ChatResponse {
-    message: msg,
-    channel: chan,
-    response: result
-  };
-  let encoded = bincode::encode_to_vec(&package, BINCODE_CONFIG)?;
-  lukashenko.write_all(&encoded)?;
-  Ok(())
-}
-
-#[celery::task]
-pub async fn RU2EN( msg: Option<u64>
-                  , chan: u64
-                  , something: String
-                  , lsm: bool ) -> TaskResult<()> {
-  if let Err(why) = ru2en_send(msg, chan, something, lsm).await {
-    error!("Failed to generate response, {why}");
-    Err( TaskError::ExpectedError( why.to_string() ) )
-  } else {
-    info!("RU2EN response sent to {TRANSLATION}!");
-    Ok(())
-  }
-}
-
-#[celery::task]
-pub async fn EN2RU( msg: Option<u64>
-                  , chan: u64
-                  , something: String
-                  , lsm: bool ) -> TaskResult<()> {
-  if let Err(why) = en2ru_send(msg, chan, something, lsm).await {
-    error!("Failed to generate response, {why}");
-    Err( TaskError::ExpectedError( why.to_string() ) )
-  } else {
-    info!("EN2RU response sent to {TRANSLATION}!");
-    Ok(())
-  }
-}
-
-*/

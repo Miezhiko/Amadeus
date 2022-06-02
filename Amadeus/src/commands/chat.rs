@@ -54,41 +54,48 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 #[description("displays ton N users by score")]
 async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  if let Err(why) = msg.delete(&ctx).await {
+  if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {why}");
   }
   let top_x =
     if let Ok(first) = args.single::<usize>() {
         first
       } else { 10 };
-  if let Some(guild) = msg.guild(ctx) {
-    let mut members_with_points: Vec<(Member, u64)> = Vec::new();
-    for (id, mem) in guild.members {
-      debug!("scanning points for {}", &mem.user.name);
-      if let Ok(p) = points::get_points( guild.id.0, id.0 ).await {
-        members_with_points.push( (mem, p) );
-      } else {
-        members_with_points.push( (mem, 0) );
-      }
+
+  let members =
+    if let Some(guild) = msg.guild(ctx.cache.as_ref()) {
+      guild.members.clone()
+    } else {
+      std::collections::HashMap::new()
+    };
+
+  let mut members_with_points: Vec<(Member, u64)> = Vec::new();
+  let guild_id = msg.guild_id.unwrap_or_default();
+  for (id, mem) in members {
+    debug!("scanning points for {}", &mem.user.name);
+    if let Ok(p) = points::get_points( guild_id.0, id.0 ).await {
+      members_with_points.push( (mem, p) );
+    } else {
+      members_with_points.push( (mem, 0) );
     }
-    members_with_points.sort_by(|(_, pa), (_, pb) | pa.cmp(pb));
-    members_with_points.reverse();
-    let mut out: Vec<String> = Vec::new();
-    for (i, (m, p)) in members_with_points.iter().take(top_x).enumerate() {
-      let n = i + 1;
-      out.push(format!("{n}. **{}**: **{p}**", m.user.name));
-    }
-    let title = format!("Top {top_x} points");
-    let footer = format!("Requested by {}", msg.author.name);
-    if !out.is_empty() {
-      if let Err(why) = msg.channel_id.send_message(ctx, |m| m
-        .embed(|e| e
-        .title(title)
-        .description(out.join("\n"))
-        .footer(|f| f.text(footer))
-      )).await {
-        error!("Failed to post top of users, {why}");
-      }
+  }
+  members_with_points.sort_by(|(_, pa), (_, pb) | pa.cmp(pb));
+  members_with_points.reverse();
+  let mut out: Vec<String> = Vec::new();
+  for (i, (m, p)) in members_with_points.iter().take(top_x).enumerate() {
+    let n = i + 1;
+    out.push(format!("{n}. **{}**: **{p}**", m.user.name));
+  }
+  let title = format!("Top {top_x} points");
+  let footer = format!("Requested by {}", msg.author.name);
+  if !out.is_empty() {
+    if let Err(why) = msg.channel_id.send_message(ctx, |m| m
+      .embed(|e| e
+      .title(title)
+      .description(out.join("\n"))
+      .footer(|f| f.text(footer))
+    )).await {
+      error!("Failed to post top of users, {why}");
     }
   }
   Ok(())

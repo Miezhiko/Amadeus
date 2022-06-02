@@ -24,7 +24,7 @@ pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> anyhow::Res
       Err(why) => Err(anyhow!(why))
     }
   } else {
-    if let Some(guild) = &msg.guild(ctx) {
+    if let Some(guild) = &msg.guild(&ctx.cache) {
       if let Some(member_name) = meme.split('#').next() {
         for m in guild.members.values() {
           if m.display_name() == std::borrow::Cow::Borrowed(member_name) ||
@@ -56,7 +56,12 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
       Err(why) => Err( anyhow!( why.to_string() )),
     }
   } else {
-    let guild = &msg.guild(ctx).unwrap();
+    let guild =
+      if let Some(guild) = msg.guild(ctx.cache.as_ref()) {
+        guild.clone()
+      } else {
+        return Err( anyhow!("can't get guild cache") );
+      };
     let member_name = member_name.split('#').next().unwrap_or_default();
     for m in guild.members.values() {
       if m.display_name() == std::borrow::Cow::Borrowed(member_name) ||

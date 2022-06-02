@@ -60,16 +60,13 @@ pub async fn rejoin_voice_channel(ctx: &Context, conf: &ROptions) {
 #[only_in("guilds")]
 #[description("join voice channel")]
 async fn join(ctx: &Context, msg: &Message) -> CommandResult {
-  let guild = match msg.guild(&ctx) {
-    Some(guild) => guild,
-    None => {
-      direct_message(ctx, msg, "Groups and DMs not supported").await;
-      return Ok(());
-    }
+  let voice_states = match msg.guild(ctx.cache.as_ref()) {
+    Some(guild) => guild.voice_states.clone(),
+    None => { return Ok(()); }
   };
-  let guild_id = guild.id;
-  let channel_id = guild
-    .voice_states.get(&msg.author.id)
+  let guild_id = msg.guild_id.unwrap_or_default();
+  let channel_id = voice_states
+    .get(&msg.author.id)
     .and_then(|voice_state| voice_state.channel_id);
   let connect_to = match channel_id {
     Some(channel) => channel,
@@ -105,13 +102,13 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
       handler.add_global_event(CoreEvent::ClientDisconnect.into(), receiver.clone());
     }
 
-    if let Err(why) = msg.channel_id.say(&ctx, &format!("I've joined {}", connect_to.mention())).await {
+    if let Err(why) = msg.channel_id.say(ctx, &format!("I've joined {}", connect_to.mention())).await {
       error!("failed to say joined {why}");
     }
   } else {
     direct_message(ctx, msg, "Some error joining the channel...").await;
   }
-  if let Err(why) = msg.delete(&ctx).await {
+  if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {why}");
   }
   Ok(())
@@ -169,13 +166,11 @@ pub async fn join_slash(ctx: &Context, user: &User, guild: &Guild) -> anyhow::Re
 pub async fn leave(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
   let guild_id = match ctx.cache.guild_channel(msg.channel_id) {
     Some(channel) => channel.guild_id,
-    None => {
-      direct_message(ctx, msg, "Groups and DMs not supported").await;
-      return Ok(());
-    },
+    None => { return Ok(()); }
   };
   let manager = songbird::get(ctx).await
-    .expect("Songbird Voice client placed in at initialisation.").clone();
+    .expect("Songbird Voice client placed in at initialisation.")
+    .clone();
   let has_handler = manager.get(guild_id).is_some();
   if has_handler {
     if let Err(why) = manager.remove(guild_id).await {
@@ -218,10 +213,7 @@ pub async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
   }
   let guild_id = match ctx.cache.guild_channel(msg.channel_id) {
     Some(channel) => channel.guild_id,
-    None => {
-      reply(ctx, msg, "Error finding channel info...").await;
-      return Ok(());
-    }
+    None => { return Ok(()); }
   };
   let manager = songbird::get(ctx).await
     .expect("Songbird Voice client placed in at initialisation.").clone();

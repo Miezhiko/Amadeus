@@ -73,7 +73,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "9.2.7"
+version = "9.2.8"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -568,9 +568,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.9.1"
+version = "3.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4a45a46ab1f2412e53d3a0ade76ffad2025804294569aae387231a0cd6e0899"
+checksum = "37ccbd214614c6783386c1af30caf03192f17891059cecc394b4fb119e363de3"
 
 [[package]]
 name = "byte-tools"
@@ -866,7 +866,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.0"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#81c50f12d12b112f1cd370aa5e0d2fec45554701"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#43f34ff2704127f7e62e38478167f74870a5147e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2857,7 +2857,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.9"
+version = "0.2.10"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -3125,9 +3125,9 @@ checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
 
 [[package]]
 name = "openssl-sys"
-version = "0.9.73"
+version = "0.9.74"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d5fd19fb3e0a8191c1e34935718976a3e70c112ab9a24af6d7cadccd9d90bc0"
+checksum = "835363342df5fba8354c5b453325b110ffd54044e588c539cf2f20a8014e4cb1"
 dependencies = [
  "autocfg 1.1.0",
  "cc",
@@ -4507,7 +4507,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.2"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#81c50f12d12b112f1cd370aa5e0d2fec45554701"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#43f34ff2704127f7e62e38478167f74870a5147e"
 dependencies = [
  "async-trait",
  "async-tungstenite",
@@ -4541,7 +4541,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#81c50f12d12b112f1cd370aa5e0d2fec45554701"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#43f34ff2704127f7e62e38478167f74870a5147e"
 dependencies = [
  "bitflags",
  "enum_primitive",

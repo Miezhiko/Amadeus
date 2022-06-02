@@ -84,7 +84,7 @@ async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Result<
     let chan: ChannelId = ChannelId( decoded.channel );
     let response: String;
     if decoded.russian {
-      match mozart::bert::translation::en2ru(decoded.response.clone(), true).await {
+      match mozart::bert::translation::en2ru(decoded.response.clone()).await {
         Ok(translated) => {
           let rnda: u32 = rand::thread_rng().gen_range(0..10);
           if rnda != 1 {

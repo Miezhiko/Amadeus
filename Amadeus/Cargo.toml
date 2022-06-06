@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "9.2.8"
+version         = "9.2.9"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -105,7 +105,7 @@ branch = "main"
 optional = true
 
 [dependencies.tokio]
-version = "1.18.1"
+version = "1.19.1"
 features = ["full"]
 
 [dependencies.dasp_signal]

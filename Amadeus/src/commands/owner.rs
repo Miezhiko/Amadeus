@@ -110,7 +110,7 @@ async fn say(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[owners_only]
 async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if args.len() == 1 {
-    let countdown: u64 = args.find().unwrap_or_default();
+    let countdown: u8 = args.find().unwrap_or_default();
     if let Ok(vec) = msg.channel_id.messages(ctx, |g| g.before(msg.id).limit(countdown)).await {
       let mut vec_id = Vec::new();
       for message in vec {
@@ -127,7 +127,7 @@ async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> Command
     let countdown: usize = args.find().unwrap_or_default();
     let counter: usize = args.find().unwrap_or_default();
     let full = countdown + counter;
-    if let Ok(vec) = msg.channel_id.messages(ctx, |g| g.before(msg.id).limit(full as u64)).await {
+    if let Ok(vec) = msg.channel_id.messages(ctx, |g| g.before(msg.id).limit(full as u8)).await {
       let mut vec_id = Vec::new();
       for (i, message) in vec.iter().rev().enumerate() {
         if i < countdown {

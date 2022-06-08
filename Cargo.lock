@@ -866,7 +866,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.0"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#fee5da439a5e1aa843bed7f0dc2b07d78d4d7ce3"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#31a39144ac57d958affa4ae0b5396e4591b9f15c"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4507,7 +4507,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.2"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#fee5da439a5e1aa843bed7f0dc2b07d78d4d7ce3"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#31a39144ac57d958affa4ae0b5396e4591b9f15c"
 dependencies = [
  "async-trait",
  "async-tungstenite",
@@ -4541,7 +4541,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#fee5da439a5e1aa843bed7f0dc2b07d78d4d7ce3"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#31a39144ac57d958affa4ae0b5396e4591b9f15c"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -5325,11 +5325,11 @@ dependencies = [
 
 [[package]]
 name = "tracing-core"
-version = "0.1.26"
+version = "0.1.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f54c8ca710e81886d498c2fd3331b56c93aa248d49de2222ad2742247c60072f"
+checksum = "7709595b8878a4965ce5e87ebf880a7d39c9afc6837721b21a5a816a8117d921"
 dependencies = [
- "lazy_static",
+ "once_cell",
  "valuable",
 ]
 

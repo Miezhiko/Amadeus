@@ -17,6 +17,8 @@ use serenity::{
                        , Args }
 };
 
+const PURGE_ITERATIONS: usize = 10;
+
 #[command]
 #[required_permissions(BAN_MEMBERS)]
 async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
@@ -280,16 +282,32 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     channel_message(ctx, msg, "no users found").await;
     return Ok(());
   }
-  if let Ok(msgs) = msg.channel_id.messages(ctx,
-      |g| g.before(msg.id).limit(255u8)
-    ).await {
-    let mut messages = vec![];
-    for message in msgs {
-      if users.iter().any(|u| *u == message.author.id.0) {
-        messages.push(message.id);
+  let mut last_msg_id_on_iteration = Some(msg.id);
+  let mut messages = std::collections::HashSet::new();
+  for _iteration in [0..PURGE_ITERATIONS] {
+    if let Some(last_msg_id) = last_msg_id_on_iteration {
+      if let Ok(msgs) = msg.channel_id.messages(ctx,
+          |g| g.before(last_msg_id).limit(255u8)
+        ).await {
+        for message in &msgs {
+          if users.iter().any(|u| *u == message.author.id.0) {
+            messages.insert(message.id);
+          }
+        }
+        last_msg_id_on_iteration =
+          // not fully sure about messages order :|
+          if let Some(last_msg) = msgs.last() {
+            Some( last_msg.id )
+          } else {
+            None
+          };
       }
     }
-    msg.channel_id.delete_messages(ctx, messages.as_slice()).await?;
+  }
+
+  if !messages.is_empty() {
+    let messages_vec = Vec::from_iter(messages);
+    msg.channel_id.delete_messages(ctx, messages_vec.as_slice()).await?;
     if let Err(why) = msg.delete(ctx).await {
       error!("Error deleting original command, {why}");
     }
@@ -304,6 +322,8 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             })).await?;
       }
     }
+  } else {
+    channel_message(ctx, msg, "no messages found").await;
   }
   Ok(())
 }

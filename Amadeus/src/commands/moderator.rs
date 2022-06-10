@@ -282,6 +282,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     channel_message(ctx, msg, "no users found").await;
     return Ok(());
   }
+  let now = chrono::offset::Utc::now().date();
   let mut last_msg_id_on_iteration = Some(msg.id);
   let mut messages = std::collections::HashSet::new();
   for _iteration in [0..PURGE_ITERATIONS] {
@@ -289,10 +290,19 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       if let Ok(msgs) = msg.channel_id.messages(ctx,
           |g| g.before(last_msg_id).limit(255u8)
         ).await {
+        let mut we_are_done = false;
         for message in &msgs {
+          let diff = now - message.timestamp.date();
+          if diff.num_days() > 13 {
+            we_are_done = true;
+            break;
+          }
           if users.iter().any(|u| *u == message.author.id.0) {
             messages.insert(message.id);
           }
+        }
+        if we_are_done {
+          break;
         }
         last_msg_id_on_iteration =
           // not fully sure about messages order :|

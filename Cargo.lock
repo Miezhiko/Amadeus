@@ -73,7 +73,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.1.2"
+version = "10.1.4"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -113,6 +113,7 @@ dependencies = [
  "serenity",
  "sled",
  "songbird",
+ "stroke",
  "tokio",
  "tonic",
  "tracing",
@@ -2628,6 +2629,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "349d5a591cd28b49e1d1037471617a32ddcda5731b99419008085f72d5a53836"
 
 [[package]]
+name = "libm"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33a33a362ce288760ec6a508b94caaec573ae7d3bbbd91b87aa0bad4456839db"
+
+[[package]]
 name = "libz-sys"
 version = "1.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3046,6 +3053,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "578ede34cf02f8924ab9447f50c28075b4d3e5b269972345e7e0372b38c6cdcd"
 dependencies = [
  "autocfg 1.1.0",
+ "libm",
 ]
 
 [[package]]
@@ -4952,6 +4960,15 @@ dependencies = [
  "phf_shared 0.10.0",
  "proc-macro2",
  "quote",
+]
+
+[[package]]
+name = "stroke"
+version = "0.1.0"
+source = "git+https://github.com/dorianprill/stroke.git?branch=main#fa74ff085e1bd1985933b2aaf80415ba42a879dd"
+dependencies = [
+ "num-traits 0.2.15",
+ "tinyvec",
 ]
 
 [[package]]

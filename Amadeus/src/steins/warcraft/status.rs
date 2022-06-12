@@ -25,8 +25,12 @@ use async_std::fs;
 
 use crate::common::constants::APM_PICS;
 use plotters::prelude::*;
+use stroke::{
+  *
+};
 
 const WEEKLY_STATS_FNAME: &str  = "weekly.yml";
+const BEZIER_STEPS: usize = 500;
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct DailyWinLoses {
@@ -50,7 +54,6 @@ pub struct Weekly {
   pub reset_day: u32,
   pub stats: DailyStats,
   pub popular_hours: String,
-  pub popular_hours2: String,
   pub stats_graph: String,
   pub stats_graph2: String
 }
@@ -104,8 +107,8 @@ pub async fn generate_stats_graph( ctx: &Context
     } else {
       String::from("weeky_stats2.png")
     };
-  let mut plx_vec = vec![];
   { // because of Rc < > in BitMapBackend I need own scope here
+    let mut plx_vec = vec![];
     let mut min_mmr = 1500;
     let mut max_mmr = 0;
     let mut stats_vec: HashMap<String, [f64; 7]> = HashMap::new();
@@ -134,8 +137,17 @@ pub async fn generate_stats_graph( ctx: &Context
       let (red, green, blue) = colors[i];
       let color = RGBColor(red, green, blue);
       let style: ShapeStyle = ShapeStyle::from(color).stroke_width(2);
-      let pxx = px.iter().enumerate().map(|(i, x)| (i as f64, *x as f64));
-      plx_vec.push((style, strx, pxx));
+      let pxx = px.iter().enumerate()
+                  .map(|(i, x)| PointN::new([i as f64, *x as f64]))
+                  .collect::<Vec<PointN<f64,2>>>();
+      let bezier: Bezier<PointN<f64, 2>, 7> = Bezier::new( pxx.try_into().unwrap() );
+      let mut bezier_graph: Vec<(f64, f64)> = Vec::with_capacity(BEZIER_STEPS);
+      for t in 0..BEZIER_STEPS {
+        let t = t as f64 * 1f64 / (BEZIER_STEPS as f64);
+        let p = bezier.eval(t);
+        bezier_graph.push((p.axis(0), p.axis(1)));
+      }
+      plx_vec.push((style, strx, bezier_graph));
     }
 
     let root_area = BitMapBackend::new(&fname_weekly_statis, (1000, 500)).into_drawing_area();
@@ -175,8 +187,6 @@ pub async fn generate_stats_graph( ctx: &Context
   };
   if let Err(why) = fs::remove_file(&fname_weekly_statis).await {
     error!("Error removing popular hours png {why}");
-  } else {
-    error!("no rsponse from w3c");
   }
   Ok(weekly_statis_image)
 }
@@ -192,8 +202,7 @@ async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
       Weekly {
         reset_day: day,
         stats: Default::default(),
-        popular_hours: poplar_hours.clone(),
-        popular_hours2: poplar_hours,
+        popular_hours: poplar_hours,
         stats_graph: "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string(),
         stats_graph2: "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
       }
@@ -219,8 +228,7 @@ async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
       Weekly {
         reset_day: day,
         stats: old_stats,
-        popular_hours: poplar_hours.clone(),
-        popular_hours2: poplar_hours,
+        popular_hours: poplar_hours,
         stats_graph: weekly_stats_graph,
         stats_graph2: weekly_stats_graph2
       }
@@ -385,7 +393,7 @@ __**currently playing:**__
                      e.color((255, 20, 7))
                       .title("Solo stats for 7 days")
                       .description(stats_str2)
-                      .thumbnail(&weekly.popular_hours2)
+                      .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
                       .image(&weekly.stats_graph)
                      . timestamp(now.to_rfc3339())
           )).await?;

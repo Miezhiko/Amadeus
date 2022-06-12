@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "10.1.2"
+version         = "10.1.4"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -56,6 +56,10 @@ rand    = { version = "0.8.5",    features = ["std", "std_rng"] }
 reqwest = { version = "0.11.11",  features = ["json", "blocking"] }
 ical    = { version = "0.7",      features = ["ical"] }
 markov  = { version = "1.1",      features = ["yaml"] }
+
+[dependencies.stroke]
+git = "https://github.com/dorianprill/stroke.git"
+branch = "main"
 
 [dependencies.songbird]
 default-features = false

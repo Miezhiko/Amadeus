@@ -123,15 +123,7 @@ pub async fn generate_stats_graph( ctx: &Context
             sv[i] = p.1.mmr as f64;
           }
         } else {
-          let mut dd: [f64; 7] = Default::default();
-          if n != 0 {
-            let mut i = 0;
-            while i < n {
-              dd[i] = p.1.mmr as f64;
-              i += 1;
-            }
-          }
-          dd[n] = p.1.mmr as f64;
+          let dd: [f64; 7] = [p.1.mmr as f64; 7];
           stats_vec.insert(p.0.clone(), dd);
         }
       }
@@ -141,7 +133,7 @@ pub async fn generate_stats_graph( ctx: &Context
     for (i, (strx, px)) in stats_vec.iter().enumerate() {
       let (red, green, blue) = colors[i];
       let color = RGBColor(red, green, blue);
-      let style: ShapeStyle = ShapeStyle::from(color) /*.stroke_width(2)*/;
+      let style: ShapeStyle = ShapeStyle::from(color).stroke_width(2);
       let pxx = px.iter().enumerate().map(|(i, x)| (i as f64, *x as f64));
       plx_vec.push((style, strx, pxx));
     }

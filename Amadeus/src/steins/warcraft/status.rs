@@ -106,7 +106,7 @@ pub async fn generate_stats_graph( ctx: &Context
     };
   let mut plx_vec = vec![];
   { // because of Rc < > in BitMapBackend I need own scope here
-    let mut min_mmr = 0;
+    let mut min_mmr = 1500;
     let mut max_mmr = 0;
     let mut stats_vec: HashMap<String, [f64; 7]> = HashMap::new();
     for (n, d) in weeky.iter().enumerate() {
@@ -119,9 +119,18 @@ pub async fn generate_stats_graph( ctx: &Context
         max_mmr = std::cmp::max(max_mmr, p.1.mmr);
         min_mmr = std::cmp::min(min_mmr, p.1.mmr);
         if let Some(sv) = stats_vec.get_mut(p.0) {
-          sv[n] = p.1.mmr as f64;
+          for i in n..7 {
+            sv[i] = p.1.mmr as f64;
+          }
         } else {
           let mut dd: [f64; 7] = Default::default();
+          if n != 0 {
+            let mut i = 0;
+            while i < n {
+              dd[i] = p.1.mmr as f64;
+              i += 1;
+            }
+          }
           dd[n] = p.1.mmr as f64;
           stats_vec.insert(p.0.clone(), dd);
         }

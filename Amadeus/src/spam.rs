@@ -31,6 +31,8 @@ static LIGHT_SLUR_LOL: Lazy<Regex> =
 // https://raw.githubusercontent.com/nikolaischunk/discord-phishing-links/main/domain-list.json
 const BAN_LIST_FILE_NAME: &str = "ban-list.json";
 
+const LINK_SEPARATORS: [char; 5] = [' ',',',':','\n','\t'];
+
 #[derive(serde::Deserialize, Debug)]
 struct BanList {
   domains: HashSet<String>
@@ -124,15 +126,18 @@ pub async fn spam_check(
     , ctx: &Context
     , msg: &Message) {
   let lowercase = msg.content.to_lowercase();
-  if BAN_LIST.domains.iter().any(|c| lowercase.contains(c)) {
+  let mut words: std::str::Split<&[char]> = lowercase.split(&LINK_SEPARATORS[..]);
+  if BAN_LIST.domains.iter().any(|c| words.any(|w| w == c) ) {
     delete( guild_id, ctx, msg, true, true
-          , "SCAM MESSAGE BLOCKED" ).await;
+          , &format!("SCAM LINK BLOCKED {lowercase}") ).await;
   }
   for embed in &msg.embeds {
     if let Some(url) = &embed.url {
-      if url.contains("disocrds.gift") {
+      let lowercase_url = url.to_lowercase();
+      let mut words_url: std::str::Split<&[char]> = lowercase_url.split(&LINK_SEPARATORS[..]);
+      if BAN_LIST.domains.iter().any(|c| words_url.any(|w| w == c) ) {
         delete( guild_id, ctx, msg, true, true
-              , "SCAM MESSAGE BLOCKED" ).await;
+              , &format!("SCAM LINK BLOCKED {lowercase_url}") ).await;
       }
     }
   }

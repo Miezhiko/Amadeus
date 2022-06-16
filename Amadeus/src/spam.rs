@@ -31,7 +31,7 @@ static LIGHT_SLUR_LOL: Lazy<Regex> =
 // https://raw.githubusercontent.com/nikolaischunk/discord-phishing-links/main/domain-list.json
 const BAN_LIST_FILE_NAME: &str = "ban-list.json";
 
-const LINK_SEPARATORS: [char; 5] = [' ',',',':','\n','\t'];
+const LINK_SEPARATORS: &[char] = &[' ',',',':','\n','\t','<','>','|','"','\'','@'];
 
 #[derive(serde::Deserialize, Debug)]
 struct BanList {
@@ -121,24 +121,35 @@ async fn delete( guild_id: &GuildId
   }
 }
 
+fn scam_link_check(lowercase: &str) -> bool {
+  let words = lowercase.split(LINK_SEPARATORS).collect::<Vec<&str>>();
+  BAN_LIST.domains.iter()
+                  .any(|c| words.iter().any(|w|
+      !w.is_empty() && w.trim() == c
+    )
+  )
+}
+
+async fn scan_link( guild_id: &GuildId
+                  , ctx: &Context
+                  , msg: &Message
+                  , lowercase: &str ) {
+  if scam_link_check(lowercase) {
+    delete( guild_id, ctx, msg, true, true
+          , &format!("SCAM LINK BLOCKED {lowercase}") ).await;
+  }
+}
+
 pub async fn spam_check(
       guild_id: &GuildId
     , ctx: &Context
     , msg: &Message) {
   let lowercase = msg.content.to_lowercase();
-  let mut words: std::str::Split<&[char]> = lowercase.split(&LINK_SEPARATORS[..]);
-  if BAN_LIST.domains.iter().any(|c| words.any(|w| w == c) ) {
-    delete( guild_id, ctx, msg, true, true
-          , &format!("SCAM LINK BLOCKED {lowercase}") ).await;
-  }
+  scan_link(guild_id, ctx, msg, &lowercase).await;
   for embed in &msg.embeds {
     if let Some(url) = &embed.url {
       let lowercase_url = url.to_lowercase();
-      let mut words_url: std::str::Split<&[char]> = lowercase_url.split(&LINK_SEPARATORS[..]);
-      if BAN_LIST.domains.iter().any(|c| words_url.any(|w| w == c) ) {
-        delete( guild_id, ctx, msg, true, true
-              , &format!("SCAM LINK BLOCKED {lowercase_url}") ).await;
-      }
+      scan_link(guild_id, ctx, msg, &lowercase_url).await;
     }
   }
   if SLUR.is_match(&lowercase) {
@@ -154,6 +165,20 @@ pub async fn spam_check(
 #[cfg(test)]
 mod antispam_tests {
   use super::*;
+  // TODO: this test ignored because cargo test is shit
+  #[test]
+  #[ignore]
+  fn scam_links_test() {
+    assert_eq!(
+      scam_link_check("steamcommunity.com"), false
+    );
+    assert_eq!(
+      scam_link_check("steamcommunity.co"), true
+    );
+    assert_eq!(
+      scam_link_check("steamcommunity.com.ru"), true
+    );
+  }
   #[test]
   fn slurs_test() {
     assert_eq!(

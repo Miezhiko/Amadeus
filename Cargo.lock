@@ -73,7 +73,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.0.5"
+version = "10.0.6"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -2851,7 +2851,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.11"
+version = "0.2.12"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -3075,9 +3075,9 @@ checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
 
 [[package]]
 name = "once_cell"
-version = "1.12.1"
+version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac8b1a9b2518dc799a2271eff1688707eb315f0d4697aa6b0871369ca4c4da55"
+checksum = "18a6dbe30758c9f83eb00cbea4ac95966305f5a7772f3f42ebfc7fc7eddbd8e1"
 
 [[package]]
 name = "opaque-debug"
@@ -4162,7 +4162,7 @@ dependencies = [
 [[package]]
 name = "rust-bert"
 version = "0.18.0"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#a1595e6dfd25e49751cc83e5f243cfe6a2e9f167"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#ed4f4f457d1c681e93b8aa75543b5e8e41a2ae40"
 dependencies = [
  "cached-path",
  "dirs",
@@ -4840,7 +4840,7 @@ dependencies = [
 [[package]]
 name = "songbird"
 version = "0.2.2"
-source = "git+https://github.com/FelixMcFelix/songbird.git?branch=symphonia#82b29eafd4c26cfa85a97ce6d8674db13a86219e"
+source = "git+https://github.com/FelixMcFelix/songbird.git?branch=symphonia#29d8d558aa0ff3c4467fa85e1a16a0311cebf0d8"
 dependencies = [
  "async-trait",
  "async-tungstenite",

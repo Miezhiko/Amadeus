@@ -707,7 +707,15 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
           error!("Error sending veto message: {why}");
         }
       } else {
-        channel_message(ctx, msg, "No games for those players in selected seasons").await;
+        let footer = format!("Requested by {}", msg.author.name);
+        if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
+          .embed(|e| e
+          .title(&format!("{} {} : {} {}", &name1, 0, 0, &name2))
+          .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
+          .description("No games for those players in selected seasons")
+          .footer(|f| f.text(footer)))).await {
+          error!("Error sending veto message: {why}");
+        }
       }
     } else {
       channel_message(ctx, msg, &format!("Can't find {p2}")).await;

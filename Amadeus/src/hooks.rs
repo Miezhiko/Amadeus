@@ -27,7 +27,7 @@ use rand::{ rngs::StdRng
 
 #[hook]
 pub async fn before(_ctx: &Context, msg: &Message, cmd_name: &str) -> bool {
-  if IGNORED.contains(&msg.channel_id.0) {
+  if IGNORED.contains(&msg.channel_id.0.get()) {
     return false;
   }
   debug!("Running command: {}, Message: {}", &cmd_name, &msg.content);

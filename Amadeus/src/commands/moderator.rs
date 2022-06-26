@@ -7,6 +7,8 @@ use crate::{
   }
 };
 
+use std::num::NonZeroU64;
+
 use serenity::{
   model::{ id::{ ChannelId, UserId, RoleId }
          , channel::*, Timestamp
@@ -67,9 +69,9 @@ async fn unmute(ctx: &Context, msg: &Message) -> CommandResult {
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
 async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  set!{ target_channel = ChannelId( args.single::<u64>()? )
+  set!{ target_channel = ChannelId( args.single::<NonZeroU64>()? )
       , channel = target_channel.to_channel(ctx).await?
-      , msg_guild_id = msg.guild_id.unwrap_or_default() };
+      , msg_guild_id = msg.guild_id.unwrap() };
   match channel.guild() {
     Some(guild_channel) => {
       if guild_channel.guild_id != msg_guild_id {
@@ -106,8 +108,8 @@ async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> Comman
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
 async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  set!{ user_id = UserId( args.single::<u64>()? )
-      , msg_guild_id = msg.guild_id.unwrap_or_default() };
+  set!{ user_id = UserId( args.single::<NonZeroU64>()? )
+      , msg_guild_id = msg.guild_id.unwrap() };
 
   let reason = if args.len() > 1 {
     Some( args.rest() )
@@ -160,7 +162,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
           e = e.description(r);
         } e
       })).await?;
-    if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
+    if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
         log.send_message(ctx, |m| m
           .embed(|e| {
@@ -183,7 +185,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
 #[min_args(1)]
 async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   set!{ channel_name = args.single::<String>()?
-      , msg_guild_id = msg.guild_id.unwrap_or_default() };
+      , msg_guild_id = msg.guild_id.unwrap() };
   if let Ok(channels) = msg_guild_id.channels(ctx).await {
     if let Some((channel, _)) = channel_by_name(ctx, &channels, &channel_name).await {
       let allow = Permissions::SEND_MESSAGES | Permissions::VIEW_CHANNEL;
@@ -191,11 +193,11 @@ async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         allow, deny: Permissions::empty(),
         kind: PermissionOverwriteType::Member(msg.author.id)
       };
-      channel.create_permission(ctx, &overwrite_moderator).await?;
+      channel.create_permission(ctx, overwrite_moderator).await?;
       if let Err(why) = channel.send_message(ctx, |m| m.content(&format!("{} has joined", msg.author.name))).await {
         error!("Failed to log new user {why}");
       }
-      if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
+      if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
         if let Some(log) = ds.log {
           log.send_message(ctx, |m| m
             .embed(|e| {
@@ -214,8 +216,8 @@ async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
 async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  set!{ user_id = UserId( args.single::<u64>()? )
-      , msg_guild_id = msg.guild_id.unwrap_or_default() };
+  set!{ user_id = UserId( args.single::<NonZeroU64>()? )
+      , msg_guild_id = msg.guild_id.unwrap() };
 
   let guild = msg_guild_id.to_partial_guild(ctx).await?;
   if let Ok(mut member) = guild.member(ctx, user_id).await {
@@ -231,7 +233,7 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
           .title(&format!("{} was untimeouted out by {}", member.user.name, msg.author.name))
           .timestamp(chrono::Utc::now().to_rfc3339())
         })).await?;
-    if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
+    if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
         log.send_message(ctx, |m| m
           .embed(|e| {
@@ -251,9 +253,9 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
 #[command]
 #[required_permissions(BAN_MEMBERS)]
 async fn prison(ctx: &Context, msg: &Message) -> CommandResult {
-  set!{ msg_guild_id = msg.guild_id.unwrap_or_default()
-      , guild = msg_guild_id.to_partial_guild(ctx).await?
-      , channels = guild.channels(&ctx).await? };
+  set!{ msg_guild_id  = msg.guild_id.unwrap()
+      , guild         = msg_guild_id.to_partial_guild(ctx).await?
+      , channels      = guild.channels(&ctx).await? };
   let mut prison_channels = vec![];
   for (chan_id, chan) in channels {
     if chan.name.ends_with("_timeout") {
@@ -297,7 +299,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             we_are_done = true;
             break;
           }
-          if users.iter().any(|u| *u == message.author.id.0) {
+          if users.iter().any(|u| *u == message.author.id.0.get()) {
             messages.insert(message.id);
           }
         }
@@ -305,12 +307,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
           break;
         }
         last_msg_id_on_iteration =
-          // not fully sure about messages order :|
-          if let Some(last_msg) = msgs.last() {
-            Some( last_msg.id )
-          } else {
-            None
-          };
+          msgs.last().map(|last_msg| last_msg.id);
       }
     }
   }
@@ -321,8 +318,8 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     if let Err(why) = msg.delete(ctx).await {
       error!("Error deleting original command, {why}");
     }
-    let msg_guild_id = msg.guild_id.unwrap_or_default();
-    if let Some(ds) = DISCORDS.get(&msg_guild_id.0) {
+    let msg_guild_id = msg.guild_id.unwrap();
+    if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
         log.send_message(ctx, |m| m
           .embed(|e| {

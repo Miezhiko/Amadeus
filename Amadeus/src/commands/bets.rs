@@ -24,7 +24,7 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
     let meme = get_player(&args.single_quoted::<String>()?, ctx, msg).await?;
     let points_count = args.single::<u64>()?;
-    let p = points::get_points( guild_id.0, msg.author.id.0 ).await?;
+    let p = points::get_points( guild_id.0.get(), msg.author.id.0.get() ).await?;
     if p < points_count {
       let err = format!("{} only has {p}, need {points_count}", msg.author.name);
       channel_message(ctx, msg, &err).await;
@@ -34,8 +34,8 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     for (_, track) in games_lock.iter_mut() {
       if track.still_live {
         for playa in &track.players {
-          if playa.player.discord == meme.user.id.0 {
-            if track.bets.iter().any(|b| b.member == msg.author.id.0) {
+          if playa.player.discord == meme.user.id.0.get() {
+            if track.bets.iter().any(|b| b.member == msg.author.id.0.get()) {
               channel_message(ctx, msg, "you already have bet on this match").await;
               return Ok(());
             }
@@ -49,13 +49,13 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
               }
             }
             if let Some(amadeus) = amadeus_guild {
-              let bet = Bet { guild: guild_id.0
-                            , member: msg.author.id.0
+              let bet = Bet { guild: guild_id.0.get()
+                            , member: msg.author.id.0.get()
                             , points: points_count
                             , positive: true
                             , registered: false };
-              let (succ, rst) = points::give_points( guild_id.0
-                                                    , msg.author.id.0
+              let (succ, rst) = points::give_points( guild_id.0.get()
+                                                    , msg.author.id.0.get()
                                                     , amadeus
                                                     , points_count ).await;
               if succ {
@@ -73,7 +73,7 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                 if let Err(why) = msg.channel_id.send_message(ctx, |m| m
                   .embed(|e| e
                   .description(&out)
-                  .color(0xed3e7f)
+                  .color(0xed3e7fu32)
                   .author(|a| a.icon_url(&msg.author.face()).name(&nick))
                 )).await {
                   error!("Failed to post bet {why}");

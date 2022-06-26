@@ -129,14 +129,14 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
 
   let guild_id = msg.guild_id.unwrap();
   if points_count > 0 {
-    if let Ok(p1) = points::get_points( guild_id.0, msg.author.id.0 ).await {
+    if let Ok(p1) = points::get_points( guild_id.0.get(), msg.author.id.0.get() ).await {
       if p1 < points_count {
         let err = format!("{} only has {p1}, need {points_count}", msg.author.name);
         channel_message(ctx, msg, &err).await;
         return Ok(());
       }
     }
-    if let Ok(p2) = points::get_points( guild_id.0, other_player.id.0 ).await {
+    if let Ok(p2) = points::get_points( guild_id.0.get(), other_player.id.0.get() ).await {
       if p2 < points_count {
         let err = format!("{} only has {p2}, need {points_count}", other_player.name);
         channel_message(ctx, msg, &err).await;
@@ -251,9 +251,9 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
           } else {
             (&msg.author, other_player)
           };
-        let (succ, rst) = points::give_points( guild_id.0
-                                             , loser.id.0
-                                             , winner.id.0
+        let (succ, rst) = points::give_points( guild_id.0.get()
+                                             , loser.id.0.get()
+                                             , winner.id.0.get()
                                              , points_count ).await;
         if succ {
           let out = format!("{rst} to {}", winner.name);

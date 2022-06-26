@@ -5,6 +5,8 @@ use serenity::{
   model::guild::Member,
 };
 
+use std::num::NonZeroU64;
+
 use regex::Regex;
 use once_cell::sync::Lazy;
 
@@ -18,7 +20,7 @@ pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> anyhow::Res
     static RE: Lazy<Regex> = Lazy::new(|| Regex::new("[<@!>]").unwrap() );
     let member_id = RE.replace_all(meme, "").into_owned();
     let member = msg.guild_id.unwrap().member(
-      ctx, UserId(member_id.parse::<u64>().unwrap())).await;
+      ctx, UserId(member_id.parse::<NonZeroU64>().unwrap())).await;
     match member {
       Ok(m) => Ok(m),
       Err(why) => Err(anyhow!(why))
@@ -50,7 +52,7 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
   } else if member_name.starts_with("<@") && member_name.ends_with('>') {
     static RE: Lazy<Regex> = Lazy::new(|| Regex::new("[<@!>]").unwrap());
     let member_id = RE.replace_all(&member_name, "").into_owned();
-    let member = &msg.guild_id.unwrap().member(ctx, UserId(member_id.parse::<u64>()?)).await;
+    let member = &msg.guild_id.unwrap().member(ctx, UserId(member_id.parse::<NonZeroU64>()?)).await;
     match member {
       Ok(m) => Ok(m.to_owned()),
       Err(why) => Err( anyhow!( why.to_string() )),

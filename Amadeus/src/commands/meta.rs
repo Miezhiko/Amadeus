@@ -191,7 +191,7 @@ async fn info(ctx: &Context, msg: &Message) -> CommandResult {
       , footer = format!("Requested by {}", msg.author.name) };
 
   eb.title(format!("Amadeus {}", env!("CARGO_PKG_VERSION")));
-  eb.color(0xf51010);
+  eb.color(0xf51010u32);
   eb.description(format!(
 "```
 Servers:  {}
@@ -214,7 +214,7 @@ Latency:  {}
   eb.footer(|f| f.text(footer));
 
   msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| { e.0 = eb.0; e })
+    m.set_embed(eb)
   }).await?;
 
   Ok(())
@@ -249,7 +249,7 @@ async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
     let mut eb = CreateEmbed::default();
     let footer = format!("Requested by {}", msg.author.name);
 
-    eb.color(0x13fac1);
+    eb.color(0x13fac1u32);
     eb.title("Changelog");
 
     eb.description(descr);
@@ -258,7 +258,7 @@ async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
     eb.footer(|f| f.text(footer));
 
     msg.channel_id.send_message(ctx, |m| {
-      m.embed(|e| { e.0 = eb.0; e })
+      m.set_embed(eb)
     }).await?;
   }
 
@@ -276,14 +276,14 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
 
   let (start_time, uptime_string) = get_uptime("uptime").await;
 
-  eb.color(0xe535cc);
+  eb.color(0xe535ccu32);
   eb.title(uptime_string);
   eb.description(format!("start time: {start_time}"));
   eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
   eb.footer(|f| f.text(footer));
 
   msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| { e.0 = eb.0; e })
+    m.set_embed(eb)
   }).await?;
 
   Ok(())
@@ -378,7 +378,7 @@ pub async fn time(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let eb = time_internal(msg, args).await?;
 
   msg.channel_id.send_message(ctx, |m| {
-    m.embed(|e| { e.0 = eb.0; e })
+    m.set_embed(eb)
   }).await?;
   Ok(())
 }
@@ -388,7 +388,7 @@ pub async fn time_slash(ctx: &Context, msg: &mut Message, args: Args) -> anyhow:
 
   msg.edit(ctx, |m| { m
     .content("")
-    .embed(|e| { e.0 = eb.0; e })
+    .set_embed(eb)
   }).await?;
 
   Ok(())

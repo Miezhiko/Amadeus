@@ -37,7 +37,7 @@ pub async fn check<'a>( ctx: &Context
                       , rqcl: &reqwest::Client
                       ) -> Vec<StartingGame<'a>> {
 
-  let guild = GuildId( guild_id );
+  let guild = GuildId( to_nzu!(guild_id) );
   let mut out: Vec<StartingGame> = Vec::new();
   let mut stats: W3CStats = W3CStats { ..Default::default() };
 
@@ -539,11 +539,11 @@ pub async fn check<'a>( ctx: &Context
         };
 
         if let Some(gc) = game_channel_maybe {
-        let game_channel = ChannelId(gc);
+        let game_channel = ChannelId(to_nzu!(gc));
 
         if let Some(finished_game) = check_match(k, &track.players, &track.mode, rqcl).await {
           let fgame = &finished_game;
-          if let Ok(mut msg) = ctx.http.get_message( game_channel.0
+          if let Ok(mut msg) = ctx.http.get_message( game_channel.0.get()
                                                    , track.tracking_msg_id[0].1 ).await {
             let footer: String = format!("Passed: {} min", fgame.passed_time);
             if let Ok(user) = ctx.http.get_user(playa.player.discord).await {
@@ -624,7 +624,7 @@ pub async fn check<'a>( ctx: &Context
                           win_calculation.insert(bet.member, (bet.points, best_win));
                           waste += best_win;
                         } else {
-                          let user_id = UserId( bet.member );
+                          let user_id = UserId( to_nzu!(bet.member) );
                           if let Ok(user) = user_id.to_user(&ctx).await {
                             losers_output.push(
                               format!("**{}** loses **{}**", user.name, bet.points)
@@ -650,7 +650,7 @@ pub async fn check<'a>( ctx: &Context
                         if !succ {
                           error!("failed to give bet win points: {rst}");
                         } else {
-                          let user_id = UserId( *mpp );
+                          let user_id = UserId( to_nzu!(*mpp) );
                           if let Ok(user) = user_id.to_user(&ctx).await {
                             let pure_win = *wpp - *ppp;
                             output.push(
@@ -743,8 +743,8 @@ pub async fn check<'a>( ctx: &Context
           } else {
             // mark tracking game for removal after 3 fails
             k_to_del.push(k.clone());
-            if let Ok(msg) = ctx.http.get_message( game_channel.0
-                                                  , track.tracking_msg_id[0].1 ).await {
+            if let Ok(msg) = ctx.http.get_message( game_channel.0.get()
+                                                 , track.tracking_msg_id[0].1 ).await {
               if let Err(wtf) = msg.delete(ctx).await {
                 error!("Failed to clean up dropped Live game {:?}", wtf);
               }

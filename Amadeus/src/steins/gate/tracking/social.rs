@@ -11,7 +11,8 @@ use serenity::{
 use std::{
   sync::atomic::Ordering,
   time,
-  sync::Arc
+  sync::Arc,
+  num::NonZeroU64
 };
 
 use rand::Rng;
@@ -30,7 +31,7 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
         if rndx < 2 {
           let (chanz, ru) = match rndx {
             0 => { (MAIN_CHANNEL, true) },
-            _ => { ( ChannelId(827151604053835807), true) } // mist
+            _ => { ( ChannelId( NonZeroU64::new( 827151604053835807 ).unwrap() ), true) } // mist
           };
           let ai_text = chain::generate_with_language(&ctx_clone, ru).await;
           if let Err(why) = chanz.send_message(&ctx_clone, |m| {

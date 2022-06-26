@@ -81,7 +81,7 @@ async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Result<
     }
 
     let (decoded, _len): (ChatResponse, usize) = bincode::decode_from_slice(&buf[..], BINCODE_CONFIG)?;
-    let chan: ChannelId = ChannelId( decoded.channel );
+    let chan: ChannelId = ChannelId( to_nzu!( decoded.channel ) );
     let response: String;
     if decoded.russian {
       match mozart::bert::translation::en2ru(decoded.response.clone()).await {
@@ -109,7 +109,7 @@ async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Result<
     }
 
     if let Some(msg_id) = &decoded.message {
-      if let Ok(msg) = chan.message(ctx, MessageId( *msg_id )).await {
+      if let Ok(msg) = chan.message(ctx, MessageId( to_nzu!( *msg_id ) )).await {
         reply(ctx, &msg, &response).await;
       }
     } else {

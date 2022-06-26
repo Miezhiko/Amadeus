@@ -113,8 +113,8 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
     }
     if !embeds.is_empty() {
       let mut page = 0;
-      let mut bot_msg = msg.channel_id.send_message(ctx, |m| m.embed(|mut e| {
-        e.0 = embeds[page].0.clone(); e
+      let mut bot_msg = msg.channel_id.send_message(ctx, |m| m.embed(|e| {
+        *e = embeds[page].clone(); e
       })).await?;
       if embeds.len() > 1 {
         let left = ReactionType::Unicode(String::from("⬅️"));
@@ -140,8 +140,8 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
               },
               _ => (),
             }
-            bot_msg.edit(ctx, |m| m.embed(|mut e| {
-              e.0 = embeds[page].0.clone(); e
+            bot_msg.edit(ctx, |m| m.embed(|e| {
+              *e = embeds[page].clone(); e
             })).await?;
             let _ = reaction.as_inner_ref().delete(ctx).await;
           } else {
@@ -184,7 +184,7 @@ async fn get_player(rqcl: &Arc<reqwest::Client>, target: &str, season: &str) -> 
 #[aliases(статистика, statistics)]
 #[description("display statistics on W3Champions")]
 pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0);
+  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
   let mut args_msg = args.message();
   if args_msg.is_empty() {
     args_msg = &msg.author.name;
@@ -459,7 +459,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let args_msg = args.single::<String>()?;
   let race_vs = args.single::<String>()?;
 
-  let start_typing = ctx.http.start_typing(msg.channel_id.0);
+  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
 
   let mut seasons = 2;
   let season_str = current_season();
@@ -605,7 +605,7 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let p1 = args.single::<String>()?;
   let p2 = args.single::<String>()?;
 
-  let start_typing = ctx.http.start_typing(msg.channel_id.0);
+  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
   let mut seasons = 2;
   let season_str = current_season();
   let season = season_str.parse::<u32>()?;

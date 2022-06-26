@@ -61,9 +61,9 @@ pub async fn activate_streamers_tracking(
 
   for (d, df) in DISCORDS.iter() {
     if let Some(sc) = df.streams {
-      clear_channel(ChannelId(sc), ctx).await;
+      clear_channel(ChannelId( to_nzu!(sc) ), ctx).await;
     }
-    let guild_id = GuildId(*d);
+    let guild_id = GuildId( to_nzu!(*d) );
     if let Ok(g) = guild_id.to_partial_guild(&ctx).await {
       for p in ALL.iter() {
         if p.discords.contains(d) {
@@ -109,7 +109,7 @@ pub async fn activate_streamers_tracking(
             // check if user is still being member of discord server
             let mut do_continue = false;
             for d in &p.discords {
-              let discord_guild_id = GuildId(*d);
+              let discord_guild_id = GuildId( to_nzu!(*d) );
               if let Ok(guild) = discord_guild_id.to_partial_guild(&ctx_clone).await {
                 if guild.member(&ctx_clone.http, user.id).await.is_err() {
                   let mut reported = false;
@@ -320,7 +320,7 @@ pub async fn activate_streamers_tracking(
               for d in &p.discords {
               if let Some(ds) = DISCORDS.get(d) {
 
-              let discord_guild = GuildId(*d);
+              let discord_guild = GuildId( to_nzu!(*d) );
               if let Ok(guild) = discord_guild.to_partial_guild(&ctx_clone).await {
                 if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
                   if let Some(role) = guild.role_by_name(LIVE_ROLE) {
@@ -335,7 +335,7 @@ pub async fn activate_streamers_tracking(
 
               if let Some(sc) = ds.streams {
 
-              match ChannelId(sc).send_message(&ctx_clone, |m| m
+              match ChannelId( to_nzu!(sc) ).send_message(&ctx_clone, |m| m
                 .embed(|e| {
                   let mut e = e
                     .title(&title)
@@ -356,12 +356,12 @@ pub async fn activate_streamers_tracking(
                 Ok(msg_id) => {
                   let playa_for_stream = p.clone();
                   if let Some(inserted) = streams.get_mut(&playa_for_stream.player.discord) {
-                    if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.0)) {
-                      inserted.tracking_msg_id.push((*d, msg_id.id.0));
+                    if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.0.get())) {
+                      inserted.tracking_msg_id.push((*d, msg_id.id.0.get()));
                     }
                   } else {
                     streams.insert(playa_for_stream.player.discord, TrackingGame {
-                      tracking_msg_id: vec![(*d, msg_id.id.0)],
+                      tracking_msg_id: vec![(*d, msg_id.id.0.get())],
                       passed_time: 0,
                       still_live: true,
                       players: vec![playa_for_stream], bets: vec![], fails: 0,
@@ -395,7 +395,7 @@ pub async fn activate_streamers_tracking(
             // stream finished
 
             for d in &p.discords {
-              let discord_guild = GuildId(*d);
+              let discord_guild = GuildId( to_nzu!(*d) );
               if let Ok(guild) = discord_guild.to_partial_guild(&ctx_clone).await {
                 if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
                   if let Some(role) = guild.role_by_name(LIVE_ROLE) {

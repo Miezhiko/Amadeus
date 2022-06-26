@@ -30,8 +30,8 @@ fn get_discord_servers() -> Discords {
                     , games2:   disc.games2
                     , games4:   disc.games4
                     , streams:  disc.streams
-                    , events:   disc.events.map(ChannelId)
-                    , log:      disc.log.map(ChannelId)
+                    , events:   disc.events.map( |c| ChannelId(to_nzu!(c)) )
+                    , log:      disc.log.map( |c| ChannelId(to_nzu!(c)) )
                     };
     discord_servers.insert(disc.uid, discord);
   }

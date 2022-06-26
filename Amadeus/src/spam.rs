@@ -65,7 +65,7 @@ async fn delete( guild_id: &GuildId
             // completely ignore harmful words
             return;
           }
-          if let Some(ds) = DISCORDS.get(&guild_id.0) {
+          if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
             if let Some(log) = ds.log {
               if let Err(why) = log.send_message(&ctx, |m| m
                 .embed(|e| {
@@ -83,7 +83,7 @@ async fn delete( guild_id: &GuildId
       }
     }
   }
-  if let Some(ds) = DISCORDS.get(&guild_id.0) {
+  if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
     if let Some(log) = ds.log {
       let msg_link = if really_delete {
           format!("{}", msg.channel_id.mention())

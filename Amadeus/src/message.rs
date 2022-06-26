@@ -25,8 +25,8 @@ use serenity::{
   utils::Colour,
   model::{ id::{ EmojiId, MessageId, UserId }
          , channel::{ Message, AttachmentType, ReactionType }
-         , gateway::Activity
          },
+  gateway::ActivityData,
   builder::CreateEmbed
 };
 
@@ -54,7 +54,7 @@ pub async fn process( ioptions: &IOptions
                     , msg: Message ) {
 
   if msg.is_own(&ctx) {
-    if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
+    if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0.get()) {
       let mut backup_deq = BACKUP.lock().await;
       if backup_deq.len() == backup_deq.capacity() {
         backup_deq.pop_front();
@@ -64,12 +64,12 @@ pub async fn process( ioptions: &IOptions
   } else if msg.author.bot {
     if let Some(g) = msg.guild_id {
       if ioptions.servers.iter()
-                         .any(|s| s.id == g.0
+                         .any(|s| s.id == g.0.get()
                                && s.kind == CoreGuild::Safe) {
         return;
       }
     }
-    if IGNORED.contains(&msg.channel_id.0) {
+    if IGNORED.contains(&msg.channel_id.0.get()) {
       return;
     }
     let mut is_file = false;
@@ -138,12 +138,13 @@ pub async fn process( ioptions: &IOptions
           }
         }
       } else {
-        points::add_points(guild_id.0, msg.author.id.0, 1).await;
+        points::add_points(guild_id.0.get(), msg.author.id.0.get(), 1).await;
+        let msg_channel_id_u64 = msg.channel_id.0.get();
         for file in &msg.attachments {
           if file.filename.ends_with("w3g") {
-            if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg.channel_id.0
-                                         || df.games2.unwrap_or(0) == msg.channel_id.0
-                                         || df.games2.unwrap_or(0) == msg.channel_id.0) {
+            if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg_channel_id_u64
+                                         || df.games2.unwrap_or(0) == msg_channel_id_u64
+                                         || df.games2.unwrap_or(0) == msg_channel_id_u64) {
               if attach_replay(ctx, &msg, file).await.is_ok() {
                 info!("Relay attached successfully");
               } else {
@@ -180,22 +181,22 @@ pub async fn process( ioptions: &IOptions
           }
         }
         // any other junk on log channel should be removed
-        if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg.channel_id.0
-                                     || df.games2.unwrap_or(0) == msg.channel_id.0
-                                     || df.games2.unwrap_or(0) == msg.channel_id.0) {
+        if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg_channel_id_u64
+                                     || df.games2.unwrap_or(0) == msg_channel_id_u64
+                                     || df.games2.unwrap_or(0) == msg_channel_id_u64) {
           if let Err(why) = &msg.delete(&ctx).await {
             error!("failed to clean junk from log {why}");
           }
           return;
         }
-        gate::LAST_CHANNEL.store(msg.channel_id.0, Ordering::Relaxed);
+        gate::LAST_CHANNEL.store(msg.channel_id.0.get(), Ordering::Relaxed);
 
         let rndx: u8 = rand::thread_rng().gen_range(0..3);
         if rndx != 1 {
           if let Some(nick) = msg.author.nick_in(ctx, &guild_id).await {
-            ctx.set_activity(Activity::listening(&nick)).await;
+            ctx.set_activity(Some( ActivityData::listening(&nick) )).await;
           } else {
-            ctx.set_activity(Activity::listening(&msg.author.name)).await;
+            ctx.set_activity(Some( ActivityData::listening(&msg.author.name) )).await;
           }
           ctx.online().await;
         } else {
@@ -209,16 +210,16 @@ pub async fn process( ioptions: &IOptions
                 Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
               let replaced = RE_IB.replace_all(&activity, "");
               if !replaced.is_empty() {
-                ctx.set_activity(Activity::competing(&*replaced)).await;
+                ctx.set_activity(Some( ActivityData::competing(&*replaced) )).await;
               }
             } else {
-              ctx.set_activity(Activity::playing(activity)).await;
+              ctx.set_activity(Some( ActivityData::playing(activity) )).await;
             }
             ctx.idle().await;
           }
         }
         #[cfg(not(target_os = "windows"))]
-        if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0) {
+        if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0.get()) {
           let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed);
           let rnd = rand::thread_rng().gen_range(0..activity_level);
           if rnd == 1 {
@@ -230,7 +231,7 @@ pub async fn process( ioptions: &IOptions
             let emoji = REACTIONS.choose(&mut rng).unwrap();
             let reaction = ReactionType::Custom {
               animated: false,
-              id: EmojiId(emoji.id),
+              id: EmojiId( to_nzu!(emoji.id) ),
               name: Some(emoji.name.clone())
             };
 
@@ -240,9 +241,9 @@ pub async fn process( ioptions: &IOptions
 
                   let normal_people_rnd: u16 = rand::thread_rng().gen_range(0..9);
                   if (normal_people_rnd == 1 || member.roles.contains(&role.id))
-                  && !WHITELIST.iter().any(|u| *u == msg.author.id.0)
+                  && !WHITELIST.iter().any(|u| *u == msg.author.id.0.get())
                   && !ioptions.servers.iter()
-                                      .any(|s| s.id    == guild_id.0
+                                      .any(|s| s.id    == guild_id.0.get()
                                             && s.kind  == CoreGuild::Safe) {
                     if let Err(why) = msg.react(ctx, reaction).await {
                       error!("Failed to react with {}: {why}", emoji.name);
@@ -310,7 +311,7 @@ pub async fn process( ioptions: &IOptions
                   }
                 } else if let Err(why) =
                   guild.create_role(&ctx,
-                      |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
+                      |r| r.colour(Colour::from_rgb(226,37,37).0 as u32)
                            .name(UNBLOCK_ROLE)).await {
                   error!("Failed to create UNBLOCK role, {why}");
                 }

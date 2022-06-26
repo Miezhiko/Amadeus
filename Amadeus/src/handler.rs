@@ -68,8 +68,8 @@ impl EventHandler for Handler {
   async fn cache_ready(&self, ctx: Context, guilds: Vec<GuildId>) {
     info!("Cache is READY");
     for guild_id in guilds {
-      if guild_id.0 != self.ioptions.guild && guild_id.0 != self.ioptions.amadeus_guild {
-        if let Some(serv) = self.ioptions.servers.iter().find(|s| s.id == guild_id.0) {
+      if guild_id.0.get() != self.ioptions.guild && guild_id.0.get() != self.ioptions.amadeus_guild {
+        if let Some(serv) = self.ioptions.servers.iter().find(|s| s.id == guild_id.0.get()) {
           if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
             definitions::create_app_commands(&ctx, &guild).await;
             if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
@@ -80,7 +80,7 @@ impl EventHandler for Handler {
                       if let Err(why) =
                         // Hadouken
                         guild.create_role(&ctx,
-                          |r| r.colour(Colour::from_rgb(226,37,37).0 as u64)
+                          |r| r.colour(Colour::from_rgb(226,37,37).0 as u32)
                               .hoist(false)
                               .mentionable(false)
                               .name(UNBLOCK_ROLE)).await {
@@ -90,7 +90,7 @@ impl EventHandler for Handler {
                     if guild.role_by_name(LIVE_ROLE).is_none() {
                       if let Err(why) =
                         guild.create_role(&ctx,
-                          |r| r.colour(Colour::from_rgb(117,244,255).0 as u64)
+                          |r| r.colour(Colour::from_rgb(117,244,255).0 as u32)
                               .hoist(true)
                               .position(100) // bigger = higher
                               .mentionable(false)
@@ -101,7 +101,7 @@ impl EventHandler for Handler {
                     if guild.role_by_name(MUTED_ROLE).is_none() {
                       if let Err(why) =
                         guild.create_role(&ctx,
-                          |r| r.colour(Colour::from_rgb(113,113,113).0 as u64)
+                          |r| r.colour(Colour::from_rgb(113,113,113).0 as u32)
                               .hoist(true)
                               .position(100) // bigger = higher
                               .mentionable(false)
@@ -121,9 +121,10 @@ impl EventHandler for Handler {
                                 | Permissions::SPEAK
                                 | Permissions::CHANGE_NICKNAME
                                 | Permissions::MANAGE_EMOJIS_AND_STICKERS
-                                | Permissions::USE_SLASH_COMMANDS
+                                | Permissions::USE_APPLICATION_COMMANDS
                                 | Permissions::CREATE_PUBLIC_THREADS
                                 | Permissions::CREATE_PRIVATE_THREADS
+                                | Permissions::USE_VAD
                                 | Permissions::SEND_MESSAGES_IN_THREADS;
                       let overwrite = PermissionOverwrite {
                         allow: Permissions::empty(), deny,
@@ -133,7 +134,7 @@ impl EventHandler for Handler {
                         if MUTED_ROOMS.contains(&chan) {
                           continue;
                         }
-                        if let Err(why) = chan.create_permission(&ctx, &overwrite).await {
+                        if let Err(why) = chan.create_permission(&ctx, overwrite.clone()).await {
                           error!("Failed to create channel override for muted role, {why}");
                         }
                       }
@@ -188,8 +189,8 @@ impl EventHandler for Handler {
         }
       }
     }
-    if let Ok(roles) = roles::restore_roles( member.guild_id.as_u64()
-                                           , member.user.id.as_u64() ).await {
+    if let Ok(roles) = roles::restore_roles( &member.guild_id.get()
+                                           , &member.user.id.get() ).await {
       for role in roles {
         if let Err(why) = member.add_role(&ctx, role).await {
           error!("Failed to reset role {} for user {} on {}, {why}", role, member.user.name, member.guild_id);
@@ -199,7 +200,7 @@ impl EventHandler for Handler {
   }
 
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, m: Option<Member>) {
-    if let Err(why) = points::clear_points(guild_id.0, user.id.0).await {
+    if let Err(why) = points::clear_points(guild_id.0.get(), user.id.0.get()).await {
       error!("some problem with points: {why}");
     }
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
@@ -214,7 +215,7 @@ impl EventHandler for Handler {
         }
       }
     }
-    if let Some(ds) = DISCORDS.get(&guild_id.0) {
+    if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
       if let Some(log) = ds.log {
         if let Err(why) = log.send_message(&ctx, |m| m
           .embed(|e| {
@@ -234,22 +235,22 @@ impl EventHandler for Handler {
         if let Ok(msg) = &add_reaction.message(&ctx).await {
           if let Ok(channel) = msg.channel(&ctx).await {
             if let Some(guild_channel) = channel.guild() {
-              let user_u64 = user_id.as_u64();
-              let guild_u64 = guild_channel.guild_id.as_u64();
-              if let Ok(Some(emoji_roles)) = emojis::message_roles(guild_u64, add_reaction.message_id.as_u64()).await {
-                if let Some(role) = emoji_roles.get(id.as_u64()) {
+              let user_u64 = user_id.get();
+              let guild_u64 = guild_channel.guild_id.get();
+              if let Ok(Some(emoji_roles)) = emojis::message_roles(&guild_u64, &add_reaction.message_id.get()).await {
+                if let Some(role) = emoji_roles.get(&id.get()) {
                   if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                     if let Ok(mut member) = guild.member(&ctx, user_id).await {
-                      let role_id = RoleId(*role);
+                      let role_id = RoleId( to_nzu!( *role ) );
                       if !member.roles.contains(&role_id) {
                         if let Err(why) = member.add_role(&ctx, role_id).await {
                           error!("Failed to assign role {why}");
                         } else {
                           let mut roles_vector : Vec<u64> = Vec::new();
                           for role in &member.roles {
-                            roles_vector.push(*role.as_u64());
+                            roles_vector.push(role.get());
                           }
-                          roles::update_roles(guild_u64, user_u64, &roles_vector).await;
+                          roles::update_roles(&guild_u64, &user_u64, &roles_vector).await;
                         }
                       }
                     }
@@ -269,22 +270,22 @@ impl EventHandler for Handler {
         if let Ok(msg) = &add_reaction.message(&ctx).await {
           if let Ok(channel) = msg.channel(&ctx).await {
             if let Some(guild_channel) = channel.guild() {
-              let user_u64 = user_id.as_u64();
-              let guild_u64 = guild_channel.guild_id.as_u64();
-              if let Ok(Some(emoji_roles)) = emojis::message_roles(guild_u64, add_reaction.message_id.as_u64()).await {
-                if let Some(role) = emoji_roles.get(id.as_u64()) {
+              let user_u64 = user_id.get();
+              let guild_u64 = guild_channel.guild_id.get();
+              if let Ok(Some(emoji_roles)) = emojis::message_roles(&guild_u64, &add_reaction.message_id.get()).await {
+                if let Some(role) = emoji_roles.get(&id.get()) {
                   if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                     if let Ok(mut member) = guild.member(&ctx, user_id).await {
-                      let role_id = RoleId(*role);
+                      let role_id = RoleId( to_nzu!( *role ) );
                       if member.roles.contains(&role_id) {
                         if let Err(why) = member.remove_role(&ctx, role_id).await {
                           error!("Failed to remove role {why}");
                         } else {
                           let mut roles_vector : Vec<u64> = Vec::new();
                           for role in &member.roles {
-                            roles_vector.push(*role.as_u64());
+                            roles_vector.push(role.get());
                           }
-                          roles::update_roles(guild_u64, user_u64, &roles_vector).await;
+                          roles::update_roles(&guild_u64, &user_u64, &roles_vector).await;
                         }
                       }
                     }
@@ -305,7 +306,7 @@ impl EventHandler for Handler {
                          , _guild_id: Option<GuildId> ) {
 
     if RESTORE.load(Ordering::Relaxed) {
-      if !AI_ALLOWED.iter().any(|c| c.id == channel_id.0) {
+      if !AI_ALLOWED.iter().any(|c| c.id == channel_id.0.get()) {
         return;
       }
       let backup_deq = BACKUP.lock().await;
@@ -313,7 +314,7 @@ impl EventHandler for Handler {
         if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
           if msg.is_own(&ctx) { // TODO: not sure whether we want to backup ALL
             if let Some(guild_id) = msg.guild_id {
-              if let Ok(audit) = ctx.http.get_audit_logs( guild_id.0
+              if let Ok(audit) = ctx.http.get_audit_logs( guild_id.0.get()
                                                         , Some( MessageAction::Delete as u8 )
                                                         , None
                                                         , None
@@ -321,7 +322,7 @@ impl EventHandler for Handler {
                 // Here we just hope it's last in Audit log, very unsafe stuff
                 for entry in audit.entries {
                   // that entry contains target_id: Option<u64> but nobody knows what's that
-                  if let Ok(deleter) = ctx.http.get_user(entry.user_id.0).await {
+                  if let Ok(deleter) = ctx.http.get_user(entry.user_id.0.get()).await {
                     if !deleter.bot {
                       // message was removed by admin or by author
                       info!("{} or {} was trying to remove message", deleter.name

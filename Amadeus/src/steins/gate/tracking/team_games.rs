@@ -66,15 +66,15 @@ pub async fn activate_games_tracking(
   // Delete live games from log channel (if some)
   for (_, df) in DISCORDS.iter() {
     if let Some(sc) = df.games {
-      let channel = ChannelId(sc);
+      let channel = ChannelId(to_nzu!(sc));
       clean_games_channel(&channel, ctx).await;
     }
     if let Some(sc) = df.games2 {
-      let channel = ChannelId(sc);
+      let channel = ChannelId(to_nzu!(sc));
       clean_games_channel(&channel, ctx).await;
     }
     if let Some(sc) = df.games4 {
-      let channel = ChannelId(sc);
+      let channel = ChannelId(to_nzu!(sc));
       clean_games_channel(&channel, ctx).await;
     }
   }
@@ -204,7 +204,7 @@ pub async fn activate_games_tracking(
             };
 
             if let Some(gc) = game_channel_maybe {
-            let game_channel = ChannelId(gc);
+            let game_channel = ChannelId(to_nzu!(gc));
 
             match game_channel.send_message(&ctx_clone, |m| m
               .embed(|e| {
@@ -240,12 +240,12 @@ pub async fn activate_games_tracking(
                   trace!("team games: starting");
                   let mut games_lock = poller::GAMES.lock().await;
                   if let Some(inserted) = games_lock.get_mut(&game_key) {
-                    if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.0)) {
-                      inserted.tracking_msg_id.push((*d, msg_id.id.0));
+                    if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.0.get())) {
+                      inserted.tracking_msg_id.push((*d, msg_id.id.0.get()));
                     }
                   } else {
                     games_lock.insert( game_key.clone()
-                      , TrackingGame { tracking_msg_id: vec![(*d, msg_id.id.0)]
+                      , TrackingGame { tracking_msg_id: vec![(*d, msg_id.id.0.get())]
                                      , passed_time: 0
                                      , still_live: false
                                      , players: game.players.clone().into_iter()
@@ -273,7 +273,7 @@ pub async fn activate_games_tracking(
                       let emoji = &inref.emoji;
                       if let Some(u) = inref.user_id {
                         if let Some(g) = inref.guild_id {
-                          if let Ok(p) = points::get_points( g.0, u.0 ).await {
+                          if let Ok(p) = points::get_points( g.0.get(), u.0.get() ).await {
                             if p > 100 {
                               let emoji_data = emoji.as_data();
                               if emoji_data.as_str() == "👍🏻" || emoji_data.as_str() == "👎🏻" {
@@ -284,13 +284,13 @@ pub async fn activate_games_tracking(
                                   if let Some(track) = gl.get_mut(&game_key_clone) {
                                     if track.still_live {
                                       // you bet only once
-                                      if !track.bets.iter().any(|b| b.member == u.0) {
-                                        let bet = Bet { guild: g.0
-                                                      , member: u.0
+                                      if !track.bets.iter().any(|b| b.member == u.0.get()) {
+                                        let bet = Bet { guild: g.0.get()
+                                                      , member: u.0.get()
                                                       , points: 100
                                                       , positive: is_positive
                                                       , registered: false };
-                                        let (succ, rst) = points::give_points( g.0, u.0
+                                        let (succ, rst) = points::give_points( g.0.get(), u.0.get()
                                                                              , amadeus
                                                                              , 100 ).await;
                                         if succ {

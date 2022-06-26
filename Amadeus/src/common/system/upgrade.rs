@@ -1,7 +1,7 @@
 use serenity::{
   prelude::*,
-  model::{ gateway::Activity
-         , id::ChannelId }
+  gateway::ActivityData,
+  model::id::ChannelId
 };
 
 use tokio::process::Command;
@@ -10,8 +10,8 @@ use regex::Regex;
 use once_cell::sync::Lazy;
 
 pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::Result<()> {
-  let start_typing = ctx.http.start_typing(channel_id.0);
-  ctx.set_activity(Activity::listening("Fetching changes")).await;
+  let start_typing = ctx.http.start_typing(channel_id.0.get());
+  ctx.set_activity(Some( ActivityData::listening("Fetching changes") )).await;
   ctx.idle().await;
   let git_fetch = Command::new("sh")
                   .arg("-c").arg("git fetch origin mawa")
@@ -54,7 +54,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
                      .description(&description)
         )
       ).await?;
-      ctx.set_activity(Activity::playing("Compiling...")).await;
+      ctx.set_activity(Some( ActivityData::playing("Compiling...") )).await;
       static LINKS_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.https.*)").unwrap());
       let cargo_update = Command::new("sh")
                 .arg("-c").arg("cargo update")
@@ -104,13 +104,13 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
                        .description(&description)
           )
         ).await?;
-        ctx.set_activity(Activity::listening("Restarting Salieri")).await;
+        ctx.set_activity(Some( ActivityData::listening("Restarting Salieri") )).await;
         let _systemctl = Command::new("sh")
                 .arg("-c").arg("sudo systemctl restart Salieri")
                 .output()
                 .await
                 .expect("failed to restart Salieri service");
-        ctx.set_activity(Activity::listening("Restarting Amadeus")).await;
+        ctx.set_activity(Some( ActivityData::listening("Restarting Amadeus") )).await;
         let _systemctl = Command::new("sh")
                 .arg("-c").arg("sudo systemctl restart Amadeus")
                 .output()

@@ -1,17 +1,21 @@
 use crate::{
-  types::options::ROptions,
+  types::{
+    options::ROptions,
+    serenity::ReqwestClient
+  },
   common::{
     msg::{ direct_message, reply },
     options
   }
 };
 
+use songbird::input::YoutubeDl;
+
 #[cfg(feature = "voice_analysis")]
 use crate::common::voice_analysis::*;
 #[cfg(feature = "voice_analysis")]
 use songbird::CoreEvent;
 
-#[cfg(feature = "voice_analysis")]
 use std::sync::Arc;
 
 use serenity::{
@@ -31,8 +35,13 @@ use serenity::{
 
 pub async fn rejoin_voice_channel(ctx: &Context, conf: &ROptions) {
   if conf.rejoin && conf.last_guild != 0 && conf.last_channel != 0 {
-    set!{ last_guild_conf   = GuildId( conf.last_guild )
-        , last_channel_conf = ChannelId( conf.last_channel ) };
+    set!{ last_guild_conf   = GuildId( to_nzu!( conf.last_guild ) )
+        , last_channel_conf = ChannelId( to_nzu!( conf.last_channel ) ) };
+
+    let reqwest_client = {
+      let data = ctx.data.read().await;
+      data.get::<ReqwestClient>().unwrap().clone()
+    };
 
     let manager = songbird::get(ctx).await
       .expect("Songbird Voice client placed in at initialisation.").clone();
@@ -44,10 +53,10 @@ pub async fn rejoin_voice_channel(ctx: &Context, conf: &ROptions) {
       if !conf.last_stream.is_empty() {
         if let Some(handler_lock) = manager.get(last_guild_conf) {
           let mut handler = handler_lock.lock().await;
-          match songbird::ytdl(&conf.last_stream).await {
-            Ok(source) => { handler.play_source(source); },
-            Err(why)   => { error!("Err starting source {why}"); }
-          };
+          let youtube = YoutubeDl::new(
+            Arc::unwrap_or_clone( reqwest_client ),
+            conf.last_stream.clone());
+          handler.play_input(youtube.into());
         }
       }
     } else {
@@ -64,7 +73,7 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
     Some(guild) => guild.voice_states.clone(),
     None => { return Ok(()); }
   };
-  let guild_id = msg.guild_id.unwrap_or_default();
+  let guild_id = msg.guild_id.unwrap();
   let channel_id = voice_states
     .get(&msg.author.id)
     .and_then(|voice_state| voice_state.channel_id);
@@ -80,12 +89,12 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
   let (_handler_lock, conn_result) = manager.join(guild_id, connect_to).await;
   if conn_result.is_ok() {
     let mut opts = options::get_roptions().await?;
-    if opts.last_guild != guild_id.0
-    || opts.last_channel != connect_to.0
+    if opts.last_guild != guild_id.0.get()
+    || opts.last_channel != connect_to.0.get()
     || !opts.rejoin {
       opts.rejoin = true;
-      opts.last_guild = guild_id.0;
-      opts.last_channel = connect_to.0;
+      opts.last_guild = guild_id.0.get();
+      opts.last_channel = connect_to.0.get();
       options::put_roptions(&opts).await?;
     }
 
@@ -133,12 +142,12 @@ pub async fn join_slash(ctx: &Context, user: &User, guild: &Guild) -> anyhow::Re
   let (_handler_lock, conn_result) = manager.join(guild_id, connect_to).await;
   if conn_result.is_ok() {
     let mut opts = options::get_roptions().await?;
-    if opts.last_guild != guild_id.0
-    || opts.last_channel != connect_to.0
+    if opts.last_guild != guild_id.0.get()
+    || opts.last_channel != connect_to.0.get()
     || !opts.rejoin {
       opts.rejoin = true;
-      opts.last_guild = guild_id.0;
-      opts.last_channel = connect_to.0;
+      opts.last_guild = guild_id.0.get();
+      opts.last_channel = connect_to.0.get();
       options::put_roptions(&opts).await?;
     }
 
@@ -218,16 +227,15 @@ pub async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
   let manager = songbird::get(ctx).await
     .expect("Songbird Voice client placed in at initialisation.").clone();
   if let Some(handler_lock) = manager.get(guild_id) {
-    let mut handler = handler_lock.lock().await;
-    let source = match songbird::ytdl(&url).await {
-      Ok(source) => source,
-      Err(why) => {
-        error!("Err starting source {why}");
-        reply(ctx, msg, &format!("Sorry, error sourcing ffmpeg {why}")).await;
-        return Ok(());
-      }
+    let reqwest_client = {
+      let data = ctx.data.read().await;
+      data.get::<ReqwestClient>().unwrap().clone()
     };
-    handler.play_source(source);
+    let mut handler = handler_lock.lock().await;
+    let youtube = YoutubeDl::new(
+      Arc::unwrap_or_clone( reqwest_client ),
+      url.clone());
+    handler.play_input(youtube.into());
     let mut conf = options::get_roptions().await?;
     let last_stream_conf = conf.last_stream;
     if last_stream_conf != url {

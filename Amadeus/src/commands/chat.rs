@@ -28,12 +28,12 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
       if !(msg.mentions.is_empty() ||
            msg.mentions.len() == 1 && !msg.content.starts_with(PREFIX) && msg.mentions[0].bot) {
         let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-        if let Ok(p) = points::get_points( guild_id.0, target_user.id.0 ).await {
+        if let Ok(p) = points::get_points( guild_id.0.get(), target_user.id.0.get() ).await {
           ( &target_user.name, p )
         } else {
           ( &target_user.name, 0 )
         }
-      } else if let Ok(p) = points::get_points( guild_id.0, msg.author.id.0 ).await {
+      } else if let Ok(p) = points::get_points( guild_id.0.get(), msg.author.id.0.get() ).await {
           ( &msg.author.name, p )
         } else {
           ( &msg.author.name, 0 )
@@ -70,32 +70,33 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     };
 
   let mut members_with_points: Vec<(Member, u64)> = Vec::new();
-  let guild_id = msg.guild_id.unwrap_or_default();
-  for (id, mem) in members {
-    debug!("scanning points for {}", &mem.user.name);
-    if let Ok(p) = points::get_points( guild_id.0, id.0 ).await {
-      members_with_points.push( (mem, p) );
-    } else {
-      members_with_points.push( (mem, 0) );
+  if let Some(guild_id) = msg.guild_id {
+    for (id, mem) in members {
+      debug!("scanning points for {}", &mem.user.name);
+      if let Ok(p) = points::get_points( guild_id.get(), id.0.get() ).await {
+        members_with_points.push( (mem, p) );
+      } else {
+        members_with_points.push( (mem, 0) );
+      }
     }
-  }
-  members_with_points.sort_by(|(_, pa), (_, pb) | pa.cmp(pb));
-  members_with_points.reverse();
-  let mut out: Vec<String> = Vec::new();
-  for (i, (m, p)) in members_with_points.iter().take(top_x).enumerate() {
-    let n = i + 1;
-    out.push(format!("{n}. **{}**: **{p}**", m.user.name));
-  }
-  let title = format!("Top {top_x} points");
-  let footer = format!("Requested by {}", msg.author.name);
-  if !out.is_empty() {
-    if let Err(why) = msg.channel_id.send_message(ctx, |m| m
-      .embed(|e| e
-      .title(title)
-      .description(out.join("\n"))
-      .footer(|f| f.text(footer))
-    )).await {
-      error!("Failed to post top of users, {why}");
+    members_with_points.sort_by(|(_, pa), (_, pb) | pa.cmp(pb));
+    members_with_points.reverse();
+    let mut out: Vec<String> = Vec::new();
+    for (i, (m, p)) in members_with_points.iter().take(top_x).enumerate() {
+      let n = i + 1;
+      out.push(format!("{n}. **{}**: **{p}**", m.user.name));
+    }
+    let title = format!("Top {top_x} points");
+    let footer = format!("Requested by {}", msg.author.name);
+    if !out.is_empty() {
+      if let Err(why) = msg.channel_id.send_message(ctx, |m| m
+        .embed(|e| e
+        .title(title)
+        .description(out.join("\n"))
+        .footer(|f| f.text(footer))
+      )).await {
+        error!("Failed to post top of users, {why}");
+      }
     }
   }
   Ok(())
@@ -119,9 +120,9 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             second
           } else { 0 };
         if points_count > 0 {
-          let (succ, rst) = points::give_points( guild_id.0
-                                               , msg.author.id.0
-                                               , target_user.id.0
+          let (succ, rst) = points::give_points( guild_id.0.get()
+                                               , msg.author.id.0.get()
+                                               , target_user.id.0.get()
                                                , points_count ).await;
           if succ {
             let out = format!("{rst} to {}", target_user.name);

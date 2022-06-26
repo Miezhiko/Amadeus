@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "9.2.13"
+version         = "10.0.0"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -47,7 +47,7 @@ async-recursion     = "1.0.0"
 unic-langid         = "0.9"
 fluent-templates    = "0.7.1"
 sled                = "0.34.7"
-kathoey             = "1.1.0"
+kathoey             = "1.1.2"
 serde_dhall         = "0.11.1"
 nipper              = "0.1.9"
 
@@ -59,10 +59,9 @@ markov  = { version = "1.1",      features = ["yaml"] }
 
 [dependencies.songbird]
 default-features = false
-git = "https://github.com/serenity-rs/songbird.git"
-branch = "next"
-features = [ "yt-dlp"
-           , "serenity-rustls"
+git = "https://github.com/FelixMcFelix/songbird.git"
+branch = "symphonia"
+features = [ "serenity-rustls"
            , "driver"
            , "gateway"
            , "serenity-deps"

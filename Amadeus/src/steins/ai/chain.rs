@@ -36,14 +36,14 @@ use std::collections::HashMap;
 use mozart::bert::{ RE1, RE2, RE3 };
 
 pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Option<String> {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0);
+  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
   let mut have_something = false;
 
   let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
   let data = ctx.data.read().await;
   if let Some(servers) = data.get::<AllGuilds>() {
     let server_ids = servers.iter()
-                            .map(|srv| GuildId(srv.id))
+                            .map(|srv| GuildId( to_nzu!( srv.id ) ))
                             .collect::<Vec<GuildId>>();
     for server in server_ids {
       if let Ok(serv_channels) = server.channels(ctx).await {
@@ -55,7 +55,7 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
   if !all_channels.is_empty() {
     let mut chain = Chain::new();
     for (chan, _) in all_channels {
-      if AI_LEARN.iter().any(|c| c.id == chan.0) {
+      if AI_LEARN.iter().any(|c| c.id == chan.0.get()) {
         if let Ok(messages) = chan.messages(&ctx, |r|
           r.limit(100) // 100 is max
         ).await {
@@ -113,7 +113,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
       } else {
         CACHE_ENG.lock().await
       };
-  if !check_registration(msg.channel_id.0, msg.id.0).await {
+  if !check_registration(msg.channel_id.0.get(), msg.id.0.get()).await {
     let ch_lang = if russian {
         ChannelLanguage::Russian
       } else {
@@ -122,7 +122,7 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
     if let Some((result, _)) = process_message_string(msg_content, ch_lang) {
       chain.feed_str(&result);
     }
-    register(msg.channel_id.0, msg.id.0).await;
+    register(msg.channel_id.0.get(), msg.id.0.get()).await;
   }
   let mut out = chain.generate_str();
   let rndx = rand::thread_rng().gen_range(0..66);

@@ -147,7 +147,7 @@ pub async fn replay_embed( ctx: &Context
     }
     let embeds = vec![ eb1, eb3, eb2 ];
     if let Ok(mut bot_msg) = msg.channel_id.send_message(&ctx, |m| {
-                                m.embed(|e| { e.0 = embeds[0].0.clone(); e })
+                                m.set_embed( embeds[0].clone() )
                               }).await {
       let mut page: usize = 0;
       set!{ left  = ReactionType::Unicode(String::from("⬅️"))
@@ -173,8 +173,8 @@ pub async fn replay_embed( ctx: &Context
             _ => (),
           }
           if let Err(err) = bot_msg.edit(&ctx, |m|
-            m.embed(|mut e| {
-              e.0 = embeds[page].0.clone(); e
+            m.embed(|e| {
+              *e = embeds[page].clone(); e
             })
           ).await {
             error!("Shit happens {err}");
@@ -202,7 +202,7 @@ pub async fn attach_replay( ctx: &Context
                           , msg: &Message
                           , file: &Attachment ) -> anyhow::Result<()> {
   if let Some(playa) = PLAYERS.iter().find(|p|
-    !p.player.battletag.is_empty() && p.player.discord == msg.author.id.0) {
+    !p.player.battletag.is_empty() && p.player.discord == msg.author.id.0.get()) {
     let battletag = playa.player.battletag.clone();
     if let Ok(bytes) = file.download().await {
       let mut fw3g = match File::create(&file.filename).await {

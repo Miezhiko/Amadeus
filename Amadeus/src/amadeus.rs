@@ -93,7 +93,7 @@ pub async fn run(opts: &IOptions) ->
   let mut core_guilds = HashMap::new();
   core_guilds.insert(CoreGuild::HEmo, opts.guild);
   core_guilds.insert(CoreGuild::Storage, opts.amadeus_guild);
-  core_guilds.insert(CoreGuild::Amadeus, amadeus_id.0);
+  core_guilds.insert(CoreGuild::Amadeus, amadeus_id.0.get());
 
   let mut all_guilds = opts.servers.clone();
   all_guilds.push( IServer { id: opts.guild, kind: CoreGuild::HEmo } );

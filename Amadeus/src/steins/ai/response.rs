@@ -28,13 +28,13 @@ async fn generate_response( ctx: &Context
                           , gtry: u32
                           , lsm: bool
                           , is_response: bool ) -> Option<String> {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0);
-  let message_id = if is_response { Some(msg.id.0) } else { None };
+  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
+  let message_id = if is_response { Some(msg.id.0.get()) } else { None };
   if gtry > 0 {
     warn!("Response: failed to generate normal response, try: {gtry}");
   }
   let russian =
-    if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0) {
+    if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0.get()) {
       match ch_lang.lang {
         ChannelLanguage::English => {
           false
@@ -51,7 +51,7 @@ async fn generate_response( ctx: &Context
     };
   let rndx: u32 = rand::thread_rng().gen_range(0..30);
   let mut bert_generated = false;
-  let in_case = CASELIST.iter().any(|u| *u == msg.author.id.0);
+  let in_case = CASELIST.iter().any(|u| *u == msg.author.id.0.get());
   let mut answer_option =
     if rndx != 1 && !in_case && gtry < 10 {
       let text = if russian {
@@ -67,9 +67,9 @@ async fn generate_response( ctx: &Context
         let rndxqa: u32 = rand::thread_rng().gen_range(0..2);
         if rndxqa == 1 {
           match bert::ask( message_id
-                         , msg.channel_id.0
+                         , msg.channel_id.0.get()
                          , text
-                         , msg.author.id.0
+                         , msg.author.id.0.get()
                          , lsm
                          , russian ).await {
             Ok(answer) => {
@@ -82,9 +82,9 @@ async fn generate_response( ctx: &Context
           }
         } else {
           match bert::chat( message_id
-                          , msg.channel_id.0
+                          , msg.channel_id.0.get()
                           , text
-                          , msg.author.id.0
+                          , msg.author.id.0.get()
                           , lsm
                           , russian ).await {
             Ok(answer) => {
@@ -98,9 +98,9 @@ async fn generate_response( ctx: &Context
         }
       } else {
         match bert::chat( message_id
-                        , msg.channel_id.0
+                        , msg.channel_id.0.get()
                         , text
-                        , msg.author.id.0
+                        , msg.author.id.0.get()
                         , lsm
                         , russian ).await {
           Ok(answer) => {
@@ -156,12 +156,12 @@ async fn generate_response( ctx: &Context
                           , gtry: u32
                           , lsm: bool
                           , is_response: bool ) -> Option<String> {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0);
+  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
   if gtry > 0 {
     warn!("Failed to generate normal respons, try: {gtry}");
   }
   let russian =
-    if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0) {
+    if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0.get()) {
       match ch_lang.lang {
         ChannelLanguage::English => {
           false

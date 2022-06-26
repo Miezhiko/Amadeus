@@ -1,4 +1,6 @@
 #![type_length_limit="2792949"]
+#![feature(arc_unwrap_or_clone)]
+#![feature(const_option)]
 
 #[macro_use] extern crate serde;
 #[macro_use] extern crate anyhow;
@@ -6,6 +8,7 @@
 #[macro_use] mod macros;
 
 mod types;
+
 #[macro_use] mod common;
 
 mod collections; mod commands; mod steins;

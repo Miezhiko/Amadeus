@@ -2,7 +2,8 @@ use crate::{
   types::{ options::IOptions
          , tracking::{ TrackingGame, GameMode }
          , twitch::Twitch
-         , goodgame::GoodGameData },
+         //, goodgame::GoodGameData
+         },
   collections::team::{ ALL, DISCORDS },
   common::{
     help::fields::{ FieldsVec, FieldsVec2 },
@@ -188,6 +189,7 @@ pub async fn activate_streamers_tracking(
                 }
               }
             }
+            /* Good Game is down
             if streams.ggru.is_some() {
               let ggru = streams.ggru.clone().unwrap();
               let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", &ggru);
@@ -223,6 +225,7 @@ pub async fn activate_streamers_tracking(
                 };
               }
             }
+            */
           } else { continue; }
 
           if !additional_fields.is_empty() {

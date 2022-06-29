@@ -148,7 +148,9 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
   confirmation.react(ctx, '✅').await?;
   confirmation.react(ctx, '❌').await?;
   loop {
-    if let Some(reaction) = other_player.await_reaction(ctx).timeout(Duration::from_secs(120)).await {
+    let collector = other_player.reaction_collector(&ctx.shard)
+                                .timeout(Duration::from_secs(120));
+    if let Some(reaction) = collector.collect_single().await {
       let emoji = &reaction.as_inner_ref().emoji;
       match emoji.as_data().as_str() {
         "✅" => {
@@ -207,7 +209,10 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
       let mut y: Option<usize> = None;
       loop {
         if x.is_none() || y.is_none() {
-          if let Some(reaction) = i.0.to_user(ctx).await?.await_reaction(ctx).timeout(Duration::from_secs(120)).await {
+          let ux = i.0.to_user(ctx).await?;
+          let collector = ux.reaction_collector(&ctx.shard)
+                            .timeout(Duration::from_secs(120));
+          if let Some(reaction) = collector.collect_single().await {
             let _ = reaction.as_inner_ref().delete(ctx).await;
             let emoji = &reaction.as_inner_ref().emoji;
 

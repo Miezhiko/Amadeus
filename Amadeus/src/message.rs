@@ -157,9 +157,9 @@ pub async fn process( ioptions: &IOptions
               let rainbow = ReactionType::Unicode(String::from("🌈"));
               let _ = msg.react(&ctx, rainbow).await;
               loop {
-                if let Some(reaction) =
-                  &msg.await_reaction(&ctx)
-                      .timeout(Duration::from_secs(3600)).await {
+                let collector = msg.reaction_collector(&ctx.shard)
+                                   .timeout(Duration::from_secs(3600));
+                if let Some(reaction) = collector.collect_single().await {
                   let emoji = &reaction.as_inner_ref().emoji;
                   if emoji.as_data().as_str() == "🌈" {
                     if let Err(why) = replay_embed(ctx, &msg, file).await {

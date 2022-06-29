@@ -122,10 +122,10 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
         let _ = bot_msg.react(ctx, left).await;
         let _ = bot_msg.react(ctx, right).await;
         loop {
-          if let Some(reaction) =
-            &bot_msg.await_reaction(ctx)
-                    .author_id(msg.author.id.0)
-                    .timeout(Duration::from_secs(120)).await {
+          let collector = bot_msg.reaction_collector(&ctx.shard)
+                                 .timeout(Duration::from_secs(120))
+                                 .author_id(msg.author.id.0);
+          if let Some(reaction) = collector.collect_single().await {
             let emoji = &reaction.as_inner_ref().emoji;
             match emoji.as_data().as_str() {
               "⬅️" => { 

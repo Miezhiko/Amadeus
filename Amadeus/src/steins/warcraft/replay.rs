@@ -155,9 +155,9 @@ pub async fn replay_embed( ctx: &Context
       let _ = bot_msg.react(&ctx, left).await;
       let _ = bot_msg.react(&ctx, right).await;
       loop {
-        if let Some(reaction) =
-          &bot_msg.await_reaction(&ctx)
-                  .timeout(Duration::from_secs(360)).await {
+        let collector = bot_msg.reaction_collector(&ctx.shard)
+                               .timeout(Duration::from_secs(360));
+        if let Some(reaction) = collector.collect_single().await {
           let emoji = &reaction.as_inner_ref().emoji;
           match emoji.as_data().as_str() {
             "⬅️" => { 

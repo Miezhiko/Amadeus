@@ -21,6 +21,7 @@ pub const MUTED_ROOMS: &[ChannelId]   = &[ ChannelId( NonZeroU64::new( 958705907
 
 pub const W3C_STATS_ROOM: ChannelId   = ChannelId( NonZeroU64::new( 965968135666696322 ).unwrap() );
 pub const W3C_STATS_MSG: MessageId    = MessageId( NonZeroU64::new( 965968232328609802 ).unwrap() );
+pub const W3C_STATS_MSG2: MessageId   = MessageId( NonZeroU64::new( 993816096375324742 ).unwrap() );
 
 pub const W3C_API: &str = "https://website-backend.w3champions.com/api";
 

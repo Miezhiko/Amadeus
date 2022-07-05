@@ -564,13 +564,18 @@ pub async fn check<'a>( ctx: &Context
               setm!{ title          = "FINISHED"
                    , streak_fields  = None
                    , bet_fields     = None };
-              for ((pws, pw), is_win) in &fgame.winners {
+              for ((pws, pw), is_win, xmmr) in &fgame.winners {
                 let is_solo = match track.mode {
                   GameMode::Solo  => true,
                   GameMode::Team2 => false,
                   GameMode::Team4 => false
                 };
-                if let Err(why) = add_to_weekly(ctx, pws, *is_win, is_solo).await {
+                if let Err(why) = add_to_weekly( ctx
+                                               , pws
+                                               , *is_win
+                                               , *xmmr
+                                               , is_solo
+                                               ).await {
                   error!("Failed to add stats: {why}");
                 }
                 if *is_win {

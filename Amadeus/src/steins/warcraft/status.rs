@@ -1,6 +1,9 @@
 use crate::{
   types::tracking::{ W3CStats, GameMode },
-  common::constants::{ W3C_STATS_ROOM, W3C_STATS_MSG },
+  common::{
+    constants::{ W3C_STATS_ROOM, W3C_STATS_MSG, W3C_STATS_MSG2 },
+    colors::gen_colors
+  },
   steins::warcraft::poller::GAMES,
   commands::w3c::{ generate_popularhours, get_mmm, secs_to_str }
 };
@@ -9,19 +12,30 @@ use chrono::{
   Timelike,
   Datelike
 };
-use serenity::prelude::*;
-use std::collections::BTreeMap;
+use serenity::{
+  prelude::*,
+  model::channel::AttachmentType
+};
+
+use std::collections::{
+  BTreeMap,
+  HashMap
+};
 use async_std::fs;
+
+use crate::common::constants::APM_PICS;
+use plotters::prelude::*;
 
 const WEEKLY_STATS_FNAME: &str  = "weekly.yml";
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
-pub struct WeeklyWinLoses {
+pub struct DailyWinLoses {
   pub wins: u64,
-  pub losses: u64
+  pub losses: u64,
+  pub mmr: u32
 }
 
-type StatusStats = BTreeMap<String, WeeklyWinLoses>;
+type StatusStats = BTreeMap<String, DailyWinLoses>;
 
 #[derive(Clone, Serialize, Deserialize, Default)]
 pub struct Daily {
@@ -35,7 +49,10 @@ type DailyStats = [Daily; 7];
 pub struct Weekly {
   pub reset_day: u32,
   pub stats: DailyStats,
-  pub popular_hours: String
+  pub popular_hours: String,
+  pub popular_hours2: String,
+  pub stats_graph: String,
+  pub stats_graph2: String
 }
 
 pub async fn get_weekly(ctx: &Context) -> anyhow::Result<Weekly> {
@@ -47,7 +64,12 @@ pub async fn get_weekly(ctx: &Context) -> anyhow::Result<Weekly> {
   Ok(yml)
 }
 
-pub async fn add_to_weekly(ctx: &Context, p: &str, win: bool, solo: bool) -> anyhow::Result<()> {
+pub async fn add_to_weekly( ctx: &Context
+                          , p: &str
+                          , win: bool
+                          , xmmr: u32
+                          , solo: bool
+                          ) -> anyhow::Result<()> {
   let mut current_weekly = get_weekly(ctx).await?;
   let weekly_stats: &mut StatusStats =
     if solo { &mut current_weekly.stats[0].statistics }
@@ -58,10 +80,12 @@ pub async fn add_to_weekly(ctx: &Context, p: &str, win: bool, solo: bool) -> any
     } else {
       p_stats.losses += 1;
     }
+    p_stats.mmr = xmmr;
   } else {
-    let stats = WeeklyWinLoses {
+    let stats = DailyWinLoses {
       wins    : if win { 1 } else { 0 },
-      losses  : if win { 0 } else { 1 }
+      losses  : if win { 0 } else { 1 },
+      mmr     : xmmr
     };
     weekly_stats.insert(p.to_string(), stats);
   }
@@ -70,8 +94,93 @@ pub async fn add_to_weekly(ctx: &Context, p: &str, win: bool, solo: bool) -> any
   Ok(())
 }
 
+pub async fn generate_stats_graph( ctx: &Context
+                                 , solo: bool
+                                 , weeky: &DailyStats ) -> anyhow::Result<Option<String>> {
+  let mut weekly_statis_image: Option<String> = None;
+  let fname_weekly_statis =
+    if solo {
+      String::from("weeky_stats.png")
+    } else {
+      String::from("weeky_stats2.png")
+    };
+  let mut plx_vec = vec![];
+  { // because of Rc < > in BitMapBackend I need own scope here
+    let mut min_mmr = 0;
+    let mut max_mmr = 0;
+    let mut stats_vec: HashMap<String, [f64; 7]> = HashMap::new();
+    for (n, d) in weeky.iter().enumerate() {
+      let stats = if solo {
+          &d.statistics
+        } else {
+          &d.statistics2
+        };
+      for p in stats {
+        max_mmr = std::cmp::max(max_mmr, p.1.mmr);
+        min_mmr = std::cmp::min(min_mmr, p.1.mmr);
+        if let Some(sv) = stats_vec.get_mut(p.0) {
+          sv[n] = p.1.mmr as f64;
+        } else {
+          let mut dd: [f64; 7] = Default::default();
+          dd[n] = p.1.mmr as f64;
+          stats_vec.insert(p.0.clone(), dd);
+        }
+      }
+    }
+
+    let colors = gen_colors(stats_vec.len());
+    for (i, (strx, px)) in stats_vec.iter().enumerate() {
+      let (red, green, blue) = colors[i];
+      let color = RGBColor(red, green, blue);
+      let style: ShapeStyle = ShapeStyle::from(color) /*.stroke_width(2)*/;
+      let pxx = px.iter().enumerate().map(|(i, x)| (i as f64, *x as f64));
+      plx_vec.push((style, strx, pxx));
+    }
+
+    let root_area = BitMapBackend::new(&fname_weekly_statis, (1000, 500)).into_drawing_area();
+    root_area.fill(&RGBColor(47, 49, 54))?;
+    let mut cc = ChartBuilder::on(&root_area)
+      .margin(5u32)
+      .set_all_label_area_size(50u32)
+      .build_cartesian_2d(0.0..6_f64, min_mmr as f64..max_mmr as f64)?;
+    cc.configure_mesh()
+      .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
+      .x_labels(6)
+      .y_labels(10)
+      .axis_style(&RGBColor(80, 80, 80))
+      .draw()?;
+    for (st, player_str, plx) in plx_vec {
+      cc.draw_series(LineSeries::new(plx, st.clone()))?
+        .label(player_str.as_str())
+        .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], st.clone()));
+    }
+    cc.configure_series_labels()
+      .position(SeriesLabelPosition::LowerRight)
+      .border_style(&BLACK)
+      .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
+      .draw()?;
+  }
+  match APM_PICS.send_message(&ctx, |m|
+    m.add_file(AttachmentType::Path(std::path::Path::new(&fname_weekly_statis)))).await {
+    Ok(msg) => {
+      if !msg.attachments.is_empty() {
+        let img_attachment = &msg.attachments[0];
+        weekly_statis_image = Some(img_attachment.url.clone());
+      }
+    },
+    Err(why) => {
+      error!("Failed to download and post stream img {why}");
+    }
+  };
+  if let Err(why) = fs::remove_file(&fname_weekly_statis).await {
+    error!("Error removing popular hours png {why}");
+  } else {
+    error!("no rsponse from w3c");
+  }
+  Ok(weekly_statis_image)
+}
+
 async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
-  // TODO: generate graph of players activity, not popular hours maybe
   let poplar_hours =
     if let Some(generated_image) = generate_popularhours(ctx).await? {
       generated_image
@@ -82,19 +191,37 @@ async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
       Weekly {
         reset_day: day,
         stats: Default::default(),
-        popular_hours: poplar_hours
+        popular_hours: poplar_hours.clone(),
+        popular_hours2: poplar_hours,
+        stats_graph: "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string(),
+        stats_graph2: "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
       }
     } else {
       let contents = fs::read_to_string(WEEKLY_STATS_FNAME).await?;
       let old: Weekly = serde_yaml::from_str(&contents)?;
       let mut old_stats = old.stats;
+      let weekly_stats_graph =
+      if let Ok(Some(wsg)) = generate_stats_graph(ctx, true, &old_stats).await {
+          wsg
+        } else {
+          "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
+        };
+        let weekly_stats_graph2 =
+        if let Ok(Some(wsg)) = generate_stats_graph(ctx, false, &old_stats).await {
+            wsg
+          } else {
+            "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
+          };
       old_stats[..].rotate_right(1);
       old_stats[0].statistics.clear();
       old_stats[0].statistics2.clear();
       Weekly {
         reset_day: day,
         stats: old_stats,
-        popular_hours: poplar_hours
+        popular_hours: poplar_hours.clone(),
+        popular_hours2: poplar_hours,
+        stats_graph: weekly_stats_graph,
+        stats_graph2: weekly_stats_graph2
       }
     };
   let yml = serde_yaml::to_string(&init)?;
@@ -114,6 +241,8 @@ fn merge_stats(s1: &mut StatusStats, s2: &StatusStats) {
 
 pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()> {
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
+  if let Ok(mut statusmsg2) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG2).await {
+
     let weekly = get_weekly(ctx).await?;
     let now = chrono::Utc::now();
     // only check on midnight
@@ -185,7 +314,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     let mut weekly_str = vec![];
     let mut weekly_statistics = StatusStats::new();
     let mut weekly_statistics2 = StatusStats::new();
-    for stat in  weekly.stats {
+    for stat in &weekly.stats {
       merge_stats(&mut weekly_statistics, &stat.statistics);
       merge_stats(&mut weekly_statistics2, &stat.statistics2);
     }
@@ -215,11 +344,23 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     }
     let stats_str = format!(
 "
-__**solo stats for 7 days:**__
 ```
 {}
 ```
-__**2x2/4x4 for 7 days:**__
+"
+    , weekly_str[1]);
+    statusmsg.edit(ctx, |m| m.content("")
+             .embed(|e|
+              e.color((255, 20, 7))
+               .title("2x2/4x4 stats for 7 days")
+               .description(stats_str)
+               .thumbnail(&weekly.popular_hours)
+               .image(&weekly.stats_graph2)
+               .timestamp(now.to_rfc3339())
+    )).await?;
+
+  let stats_str2 = format!(
+"
 ```
 {}
 ```
@@ -233,21 +374,20 @@ __**currently playing:**__
 ```
 {}
 ```"
-    , weekly_str[0]
-    , weekly_str[1]
-    , z1, q1s, stats.games_solo
-    , z2, q2s, stats.games_2x2
-    , z3, q3s, stats.games_4x4
-    , tracking_str);
-    statusmsg.edit(ctx, |m| m.content("")
-             .embed(|e|
-              e.color((255, 20, 7))
-               .title("Warcraft III Activity ☥ Status Grid")
-               .description(stats_str)
-               .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
-               .image(&weekly.popular_hours)
-               .timestamp(now.to_rfc3339())
-    )).await?;
-  }
+          , weekly_str[0]
+          , z1, q1s, stats.games_solo
+          , z2, q2s, stats.games_2x2
+          , z3, q3s, stats.games_4x4
+          , tracking_str);
+          statusmsg2.edit(ctx, |m| m.content("")
+                    .embed(|e|
+                     e.color((255, 20, 7))
+                      .title("Solo stats for 7 days")
+                      .description(stats_str2)
+                      .thumbnail(&weekly.popular_hours2)
+                      .image(&weekly.stats_graph)
+                     . timestamp(now.to_rfc3339())
+          )).await?;
+  }}
   Ok(())
 }

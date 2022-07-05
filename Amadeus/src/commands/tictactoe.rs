@@ -4,8 +4,13 @@ use crate::{
           , help::members::parse_member }
 };
 
-use std::fmt::Display;
-use std::time::Duration;
+use std::{
+  fmt::{
+    Display,
+    Write as _
+  },
+  time::Duration
+};
 
 use serenity::{
   prelude::Context,
@@ -64,15 +69,15 @@ impl Display for Board {
     for (index, i) in self.table.iter().enumerate() {
       if index % 3 == 0 {
         x+=1;
-        board += &format!("\n{x} ");
+        write!(board, "\n{x} ")?;
       }
-      board += &format!("| {} ", {
+      write!(board, "| {} ", {
         if let Some(piece) = &i.typ {
           piece.to_string()
         } else {
           " ".to_string()
         }
-      });
+      })?;
     }
     write!(f, "{board}")
   }

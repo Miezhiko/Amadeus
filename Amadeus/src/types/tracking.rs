@@ -8,7 +8,7 @@ pub enum GameMode {
   Team4
 }
 
-pub type Winners = Vec<((String, u64), bool)>;
+pub type Winners = Vec<((String, u64), bool, u32)>;
 
 #[allow(non_snake_case)]
 pub struct FinishedGame {

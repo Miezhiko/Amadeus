@@ -26,11 +26,12 @@ use async_std::fs;
 use crate::common::constants::APM_PICS;
 use plotters::prelude::*;
 use stroke::{
-  *
+  Bezier,
+  PointN
 };
 
 const WEEKLY_STATS_FNAME: &str  = "weekly.yml";
-const BEZIER_STEPS: usize = 500;
+const BEZIER_STEPS: usize = 1000;
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct DailyWinLoses {

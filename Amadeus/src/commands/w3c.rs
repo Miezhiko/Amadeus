@@ -960,7 +960,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
 #[command]
 #[owners_only]
 #[description("Clear weekly stats (owner only)")]
-async fn regenerate_stats(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+async fn regenerate_stats(ctx: &Context, msg: &Message) -> CommandResult {
   let now = chrono::Utc::now();
   let now_day = now.date().naive_utc().day();
   clear_weekly(ctx, now_day).await?;

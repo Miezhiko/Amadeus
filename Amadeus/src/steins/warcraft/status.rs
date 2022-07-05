@@ -114,7 +114,7 @@ pub async fn generate_stats_graph( ctx: &Context
     let mut min_mmr = 1500;
     let mut max_mmr = 0;
     let mut stats_vec: HashMap<String, [f64; 7]> = HashMap::new();
-    for (n, d) in weeky.iter().enumerate() {
+    for (n, d) in weeky.iter().rev().enumerate() {
       let stats = if solo {
           &d.statistics
         } else {

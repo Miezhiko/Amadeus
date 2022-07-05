@@ -8,10 +8,12 @@ use crate::{
     msg::channel_message
   },
   collections::team::PLAYERS,
-  steins::warcraft::
+  steins::warcraft::{
     utils::{ get_race, get_race2
            , get_league, get_map_short
-           , get_league_png }
+           , get_league_png },
+    status::clear_weekly
+  }
 };
 
 use serenity::{
@@ -36,7 +38,7 @@ use async_std::fs;
 use crate::common::constants::APM_PICS;
 use plotters::prelude::*;
 
-use chrono::{ Utc, DateTime };
+use chrono::{ Utc, DateTime, Datelike };
 use once_cell::sync::Lazy;
 
 static Q1T: AtomicU32 = AtomicU32::new(0);
@@ -953,4 +955,15 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
      , ( qtime2.len(), qmax2 )
      , ( qtime4.len(), qmax4 )
      , searching_players ))
+}
+
+#[command]
+#[owners_only]
+#[description("Clear weekly stats (owner only)")]
+async fn regenerate_stats(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  let now = chrono::Utc::now();
+  let now_day = now.date().naive_utc().day();
+  clear_weekly(ctx, now_day).await?;
+  channel_message(ctx, msg, "Done").await;
+  Ok(())
 }

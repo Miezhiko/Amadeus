@@ -193,7 +193,7 @@ pub async fn generate_stats_graph( ctx: &Context
   Ok(weekly_statis_image)
 }
 
-async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
+pub async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
   let poplar_hours =
     if let Some(generated_image) = generate_popularhours(ctx).await? {
       generated_image

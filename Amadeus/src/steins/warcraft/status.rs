@@ -27,7 +27,8 @@ use crate::common::constants::APM_PICS;
 use plotters::prelude::*;
 use stroke::{
   Bezier,
-  PointN
+  PointN,
+  Point
 };
 
 const WEEKLY_STATS_FNAME: &str  = "weekly.yml";

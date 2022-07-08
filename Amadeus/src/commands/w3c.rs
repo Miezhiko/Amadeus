@@ -801,6 +801,7 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
           .border_style(&BLACK)
           .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
           .draw()?;
+        root_area.present()?;
       }
       match APM_PICS.send_message(&ctx, |m|
         m.add_file(AttachmentType::Path(std::path::Path::new(&fname_popular_hours)))).await {
@@ -835,7 +836,7 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
     msg.channel_id.send_message(ctx, |m| m.content("")
     .embed(|e|
       e.color((40, 20, 200))
-       .title("2x2 popular hours")
+       .title("popular hours")
        .image(&img)
        .footer(|f| f.text(&footer))
     )).await?;

@@ -346,6 +346,7 @@ pub async fn attach_replay( ctx: &Context
                           .border_style(&BLACK)
                           .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
                           .draw()?;
+                        root_area.present()?;
                       }
                       match APM_PICS.send_message(&ctx, |m|
                         m.add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {

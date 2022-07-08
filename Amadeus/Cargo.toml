@@ -41,7 +41,6 @@ qrcode              = "0.12"
 cannyls             = "0.10"
 bincode             = "2.0.0-rc.1"
 itertools           = "0.10.3"
-plotters            = "0.3.2"
 anyhow              = "1.0.58"
 async-recursion     = "1.0.0"
 unic-langid         = "0.9"
@@ -56,6 +55,10 @@ rand    = { version = "0.8.5",    features = ["std", "std_rng"] }
 reqwest = { version = "0.11.11",  features = ["json", "blocking"] }
 ical    = { version = "0.7",      features = ["ical"] }
 markov  = { version = "1.1",      features = ["yaml"] }
+
+[dependencies.plotters]
+git = "https://github.com/plotters-rs/plotters.git"
+branch = "master"
 
 [dependencies.stroke]
 git = "https://github.com/dorianprill/stroke.git"

@@ -34,6 +34,8 @@ use stroke::{
   Point
 };
 
+const DAYS_FOR_STATUS: usize = 14;
+
 const WEEKLY_STATS_FNAME: &str  = "weekly.yml";
 const BEZIER_STEPS: usize = 1000;
 
@@ -52,7 +54,7 @@ pub struct Daily {
   pub statistics2: StatusStats
 }
 
-type DailyStats = [Daily; 7];
+type DailyStats = [Daily; DAYS_FOR_STATUS];
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Weekly {
@@ -117,7 +119,7 @@ pub async fn generate_stats_graph( ctx: &Context
     let mut plx_vec = vec![];
     let mut min_mmr = 1500;
     let mut max_mmr = 0;
-    let mut stats_vec: HashMap<String, [f64; 7]> = HashMap::new();
+    let mut stats_vec: HashMap<String, [f64; DAYS_FOR_STATUS]> = HashMap::new();
     for (n, d) in weeky.iter().rev().enumerate() {
       let stats = if solo {
           &d.statistics
@@ -128,11 +130,11 @@ pub async fn generate_stats_graph( ctx: &Context
         max_mmr = std::cmp::max(max_mmr, p.1.mmr);
         min_mmr = std::cmp::min(min_mmr, p.1.mmr);
         if let Some(sv) = stats_vec.get_mut(p.0) {
-          for i in n..7 {
+          for i in n..DAYS_FOR_STATUS {
             sv[i] = p.1.mmr as f64;
           }
         } else {
-          let dd: [f64; 7] = [p.1.mmr as f64; 7];
+          let dd: [f64; DAYS_FOR_STATUS] = [p.1.mmr as f64; DAYS_FOR_STATUS];
           stats_vec.insert(p.0.clone(), dd);
         }
       }
@@ -146,7 +148,7 @@ pub async fn generate_stats_graph( ctx: &Context
       let pxx = px.iter().enumerate()
                   .map(|(i, x)| PointN::new([i as f64, *x as f64]))
                   .collect::<Vec<PointN<f64,2>>>();
-      let bezier: Bezier<PointN<f64, 2>, 7> = Bezier::new( pxx.try_into().unwrap() );
+      let bezier: Bezier<PointN<f64, 2>, DAYS_FOR_STATUS> = Bezier::new( pxx.try_into().unwrap() );
       let mut bezier_graph: Vec<(f64, f64)> = Vec::with_capacity(BEZIER_STEPS);
       for t in 0..BEZIER_STEPS {
         let t = t as f64 * 1f64 / (BEZIER_STEPS as f64);
@@ -368,7 +370,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|
               e.color((255, 20, 7))
-               .title("2x2/4x4 stats for 7 days")
+               .title( &format!("2x2/4x4 stats for {DAYS_FOR_STATUS} days") )
                .description(stats_str)
                .thumbnail(&weekly.popular_hours)
                .image(&weekly.stats_graph2)
@@ -398,7 +400,7 @@ __**currently playing:**__
           statusmsg2.edit(ctx, |m| m.content("")
                     .embed(|e|
                      e.color((255, 20, 7))
-                      .title("Solo stats for 7 days")
+                      .title( &format!("Solo stats for {DAYS_FOR_STATUS} days") )
                       .description(stats_str2)
                       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
                       .image(&weekly.stats_graph)

@@ -14,7 +14,10 @@ use chrono::{
 };
 use serenity::{
   prelude::*,
-  model::channel::AttachmentType
+  model::{
+    channel::AttachmentType,
+    Timestamp
+  }
 };
 
 use std::collections::{
@@ -99,6 +102,7 @@ pub async fn add_to_weekly( ctx: &Context
   Ok(())
 }
 
+#[allow(clippy::needless_range_loop)]
 pub async fn generate_stats_graph( ctx: &Context
                                  , solo: bool
                                  , weeky: &DailyStats ) -> anyhow::Result<Option<String>> {
@@ -165,9 +169,9 @@ pub async fn generate_stats_graph( ctx: &Context
       .axis_style(&RGBColor(80, 80, 80))
       .draw()?;
     for (st, player_str, plx) in plx_vec {
-      cc.draw_series(LineSeries::new(plx, st.clone()))?
+      cc.draw_series(LineSeries::new(plx, st))?
         .label(player_str.as_str())
-        .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], st.clone()));
+        .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], st));
     }
     cc.configure_series_labels()
       .position(SeriesLabelPosition::LowerRight)
@@ -360,6 +364,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
 ```
 "
     , weekly_str[1]);
+    let timestamp: Timestamp = now.to_rfc3339().parse()?;
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|
               e.color((255, 20, 7))
@@ -367,7 +372,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
                .description(stats_str)
                .thumbnail(&weekly.popular_hours)
                .image(&weekly.stats_graph2)
-               .timestamp(now.to_rfc3339())
+               .timestamp(timestamp)
     )).await?;
 
   let stats_str2 = format!(
@@ -397,7 +402,7 @@ __**currently playing:**__
                       .description(stats_str2)
                       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
                       .image(&weekly.stats_graph)
-                     . timestamp(now.to_rfc3339())
+                     . timestamp(timestamp)
           )).await?;
   }}
   Ok(())

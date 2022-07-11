@@ -116,9 +116,9 @@ pub async fn replay_embed( ctx: &Context
             let style = 
               if i < 4 { ShapeStyle::from(color) }
               else { color.stroke_width(1 + (i as u32 / 4)) };
-            cc.draw_series(LineSeries::new(plx, style.clone()))?
+            cc.draw_series(LineSeries::new(plx, style))?
               .label(&k)
-              .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], style.clone()));
+              .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], style));
           }
           cc.configure_series_labels()
             .position(SeriesLabelPosition::LowerRight)
@@ -337,9 +337,9 @@ pub async fn attach_replay( ctx: &Context
                           let style = 
                             if i < 4 { ShapeStyle::from(color) }
                             else { color.stroke_width(1 + (i as u32 / 4)) };
-                          cc.draw_series(LineSeries::new(plx, style.clone()))?
+                          cc.draw_series(LineSeries::new(plx, style))?
                             .label(&k)
-                            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], style.clone()));
+                            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], style));
                         }
                         cc.configure_series_labels()
                           .position(SeriesLabelPosition::LowerRight)

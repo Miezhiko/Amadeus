@@ -792,9 +792,9 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
           .axis_style(&RGBColor(80, 80, 80))
           .draw()?;
         for (st, plx, mode_str) in plx_vec {
-          cc.draw_series(LineSeries::new(plx, st.clone()))?
+          cc.draw_series(LineSeries::new(plx, st))?
             .label(mode_str)
-            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], st.clone()));
+            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], st));
         }
         cc.configure_series_labels()
           .position(SeriesLabelPosition::LowerRight)

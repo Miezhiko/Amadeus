@@ -9,7 +9,10 @@ use crate::{
 use serenity::{
   builder::CreateEmbed,
   prelude::*,
-  model::channel::*,
+  model::{
+    channel::*,
+    Timestamp
+  },
   framework::standard::{
     CommandResult, Args,
     macros::command
@@ -151,6 +154,7 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       fields.push(("Example", parsed_example.as_str(), false));
     }
     let footer = format!("Requested by {}", msg.author.name);
+    let timestamp: Timestamp = choice.written_on.parse()?;
     if let Err(why) = msg.channel_id.send_message(ctx, |m| {
       m.embed(|e|
         e.title(&choice.word)
@@ -159,7 +163,7 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
            format!("submitted by **{}**\n\n:thumbsup: **{}** ┇ **{}** :thumbsdown:\n",
                       &choice.author, &choice.thumbs_up, &choice.thumbs_down))
          .fields(fields)
-         .timestamp(choice.clone().written_on)
+         .timestamp(timestamp)
          .footer(|f| f.text(footer))
       );
       m

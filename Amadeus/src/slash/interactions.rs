@@ -21,6 +21,11 @@ use serenity::{
   framework::standard::{ Args, Delimiter }
 };
 
+use serenity::model::application::interaction::application_command::{
+  ResolvedOption,
+  ResolvedValue
+};
+
 use std::sync::atomic::Ordering;
 
 static ASYNC_CMDS: [&str; 51] = [ "translate", "перевод", "help"
@@ -72,40 +77,33 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
         }
       }
       "борис" => {
-        if let Some(o) = ac.data.options.first() {
-          if let Some(v) = o.value.clone() {
-            if let Some(t) = v.as_str() {
-              #[cfg(not(target_os = "windows"))]
-              if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {
-                response
-                  .kind(InteractionResponseType::ChannelMessageWithSource)
-                  .interaction_response_data( |message| message.content( boris::spell(t) ) )
-              }).await {
-                error!("Failed to create boris interaction response {why}");
-              }
-
-            }
+        if let Some(ResolvedOption {
+          value: ResolvedValue::String(t), ..
+        }) = ac.data.options().first() {
+          #[cfg(not(target_os = "windows"))]
+          if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {
+            response
+              .kind(InteractionResponseType::ChannelMessageWithSource)
+              .interaction_response_data( |message| message.content( boris::spell(t) ) )
+          }).await {
+            error!("Failed to create boris interaction response {why}");
           }
         }
       },
       "uwu" => {
-        if let Some(o) = ac.data.options.first() {
-          if let Some(v) = o.value.clone() {
-            if let Some(t) = v.as_str() {
-              #[cfg(not(target_os = "windows"))]
-              if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {
-                response
-                  .kind(InteractionResponseType::ChannelMessageWithSource)
-                  .interaction_response_data( |message| message.content( uwu::spell(t) ) )
-              }).await {
-                error!("Failed to create uwu interaction response {why}");
-              }
-
-            }
+        if let Some(ResolvedOption {
+          value: ResolvedValue::String(t), ..
+        }) = ac.data.options().first() {
+          #[cfg(not(target_os = "windows"))]
+          if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {
+            response
+              .kind(InteractionResponseType::ChannelMessageWithSource)
+              .interaction_response_data( |message| message.content( uwu::spell(t) ) )
+          }).await {
+            error!("Failed to create uwu interaction response {why}");
           }
         }
       },
-
       c if ASYNC_CMDS.iter().any(|cmd| c == *cmd) => {
 
         if let Err(why) = ac.create_interaction_response(&ctx.http, |response| {
@@ -884,117 +882,101 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
             }
           },
           "hug" => {
-            if let Some(o) = ac.data.options.first() {
-              if let Some(v) = o.value.clone() {
-                if let Some(t) = v.as_str() {
-
-                  if let Some(member) = &ac.member {
-                    match ac.edit_original_interaction_response(&ctx.http, |response|
-                      response.content("Hugs ...")
-                    ).await {
-                      Ok(mut msg) => {
-                        if let Err(err) =
-                          images::gifs( ctx, &member.user
-                                      , &mut msg
-                                      , "hug anime"
-                                      , 0xed9e2fi32
-                                      , images::target("hugs")
-                                      , false, Some(t.into())).await {
-                          error!("Failed do gif emoji {err}");
-                        }
-                      }, Err(why) => {
-                        error!("Failed to create help interaction response {why}");
-                      }
-                    };
+            if let Some(ResolvedOption {
+              value: ResolvedValue::String(t), ..
+            }) = ac.data.options().first() {
+              if let Some(member) = &ac.member {
+                match ac.edit_original_interaction_response(&ctx.http, |response|
+                  response.content("Hugs ...")
+                ).await {
+                  Ok(mut msg) => {
+                    if let Err(err) =
+                      images::gifs( ctx, &member.user
+                                  , &mut msg
+                                  , "hug anime"
+                                  , 0xed9e2fi32
+                                  , images::target("hugs")
+                                  , false, Some( String::from(*t) )).await {
+                      error!("Failed do gif emoji {err}");
+                    }
+                  }, Err(why) => {
+                    error!("Failed to create help interaction response {why}");
                   }
-
-                }
+                };
               }
             }
           },
           "pat" => {
-            if let Some(o) = ac.data.options.first() {
-              if let Some(v) = o.value.clone() {
-                if let Some(t) = v.as_str() {
-
-                  if let Some(member) = &ac.member {
-                    match ac.edit_original_interaction_response(&ctx.http, |response|
-                      response.content("Pats ...")
-                    ).await {
-                      Ok(mut msg) => {
-                        if let Err(err) =
-                          images::gifs( ctx, &member.user
-                                      , &mut msg
-                                      , "pat anime"
-                                      , 0x27e6d9i32
-                                      , images::target("pats")
-                                      , false, Some(t.into())).await {
-                          error!("Failed do gif emoji {err}");
-                        }
-                      }, Err(why) => {
-                        error!("Failed to create help interaction response {why}");
-                      }
-                    };
+            if let Some(ResolvedOption {
+              value: ResolvedValue::String(t), ..
+            }) = ac.data.options().first() {
+              if let Some(member) = &ac.member {
+                match ac.edit_original_interaction_response(&ctx.http, |response|
+                  response.content("Pats ...")
+                ).await {
+                  Ok(mut msg) => {
+                    if let Err(err) =
+                      images::gifs( ctx, &member.user
+                                  , &mut msg
+                                  , "pat anime"
+                                  , 0x27e6d9i32
+                                  , images::target("pats")
+                                  , false, Some( String::from(*t) )).await {
+                      error!("Failed do gif emoji {err}");
+                    }
+                  }, Err(why) => {
+                    error!("Failed to create help interaction response {why}");
                   }
-
-                }
+                };
               }
             }
           },
           "slap" => {
-            if let Some(o) = ac.data.options.first() {
-              if let Some(v) = o.value.clone() {
-                if let Some(t) = v.as_str() {
-
-                  if let Some(member) = &ac.member {
-                    match ac.edit_original_interaction_response(&ctx.http, |response|
-                      response.content("Slaps ...")
-                    ).await {
-                      Ok(mut msg) => {
-                        if let Err(err) =
-                          images::gifs( ctx, &member.user
-                                      , &mut msg
-                                      , "slap anime"
-                                      , 0xd62929i32
-                                      , images::target("slaps")
-                                      , false, Some(t.into())).await {
-                          error!("Failed do gif emoji {err}");
-                        }
-                      }, Err(why) => {
-                        error!("Failed to create help interaction response {why}");
-                      }
-                    };
+            if let Some(ResolvedOption {
+              value: ResolvedValue::String(t), ..
+            }) = ac.data.options().first() {
+              if let Some(member) = &ac.member {
+                match ac.edit_original_interaction_response(&ctx.http, |response|
+                  response.content("Slaps ...")
+                ).await {
+                  Ok(mut msg) => {
+                    if let Err(err) =
+                      images::gifs( ctx, &member.user
+                                  , &mut msg
+                                  , "slap anime"
+                                  , 0xd62929i32
+                                  , images::target("slaps")
+                                  , false, Some( String::from(*t) )).await {
+                      error!("Failed do gif emoji {err}");
+                    }
+                  }, Err(why) => {
+                    error!("Failed to create help interaction response {why}");
                   }
-
-                }
+                };
               }
             }
           },
           "gif" => {
-            if let Some(o) = ac.data.options.first() {
-              if let Some(v) = o.value.clone() {
-                if let Some(t) = v.as_str() {
-
-                  if let Some(member) = &ac.member {
-                    match ac.edit_original_interaction_response(&ctx.http, |response|
-                      response.content("Searching ...")
-                    ).await {
-                      Ok(mut msg) => {
-                        if let Err(err) =
-                          images::gifs( ctx, &member.user
-                                      , &mut msg
-                                      , t, 0x8e613bi32
-                                      , images::GType::Nothing
-                                      , true, None ).await {
-                          error!("Failed do gif emoji {err}");
-                        }
-                      }, Err(why) => {
-                        error!("Failed to create help interaction response {why}");
-                      }
-                    };
+            if let Some(ResolvedOption {
+              value: ResolvedValue::String(t), ..
+            }) = ac.data.options().first() {
+              if let Some(member) = &ac.member {
+                match ac.edit_original_interaction_response(&ctx.http, |response|
+                  response.content("Searching ...")
+                ).await {
+                  Ok(mut msg) => {
+                    if let Err(err) =
+                      images::gifs( ctx, &member.user
+                                  , &mut msg
+                                  , t, 0x8e613bi32
+                                  , images::GType::Nothing
+                                  , true, None ).await {
+                      error!("Failed do gif emoji {err}");
+                    }
+                  }, Err(why) => {
+                    error!("Failed to create help interaction response {why}");
                   }
-
-                }
+                };
               }
             }
           },
@@ -1031,114 +1013,96 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
             };
           },
           "stats" => {
-            if let Some(o) = ac.data.options.first() {
-              if let Some(v) = o.value.clone() {
-                if let Some(t) = v.as_str() {
-
-                  RESTORE.store(false, Ordering::Relaxed);
-                  match ac.edit_original_interaction_response(&ctx.http, |response|
-                    response.content(&format!("Getting stats for {}", t))
-                  ).await {
-                    Ok(msg) => {
-                      let args = Args::new(t, &[Delimiter::Single(';')]);
-                      if let Err(serr) = stats(ctx, &msg, args).await {
-                        error!("Failed to get stats on interaction {:?}", serr);
-                      }
-                    }, Err(why) => {
-                      error!("Failed to create stats interaction response {:?}", why);
-                    }
-                  };
-                  RESTORE.store(true, Ordering::Relaxed);
-
+            if let Some(ResolvedOption {
+              value: ResolvedValue::String(t), ..
+            }) = ac.data.options().first() {
+              RESTORE.store(false, Ordering::Relaxed);
+              match ac.edit_original_interaction_response(&ctx.http, |response|
+                response.content(&format!("Getting stats for {}", t))
+              ).await {
+                Ok(msg) => {
+                  let args = Args::new(t, &[Delimiter::Single(';')]);
+                  if let Err(serr) = stats(ctx, &msg, args).await {
+                    error!("Failed to get stats on interaction {:?}", serr);
+                  }
+                }, Err(why) => {
+                  error!("Failed to create stats interaction response {:?}", why);
                 }
-              }
+              };
+              RESTORE.store(true, Ordering::Relaxed);
             }
           },
           "феминизировать" => {
-            if let Some(o) = ac.data.options.first() {
-              if let Some(v) = o.value.clone() {
-                if let Some(t) = v.as_str() {
-
-                  RESTORE.store(false, Ordering::Relaxed);
-                  match ac.edit_original_interaction_response(&ctx.http, |response|
-                    response.content(&format!("Феминизация \"{}\"", t))
-                  ).await {
-                    Ok(msg) => {
-                      let args = Args::new(t, &[Delimiter::Single(';')]);
-                      if let Err(serr) = chat::feminize(ctx, &msg, args).await {
-                        error!("Failed to feminize on interaction {:?}", serr);
-                      }
-                    }, Err(why) => {
-                      error!("Failed to feminize on interaction response {:?}", why);
-                    }
-                  };
-                  RESTORE.store(true, Ordering::Relaxed);
-
+            if let Some(ResolvedOption {
+              value: ResolvedValue::String(t), ..
+            }) = ac.data.options().first() {
+              RESTORE.store(false, Ordering::Relaxed);
+              match ac.edit_original_interaction_response(&ctx.http, |response|
+                response.content(&format!("Феминизация \"{}\"", t))
+              ).await {
+                Ok(msg) => {
+                  let args = Args::new(t, &[Delimiter::Single(';')]);
+                  if let Err(serr) = chat::feminize(ctx, &msg, args).await {
+                    error!("Failed to feminize on interaction {:?}", serr);
+                  }
+                }, Err(why) => {
+                  error!("Failed to feminize on interaction response {:?}", why);
                 }
-              }
+              };
+              RESTORE.store(true, Ordering::Relaxed);
             }
           },
           "play" => {
-            if let Some(o) = ac.data.options.first() {
-              if let Some(v) = o.value.clone() {
-                if let Some(t) = v.as_str() {
-
-                  RESTORE.store(false, Ordering::Relaxed);
-                  match ac.edit_original_interaction_response(&ctx.http, |response|
-                    response.content(&format!("Playing {}", t))
-                  ).await {
-                    Ok(msg) => {
-                      let args = Args::new(t, &[Delimiter::Single(';')]);
-                      if let Err(serr) = music::play(ctx, &msg, args).await {
-                        error!("Failed to get play on interaction {:?}", serr);
-                      }
-                    }, Err(why) => {
-                      error!("Failed to create play interaction response {:?}", why);
-                    }
-                  };
-                  RESTORE.store(true, Ordering::Relaxed);
-
+            if let Some(ResolvedOption {
+              value: ResolvedValue::String(t), ..
+            }) = ac.data.options().first() {
+              RESTORE.store(false, Ordering::Relaxed);
+              match ac.edit_original_interaction_response(&ctx.http, |response|
+                response.content(&format!("Playing {}", t))
+              ).await {
+                Ok(msg) => {
+                  let args = Args::new(t, &[Delimiter::Single(';')]);
+                  if let Err(serr) = music::play(ctx, &msg, args).await {
+                    error!("Failed to get play on interaction {:?}", serr);
+                  }
+                }, Err(why) => {
+                  error!("Failed to create play interaction response {:?}", why);
                 }
-              }
+              };
+              RESTORE.store(true, Ordering::Relaxed);
             }
           },
           cmd if cmd == "translate" || cmd == "перевод" => {
-            if let Some(o) = ac.data.options.first() {
-              if let Some(v) = o.value.clone() {
-                if let Some(t) = v.as_str() {
-
-                  RESTORE.store(false, Ordering::Relaxed);
-                  match ac.edit_original_interaction_response(&ctx.http, |response|
-                    response.content(&format!("Translating {}", t))
-                  ).await {
-                    Ok(msg) => {
-                      let args = Args::new(t, &[Delimiter::Single(';')]);
-                      #[cfg(not(target_os = "windows"))]
-                      if cmd == "translate" {
-                        if let Err(terr) = translation::translate(ctx, &msg, args).await {
-                          error!("Failed to translate to English on interaction {:?}", terr);
-                        }
-                      } else if let Err(terr) = translation::perevod(ctx, &msg, args).await {
-                        error!("Failed to translate to Russian on interaction {:?}", terr);
-                      }
-                    }, Err(why) => {
-                      error!("Failed to create translation interaction response {:?}", why);
+            if let Some(ResolvedOption {
+              value: ResolvedValue::String(t), ..
+            }) = ac.data.options().first() {
+              RESTORE.store(false, Ordering::Relaxed);
+              match ac.edit_original_interaction_response(&ctx.http, |response|
+                response.content(&format!("Translating {}", t))
+              ).await {
+                Ok(msg) => {
+                  let args = Args::new(t, &[Delimiter::Single(';')]);
+                  #[cfg(not(target_os = "windows"))]
+                  if cmd == "translate" {
+                    if let Err(terr) = translation::translate(ctx, &msg, args).await {
+                      error!("Failed to translate to English on interaction {:?}", terr);
                     }
-                  };
-                  RESTORE.store(true, Ordering::Relaxed);
-
+                  } else if let Err(terr) = translation::perevod(ctx, &msg, args).await {
+                    error!("Failed to translate to Russian on interaction {:?}", terr);
+                  }
+                }, Err(why) => {
+                  error!("Failed to create translation interaction response {:?}", why);
                 }
-              }
+              };
+              RESTORE.store(true, Ordering::Relaxed);
             }
           },
           cmd if cmd == "time" || cmd == "время" => {
             let mut str_arg = String::new();
-            if let Some(o) = ac.data.options.first() {
-              if let Some(v) = o.value.clone() {
-                if let Some(t) = v.as_str() {
-                  str_arg = t.into();
-                }
-              }
+            if let Some(ResolvedOption {
+              value: ResolvedValue::String(t), ..
+            }) = ac.data.options().first() {
+              str_arg = String::from(*t);
             }
             RESTORE.store(false, Ordering::Relaxed);
             match ac.edit_original_interaction_response(&ctx.http, |response|

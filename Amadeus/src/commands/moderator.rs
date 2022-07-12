@@ -150,14 +150,13 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
                                      .permissions(permisssions_vec)
                                      .rate_limit_per_user(2*60) // seconds
                                      .kind(ChannelType::Text)).await?;
-    let timestamp: Timestamp = chrono::Utc::now().to_rfc3339().parse()?;
     timeout_channel.send_message(&ctx, |m| m
       .content(&format!("{}\n", member.mention()))
       .embed(|e| {
         let mut e =
           e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
            .title(&format!("You was timed out by {}", msg.author.name))
-           .timestamp(timestamp);
+           .timestamp(chrono::Utc::now());
         if let Some(r) = reason {
           e = e.description(r);
         } e
@@ -168,7 +167,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
           .embed(|e| {
             e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
              .title(&format!("{} timed out {}", msg.author.name, member.user.name))
-             .timestamp(timestamp)
+             .timestamp(chrono::Utc::now())
              .footer(|f| f.text(&format!("~j {}", &timeout_channel.name)))
           })).await?;
       }
@@ -197,14 +196,13 @@ async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       if let Err(why) = channel.send_message(ctx, |m| m.content(&format!("{} has joined", msg.author.name))).await {
         error!("Failed to log new user {why}");
       }
-      let timestamp: Timestamp = chrono::Utc::now().to_rfc3339().parse()?;
       if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
         if let Some(log) = ds.log {
           log.send_message(ctx, |m| m
             .embed(|e| {
               e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
                .title(&format!("{} joined {}", msg.author.name, &channel_name))
-               .timestamp(timestamp)
+               .timestamp(chrono::Utc::now())
             })).await?;
         }
       }
@@ -228,12 +226,11 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
       }
     }
     member.enable_communication(ctx).await?;
-    let timestamp: Timestamp = chrono::Utc::now().to_rfc3339().parse()?;
     msg.channel_id.send_message(&ctx, |m| m
       .embed(|e| {
         e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
           .title(&format!("{} was untimeouted out by {}", member.user.name, msg.author.name))
-          .timestamp(timestamp)
+          .timestamp(chrono::Utc::now())
         })).await?;
     if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
@@ -241,7 +238,7 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
           .embed(|e| {
             e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
               .title(&format!("{} removed time out from {}", msg.author.name, member.user.name))
-              .timestamp(timestamp)
+              .timestamp(chrono::Utc::now())
             })).await?;
       }
     }
@@ -322,12 +319,11 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let msg_guild_id = msg.guild_id.unwrap();
     if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
-        let timestamp: Timestamp = chrono::Utc::now().to_rfc3339().parse()?;
         log.send_message(ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
               .title(&format!("{} purged messages from {:?}", msg.author.name, &users))
-              .timestamp(timestamp)
+              .timestamp(chrono::Utc::now())
             })).await?;
       }
     }

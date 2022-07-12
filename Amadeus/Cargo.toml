@@ -112,7 +112,7 @@ optional = true
 
 [dependencies.tokio]
 version = "1.19.2"
-features = ["full"]
+features = ["rt-multi-thread", "signal", "parking_lot"]
 
 [dependencies.dasp_signal]
 version = "0.11"

@@ -136,22 +136,15 @@ pub async fn run(opts: &IOptions) ->
     std_framework = std_framework.group(&FLO_GROUP)
   }
 
-  // Here, we need to configure Songbird to decode all incoming voice packets.
-  // If you want, you can do this on a per-call basis---here, we need it to
-  // read the audio data that other people are sending us!
   let songbird = Songbird::serenity();
   songbird.set_config(
     DriverConfig::default()
       .decode_mode(DECODE_TYPE)
       .crypto_mode(CryptoMode::Normal),
   );
-  let intents = GatewayIntents::GUILD_MESSAGES
-              | GatewayIntents::MESSAGE_CONTENT
-              | GatewayIntents::GUILD_MESSAGE_REACTIONS
-              | GatewayIntents::GUILDS
-              | GatewayIntents::GUILD_VOICE_STATES
-              | GatewayIntents::GUILD_MEMBERS
-              | GatewayIntents::GUILD_PRESENCES;
+  let mut intents = GatewayIntents::all();
+  intents.remove(GatewayIntents::DIRECT_MESSAGE_TYPING);
+  intents.remove(GatewayIntents::GUILD_MESSAGE_TYPING);
   let mut client =
     serenity::Client::builder(&opts.discord, intents)
       .application_id(opts.app_id)

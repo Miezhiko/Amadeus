@@ -5,7 +5,7 @@ use crate::{
     colors::gen_colors
   },
   steins::warcraft::poller::GAMES,
-  commands::w3c::{ generate_popularhours, get_mmm, secs_to_str }
+  commands::w3c::{ /*generate_popularhours,*/ get_mmm, secs_to_str }
 };
 
 use chrono::{
@@ -14,10 +14,7 @@ use chrono::{
 };
 use serenity::{
   prelude::*,
-  model::{
-    channel::AttachmentType,
-    Timestamp
-  }
+  model::channel::AttachmentType
 };
 
 use std::collections::{
@@ -201,12 +198,15 @@ pub async fn generate_stats_graph( ctx: &Context
 }
 
 pub async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
+  let poplar_hours = "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string();
+  /*
   let poplar_hours =
     if let Some(generated_image) = generate_popularhours(ctx).await? {
       generated_image
     } else {
       "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
     };
+  */
   let init = if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
       Weekly {
         reset_day: day,
@@ -367,7 +367,6 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
 ```
 "
     , weekly_str[1]);
-    let timestamp: Timestamp = now.to_rfc3339().parse()?;
     statusmsg.edit(ctx, |m| m.content("")
              .embed(|e|
               e.color((255, 20, 7))
@@ -375,7 +374,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
                .description(stats_str)
                .thumbnail(&weekly.popular_hours)
                .image(&weekly.stats_graph2)
-               .timestamp(timestamp)
+               .timestamp(now)
     )).await?;
 
   let stats_str2 = format!(
@@ -405,7 +404,7 @@ __**currently playing:**__
                       .description(stats_str2)
                       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
                       .image(&weekly.stats_graph)
-                     . timestamp(timestamp)
+                     . timestamp(now)
           )).await?;
   }}
   Ok(())

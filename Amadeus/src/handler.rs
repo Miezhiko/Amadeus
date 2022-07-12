@@ -23,7 +23,7 @@ use serenity::{
   prelude::*,
   async_trait,
   utils::Colour,
-  model::{ guild::audit_log::MessageAction, Timestamp
+  model::{ guild::audit_log::MessageAction
          , id::{ GuildId, MessageId, UserId, ChannelId, RoleId }
          , event::ResumedEvent, gateway::Ready, guild::Member
          , channel::{ Message, Reaction, ReactionType, AttachmentType
@@ -217,12 +217,11 @@ impl EventHandler for Handler {
     }
     if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
       if let Some(log) = ds.log {
-        let timestamp: Timestamp = chrono::Utc::now().to_rfc3339().parse().expect("wrong timestamp");
         if let Err(why) = log.send_message(&ctx, |m| m
           .embed(|e| {
             e.author(|a| a.icon_url(&user.face()).name(&user.name))
               .title(&format!("has left (or was kicked)\nUID: {}", user.id.0))
-              .timestamp(timestamp)
+              .timestamp(chrono::Utc::now())
             })).await {
           error!("Failed to log leaving user {why}");
         }

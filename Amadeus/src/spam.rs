@@ -67,13 +67,12 @@ async fn delete( guild_id: &GuildId
           }
           if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
             if let Some(log) = ds.log {
-              let timestamp: Timestamp = chrono::Utc::now().to_rfc3339().parse().expect("wrong timestamp");
               if let Err(why) = log.send_message(&ctx, |m| m
                 .embed(|e| {
                   e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
                     .title(reason)
                     .description("ely used bad word again,\nignoring")
-                    .timestamp(timestamp)
+                    .timestamp(chrono::Utc::now())
               })).await {
                 error!("Failed to log ely {}, {why}", msg.author.name);
               }
@@ -91,7 +90,6 @@ async fn delete( guild_id: &GuildId
         } else {
           msg.link()
         };
-        let timestamp: Timestamp = chrono::Utc::now().to_rfc3339().parse().expect("wrong timestamp");
       if let Err(why) = log.send_message(&ctx, |m| m
         .embed(|e| {
           e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
@@ -99,7 +97,7 @@ async fn delete( guild_id: &GuildId
            .description(&format!( "User UID: {}\n original message: {}\n{}"
                                 , msg.author.id.0, &msg.content
                                 , msg_link ))
-           .timestamp(timestamp)
+           .timestamp(chrono::Utc::now())
        })).await {
         error!("Failed to log on spam {}, {why}", msg.author.name);
       }

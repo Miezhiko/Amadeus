@@ -4914,7 +4914,7 @@ dependencies = [
 [[package]]
 name = "songbird"
 version = "0.2.2"
-source = "git+https://github.com/FelixMcFelix/songbird.git?branch=symphonia#29d8d558aa0ff3c4467fa85e1a16a0311cebf0d8"
+source = "git+https://github.com/FelixMcFelix/songbird.git?branch=symphonia#d29dec1e9f30c791b8d4d6fef8371863d2abec72"
 dependencies = [
  "async-trait",
  "async-tungstenite",

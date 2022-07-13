@@ -96,14 +96,14 @@ pub async fn replay_embed( ctx: &Context
       let mut apm_image: Option<String> = None;
       if !fields3.is_empty() {
         let (_, first_amp_list) = &fields3[0];
-        let len: f32 = first_amp_list.len() as f32 - 1_f32;
+        let len: i32 = first_amp_list.len() as i32 - 1i32;
         { // because of Rc < > in BitMapBackend I need own scope here
           let root_area = BitMapBackend::new(&fname_apm, (1024, 768)).into_drawing_area();
           root_area.fill(&RGBColor(47, 49, 54))?; //2f3136
           let mut cc = ChartBuilder::on(&root_area)
             .margin(5u32)
             .set_all_label_area_size(50u32)
-            .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)?;
+            .build_cartesian_2d(0.0f32..len as f32, 0.0f64..max_apm as f64)?;
           cc.configure_mesh()
             .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
             .y_labels(10)
@@ -317,14 +317,14 @@ pub async fn attach_replay( ctx: &Context
                     let mut apm_image: Option<String> = None;
                     if !fields3.is_empty() {
                       let (_, first_amp_list) = &fields3[0];
-                      let len: f32 = first_amp_list.len() as f32 - 1_f32;
+                      let len: i32 = first_amp_list.len() as i32 - 1i32;
                       { // because of Rc < > in BitMapBackend I need own scope here
                         let root_area = BitMapBackend::new(&fname_apm, (1024, 768)).into_drawing_area();
                         root_area.fill(&RGBColor(47, 49, 54))?; //2f3136
                         let mut cc = ChartBuilder::on(&root_area)
                           .margin(5u32)
                           .set_all_label_area_size(50u32)
-                          .build_cartesian_2d(0.0..len, 0.0..max_apm as f64)?;
+                          .build_cartesian_2d(0.0f32..len as f32, 0.0f64..max_apm as f64)?;
                         cc.configure_mesh()
                           .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
                           .y_labels(10)
@@ -346,7 +346,6 @@ pub async fn attach_replay( ctx: &Context
                           .border_style(&BLACK)
                           .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
                           .draw()?;
-                        root_area.present()?;
                       }
                       match APM_PICS.send_message(&ctx, |m|
                         m.add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {

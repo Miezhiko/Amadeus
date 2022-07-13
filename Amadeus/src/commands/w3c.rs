@@ -48,7 +48,7 @@ static Q4T: AtomicU32 = AtomicU32::new(0);
 static LAST_QTIME_UPDATE: Lazy<Mutex<DateTime<Utc>>> =
   Lazy::new(|| Mutex::new(Utc::now()));
 
-pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(11);
+pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(12);
 static ONGOING_PAGE_SIZE: usize = 15;
 
 #[cfg(feature = "trackers")]
@@ -747,7 +747,7 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
       let mut fname_popular_hours = String::new();
       let mut plx_vec = vec![];
       { // because of Rc < > in BitMapBackend I need own scope here
-        let mut max_games = 0;
+        let mut max_games = 1;
         for ph in ph_modes {
           if fname_popular_hours.is_empty() {
             fname_popular_hours = format!("popular_hours_{}.png", ph.day);
@@ -759,22 +759,22 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
               let color = RGBColor(255, 50, 50);
               let style: ShapeStyle = ShapeStyle::from(color).stroke_width(2);
               let plx = ph.playTimePerHour.iter().map(|p| {
-                (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as f64)
-              }).collect::<Vec<(f64, f64)>>();
+                (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as i32)
+              }).collect::<Vec<(f64, i32)>>();
               plx_vec.push((style, plx, "1x1"));
             } else if ph.gameMode == 2 {
               let color = RGBColor(180, 120, 255);
               let style: ShapeStyle = ShapeStyle::from(color).stroke_width(3);
               let plx = ph.playTimePerHour.iter().map(|p| {
-                (p.hours as f64 + (p.minutes as f64 / 64f64), (p.games * 2) as f64)
-              }).collect::<Vec<(f64, f64)>>();
+                (p.hours as f64 + (p.minutes as f64 / 64f64), (p.games * 2) as i32)
+              }).collect::<Vec<(f64, i32)>>();
               plx_vec.push((style, plx, "2x2"));
             } else if ph.gameMode == 4 {
               let color = RGBColor(100, 200, 50);
               let style: ShapeStyle = ShapeStyle::from(color).stroke_width(2);
               let plx = ph.playTimePerHour.iter().map(|p| {
-                (p.hours as f64 + (p.minutes as f64 / 64f64), (p.games * 4) as f64)
-              }).collect::<Vec<(f64, f64)>>();
+                (p.hours as f64 + (p.minutes as f64 / 64f64), (p.games * 4) as i32)
+              }).collect::<Vec<(f64, i32)>>();
               plx_vec.push((style, plx, "4x4"));
             }
           }
@@ -784,7 +784,7 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
         let mut cc = ChartBuilder::on(&root_area)
           .margin(5u32)
           .set_all_label_area_size(50u32)
-          .build_cartesian_2d(0.0..23_f64, 0.0..max_games as f64)?;
+          .build_cartesian_2d(0.0f64..23.0f64, 0..max_games as i32)?;
         cc.configure_mesh()
           .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
           .x_labels(24)
@@ -801,7 +801,6 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
           .border_style(&BLACK)
           .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
           .draw()?;
-        root_area.present()?;
       }
       match APM_PICS.send_message(&ctx, |m|
         m.add_file(AttachmentType::Path(std::path::Path::new(&fname_popular_hours)))).await {

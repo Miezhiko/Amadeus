@@ -114,8 +114,8 @@ pub async fn generate_stats_graph( ctx: &Context
     };
   { // because of Rc < > in BitMapBackend I need own scope here
     let mut plx_vec = vec![];
-    let mut min_mmr = 1500;
-    let mut max_mmr = 0;
+    let mut min_mmr = 1499;
+    let mut max_mmr = 1501;
     let mut stats_vec: HashMap<String, [f64; DAYS_FOR_STATUS]> = HashMap::new();
     for (n, d) in weeky.iter().rev().enumerate() {
       let stats = if solo {
@@ -160,10 +160,10 @@ pub async fn generate_stats_graph( ctx: &Context
     let mut cc = ChartBuilder::on(&root_area)
       .margin(5u32)
       .set_all_label_area_size(50u32)
-      .build_cartesian_2d(0.0..6_f64, min_mmr as f64..max_mmr as f64)?;
+      .build_cartesian_2d(0.0f64..(DAYS_FOR_STATUS - 1) as f64, min_mmr as f64..max_mmr as f64)?;
     cc.configure_mesh()
       .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
-      .x_labels(6)
+      .x_labels(24)
       .y_labels(10)
       .axis_style(&RGBColor(80, 80, 80))
       .draw()?;
@@ -177,7 +177,6 @@ pub async fn generate_stats_graph( ctx: &Context
       .border_style(&BLACK)
       .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
       .draw()?;
-    root_area.present()?;
   }
   match APM_PICS.send_message(&ctx, |m|
     m.add_file(AttachmentType::Path(std::path::Path::new(&fname_weekly_statis)))).await {

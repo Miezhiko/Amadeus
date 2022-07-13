@@ -89,6 +89,7 @@ fn try_get_map_short(m: &str) -> String {
             , "mur'guloasis"          => "MO"
             , "springtime"            => "ST"
             , "rustycreek"            => "RC"
+            , "secretvalley"          => "SV"
             , _                       => "" })
 }
 
@@ -137,6 +138,7 @@ fn try_get_map(m: &str) -> String {
             , "royalgardens"          => "Royal Gardens"
             , "shatteredexile"        => "Shattered Exile"
             , "kal'drassil"           => "Kal'drassil"
+            , "kaldrassil"            => "Kal'drassil"
             , "shallowgrave"          => "Shallow Grave"
             , "plunderisle"           => "Plunder Isle"
             , "kingandcountry"        => "King and Country"
@@ -152,6 +154,7 @@ fn try_get_map(m: &str) -> String {
             , "paintedworld"          => "Painted World"
             , "snowblind"             => "Snow Blind"
             , "dejavu"                => "Dejavu"
+            , "secretvalley"          => "Secret Valley"
             , _                       => m /*""*/ })
 }
 

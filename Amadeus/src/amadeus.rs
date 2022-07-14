@@ -143,6 +143,8 @@ pub async fn run(opts: &IOptions) ->
       .crypto_mode(CryptoMode::Normal),
   );
   let mut intents = GatewayIntents::all();
+  intents.remove(GatewayIntents::DIRECT_MESSAGES);
+  intents.remove(GatewayIntents::DIRECT_MESSAGE_REACTIONS);
   intents.remove(GatewayIntents::DIRECT_MESSAGE_TYPING);
   intents.remove(GatewayIntents::GUILD_MESSAGE_TYPING);
   let mut client =

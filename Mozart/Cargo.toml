@@ -1,7 +1,7 @@
 [package]
 name = "mozart"
 description = "Amadeus services library"
-version = "0.2.13"
+version = "0.2.14"
 edition = "2021"
 
 [lib]
@@ -26,7 +26,7 @@ branch = "master"
 features = [ "remote" ]
 
 [dependencies.tokio]
-version = "1.19.2"
+version = "1.20.0"
 features = ["full"]
 
 [dependencies.celery]

@@ -1,7 +1,7 @@
 [package]
 name = "salieri"
 description = "Amadeus services consumer"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 
 [dependencies]
@@ -12,7 +12,7 @@ log         = "0.4.17"
 anyhow      = "1"
 
 [dependencies.tokio]
-version = "1.19.2"
+version = "1.20.0"
 features = ["full"]
 
 [dependencies.celery]

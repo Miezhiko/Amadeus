@@ -2,8 +2,7 @@ use regex::Regex;
 use once_cell::sync::Lazy;
 
 static MAP_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(
-  r"^(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+[_|-][0-9]+)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$")
-    .unwrap());
+r"^(?:s[0-9]+[_|-][0-9])?(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+[_|-][0-9]+(?:[a-z])?)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$").unwrap());
 
 pub fn get_race(r: u32) -> String {
   String::from(
@@ -205,6 +204,9 @@ mod cyber_utils_tests {
   fn get_map_test() {
     assert_eq!(get_map("echoisles"), "Echo Isles");
     assert_eq!(get_map_short("echoisles"), "EI");
+
+    assert_eq!(get_map_short("s12_1WellspringTemplev1_2"), "WS");
+    assert_eq!(get_map_short("SecretValleyv2_0a"), "SV");
 
     assert_eq!(get_map("autumnleaves201016"), "Autumn Leaves");
     assert_eq!(get_map_short("autumnleaves201016"), "AL");

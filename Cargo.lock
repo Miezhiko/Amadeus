@@ -85,7 +85,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.1.9"
+version = "10.1.10"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -2911,7 +2911,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.13"
+version = "0.2.14"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -4407,7 +4407,7 @@ checksum = "f3f6f92acf49d1b98f7a81226834412ada05458b7364277387724a237f062695"
 
 [[package]]
 name = "salieri"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "anyhow",
  "celery",
@@ -5280,10 +5280,11 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.19.2"
+version = "1.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c51a52ed6686dd62c320f9b89299e9dfb46f730c7a48e635c19f21d116cb1439"
+checksum = "57aec3cfa4c296db7255446efb4928a6be304b431a806216105542a67b6ca82e"
 dependencies = [
+ "autocfg 1.1.0",
  "bytes",
  "libc",
  "memchr",
@@ -5379,9 +5380,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-tungstenite"
-version = "0.17.1"
+version = "0.17.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06cda1232a49558c46f8a504d5b93101d42c0bf7f911f12a105ba48168f821ae"
+checksum = "f714dd15bead90401d77e04243611caec13726c2408afd5b31901dfcdcb3b181"
 dependencies = [
  "futures-util",
  "log",
@@ -5637,9 +5638,9 @@ checksum = "7b3e06c9b9d80ed6b745c7159c40b311ad2916abb34a49e9be2653b90db0d8dd"
 
 [[package]]
 name = "tungstenite"
-version = "0.17.2"
+version = "0.17.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d96a2dea40e7570482f28eb57afbe42d97551905da6a9400acc5c328d24004f5"
+checksum = "e27992fd6a8c29ee7eef28fc78349aa244134e10ad447ce3b9f0ac0ed0fa4ce0"
 dependencies = [
  "base64",
  "byteorder",

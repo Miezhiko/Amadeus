@@ -5,6 +5,7 @@
  - Select menu roles
  - Stream announce (e.g. steam in 30 mins or something like that) + stream announce role
  - CodeBERT
+ - Check if gg ru api was fixed
 
 ##I DON'T WANT TO DO IT:
 

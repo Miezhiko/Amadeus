@@ -105,13 +105,6 @@ pub async fn run(opts: &IOptions) ->
   #[allow(unused_mut)]
   let mut std_framework =
     StandardFramework::new()
-      .configure(|c| c
-        .owners(owners)
-        .on_mention(Some(amadeus_id))
-        .prefix(PREFIX)
-        .delimiters(vec![" ", ";", "\n", "\t"])
-        .case_insensitivity(true)
-      )
       .before(before)
       .after(after)
       .unrecognised_command(unrecognised_command)
@@ -125,6 +118,14 @@ pub async fn run(opts: &IOptions) ->
       .group(&MODERATOR_GROUP)
       .group(&GENTOO_GROUP)
       .help(&HELP_COMMAND);
+
+  std_framework.configure(|c| c
+    .owners(owners)
+    .on_mention(Some(amadeus_id))
+    .prefix(PREFIX)
+    .delimiters(vec![" ", ";", "\n", "\t"])
+    .case_insensitivity(true)
+  );
 
   #[cfg(not(target_os = "windows"))]
   {
@@ -142,11 +143,11 @@ pub async fn run(opts: &IOptions) ->
       .decode_mode(DECODE_TYPE)
       .crypto_mode(CryptoMode::Normal),
   );
-  let mut intents = GatewayIntents::all();
-  intents.remove(GatewayIntents::DIRECT_MESSAGES);
-  intents.remove(GatewayIntents::DIRECT_MESSAGE_REACTIONS);
-  intents.remove(GatewayIntents::DIRECT_MESSAGE_TYPING);
-  intents.remove(GatewayIntents::GUILD_MESSAGE_TYPING);
+  let intents = GatewayIntents::GUILD_MEMBERS
+              | GatewayIntents::GUILD_PRESENCES
+              | GatewayIntents::GUILD_MESSAGES
+              | GatewayIntents::GUILD_MESSAGE_REACTIONS
+              | GatewayIntents::MESSAGE_CONTENT;
   let mut client =
     serenity::Client::builder(&opts.discord, intents)
       .application_id(opts.app_id)

@@ -886,7 +886,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.0"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#daefe0e1b1e31c68a1b9f7acad4f1fdb4f6e106c"
+source = "git+https://github.com/Qeenon/serenity?branch=api_fix_1#20ce83612fa895141554412c0c2e9fc4bdfa7c29"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4712,7 +4712,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.2"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#daefe0e1b1e31c68a1b9f7acad4f1fdb4f6e106c"
+source = "git+https://github.com/Qeenon/serenity?branch=api_fix_1#20ce83612fa895141554412c0c2e9fc4bdfa7c29"
 dependencies = [
  "async-trait",
  "base64",

@@ -17,3 +17,6 @@ debug = false
 debug-assertions = false
 overflow-checks = false
 lto = "fat"
+
+[patch."https://github.com/serenity-rs/serenity"]
+serenity = { git = 'https://github.com/Qeenon/serenity', branch = "api_fix_1" }

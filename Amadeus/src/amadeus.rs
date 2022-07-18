@@ -143,7 +143,8 @@ pub async fn run(opts: &IOptions) ->
       .decode_mode(DECODE_TYPE)
       .crypto_mode(CryptoMode::Normal),
   );
-  let intents = GatewayIntents::GUILD_MEMBERS
+  let intents = GatewayIntents::GUILDS
+              | GatewayIntents::GUILD_MEMBERS
               | GatewayIntents::GUILD_PRESENCES
               | GatewayIntents::GUILD_MESSAGES
               | GatewayIntents::GUILD_MESSAGE_REACTIONS

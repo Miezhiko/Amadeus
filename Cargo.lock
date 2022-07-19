@@ -2442,15 +2442,14 @@ dependencies = [
 
 [[package]]
 name = "image"
-version = "0.24.2"
+version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28edd9d7bc256be2502e325ac0628bde30b7001b9b52e0abe31a1a9dc2701212"
+checksum = "7e30ca2ecf7666107ff827a8e481de6a132a9b687ed3bb20bb1c144a36c00964"
 dependencies = [
  "bytemuck",
  "byteorder",
  "color_quant",
  "jpeg-decoder",
- "num-iter",
  "num-rational 0.4.1",
  "num-traits 0.2.15",
  "png",
@@ -3632,7 +3631,7 @@ source = "git+https://github.com/plotters-rs/plotters.git?branch=master#12b99778
 dependencies = [
  "chrono",
  "font-kit",
- "image 0.24.2",
+ "image 0.24.3",
  "lazy_static",
  "num-traits 0.2.15",
  "pathfinder_geometry",
@@ -3655,7 +3654,7 @@ version = "0.3.3"
 source = "git+https://github.com/plotters-rs/plotters.git?branch=master#12b99778769295a323267cd4639878db375ccbb6"
 dependencies = [
  "gif",
- "image 0.24.2",
+ "image 0.24.3",
  "plotters-backend",
 ]
 
@@ -4749,7 +4748,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#daefe0e1b1e31c68a1b9f7acad4f1fdb4f6e106c"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#3a8674221758a436b5cd6ec91cbdc216862ccaf0"
 dependencies = [
  "bitflags",
  "enum_primitive",

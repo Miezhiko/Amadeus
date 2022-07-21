@@ -85,7 +85,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.1.15"
+version = "10.1.16"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -1151,9 +1151,9 @@ dependencies = [
 
 [[package]]
 name = "curl"
-version = "0.4.43"
+version = "0.4.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37d855aeef205b43f65a5001e0997d81f8efca7badad4fad7d897aa7f0d0651f"
+checksum = "509bd11746c7ac09ebd19f0b17782eae80aadee26237658a6b4808afb5c11a22"
 dependencies = [
  "curl-sys",
  "libc",
@@ -1166,9 +1166,9 @@ dependencies = [
 
 [[package]]
 name = "curl-sys"
-version = "0.4.55+curl-7.83.1"
+version = "0.4.56+curl-7.83.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23734ec77368ec583c2e61dd3f0b0e5c98b93abe6d2a004ca06b91dd7e3e2762"
+checksum = "6093e169dd4de29e468fa649fbae11cdcd5551c81fe5bf1b0677adad7ef3d26f"
 dependencies = [
  "cc",
  "libc",
@@ -1808,9 +1808,9 @@ dependencies = [
 
 [[package]]
 name = "flume"
-version = "0.10.13"
+version = "0.10.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ceeb589a3157cac0ab8cc585feb749bd2cea5cb55a6ee802ad72d9fd38303da"
+checksum = "1657b4441c3403d9f7b3409e47575237dac27b1b5726df654a6ecbf92f0f7577"
 dependencies = [
  "futures-core",
  "futures-sink",
@@ -3627,7 +3627,7 @@ checksum = "1df8c4ec4b0627e53bdf214615ad287367e482558cf84b109250b37464dc03ae"
 [[package]]
 name = "plotters"
 version = "0.3.3"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#12b99778769295a323267cd4639878db375ccbb6"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#72b2e774f315a134b0c55ea8ce68395f64544b64"
 dependencies = [
  "chrono",
  "font-kit",
@@ -3646,12 +3646,12 @@ dependencies = [
 [[package]]
 name = "plotters-backend"
 version = "0.3.4"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#12b99778769295a323267cd4639878db375ccbb6"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#72b2e774f315a134b0c55ea8ce68395f64544b64"
 
 [[package]]
 name = "plotters-bitmap"
 version = "0.3.3"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#12b99778769295a323267cd4639878db375ccbb6"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#72b2e774f315a134b0c55ea8ce68395f64544b64"
 dependencies = [
  "gif",
  "image 0.24.3",
@@ -3661,7 +3661,7 @@ dependencies = [
 [[package]]
 name = "plotters-svg"
 version = "0.3.3"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#12b99778769295a323267cd4639878db375ccbb6"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#72b2e774f315a134b0c55ea8ce68395f64544b64"
 dependencies = [
  "plotters-backend",
 ]
@@ -4601,9 +4601,9 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.139"
+version = "1.0.140"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0171ebb889e45aa68b44aee0859b3eede84c6f5f5c228e6f140c0b2a0a46cad6"
+checksum = "fc855a42c7967b7c369eb5860f7164ef1f6f81c20c7cc1141f2a604e18723b03"
 dependencies = [
  "serde_derive",
 ]
@@ -4640,9 +4640,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.139"
+version = "1.0.140"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc1d3230c1de7932af58ad8ffbe1d784bd55efd5a9d84ac24f69c72d83543dfb"
+checksum = "6f2122636b9fe3b81f1cb25099fcf2d3f542cdb1d45940d56c713158884a05da"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5615,9 +5615,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-subscriber"
-version = "0.3.14"
+version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a713421342a5a666b7577783721d3117f1b69a393df803ee17bb73b1e122a59"
+checksum = "60db860322da191b40952ad9affe65ea23e7dd6a5c442c2c42865810c6ab8e6b"
 dependencies = [
  "ansi_term",
  "matchers",

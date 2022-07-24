@@ -10,6 +10,7 @@
 
 ##I DON'T WANT TO DO IT:
 
+ - Pagination support for zugaina
  - Some of slash commands are still missing (vs command, etc...)
  - I need part of speech tagging POSModel but for russian langauge, that could be used for Kathoey
  - Finetune GTP2 model

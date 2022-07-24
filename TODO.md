@@ -1,5 +1,6 @@
 ##REALLY PLANNED:
 
+ - https://github.com/aesteve/w3rs
  - Single interface for bert models processing on mozart
  - UnixSockets alternative for Windows
  - Select menu roles

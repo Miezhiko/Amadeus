@@ -37,7 +37,8 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   Lazy::force(&START_TIME);
 
   // clean up global application commands
-  if let Err(why) = Command::set_global_application_commands(&ctx.http, |cs| cs
+  if let Err(why) = Command::set_global_application_commands(&ctx.http,
+    serenity::builder::CreateApplicationCommands::default()
   ).await {
     error!("Failed to clean global application commands, {why}");
   }

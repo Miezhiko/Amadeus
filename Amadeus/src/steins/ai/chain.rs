@@ -17,6 +17,7 @@ use crate::{
 
 use serenity::{
   prelude::*,
+  builder::GetMessages,
   model::{ channel::{ Message
                     , GuildChannel }
          , id::{ UserId
@@ -56,8 +57,8 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
     let mut chain = Chain::new();
     for (chan, _) in all_channels {
       if AI_LEARN.iter().any(|c| c.id == chan.0.get()) {
-        if let Ok(messages) = chan.messages(&ctx, |r|
-          r.limit(100) // 100 is max
+        if let Ok(messages) = chan.messages(&ctx, GetMessages::default()
+          .limit(100) // 100 is max
         ).await {
           for mmm in messages {
             if mmm.author.id == author_id && !mmm.content.starts_with(PREFIX) {

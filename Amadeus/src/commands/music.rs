@@ -20,6 +20,7 @@ use std::sync::Arc;
 
 use serenity::{
   prelude::*,
+  builder::CreateMessage,
   model::{
     mention::Mentionable,
     id::GuildId, id::ChannelId,
@@ -131,7 +132,7 @@ pub async fn join_slash(ctx: &Context, user: &User, guild: &Guild) -> anyhow::Re
   let connect_to = match channel_id {
     Some(channel) => channel,
     None => {
-      if let Err(why) = user.dm(ctx, |m| m.content("You're not in a voice channel")).await {
+      if let Err(why) = user.dm(ctx, CreateMessage::default().content("You're not in a voice channel")).await {
         error!("Error DMing user: {why}");
       }
       return Ok(());

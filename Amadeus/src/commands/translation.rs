@@ -1,7 +1,6 @@
-use crate::common::help::fields::FieldsVec2;
-
 use serenity::{
   prelude::*,
+  builder::*,
   model::channel::*,
   framework::standard::{
     CommandResult, Args,
@@ -21,15 +20,16 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
     error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{text}\n"), false),
+    ("Text", format!("{text}\n"), false)
   ];
-  let mmm = msg.channel_id.send_message(ctx, |m|
-            m.embed(|e|
-             e.title("Translating From **English** to **Russian**...")
-              .fields_vec2(fields)
-              .author(|a| a.icon_url(&msg.author.face())
-                           .name(&msg.author.name)
-                      )
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
+              .title("Translating From **English** to **Russian**...")
+              .fields(fields)
+              .author(CreateEmbedAuthor::default()
+                        .icon_url(&msg.author.face())
+                        .name(&msg.author.name)
+                     )
             )
           ).await;
   match bert_translate(text.clone(), SLanguage::English, SLanguage::Russian).await {
@@ -39,12 +39,13 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
-        mm.edit(ctx, |m|
-          m.embed(|e|
-            e.fields_vec2(fields)
-             .author(|a| a.icon_url(&msg.author.face())
-                          .name(&msg.author.name)
-                    )
+        mm.edit(ctx, EditMessage::default()
+          .embed(CreateEmbed::default()
+            .fields(fields)
+            .author(CreateEmbedAuthor::default()
+                      .icon_url(&msg.author.face())
+                      .name(&msg.author.name)
+                   )
           )
         ).await?;
       }
@@ -65,15 +66,16 @@ pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{text}\n"), false),
+    ("Text", format!("{text}\n"), false)
   ];
-  let mmm = msg.channel_id.send_message(ctx, |m|
-            m.embed(|e|
-             e.title("Translating From **Ukrainian** to **Russian**...")
-              .fields_vec2(fields)
-              .author(|a| a.icon_url(&msg.author.face())
-                           .name(&msg.author.name)
-                      )
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
+             .title("Translating From **Ukrainian** to **Russian**...")
+              .fields(fields)
+              .author(CreateEmbedAuthor::default()
+                        .icon_url(&msg.author.face())
+                        .name(&msg.author.name)
+                     )
             )
           ).await;
   match bert_translate(text.clone(), SLanguage::Ukrainian, SLanguage::Russian).await {
@@ -83,12 +85,13 @@ pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
-        mm.edit(ctx, |m|
-          m.embed(|e|
-            e.fields_vec2(fields)
-             .author(|a| a.icon_url(&msg.author.face())
-                          .name(&msg.author.name)
-                    )
+        mm.edit(ctx, EditMessage::default()
+          .embed(CreateEmbed::default()
+            .fields(fields)
+            .author(CreateEmbedAuthor::default()
+                      .icon_url(&msg.author.face())
+                      .name(&msg.author.name)
+                   )
           )
         ).await?;
       }
@@ -110,15 +113,16 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
     error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{text}\n"), false),
+    ("Text", format!("{text}\n"), false)
   ];
-  let mmm = msg.channel_id.send_message(ctx, |m|
-            m.embed(|e|
-             e.title("Translating From **Russian** to **English**...")
-              .fields_vec2(fields)
-              .author(|a| a.icon_url(&msg.author.face())
-                           .name(&msg.author.name)
-                      )
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
+             .title("Translating From **Russian** to **English**...")
+              .fields(fields)
+              .author(CreateEmbedAuthor::default()
+                        .icon_url(&msg.author.face())
+                        .name(&msg.author.name)
+                     )
             )
           ).await;
   match bert_translate(text.clone(), SLanguage::Russian, SLanguage::English).await {
@@ -128,12 +132,13 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
-        mm.edit(ctx, |m|
-          m.embed(|e|
-            e.fields_vec2(fields)
-             .author(|a| a.icon_url(&msg.author.face())
-                          .name(&msg.author.name)
-                    )
+        mm.edit(ctx, EditMessage::default()
+          .embed(CreateEmbed::default()
+            .fields(fields)
+            .author(CreateEmbedAuthor::default()
+                      .icon_url(&msg.author.face())
+                      .name(&msg.author.name)
+                   )
           )
         ).await?;
       }
@@ -154,15 +159,16 @@ pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{text}\n"), false),
+    ("Text", format!("{text}\n"), false)
   ];
-  let mmm = msg.channel_id.send_message(ctx, |m|
-            m.embed(|e|
-             e.title("Translating From **Russian** to **Ukrainian**...")
-              .fields_vec2(fields)
-              .author(|a| a.icon_url(&msg.author.face())
-                           .name(&msg.author.name)
-                      )
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
+             .title("Translating From **Russian** to **Ukrainian**...")
+              .fields(fields)
+              .author(CreateEmbedAuthor::default()
+                        .icon_url(&msg.author.face())
+                        .name(&msg.author.name)
+                     )
             )
           ).await;
   match bert_translate(text.clone(), SLanguage::Russian, SLanguage::Ukrainian).await {
@@ -172,12 +178,13 @@ pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
-        mm.edit(ctx, |m|
-          m.embed(|e|
-            e.fields_vec2(fields)
-             .author(|a| a.icon_url(&msg.author.face())
-                          .name(&msg.author.name)
-                    )
+        mm.edit(ctx, EditMessage::default()
+          .embed(CreateEmbed::default()
+            .fields(fields)
+            .author(CreateEmbedAuthor::default()
+                      .icon_url(&msg.author.face())
+                      .name(&msg.author.name)
+                   )
           )
         ).await?;
       }
@@ -198,15 +205,16 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     error!("Error deleting original command, {why}");
   }
   let fields = vec![
-    ("Text", format!("{text}\n"), false),
+    ("Text", format!("{text}\n"), false)
   ];
-  let mmm = msg.channel_id.send_message(ctx, |m|
-            m.embed(|e|
-             e.title("Translating From **English** to **German**...")
-              .fields_vec2(fields)
-              .author(|a| a.icon_url(&msg.author.face())
-                           .name(&msg.author.name)
-                      )
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
+             .title("Translating From **English** to **German**...")
+              .fields(fields)
+              .author(CreateEmbedAuthor::default()
+                        .icon_url(&msg.author.face())
+                        .name(&msg.author.name)
+                     )
             )
           ).await;
   match bert_translate(text.clone(), SLanguage::English, SLanguage::German).await {
@@ -216,12 +224,13 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
-        mm.edit(ctx, |m|
-          m.embed(|e|
-            e.fields_vec2(fields)
-             .author(|a| a.icon_url(&msg.author.face())
-                          .name(&msg.author.name)
-                    )
+        mm.edit(ctx, EditMessage::default()
+          .embed(CreateEmbed::default()
+            .fields(fields)
+            .author(CreateEmbedAuthor::default()
+                .icon_url(&msg.author.face())
+                .name(&msg.author.name)
+            )
           )
         ).await?;
       }
@@ -244,13 +253,14 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let fields = vec![
     ("Text", format!("{text}\n"), false),
   ];
-  let mmm = msg.channel_id.send_message(ctx, |m|
-            m.embed(|e|
-             e.title("Translating From **German** to **English**...")
-              .fields_vec2(fields)
-              .author(|a| a.icon_url(&msg.author.face())
-                           .name(&msg.author.name)
-                      )
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
+              .title("Translating From **German** to **English**...")
+              .fields(fields)
+              .author(CreateEmbedAuthor::default()
+                        .icon_url(&msg.author.face())
+                        .name(&msg.author.name)
+                     )
             )
           ).await;
   match bert_translate(text.clone(), SLanguage::German, SLanguage::English).await {
@@ -260,11 +270,12 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
-        mm.edit(ctx, |m|
-          m.embed(|e|
-            e.fields_vec2(fields)
-             .author(|a| a.icon_url(&msg.author.face())
-                          .name(&msg.author.name)
+        mm.edit(ctx, EditMessage::default()
+          .embed(CreateEmbed::default()
+             .fields(fields)
+             .author(CreateEmbedAuthor::default()
+                      .icon_url(&msg.author.face())
+                      .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -288,13 +299,14 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let fields = vec![
     ("Text", format!("{text}\n"), false),
   ];
-  let mmm = msg.channel_id.send_message(ctx, |m|
-            m.embed(|e|
-             e.title("Translating From **English** to **French**...")
-              .fields_vec2(fields)
-              .author(|a| a.icon_url(&msg.author.face())
-                           .name(&msg.author.name)
-                      )
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
+              .title("Translating From **English** to **French**...")
+              .fields(fields)
+              .author(CreateEmbedAuthor::default()
+                        .icon_url(&msg.author.face())
+                        .name(&msg.author.name)
+                     )
             )
           ).await;
   match bert_translate(text.clone(), SLanguage::English, SLanguage::French).await {
@@ -304,11 +316,12 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
-        mm.edit(ctx, |m|
-          m.embed(|e|
-            e.fields_vec2(fields)
-             .author(|a| a.icon_url(&msg.author.face())
-                          .name(&msg.author.name)
+        mm.edit(ctx, EditMessage::default()
+          .embed(CreateEmbed::default()
+             .fields(fields)
+             .author(CreateEmbedAuthor::default()
+                      .icon_url(&msg.author.face())
+                      .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -332,13 +345,14 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let fields = vec![
     ("Text", format!("{text}\n"), false),
   ];
-  let mmm = msg.channel_id.send_message(ctx, |m|
-            m.embed(|e|
-             e.title("Translating From **French** to **English**...")
-              .fields_vec2(fields)
-              .author(|a| a.icon_url(&msg.author.face())
-                           .name(&msg.author.name)
-                      )
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
+              .title("Translating From **French** to **English**...")
+              .fields(fields)
+              .author(CreateEmbedAuthor::default()
+                        .icon_url(&msg.author.face())
+                        .name(&msg.author.name)
+                     )
             )
           ).await;
   match bert_translate(text.clone(), SLanguage::French, SLanguage::English).await {
@@ -348,12 +362,13 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         ("Translation", out, false)
       ];
       if let Ok(mut mm) = mmm {
-        mm.edit(ctx, |m|
-          m.embed(|e|
-            e.fields_vec2(fields)
-             .author(|a| a.icon_url(&msg.author.face())
-                          .name(&msg.author.name)
-                    )
+        mm.edit(ctx, EditMessage::default()
+          .embed(CreateEmbed::default()
+            .fields(fields)
+            .author(CreateEmbedAuthor::default()
+                      .icon_url(&msg.author.face())
+                      .name(&msg.author.name)
+                   )
           )
         ).await?;
       }

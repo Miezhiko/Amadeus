@@ -1,8 +1,14 @@
 use crate::common::constants::GITHUB_PRS;
 
-use serenity::prelude::*;
+use serenity::{
+  prelude::*,
+  builder::*
+};
 
-use std::{ time, sync::Arc };
+use std::{
+  time,
+  sync::Arc
+};
 
 use tokio::process::Command;
 
@@ -52,20 +58,20 @@ async fn parse_notification(ctx: &Context, github: &str, json_str: &str) -> anyh
                   set!{ red   = rand::thread_rng().gen_range(0..255)
                       , green = rand::thread_rng().gen_range(0..255)
                       , blue  = rand::thread_rng().gen_range(0..255) };
-                  GITHUB_PRS.send_message(ctx, |m| m
-                    .embed(|e| { let mut e = e.title(title)
-                                              .thumbnail(author.1)
-                                              .author(|a| a.icon_url(avi).name(repository))
-                                              .colour((red, green, blue))
-                                              .url(html_url);
-                      if !body.is_empty() {
-                        e = e.description(body);
-                      }
-                      if !author.0.is_empty() {
-                        e = e.footer(|f| f.text(&format!("author: {}", author.0)));
-                      }
-                      e
-                    })
+                  let mut e = CreateEmbed::default()
+                            .title(title)
+                            .thumbnail(author.1)
+                            .author(CreateEmbedAuthor::default().icon_url(avi).name(repository))
+                            .colour((red, green, blue))
+                            .url(html_url);
+                  if !body.is_empty() {
+                    e = e.description(body);
+                  }
+                  if !author.0.is_empty() {
+                    e = e.footer(CreateEmbedFooter::default().text(&format!("author: {}", author.0)));
+                  }
+                  GITHUB_PRS.send_message(ctx, CreateMessage::default()
+                    .embed(e)
                   ).await?;
                 }
               }

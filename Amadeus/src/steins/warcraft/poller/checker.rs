@@ -5,7 +5,6 @@ use crate::{
          , w3c::Going },
   collections::team::{ PLAYERS, DISCORDS },
   common::{ constants::W3C_API
-          , help::fields::{ FieldsVec, FieldsVec2 }
           , db::trees::points },
   steins::warcraft::{
     aka_checker::aka,
@@ -24,6 +23,7 @@ use crate::{
 
 use serenity::{
   prelude::*,
+  builder::*,
   model::id::{ UserId
              , GuildId
              , ChannelId }
@@ -134,35 +134,32 @@ pub async fn check<'a>( ctx: &Context
 
                         let nick = user.nick_in(&ctx.http, guild)
                                        .await.unwrap_or_else(|| user.name.clone());
-
-                        if let Err(why) = msg.edit(ctx, |m| m
-                          .embed(|e|  {
-                            let mut e = e
-                              .title("LIVE")
-                              .author(|a| a.icon_url(&user.face()).name(&nick))
-                              .description(&mvec[0])
-                              .footer(|f| f.text(&footer));
-                            if !fields.is_empty() {
-                              e = e.fields_vec(fields);
-                            }
-                            if let Some(bet_data) = &bet_fields {
-                              e = e.fields_vec(bet_data.clone());
-                            }
-                            if let Some(some_img) = img {
-                              e = e.image(&some_img.url);
-                            }
-                            if let Some(some_url) = url {
-                              e = e.url(some_url);
-                            }
-                            if let Some(colour) = color {
-                              e = e.colour(colour);
-                            }
-                            if let Some(flotv) = &track.flo_tv {
-                              e = e.fields([("flo tv", flotv.as_str(), false)]);
-                            }
-                            e
-                          }
-                        )).await {
+                        let mut e = CreateEmbed::default()
+                          .title("LIVE")
+                          .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&nick))
+                          .description(&mvec[0])
+                          .footer(CreateEmbedFooter::default().text(&footer));
+                        if !fields.is_empty() {
+                          e = e.fields(fields);
+                        }
+                        if let Some(bet_data) = &bet_fields {
+                          e = e.fields(bet_data.clone());
+                        }
+                        if let Some(some_img) = img {
+                          e = e.image(&some_img.url);
+                        }
+                        if let Some(some_url) = url {
+                          e = e.url(some_url);
+                        }
+                        if let Some(colour) = color {
+                          e = e.colour(colour);
+                        }
+                        if let Some(flotv) = &track.flo_tv {
+                          e = e.fields([("flo tv", flotv.as_str(), false)]);
+                        }
+                        if let Err(why) = msg.edit(ctx, EditMessage::default()
+                          .embed(e)
+                        ).await {
                           error!("Failed to post live match {why}");
                         }
                       }
@@ -297,35 +294,32 @@ pub async fn check<'a>( ctx: &Context
 
                         let nick = user.nick_in(&ctx.http, guild)
                                        .await.unwrap_or_else(|| user.name.clone());
-
-                        if let Err(why) = msg.edit(ctx, |m| m
-                          .embed(|e| {
-                            let mut e = e
-                              .title("LIVE")
-                              .author(|a| a.icon_url(&user.face()).name(&nick))
-                              .description(&mvec[0])
-                              .footer(|f| f.text(&footer));
-                            if !fields.is_empty() {
-                              e = e.fields_vec(fields);
-                            }
-                            if let Some(bet_data) = &bet_fields {
-                              e = e.fields_vec(bet_data.clone());
-                            }
-                            if let Some(some_img) = img {
-                              e = e.image(&some_img.url);
-                            }
-                            if let Some(some_url) = url {
-                              e = e.url(some_url);
-                            }
-                            if let Some(colour) = color {
-                              e = e.colour(colour);
-                            }
-                            if let Some(flotv) = &track.flo_tv {
-                              e = e.fields([("flo tv", flotv.as_str(), false)]);
-                            }
-                            e
-                          }
-                        )).await {
+                        let mut e = CreateEmbed::default()
+                          .title("LIVE")
+                          .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&nick))
+                          .description(&mvec[0])
+                          .footer(CreateEmbedFooter::default().text(&footer));
+                        if !fields.is_empty() {
+                          e = e.fields(fields);
+                        }
+                        if let Some(bet_data) = &bet_fields {
+                          e = e.fields(bet_data.clone());
+                        }
+                        if let Some(some_img) = img {
+                          e = e.image(&some_img.url);
+                        }
+                        if let Some(some_url) = url {
+                          e = e.url(some_url);
+                        }
+                        if let Some(colour) = color {
+                          e = e.colour(colour);
+                        }
+                        if let Some(flotv) = &track.flo_tv {
+                          e = e.fields([("flo tv", flotv.as_str(), false)]);
+                        }
+                        if let Err(why) = msg.edit(ctx, EditMessage::default()
+                          .embed(e)
+                        ).await {
                           error!("Failed to post live match {why}");
                         }
                       }
@@ -449,32 +443,29 @@ pub async fn check<'a>( ctx: &Context
 
                       let nick = user.nick_in(&ctx.http, guild)
                                      .await.unwrap_or_else(|| user.name.clone());
-
-                      if let Err(why) = msg.edit(ctx, |m| m
-                        .embed(|e| {
-                          let mut e = e
-                            .title("LIVE")
-                            .author(|a| a.icon_url(&user.face()).name(&nick))
-                            .description(&mvec[0])
-                            .footer(|f| f.text(&footer));
-                          if !fields.is_empty() {
-                            e = e.fields_vec(fields);
-                          }
-                          if let Some(bet_data) = &bet_fields {
-                            e = e.fields_vec(bet_data.clone());
-                          }
-                          if let Some(some_img) = img {
-                            e = e.image(&some_img.url);
-                          }
-                          if let Some(some_url) = url {
-                            e = e.url(some_url);
-                          }
-                          if let Some(colour) = color {
-                            e = e.colour(colour);
-                          }
-                          e
-                        }
-                      )).await {
+                      let mut e = CreateEmbed::default()
+                        .title("LIVE")
+                        .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&nick))
+                        .description(&mvec[0])
+                        .footer(CreateEmbedFooter::default().text(&footer));
+                      if !fields.is_empty() {
+                        e = e.fields(fields);
+                      }
+                      if let Some(bet_data) = &bet_fields {
+                        e = e.fields(bet_data.clone());
+                      }
+                      if let Some(some_img) = img {
+                        e = e.image(&some_img.url);
+                      }
+                      if let Some(some_url) = url {
+                        e = e.url(some_url);
+                      }
+                      if let Some(colour) = color {
+                        e = e.colour(colour);
+                      }
+                      if let Err(why) = msg.edit(ctx, EditMessage::default()
+                        .embed(e)
+                      ).await {
                         error!("Failed to post live match {why}");
                       }
                     }
@@ -689,50 +680,46 @@ pub async fn check<'a>( ctx: &Context
 
               let nick = user.nick_in(&ctx.http, guild)
                              .await.unwrap_or_else(|| user.name.clone());
-
-              if let Err(why) = msg.edit(ctx, |m| m
-                .embed(|e| {
-                  let mut e =
-                    e.author(|a| a.icon_url(&user.face()).name(&nick))
-                     .title(title)
-                     .url(&fgame.link)
-                     .footer(|f| f.text(footer));
-                  if !fgame.desc.is_empty() {
-                    e = e.description(&fgame.desc[0]);
-                    if fgame.desc.len() > 2 {
-                      let d_fields = vec![
-                        ("Team 1", fgame.desc[1].as_str(), true)
-                      , ("Team 2", fgame.desc[2].as_str(), true)
-                      ];
-                      e = e.fields(d_fields);
-                    } else {
-                      // TODO: drop it, this should never happen
-                      e = e.description(&fgame.desc[0]);
-                    }
-                  }
-                  if !old_fields.is_empty() {
-                    e = e.fields_vec(old_fields);
-                  }
-                  if let Some(streak_data) = streak_fields {
-                    e = e.fields_vec2(streak_data);
-                  }
-                  if let Some(bet_data) = bet_fields {
-                    e = e.fields_vec(bet_data);
-                  }
-                  if let Some((s1,s2,s3,s4)) = &fgame.additional_fields {
-                    e = e.fields(vec![
-                      (s1.as_str(), s3.as_str(), true),
-                      (s2.as_str(), s4.as_str(), true)
-                    ]);
-                  }
-                  if let Some(hero) = &fgame.hero_png {
-                    e.thumbnail(hero);
-                  }
-                  if let Some(colour) = color {
-                    e.colour(colour);
-                  }
-                  e
-                })
+              let mut e = CreateEmbed::default()
+                .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&nick))
+                .title(title)
+                .url(&fgame.link)
+                .footer(CreateEmbedFooter::default().text(footer));
+              if !fgame.desc.is_empty() {
+                e = e.description(&fgame.desc[0]);
+                if fgame.desc.len() > 2 {
+                  let d_fields = vec![
+                    ("Team 1", fgame.desc[1].as_str(), true)
+                  , ("Team 2", fgame.desc[2].as_str(), true)
+                  ];
+                  e = e.fields(d_fields);
+                } else {
+                  e = e.description(&fgame.desc[0]);
+                }
+              }
+              if !old_fields.is_empty() {
+                e = e.fields(old_fields);
+              }
+              if let Some(streak_data) = streak_fields {
+                e = e.fields(streak_data);
+              }
+              if let Some(bet_data) = bet_fields {
+                e = e.fields(bet_data);
+              }
+              if let Some((s1,s2,s3,s4)) = &fgame.additional_fields {
+                e = e.fields(vec![
+                  (s1.as_str(), s3.as_str(), true),
+                  (s2.as_str(), s4.as_str(), true)
+                ]);
+              }
+              if let Some(hero) = &fgame.hero_png {
+                e = e.thumbnail(hero);
+              }
+              if let Some(colour) = color {
+                e= e.colour(colour);
+              }
+              if let Err(why) = msg.edit(ctx, EditMessage::default()
+                .embed(e)
               ).await {
                 error!("Failed to update live match {:?}", why);
               }

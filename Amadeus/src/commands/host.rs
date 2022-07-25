@@ -6,8 +6,9 @@ use crate::{
 };
 
 use serenity::{
-  model::channel::*,
   prelude::*,
+  builder::{ CreateMessage, CreateEmbed, CreateEmbedFooter },
+  model::channel::*,
   framework::standard::{
     Args, CommandResult,
     macros::command
@@ -37,10 +38,10 @@ async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
                                     , n.location))
                     .collect::<Vec<String>>();
   let footer = format!("Requested by {}", msg.author.name);
-  if let Err(why) = msg.channel_id.send_message(ctx, |m| m
-    .embed(|e| e
+  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
+    .embed(CreateEmbed::default()
     .description(n_strs.join("\n"))
-    .footer(|f| f.text(footer))
+    .footer(CreateEmbedFooter::default().text(footer))
   )).await {
     error!("Failed to post nodes {why}");
   }
@@ -60,7 +61,7 @@ async fn flo_bans(ctx: &Context, msg: &Message) -> CommandResult {
   let mut n_strs = vec![];
   for ban in bans {
     if let Some(p) = ban.player {
-      let mut expires = String::new(); // TOOD created_at
+      let mut expires = String::new();
       if let Some(e) = ban.ban_expires_at {
         let dt = NaiveDateTime::from_timestamp(e.seconds, e.nanos as u32);
         expires = dt.format("%Y-%m-%d %H:%M:%S").to_string();
@@ -72,10 +73,10 @@ async fn flo_bans(ctx: &Context, msg: &Message) -> CommandResult {
     }
   }
   let footer = format!("Requested by {}", msg.author.name);
-  if let Err(why) = msg.channel_id.send_message(ctx, |m| m
-    .embed(|e| e
+  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
+    .embed(CreateEmbed::default()
     .description(n_strs.join("\n"))
-    .footer(|f| f.text(footer))
+    .footer(CreateEmbedFooter::default().text(footer))
   )).await {
     error!("Failed to post bans {why}");
   }

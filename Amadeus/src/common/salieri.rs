@@ -26,6 +26,7 @@ use mozart::{
 
 use serenity::{
   prelude::*,
+  builder::CreateMessage,
   model::id::{ ChannelId, MessageId }
 };
 
@@ -113,7 +114,7 @@ async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Result<
         reply(ctx, &msg, &response).await;
       }
     } else {
-      chan.send_message(ctx, |m| m.content(&response)).await?;
+      chan.send_message(ctx, CreateMessage::default().content(&response)).await?;
     }
   }
   Ok(())

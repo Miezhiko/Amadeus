@@ -1,5 +1,6 @@
 use serenity::{
   prelude::*,
+  builder::*,
   gateway::ActivityData,
   model::id::ChannelId
 };
@@ -48,10 +49,11 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
   if let Ok(git_fetch_out) = &String::from_utf8(git_fetch.stdout) {
     if let Ok(git_reset_out) = &String::from_utf8(git_reset.stdout) {
       let mut description = format!("{git_fetch_out}\n{git_reset_out}");
-      let mut mmm = channel_id.send_message(&ctx, |m|
-        m.embed(|e| e.title("Updating")
-                     .colour((220, 20, 100))
-                     .description(&description)
+      let mut mmm = channel_id.send_message(&ctx, CreateMessage::default()
+        .embed(CreateEmbed::default()
+                .title("Updating")
+                .colour((220, 20, 100))
+                .description(&description)
         )
       ).await?;
       ctx.set_activity(Some( ActivityData::playing("Compiling...") )).await;
@@ -76,10 +78,10 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
           }
         }
         description = format!("{}\n{update_str}", &description);
-        mmm.edit(&ctx, |m|
-          m.embed(|e| e.title("Compiling")
-                       .colour((230, 10, 50))
-                       .description(&description)
+        mmm.edit(&ctx, EditMessage::default()
+          .embed(CreateEmbed::default().title("Compiling")
+                                       .colour((230, 10, 50))
+                                       .description(&description)
           )
         ).await?;
       }
@@ -98,10 +100,10 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
           }
         }
         description = format!("{}\n{cut_paths}", &description);
-        mmm.edit(&ctx, |m|
-          m.embed(|e| e.title("Upgrading")
-                       .colour((250, 0, 0))
-                       .description(&description)
+        mmm.edit(&ctx, EditMessage::default()
+          .embed(CreateEmbed::default().title("Upgrading")
+                                       .colour((250, 0, 0))
+                                       .description(&description)
           )
         ).await?;
         ctx.set_activity(Some( ActivityData::listening("Restarting Salieri") )).await;

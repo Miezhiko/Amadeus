@@ -7,7 +7,6 @@ use crate::{
          //, goodgame::GoodGameData
          },
   common::{ db::trees::points
-          , help::fields::FieldsVec2
           , aka },
   collections::team::DISCORDS,
   steins::warcraft::{
@@ -17,6 +16,7 @@ use crate::{
 };
 
 use serenity::{ prelude::*
+              , builder::*
               , model::id::ChannelId
               , model::channel::ReactionType };
 
@@ -26,7 +26,7 @@ use std::{ time
 use rand::Rng;
 
 async fn clean_games_channel(channel: &ChannelId, ctx: &Context) {
-  if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(50)).await {
+  if let Ok(vec_msg) = channel.messages(&ctx, GetMessages::default().limit(50)).await {
     let mut vec_id = Vec::new();
     for message in vec_msg {
       for embed in message.embeds {
@@ -209,35 +209,33 @@ pub async fn activate_games_tracking(
             if let Some(gc) = game_channel_maybe {
             let game_channel = ChannelId(to_nzu!(gc));
 
-            match game_channel.send_message(&ctx_clone, |m| m
-              .embed(|e| {
-                let mut e = e
-                  .title("JUST STARTED")
-                  .author(|a| a.icon_url(&user.face()).name(&nick))
-                  .colour((red, green, blue));
-                if !game.description.is_empty() {
-                  e = e.description(&game.description[0]);
-                  if game.description.len() > 2 {
-                    let d_fields = vec![
-                      ("Team 1", game.description[1].as_str(), true)
-                    , ("Team 2", game.description[2].as_str(), true)
-                    , (&game.host, "\u{200b}", false)
-                    ];
-                    e = e.fields(d_fields);
-                  }
-                }
-                if !additional_fields.is_empty() {
-                  e = e.fields_vec2(additional_fields.clone());
-                }
-                if let Some(some_image) = &image {
-                  e = e.image(some_image);
-                }
-                if let Some(some_url) = &em_url {
-                  e = e.url(some_url);
-                }
-                e
+            let mut e = CreateEmbed::default()
+              .title("JUST STARTED")
+              .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&nick))
+              .colour((red, green, blue));
+            if !game.description.is_empty() {
+              e = e.description(&game.description[0]);
+              if game.description.len() > 2 {
+                let d_fields = vec![
+                  ("Team 1", game.description[1].as_str(), true)
+                , ("Team 2", game.description[2].as_str(), true)
+                , (&game.host, "\u{200b}", false)
+                ];
+                e = e.fields(d_fields);
               }
-            )).await {
+            }
+            if !additional_fields.is_empty() {
+              e = e.fields(additional_fields.clone());
+            }
+            if let Some(some_image) = &image {
+              e = e.image(some_image);
+            }
+            if let Some(some_url) = &em_url {
+              e = e.url(some_url);
+            }
+            match game_channel.send_message(&ctx_clone, CreateMessage::default()
+              .embed(e)
+            ).await {
               Ok(msg_id) => {
                 { // scope for games_lock
                   trace!("team games: starting");

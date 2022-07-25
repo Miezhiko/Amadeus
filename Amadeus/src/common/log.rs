@@ -3,26 +3,11 @@ use crate::common::{ help::channel::channel_by_name
                    };
 
 use serenity::{
-  builder::CreateMessage,
   model::{ id::GuildId
          , channel::{ Message, GuildChannel }
          },
   prelude::*
 };
-
-#[allow(dead_code)]
-pub async fn log_any<F> ( ctx: &Context
-                        , guild_id: &GuildId
-                        , f: F)
-    where for <'a, 'b> F: FnOnce(&'b mut CreateMessage<'a>) -> &'b mut CreateMessage<'a> {
-  if let Ok(channels) = guild_id.channels(ctx).await {
-    if let Some((channel, _)) = channel_by_name(ctx, &channels, "log").await {
-      if let Err(why) = channel.send_message(ctx, f).await {
-        error!("Failed to log new user {why}");
-      }
-    }
-  }
-}
 
 async fn serenity_channel_message_single(ctx: &Context, chan: &GuildChannel, text: &str) {
   if let Err(why) = chan.say(ctx, text).await {

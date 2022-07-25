@@ -14,6 +14,7 @@ use chrono::{
 };
 use serenity::{
   prelude::*,
+  builder::*,
   model::channel::AttachmentType
 };
 
@@ -178,8 +179,8 @@ pub async fn generate_stats_graph( ctx: &Context
       .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
       .draw()?;
   }
-  match APM_PICS.send_message(&ctx, |m|
-    m.add_file(AttachmentType::Path(std::path::Path::new(&fname_weekly_statis)))).await {
+  match APM_PICS.send_message(&ctx, CreateMessage::default()
+    .add_file(AttachmentType::Path(std::path::Path::new(&fname_weekly_statis)))).await {
     Ok(msg) => {
       if !msg.attachments.is_empty() {
         let img_attachment = &msg.attachments[0];
@@ -366,9 +367,9 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
 ```
 "
     , weekly_str[1]);
-    statusmsg.edit(ctx, |m| m.content("")
-             .embed(|e|
-              e.color((255, 20, 7))
+    statusmsg.edit(ctx, EditMessage::default()
+             .embed(CreateEmbed::default()
+               .color((255, 20, 7))
                .title( &format!("2x2/4x4 stats for {DAYS_FOR_STATUS} days") )
                .description(stats_str)
                .thumbnail(&weekly.popular_hours)
@@ -396,9 +397,9 @@ __**currently playing:**__
           , z2, q2s, stats.games_2x2
           , z3, q3s, stats.games_4x4
           , tracking_str);
-          statusmsg2.edit(ctx, |m| m.content("")
-                    .embed(|e|
-                     e.color((255, 20, 7))
+          statusmsg2.edit(ctx, EditMessage::default().content("")
+                    .embed(CreateEmbed::default()
+                      .color((255, 20, 7))
                       .title( &format!("Solo stats for {DAYS_FOR_STATUS} days") )
                       .description(stats_str2)
                       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")

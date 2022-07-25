@@ -2,10 +2,11 @@ use crate::collections::team::DISCORDS;
 
 use serenity::{
   prelude::*,
+  builder::*,
   model::{ id::GuildId
          , channel::Message
          , Timestamp
-         }
+         }, builder::{CreateEmbedAuthor, CreateMessage}
 };
 
 use std::{
@@ -67,13 +68,13 @@ async fn delete( guild_id: &GuildId
           }
           if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
             if let Some(log) = ds.log {
-              if let Err(why) = log.send_message(&ctx, |m| m
-                .embed(|e| {
-                  e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-                    .title(reason)
-                    .description("ely used bad word again,\nignoring")
-                    .timestamp(chrono::Utc::now())
-              })).await {
+              if let Err(why) = log.send_message(&ctx, CreateMessage::default()
+                .embed(CreateEmbed::default()
+                  .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+                  .title(reason)
+                  .description("ely used bad word again,\nignoring")
+                  .timestamp(chrono::Utc::now())
+              )).await {
                 error!("Failed to log ely {}, {why}", msg.author.name);
               }
             }
@@ -90,15 +91,15 @@ async fn delete( guild_id: &GuildId
         } else {
           msg.link()
         };
-      if let Err(why) = log.send_message(&ctx, |m| m
-        .embed(|e| {
-          e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-           .title(reason)
-           .description(&format!( "User UID: {}\n original message: {}\n{}"
-                                , msg.author.id.0, &msg.content
-                                , msg_link ))
-           .timestamp(chrono::Utc::now())
-       })).await {
+      if let Err(why) = log.send_message(&ctx, CreateMessage::default()
+        .embed(CreateEmbed::default()
+          .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+          .title(reason)
+          .description(&format!( "User UID: {}\n original message: {}\n{}"
+                               , msg.author.id.0, &msg.content
+                               , msg_link ))
+          .timestamp(chrono::Utc::now())
+       )).await {
         error!("Failed to log on spam {}, {why}", msg.author.name);
       }
     }
@@ -108,14 +109,14 @@ async fn delete( guild_id: &GuildId
       error!("Error deleting spam {why}");
     }
     if let Err(why) =
-      msg.author.direct_message(ctx, |m|
-        m.content(&format!("your message was removed with reason: {reason}\n please contact moderators if you think it was done by mistake"))
+      msg.author.direct_message(ctx, CreateMessage::default()
+        .content(&format!("your message was removed with reason: {reason}\n please contact moderators if you think it was done by mistake"))
       ).await {
         warn!("Error sending message to {} from spam blocker {why}", msg.author.name);
     }
   } else if let Err(why) =
-    msg.author.direct_message(ctx, |m|
-      m.content("please, try to avoid using bad words!")
+    msg.author.direct_message(ctx, CreateMessage::default()
+      .content("please, try to avoid using bad words!")
     ).await {
     warn!("Error sending message to {} from spam blocker {why}", msg.author.name);
   }

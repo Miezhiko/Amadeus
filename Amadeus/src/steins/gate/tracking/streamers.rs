@@ -6,7 +6,6 @@ use crate::{
          },
   collections::team::{ ALL, DISCORDS },
   common::{
-    help::fields::{ FieldsVec, FieldsVec2 },
     constants::{ LIVE_ROLE
                , STREAM_PICS }
   }
@@ -14,6 +13,7 @@ use crate::{
 
 use serenity::{
   prelude::*,
+  builder::*,
   model::channel::AttachmentType,
   model::id::{ ChannelId
              , GuildId }
@@ -30,7 +30,7 @@ use chrono::DateTime;
 use rand::Rng;
 
 async fn clear_channel(channel: ChannelId, ctx: &Context) {
-  if let Ok(vec_msg) = channel.messages(&ctx, |g| g.limit(10)).await {
+  if let Ok(vec_msg) = channel.messages(&ctx, GetMessages::default().limit(10)).await {
     let mut vec_id = Vec::new();
     for message in vec_msg {
       for embed in message.embeds {
@@ -260,27 +260,25 @@ pub async fn activate_streamers_tracking(
                   color = msg.embeds[0].colour;
                 };
                 let is_now_live = format!("{} is now live!", &user.name);
-                if let Err(why) = msg.edit(&ctx_clone.http, |m| m
-                  .embed(|e|  {
-                    let mut e = e
-                      .title(&title)
-                      .author(|a| a.icon_url(&user.face()).name(&is_now_live))
-                      .footer(|f| f.text(&footer));
-                    if !fields.is_empty() {
-                      e = e.fields_vec(fields.clone());
-                    }
-                    if let Some(some_img) = &img {
-                      e = e.image(&some_img.url.clone());
-                    }
-                    if let Some(some_url) = &url {
-                      e = e.url(some_url);
-                    }
-                    if let Some(colour) = color {
-                      e = e.colour(colour);
-                    }
-                    e
-                  }
-                )).await {
+                let mut e = CreateEmbed::default()
+                  .title(&title)
+                  .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&is_now_live))
+                  .footer(CreateEmbedFooter::default().text(&footer));
+                if !fields.is_empty() {
+                  e = e.fields(fields.clone());
+                }
+                if let Some(some_img) = &img {
+                  e = e.image(&some_img.url.clone());
+                }
+                if let Some(some_url) = &url {
+                  e = e.url(some_url);
+                }
+                if let Some(colour) = color {
+                  e = e.colour(colour);
+                }
+                if let Err(why) = msg.edit(&ctx_clone.http, EditMessage::default()
+                  .embed(e)
+                ).await {
                   error!("Failed to edit stream msg {why}");
                 }
               }
@@ -301,7 +299,7 @@ pub async fn activate_streamers_tracking(
                         data: Cow::from(bytes.as_ref()),
                         filename: "stream_img.jpg".to_string()
                       };
-                      match STREAM_PICS.send_message(&ctx_clone, |m| m.add_file(cow)).await {
+                      match STREAM_PICS.send_message(&ctx_clone, CreateMessage::default().add_file(cow)).await {
                         Ok(msg) => {
                           if !msg.attachments.is_empty() {
                             let img_attachment = &msg.attachments[0];
@@ -338,24 +336,22 @@ pub async fn activate_streamers_tracking(
 
               if let Some(sc) = ds.streams {
 
-              match ChannelId( to_nzu!(sc) ).send_message(&ctx_clone, |m| m
-                .embed(|e| {
-                  let mut e = e
-                    .title(&title)
-                    .colour((red, green, blue))
-                    .author(|a| a.icon_url(&user.face()).name(&is_now_live));
-                  if !additional_fields.is_empty() {
-                    e = e.fields_vec2(additional_fields.clone());
-                  }
-                  if let Some(some_image) = &image {
-                    e = e.image(some_image);
-                  }
-                  if let Some(some_url) = &em_url {
-                    e = e.url(some_url);
-                  }
-                  e
-                }
-              )).await {
+              let mut e = CreateEmbed::default()
+                .title(&title)
+                .colour((red, green, blue))
+                .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&is_now_live));
+              if !additional_fields.is_empty() {
+                e = e.fields(additional_fields.clone());
+              }
+              if let Some(some_image) = &image {
+                e = e.image(some_image);
+              }
+              if let Some(some_url) = &em_url {
+                e = e.url(some_url);
+              }
+              match ChannelId( to_nzu!(sc) ).send_message(&ctx_clone, CreateMessage::default()
+                .embed(e)
+              ).await {
                 Ok(msg_id) => {
                   let playa_for_stream = p.clone();
                   if let Some(inserted) = streams.get_mut(&playa_for_stream.player.discord) {
@@ -437,27 +433,25 @@ pub async fn activate_streamers_tracking(
                 url   = msg.embeds[0].url.clone();
                 color = msg.embeds[0].colour;
               };
-              if let Err(why) = msg.edit(&ctx_clone.http, |m| m
-                .embed(|e| {
-                  let mut e = e
-                    .title("FINISHED")
-                    .author(|a| a.icon_url(&user.face()).name(&user.name))
-                    .footer(|f| f.text(&footer));
-                  if !fields.is_empty() {
-                    e = e.fields_vec(fields.clone());
-                  }
-                  if let Some(some_img) = &img {
-                    e = e.image(&some_img.url.clone());
-                  }
-                  if let Some(some_url) = &url {
-                    e = e.url(some_url);
-                  }
-                  if let Some(color) = color {
-                    e = e.color(color);
-                  }
-                  e
-                }
-              )).await {
+              let mut e = CreateEmbed::default()
+                .title("FINISHED")
+                .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&user.name))
+                .footer(CreateEmbedFooter::default().text(&footer));
+              if !fields.is_empty() {
+                e = e.fields(fields.clone());
+              }
+              if let Some(some_img) = &img {
+                e = e.image(&some_img.url.clone());
+              }
+              if let Some(some_url) = &url {
+                e = e.url(some_url);
+              }
+              if let Some(color) = color {
+                e = e.color(color);
+              }
+              if let Err(why) = msg.edit(&ctx_clone.http, EditMessage::default()
+                .embed(e)
+              ).await {
                 error!("Failed to edit stream msg {why}");
               }
             }

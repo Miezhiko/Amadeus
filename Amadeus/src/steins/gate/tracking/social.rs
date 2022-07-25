@@ -5,6 +5,7 @@ use crate::{
 
 use serenity::{
   prelude::*,
+  builder::CreateMessage,
   model::id::ChannelId
 };
 
@@ -34,9 +35,9 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
             _ => { ( ChannelId( NonZeroU64::new( 827151604053835807 ).unwrap() ), true) } // mist
           };
           let ai_text = chain::generate_with_language(&ctx_clone, ru).await;
-          if let Err(why) = chanz.send_message(&ctx_clone, |m| {
-            m.content(ai_text)
-          }).await {
+          if let Err(why) = chanz.send_message(&ctx_clone, CreateMessage::default()
+            .content(ai_text)
+          ).await {
             error!("Failed to post periodic message {why}");
           }
         }

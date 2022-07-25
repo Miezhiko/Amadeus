@@ -14,10 +14,13 @@ use std::{
 
 use serenity::{
   prelude::Context,
-  model::mention::Mentionable,
-  model::channel::{ Message
-                  , ReactionType },
-  model::id::UserId,
+  builder::*,
+  model::{
+    mention::Mentionable,
+    channel::{ Message
+             , ReactionType },
+    id::UserId
+  },
   framework::standard::{ Args
                        , CommandResult
                        , macros::command }
@@ -163,7 +166,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
           break;
         },
         "❌" => {
-          confirmation.edit(ctx, |m| m.content(
+          confirmation.edit(ctx, EditMessage::default().content(
             format!(
               "{}: {} didn't accept the match.",
               msg.author.mention(), other_player.mention()
@@ -174,7 +177,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
         _ => ()
       }
     } else {
-      confirmation.edit(ctx, |m| m.content(
+      confirmation.edit(ctx, EditMessage::default().content(
         format!(
           "{}: {} took to long to respond.",
           msg.author.mention(), other_player.mention()
@@ -208,7 +211,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
   m.react(ctx, _b).await?;
   m.react(ctx, _c).await?;
   for i in &players {
-    m.edit(ctx, |m| m.content(format!("{}\n>>> ```{}```", i.0.mention(), &board))).await?;
+    m.edit(ctx, EditMessage::default().content(format!("{}\n>>> ```{}```", i.0.mention(), &board))).await?;
     'outer: loop {
       let mut x: Option<usize> = None;
       let mut y: Option<usize> = None;
@@ -231,7 +234,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
               _ => ()
             }
           } else {
-            m.edit(ctx, |m| m.content(format!("{}: Timeout", i.0.mention()))).await?;
+            m.edit(ctx, EditMessage::default().content(format!("{}: Timeout", i.0.mention()))).await?;
             let _ = m.delete_reactions(ctx).await;
             return Ok(());
           }
@@ -252,7 +255,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
     }
     board.check_win_condition();
     if board.win_condition.is_some() {
-      m.edit(ctx, |m| m.content(format!("{} WON!\n>>> ```{}```", i.0.mention(), &board))).await?;
+      m.edit(ctx, EditMessage::default().content(format!("{} WON!\n>>> ```{}```", i.0.mention(), &board))).await?;
       let _ = m.delete_reactions(ctx).await;
       if points_count > 0 {
         let (loser, winner) =
@@ -267,10 +270,10 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
                                              , points_count ).await;
         if succ {
           let out = format!("{rst} to {}", winner.name);
-          if let Err(why) = msg.channel_id.send_message(ctx, |m| m
-            .embed(|e| e
+          if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
             .description(&out)
-            .footer(|f| f.text(&loser.name))
+            .footer(CreateEmbedFooter::default().text(&loser.name))
           )).await {
             error!("Failed to post give {why}");
           }
@@ -282,7 +285,9 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
     }
     board.swap_current_piece();
   }
-  m.edit(ctx, |m| m.content(format!("{} and {} tied.\n>>> ```{}```", players[0].0.mention(), players[1].0.mention(), &board))).await?;
+  m.edit(ctx, EditMessage::default()
+    .content( format!("{} and {} tied.\n>>> ```{}```"
+            , players[0].0.mention(), players[1].0.mention(), &board) )).await?;
   let _ = m.delete_reactions(ctx).await;
   Ok(())
 }

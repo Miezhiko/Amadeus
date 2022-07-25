@@ -22,12 +22,12 @@ use crate::steins::ai::{ cache, chain, response };
 
 use serenity::{
   prelude::*,
+  builder::*,
   utils::Colour,
   model::{ id::{ EmojiId, MessageId, UserId }
          , channel::{ Message, AttachmentType, ReactionType }
          },
-  gateway::ActivityData,
-  builder::CreateEmbed
+  gateway::ActivityData
 };
 
 use std::{ borrow::Cow, collections::VecDeque
@@ -79,7 +79,7 @@ pub async fn process( ioptions: &IOptions
           data: Cow::from(bytes),
           filename: String::from(&file.filename)
         };
-        if let Err(why) = msg.channel_id.send_message(&ctx, |m| m.add_file(cow)).await {
+        if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default().add_file(cow)).await {
           error!("Failed to download and post attachment {:?}", why);
         } else {
           is_file = true;
@@ -90,8 +90,8 @@ pub async fn process( ioptions: &IOptions
       error!("Error replacing other bots {:?}", why);
     }
     if is_file {
-      if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-        r.limit(3)
+      if let Ok(messages) = msg.channel_id.messages(&ctx, GetMessages::default()
+        .limit(3)
       ).await {
         for mmm in messages {
           if mmm.content.to_lowercase().contains("processing") {
@@ -115,11 +115,9 @@ pub async fn process( ioptions: &IOptions
         }
       }
       if not_stupid_zephyr {
-        if let Err(why) = &msg.channel_id.send_message(&ctx, |m| {
-          m.embed(|e| {
-            *e = CreateEmbed::from(embed.clone());
-            e })
-        }).await {
+        if let Err(why) = &msg.channel_id.send_message(&ctx, CreateMessage::default()
+          .embed( CreateEmbed::from( embed.clone() ) )
+        ).await {
           error!("Error replacing other bots embeds {why}");
         }
       }
@@ -260,8 +258,8 @@ pub async fn process( ioptions: &IOptions
                           };
                           channel_message(ctx, &msg, &repl).await;
                           let new_nick: String = format!("Hater {}", &msg.author.name);
-                          if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, |m|
-                            m.nickname(new_nick)).await {
+                          if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, EditMember::default()
+                            .nickname(new_nick)).await {
                             error!("Failed to change user's nick {why2}");
                           }
                         }
@@ -276,7 +274,7 @@ pub async fn process( ioptions: &IOptions
                           format!("Dear {} thank you for unblocking me, let be friends!", msg.author.name)
                         };
                         channel_message(ctx, &msg, &repl).await;
-                        if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, |m| m.nickname("")).await {
+                        if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, EditMember::default().nickname("")).await {
                           error!("Failed to reset user's nick {why2}");
                         }
                       }
@@ -285,7 +283,7 @@ pub async fn process( ioptions: &IOptions
 
                   if member.roles.contains(&role.id) {
                     let new_nick = format!("Hater {}", msg.author.name);
-                    if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, |m| m.nickname(new_nick)).await {
+                    if let Err(why2) = guild_id.edit_member(ctx, msg.author.id, EditMember::default().nickname(new_nick)).await {
                       error!("Failed to change user's nick {why2}");
                     }
                     if let Err(why) = &msg.delete(ctx).await {
@@ -310,9 +308,9 @@ pub async fn process( ioptions: &IOptions
                     }
                   }
                 } else if let Err(why) =
-                  guild.create_role(&ctx,
-                      |r| r.colour(Colour::from_rgb(226,37,37).0 as u32)
-                           .name(UNBLOCK_ROLE)).await {
+                  guild.create_role(&ctx, EditRole::default()
+                      .colour(Colour::from_rgb(226,37,37).0 as u32)
+                      .name(UNBLOCK_ROLE)).await {
                   error!("Failed to create UNBLOCK role, {why}");
                 }
               }

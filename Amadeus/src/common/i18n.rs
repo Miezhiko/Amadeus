@@ -1,5 +1,8 @@
-use serenity::{ prelude::*
-              , model::channel::* };
+use serenity::{
+  prelude::*,
+  builder::*,
+  model::channel::*
+};
 
 use unic_langid::{ LanguageIdentifier, langid };
 use fluent_templates::{ Loader, static_loader };
@@ -16,8 +19,8 @@ static_loader! {
 
 pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) {
   let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION"));
-  if let Err(why) = msg.channel_id.send_message(ctx, |m| m
-    .embed(|e| e
+  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
+    .embed(CreateEmbed::default()
       .title("Amadeus")
       .url("https://github.com/Miezhiko/Amadeus")
       .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
@@ -39,7 +42,7 @@ pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) 
            , LOCALES.lookup(lang, "music-commands").as_str(), false)
       .field(LOCALES.lookup(lang, "warcraft-commands-title").as_str()
            , LOCALES.lookup(lang, "warcraft-commands").as_str(), false)
-      .footer(|f| f.text(LOCALES.lookup(lang, "footer")))
+      .footer(CreateEmbedFooter::default().text(LOCALES.lookup(lang, "footer")))
       .colour((246, 111, 0)))).await {
     error!("Error sending help message: {why}");
   }
@@ -47,9 +50,9 @@ pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) 
 
 pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIdentifier) {
   let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION"));
-  if let Err(why) = msg.edit(ctx, |m| m
+  if let Err(why) = msg.edit(ctx, EditMessage::default()
     .content("")
-    .embed(|e| e
+    .embed(CreateEmbed::default()
       .title("Amadeus")
       .url("https://github.com/Miezhiko/Amadeus")
       .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
@@ -71,7 +74,7 @@ pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIde
            , LOCALES.lookup(lang, "music-commands").as_str(), false)
       .field(LOCALES.lookup(lang, "warcraft-commands-title").as_str()
            , LOCALES.lookup(lang, "warcraft-commands").as_str(), false)
-      .footer(|f| f.text(LOCALES.lookup(lang, "footer")))
+      .footer(CreateEmbedFooter::default().text(LOCALES.lookup(lang, "footer")))
       .colour((246, 111, 0)))).await {
     error!("Error editing help message: {why}");
   }

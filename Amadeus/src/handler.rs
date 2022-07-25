@@ -21,6 +21,7 @@ use crate::steins::gate;
 
 use serenity::{
   prelude::*,
+  builder::*,
   async_trait,
   utils::Colour,
   model::{ guild::audit_log::MessageAction
@@ -30,8 +31,7 @@ use serenity::{
                     , PermissionOverwrite, PermissionOverwriteType }
          , user::User, application::interaction::Interaction
          , permissions::Permissions
-         },
-  builder::CreateEmbed
+         }
 };
 
 use std::{ borrow::Cow
@@ -78,34 +78,33 @@ impl EventHandler for Handler {
                   if serv.kind == CoreGuild::Unsafe {
                     if guild.role_by_name(UNBLOCK_ROLE).is_none() {
                       if let Err(why) =
-                        // Hadouken
-                        guild.create_role(&ctx,
-                          |r| r.colour(Colour::from_rgb(226,37,37).0 as u32)
-                              .hoist(false)
-                              .mentionable(false)
-                              .name(UNBLOCK_ROLE)).await {
+                        guild.create_role(&ctx, EditRole::default()
+                          .colour(Colour::from_rgb(226,37,37).0 as u32)
+                          .hoist(false)
+                          .mentionable(false)
+                          .name(UNBLOCK_ROLE)).await {
                         error!("Failed to create UNBLOCK role, {why}");
                       }
                     }
                     if guild.role_by_name(LIVE_ROLE).is_none() {
                       if let Err(why) =
-                        guild.create_role(&ctx,
-                          |r| r.colour(Colour::from_rgb(117,244,255).0 as u32)
-                              .hoist(true)
-                              .position(100) // bigger = higher
-                              .mentionable(false)
-                              .name(LIVE_ROLE)).await {
+                        guild.create_role(&ctx, EditRole::default()
+                          .colour(Colour::from_rgb(117,244,255).0 as u32)
+                          .hoist(true)
+                          .position(100) // bigger = higher
+                          .mentionable(false)
+                          .name(LIVE_ROLE)).await {
                         error!("Failed to create LIVE role, {why}");
                       }
                     }
                     if guild.role_by_name(MUTED_ROLE).is_none() {
                       if let Err(why) =
-                        guild.create_role(&ctx,
-                          |r| r.colour(Colour::from_rgb(113,113,113).0 as u32)
-                              .hoist(true)
-                              .position(100) // bigger = higher
-                              .mentionable(false)
-                              .name(MUTED_ROLE)).await {
+                        guild.create_role(&ctx, EditRole::default()
+                          .colour(Colour::from_rgb(113,113,113).0 as u32)
+                          .hoist(true)
+                          .position(100) // bigger = higher
+                          .mentionable(false)
+                          .name(MUTED_ROLE)).await {
                         error!("Failed to create muted role, {why}");
                       }
                     }
@@ -217,12 +216,12 @@ impl EventHandler for Handler {
     }
     if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
       if let Some(log) = ds.log {
-        if let Err(why) = log.send_message(&ctx, |m| m
-          .embed(|e| {
-            e.author(|a| a.icon_url(&user.face()).name(&user.name))
-              .title(&format!("has left (or was kicked)\nUID: {}", user.id.0))
-              .timestamp(chrono::Utc::now())
-            })).await {
+        if let Err(why) = log.send_message(&ctx, CreateMessage::default()
+          .embed(CreateEmbed::default()
+            .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&user.name))
+            .title(&format!("has left (or was kicked)\nUID: {}", user.id.0))
+            .timestamp(chrono::Utc::now())
+          )).await {
           error!("Failed to log leaving user {why}");
         }
       }
@@ -335,24 +334,22 @@ impl EventHandler for Handler {
                             data: Cow::from(bytes),
                             filename: String::from(&file.filename)
                           };
-                          if let Err(why) = channel_id.send_message(&ctx, |m| m.add_file(cow)).await {
+                          if let Err(why) = channel_id.send_message(&ctx, CreateMessage::default().add_file(cow)).await {
                             error!("Failed to download and post attachment {why}");
                           }
                         }
                       }
                       if !msg.content.is_empty() {
-                        if let Err(why) = channel_id.send_message(&ctx, |m|
-                            m.content(&msg.content)
+                        if let Err(why) = channel_id.send_message(&ctx, CreateMessage::default()
+                            .content(&msg.content)
                           ).await {
                           error!("Failed to post my message again, {why}");
                         };
                       }
                       for embed in &msg.embeds {
-                        if let Err(why) = channel_id.send_message(&ctx, |m| {
-                          m.embed(|e| {
-                            *e = CreateEmbed::from(embed.clone());
-                            e })
-                        }).await {
+                        if let Err(why) = channel_id.send_message(&ctx, CreateMessage::default()
+                          .embed( CreateEmbed::from(embed.clone() ) )
+                        ).await {
                           error!("Error reposting embed {why}");
                         }
                       }

@@ -7,7 +7,7 @@ use crate::{
 };
 
 use serenity::{
-  builder::CreateEmbed,
+  builder::{ CreateMessage, CreateEmbed, CreateEmbedAuthor, CreateEmbedFooter, EditMessage },
   prelude::*,
   model::{
     channel::*,
@@ -37,8 +37,8 @@ use chrono::Timelike;
 #[description = "shows current version"]
 async fn version(ctx: &Context, msg: &Message) -> CommandResult {
   let version = format!("Version {}", env!("CARGO_PKG_VERSION"));
-  if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
-    .embed(|e| e
+  if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default()
+    .embed(CreateEmbed::default()
       .title("Amadeus")
       .description(&version)
       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
@@ -72,11 +72,12 @@ async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       , red   = rand::thread_rng().gen_range(0..255)
       , green = rand::thread_rng().gen_range(0..255)
       , blue  = rand::thread_rng().gen_range(0..255) };
-  msg.channel_id.send_message(&ctx.http, |m|
-    m.embed(|e| e.title(title)
-                 .colour((red, green, blue))
-                 .author(|a| a.icon_url(&msg.author.face()).name(&nick))
-                 .description(description)
+  msg.channel_id.send_message(&ctx.http, CreateMessage::default()
+    .embed(CreateEmbed::default()
+      .title(title)
+      .colour((red, green, blue))
+      .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&nick))
+      .description(description)
     )
   ).await?;
   Ok(())
@@ -155,19 +156,18 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     }
     let footer = format!("Requested by {}", msg.author.name);
     let timestamp: Timestamp = choice.written_on.parse()?;
-    if let Err(why) = msg.channel_id.send_message(ctx, |m| {
-      m.embed(|e|
-        e.title(&choice.word)
-         .url(&choice.permalink)
-         .description(
-           format!("submitted by **{}**\n\n:thumbsup: **{}** ┇ **{}** :thumbsdown:\n",
-                      &choice.author, &choice.thumbs_up, &choice.thumbs_down))
-         .fields(fields)
-         .timestamp(timestamp)
-         .footer(|f| f.text(footer))
-      );
-      m
-    }).await {
+    if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
+      .embed(CreateEmbed::default()
+        .title(&choice.word)
+        .url(&choice.permalink)
+        .description(
+          format!("submitted by **{}**\n\n:thumbsup: **{}** ┇ **{}** :thumbsdown:\n",
+                     &choice.author, &choice.thumbs_up, &choice.thumbs_down))
+        .fields(fields)
+        .timestamp(timestamp)
+        .footer(CreateEmbedFooter::default().text(footer))
+      )
+    ).await {
       if "Embed too large." == why.to_string() {
         msg.channel_id.say(ctx, &choice.permalink).await?;
       } else {
@@ -185,7 +185,6 @@ async fn info(ctx: &Context, msg: &Message) -> CommandResult {
     error!("Error deleting original command, {why}");
   }
 
-  let mut eb = CreateEmbed::default();
   let (_, uptime_string) = get_uptime("Uptime:  ").await;
 
   set!{ guild_count   = ctx.cache.guilds().len()
@@ -194,9 +193,10 @@ async fn info(ctx: &Context, msg: &Message) -> CommandResult {
       , sys_info      = get_system_info(ctx).await
       , footer = format!("Requested by {}", msg.author.name) };
 
-  eb.title(format!("Amadeus {}", env!("CARGO_PKG_VERSION")));
-  eb.color(0xf51010u32);
-  eb.description(format!(
+  let eb = CreateEmbed::default()
+    .title(format!("Amadeus {}", env!("CARGO_PKG_VERSION")))
+    .color(0xf51010u32)
+    .description(format!(
 "```
 Servers:  {}
 Channels: {}
@@ -213,13 +213,13 @@ Latency:  {}
     , sys_info.memory_saliery
     , sys_info.db_size
     , sys_info.shard_latency
-    , uptime_string ));
-  eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
-  eb.footer(|f| f.text(footer));
+    , uptime_string ))
+    .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
+    .footer(CreateEmbedFooter::default().text(footer));
 
-  msg.channel_id.send_message(ctx, |m| {
-    m.set_embed(eb)
-  }).await?;
+  msg.channel_id.send_message(ctx, CreateMessage::default()
+    .embed(eb)
+  ).await?;
 
   Ok(())
 }
@@ -250,20 +250,18 @@ async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
     descr = descr.replace("commit", "**commit**");
     descr = descr.replace("Author:", "*author:*");
 
-    let mut eb = CreateEmbed::default();
     let footer = format!("Requested by {}", msg.author.name);
 
-    eb.color(0x13fac1u32);
-    eb.title("Changelog");
+    let eb = CreateEmbed::default()
+      .color(0x13fac1u32)
+      .title("Changelog")
+      .description(descr)
+      .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
+      .footer(CreateEmbedFooter::default().text(footer));
 
-    eb.description(descr);
-
-    eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
-    eb.footer(|f| f.text(footer));
-
-    msg.channel_id.send_message(ctx, |m| {
-      m.set_embed(eb)
-    }).await?;
+    msg.channel_id.send_message(ctx, CreateMessage::default()
+      .embed(eb)
+    ).await?;
   }
 
   Ok(())
@@ -275,20 +273,19 @@ async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command, {why}");
   }
-  let mut eb = CreateEmbed::default();
   let footer = format!("Requested by {}", msg.author.name);
-
   let (start_time, uptime_string) = get_uptime("uptime").await;
 
-  eb.color(0xe535ccu32);
-  eb.title(uptime_string);
-  eb.description(format!("start time: {start_time}"));
-  eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
-  eb.footer(|f| f.text(footer));
+  let eb = CreateEmbed::default()
+    .color(0xe535ccu32)
+    .title(uptime_string)
+    .description(format!("start time: {start_time}"))
+    .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
+    .footer(CreateEmbedFooter::default().text(footer));
 
-  msg.channel_id.send_message(ctx, |m| {
-    m.set_embed(eb)
-  }).await?;
+  msg.channel_id.send_message(ctx, CreateMessage::default()
+    .embed(eb)
+  ).await?;
 
   Ok(())
 }
@@ -357,15 +354,15 @@ async fn time_internal(msg: &Message, args: Args) -> anyhow::Result<CreateEmbed>
     desc = format!("{desc}\n**{mb_tz}**: {tz_fmt} {tz_emoji}");
   }
 
-  let mut eb = CreateEmbed::default();
-  eb.color(0xe735cc);
-  eb.title("Time");
-  eb.description(desc);
-  eb.thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
+  let mut eb = CreateEmbed::default()
+                .color(0xe735cc)
+                .title("Time")
+                .description(desc)
+                .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png");
 
   if !msg.author.bot {
     let footer = format!("Requested by {}", msg.author.name);
-    eb.footer(|f| f.text(footer));
+    eb = eb.footer(CreateEmbedFooter::default().text(footer));
   }
 
   Ok(eb)
@@ -381,19 +378,19 @@ pub async fn time(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
   let eb = time_internal(msg, args).await?;
 
-  msg.channel_id.send_message(ctx, |m| {
-    m.set_embed(eb)
-  }).await?;
+  msg.channel_id.send_message(ctx, CreateMessage::default()
+    .embed(eb)
+  ).await?;
   Ok(())
 }
 
 pub async fn time_slash(ctx: &Context, msg: &mut Message, args: Args) -> anyhow::Result<()> {
   let eb = time_internal(msg, args).await?;
 
-  msg.edit(ctx, |m| { m
+  msg.edit(ctx, EditMessage::default()
     .content("")
-    .set_embed(eb)
-  }).await?;
+    .embed(eb)
+  ).await?;
 
   Ok(())
 }

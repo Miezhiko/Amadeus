@@ -3,7 +3,6 @@ use crate::{
   common::{ msg::channel_message
           , constants::APM_PICS
           , colors::gen_colors
-          , help::fields::FieldsVec
           },
   collections::team::PLAYERS,
   steins::warcraft::{
@@ -14,6 +13,7 @@ use crate::{
 
 use serenity::{
   prelude::*,
+  builder::*,
   model::channel::{ Attachment
                   , Message
                   , AttachmentType
@@ -61,16 +61,16 @@ pub async fn replay_embed( ctx: &Context
          , eb2 = CreateEmbed::default()
          , eb3 = CreateEmbed::default() };
     let footer = format!("Uploaded by {}", msg.author.name);
-    eb1.color(0xe535ccu32);     eb2.color(0xe535ccu32);     eb3.color(0xe535ccu32);
-    eb1.title(&file.filename);  eb2.title(&file.filename);  eb3.title(&file.filename);
-    eb1.description(&d);        eb2.description("units");   eb3.description("APM Graph");
+    eb1 = eb1.color(0xe535ccu32);     eb2 = eb2.color(0xe535ccu32);     eb3 = eb3.color(0xe535ccu32);
+    eb1 = eb1.title(&file.filename);  eb2 = eb2.title(&file.filename);  eb3 = eb3.title(&file.filename);
+    eb1 = eb1.description(&d);        eb2 = eb2.description("units");   eb3 = eb3.description("APM Graph");
     static AMADEUS_LOGO: &str = "https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png";
-    eb1.thumbnail(AMADEUS_LOGO);
-    eb2.thumbnail(AMADEUS_LOGO);
-    eb3.thumbnail(AMADEUS_LOGO);
-    eb1.footer(|f| f.text(&footer));
-    eb2.footer(|f| f.text(&footer));
-    eb3.footer(|f| f.text(&footer));
+    eb1 = eb1.thumbnail(AMADEUS_LOGO);
+    eb2 = eb2.thumbnail(AMADEUS_LOGO);
+    eb3 = eb3.thumbnail(AMADEUS_LOGO);
+    eb1 = eb1.footer(CreateEmbedFooter::default().text(&footer));
+    eb2 = eb2.footer(CreateEmbedFooter::default().text(&footer));
+    eb3 = eb3.footer(CreateEmbedFooter::default().text(&footer));
     let mut max_apm = 0;
     if !flds.is_empty() {
       setm!{ fields1 = vec![]
@@ -126,8 +126,8 @@ pub async fn replay_embed( ctx: &Context
             .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
             .draw()?;
         }
-        match APM_PICS.send_message(&ctx, |m|
-          m.add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
+        match APM_PICS.send_message(&ctx, CreateMessage::default()
+          .add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
           Ok(msg) => {
             if !msg.attachments.is_empty() {
               let img_attachment = &msg.attachments[0];
@@ -139,16 +139,16 @@ pub async fn replay_embed( ctx: &Context
           }
         };
       }
-      eb1.fields_vec(fields1);
-      eb2.fields_vec(fields2);
+      eb1 = eb1.fields(fields1);
+      eb2 = eb2.fields(fields2);
       if let Some(apm) = apm_image {
-        eb3.image(&apm);
+        eb3 = eb3.image(&apm);
       }
     }
     let embeds = vec![ eb1, eb3, eb2 ];
-    if let Ok(mut bot_msg) = msg.channel_id.send_message(&ctx, |m| {
-                                m.set_embed( embeds[0].clone() )
-                              }).await {
+    if let Ok(mut bot_msg) = msg.channel_id.send_message(&ctx, CreateMessage::default()
+                                .embed( embeds[0].clone() )
+                              ).await {
       let mut page: usize = 0;
       set!{ left  = ReactionType::Unicode(String::from("⬅️"))
           , right = ReactionType::Unicode(String::from("➡️")) };
@@ -172,10 +172,8 @@ pub async fn replay_embed( ctx: &Context
             },
             _ => (),
           }
-          if let Err(err) = bot_msg.edit(&ctx, |m|
-            m.embed(|e| {
-              *e = embeds[page].clone(); e
-            })
+          if let Err(err) = bot_msg.edit(&ctx, EditMessage::default()
+            .embed( embeds[page].clone() )
           ).await {
             error!("Shit happens {err}");
           }
@@ -273,8 +271,8 @@ pub async fn attach_replay( ctx: &Context
         if found {
           if let Some(guild_id) = msg.guild_id {
             // get last 15 games
-            if let Ok(messages) = msg.channel_id.messages(&ctx, |r|
-              r.limit(15)
+            if let Ok(messages) = msg.channel_id.messages(&ctx,
+              GetMessages::default().limit(15)
             ).await {
               for mmm in messages {
                 if !mmm.embeds.is_empty()
@@ -347,8 +345,8 @@ pub async fn attach_replay( ctx: &Context
                           .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
                           .draw()?;
                       }
-                      match APM_PICS.send_message(&ctx, |m|
-                        m.add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
+                      match APM_PICS.send_message(&ctx, CreateMessage::default()
+                        .add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
                         Ok(msg) => {
                           if !msg.attachments.is_empty() {
                             let img_attachment = &msg.attachments[0];
@@ -364,37 +362,32 @@ pub async fn attach_replay( ctx: &Context
                     let nick = msg.author.nick_in(ctx, guild_id)
                                          .await
                                          .unwrap_or_else(|| msg.author.name.clone());
-
-                    if let Err(why) = msg.channel_id.send_message(ctx, |m| {
-                      let mut m =
-                        m.embed(|e| {
-                          let mut e = e
-                            .title(&mmm.embeds[0].title.clone().unwrap())
-                            .author(|a| a.icon_url(&msg.author.face()).name(&nick))
-                            .description(&mmm.embeds[0].description.clone().unwrap())
-                            .footer(|f| f.text( mmm.embeds[0].footer.clone().unwrap().text ));
-                          if !fields2.is_empty() {
-                            e = e.fields_vec(fields2);
-                          }
-                          if let Some(apm) = apm_image {
-                            e = e.image(&apm);
-                          }
-                          if let Some(some_img) = mmm.embeds[0].image.clone() {
-                            e = e.thumbnail(&some_img.url);
-                          } else if let Some(hero) = mmm.embeds[0].thumbnail.clone() {
-                            e = e.thumbnail(&hero.url);
-                          }
-                          if let Some(some_url) = &mmm.embeds[0].url {
-                            e = e.url(some_url);
-                          }
-                          if let Some(colour) = &mmm.embeds[0].colour {
-                            e = e.colour(colour.tuple());
-                          }
-                          e
-                        });
-                      m = m.add_file(AttachmentType::Path(std::path::Path::new(&file.filename)));
-                      m
-                    }).await {
+                    let mut e = CreateEmbed::default()
+                      .title(&mmm.embeds[0].title.clone().unwrap())
+                      .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&nick))
+                      .description(&mmm.embeds[0].description.clone().unwrap())
+                      .footer(CreateEmbedFooter::default().text( mmm.embeds[0].footer.clone().unwrap().text ));
+                    if !fields2.is_empty() {
+                      e = e.fields(fields2);
+                    }
+                    if let Some(apm) = apm_image {
+                      e = e.image(&apm);
+                    }
+                    if let Some(some_img) = mmm.embeds[0].image.clone() {
+                      e = e.thumbnail(&some_img.url);
+                    } else if let Some(hero) = mmm.embeds[0].thumbnail.clone() {
+                      e = e.thumbnail(&hero.url);
+                    }
+                    if let Some(some_url) = &mmm.embeds[0].url {
+                      e = e.url(some_url);
+                    }
+                    if let Some(colour) = &mmm.embeds[0].colour {
+                      e = e.colour(colour.tuple());
+                    }
+                    if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
+                        .embed(e)
+                      .add_file(AttachmentType::Path(std::path::Path::new(&file.filename)))
+                    ).await {
                       error!("Failed to attach replay {why}");
                     } else {
                       // Success

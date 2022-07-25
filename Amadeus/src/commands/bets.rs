@@ -10,6 +10,7 @@ use crate::{
 
 use serenity::{
   prelude::*,
+  builder::{ CreateMessage, CreateEmbed, CreateEmbedAuthor },
   model::channel::*,
   framework::standard::{
     CommandResult, Args,
@@ -70,11 +71,11 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                   } else { None };
                 let nick = nickname_maybe.unwrap_or_else(|| msg.author.name.clone());
                 // not really sure if there should be response on bet
-                if let Err(why) = msg.channel_id.send_message(ctx, |m| m
-                  .embed(|e| e
+                if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
+                  .embed(CreateEmbed::default()
                   .description(&out)
                   .color(0xed3e7fu32)
-                  .author(|a| a.icon_url(&msg.author.face()).name(&nick))
+                  .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&nick))
                 )).await {
                   error!("Failed to post bet {why}");
                 }

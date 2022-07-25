@@ -11,15 +11,14 @@ use crate::{
 
 #[cfg(not(target_os = "windows"))]
 use crate::{
-  steins::{
-    ai::cache::{ ACTIVITY_LEVEL
-               , actualize_cache
-               , clear_cache }
-    }
+  steins::ai::cache::{ ACTIVITY_LEVEL
+                     , actualize_cache
+                     , clear_cache }
 };
 
 use serenity::{
   prelude::*,
+  builder::GetMessages,
   model::channel::{ Message
                   , ReactionType },
   model::id::{ ChannelId
@@ -111,7 +110,7 @@ async fn say(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if args.len() == 1 {
     let countdown: u8 = args.find().unwrap_or_default();
-    if let Ok(vec) = msg.channel_id.messages(ctx, |g| g.before(msg.id).limit(countdown)).await {
+    if let Ok(vec) = msg.channel_id.messages(ctx, GetMessages::default().before(msg.id).limit(countdown)).await {
       let mut vec_id = Vec::new();
       for message in vec {
         vec_id.push(message.id);
@@ -127,7 +126,7 @@ async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> Command
     let countdown: usize = args.find().unwrap_or_default();
     let counter: usize = args.find().unwrap_or_default();
     let full = countdown + counter;
-    if let Ok(vec) = msg.channel_id.messages(ctx, |g| g.before(msg.id).limit(full as u8)).await {
+    if let Ok(vec) = msg.channel_id.messages(ctx, GetMessages::default().before(msg.id).limit(full as u8)).await {
       let mut vec_id = Vec::new();
       for (i, message) in vec.iter().rev().enumerate() {
         if i < countdown {

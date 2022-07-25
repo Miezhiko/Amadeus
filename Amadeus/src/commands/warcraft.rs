@@ -1,7 +1,6 @@
-use crate::common::help::fields::FieldsVec;
-
 use serenity::{
   prelude::*,
+  builder::{ GetMessages, CreateMessage, CreateEmbed, EditMessage },
   model::{ channel::*
          , id::ChannelId },
   framework::standard::{ CommandResult
@@ -22,7 +21,6 @@ pub async fn tour_internal( ctx: &Context
                           , report_no_events: bool
                           ) -> CommandResult {
 
-  // TODO:: find non-blocking alternative for IcalParser
   let maybe_reader = task::spawn_blocking(move || {
     if let Ok(res) = reqwest::blocking::get("https://warcraft3.info/ical-events") {
       let buf = BufReader::new(res);
@@ -115,7 +113,7 @@ pub async fn tour_internal( ctx: &Context
       let mut do_nothing = false;
       let mut post_to_edit = None;
       if !passed_check && !report_no_events {
-        if let Ok(vec_msg) = channel_id.messages(&ctx, |g| g.limit(10)).await {
+        if let Ok(vec_msg) = channel_id.messages(&ctx, GetMessages::default().limit(10)).await {
           for message in vec_msg {
             if message.is_own(ctx) {
               for embed in message.embeds {
@@ -144,28 +142,29 @@ pub async fn tour_internal( ctx: &Context
       if let Some(msg_id) = post_to_edit {
         if let Ok(mut msg) = ctx.http.get_message( channel_id.0.get()
                                                  , msg_id.0.get() ).await {
-          if let Err(why) = msg.edit(&ctx, |m| m
-            .embed(|e| e
-              .title(title)
-              .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
-              .fields_vec(eventos)
-              .colour((255, 192, 203)))).await {
+          let embed = CreateEmbed::default()
+            .title(title.as_str())
+            .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
+            .fields(eventos)
+            .colour((255, 192, 203));
+          if let Err(why) = msg.edit(&ctx, EditMessage::default()
+            .embed(embed)).await {
             error!("Error editing w3info event: {why}");
           }
         }
       } else if !do_nothing {
-        if let Err(why) = channel_id.send_message(&ctx, |m| m
-          .embed(|e| e
-            .title(title)
+        if let Err(why) = channel_id.send_message(&ctx, CreateMessage::default()
+          .embed(CreateEmbed::default()
+            .title(title.as_str())
             .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
-            .fields_vec(eventos)
+            .fields(eventos)
             .colour((240, 160, 203)))).await {
           error!("Error sending w3info events: {why}");
         }
       }
     } else if report_no_events {
-      if let Err(why) = channel_id.send_message(&ctx, |m|
-        m.content("I am sorry but I can't find anything at the momenet")
+      if let Err(why) = channel_id.send_message(&ctx, CreateMessage::default()
+        .content("I am sorry but I can't find anything at the momenet")
       ).await {
         error!("Error sending w3info error: {why}");
       }

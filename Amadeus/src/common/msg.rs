@@ -1,10 +1,11 @@
 use serenity::{ model::channel::Message
+              , builder::CreateMessage
               , prelude::* };
 
 pub static MESSAGE_LIMIT: usize = 2000;
 
 async fn serenity_direct_message_single(ctx: &Context, msg: &Message, text: &str) {
-  if let Err(why) = msg.author.dm(ctx, |m| m.content(text)).await {
+  if let Err(why) = msg.author.dm(ctx, CreateMessage::default().content(text)).await {
     error!("Error DMing user: {why}, text: {text}, user: {}", msg.author.name);
   }
 }

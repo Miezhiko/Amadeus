@@ -10,10 +10,11 @@ use crate::{
 use std::num::NonZeroU64;
 
 use serenity::{
+  prelude::*,
+  builder::{ CreateMessage, CreateChannel, CreateEmbed, CreateEmbedFooter, CreateEmbedAuthor, GetMessages },
   model::{ id::{ ChannelId, UserId, RoleId }
          , channel::*, Timestamp
          , permissions::Permissions },
-  prelude::*,
   framework::standard::{ CommandResult
                        , macros::command
                        , Args }
@@ -90,9 +91,9 @@ async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> Comman
   );
 
   let comefrom_message = target_channel
-    .send_message(ctx, |f| {
-        f.content(comefrom_message)
-    }).await?;
+    .send_message(ctx, CreateMessage::default()
+        .content(comefrom_message)
+    ).await?;
 
   channel_message(ctx, msg, &format!(
     "**{} suggested to move this discussion to {}**\n{}",
@@ -146,30 +147,31 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     }
     let channel_name = format!("{}_timeout", member.user.name);
     let timeout_channel =
-      guild.create_channel(ctx, |c| c.name(&channel_name)
-                                     .permissions(permisssions_vec)
-                                     .rate_limit_per_user(2*60) // seconds
-                                     .kind(ChannelType::Text)).await?;
-    timeout_channel.send_message(&ctx, |m| m
+      guild.create_channel(&ctx.http, CreateChannel::default()
+                                  .name(channel_name.as_str())
+                                  .permissions(permisssions_vec)
+                                  .rate_limit_per_user(2*60) // seconds
+                                  .kind(ChannelType::Text)
+                                ).await?;
+    let mut e = CreateEmbed::default()
+      .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+      .title(&format!("You was timed out by {}", msg.author.name))
+      .timestamp(chrono::Utc::now());
+    if let Some(r) = reason {
+      e = e.description(r);
+    }
+    timeout_channel.send_message(&ctx, CreateMessage::default()
       .content(&format!("{}\n", member.mention()))
-      .embed(|e| {
-        let mut e =
-          e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-           .title(&format!("You was timed out by {}", msg.author.name))
-           .timestamp(chrono::Utc::now());
-        if let Some(r) = reason {
-          e = e.description(r);
-        } e
-      })).await?;
+      .embed(e)).await?;
     if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
-        log.send_message(ctx, |m| m
-          .embed(|e| {
-            e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-             .title(&format!("{} timed out {}", msg.author.name, member.user.name))
-             .timestamp(chrono::Utc::now())
-             .footer(|f| f.text(&format!("~j {}", &timeout_channel.name)))
-          })).await?;
+        log.send_message(ctx, CreateMessage::default()
+          .embed(CreateEmbed::default()
+            .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+            .title(&format!("{} timed out {}", msg.author.name, member.user.name))
+            .timestamp(chrono::Utc::now())
+            .footer(CreateEmbedFooter::default().text(&format!("~j {}", &timeout_channel.name)))
+          )).await?;
       }
     }
   } else {
@@ -193,17 +195,18 @@ async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         kind: PermissionOverwriteType::Member(msg.author.id)
       };
       channel.create_permission(ctx, overwrite_moderator).await?;
-      if let Err(why) = channel.send_message(ctx, |m| m.content(&format!("{} has joined", msg.author.name))).await {
+      if let Err(why) = channel.send_message(ctx, CreateMessage::default()
+                        .content(&format!("{} has joined", msg.author.name))).await {
         error!("Failed to log new user {why}");
       }
       if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
         if let Some(log) = ds.log {
-          log.send_message(ctx, |m| m
-            .embed(|e| {
-              e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-               .title(&format!("{} joined {}", msg.author.name, &channel_name))
-               .timestamp(chrono::Utc::now())
-            })).await?;
+          log.send_message(ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
+              .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+              .title(&format!("{} joined {}", msg.author.name, &channel_name))
+              .timestamp(chrono::Utc::now())
+            )).await?;
         }
       }
     }
@@ -226,20 +229,20 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
       }
     }
     member.enable_communication(ctx).await?;
-    msg.channel_id.send_message(&ctx, |m| m
-      .embed(|e| {
-        e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-          .title(&format!("{} was untimeouted out by {}", member.user.name, msg.author.name))
-          .timestamp(chrono::Utc::now())
-        })).await?;
+    msg.channel_id.send_message(&ctx, CreateMessage::default()
+      .embed(CreateEmbed::default()
+        .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+        .title(&format!("{} was untimeouted out by {}", member.user.name, msg.author.name))
+        .timestamp(chrono::Utc::now())
+      )).await?;
     if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
-        log.send_message(ctx, |m| m
-          .embed(|e| {
-            e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-              .title(&format!("{} removed time out from {}", msg.author.name, member.user.name))
-              .timestamp(chrono::Utc::now())
-            })).await?;
+        log.send_message(ctx, CreateMessage::default()
+          .embed(CreateEmbed::default()
+            .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+            .title(&format!("{} removed time out from {}", msg.author.name, member.user.name))
+            .timestamp(chrono::Utc::now())
+          )).await?;
       }
     }
   } else {
@@ -288,7 +291,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   for _iteration in [0..PURGE_ITERATIONS] {
     if let Some(last_msg_id) = last_msg_id_on_iteration {
       if let Ok(msgs) = msg.channel_id.messages(ctx,
-          |g| g.before(last_msg_id).limit(255u8)
+          GetMessages::default().before(last_msg_id).limit(255u8)
         ).await {
         let mut we_are_done = false;
         for message in &msgs {
@@ -319,12 +322,12 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let msg_guild_id = msg.guild_id.unwrap();
     if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
-        log.send_message(ctx, |m| m
-          .embed(|e| {
-            e.author(|a| a.icon_url(&msg.author.face()).name(&msg.author.name))
-              .title(&format!("{} purged messages from {:?}", msg.author.name, &users))
-              .timestamp(chrono::Utc::now())
-            })).await?;
+        log.send_message(ctx, CreateMessage::default()
+          .embed(CreateEmbed::default()
+            .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+            .title(&format!("{} purged messages from {:?}", msg.author.name, &users))
+            .timestamp(chrono::Utc::now())
+          )).await?;
       }
     }
   } else {

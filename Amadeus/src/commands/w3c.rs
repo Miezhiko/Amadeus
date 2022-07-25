@@ -18,7 +18,7 @@ use crate::{
 
 use serenity::{
   prelude::*,
-  builder::CreateEmbed,
+  builder::{ CreateMessage, CreateEmbed, CreateEmbedFooter, EditMessage },
   model::channel::*,
   framework::standard::{
     Args, CommandResult
@@ -93,7 +93,6 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
     let footer = format!("Requested by {}", msg.author.name);
     let mut embeds = vec![];
     for (i, chunk) in going.matches.chunks(ONGOING_PAGE_SIZE).enumerate() {
-      let mut embed = CreateEmbed::default();
       let mut description: String = String:: new();
       for m in chunk {
         if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
@@ -106,18 +105,19 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
           description = format!("{}\n{}", mstr, description);
         }
       }
-      embed.title(&format!("Ongoing matches, page {}", i + 1));
-      embed.description(description);
-      embed.thumbnail("https://i.pinimg.com/originals/b4/a0/40/b4a04082647a8505b3991cbaea7d2f86.png");
-      embed.colour((180,40,200));
-      embed.footer(|f| f.text(&footer));
+      let embed = CreateEmbed::default()
+        .title(&format!("Ongoing matches, page {}", i + 1))
+        .description(description)
+        .thumbnail("https://i.pinimg.com/originals/b4/a0/40/b4a04082647a8505b3991cbaea7d2f86.png")
+        .colour((180,40,200))
+        .footer(CreateEmbedFooter::default().text(&footer));
       embeds.push(embed);
     }
     if !embeds.is_empty() {
       let mut page = 0;
-      let mut bot_msg = msg.channel_id.send_message(ctx, |m| m.embed(|e| {
-        *e = embeds[page].clone(); e
-      })).await?;
+      let mut bot_msg = msg.channel_id.send_message(ctx, CreateMessage::default().embed(
+        embeds[page].clone()
+      )).await?;
       if embeds.len() > 1 {
         let left = ReactionType::Unicode(String::from("⬅️"));
         let right = ReactionType::Unicode(String::from("➡️"));
@@ -142,9 +142,9 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
               },
               _ => (),
             }
-            bot_msg.edit(ctx, |m| m.embed(|e| {
-              *e = embeds[page].clone(); e
-            })).await?;
+            bot_msg.edit(ctx, EditMessage::default().embed(
+              embeds[page].clone()
+            )).await?;
             let _ = reaction.as_inner_ref().delete(ctx).await;
           } else {
             let _ = bot_msg.delete_reactions(ctx).await;
@@ -426,15 +426,15 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         additional_info.push(("FFA", ffa_info.as_str(), false));
       }
 
-      if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
-        .embed(|e| e
+      if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default()
+        .embed(CreateEmbed::default()
           .title(&clanned)
           .description(description)
           .url(&format!("https://www.w3champions.com/player/{}", user))
           .thumbnail(&league_avi)
           .fields(additional_info)
           .colour(main_race_colors)
-          .footer(|f| f.text(footer)))).await {
+          .footer(CreateEmbedFooter::default().text(footer)))).await {
         error!("Error sending stats message: {why}");
       }
     } else {
@@ -577,12 +577,12 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       }
 
       let footer = format!("Requested by {}", msg.author.name);
-      if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
-          .embed(|e| e
+      if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default()
+          .embed(CreateEmbed::default()
           .title(&format!("{} vs {}", &userx, &race_vs))
           .description(out)
           .url(&format!("https://www.w3champions.com/player/{user}/statistics"))
-          .footer(|f| f.text(footer)))).await {
+          .footer(CreateEmbedFooter::default().text(footer)))).await {
         error!("Error sending veto message: {why}");
       }
     }
@@ -700,22 +700,22 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
       if !match_strings.is_empty() {
         let footer = format!("Requested by {}", msg.author.name);
-        if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
-            .embed(|e| e
+        if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default()
+            .embed(CreateEmbed::default()
             .title(&format!("{} {} : {} {}", &name1, wins, loses, &name2))
             .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
             .description(match_strings.join("\n"))
-            .footer(|f| f.text(footer)))).await {
+            .footer(CreateEmbedFooter::default().text(footer)))).await {
           error!("Error sending veto message: {why}");
         }
       } else {
         let footer = format!("Requested by {}", msg.author.name);
-        if let Err(why) = msg.channel_id.send_message(&ctx, |m| m
-          .embed(|e| e
+        if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default()
+          .embed(CreateEmbed::default()
           .title(&format!("{} {} : {} {}", &name1, 0, 0, &name2))
           .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
           .description("No games for those players in selected seasons")
-          .footer(|f| f.text(footer)))).await {
+          .footer(CreateEmbedFooter::default().text(footer)))).await {
           error!("Error sending veto message: {why}");
         }
       }
@@ -802,8 +802,8 @@ pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<Strin
           .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
           .draw()?;
       }
-      match APM_PICS.send_message(&ctx, |m|
-        m.add_file(AttachmentType::Path(std::path::Path::new(&fname_popular_hours)))).await {
+      match APM_PICS.send_message(&ctx, CreateMessage::default()
+        .add_file(AttachmentType::Path(std::path::Path::new(&fname_popular_hours)))).await {
         Ok(msg) => {
           if !msg.attachments.is_empty() {
             let img_attachment = &msg.attachments[0];
@@ -832,12 +832,12 @@ async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
   let popular_games_image = generate_popularhours(ctx).await;
   if let Some(img) = popular_games_image? {
     let footer = format!("Requested by {}", msg.author.name);
-    msg.channel_id.send_message(ctx, |m| m.content("")
-    .embed(|e|
-      e.color((40, 20, 200))
-       .title("popular hours")
-       .image(&img)
-       .footer(|f| f.text(&footer))
+    msg.channel_id.send_message(ctx, CreateMessage::default()
+    .embed(CreateEmbed::default()
+      .color((40, 20, 200))
+      .title("popular hours")
+      .image(&img)
+      .footer(CreateEmbedFooter::default().text(&footer))
     )).await?;
     if let Err(why) = msg.delete(&ctx).await {
       error!("Error deleting original command, {why}");

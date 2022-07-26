@@ -1,6 +1,6 @@
 [package]
 name            = "amadeus"
-version         = "10.2.0"
+version         = "10.2.1"
 authors         = [ "Miezhiko" ]
 repository      = "https://github.com/Miezhiko/Amadeus"
 readme          = "README.md"
@@ -111,8 +111,8 @@ branch = "main"
 optional = true
 
 [dependencies.tokio]
-version = "1.20.0"
-features = ["rt-multi-thread", "signal", "parking_lot"]
+version = "1.20.1"
+features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
 
 [dependencies.dasp_signal]
 version = "0.11"

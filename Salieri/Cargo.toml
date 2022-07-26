@@ -1,7 +1,7 @@
 [package]
 name = "salieri"
 description = "Amadeus services consumer"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 
 [dependencies]
@@ -12,8 +12,8 @@ log         = "0.4.17"
 anyhow      = "1"
 
 [dependencies.tokio]
-version = "1.20.0"
-features = ["full"]
+version = "1.20.1"
+features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
 
 [dependencies.celery]
 git = "https://github.com/Qeenon/rusty-celery.git"

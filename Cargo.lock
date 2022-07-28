@@ -886,7 +886,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/Qeenon/serenity?branch=create_channel_async#ba2b3448eb91ab0a84e94358131815ddbe4882d8"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#ff760f82ac1cdcb05893f74a602cadb3b3229d3f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -904,9 +904,9 @@ dependencies = [
 
 [[package]]
 name = "console"
-version = "0.15.0"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a28b32d32ca44b70c3e4acd7db1babf555fa026e385fb95f18028f88848b3c31"
+checksum = "89eab4d20ce20cea182308bca13088fecea9c05f6776cf287205d41a0ed3c847"
 dependencies = [
  "encode_unicode",
  "libc",
@@ -4745,7 +4745,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.4"
-source = "git+https://github.com/Qeenon/serenity?branch=create_channel_async#ba2b3448eb91ab0a84e94358131815ddbe4882d8"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#ff760f82ac1cdcb05893f74a602cadb3b3229d3f"
 dependencies = [
  "async-trait",
  "base64",
@@ -4782,7 +4782,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#d6dbaec96bf55767654adde9254a3f459a986304"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#ff760f82ac1cdcb05893f74a602cadb3b3229d3f"
 dependencies = [
  "bitflags",
  "enum_primitive",

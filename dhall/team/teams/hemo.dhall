@@ -11,7 +11,7 @@ let playersList : List Playerx =
   [ t "Muffy#2299"          196231768880185344 "muffy_supergosu"
   , { battletag = "Маша#21229"
     , discord   = 510368731378089984
-    , streams   = Some { ggru   = None Text
+    , streams   = Some { ggru   = Some "Miezhiko"
                        , twitch = Some "Miezhiko" }
     , alt_accounts = ["Miezhiko#2378"] }
   , b "Reyenir#2169"        287914378513088515 "reyenir" "Cherry-Phoenix"
@@ -37,7 +37,8 @@ let playersList : List Playerx =
   , p "OwerPidor#2503"      862690932931559464
   , { battletag = "War3Alex#2898"
     , discord   = 720938816810254338
-    , streams   = None Streams
+    , streams   = Some { ggru   = None Text
+                       , twitch = Some "war3alex" }
     , alt_accounts = ["WindWalker#21184", "Visor#21330"] }
   ]
 

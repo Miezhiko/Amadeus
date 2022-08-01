@@ -23,7 +23,6 @@ use serenity::{
   prelude::*,
   builder::*,
   async_trait,
-  utils::Colour,
   model::{ guild::audit_log::MessageAction
          , id::{ GuildId, MessageId, UserId, ChannelId, RoleId }
          , event::ResumedEvent, gateway::Ready, guild::Member
@@ -31,6 +30,7 @@ use serenity::{
                     , PermissionOverwrite, PermissionOverwriteType }
          , user::User, application::interaction::Interaction
          , permissions::Permissions
+         , colour::Colour
          }
 };
 

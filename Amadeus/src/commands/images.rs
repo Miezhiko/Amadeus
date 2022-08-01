@@ -3,12 +3,14 @@ use crate::types::serenity::{ ReqwestClient, PubCreds };
 use serenity::{
   prelude::*,
   builder::{ CreateMessage, CreateEmbed, CreateEmbedAuthor, EditMessage },
-  model::prelude::*,
+  model::{
+    prelude::*,
+    colour::Colour
+  },
   framework::standard::{
     CommandResult,
     macros::command, Args
-  },
-  utils::Colour
+  }
 };
 
 use std::collections::HashMap;

@@ -25,9 +25,9 @@ use crate::steins::ai::{ cache, chain, response };
 use serenity::{
   prelude::*,
   builder::*,
-  utils::Colour,
   model::{ id::{ EmojiId, MessageId, UserId }
          , channel::{ Message, AttachmentType, ReactionType }
+         , colour::Colour
          },
   gateway::ActivityData
 };

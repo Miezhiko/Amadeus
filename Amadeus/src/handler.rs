@@ -326,7 +326,6 @@ impl EventHandler for Handler {
                       // message was removed by admin or by author
                       info!("{} or {} was trying to remove message", deleter.name
                                                                    , msg.author.name);
-                      // log(&ctx, &guild_id, &log_text).await;
                       // But I don't allow it
                       for file in &msg.attachments {
                         if let Ok(bytes) = file.download().await {

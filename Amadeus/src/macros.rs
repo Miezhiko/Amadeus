@@ -8,16 +8,6 @@ macro_rules! pub_struct {
   }
 }
 
-macro_rules! s_struct {
-  ($name:ident {$($field:ident: $t:ty,)*}) => {
-    #[allow(non_snake_case)]
-    #[derive(Deserialize, Serialize, Clone, Debug)]
-    pub struct $name {
-      $(pub $field: $t),*
-    }
-  }
-}
-
 #[macro_export]
 macro_rules! set {
   ($init:ident = $val:expr, $($lhs:ident = $rhs:expr),*) => {

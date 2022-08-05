@@ -21,7 +21,7 @@ full = ["flo", "voice_analysis", "trackers"]
 
 [dependencies]
 mozart              = { path = "../Mozart" }
-chrono              = "0.4.19"
+chrono              = "0.4.20"
 glob                = "0.3.0"
 chrono-tz           = "0.6.1"
 tracing             = "0.1.36"

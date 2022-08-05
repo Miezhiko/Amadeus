@@ -284,13 +284,15 @@ pub_struct!(PlayerData {
   location: Option<String>,
 });
 
-s_struct!(PlayerDataToStore {
-  closestNode: String,
-  countryId: Option<String>,
-  nodeLocation: Option<String>,
-  ipAddress: String,
-  location: Option<String>,
-});
+#[allow(non_snake_case)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct PlayerDataToStore {
+  pub closestNode: String,
+  pub countryId: Option<String>,
+  pub nodeLocation: Option<String>,
+  pub ipAddress: String,
+  pub location: Option<String>
+}
 
 pub_struct!(Snapshot {
   mmr: f32,

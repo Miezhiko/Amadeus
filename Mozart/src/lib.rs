@@ -35,8 +35,6 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryEr
             , cache::MODELS_REINIT
             , cache::REINIT_CACHE
             , cache::SET_CACHE
-            //, bert::translation::EN2RU
-            //, bert::translation::RU2EN
             , bert::chat::CHAT_GPT2
             , bert::qa::ASK
             , bert::neo::CHAT_NEO

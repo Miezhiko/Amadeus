@@ -729,15 +729,16 @@ checksum = "17cc5e6b5ab06331c33589842070416baa137e8b0eb912b008cfd4a78ada7919"
 
 [[package]]
 name = "chrono"
-version = "0.4.19"
+version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "670ad68c9088c2a963aaa298cb369688cf3f9465ce5e2d4ca10e6e0098a1ce73"
+checksum = "6127248204b9aba09a362f6c930ef6a78f2c1b2215f8a7b398c06e1083f17af0"
 dependencies = [
- "libc",
+ "js-sys",
  "num-integer",
  "num-traits 0.2.15",
  "serde",
  "time 0.1.44",
+ "wasm-bindgen",
  "winapi 0.3.9",
 ]
 
@@ -4421,7 +4422,7 @@ checksum = "4501abdff3ae82a1c1b477a17252eb69cee9e66eb915c1abaa4f44d873df9f09"
 
 [[package]]
 name = "salieri"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "celery",

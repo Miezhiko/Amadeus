@@ -204,9 +204,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.59"
+version = "1.0.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c91f1f46651137be86f3a2b9a8359f9ab421d04d941c62b5982e1ca21113adf9"
+checksum = "c794e162a5eff65c72ef524dfe393eb923c354e350bb78b9c7383df13f3bc142"
 
 [[package]]
 name = "arc-swap"
@@ -860,7 +860,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#daa15f6f1e32500dacd79ed07d034974ea33a9b4"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#cabf78769c1ed26812af73ace616a197151d8cfd"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3025,9 +3025,9 @@ dependencies = [
 
 [[package]]
 name = "nougat"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38d6048f986fc14d0fac8c92eea37e15f8d77aa9bc1099ac685a608aaeb976fc"
+checksum = "d0385a8df23614e42efa99414320c691c2db19285e7c09267c878d604d8265a0"
 dependencies = [
  "macro_rules_attribute",
  "nougat-proc_macros",
@@ -3035,9 +3035,9 @@ dependencies = [
 
 [[package]]
 name = "nougat-proc_macros"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b511ac0f3a0ac000d01e44b8bc99d3a790d77088e2d8759661e8bc1623958357"
+checksum = "c75bf19de64b3a4daf992679e7490be3569766060cb7e8e664638c9e3ce53812"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4101,9 +4101,9 @@ dependencies = [
 
 [[package]]
 name = "realfft"
-version = "3.0.0"
+version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a83b876fe55da7e1bf5deeacb93d6411edf81eba0e1a497e79c067734729053a"
+checksum = "8028eb3fabd68ddf331f744ba9c25a939804e276d820f9b218ab25a4bd7b91b8"
 dependencies = [
  "rustfft",
 ]
@@ -4697,7 +4697,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.4"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#daa15f6f1e32500dacd79ed07d034974ea33a9b4"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#cabf78769c1ed26812af73ace616a197151d8cfd"
 dependencies = [
  "async-trait",
  "base64",
@@ -4734,7 +4734,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#daa15f6f1e32500dacd79ed07d034974ea33a9b4"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#cabf78769c1ed26812af73ace616a197151d8cfd"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -5068,9 +5068,9 @@ checksum = "063e6045c0e62079840579a7e47a355ae92f60eb74daaf156fb1e84ba164e63f"
 
 [[package]]
 name = "strum_macros"
-version = "0.24.2"
+version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4faebde00e8ff94316c01800f9054fd2ba77d30d9e922541913051d1d978918b"
+checksum = "1e385be0d24f186b4ce2f9982191e7101bb737312ad61c1f2f984f34bcf85d59"
 dependencies = [
  "heck 0.4.0",
  "proc-macro2",

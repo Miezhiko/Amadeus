@@ -22,8 +22,8 @@ let playersList : List Playerx =
   , t "JustDoiTpLs#2907"    543121502711840799 "justdoitpls22"
   , { battletag = "Soulful#2300"
     , discord   = 147805125824610304
-    , streams   = { ggru    = None Text
-                  , twitch  = Some "soulful85" }
+    , streams   = Some { ggru    = None Text
+                       , twitch  = Some "soulful85" }
     , alt_accounts = ["Lefthander#21389"] }
   , b "НееЖить#2559"        703241941114028032 "masterv_64" "Ghost_OL"
   , t "Fingon#2350"         361930230375514112 "Skyrimoon"

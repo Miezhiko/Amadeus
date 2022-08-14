@@ -25,24 +25,24 @@ pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) 
       .url("https://github.com/Miezhiko/Amadeus")
       .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
-      .description(LOCALES.lookup(lang, "help-description"))
+      .description(LOCALES.lookup(lang, "help-description").unwrap_or_default())
       .fields(vec![
-        (LOCALES.lookup(lang, "age").as_str(), "18", true),
-        (LOCALES.lookup(lang, "birthdate").as_str(), LOCALES.lookup(lang, "amadeus-birthdate").as_str(), true),
-        (LOCALES.lookup(lang, "blood-type").as_str(), "A", true)
+        (LOCALES.lookup(lang, "age").unwrap_or_default().as_str(), "18", true),
+        (LOCALES.lookup(lang, "birthdate").unwrap_or_default().as_str(), LOCALES.lookup(lang, "amadeus-birthdate").unwrap_or_default().as_str(), true),
+        (LOCALES.lookup(lang, "blood-type").unwrap_or_default().as_str(), "A", true)
         ])
       .fields(vec![
-        (LOCALES.lookup(lang, "height").as_str(), LOCALES.lookup(lang, "amadeus-height").as_str(), true),
-        (LOCALES.lookup(lang, "weight").as_str(), LOCALES.lookup(lang, "amadeus-weight").as_str(), true),
-        (LOCALES.lookup(lang, "version").as_str(), version.as_str(), true)
+        (LOCALES.lookup(lang, "height").unwrap_or_default().as_str(), LOCALES.lookup(lang, "amadeus-height").unwrap_or_default().as_str(), true),
+        (LOCALES.lookup(lang, "weight").unwrap_or_default().as_str(), LOCALES.lookup(lang, "amadeus-weight").unwrap_or_default().as_str(), true),
+        (LOCALES.lookup(lang, "version").unwrap_or_default().as_str(), version.as_str(), true)
         ])
-      .field(LOCALES.lookup(lang, "user-commands-title").as_str()
-           , LOCALES.lookup(lang, "user-commands").as_str(), false)
-      .field(LOCALES.lookup(lang, "music-commands-title").as_str()
-           , LOCALES.lookup(lang, "music-commands").as_str(), false)
-      .field(LOCALES.lookup(lang, "warcraft-commands-title").as_str()
-           , LOCALES.lookup(lang, "warcraft-commands").as_str(), false)
-      .footer(CreateEmbedFooter::default().text(LOCALES.lookup(lang, "footer")))
+      .field(LOCALES.lookup(lang, "user-commands-title").unwrap_or_default().as_str()
+           , LOCALES.lookup(lang, "user-commands").unwrap_or_default().as_str(), false)
+      .field(LOCALES.lookup(lang, "music-commands-title").unwrap_or_default().as_str()
+           , LOCALES.lookup(lang, "music-commands").unwrap_or_default().as_str(), false)
+      .field(LOCALES.lookup(lang, "warcraft-commands-title").unwrap_or_default().as_str()
+           , LOCALES.lookup(lang, "warcraft-commands").unwrap_or_default().as_str(), false)
+      .footer(CreateEmbedFooter::default().text(LOCALES.lookup(lang, "footer").unwrap_or_default()))
       .colour((246, 111, 0)))).await {
     error!("Error sending help message: {why}");
   }
@@ -57,24 +57,24 @@ pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIde
       .url("https://github.com/Miezhiko/Amadeus")
       .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
       .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
-      .description(LOCALES.lookup(lang, "help-description"))
+      .description(LOCALES.lookup(lang, "help-description").unwrap_or_default())
       .fields(vec![
-        (LOCALES.lookup(lang, "age").as_str(), "18", true),
-        (LOCALES.lookup(lang, "birthdate").as_str(), LOCALES.lookup(lang, "amadeus-birthdate").as_str(), true),
-        (LOCALES.lookup(lang, "blood-type").as_str(), "A", true)
+        (LOCALES.lookup(lang, "age").unwrap_or_default().as_str(), "18", true),
+        (LOCALES.lookup(lang, "birthdate").unwrap_or_default().as_str(), LOCALES.lookup(lang, "amadeus-birthdate").unwrap_or_default().as_str(), true),
+        (LOCALES.lookup(lang, "blood-type").unwrap_or_default().as_str(), "A", true)
         ])
       .fields(vec![
-        (LOCALES.lookup(lang, "height").as_str(), LOCALES.lookup(lang, "amadeus-height").as_str(), true),
-        (LOCALES.lookup(lang, "weight").as_str(), LOCALES.lookup(lang, "amadeus-weight").as_str(), true),
-        (LOCALES.lookup(lang, "version").as_str(), version.as_str(), true)
+        (LOCALES.lookup(lang, "height").unwrap_or_default().as_str(), LOCALES.lookup(lang, "amadeus-height").unwrap_or_default().as_str(), true),
+        (LOCALES.lookup(lang, "weight").unwrap_or_default().as_str(), LOCALES.lookup(lang, "amadeus-weight").unwrap_or_default().as_str(), true),
+        (LOCALES.lookup(lang, "version").unwrap_or_default().as_str(), version.as_str(), true)
         ])
-      .field(LOCALES.lookup(lang, "user-commands-title").as_str()
-           , LOCALES.lookup(lang, "user-commands").as_str(), false)
-      .field(LOCALES.lookup(lang, "music-commands-title").as_str()
-           , LOCALES.lookup(lang, "music-commands").as_str(), false)
-      .field(LOCALES.lookup(lang, "warcraft-commands-title").as_str()
-           , LOCALES.lookup(lang, "warcraft-commands").as_str(), false)
-      .footer(CreateEmbedFooter::default().text(LOCALES.lookup(lang, "footer")))
+      .field(LOCALES.lookup(lang, "user-commands-title").unwrap_or_default().as_str()
+           , LOCALES.lookup(lang, "user-commands").unwrap_or_default().as_str(), false)
+      .field(LOCALES.lookup(lang, "music-commands-title").unwrap_or_default().as_str()
+           , LOCALES.lookup(lang, "music-commands").unwrap_or_default().as_str(), false)
+      .field(LOCALES.lookup(lang, "warcraft-commands-title").unwrap_or_default().as_str()
+           , LOCALES.lookup(lang, "warcraft-commands").unwrap_or_default().as_str(), false)
+      .footer(CreateEmbedFooter::default().text(LOCALES.lookup(lang, "footer").unwrap_or_default()))
       .colour((246, 111, 0)))).await {
     error!("Error editing help message: {why}");
   }
@@ -93,27 +93,27 @@ pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIde
 mod translation_tests {
   use super::*;
   fn help_test_with_lang(lang: &LanguageIdentifier) {
-    let string_description = LOCALES.lookup(lang, "help-description");
+    let string_description = LOCALES.lookup(lang, "help-description").unwrap_or_default();
     assert!( string_description.chars().count() < 2048 );
-    let string_footer = LOCALES.lookup(lang, "footer");
+    let string_footer = LOCALES.lookup(lang, "footer").unwrap_or_default();
     assert!( string_footer.chars().count() < 2048 );
     let strings = &[
       string_description,
-      LOCALES.lookup(lang, "age"),
-      LOCALES.lookup(lang, "birthdate"),
-      LOCALES.lookup(lang, "amadeus-birthdate"),
-      LOCALES.lookup(lang, "blood-type"),
-      LOCALES.lookup(lang, "height"),
-      LOCALES.lookup(lang, "amadeus-height"),
-      LOCALES.lookup(lang, "weight"),
-      LOCALES.lookup(lang, "amadeus-weight"),
-      LOCALES.lookup(lang, "version"),
-      LOCALES.lookup(lang, "user-commands-title"),
-      LOCALES.lookup(lang, "user-commands"),
-      LOCALES.lookup(lang, "music-commands-title"),
-      LOCALES.lookup(lang, "music-commands"),
-      LOCALES.lookup(lang, "warcraft-commands-title"),
-      LOCALES.lookup(lang, "warcraft-commands"),
+      LOCALES.lookup(lang, "age").unwrap_or_default(),
+      LOCALES.lookup(lang, "birthdate").unwrap_or_default(),
+      LOCALES.lookup(lang, "amadeus-birthdate").unwrap_or_default(),
+      LOCALES.lookup(lang, "blood-type").unwrap_or_default(),
+      LOCALES.lookup(lang, "height").unwrap_or_default(),
+      LOCALES.lookup(lang, "amadeus-height").unwrap_or_default(),
+      LOCALES.lookup(lang, "weight").unwrap_or_default(),
+      LOCALES.lookup(lang, "amadeus-weight").unwrap_or_default(),
+      LOCALES.lookup(lang, "version").unwrap_or_default(),
+      LOCALES.lookup(lang, "user-commands-title").unwrap_or_default(),
+      LOCALES.lookup(lang, "user-commands").unwrap_or_default(),
+      LOCALES.lookup(lang, "music-commands-title").unwrap_or_default(),
+      LOCALES.lookup(lang, "music-commands").unwrap_or_default(),
+      LOCALES.lookup(lang, "warcraft-commands-title").unwrap_or_default(),
+      LOCALES.lookup(lang, "warcraft-commands").unwrap_or_default(),
       string_footer
     ];
     assert!( strings.iter().map(|s| s.chars().count()).sum::<usize>() < 6000 );

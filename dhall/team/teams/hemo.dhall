@@ -8,8 +8,7 @@ let g = ./../functions/g.dhall
 let b = ./../functions/b.dhall
 
 let playersList : List Playerx =
-  [ t "Muffy#2299"          196231768880185344 "muffy_supergosu"
-  , { battletag = "Маша#21229"
+  [ { battletag = "Маша#21229"
     , discord   = 510368731378089984
     , streams   = Some { ggru   = Some "Miezhiko"
                        , twitch = Some "Miezhiko" }
@@ -34,7 +33,6 @@ let playersList : List Playerx =
     , discord   = 255345878917709824
     , streams   = None Streams
     , alt_accounts = ["Wayfarer#21400"] }
-  , p "Edek#1800"           298003054110965762
   , p "RiplEy#21126"        137314790769950720
   , p "RavenTT#2656"        277555411584942080
   , p "EnragedOxy#2999"     576662560120766474

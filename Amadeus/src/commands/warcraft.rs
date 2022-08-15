@@ -224,7 +224,7 @@ pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
     let is_saturday = today.weekday() == Weekday::Sat;
     if !is_saturday {
       while today.weekday() != Weekday::Sat {
-        today = today + Duration::days(1); 
+        today += Duration::days(1); 
       }
     }
     tour_internal(ctx, &msg.channel_id, today, is_saturday, true).await?;

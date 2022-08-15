@@ -33,10 +33,6 @@ use std::{ time::Duration
          , sync::Arc
          , sync::atomic::Ordering::Relaxed
          , sync::atomic::AtomicU32 };
-use async_std::fs;
-
-use crate::common::constants::APM_PICS;
-use plotters::prelude::*;
 
 use chrono::{ Utc, DateTime, Datelike };
 use once_cell::sync::Lazy;
@@ -730,118 +726,6 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   }
   if let Ok(typing) = start_typing {
     typing.stop();
-  }
-  Ok(())
-}
-
-pub async fn generate_popularhours(ctx: &Context) -> anyhow::Result<Option<String>> {
-  let rqcl = {
-    set!{ data = ctx.data.read().await
-        , rqcl = data.get::<ReqwestClient>().unwrap() };
-    rqcl.clone()
-  };
-  let mut popular_games_image: Option<String> = None;
-  if let Ok(res3) = rqcl.get(format!("{W3C_API}/w3c-stats/play-hours")).send().await {
-    if let Ok(ph_modes) = res3.json::<Vec<PopularHours>>().await {
-      info!("got popular hours structure");
-      let mut fname_popular_hours = String::new();
-      let mut plx_vec = vec![];
-      { // because of Rc < > in BitMapBackend I need own scope here
-        let mut max_games = 1;
-        for ph in ph_modes {
-          if fname_popular_hours.is_empty() {
-            fname_popular_hours = format!("popular_hours_{}.png", ph.day);
-          }
-          if ph.gameMode == 1 || ph.gameMode == 2 || ph.gameMode == 4 {
-            let ph_max_games = ph.playTimePerHour.iter().fold(0, |a, b| b.games.max(a));
-            max_games = std::cmp::max(max_games, ph_max_games);
-            if ph.gameMode == 1 {
-              let color = RGBColor(255, 50, 50);
-              let style: ShapeStyle = ShapeStyle::from(color).stroke_width(2);
-              let plx = ph.playTimePerHour.iter().map(|p| {
-                (p.hours as f64 + (p.minutes as f64 / 64f64), p.games as i32)
-              }).collect::<Vec<(f64, i32)>>();
-              plx_vec.push((style, plx, "1x1"));
-            } else if ph.gameMode == 2 {
-              let color = RGBColor(180, 120, 255);
-              let style: ShapeStyle = ShapeStyle::from(color).stroke_width(3);
-              let plx = ph.playTimePerHour.iter().map(|p| {
-                (p.hours as f64 + (p.minutes as f64 / 64f64), (p.games * 2) as i32)
-              }).collect::<Vec<(f64, i32)>>();
-              plx_vec.push((style, plx, "2x2"));
-            } else if ph.gameMode == 4 {
-              let color = RGBColor(100, 200, 50);
-              let style: ShapeStyle = ShapeStyle::from(color).stroke_width(2);
-              let plx = ph.playTimePerHour.iter().map(|p| {
-                (p.hours as f64 + (p.minutes as f64 / 64f64), (p.games * 4) as i32)
-              }).collect::<Vec<(f64, i32)>>();
-              plx_vec.push((style, plx, "4x4"));
-            }
-          }
-        }
-        let root_area = BitMapBackend::new(&fname_popular_hours, (1000, 500)).into_drawing_area();
-        root_area.fill(&RGBColor(47, 49, 54))?;
-        let mut cc = ChartBuilder::on(&root_area)
-          .margin(5u32)
-          .set_all_label_area_size(50u32)
-          .build_cartesian_2d(0.0f64..23.0f64, 0..max_games as i32)?;
-        cc.configure_mesh()
-          .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
-          .x_labels(24)
-          .y_labels(10)
-          .axis_style(&RGBColor(80, 80, 80))
-          .draw()?;
-        for (st, plx, mode_str) in plx_vec {
-          cc.draw_series(LineSeries::new(plx, st))?
-            .label(mode_str)
-            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], st));
-        }
-        cc.configure_series_labels()
-          .position(SeriesLabelPosition::LowerRight)
-          .border_style(&BLACK)
-          .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
-          .draw()?;
-      }
-      match APM_PICS.send_message(&ctx, CreateMessage::default()
-        .add_file(AttachmentType::Path(std::path::Path::new(&fname_popular_hours)))).await {
-        Ok(msg) => {
-          if !msg.attachments.is_empty() {
-            let img_attachment = &msg.attachments[0];
-            popular_games_image = Some(img_attachment.url.clone());
-          }
-        },
-        Err(why) => {
-          error!("Failed to download and post stream img {why}");
-        }
-      };
-      if let Err(why) = fs::remove_file(&fname_popular_hours).await {
-        error!("Error removing popular hours png {why}");
-      }
-    } else {
-      error!("failed to parse");
-    }
-  } else {
-    error!("no rsponse from w3c");
-  }
-  Ok(popular_games_image)
-}
-
-#[command]
-#[description("Show popular hours on W3C")]
-async fn popularhours(ctx: &Context, msg: &Message) -> CommandResult {
-  let popular_games_image = generate_popularhours(ctx).await;
-  if let Some(img) = popular_games_image? {
-    let footer = format!("Requested by {}", msg.author.name);
-    msg.channel_id.send_message(ctx, CreateMessage::default()
-    .embed(CreateEmbed::default()
-      .color((40, 20, 200))
-      .title("popular hours")
-      .image(&img)
-      .footer(CreateEmbedFooter::default().text(&footer))
-    )).await?;
-    if let Err(why) = msg.delete(&ctx).await {
-      error!("Error deleting original command, {why}");
-    }
   }
   Ok(())
 }

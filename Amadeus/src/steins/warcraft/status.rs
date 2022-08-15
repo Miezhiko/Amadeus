@@ -5,7 +5,7 @@ use crate::{
     colors::gen_colors
   },
   steins::warcraft::poller::GAMES,
-  commands::w3c::{ /*generate_popularhours,*/ get_mmm, secs_to_str }
+  commands::w3c::{ get_mmm, secs_to_str }
 };
 
 use chrono::{
@@ -199,14 +199,6 @@ pub async fn generate_stats_graph( ctx: &Context
 
 pub async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
   let poplar_hours = "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string();
-  /*
-  let poplar_hours =
-    if let Some(generated_image) = generate_popularhours(ctx).await? {
-      generated_image
-    } else {
-      "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
-    };
-  */
   let init = if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
       Weekly {
         reset_day: day,
@@ -384,9 +376,9 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
 ```
 __**currently running:**__
 ```
-1x1 {} search for {} GAMES: {}
-2x2 {} search for {} GAMES: {}
-4x4 {} search for {} GAMES: {}
+1x1 {} searching {} GAMES: {}
+2x2 {} searching {} GAMES: {}
+4x4 {} searching {} GAMES: {}
 ```
 __**currently playing:**__
 ```

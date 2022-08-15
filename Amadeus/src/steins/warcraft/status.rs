@@ -376,9 +376,9 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
 ```
 __**currently running:**__
 ```
-1x1 {} searching {} GAMES: {}
-2x2 {} searching {} GAMES: {}
-4x4 {} searching {} GAMES: {}
+1x1 {} search {} GAMES: {}
+2x2 {} search {} GAMES: {}
+4x4 {} search {} GAMES: {}
 ```
 __**currently playing:**__
 ```

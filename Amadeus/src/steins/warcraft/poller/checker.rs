@@ -31,6 +31,11 @@ use serenity::{
 
 use std::collections::HashMap;
 
+const TEAM1_FIELD: &str = "Team 1";
+const TEAM2_FIELD: &str = "Team 2";
+const BETS_FIELD: &str  = "Bets";
+const FLOTV_FIELD:&str  = "flo tv";
+
 #[allow(clippy::needless_range_loop)]
 pub async fn check<'a>( ctx: &Context
                       , guild_id: u64
@@ -121,8 +126,8 @@ pub async fn check<'a>( ctx: &Context
                         if !msg.embeds.is_empty() {
                           if !msg.embeds[0].fields.is_empty() {
                             for f in msg.embeds[0].fields.clone() {
-                              if f.name != "Bets"
-                              && f.name != "flo tv" {
+                              if f.name != BETS_FIELD
+                              && f.name != FLOTV_FIELD {
                                 fields.push((f.name, f.value, f.inline));
                               }
                             }
@@ -155,7 +160,7 @@ pub async fn check<'a>( ctx: &Context
                           e = e.colour(colour);
                         }
                         if let Some(flotv) = &track.flo_tv {
-                          e = e.fields([("flo tv", flotv.as_str(), false)]);
+                          e = e.fields([(FLOTV_FIELD, flotv.as_str(), false)]);
                         }
                         if let Err(why) = msg.edit(ctx, EditMessage::default()
                           .embed(e)
@@ -281,8 +286,8 @@ pub async fn check<'a>( ctx: &Context
                         if !msg.embeds.is_empty() {
                           if !msg.embeds[0].fields.is_empty() {
                             for f in msg.embeds[0].fields.clone() {
-                              if f.name != "Bets"
-                              && f.name != "flo tv" {
+                              if f.name != BETS_FIELD
+                              && f.name != FLOTV_FIELD {
                                 fields.push((f.name, f.value, f.inline));
                               }
                             }
@@ -315,7 +320,7 @@ pub async fn check<'a>( ctx: &Context
                           e = e.colour(colour);
                         }
                         if let Some(flotv) = &track.flo_tv {
-                          e = e.fields([("flo tv", flotv.as_str(), false)]);
+                          e = e.fields([(FLOTV_FIELD, flotv.as_str(), false)]);
                         }
                         if let Err(why) = msg.edit(ctx, EditMessage::default()
                           .embed(e)
@@ -430,8 +435,8 @@ pub async fn check<'a>( ctx: &Context
                       if !msg.embeds.is_empty() {
                         if !msg.embeds[0].fields.is_empty() {
                           for f in msg.embeds[0].fields.clone() {
-                            if f.name != "Bets"
-                            && f.name != "flo tv" {
+                            if f.name != BETS_FIELD
+                            && f.name != FLOTV_FIELD {
                               fields.push((f.name, f.value, f.inline));
                             }
                           }
@@ -543,9 +548,10 @@ pub async fn check<'a>( ctx: &Context
               if !msg.embeds.is_empty() {
                 if !msg.embeds[0].fields.is_empty() {
                   for f in msg.embeds[0].fields.clone() {
-                    if f.name != "Team 1"
-                    && f.name != "Team 2"
-                    && f.name != "Bets" {
+                    if f.name != TEAM1_FIELD
+                    && f.name != TEAM2_FIELD
+                    && f.name != BETS_FIELD
+                    && f.name != FLOTV_FIELD {
                       old_fields.push((f.name, f.value, f.inline));
                     }
                   }
@@ -689,8 +695,8 @@ pub async fn check<'a>( ctx: &Context
                 e = e.description(&fgame.desc[0]);
                 if fgame.desc.len() > 2 {
                   let d_fields = vec![
-                    ("Team 1", fgame.desc[1].as_str(), true)
-                  , ("Team 2", fgame.desc[2].as_str(), true)
+                    (TEAM1_FIELD, fgame.desc[1].as_str(), true)
+                  , (TEAM2_FIELD, fgame.desc[2].as_str(), true)
                   ];
                   e = e.fields(d_fields);
                 } else {

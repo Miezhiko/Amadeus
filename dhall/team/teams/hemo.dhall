@@ -17,17 +17,14 @@ let playersList : List Playerx =
   , b "ag3nt#21617"         293268448212156416 "ag3ntik" "ag3nt"
   , b "Rici#2903"           404379597568999425 "riciii" "Rici"
   , t "Avernus#2393"        247774118798295041 "ghost_17"
-  , t "Ps1xoZ#21765"        404546426161332224 "ps1xoz_human"
   , t "JustDoiTpLs#2907"    543121502711840799 "justdoitpls22"
   , { battletag = "Soulful#2300"
     , discord   = 147805125824610304
     , streams   = Some { ggru    = None Text
                        , twitch  = Some "soulful85" }
     , alt_accounts = ["Lefthander#21389"] }
-  , b "НееЖить#2559"        703241941114028032 "masterv_64" "Ghost_OL"
   , t "Fingon#2350"         361930230375514112 "Skyrimoon"
   , t "YoungUndead#2289"    332258705456234497 "youngundeadd"
-  , t "PriesT#12658"        180213339111161856 "PriesTwc3"
   , p "FreeMasha#2272"      743770620671819776
   , { battletag = "Smurf#24244"
     , discord   = 255345878917709824
@@ -35,8 +32,6 @@ let playersList : List Playerx =
     , alt_accounts = ["Wayfarer#21400"] }
   , p "RiplEy#21126"        137314790769950720
   , p "RavenTT#2656"        277555411584942080
-  , p "EnragedOxy#2999"     576662560120766474
-  , p "OwerPidor#2503"      862690932931559464
   , { battletag = "War3Alex#2898"
     , discord   = 720938816810254338
     , streams   = Some { ggru   = None Text

@@ -2,8 +2,11 @@ use crate::{
   types::{ serenity::CoreGuild
          , options::* },
   steins::{ gate
-          , warcraft::replay::{ replay_embed
-                              , attach_replay }
+          , warcraft::{
+            replay::{ replay_embed
+                    , attach_replay },
+            rep::rep_embed
+            }
           },
   common::{ db::trees::points
           , help::lang
@@ -155,26 +158,39 @@ pub async fn process( ioptions: &IOptions
                 error!("failed to clean attachment from log {why}");
               }
             } else {
-              let rainbow = ReactionType::Unicode(String::from("🌈"));
+              set!{ rainbow = ReactionType::Unicode(String::from("🌈"))
+                  , notepad = ReactionType::Unicode(String::from("🗒️")) };
               let _ = msg.react(&ctx, rainbow).await;
+              let _ = msg.react(&ctx, notepad).await;
               loop {
                 let collector = msg.reaction_collector(&ctx.shard)
                                    .timeout(Duration::from_secs(3600));
                 if let Some(reaction) = collector.collect_single().await {
                   let emoji = &reaction.as_inner_ref().emoji;
-                  if emoji.as_data().as_str() == "🌈" {
-                    if let Err(why) = replay_embed(ctx, &msg, file).await {
-                      error!("Failed to analyze replay:\n{why}");
-                    }
-                    if let Err(why) = msg.delete_reactions(ctx).await {
-                      error!("failed to delte msg reactions {why}");
+                  match emoji.as_data().as_str() {
+                    "🌈" => {
+                      if let Err(why) = replay_embed(ctx, &msg, file).await {
+                        error!("Failed to analyze replay:\n{why}");
+                      }
+                      if let Err(why) = msg.delete_reactions(ctx).await {
+                        error!("failed to delte msg reactions {why}");
+                      }
+                    },
+                    "🗒️" => {
+                      if let Err(why) = rep_embed(ctx, &msg, file).await {
+                        error!("Failed to analyze replay:\n{why}");
+                      }
+                      if let Err(why) = msg.delete_reactions(ctx).await {
+                        error!("failed to delte msg reactions {why}");
+                      }
+                    },
+                    _ => {
+                      if let Err(why) = msg.delete_reactions(ctx).await {
+                        error!("failed to delte msg reactions {why}");
+                      }
+                      break;
                     }
                   }
-                } else {
-                  if let Err(why) = msg.delete_reactions(ctx).await {
-                    error!("failed to delte msg reactions {why}");
-                  }
-                  break;
                 }
               }
             }

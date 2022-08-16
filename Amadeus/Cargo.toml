@@ -48,7 +48,7 @@ unic-langid         = "0.9"
 fluent-templates    = "0.8"
 sled                = "0.34.7"
 kathoey             = "1.1.2"
-serde_dhall         = "0.11.2"
+serde_dhall         = "0.12.0"
 nipper              = "0.1.9"
 
 cynic   = { version = "1.0.0",    features = ["reqwest"] }
@@ -56,6 +56,10 @@ rand    = { version = "0.8.5",    features = ["std", "std_rng"] }
 reqwest = { version = "0.11.11",  features = ["json", "blocking"] }
 ical    = { version = "0.7",      features = ["ical"] }
 markov  = { version = "1.1",      features = ["yaml"] }
+
+[dependencies.w3rs]
+git = "https://github.com/aesteve/w3rs.git"
+branch = "master"
 
 [dependencies.plotters]
 git = "https://github.com/plotters-rs/plotters.git"

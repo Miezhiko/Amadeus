@@ -18,11 +18,6 @@ let playersList : List Playerx =
   , b "Rici#2903"           404379597568999425 "riciii" "Rici"
   , t "Avernus#2393"        247774118798295041 "ghost_17"
   , t "JustDoiTpLs#2907"    543121502711840799 "justdoitpls22"
-  , { battletag = "Soulful#2300"
-    , discord   = 147805125824610304
-    , streams   = Some { ggru    = None Text
-                       , twitch  = Some "soulful85" }
-    , alt_accounts = ["Lefthander#21389"] }
   , t "Fingon#2350"         361930230375514112 "Skyrimoon"
   , t "YoungUndead#2289"    332258705456234497 "youngundeadd"
   , p "FreeMasha#2272"      743770620671819776

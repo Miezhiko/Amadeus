@@ -42,7 +42,7 @@ pub async fn analyze_with_w3rs(path: &str) -> Vec<String> {
   let mut actions = vec![];
   for event in game.events().iter().filter(non_noisy).collect::<Vec<&GameEvent>>() {
     if let Some(player) = game.players.iter().find(|p| p.id == event.player_id) {
-      let player_name = &player.name;
+      let player_name = &player.name.split('#').collect::<Vec<&str>>()[0];
       match &event.event {
         Event::ChatMsg { addressee, message } =>
         actions.push( format!("{player_name}: {addressee}: {message}") ),
@@ -90,7 +90,7 @@ pub async fn rep_embed( ctx: &Context
     for (i, chunk) in data_maybe.chunks(20).enumerate() {
       let embed = CreateEmbed::default()
         .title(&format!("{} #{}", &file.filename, i + 1))
-        .description(chunk.join("\n"))
+        .description(&format!("```\n{}\n```", chunk.join("\n")))
         .thumbnail("https://i.pinimg.com/originals/b4/a0/40/b4a04082647a8505b3991cbaea7d2f86.png")
         .colour((180,40,200))
         .footer(CreateEmbedFooter::default().text(&footer));

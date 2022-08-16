@@ -91,7 +91,6 @@ pub async fn rep_embed( ctx: &Context
       let embed = CreateEmbed::default()
         .title(&format!("{} #{}", &file.filename, i + 1))
         .description(chunk.join("\n"))
-        .thumbnail("https://i.pinimg.com/originals/b4/a0/40/b4a04082647a8505b3991cbaea7d2f86.png")
         .colour((180,40,200))
         .footer(CreateEmbedFooter::default().text(&footer));
       embeds.push(embed);

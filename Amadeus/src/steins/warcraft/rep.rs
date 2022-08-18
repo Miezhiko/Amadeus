@@ -88,17 +88,17 @@ pub async fn rep_embed( ctx: &Context
     let footer = format!("Uploaded by {}", msg.author.name);
 
     for (i, chunk) in data_maybe.chunks(20).enumerate() {
-      let embed = CreateEmbed::default()
+      let embed = CreateEmbed::new()
         .title(&format!("{} #{}", &file.filename, i + 1))
         .description(chunk.join("\n"))
         .colour((180,40,200))
-        .footer(CreateEmbedFooter::default().text(&footer));
+        .footer(CreateEmbedFooter::new(&footer));
       embeds.push(embed);
     }
 
     if !embeds.is_empty() {
       let mut page = 0;
-      let mut bot_msg = msg.channel_id.send_message(ctx, CreateMessage::default().embed(
+      let mut bot_msg = msg.channel_id.send_message(ctx, CreateMessage::new().embed(
         embeds[page].clone()
       )).await?;
       if embeds.len() > 1 {

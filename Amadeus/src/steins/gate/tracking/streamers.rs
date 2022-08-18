@@ -260,10 +260,10 @@ pub async fn activate_streamers_tracking(
                   color = msg.embeds[0].colour;
                 };
                 let is_now_live = format!("{} is now live!", &user.name);
-                let mut e = CreateEmbed::default()
+                let mut e = CreateEmbed::new()
                   .title(&title)
-                  .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&is_now_live))
-                  .footer(CreateEmbedFooter::default().text(&footer));
+                  .author(CreateEmbedAuthor::new(&is_now_live).icon_url(&user.face()))
+                  .footer(CreateEmbedFooter::new(&footer));
                 if !fields.is_empty() {
                   e = e.fields(fields.clone());
                 }
@@ -299,7 +299,7 @@ pub async fn activate_streamers_tracking(
                         data: Cow::from(bytes.as_ref()),
                         filename: "stream_img.jpg".to_string()
                       };
-                      match STREAM_PICS.send_message(&ctx_clone, CreateMessage::default().add_file(cow)).await {
+                      match STREAM_PICS.send_message(&ctx_clone, CreateMessage::new().add_file(cow)).await {
                         Ok(msg) => {
                           if !msg.attachments.is_empty() {
                             let img_attachment = &msg.attachments[0];
@@ -336,10 +336,10 @@ pub async fn activate_streamers_tracking(
 
               if let Some(sc) = ds.streams {
 
-              let mut e = CreateEmbed::default()
+              let mut e = CreateEmbed::new()
                 .title(&title)
                 .colour((red, green, blue))
-                .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&is_now_live));
+                .author(CreateEmbedAuthor::new(&is_now_live).icon_url(&user.face()));
               if !additional_fields.is_empty() {
                 e = e.fields(additional_fields.clone());
               }
@@ -349,7 +349,7 @@ pub async fn activate_streamers_tracking(
               if let Some(some_url) = &em_url {
                 e = e.url(some_url);
               }
-              match ChannelId( to_nzu!(sc) ).send_message(&ctx_clone, CreateMessage::default()
+              match ChannelId( to_nzu!(sc) ).send_message(&ctx_clone, CreateMessage::new()
                 .embed(e)
               ).await {
                 Ok(msg_id) => {
@@ -433,10 +433,10 @@ pub async fn activate_streamers_tracking(
                 url   = msg.embeds[0].url.clone();
                 color = msg.embeds[0].colour;
               };
-              let mut e = CreateEmbed::default()
+              let mut e = CreateEmbed::new()
                 .title("FINISHED")
-                .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&user.name))
-                .footer(CreateEmbedFooter::default().text(&footer));
+                .author(CreateEmbedAuthor::new(&user.name).icon_url(&user.face()))
+                .footer(CreateEmbedFooter::new(&footer));
               if !fields.is_empty() {
                 e = e.fields(fields.clone());
               }

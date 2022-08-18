@@ -142,7 +142,7 @@ pub async fn tour_internal( ctx: &Context
       if let Some(msg_id) = post_to_edit {
         if let Ok(mut msg) = ctx.http.get_message( channel_id.0.get()
                                                  , msg_id.0.get() ).await {
-          let embed = CreateEmbed::default()
+          let embed = CreateEmbed::new()
             .title(title.as_str())
             .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
             .fields(eventos)
@@ -153,8 +153,8 @@ pub async fn tour_internal( ctx: &Context
           }
         }
       } else if !do_nothing {
-        if let Err(why) = channel_id.send_message(&ctx, CreateMessage::default()
-          .embed(CreateEmbed::default()
+        if let Err(why) = channel_id.send_message(&ctx, CreateMessage::new()
+          .embed(CreateEmbed::new()
             .title(title.as_str())
             .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
             .fields(eventos)
@@ -163,7 +163,7 @@ pub async fn tour_internal( ctx: &Context
         }
       }
     } else if report_no_events {
-      if let Err(why) = channel_id.send_message(&ctx, CreateMessage::default()
+      if let Err(why) = channel_id.send_message(&ctx, CreateMessage::new()
         .content("I am sorry but I can't find anything at the momenet")
       ).await {
         error!("Error sending w3info error: {why}");

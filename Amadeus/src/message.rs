@@ -84,7 +84,7 @@ pub async fn process( ioptions: &IOptions
           data: Cow::from(bytes),
           filename: String::from(&file.filename)
         };
-        if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default().add_file(cow)).await {
+        if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::new().add_file(cow)).await {
           error!("Failed to download and post attachment {:?}", why);
         } else {
           is_file = true;
@@ -120,7 +120,7 @@ pub async fn process( ioptions: &IOptions
         }
       }
       if not_stupid_zephyr {
-        if let Err(why) = &msg.channel_id.send_message(&ctx, CreateMessage::default()
+        if let Err(why) = &msg.channel_id.send_message(&ctx, CreateMessage::new()
           .embed( CreateEmbed::from( embed.clone() ) )
         ).await {
           error!("Error replacing other bots embeds {why}");
@@ -211,11 +211,11 @@ pub async fn process( ioptions: &IOptions
         let rndx: u8 = rand::thread_rng().gen_range(0..3);
         if rndx != 1 {
           if let Some(nick) = msg.author.nick_in(ctx, &guild_id).await {
-            ctx.set_activity(Some( ActivityData::listening(&nick) )).await;
+            ctx.set_activity(Some( ActivityData::listening(&nick) ));
           } else {
-            ctx.set_activity(Some( ActivityData::listening(&msg.author.name) )).await;
+            ctx.set_activity(Some( ActivityData::listening(&msg.author.name) ));
           }
-          ctx.online().await;
+          ctx.online();
         } else {
           #[cfg(target_os = "windows")]
           let activity = "doing nothing";
@@ -227,12 +227,12 @@ pub async fn process( ioptions: &IOptions
                 Lazy::new(|| Regex::new(r"<(.*?)>").unwrap());
               let replaced = RE_IB.replace_all(&activity, "");
               if !replaced.is_empty() {
-                ctx.set_activity(Some( ActivityData::competing(&*replaced) )).await;
+                ctx.set_activity(Some( ActivityData::competing(&*replaced) ));
               }
             } else {
-              ctx.set_activity(Some( ActivityData::playing(activity) )).await;
+              ctx.set_activity(Some( ActivityData::playing(activity) ));
             }
-            ctx.idle().await;
+            ctx.idle();
           }
         }
         #[cfg(not(target_os = "windows"))]

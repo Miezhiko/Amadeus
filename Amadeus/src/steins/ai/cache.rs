@@ -154,7 +154,7 @@ pub async fn update_cache( ctx: &Context
   let mut i_progress: u64 = 0; // progress for single channel
 
   for chan in channels.keys() {
-    if let Some(c_name) = chan.name(&ctx).await {
+    if let Some(c_name) = chan.name(&ctx) {
       if let Some(ch_lang) = AI_LEARN.iter().find(|c| c.id == chan.0.get()) {
         let start_typing = ctx.http.start_typing(chan.0.get());
         let mut messages = chan.messages_iter(&ctx).boxed();
@@ -173,7 +173,7 @@ pub async fn update_cache( ctx: &Context
                 if i_progress > progress_step {
                   let part = ((m_progress as f64/m_count as f64) * 100.0).round();
                   let status = format!("Learning {part}%");
-                  ctx.set_activity(Some( ActivityData::listening(&status) )).await;
+                  ctx.set_activity(Some( ActivityData::listening(&status) ));
                   i_progress = 0;
                 } else {
                   i_progress += 1;
@@ -255,7 +255,7 @@ pub async fn update_cache( ctx: &Context
   RESTORE.store(true, Ordering::Relaxed);
 
   let version = format!("Version {}", env!("CARGO_PKG_VERSION"));
-  ctx.set_activity(Some( ActivityData::playing(&version) )).await;
+  ctx.set_activity(Some( ActivityData::playing(&version) ));
 }
 
 pub async fn clear_cache() {

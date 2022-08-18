@@ -101,17 +101,17 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
           description = format!("{}\n{}", mstr, description);
         }
       }
-      let embed = CreateEmbed::default()
+      let embed = CreateEmbed::new()
         .title(&format!("Ongoing matches, page {}", i + 1))
         .description(description)
         .thumbnail("https://i.pinimg.com/originals/b4/a0/40/b4a04082647a8505b3991cbaea7d2f86.png")
         .colour((180,40,200))
-        .footer(CreateEmbedFooter::default().text(&footer));
+        .footer(CreateEmbedFooter::new(&footer));
       embeds.push(embed);
     }
     if !embeds.is_empty() {
       let mut page = 0;
-      let mut bot_msg = msg.channel_id.send_message(ctx, CreateMessage::default().embed(
+      let mut bot_msg = msg.channel_id.send_message(ctx, CreateMessage::new().embed(
         embeds[page].clone()
       )).await?;
       if embeds.len() > 1 {
@@ -422,15 +422,15 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         additional_info.push(("FFA", ffa_info.as_str(), false));
       }
 
-      if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default()
-        .embed(CreateEmbed::default()
+      if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::new()
+        .embed(CreateEmbed::new()
           .title(&clanned)
           .description(description)
           .url(&format!("https://www.w3champions.com/player/{}", user))
           .thumbnail(&league_avi)
           .fields(additional_info)
           .colour(main_race_colors)
-          .footer(CreateEmbedFooter::default().text(footer)))).await {
+          .footer(CreateEmbedFooter::new(footer)))).await {
         error!("Error sending stats message: {why}");
       }
     } else {
@@ -573,12 +573,12 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       }
 
       let footer = format!("Requested by {}", msg.author.name);
-      if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default()
-          .embed(CreateEmbed::default()
+      if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::new()
+          .embed(CreateEmbed::new()
           .title(&format!("{} vs {}", &userx, &race_vs))
           .description(out)
           .url(&format!("https://www.w3champions.com/player/{user}/statistics"))
-          .footer(CreateEmbedFooter::default().text(footer)))).await {
+          .footer(CreateEmbedFooter::new(footer)))).await {
         error!("Error sending veto message: {why}");
       }
     }
@@ -696,22 +696,22 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
       if !match_strings.is_empty() {
         let footer = format!("Requested by {}", msg.author.name);
-        if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
+        if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
             .title(&format!("{} {} : {} {}", &name1, wins, loses, &name2))
             .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
             .description(match_strings.join("\n"))
-            .footer(CreateEmbedFooter::default().text(footer)))).await {
+            .footer(CreateEmbedFooter::new(footer)))).await {
           error!("Error sending veto message: {why}");
         }
       } else {
         let footer = format!("Requested by {}", msg.author.name);
-        if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::default()
-          .embed(CreateEmbed::default()
+        if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::new()
+          .embed(CreateEmbed::new()
           .title(&format!("{} {} : {} {}", &name1, 0, 0, &name2))
           .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
           .description("No games for those players in selected seasons")
-          .footer(CreateEmbedFooter::default().text(footer)))).await {
+          .footer(CreateEmbedFooter::new(footer)))).await {
           error!("Error sending veto message: {why}");
         }
       }

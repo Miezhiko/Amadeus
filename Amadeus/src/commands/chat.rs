@@ -42,10 +42,10 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
         };
     let out = format!("Score for {target}: {the_points}");
     let footer = format!("Requested by {}", msg.author.name);
-    if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
-      .embed(CreateEmbed::default()
+    if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+      .embed(CreateEmbed::new()
       .description(&out)
-      .footer(CreateEmbedFooter::default().text(footer))
+      .footer(CreateEmbedFooter::new(footer))
     )).await {
       error!("Failed to post score for {target}, {why}");
     }
@@ -91,11 +91,11 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let title = format!("Top {top_x} points");
     let footer = format!("Requested by {}", msg.author.name);
     if !out.is_empty() {
-      if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
-        .embed(CreateEmbed::default()
+      if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+        .embed(CreateEmbed::new()
         .title(title)
         .description(out.join("\n"))
-        .footer(CreateEmbedFooter::default().text(footer))
+        .footer(CreateEmbedFooter::new(footer))
       )).await {
         error!("Failed to post top of users, {why}");
       }
@@ -128,10 +128,10 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                                                , points_count ).await;
           if succ {
             let out = format!("{rst} to {}", target_user.name);
-            if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
-              .embed(CreateEmbed::default()
+            if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+              .embed(CreateEmbed::new()
               .description(&out)
-              .footer(CreateEmbedFooter::default().text(&msg.author.name))
+              .footer(CreateEmbedFooter::new(&msg.author.name))
             )).await {
               error!("Failed to post give {why}");
             }
@@ -156,11 +156,11 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
     #[cfg(not(target_os = "windows"))]
     if let Some(q) = chain::make_quote(ctx, msg, target.id).await {
       let footer = format!("Requested by {}", msg.author.name);
-      if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
-        .embed(CreateEmbed::default()
-        .author(CreateEmbedAuthor::default().icon_url(&target.face()).name(&target.name))
+      if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+        .embed(CreateEmbed::new()
+        .author(CreateEmbedAuthor::new(&target.name).icon_url(&target.face()))
         .description(q)
-        .footer(CreateEmbedFooter::default().text(footer))
+        .footer(CreateEmbedFooter::new(footer))
       )).await {
         error!("Failed to quote {}, {why}", target.name);
       }

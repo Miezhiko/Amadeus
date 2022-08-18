@@ -91,7 +91,7 @@ async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> Comman
   );
 
   let comefrom_message = target_channel
-    .send_message(ctx, CreateMessage::default()
+    .send_message(ctx, CreateMessage::new()
         .content(comefrom_message)
     ).await?;
 
@@ -147,30 +147,29 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     }
     let channel_name = format!("{}_timeout", member.user.name);
     let timeout_channel =
-      guild.create_channel(&ctx.http, CreateChannel::default()
-                                  .name(channel_name.as_str())
+      guild.create_channel(&ctx.http, CreateChannel::new(channel_name.as_str())
                                   .permissions(permisssions_vec)
                                   .rate_limit_per_user(2*60) // seconds
                                   .kind(ChannelType::Text)
                                 ).await?;
-    let mut e = CreateEmbed::default()
-      .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+    let mut e = CreateEmbed::new()
+      .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
       .title(&format!("You was timed out by {}", msg.author.name))
       .timestamp(chrono::Utc::now());
     if let Some(r) = reason {
       e = e.description(r);
     }
-    timeout_channel.send_message(&ctx, CreateMessage::default()
+    timeout_channel.send_message(&ctx, CreateMessage::new()
       .content(&format!("{}\n", member.mention()))
       .embed(e)).await?;
     if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
-        log.send_message(ctx, CreateMessage::default()
-          .embed(CreateEmbed::default()
-            .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+        log.send_message(ctx, CreateMessage::new()
+          .embed(CreateEmbed::new()
+            .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
             .title(&format!("{} timed out {}", msg.author.name, member.user.name))
             .timestamp(chrono::Utc::now())
-            .footer(CreateEmbedFooter::default().text(&format!("~j {}", &timeout_channel.name)))
+            .footer(CreateEmbedFooter::new(&format!("~j {}", &timeout_channel.name)))
           )).await?;
       }
     }
@@ -195,15 +194,15 @@ async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         kind: PermissionOverwriteType::Member(msg.author.id)
       };
       channel.create_permission(ctx, overwrite_moderator).await?;
-      if let Err(why) = channel.send_message(ctx, CreateMessage::default()
+      if let Err(why) = channel.send_message(ctx, CreateMessage::new()
                         .content(&format!("{} has joined", msg.author.name))).await {
         error!("Failed to log new user {why}");
       }
       if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
         if let Some(log) = ds.log {
-          log.send_message(ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
-              .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+          log.send_message(ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
+              .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
               .title(&format!("{} joined {}", msg.author.name, &channel_name))
               .timestamp(chrono::Utc::now())
             )).await?;
@@ -229,17 +228,17 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
       }
     }
     member.enable_communication(ctx).await?;
-    msg.channel_id.send_message(&ctx, CreateMessage::default()
-      .embed(CreateEmbed::default()
-        .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+    msg.channel_id.send_message(&ctx, CreateMessage::new()
+      .embed(CreateEmbed::new()
+        .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
         .title(&format!("{} was untimeouted out by {}", member.user.name, msg.author.name))
         .timestamp(chrono::Utc::now())
       )).await?;
     if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
-        log.send_message(ctx, CreateMessage::default()
-          .embed(CreateEmbed::default()
-            .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+        log.send_message(ctx, CreateMessage::new()
+          .embed(CreateEmbed::new()
+            .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
             .title(&format!("{} removed time out from {}", msg.author.name, member.user.name))
             .timestamp(chrono::Utc::now())
           )).await?;
@@ -322,9 +321,9 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let msg_guild_id = msg.guild_id.unwrap();
     if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
       if let Some(log) = ds.log {
-        log.send_message(ctx, CreateMessage::default()
-          .embed(CreateEmbed::default()
-            .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+        log.send_message(ctx, CreateMessage::new()
+          .embed(CreateEmbed::new()
+            .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
             .title(&format!("{} purged messages from {:?}", msg.author.name, &users))
             .timestamp(chrono::Utc::now())
           )).await?;

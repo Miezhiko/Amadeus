@@ -8,188 +8,96 @@ use serenity::{
 
 pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
   if let Err(why) = guild.set_application_commands(ctx, vec![
-    CreateApplicationCommand::default().name("help")
-      .description("Display Amadeus Help"),
-    CreateApplicationCommand::default().name("wave")
-      .description("Wave a hand you know..."),
-    CreateApplicationCommand::default().name("cry")
-      .description("Start to cry!"),
-    CreateApplicationCommand::default().name("cringe")
-      .description("just cringe"),
-    CreateApplicationCommand::default().name("ahegao")
-      .description("Make an ahegao face"),
-    CreateApplicationCommand::default().name("clap")
-      .description("Start clapping"),
-    CreateApplicationCommand::default().name("shrug")
-      .description("Shrug shoulders"),
-    CreateApplicationCommand::default().name("lol")
-      .description("laugh out loud"),
-    CreateApplicationCommand::default().name("angry")
-      .description("Angry feels"),
-    CreateApplicationCommand::default().name("dance")
-      .description("Dance Dance Dance"),
-    CreateApplicationCommand::default().name("confused")
-      .description("Shows your confusion"),
-    CreateApplicationCommand::default().name("shock")
-      .description("If you are shocked"),
-    CreateApplicationCommand::default().name("nervous")
-      .description("Feeling nervous"),
-    CreateApplicationCommand::default().name("sad")
-      .description("Feeling sad"),
-    CreateApplicationCommand::default().name("happy")
-      .description("Feeling happy"),
-    CreateApplicationCommand::default().name("annoyed")
-      .description("Really annoyed"),
-    CreateApplicationCommand::default().name("omg")
-      .description("Oh my gawd"),
-    CreateApplicationCommand::default().name("smile")
-      .description("Do a smile"),
-    CreateApplicationCommand::default().name("ew")
-      .description("When you don't like something really"),
-    CreateApplicationCommand::default().name("awkward")
-      .description("Feeling awkward"),
-    CreateApplicationCommand::default().name("oops")
-      .description("This is just oops emotion..."),
-    CreateApplicationCommand::default().name("lazy")
-      .description("Feeling lazy"),
-    CreateApplicationCommand::default().name("hungry")
-      .description("Feeling hungry"),
-    CreateApplicationCommand::default().name("stressed")
-      .description("Feeling stressed"),
-    CreateApplicationCommand::default().name("scared")
-      .description("Really scared"),
-    CreateApplicationCommand::default().name("bored")
-      .description("Feeling bored"),
-    CreateApplicationCommand::default().name("yes")
-      .description("Yes Yes Yes"),
-    CreateApplicationCommand::default().name("no")
-      .description("No No No"),
-    CreateApplicationCommand::default().name("bye")
-      .description("Bye Bye"),
-    CreateApplicationCommand::default().name("sorry")
-      .description("I am so sorry"),
-    CreateApplicationCommand::default().name("sleepy")
-      .description("Feeling sleepy zzz"),
-    CreateApplicationCommand::default().name("wink")
-      .description("Close and open one eye quickly"),
-    CreateApplicationCommand::default().name("facepalm")
-      .description("A palm of a hand is brought to a face as an expression of dismay"),
-    CreateApplicationCommand::default().name("whatever")
-      .description("you don't care"),
-    CreateApplicationCommand::default().name("pout")
-      .description("do weird thing with lips"),
-    CreateApplicationCommand::default().name("smug")
-      .description("showing an excessive pride in oneself"),
-    CreateApplicationCommand::default().name("smirk")
-      .description("smile in an irritatingly smug, conceited, or silly way"),
-    CreateApplicationCommand::default().name("hug")
-      .description("Literally hug someone")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("person")
-          .description("Person to hug")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("help",     "Display Amadeus Help"),
+    CreateApplicationCommand::new("wave",     "Wave a hand you know..."),
+    CreateApplicationCommand::new("cry",      "Start to cry!"),
+    CreateApplicationCommand::new("cringe",   "just cringe"),
+    CreateApplicationCommand::new("ahegao",   "Make an ahegao face"),
+    CreateApplicationCommand::new("clap",     "Start clapping"),
+    CreateApplicationCommand::new("shrug",    "Shrug shoulders"),
+    CreateApplicationCommand::new("lol",      "laugh out loud"),
+    CreateApplicationCommand::new("angry",    "Angry feels"),
+    CreateApplicationCommand::new("dance",    "Dance Dance Dance"),
+    CreateApplicationCommand::new("confused", "Shows your confusion"),
+    CreateApplicationCommand::new("shock",    "If you are shocked"),
+    CreateApplicationCommand::new("nervous",  "Feeling nervous"),
+    CreateApplicationCommand::new("sad",      "Feeling sad"),
+    CreateApplicationCommand::new("happy",    "Feeling happy"),
+    CreateApplicationCommand::new("annoyed",  "Really annoyed"),
+    CreateApplicationCommand::new("omg",      "Oh my gawd"),
+    CreateApplicationCommand::new("smile",    "Do a smile"),
+    CreateApplicationCommand::new("ew",       "When you don't like something really"),
+    CreateApplicationCommand::new("awkward",  "Feeling awkward"),
+    CreateApplicationCommand::new("oops",     "This is just oops emotion..."),
+    CreateApplicationCommand::new("lazy",     "Feeling lazy"),
+    CreateApplicationCommand::new("hungry",   "Feeling hungry"),
+    CreateApplicationCommand::new("stressed", "Feeling stressed"),
+    CreateApplicationCommand::new("scared",   "Really scared"),
+    CreateApplicationCommand::new("bored",    "Feeling bored"),
+    CreateApplicationCommand::new("yes",      "Yes Yes Yes"),
+    CreateApplicationCommand::new("no",       "No No No"),
+    CreateApplicationCommand::new("bye",      "Bye Bye"),
+    CreateApplicationCommand::new("sorry",    "I am so sorry"),
+    CreateApplicationCommand::new("sleepy",   "Feeling sleepy zzz"),
+    CreateApplicationCommand::new("wink",     "Close and open one eye quickly"),
+    CreateApplicationCommand::new("facepalm", "A palm of a hand is brought to a face as an expression of dismay"),
+    CreateApplicationCommand::new("whatever", "you don't care"),
+    CreateApplicationCommand::new("pout",     "do weird thing with lips"),
+    CreateApplicationCommand::new("smug",     "showing an excessive pride in oneself"),
+    CreateApplicationCommand::new("smirk",    "smile in an irritatingly smug, conceited, or silly way"),
+    CreateApplicationCommand::new("hug",      "Literally hug someone")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "person", "Person to hug")
           .required(true)
       ),
-    CreateApplicationCommand::default().name("pat")
-      .description("Literally pat someone")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("person")
-          .description("Person to pat")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("pat",    "Literally pat someone")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "person", "Person to pat")
           .required(true)
       ),
-    CreateApplicationCommand::default().name("slap")
-      .description("Literally slap someone")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("person")
-          .description("Person to slap")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("slap",   "Literally slap someone")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "person", "Person to slap")
           .required(true)
       ),
-    CreateApplicationCommand::default().name("gif")
-      .description("Do some specific animation")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("animation")
-          .description("Search for specific animation")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("gif",    "Do some specific animation")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "animation", "Search for specific animation")
           .required(true)
       ),
-    CreateApplicationCommand::default().name("translate")
-      .description("Translate Russian to English")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("text")
-          .description("What will be translated")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("translate", "Translate Russian to English")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "text", "What will be translated")
           .required(true)
       ),
-    CreateApplicationCommand::default().name("перевод")
-      .description("Перевод с английского на Русский")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("текст")
-          .description("Текст для перевода")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("перевод", "Перевод с английского на Русский")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "текст", "Текст для перевода")
           .required(true)
       ),
-    CreateApplicationCommand::default().name("stats")
-      .description("Display W3C player statistics")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("battletag")
-          .description("Target player")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("stats",  "Display W3C player statistics")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "battletag", "Target player")
           .required(true)
       ),
-    CreateApplicationCommand::default().name("борис")
-      .description("Команда, которую любит Лилуал")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("текст")
-          .description("Текст для Бориса")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("борис",  "...")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "текст", "Текст для Бориса")
           .required(true)
       ),
-    CreateApplicationCommand::default().name("uwu")
-      .description("Uwufy some text OwO")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("text")
-          .description("Some text...")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("uwu",    "Uwufy some text OwO")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "text", "Some text...")
           .required(true)
       ),
-    CreateApplicationCommand::default().name("феминизировать")
-      .description("Феминизировать предложение")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("текст")
-          .description("Текст для феминизации")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("феминизировать", "Феминизировать предложение")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "текст", "Текст для феминизации")
           .required(true)
       ),
-    CreateApplicationCommand::default().name("time")
-      .description("Display current time")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("timezone")
-          .description("Optional timezone")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("time",   "Display current time")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "timezone", "Optional timezone")
           .required(false)
       ),
-    CreateApplicationCommand::default().name("время")
-      .description("Показать текущее время")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("город")
-          .description("Дополнительный часовой пояс")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("время",  "Показать текущее время")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "город", "Дополнительный часовой пояс")
           .required(false)
       ),
-    CreateApplicationCommand::default().name("join")
-      .description("Join voice channel with you (you should be in voice channel)"),
-    CreateApplicationCommand::default().name("leave")
-      .description("Leave voice channel"),
-    CreateApplicationCommand::default().name("repeat")
-      .description("Play last song again"),
-    CreateApplicationCommand::default().name("play")
-      .description("Play radio stream or youtube stuff")
-      .add_option(CreateApplicationCommandOption::default()
-          .name("url")
-          .description("link for music to play")
-          .kind(CommandOptionType::String)
+    CreateApplicationCommand::new("join",   "Join voice channel with you (you should be in voice channel)"),
+    CreateApplicationCommand::new("leave",  "Leave voice channel"),
+    CreateApplicationCommand::new("repeat", "Play last song again"),
+    CreateApplicationCommand::new("play",   "Play radio stream or youtube stuff")
+      .add_option(CreateApplicationCommandOption::new(CommandOptionType::String, "url", "link for music to play")
           .required(true)
       )
     ]

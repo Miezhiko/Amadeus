@@ -38,10 +38,10 @@ async fn flo_nodes(ctx: &Context, msg: &Message) -> CommandResult {
                                     , n.location))
                     .collect::<Vec<String>>();
   let footer = format!("Requested by {}", msg.author.name);
-  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
-    .embed(CreateEmbed::default()
+  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+    .embed(CreateEmbed::new()
     .description(n_strs.join("\n"))
-    .footer(CreateEmbedFooter::default().text(footer))
+    .footer(CreateEmbedFooter::new(footer))
   )).await {
     error!("Failed to post nodes {why}");
   }
@@ -73,10 +73,10 @@ async fn flo_bans(ctx: &Context, msg: &Message) -> CommandResult {
     }
   }
   let footer = format!("Requested by {}", msg.author.name);
-  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
-    .embed(CreateEmbed::default()
+  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+    .embed(CreateEmbed::new()
     .description(n_strs.join("\n"))
-    .footer(CreateEmbedFooter::default().text(footer))
+    .footer(CreateEmbedFooter::new(footer))
   )).await {
     error!("Failed to post bans {why}");
   }

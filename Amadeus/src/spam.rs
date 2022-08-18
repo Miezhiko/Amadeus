@@ -68,9 +68,9 @@ async fn delete( guild_id: &GuildId
           }
           if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
             if let Some(log) = ds.log {
-              if let Err(why) = log.send_message(&ctx, CreateMessage::default()
-                .embed(CreateEmbed::default()
-                  .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+              if let Err(why) = log.send_message(&ctx, CreateMessage::new()
+                .embed(CreateEmbed::new()
+                  .author(CreateEmbedAuthor::new().icon_url(&msg.author.face()).name(&msg.author.name))
                   .title(reason)
                   .description("ely used bad word again,\nignoring")
                   .timestamp(chrono::Utc::now())
@@ -91,9 +91,9 @@ async fn delete( guild_id: &GuildId
         } else {
           msg.link()
         };
-      if let Err(why) = log.send_message(&ctx, CreateMessage::default()
-        .embed(CreateEmbed::default()
-          .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&msg.author.name))
+      if let Err(why) = log.send_message(&ctx, CreateMessage::new()
+        .embed(CreateEmbed::new()
+          .author(CreateEmbedAuthor::new().icon_url(&msg.author.face()).name(&msg.author.name))
           .title(reason)
           .description(&format!( "User UID: {}\n original message: {}\n{}"
                                , msg.author.id.0, &msg.content
@@ -109,13 +109,13 @@ async fn delete( guild_id: &GuildId
       error!("Error deleting spam {why}");
     }
     if let Err(why) =
-      msg.author.direct_message(ctx, CreateMessage::default()
+      msg.author.direct_message(ctx, CreateMessage::new()
         .content(&format!("your message was removed with reason: {reason}\n please contact moderators if you think it was done by mistake"))
       ).await {
         warn!("Error sending message to {} from spam blocker {why}", msg.author.name);
     }
   } else if let Err(why) =
-    msg.author.direct_message(ctx, CreateMessage::default()
+    msg.author.direct_message(ctx, CreateMessage::new()
       .content("please, try to avoid using bad words!")
     ).await {
     warn!("Error sending message to {} from spam blocker {why}", msg.author.name);

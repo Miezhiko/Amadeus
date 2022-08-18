@@ -270,10 +270,10 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
                                              , points_count ).await;
         if succ {
           let out = format!("{rst} to {}", winner.name);
-          if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
+          if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
             .description(&out)
-            .footer(CreateEmbedFooter::default().text(&loser.name))
+            .footer(CreateEmbedFooter::new(&loser.name))
           )).await {
             error!("Failed to post give {why}");
           }

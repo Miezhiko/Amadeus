@@ -19,8 +19,8 @@ static_loader! {
 
 pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) {
   let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION"));
-  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
-    .embed(CreateEmbed::default()
+  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+    .embed(CreateEmbed::new()
       .title("Amadeus")
       .url("https://github.com/Miezhiko/Amadeus")
       .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
@@ -42,7 +42,7 @@ pub async fn help_i18n(ctx: &Context, msg: &Message, lang: &LanguageIdentifier) 
            , LOCALES.lookup(lang, "music-commands").unwrap_or_default().as_str(), false)
       .field(LOCALES.lookup(lang, "warcraft-commands-title").unwrap_or_default().as_str()
            , LOCALES.lookup(lang, "warcraft-commands").unwrap_or_default().as_str(), false)
-      .footer(CreateEmbedFooter::default().text(LOCALES.lookup(lang, "footer").unwrap_or_default()))
+      .footer(CreateEmbedFooter::new(LOCALES.lookup(lang, "footer").unwrap_or_default()))
       .colour((246, 111, 0)))).await {
     error!("Error sending help message: {why}");
   }
@@ -52,7 +52,7 @@ pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIde
   let version = format!("Amadeus {}", env!("CARGO_PKG_VERSION"));
   if let Err(why) = msg.edit(ctx, EditMessage::default()
     .content("")
-    .embed(CreateEmbed::default()
+    .embed(CreateEmbed::new()
       .title("Amadeus")
       .url("https://github.com/Miezhiko/Amadeus")
       .image("https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png")
@@ -74,7 +74,7 @@ pub async fn edit_help_i18n(ctx: &Context, msg: &mut Message, lang: &LanguageIde
            , LOCALES.lookup(lang, "music-commands").unwrap_or_default().as_str(), false)
       .field(LOCALES.lookup(lang, "warcraft-commands-title").unwrap_or_default().as_str()
            , LOCALES.lookup(lang, "warcraft-commands").unwrap_or_default().as_str(), false)
-      .footer(CreateEmbedFooter::default().text(LOCALES.lookup(lang, "footer").unwrap_or_default()))
+      .footer(CreateEmbedFooter::new(LOCALES.lookup(lang, "footer").unwrap_or_default()))
       .colour((246, 111, 0)))).await {
     error!("Error editing help message: {why}");
   }

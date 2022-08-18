@@ -209,9 +209,9 @@ pub async fn activate_games_tracking(
             if let Some(gc) = game_channel_maybe {
             let game_channel = ChannelId(to_nzu!(gc));
 
-            let mut e = CreateEmbed::default()
+            let mut e = CreateEmbed::new()
               .title("JUST STARTED")
-              .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&nick))
+              .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
               .colour((red, green, blue));
             if !game.description.is_empty() {
               e = e.description(&game.description[0]);
@@ -233,7 +233,7 @@ pub async fn activate_games_tracking(
             if let Some(some_url) = &em_url {
               e = e.url(some_url);
             }
-            match game_channel.send_message(&ctx_clone, CreateMessage::default()
+            match game_channel.send_message(&ctx_clone, CreateMessage::new()
               .embed(e)
             ).await {
               Ok(msg_id) => {

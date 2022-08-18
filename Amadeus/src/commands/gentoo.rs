@@ -73,12 +73,12 @@ async fn zugaina(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
   let parse_result_str = parse_result.join("\n\n");
   let footer = format!("Requested by {}", msg.author.name);
-  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
-    .embed(CreateEmbed::default()
+  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+    .embed(CreateEmbed::new()
       .title(&search)
       .url(&url)
       .description(parse_result_str)
-      .footer(CreateEmbedFooter::default().text(footer))
+      .footer(CreateEmbedFooter::new(footer))
     )
   ).await {
     msg.channel_id.say(ctx, &format!("Error: {why}")).await?;

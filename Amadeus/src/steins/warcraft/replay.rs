@@ -57,9 +57,9 @@ pub async fn replay_embed( ctx: &Context
       return Err(anyhow!("Corrupted replay file? {why}"));
     }
     let (d, flds) = data_maybe?;
-    setm!{ eb1 = CreateEmbed::default()
-         , eb2 = CreateEmbed::default()
-         , eb3 = CreateEmbed::default() };
+    setm!{ eb1 = CreateEmbed::new()
+         , eb2 = CreateEmbed::new()
+         , eb3 = CreateEmbed::new() };
     let footer = format!("Uploaded by {}", msg.author.name);
     eb1 = eb1.color(0xe535ccu32);     eb2 = eb2.color(0xe535ccu32);     eb3 = eb3.color(0xe535ccu32);
     eb1 = eb1.title(&file.filename);  eb2 = eb2.title(&file.filename);  eb3 = eb3.title(&file.filename);
@@ -68,9 +68,9 @@ pub async fn replay_embed( ctx: &Context
     eb1 = eb1.thumbnail(AMADEUS_LOGO);
     eb2 = eb2.thumbnail(AMADEUS_LOGO);
     eb3 = eb3.thumbnail(AMADEUS_LOGO);
-    eb1 = eb1.footer(CreateEmbedFooter::default().text(&footer));
-    eb2 = eb2.footer(CreateEmbedFooter::default().text(&footer));
-    eb3 = eb3.footer(CreateEmbedFooter::default().text(&footer));
+    eb1 = eb1.footer(CreateEmbedFooter::new(&footer));
+    eb2 = eb2.footer(CreateEmbedFooter::new(&footer));
+    eb3 = eb3.footer(CreateEmbedFooter::new(&footer));
     let mut max_apm = 0;
     if !flds.is_empty() {
       setm!{ fields1 = vec![]
@@ -126,7 +126,7 @@ pub async fn replay_embed( ctx: &Context
             .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
             .draw()?;
         }
-        match APM_PICS.send_message(&ctx, CreateMessage::default()
+        match APM_PICS.send_message(&ctx, CreateMessage::new()
           .add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
           Ok(msg) => {
             if !msg.attachments.is_empty() {
@@ -146,7 +146,7 @@ pub async fn replay_embed( ctx: &Context
       }
     }
     let embeds = vec![ eb1, eb3, eb2 ];
-    if let Ok(mut bot_msg) = msg.channel_id.send_message(&ctx, CreateMessage::default()
+    if let Ok(mut bot_msg) = msg.channel_id.send_message(&ctx, CreateMessage::new()
                                 .embed( embeds[0].clone() )
                               ).await {
       let mut page: usize = 0;
@@ -345,7 +345,7 @@ pub async fn attach_replay( ctx: &Context
                           .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
                           .draw()?;
                       }
-                      match APM_PICS.send_message(&ctx, CreateMessage::default()
+                      match APM_PICS.send_message(&ctx, CreateMessage::new()
                         .add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
                         Ok(msg) => {
                           if !msg.attachments.is_empty() {
@@ -362,11 +362,11 @@ pub async fn attach_replay( ctx: &Context
                     let nick = msg.author.nick_in(ctx, guild_id)
                                          .await
                                          .unwrap_or_else(|| msg.author.name.clone());
-                    let mut e = CreateEmbed::default()
+                    let mut e = CreateEmbed::new()
                       .title(&mmm.embeds[0].title.clone().unwrap())
-                      .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&nick))
+                      .author(CreateEmbedAuthor::new(&nick).icon_url(&msg.author.face()))
                       .description(&mmm.embeds[0].description.clone().unwrap())
-                      .footer(CreateEmbedFooter::default().text( mmm.embeds[0].footer.clone().unwrap().text ));
+                      .footer(CreateEmbedFooter::new( mmm.embeds[0].footer.clone().unwrap().text ));
                     if !fields2.is_empty() {
                       e = e.fields(fields2);
                     }
@@ -384,7 +384,7 @@ pub async fn attach_replay( ctx: &Context
                     if let Some(colour) = &mmm.embeds[0].colour {
                       e = e.colour(colour.tuple());
                     }
-                    if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
+                    if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
                         .embed(e)
                       .add_file(AttachmentType::Path(std::path::Path::new(&file.filename)))
                     ).await {

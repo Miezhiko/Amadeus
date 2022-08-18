@@ -114,7 +114,7 @@ async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Result<
         reply(ctx, &msg, &response).await;
       }
     } else {
-      chan.send_message(ctx, CreateMessage::default().content(&response)).await?;
+      chan.send_message(ctx, CreateMessage::new().content(&response)).await?;
     }
   }
   Ok(())

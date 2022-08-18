@@ -12,8 +12,8 @@ use once_cell::sync::Lazy;
 
 pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::Result<()> {
   let start_typing = ctx.http.start_typing(channel_id.0.get());
-  ctx.set_activity(Some( ActivityData::listening("Fetching changes") )).await;
-  ctx.idle().await;
+  ctx.set_activity(Some( ActivityData::listening("Fetching changes") ));
+  ctx.idle();
   let git_fetch = Command::new("sh")
                   .arg("-c").arg("git fetch origin mawa")
                   .output()
@@ -49,14 +49,14 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
   if let Ok(git_fetch_out) = &String::from_utf8(git_fetch.stdout) {
     if let Ok(git_reset_out) = &String::from_utf8(git_reset.stdout) {
       let mut description = format!("{git_fetch_out}\n{git_reset_out}");
-      let mut mmm = channel_id.send_message(&ctx, CreateMessage::default()
-        .embed(CreateEmbed::default()
+      let mut mmm = channel_id.send_message(&ctx, CreateMessage::new()
+        .embed(CreateEmbed::new()
                 .title("Updating")
                 .colour((220, 20, 100))
                 .description(&description)
         )
       ).await?;
-      ctx.set_activity(Some( ActivityData::playing("Compiling...") )).await;
+      ctx.set_activity(Some( ActivityData::playing("Compiling...") ));
       static LINKS_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.https.*)").unwrap());
       let cargo_update = Command::new("sh")
                 .arg("-c").arg("cargo update")
@@ -79,7 +79,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
         }
         description = format!("{}\n{update_str}", &description);
         mmm.edit(&ctx, EditMessage::default()
-          .embed(CreateEmbed::default().title("Compiling")
+          .embed(CreateEmbed::new().title("Compiling")
                                        .colour((230, 10, 50))
                                        .description(&description)
           )
@@ -101,18 +101,18 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::R
         }
         description = format!("{}\n{cut_paths}", &description);
         mmm.edit(&ctx, EditMessage::default()
-          .embed(CreateEmbed::default().title("Upgrading")
+          .embed(CreateEmbed::new().title("Upgrading")
                                        .colour((250, 0, 0))
                                        .description(&description)
           )
         ).await?;
-        ctx.set_activity(Some( ActivityData::listening("Restarting Salieri") )).await;
+        ctx.set_activity(Some( ActivityData::listening("Restarting Salieri") ));
         let _systemctl = Command::new("sh")
                 .arg("-c").arg("sudo systemctl restart Salieri")
                 .output()
                 .await
                 .expect("failed to restart Salieri service");
-        ctx.set_activity(Some( ActivityData::listening("Restarting Amadeus") )).await;
+        ctx.set_activity(Some( ActivityData::listening("Restarting Amadeus") ));
         let _systemctl = Command::new("sh")
                 .arg("-c").arg("sudo systemctl restart Amadeus")
                 .output()

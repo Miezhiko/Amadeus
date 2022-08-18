@@ -216,9 +216,9 @@ impl EventHandler for Handler {
     }
     if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
       if let Some(log) = ds.log {
-        if let Err(why) = log.send_message(&ctx, CreateMessage::default()
-          .embed(CreateEmbed::default()
-            .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&user.name))
+        if let Err(why) = log.send_message(&ctx, CreateMessage::new()
+          .embed(CreateEmbed::new()
+            .author(CreateEmbedAuthor::new(&user.name).icon_url(&user.face()))
             .title(&format!("has left (or was kicked)\nUID: {}", user.id.0))
             .timestamp(chrono::Utc::now())
           )).await {
@@ -333,20 +333,20 @@ impl EventHandler for Handler {
                             data: Cow::from(bytes),
                             filename: String::from(&file.filename)
                           };
-                          if let Err(why) = channel_id.send_message(&ctx, CreateMessage::default().add_file(cow)).await {
+                          if let Err(why) = channel_id.send_message(&ctx, CreateMessage::new().add_file(cow)).await {
                             error!("Failed to download and post attachment {why}");
                           }
                         }
                       }
                       if !msg.content.is_empty() {
-                        if let Err(why) = channel_id.send_message(&ctx, CreateMessage::default()
+                        if let Err(why) = channel_id.send_message(&ctx, CreateMessage::new()
                             .content(&msg.content)
                           ).await {
                           error!("Failed to post my message again, {why}");
                         };
                       }
                       for embed in &msg.embeds {
-                        if let Err(why) = channel_id.send_message(&ctx, CreateMessage::default()
+                        if let Err(why) = channel_id.send_message(&ctx, CreateMessage::new()
                           .embed( CreateEmbed::from(embed.clone() ) )
                         ).await {
                           error!("Error reposting embed {why}");

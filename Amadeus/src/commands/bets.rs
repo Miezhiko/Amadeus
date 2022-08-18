@@ -71,11 +71,11 @@ async fn bet(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                   } else { None };
                 let nick = nickname_maybe.unwrap_or_else(|| msg.author.name.clone());
                 // not really sure if there should be response on bet
-                if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::default()
-                  .embed(CreateEmbed::default()
+                if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+                  .embed(CreateEmbed::new()
                   .description(&out)
                   .color(0xed3e7fu32)
-                  .author(CreateEmbedAuthor::default().icon_url(&msg.author.face()).name(&nick))
+                  .author(CreateEmbedAuthor::new(&nick).icon_url(&msg.author.face()))
                 )).await {
                   error!("Failed to post bet {why}");
                 }

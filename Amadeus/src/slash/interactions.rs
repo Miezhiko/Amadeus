@@ -62,7 +62,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::default()
                   .kind(InteractionResponseType::ChannelMessageWithSource)
                   .interaction_response_data(
-                    CreateInteractionResponseData::default().content( format!("Failed to join {err}") )
+                    CreateInteractionResponseData::new().content( format!("Failed to join {err}") )
                   )
               ).await {
                 error!("Failed to create boris interaction response {why}");
@@ -71,7 +71,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               ac.create_interaction_response(&ctx.http, CreateInteractionResponse::default()
                 .kind(InteractionResponseType::ChannelMessageWithSource)
                 .interaction_response_data(
-                  CreateInteractionResponseData::default().content( "I've joined voice channel" )
+                  CreateInteractionResponseData::new().content( "I've joined voice channel" )
                 )
             ).await {
               error!("Failed to create boris interaction response {why}");
@@ -86,7 +86,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           #[cfg(not(target_os = "windows"))]
           if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::default()
               .kind(InteractionResponseType::ChannelMessageWithSource)
-              .interaction_response_data( CreateInteractionResponseData::default().content( boris::spell(t) ) )
+              .interaction_response_data( CreateInteractionResponseData::new().content( boris::spell(t) ) )
           ).await {
             error!("Failed to create boris interaction response {why}");
           }
@@ -99,7 +99,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           #[cfg(not(target_os = "windows"))]
           if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::default()
               .kind(InteractionResponseType::ChannelMessageWithSource)
-              .interaction_response_data( CreateInteractionResponseData::default().content( uwu::spell(t) ) )
+              .interaction_response_data( CreateInteractionResponseData::new().content( uwu::spell(t) ) )
           ).await {
             error!("Failed to create uwu interaction response {why}");
           }

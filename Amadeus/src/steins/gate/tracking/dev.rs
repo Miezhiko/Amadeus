@@ -58,19 +58,19 @@ async fn parse_notification(ctx: &Context, github: &str, json_str: &str) -> anyh
                   set!{ red   = rand::thread_rng().gen_range(0..255)
                       , green = rand::thread_rng().gen_range(0..255)
                       , blue  = rand::thread_rng().gen_range(0..255) };
-                  let mut e = CreateEmbed::default()
+                  let mut e = CreateEmbed::new()
                             .title(title)
                             .thumbnail(author.1)
-                            .author(CreateEmbedAuthor::default().icon_url(avi).name(repository))
+                            .author(CreateEmbedAuthor::new(repository).icon_url(avi))
                             .colour((red, green, blue))
                             .url(html_url);
                   if !body.is_empty() {
                     e = e.description(body);
                   }
                   if !author.0.is_empty() {
-                    e = e.footer(CreateEmbedFooter::default().text(&format!("author: {}", author.0)));
+                    e = e.footer(CreateEmbedFooter::new(&format!("author: {}", author.0)));
                   }
-                  GITHUB_PRS.send_message(ctx, CreateMessage::default()
+                  GITHUB_PRS.send_message(ctx, CreateMessage::new()
                     .embed(e)
                   ).await?;
                 }

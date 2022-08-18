@@ -139,11 +139,11 @@ pub async fn check<'a>( ctx: &Context
 
                         let nick = user.nick_in(&ctx.http, guild)
                                        .await.unwrap_or_else(|| user.name.clone());
-                        let mut e = CreateEmbed::default()
+                        let mut e = CreateEmbed::new()
                           .title("LIVE")
-                          .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&nick))
+                          .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
                           .description(&mvec[0])
-                          .footer(CreateEmbedFooter::default().text(&footer));
+                          .footer(CreateEmbedFooter::new(&footer));
                         if !fields.is_empty() {
                           e = e.fields(fields);
                         }
@@ -299,11 +299,11 @@ pub async fn check<'a>( ctx: &Context
 
                         let nick = user.nick_in(&ctx.http, guild)
                                        .await.unwrap_or_else(|| user.name.clone());
-                        let mut e = CreateEmbed::default()
+                        let mut e = CreateEmbed::new()
                           .title("LIVE")
-                          .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&nick))
+                          .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
                           .description(&mvec[0])
-                          .footer(CreateEmbedFooter::default().text(&footer));
+                          .footer(CreateEmbedFooter::new(&footer));
                         if !fields.is_empty() {
                           e = e.fields(fields);
                         }
@@ -448,11 +448,11 @@ pub async fn check<'a>( ctx: &Context
 
                       let nick = user.nick_in(&ctx.http, guild)
                                      .await.unwrap_or_else(|| user.name.clone());
-                      let mut e = CreateEmbed::default()
+                      let mut e = CreateEmbed::new()
                         .title("LIVE")
-                        .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&nick))
+                        .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
                         .description(&mvec[0])
-                        .footer(CreateEmbedFooter::default().text(&footer));
+                        .footer(CreateEmbedFooter::new(&footer));
                       if !fields.is_empty() {
                         e = e.fields(fields);
                       }
@@ -686,11 +686,11 @@ pub async fn check<'a>( ctx: &Context
 
               let nick = user.nick_in(&ctx.http, guild)
                              .await.unwrap_or_else(|| user.name.clone());
-              let mut e = CreateEmbed::default()
-                .author(CreateEmbedAuthor::default().icon_url(&user.face()).name(&nick))
+              let mut e = CreateEmbed::new()
+                .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
                 .title(title)
                 .url(&fgame.link)
-                .footer(CreateEmbedFooter::default().text(footer));
+                .footer(CreateEmbedFooter::new(footer));
               if !fgame.desc.is_empty() {
                 e = e.description(&fgame.desc[0]);
                 if fgame.desc.len() > 2 {

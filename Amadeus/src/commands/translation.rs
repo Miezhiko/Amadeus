@@ -22,13 +22,12 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
   let fields = vec![
     ("Text", format!("{text}\n"), false)
   ];
-  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
               .title("Translating From **English** to **Russian**...")
               .fields(fields)
-              .author(CreateEmbedAuthor::default()
+              .author(CreateEmbedAuthor::new(&msg.author.name)
                         .icon_url(&msg.author.face())
-                        .name(&msg.author.name)
                      )
             )
           ).await;
@@ -40,11 +39,10 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
       ];
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, EditMessage::default()
-          .embed(CreateEmbed::default()
+          .embed(CreateEmbed::new()
             .fields(fields)
-            .author(CreateEmbedAuthor::default()
+            .author(CreateEmbedAuthor::new(&msg.author.name)
                       .icon_url(&msg.author.face())
-                      .name(&msg.author.name)
                    )
           )
         ).await?;
@@ -68,13 +66,12 @@ pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let fields = vec![
     ("Text", format!("{text}\n"), false)
   ];
-  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
              .title("Translating From **Ukrainian** to **Russian**...")
               .fields(fields)
-              .author(CreateEmbedAuthor::default()
+              .author(CreateEmbedAuthor::new(&msg.author.name)
                         .icon_url(&msg.author.face())
-                        .name(&msg.author.name)
                      )
             )
           ).await;
@@ -86,11 +83,10 @@ pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       ];
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, EditMessage::default()
-          .embed(CreateEmbed::default()
+          .embed(CreateEmbed::new()
             .fields(fields)
-            .author(CreateEmbedAuthor::default()
+            .author(CreateEmbedAuthor::new(&msg.author.name)
                       .icon_url(&msg.author.face())
-                      .name(&msg.author.name)
                    )
           )
         ).await?;
@@ -115,13 +111,12 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
   let fields = vec![
     ("Text", format!("{text}\n"), false)
   ];
-  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
              .title("Translating From **Russian** to **English**...")
               .fields(fields)
-              .author(CreateEmbedAuthor::default()
+              .author(CreateEmbedAuthor::new(&msg.author.name)
                         .icon_url(&msg.author.face())
-                        .name(&msg.author.name)
                      )
             )
           ).await;
@@ -133,11 +128,10 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
       ];
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, EditMessage::default()
-          .embed(CreateEmbed::default()
+          .embed(CreateEmbed::new()
             .fields(fields)
-            .author(CreateEmbedAuthor::default()
+            .author(CreateEmbedAuthor::new(&msg.author.name)
                       .icon_url(&msg.author.face())
-                      .name(&msg.author.name)
                    )
           )
         ).await?;
@@ -161,13 +155,12 @@ pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let fields = vec![
     ("Text", format!("{text}\n"), false)
   ];
-  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
              .title("Translating From **Russian** to **Ukrainian**...")
               .fields(fields)
-              .author(CreateEmbedAuthor::default()
+              .author(CreateEmbedAuthor::new(&msg.author.name)
                         .icon_url(&msg.author.face())
-                        .name(&msg.author.name)
                      )
             )
           ).await;
@@ -179,11 +172,10 @@ pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       ];
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, EditMessage::default()
-          .embed(CreateEmbed::default()
+          .embed(CreateEmbed::new()
             .fields(fields)
-            .author(CreateEmbedAuthor::default()
+            .author(CreateEmbedAuthor::new(&msg.author.name)
                       .icon_url(&msg.author.face())
-                      .name(&msg.author.name)
                    )
           )
         ).await?;
@@ -207,13 +199,12 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let fields = vec![
     ("Text", format!("{text}\n"), false)
   ];
-  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
              .title("Translating From **English** to **German**...")
               .fields(fields)
-              .author(CreateEmbedAuthor::default()
+              .author(CreateEmbedAuthor::new(&msg.author.name)
                         .icon_url(&msg.author.face())
-                        .name(&msg.author.name)
                      )
             )
           ).await;
@@ -225,11 +216,10 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       ];
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, EditMessage::default()
-          .embed(CreateEmbed::default()
+          .embed(CreateEmbed::new()
             .fields(fields)
-            .author(CreateEmbedAuthor::default()
+            .author(CreateEmbedAuthor::new(&msg.author.name)
                 .icon_url(&msg.author.face())
-                .name(&msg.author.name)
             )
           )
         ).await?;
@@ -253,13 +243,12 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let fields = vec![
     ("Text", format!("{text}\n"), false),
   ];
-  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
               .title("Translating From **German** to **English**...")
               .fields(fields)
-              .author(CreateEmbedAuthor::default()
+              .author(CreateEmbedAuthor::new(&msg.author.name)
                         .icon_url(&msg.author.face())
-                        .name(&msg.author.name)
                      )
             )
           ).await;
@@ -271,11 +260,10 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       ];
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, EditMessage::default()
-          .embed(CreateEmbed::default()
+          .embed(CreateEmbed::new()
              .fields(fields)
-             .author(CreateEmbedAuthor::default()
+             .author(CreateEmbedAuthor::new(&msg.author.name)
                       .icon_url(&msg.author.face())
-                      .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -299,13 +287,12 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let fields = vec![
     ("Text", format!("{text}\n"), false),
   ];
-  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
               .title("Translating From **English** to **French**...")
               .fields(fields)
-              .author(CreateEmbedAuthor::default()
+              .author(CreateEmbedAuthor::new(&msg.author.name)
                         .icon_url(&msg.author.face())
-                        .name(&msg.author.name)
                      )
             )
           ).await;
@@ -317,11 +304,10 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       ];
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, EditMessage::default()
-          .embed(CreateEmbed::default()
+          .embed(CreateEmbed::new()
              .fields(fields)
-             .author(CreateEmbedAuthor::default()
+             .author(CreateEmbedAuthor::new(&msg.author.name)
                       .icon_url(&msg.author.face())
-                      .name(&msg.author.name)
                     )
           )
         ).await?;
@@ -345,13 +331,12 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let fields = vec![
     ("Text", format!("{text}\n"), false),
   ];
-  let mmm = msg.channel_id.send_message(ctx, CreateMessage::default()
-            .embed(CreateEmbed::default()
+  let mmm = msg.channel_id.send_message(ctx, CreateMessage::new()
+            .embed(CreateEmbed::new()
               .title("Translating From **French** to **English**...")
               .fields(fields)
-              .author(CreateEmbedAuthor::default()
+              .author(CreateEmbedAuthor::new(&msg.author.name)
                         .icon_url(&msg.author.face())
-                        .name(&msg.author.name)
                      )
             )
           ).await;
@@ -363,11 +348,10 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       ];
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, EditMessage::default()
-          .embed(CreateEmbed::default()
+          .embed(CreateEmbed::new()
             .fields(fields)
-            .author(CreateEmbedAuthor::default()
+            .author(CreateEmbedAuthor::new(&msg.author.name)
                       .icon_url(&msg.author.face())
-                      .name(&msg.author.name)
                    )
           )
         ).await?;

@@ -131,7 +131,7 @@ dependencies = [
  "serde_derive",
  "serde_dhall",
  "serde_json",
- "serde_yaml 0.9.9",
+ "serde_yaml 0.9.10",
  "serenity",
  "sled",
  "songbird",
@@ -873,7 +873,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#f6716162680b3b41346b2ea4c49fcfa772d645f6"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#b4ec395b37c1c4a97ffd163011d6b99cd0470847"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -981,9 +981,9 @@ dependencies = [
 
 [[package]]
 name = "cpufeatures"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59a6001667ab124aebae2a495118e11d30984c3a653e99d86d58971708cf5e4b"
+checksum = "1079fb8528d9f9c888b1e8aa651e6e079ade467323d58f75faf1d30b1808f540"
 dependencies = [
  "libc",
 ]
@@ -2360,9 +2360,9 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.45"
+version = "0.1.46"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef5528d9c2817db4e10cc78f8d4c8228906e5854f389ff6b076cee3572a09d35"
+checksum = "ad2bfd338099682614d3ee3fe0cd72e0b6a41ca6a87f6a74a3bd593c91650501"
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
@@ -3372,9 +3372,9 @@ checksum = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
 
 [[package]]
 name = "pest"
-version = "2.2.1"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69486e2b8c2d2aeb9762db7b4e00b0331156393555cff467f4163ff06821eef8"
+checksum = "4b0560d531d1febc25a3c9398a62a71256c0178f2e3443baedd9ad4bb8c9deb4"
 dependencies = [
  "thiserror",
  "ucd-trie",
@@ -3404,9 +3404,9 @@ dependencies = [
 
 [[package]]
 name = "pest_derive"
-version = "2.2.1"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b13570633aff33c6d22ce47dd566b10a3b9122c2fe9d8e7501895905be532b91"
+checksum = "905708f7f674518498c1f8d644481440f476d39ca6ecae83319bba7c6c12da91"
 dependencies = [
  "pest",
  "pest_generator",
@@ -3414,9 +3414,9 @@ dependencies = [
 
 [[package]]
 name = "pest_generator"
-version = "2.2.1"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3c567e5702efdc79fb18859ea74c3eb36e14c43da7b8c1f098a4ed6514ec7a0"
+checksum = "5803d8284a629cc999094ecd630f55e91b561a1d1ba75e233b00ae13b91a69ad"
 dependencies = [
  "pest",
  "pest_meta",
@@ -3427,9 +3427,9 @@ dependencies = [
 
 [[package]]
 name = "pest_meta"
-version = "2.2.1"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5eb32be5ee3bbdafa8c7a18b0a8a8d962b66cfa2ceee4037f49267a50ee821fe"
+checksum = "1538eb784f07615c6d9a8ab061089c6c54a344c5b4301db51990ca1c241e8c04"
 dependencies = [
  "once_cell",
  "pest",
@@ -3620,8 +3620,8 @@ checksum = "1df8c4ec4b0627e53bdf214615ad287367e482558cf84b109250b37464dc03ae"
 
 [[package]]
 name = "plotters"
-version = "0.3.3"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#e61aa98f3930f5693d93e67f816b5c0885834a59"
+version = "0.3.4"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#30fe77a7ea472a79d0eec2478ba4607fb763775b"
 dependencies = [
  "chrono",
  "font-kit",
@@ -3640,12 +3640,12 @@ dependencies = [
 [[package]]
 name = "plotters-backend"
 version = "0.3.4"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#e61aa98f3930f5693d93e67f816b5c0885834a59"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#30fe77a7ea472a79d0eec2478ba4607fb763775b"
 
 [[package]]
 name = "plotters-bitmap"
 version = "0.3.3"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#e61aa98f3930f5693d93e67f816b5c0885834a59"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#30fe77a7ea472a79d0eec2478ba4607fb763775b"
 dependencies = [
  "gif",
  "image 0.24.3",
@@ -3654,8 +3654,8 @@ dependencies = [
 
 [[package]]
 name = "plotters-svg"
-version = "0.3.3"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#e61aa98f3930f5693d93e67f816b5c0885834a59"
+version = "0.3.4"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#30fe77a7ea472a79d0eec2478ba4607fb763775b"
 dependencies = [
  "plotters-backend",
 ]
@@ -3704,10 +3704,11 @@ dependencies = [
 
 [[package]]
 name = "polling"
-version = "2.2.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "685404d509889fade3e86fe3a5803bca2ec09b0c0778d5ada6ec8bf7a8de5259"
+checksum = "899b00b9c8ab553c743b3e11e87c5c7d423b2a2de229ba95b24a756344748011"
 dependencies = [
+ "autocfg 1.1.0",
  "cfg-if 1.0.0",
  "libc",
  "log",
@@ -4510,9 +4511,9 @@ dependencies = [
 
 [[package]]
 name = "security-framework"
-version = "2.6.1"
+version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2dc14f172faf8a0194a3aded622712b0de276821addc574fa54fc0a1167e10dc"
+checksum = "2bc1bb97804af6631813c55739f771071e0f2ed33ee20b68c86ec505d906356c"
 dependencies = [
  "bitflags",
  "core-foundation",
@@ -4598,9 +4599,9 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.143"
+version = "1.0.144"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53e8e5d5b70924f74ff5c6d64d9a5acd91422117c60f48c4e07855238a254553"
+checksum = "0f747710de3dcd43b88c9168773254e809d8ddbdf9653b84e2554ab219f17860"
 dependencies = [
  "serde_derive",
 ]
@@ -4627,9 +4628,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.143"
+version = "1.0.144"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3d8e8de557aee63c26b85b947f5e59b690d0454c753f3adeb5cd7835ab88391"
+checksum = "94ed3a816fb1d101812f83e789f888322c34e291f894f19590dc310963e87a00"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4651,9 +4652,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.83"
+version = "1.0.85"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38dd04e3c8279e75b31ef29dbdceebfe5ad89f4d0937213c53f7d49d01b3d5a7"
+checksum = "e55a28e3aaef9d5ce0506d0a14dbba8054ddc7e499ef522dd8b26859ec9d4a44"
 dependencies = [
  "itoa 1.0.3",
  "ryu",
@@ -4697,9 +4698,9 @@ dependencies = [
 
 [[package]]
 name = "serde_yaml"
-version = "0.9.9"
+version = "0.9.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f50845f68d5c693aac7d72a25415ddd21cb8182c04eafe447b73af55a05f9e1b"
+checksum = "7a09f551ccc8210268ef848f0bab37b306e87b85b2e017b899e7fb815f5aed62"
 dependencies = [
  "indexmap",
  "itoa 1.0.3",
@@ -4710,8 +4711,8 @@ dependencies = [
 
 [[package]]
 name = "serenity"
-version = "0.11.4"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#f6716162680b3b41346b2ea4c49fcfa772d645f6"
+version = "0.11.5"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#b4ec395b37c1c4a97ffd163011d6b99cd0470847"
 dependencies = [
  "async-trait",
  "base64",
@@ -4749,7 +4750,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#f6716162680b3b41346b2ea4c49fcfa772d645f6"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#b4ec395b37c1c4a97ffd163011d6b99cd0470847"
 dependencies = [
  "bitflags",
  "enum_primitive",

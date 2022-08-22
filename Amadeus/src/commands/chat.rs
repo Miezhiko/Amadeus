@@ -61,7 +61,11 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   }
   let top_x =
     if let Ok(first) = args.single::<usize>() {
-        first
+        if first > 99 {
+          99
+        } else {
+          first
+        }
       } else { 10 };
 
   let members =

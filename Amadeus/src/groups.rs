@@ -4,8 +4,7 @@ use crate::commands::{
 , warcraft::*, w3c::*
 , owner::*, moderator::*
 , tictactoe::*, images::*
-, info::*, bets::*
-, music::*, gentoo::*
+, info::*, music::*, gentoo::*
 };
 
 #[cfg(not(target_os = "windows"))]
@@ -50,7 +49,7 @@ pub struct Warcraft;
 
 #[group("W3C")]
 #[description = "w3champions commands"]
-#[commands(stats, ongoing, veto, vs, bet, regenerate_stats)]
+#[commands(stats, ongoing, veto, vs, regenerate_stats)]
 pub struct Pad;
 
 #[group("Database")]

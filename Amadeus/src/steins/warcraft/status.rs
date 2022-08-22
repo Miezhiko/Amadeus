@@ -37,6 +37,8 @@ const DAYS_FOR_STATUS: usize = 14;
 const WEEKLY_STATS_FNAME: &str  = "weekly.yml";
 const BEZIER_STEPS: usize = 1000;
 
+const KURISU_LINK: &str = "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png";
+
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct DailyWinLoses {
   pub wins: u64,
@@ -198,14 +200,14 @@ pub async fn generate_stats_graph( ctx: &Context
 }
 
 pub async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
-  let poplar_hours = "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string();
+  let poplar_hours = KURISU_LINK.to_string();
   let init = if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
       Weekly {
         reset_day: day,
         stats: Default::default(),
         popular_hours: poplar_hours,
-        stats_graph: "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string(),
-        stats_graph2: "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
+        stats_graph: KURISU_LINK.to_string(),
+        stats_graph2: KURISU_LINK.to_string()
       }
     } else {
       let contents = fs::read_to_string(WEEKLY_STATS_FNAME).await?;
@@ -215,13 +217,14 @@ pub async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
       if let Ok(Some(wsg)) = generate_stats_graph(ctx, true, &old_stats).await {
           wsg
         } else {
-          "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
+          KURISU_LINK.to_string()
         };
         let weekly_stats_graph2 =
         if let Ok(Some(wsg)) = generate_stats_graph(ctx, false, &old_stats).await {
             wsg
           } else {
-            "https://vignette.wikia.nocookie.net/steins-gate/images/8/83/Kurisu_profile.png".to_string()
+            KURISU_LINK.to_string()
+            .to_string()
           };
       old_stats[..].rotate_right(1);
       old_stats[0].statistics.clear();

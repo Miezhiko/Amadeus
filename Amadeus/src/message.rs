@@ -3,9 +3,9 @@ use crate::{
          , options::* },
   steins::{ gate
           , warcraft::{
-            replay::{ replay_embed
-                    , attach_replay },
-            rep::rep_embed
+              replay::{ replay_embed
+                      , attach_replay },
+              rep::rep_embed
             }
           },
   common::{ db::trees::points

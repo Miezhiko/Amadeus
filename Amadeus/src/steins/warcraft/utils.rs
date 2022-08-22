@@ -154,6 +154,8 @@ fn try_get_map(m: &str) -> String {
             , "snowblind"             => "Snow Blind"
             , "dejavu"                => "Dejavu"
             , "secretvalley"          => "Secret Valley"
+            , "monopoly"              => "Monopoly"
+            , "vanguardpoint"         => "Vanguard Point"
             , _                       => m /*""*/ })
 }
 

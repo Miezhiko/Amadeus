@@ -5,7 +5,6 @@ pub mod w3c;
 pub mod chat;
 pub mod tictactoe;
 pub mod images;
-pub mod bets;
 pub mod info;
 pub mod music;
 pub mod moderator;

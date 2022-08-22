@@ -29,15 +29,19 @@ async fn zugaina(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   };
 
   let url = format!("http://gpo.zugaina.org/Search?search={}", &search);
-  let resp = reqwest_client.get(&url).send().await?.text().await?;
+  let resp = reqwest_client.get(&url)
+                           .send()
+                           .await?
+                           .text()
+                           .await?;
 
   let search_local = search.clone();
   let top_level = task::spawn_blocking(move || -> Vec<(String, String, String)> {
     let document = Document::from(&resp);
     document.nip("a > div").iter().take(5).flat_map(|element| {
       let text = element.text();
-      let (atom, description) = text.split_once(' ')?;
-      let (_category, pkgname) = atom.split_once('/')?;
+      let (atom, description)   = text.split_once(' ')?;
+      let (_category, pkgname)  = atom.split_once('/')?;
       if pkgname.contains(&search_local) {
         Some((
           atom.to_string(),

@@ -1,23 +1,23 @@
 [package]
-name            = "amadeus"
-version         = "10.3.0"
-authors         = [ "Miezhiko" ]
-repository      = "https://github.com/Miezhiko/Amadeus"
-readme          = "README.md"
-keywords        = [ "discord", "bot" ]
-edition         = "2021"
-description     = "memory storage and artificial intelligence system"
-license         = "AGPL-3.0-only"
-rust-version    = "1.63.0"
+name                = "amadeus"
+version             = "10.3.1"
+authors             = [ "Miezhiko" ]
+repository          = "https://github.com/Miezhiko/Amadeus"
+readme              = "README.md"
+keywords            = [ "discord", "bot" ]
+edition             = "2021"
+description         = "memory storage and artificial intelligence system"
+license             = "AGPL-3.0-only"
+rust-version        = "1.63.0"
 
 [features]
-default = ["trackers", "torch", "flo"]
-trackers = []
-torch = []
-spam_filter = []
-flo = ["tonic", "hex", "flo-grpc"]
-voice_analysis = ["dasp_interpolate", "dasp_signal", "deepspeech"]
-full = ["flo", "voice_analysis", "trackers"]
+default             = ["trackers", "torch", "flo"]
+trackers            = []
+torch               = []
+spam_filter         = []
+flo                 = ["tonic", "hex", "flo-grpc"]
+voice_analysis      = ["dasp_interpolate", "dasp_signal", "deepspeech"]
+full                = ["flo", "voice_analysis", "trackers"]
 
 [dependencies]
 mozart              = { path = "../Mozart" }

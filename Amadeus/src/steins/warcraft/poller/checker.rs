@@ -567,13 +567,15 @@ pub async fn check<'a>( ctx: &Context
                   GameMode::Team2 => false,
                   GameMode::Team4 => false
                 };
-                if let Err(why) = add_to_weekly( ctx
-                                               , pws
-                                               , *is_win
-                                               , *xmmr
-                                               , is_solo
-                                               ).await {
-                  error!("Failed to add stats: {why}");
+                if track.mode != GameMode::Team4 {
+                  if let Err(why) = add_to_weekly( ctx
+                                                , pws
+                                                , *is_win
+                                                , *xmmr
+                                                , is_solo
+                                                ).await {
+                    error!("Failed to add stats: {why}");
+                  }
                 }
                 if *is_win {
                   trace!("Registering win for {pw}");

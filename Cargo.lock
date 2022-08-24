@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.3.1"
+version = "10.3.2"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -4135,23 +4135,23 @@ dependencies = [
 
 [[package]]
 name = "redis"
-version = "0.21.5"
+version = "0.21.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a80b5f38d7f5a020856a0e16e40a9cfabf88ae8f0e4c2dcd8a3114c1e470852"
+checksum = "571c252c68d09a2ad3e49edd14e9ee48932f3e0f27b06b4ea4c9b2a706d31103"
 dependencies = [
  "arc-swap",
  "async-trait",
  "bytes",
  "combine 4.6.6",
- "dtoa",
  "futures 0.3.23",
  "futures-util",
- "itoa 0.4.8",
+ "itoa 1.0.3",
  "percent-encoding",
  "pin-project-lite",
+ "ryu",
  "sha1 0.6.1",
  "tokio",
- "tokio-util 0.6.10",
+ "tokio-util 0.7.3",
  "url",
 ]
 

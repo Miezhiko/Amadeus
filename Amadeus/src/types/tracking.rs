@@ -1,7 +1,7 @@
 use crate::types::team::DiscordPlayer;
 
 #[allow(non_snake_case)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum GameMode {
   Solo,
   Team2,

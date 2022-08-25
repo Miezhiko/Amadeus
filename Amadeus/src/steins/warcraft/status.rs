@@ -366,16 +366,24 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         }
       );
     }
+    let searching_2x2_info =
+      if searching_info_2x2.is_empty() {
+        String::from("nobody is searching for 2x2")
+      } else {
+        searching_info_2x2.join("\n")
+      };
     let stats_str = format!(
 "
 ```
 {}
 ```
 __**searching 2x2:**__
+```
 {}
+```
 "
     , weekly_str[1]
-    , searching_info_2x2.join("\n"));
+    , searching_2x2_info);
     statusmsg.edit(ctx, EditMessage::default()
              .embed(CreateEmbed::new()
                .color((255, 20, 7))

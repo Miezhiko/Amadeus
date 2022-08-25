@@ -845,7 +845,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
   Q4T.store(qmax4, Relaxed);
 
   Ok(( ( qtime1.len(), qmax1 )
-     , ( qtime2.len(), qmax2 )
+     , ( searching_2x2.len(), qmax2 )
      , ( qtime4.len(), qmax4 )
      , searching_players
      , searching_2x2 ))

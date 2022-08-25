@@ -808,7 +808,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
         if qs.gameMode == 2 {
           searching_2x2.push((
             p.battleTag.clone(),
-            format!("[{}]", secs_to_str(s.queueTime))
+            format!("[{:.1}] {}", s.mmr, secs_to_str(s.queueTime))
           ));
         }
 

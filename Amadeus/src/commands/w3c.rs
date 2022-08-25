@@ -740,6 +740,7 @@ fn max(numbers: &[u32]) -> u32 {
 pub type MmmResult = ( (usize, u32)
                      , (usize, u32)
                      , (usize, u32)
+                     , Vec<(String, String)>
                      , Vec<(String, String)> );
 
 pub fn secs_to_str(secs: u32) -> String {
@@ -770,7 +771,8 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
   setm!{ qtime1 = vec![]
        , qtime2 = vec![]
        , qtime4 = vec![]
-       , searching_players = vec![] };
+       , searching_players  = vec![]
+       , searching_2x2      = vec![] };
 
   for qs in parsed {
     for s in qs.snapshot {
@@ -800,6 +802,13 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
           searching_players.push((
             p.battleTag.clone(),
             format!("search {mode_str} for {}", secs_to_str(s.queueTime))
+          ));
+        }
+
+        if qs.gameMode == 2 {
+          searching_2x2.push((
+            p.battleTag.clone(),
+            format!("searching for {}", secs_to_str(s.queueTime))
           ));
         }
 
@@ -838,7 +847,8 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
   Ok(( ( qtime1.len(), qmax1 )
      , ( qtime2.len(), qmax2 )
      , ( qtime4.len(), qmax4 )
-     , searching_players ))
+     , searching_players
+     , searching_2x2 ))
 }
 
 #[command]

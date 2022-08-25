@@ -268,7 +268,8 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     let ( (z1, q1)
         , (z2, q2)
         , (z3, q3)
-        , searching ) = get_mmm(ctx).await?;
+        , searching
+        , searching_2x2 ) = get_mmm(ctx).await?;
     let (q1s, q2s, q3s) = ( secs_to_str(q1)
                           , secs_to_str(q2)
                           , secs_to_str(q3) );
@@ -324,9 +325,19 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
           , tracking_info.join("\n")
         )
       };
-    let mut weekly_str = vec![];
-    let mut weekly_statistics = StatusStats::new();
-    let mut weekly_statistics2 = StatusStats::new();
+    setm!{ searching_info_2x2   = vec![]
+         , weekly_str           = vec![]
+         , weekly_statistics    = StatusStats::new()
+         , weekly_statistics2   = StatusStats::new() };
+
+    for (ps, ss) in searching_2x2 {
+      let name = ps.split('#')
+                   .collect::<Vec<&str>>()[0];
+      searching_info_2x2.push(
+        format!("{name} {ss}")
+      );
+    }
+
     for stat in &weekly.stats {
       merge_stats(&mut weekly_statistics, &stat.statistics);
       merge_stats(&mut weekly_statistics2, &stat.statistics2);
@@ -360,8 +371,11 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
 ```
 {}
 ```
+__**searching 2x2:**__
+{}
 "
-    , weekly_str[1]);
+    , weekly_str[1]
+    , searching_info_2x2.join("\n"));
     statusmsg.edit(ctx, EditMessage::default()
              .embed(CreateEmbed::new()
                .color((255, 20, 7))

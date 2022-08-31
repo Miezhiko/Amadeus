@@ -224,7 +224,6 @@ pub async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
             wsg
           } else {
             KURISU_LINK.to_string()
-            .to_string()
           };
       old_stats[..].rotate_right(1);
       old_stats[0].statistics.clear();

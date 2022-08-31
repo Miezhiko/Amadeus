@@ -11,9 +11,6 @@ pub mod db;
 pub mod system;
 pub mod voice;
 
-#[cfg(not(target_os = "windows"))]
-pub mod salieri;
-
 #[cfg(feature = "voice_analysis")]
 pub mod voice_to_text;
 #[cfg(feature = "voice_analysis")]

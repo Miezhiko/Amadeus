@@ -21,7 +21,6 @@ let playersList : List Playerx =
   , t "" 285148358815776768 "starrfox"
   , t "" 790690784143605831 "lmunr"
   , t "" 147677951683461120 "hanro50"
-  , t "" 530987638392487948 "mortada_killer0"
   , t "" 341088451644620800 "tuxlovesyou"
   , t "" 635520103701807104 "star4fun"
   , t "" 403340271825190933 "nihil8492"

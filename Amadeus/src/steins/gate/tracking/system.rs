@@ -6,7 +6,7 @@ use crate::{
 #[cfg(not(target_os = "windows"))]
 use crate::{
   types::serenity::IContext,
-  common::salieri::SALIERI,
+  salieri::SALIERI,
   steins::ai::reinit
 };
 

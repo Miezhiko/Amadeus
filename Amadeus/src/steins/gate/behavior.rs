@@ -14,7 +14,7 @@ use crate::{
 
 #[cfg(not(target_os = "windows"))]
 use crate::{
-  common::salieri,
+  salieri,
   steins::{ ai::cache
           , gate::tracking::social::activate_social_skils }
 };

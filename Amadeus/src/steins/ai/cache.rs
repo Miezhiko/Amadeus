@@ -1,7 +1,7 @@
 use crate::{
+  salieri::SALIERI,
   types::serenity::{ AllGuilds, ChannelLanguage },
   common::{ help::lang
-          , salieri::SALIERI
           , constants::PREFIX
           , db::trees::{ messages::{ register, check_registration }
                        , LSUF, ZSUF, RSUF, MSUF }

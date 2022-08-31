@@ -1,4 +1,4 @@
-use crate::common::salieri::SALIERI;
+use crate::salieri::SALIERI;
 
 use anyhow::Result;
 use rand::Rng;

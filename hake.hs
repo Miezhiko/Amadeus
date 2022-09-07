@@ -1,9 +1,9 @@
 {-# LANGUAGE MultiWayIf    #-}
 {-# LANGUAGE UnicodeSyntax #-}
 
-import Hake
+import           Hake
 
-import Data.List (intercalate)
+import           Data.List (intercalate)
 
 main ∷ IO ()
 main = hake $ do

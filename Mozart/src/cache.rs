@@ -22,8 +22,8 @@ pub fn conv_model_loader() -> ConversationModel {
   ConversationModel::new(
     ConversationConfig {
       min_length: 3,
-      max_length: 64,
-      min_length_for_response: 5,
+      max_length: 100,
+      min_length_for_response: 10,
       device: *DEVICE,
       ..Default::default()
     }

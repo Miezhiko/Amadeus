@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.3.7"
+version = "10.3.8"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -4600,9 +4600,9 @@ dependencies = [
 
 [[package]]
 name = "serde-aux"
-version = "3.2.0"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "730ba304b6ac130bf8aafc51b048f00431ef37601ab2b483a8e01e4f172ef2fb"
+checksum = "d0a77223b653fa95f3f9864f3eb25b93e4ed170687eb42d85b6b98af21d5e1de"
 dependencies = [
  "serde",
  "serde_json",

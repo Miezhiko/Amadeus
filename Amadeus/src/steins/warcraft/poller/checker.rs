@@ -13,10 +13,8 @@ use crate::{
             , bet_fields::generate_bet_fields },
     utils::{ get_race2
            , get_map },
-    status::{
-      add_to_weekly,
-      status_update
-    },
+    status::{ add_to_weekly
+            , status_update },
     flotv::get_flotv
   }
 };
@@ -29,12 +27,24 @@ use serenity::{
              , ChannelId }
 };
 
-use std::collections::HashMap;
+use std::{ collections::HashMap
+         , sync::atomic::{ AtomicU64, Ordering } };
 
 const TEAM1_FIELD: &str = "Team 1";
 const TEAM2_FIELD: &str = "Team 2";
 const BETS_FIELD: &str  = "Bets";
 const FLOTV_FIELD:&str  = "flo tv";
+
+pub const DAY_TIMEOUT_SECS: u64   = 60;
+pub const NIGHT_TIMEOUT_SECS: u64 = 20;
+
+pub static CURRENT_TIMEOUT: AtomicU64 = AtomicU64::new(60);
+
+fn passed_time(pt: &u32) -> String {
+  let timeout_secs = CURRENT_TIMEOUT.load(Ordering::Relaxed);
+  let minutes = pt * (timeout_secs as u32) / 60;
+  format!("Passed: {minutes} min")
+}
 
 #[allow(clippy::needless_range_loop)]
 pub async fn check<'a>( ctx: &Context
@@ -102,8 +112,7 @@ pub async fn check<'a>( ctx: &Context
                   let mut games_lock = GAMES.lock().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
                     track.still_live = true;
-                    set!{ minutes     = track.passed_time // team_games.rs poll time
-                        , footer      = format!("Passed: {minutes} min")
+                    set!{ footer      = passed_time(&track.passed_time)
                         , playa       = playaz[0].player.discord
                         , bet_fields  = generate_bet_fields(ctx, track).await };
                     for t in track.tracking_msg_id.iter() {
@@ -260,9 +269,7 @@ pub async fn check<'a>( ctx: &Context
                   let mut games_lock = GAMES.lock().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
                     track.still_live = true;
-                    set!{ minutes = track.passed_time // team_games.rs poll time
-                        , footer  = format!("Passed: {minutes} min") };
-
+                    let footer     = passed_time(&track.passed_time);
                     let bet_fields = generate_bet_fields(ctx, track).await;
                     for t in track.tracking_msg_id.iter() {
                     if let Some(ds) = DISCORDS.get(&t.0) {
@@ -416,9 +423,7 @@ pub async fn check<'a>( ctx: &Context
                 let mut games_lock = GAMES.lock().await;
                 if let Some(track) = games_lock.get_mut(&m.match_id) {
                   track.still_live = true;
-                  set!{ minutes = track.passed_time
-                      , footer = format!("Passed: {minutes} min") };
-
+                  let footer     = passed_time(&track.passed_time);
                   let bet_fields = generate_bet_fields(ctx, track).await;
                   for t in track.tracking_msg_id.iter() {
                   if let Some(ds) = DISCORDS.get(&t.0) {

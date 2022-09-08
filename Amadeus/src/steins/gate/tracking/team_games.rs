@@ -15,15 +15,19 @@ use crate::{
   }
 };
 
+use chrono::Timelike;
 use serenity::{ prelude::*
               , builder::*
               , model::id::ChannelId
               , model::channel::ReactionType };
 
 use std::{ time
-         , sync::Arc };
+         , sync::{ Arc, atomic::Ordering } };
 
 use rand::Rng;
+
+pub const DAY_TIMEOUT: time::Duration   = time::Duration::from_secs(checker::DAY_TIMEOUT_SECS);
+pub const NIGHT_TIMEOUT: time::Duration = time::Duration::from_secs(checker::NIGHT_TIMEOUT_SECS);
 
 async fn clean_games_channel(channel: &ChannelId, ctx: &Context) {
   if let Ok(vec_msg) = channel.messages(&ctx, GetMessages::default().limit(50)).await {
@@ -325,7 +329,15 @@ pub async fn activate_games_tracking(
           }
         }
       }
-      tokio::time::sleep(time::Duration::from_secs(60)).await;
+
+      let current_hour_utc = chrono::offset::Utc::now().hour();
+      if current_hour_utc > 2 && current_hour_utc < 15 {
+        checker::CURRENT_TIMEOUT.store(checker::DAY_TIMEOUT_SECS, Ordering::Relaxed);
+        tokio::time::sleep(DAY_TIMEOUT).await;
+      } else {
+        checker::CURRENT_TIMEOUT.store(checker::NIGHT_TIMEOUT_SECS, Ordering::Relaxed);
+        tokio::time::sleep(NIGHT_TIMEOUT).await;
+      }
     }
   });
 }

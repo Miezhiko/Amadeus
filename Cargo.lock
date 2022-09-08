@@ -854,7 +854,7 @@ dependencies = [
  "memchr",
  "pin-project-lite",
  "tokio",
- "tokio-util 0.7.3",
+ "tokio-util 0.7.4",
 ]
 
 [[package]]
@@ -1158,9 +1158,9 @@ dependencies = [
 
 [[package]]
 name = "curl-sys"
-version = "0.4.57+curl-7.85.0"
+version = "0.4.56+curl-7.83.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2f5c209fdc3b856c446c52a1f9e90db20ea2b1bbbbd60bc18239174fa6eae70"
+checksum = "6093e169dd4de29e468fa649fbae11cdcd5551c81fe5bf1b0677adad7ef3d26f"
 dependencies = [
  "cc",
  "libc",
@@ -1828,11 +1828,10 @@ checksum = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
 
 [[package]]
 name = "form_urlencoded"
-version = "1.0.1"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fc25a87fa4fd2094bffb06925852034d90a17f0d1e05197d4956d3555752191"
+checksum = "a9c384f161156f5260c24a097c56119f9be8c798586aecc13afbcbe7b7e26bf8"
 dependencies = [
- "matches",
  "percent-encoding",
 ]
 
@@ -2140,7 +2139,7 @@ dependencies = [
  "indexmap",
  "slab",
  "tokio",
- "tokio-util 0.7.3",
+ "tokio-util 0.7.4",
  "tracing",
 ]
 
@@ -2380,11 +2379,10 @@ checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "idna"
-version = "0.2.3"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "418a0a6fab821475f634efe3ccc45c013f742efe03d853e8d3355d5cb850ecf8"
+checksum = "e14ddfc70884202db2244c223200c204c2bda1bc6e0998d11b5e024d657209e6"
 dependencies = [
- "matches",
  "unicode-bidi",
  "unicode-normalization",
 ]
@@ -3358,9 +3356,9 @@ dependencies = [
 
 [[package]]
 name = "percent-encoding"
-version = "2.1.0"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
+checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 
 [[package]]
 name = "pest"
@@ -3612,8 +3610,8 @@ checksum = "1df8c4ec4b0627e53bdf214615ad287367e482558cf84b109250b37464dc03ae"
 
 [[package]]
 name = "plotters"
-version = "0.3.4"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#7f8b12d69d3a48913588ab412fc3c9c6fc0182ad"
+version = "0.3.5"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#0e3332ad3f37142ff7eb56f96370a131ae5ddae0"
 dependencies = [
  "chrono",
  "font-kit",
@@ -3632,12 +3630,12 @@ dependencies = [
 [[package]]
 name = "plotters-backend"
 version = "0.3.4"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#7f8b12d69d3a48913588ab412fc3c9c6fc0182ad"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#0e3332ad3f37142ff7eb56f96370a131ae5ddae0"
 
 [[package]]
 name = "plotters-bitmap"
 version = "0.3.3"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#7f8b12d69d3a48913588ab412fc3c9c6fc0182ad"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#0e3332ad3f37142ff7eb56f96370a131ae5ddae0"
 dependencies = [
  "gif",
  "image 0.24.3",
@@ -3647,7 +3645,7 @@ dependencies = [
 [[package]]
 name = "plotters-svg"
 version = "0.3.4"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#7f8b12d69d3a48913588ab412fc3c9c6fc0182ad"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#0e3332ad3f37142ff7eb56f96370a131ae5ddae0"
 dependencies = [
  "plotters-backend",
 ]
@@ -4143,7 +4141,7 @@ dependencies = [
  "ryu",
  "sha1 0.6.1",
  "tokio",
- "tokio-util 0.7.3",
+ "tokio-util 0.7.4",
  "url",
 ]
 
@@ -4236,7 +4234,7 @@ dependencies = [
  "tokio",
  "tokio-native-tls",
  "tokio-rustls",
- "tokio-util 0.7.3",
+ "tokio-util 0.7.4",
  "tower-service",
  "url",
  "wasm-bindgen",
@@ -4955,7 +4953,7 @@ dependencies = [
  "symphonia",
  "symphonia-core",
  "tokio",
- "tokio-util 0.7.3",
+ "tokio-util 0.7.4",
  "tracing",
  "tracing-futures",
  "typemap_rev",
@@ -5427,9 +5425,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.7.3"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc463cd8deddc3770d20f9852143d50bf6094e640b485cb2e189a2099085ff45"
+checksum = "0bb2e075f03b3d66d8d8785356224ba688d2906a371015e225beeb65ca92c740"
 dependencies = [
  "bytes",
  "futures-core",
@@ -5509,7 +5507,7 @@ dependencies = [
  "rand 0.8.5",
  "slab",
  "tokio",
- "tokio-util 0.7.3",
+ "tokio-util 0.7.4",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -5848,9 +5846,9 @@ checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
 
 [[package]]
 name = "url"
-version = "2.3.0"
+version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22fe195a4f217c25b25cb5058ced57059824a678474874038dc88d211bf508d3"
+checksum = "0d68c799ae75762b8c3fe375feb6600ef5602c883c5d21eb51c09f22b83c4643"
 dependencies = [
  "form_urlencoded",
  "idna",

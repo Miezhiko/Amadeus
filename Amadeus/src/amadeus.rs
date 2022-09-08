@@ -16,11 +16,9 @@ use crate::{
 #[cfg(feature = "flo")]
 use crate::steins::warcraft::flo::FLO_SECRET;
 
-use songbird::{
-  Config as DriverConfig,
-  driver::CryptoMode,
-  {SerenityInit, Songbird},
-};
+use songbird::{ Config as DriverConfig
+              , driver::CryptoMode
+              , SerenityInit, Songbird };
 
 use serenity::{
   framework::StandardFramework,
@@ -31,10 +29,8 @@ use tracing::{ Level, instrument };
 use tracing_subscriber::FmtSubscriber;
 use tracing_log::LogTracer;
 
-use std::{
-  collections::{ HashSet, HashMap },
-  sync::Arc
-};
+use std::{ collections::{ HashSet, HashMap }
+         , sync::Arc };
 
 #[instrument]
 pub async fn run(opts: &IOptions) ->

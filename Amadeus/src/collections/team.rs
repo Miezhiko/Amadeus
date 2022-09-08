@@ -65,8 +65,8 @@ fn get_discord_players() -> Vec<DiscordPlayer> {
   discord_players
 }
 
-pub static DISCORDS: Lazy<Discords> = Lazy::new(get_discord_servers);
-pub static ALL: Lazy<Vec<DiscordPlayer>> = Lazy::new(get_discord_players);
+pub static DISCORDS: Lazy<Discords>       = Lazy::new(get_discord_servers);
+pub static ALL: Lazy<Vec<DiscordPlayer>>  = Lazy::new(get_discord_players);
 
 fn get_only_battlenet_players() -> Vec<&'static DiscordPlayer> {
   ALL.iter().filter(|dp| !dp.player.battletag.is_empty())

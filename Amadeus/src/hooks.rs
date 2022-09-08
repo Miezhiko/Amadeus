@@ -1,7 +1,7 @@
 use crate::{ collections::{ base::GREETINGS
                           , channels::IGNORED }
-           , common::constants::PREFIX
-           , common::i18n::{ help_i18n, US_ENG }
+           , common::{ constants::PREFIX
+                     , i18n::{ help_i18n, US_ENG } }
 };
 
 #[cfg(not(target_os = "windows"))]

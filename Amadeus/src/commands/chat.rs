@@ -1,9 +1,7 @@
-use crate::{
-  common::{
-    constants::PREFIX,
-    db::trees::points,
-    msg::channel_message
-  }
+use crate::common::{
+  constants::PREFIX,
+  db::trees::points,
+  msg::channel_message
 };
 
 #[cfg(not(target_os = "windows"))]
@@ -12,9 +10,8 @@ use crate::steins::ai::{ cache, chain, boris, uwu };
 use serenity::{
   prelude::*,
   builder::{ CreateMessage, CreateEmbed, CreateEmbedFooter, CreateEmbedAuthor },
-  model::{
-    channel::*,
-    guild::Member},
+  model::{ channel::*
+         , guild::Member },
   framework::standard::{
     CommandResult, Args,
     macros::command

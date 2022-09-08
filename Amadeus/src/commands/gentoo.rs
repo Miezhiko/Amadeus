@@ -1,6 +1,4 @@
-use crate::{
-  types::serenity::ReqwestClient
-};
+use crate::types::serenity::ReqwestClient;
 
 use serenity::{
   prelude::*,
@@ -35,22 +33,75 @@ async fn zugaina(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                            .text()
                            .await?;
 
-  let search_local = search.clone();
-  let top_level = task::spawn_blocking(move || -> Vec<(String, String, String)> {
-    let document = Document::from(&resp);
-    document.nip("a > div").iter().take(5).flat_map(|element| {
-      let text = element.text();
-      let (atom, description)   = text.split_once(' ')?;
-      let (_category, pkgname)  = atom.split_once('/')?;
-      if pkgname.contains(&search_local) {
-        Some((
-          atom.to_string(),
-          format!("http://gpo.zugaina.org/{atom}"),
-          format!("**[{atom}](http://gpo.zugaina.org/{atom})** {description}")
-        ))
-      } else { None }
-    }).collect::<Vec<(String, String, String)>>()
+  let resp_clone = resp.clone();
+  let mut pages = task::spawn_blocking(move || -> usize {
+    let document = Document::from(&resp_clone);
+    let pages = document.nip("div[id=\"contentInner\"] > div[class=\"pager\"] > a[href]");
+    // div 2 because there are pages on top and bottom and they look same
+    pages.size() / 2
   }).await?;
+
+  let mut top_level = vec![];
+  let mut result_vec = vec![];
+  let search_local = search.clone();
+  result_vec.push(
+    task::spawn_blocking(move || -> Vec<(String, String, String)> {
+      let document = Document::from(&resp);
+      document.nip("a > div").iter().take(5).flat_map(|element| {
+        let text = element.text();
+        let (atom, description)   = text.split_once(' ')?;
+        let (_category, pkgname)  = atom.split_once('/')?;
+        if pkgname.contains(&search_local) {
+          Some((
+            atom.to_string(),
+            format!("http://gpo.zugaina.org/{atom}"),
+            format!("**[{atom}](http://gpo.zugaina.org/{atom})** {description}")
+          ))
+        } else { None }
+      }).collect::<Vec<(String, String, String)>>()
+    }).await?
+  );
+  if pages > 0 {
+    // it's hard to get all the pages from start so let take like first 30 pages
+    // we will stop processing once we will get no results on the page
+    if pages > 7 {
+      pages = 30;
+    }
+    for p in 0..pages {
+      let page = p + 2;
+      let urlx = format!("https://gpo.zugaina.org/Search?search={}&use=&page={page}", &search);
+      let respx = reqwest_client.get(&urlx)
+                                .send()
+                                .await?
+                                .text()
+                                .await?;
+      let search_local = search.clone();
+      let page_results =
+        task::spawn_blocking(move || -> Vec<(String, String, String)> {
+          let document = Document::from(&respx);
+          document.nip("a > div").iter().take(5).flat_map(|element| {
+            let text = element.text();
+            let (atom, description)   = text.split_once(' ')?;
+            let (_category, pkgname)  = atom.split_once('/')?;
+            if pkgname.contains(&search_local) {
+              Some((
+                atom.to_string(),
+                format!("http://gpo.zugaina.org/{atom}"),
+                format!("**[{atom}](http://gpo.zugaina.org/{atom})** {description}")
+              ))
+            } else { None }
+          }).collect::<Vec<(String, String, String)>>()
+        }).await?;
+      if page_results.is_empty() {
+        break;
+      }
+      result_vec.push(page_results);
+    }
+  };
+
+  for tlv in &mut result_vec {
+    top_level.append(tlv);
+  }
 
   let mut parse_result = vec![];
   for (atom, pkg_url, desc) in top_level {

@@ -9,10 +9,7 @@ use serenity::{
          }, builder::{CreateEmbedAuthor, CreateMessage}
 };
 
-use std::{
-  collections::HashSet,
-  fs
-};
+use std::{ collections::HashSet, fs };
 
 use regex::Regex;
 use once_cell::sync::Lazy;

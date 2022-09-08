@@ -69,8 +69,8 @@ pub async fn process( ioptions: &IOptions
   } else if msg.author.bot {
     if let Some(g) = msg.guild_id {
       if ioptions.servers.iter()
-                         .any(|s| s.id == g.0.get()
-                               && s.kind == CoreGuild::Safe) {
+                         .any(|s| s.id    == g.0.get()
+                               && s.kind  == CoreGuild::Safe) {
         return;
       }
     }
@@ -148,7 +148,7 @@ pub async fn process( ioptions: &IOptions
           if file.filename.ends_with("w3g") {
             if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg_channel_id_u64
                                          || df.games2.unwrap_or(0) == msg_channel_id_u64
-                                         || df.games2.unwrap_or(0) == msg_channel_id_u64) {
+                                         || df.games4.unwrap_or(0) == msg_channel_id_u64) {
               if attach_replay(ctx, &msg, file).await.is_ok() {
                 info!("Relay attached successfully");
               } else {
@@ -200,7 +200,7 @@ pub async fn process( ioptions: &IOptions
         // any other junk on log channel should be removed
         if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg_channel_id_u64
                                      || df.games2.unwrap_or(0) == msg_channel_id_u64
-                                     || df.games2.unwrap_or(0) == msg_channel_id_u64) {
+                                     || df.games4.unwrap_or(0) == msg_channel_id_u64) {
           if let Err(why) = &msg.delete(&ctx).await {
             error!("failed to clean junk from log {why}");
           }
@@ -328,8 +328,8 @@ pub async fn process( ioptions: &IOptions
                   }
                 } else if let Err(why) =
                   guild.create_role(&ctx, EditRole::default()
-                      .colour(Colour::from_rgb(226,37,37).0 as u32)
-                      .name(UNBLOCK_ROLE)).await {
+                       .colour(Colour::from_rgb(226,37,37).0 as u32)
+                       .name(UNBLOCK_ROLE)).await {
                   error!("Failed to create UNBLOCK role, {why}");
                 }
               }

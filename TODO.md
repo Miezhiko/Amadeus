@@ -1,13 +1,12 @@
 ##REALLY PLANNED:
 
  - Single interface for bert models processing on mozart
- - UnixSockets alternative for Windows
- - Select menu roles
- - Stream announce (e.g. steam in 30 mins or something like that) + stream announce role
 
 ##I DON'T WANT TO DO IT:
 
- - Pagination support for zugaina
+ - Stream announce (e.g. steam in 30 mins or something like that) + stream announce role
+ - Select menu roles
+ - UnixSockets alternative for Windows
  - CodeBERT
  - Some of slash commands are still missing (vs command, etc...)
  - I need part of speech tagging POSModel but for russian langauge, that could be used for Kathoey

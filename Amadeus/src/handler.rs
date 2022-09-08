@@ -9,10 +9,8 @@ use crate::{
                        , LIVE_ROLE
                        , MUTED_ROLE, MUTED_ROOMS }
           },
-  collections::{
-    team::DISCORDS,
-    channels::AI_ALLOWED
-  },
+  collections::{ team::DISCORDS
+               , channels::AI_ALLOWED },
   commands::music::rejoin_voice_channel
 };
 
@@ -365,14 +363,18 @@ impl EventHandler for Handler {
     }
   }
 
-  async fn message(&self, ctx: Context, msg: Message) {
+  async fn message( &self
+                  , ctx: Context
+                  , msg: Message ) {
     message::process( &self.ioptions
                     , self.amadeus_id
                     , &ctx
                     , msg ).await;
   }
 
-  async fn guild_ban_addition(&self, ctx: Context, guild_id: GuildId, banned_user: User) {
+  async fn guild_ban_addition( &self, ctx: Context
+                             , guild_id: GuildId
+                             , banned_user: User ) {
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       info!("User {} banned from {}", banned_user.name, guild.name);
     } else {
@@ -380,7 +382,9 @@ impl EventHandler for Handler {
     }
   }
 
-  async fn guild_ban_removal(&self, ctx: Context, guild_id: GuildId, unbanned_user: User) {
+  async fn guild_ban_removal( &self, ctx: Context
+                            , guild_id: GuildId
+                            , unbanned_user: User ) {
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
       info!("User {} unbanned from {}", unbanned_user.name, guild.name);
     } else {

@@ -2,7 +2,8 @@ use regex::Regex;
 use once_cell::sync::Lazy;
 
 static MAP_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(
-r"^(?:s[0-9]+[_|-][0-9])?(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+[_|-][0-9]+(?:[a-z])?)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$").unwrap());
+r"^(?:s[0-9]+[_|-][0-9])?(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+[_|-][0-9]+(?:[a-z])?)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$"
+).unwrap());
 
 pub fn get_race(r: u32) -> String {
   String::from(

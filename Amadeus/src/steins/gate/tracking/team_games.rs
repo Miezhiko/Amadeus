@@ -9,10 +9,8 @@ use crate::{
   common::{ db::trees::points
           , aka },
   collections::team::DISCORDS,
-  steins::warcraft::{
-    aka_checker::AKA,
-    poller::{ self, checker }
-  }
+  steins::warcraft::{ aka_checker::AKA
+                    , poller::{ self, checker } }
 };
 
 use chrono::Timelike;
@@ -26,8 +24,11 @@ use std::{ time
 
 use rand::Rng;
 
-pub const DAY_TIMEOUT: time::Duration   = time::Duration::from_secs(checker::DAY_TIMEOUT_SECS);
-pub const NIGHT_TIMEOUT: time::Duration = time::Duration::from_secs(checker::NIGHT_TIMEOUT_SECS);
+const DAY_TIMEOUT_SECS: u32   = 60;
+const NIGHT_TIMEOUT_SECS: u32 = 20;
+
+const DAY_TIMEOUT: time::Duration   = time::Duration::from_secs(DAY_TIMEOUT_SECS as u64);
+const NIGHT_TIMEOUT: time::Duration = time::Duration::from_secs(NIGHT_TIMEOUT_SECS as u64);
 
 async fn clean_games_channel(channel: &ChannelId, ctx: &Context) {
   if let Ok(vec_msg) = channel.messages(&ctx, GetMessages::default().limit(50)).await {
@@ -332,10 +333,10 @@ pub async fn activate_games_tracking(
 
       let current_hour_utc = chrono::offset::Utc::now().hour();
       if current_hour_utc > 2 && current_hour_utc < 15 {
-        checker::CURRENT_TIMEOUT.store(checker::DAY_TIMEOUT_SECS, Ordering::Relaxed);
+        checker::CURRENT_TIMEOUT.store(DAY_TIMEOUT_SECS, Ordering::Relaxed);
         tokio::time::sleep(DAY_TIMEOUT).await;
       } else {
-        checker::CURRENT_TIMEOUT.store(checker::NIGHT_TIMEOUT_SECS, Ordering::Relaxed);
+        checker::CURRENT_TIMEOUT.store(NIGHT_TIMEOUT_SECS, Ordering::Relaxed);
         tokio::time::sleep(NIGHT_TIMEOUT).await;
       }
     }

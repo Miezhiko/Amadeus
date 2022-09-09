@@ -4,7 +4,9 @@ use crate::{
     constants::{ W3C_STATS_ROOM, W3C_STATS_MSG, W3C_STATS_MSG2 },
     colors::gen_colors
   },
-  steins::warcraft::poller::GAMES,
+  steins::warcraft::poller::{
+    GAMES, checker::passed_time_to_minutes
+  },
   commands::w3c::{ get_mmm, secs_to_str }
 };
 
@@ -12,6 +14,7 @@ use chrono::{
   Timelike,
   Datelike
 };
+
 use serenity::{
   prelude::*,
   builder::*,
@@ -290,10 +293,8 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
             };
             tracking_players.push(fp.player.battletag.clone());
             tracking_info.push(
-              format!("{} play {} for {} mins"
-              , name
-              , game_mode_str
-              , game.passed_time)
+              format!( "{name} play {game_mode_str} for {} mins"
+                     , passed_time_to_minutes(&game.passed_time) )
             );
           }
         }
@@ -354,11 +355,9 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
                         .collect::<Vec<&str>>()[0];
             let winrate = ( (d.wins as f32 / (d.wins + d.losses) as f32) * 100.0).round();
             weekly_vec.push(
-              format!( "{}: {}W, {}L, {}%"
-                    , name
+              format!( "{name}: {}W, {}L, {winrate}%"
                     , d.wins
-                    , d.losses
-                    , winrate )
+                    , d.losses )
             );
           }
           weekly_vec.join("\n")
@@ -378,11 +377,9 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
 ```
 __**searching 2x2:**__
 ```
-{}
+{searching_2x2_info}
 ```
-"
-    , weekly_str[1]
-    , searching_2x2_info);
+", weekly_str[1]);
     statusmsg.edit(ctx, EditMessage::default()
              .embed(CreateEmbed::new()
                .color((255, 20, 7))
@@ -400,19 +397,17 @@ __**searching 2x2:**__
 ```
 __**currently running:**__
 ```
-1x1 {} search {} GAMES: {}
-2x2 {} search {} GAMES: {}
-4x4 {} search {} GAMES: {}
+1x1 {z1} search {q1s} GAMES: {}
+2x2 {z2} search {q2s} GAMES: {}
+4x4 {z3} search {q3s} GAMES: {}
 ```
 __**currently playing:**__
 ```
-{}
-```"
-          , weekly_str[0]
-          , z1, q1s, stats.games_solo
-          , z2, q2s, stats.games_2x2
-          , z3, q3s, stats.games_4x4
-          , tracking_str);
+{tracking_str}
+```", weekly_str[0]
+    , stats.games_solo
+    , stats.games_2x2
+    , stats.games_4x4);
           statusmsg2.edit(ctx, EditMessage::default().content("")
                     .embed(CreateEmbed::new()
                       .color((255, 20, 7))

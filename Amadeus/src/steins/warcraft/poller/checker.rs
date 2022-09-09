@@ -28,22 +28,21 @@ use serenity::{
 };
 
 use std::{ collections::HashMap
-         , sync::atomic::{ AtomicU64, Ordering } };
+         , sync::atomic::{ AtomicU32, Ordering } };
 
 const TEAM1_FIELD: &str = "Team 1";
 const TEAM2_FIELD: &str = "Team 2";
 const BETS_FIELD: &str  = "Bets";
 const FLOTV_FIELD:&str  = "flo tv";
 
-pub const DAY_TIMEOUT_SECS: u64   = 60;
-pub const NIGHT_TIMEOUT_SECS: u64 = 20;
+pub static CURRENT_TIMEOUT: AtomicU32 = AtomicU32::new(60);
 
-pub static CURRENT_TIMEOUT: AtomicU64 = AtomicU64::new(60);
+pub fn passed_time_to_minutes(pt: &u32) -> u32 {
+  pt * CURRENT_TIMEOUT.load(Ordering::Relaxed) / 60
+}
 
 fn passed_time(pt: &u32) -> String {
-  let timeout_secs = CURRENT_TIMEOUT.load(Ordering::Relaxed);
-  let minutes = pt * (timeout_secs as u32) / 60;
-  format!("Passed: {minutes} min")
+  format!("Passed: {} min", passed_time_to_minutes(pt))
 }
 
 #[allow(clippy::needless_range_loop)]
@@ -380,7 +379,7 @@ pub async fn check<'a>( ctx: &Context
               || m.teams[1].players[1].battleTag == p.player.battletag || m.teams[1].players[3].battleTag == p.player.battletag
               || if !p.player.alt_accounts.is_empty() {
                 p.player.alt_accounts.iter().any(|other_acc|
-                  &m.teams[0].players[0].battleTag == other_acc || &m.teams[0].players[2].battleTag == other_acc
+                   &m.teams[0].players[0].battleTag == other_acc || &m.teams[0].players[2].battleTag == other_acc
                 || &m.teams[1].players[0].battleTag == other_acc || &m.teams[1].players[2].battleTag == other_acc
                 || &m.teams[0].players[1].battleTag == other_acc || &m.teams[0].players[3].battleTag == other_acc
                 || &m.teams[1].players[1].battleTag == other_acc || &m.teams[1].players[3].battleTag == other_acc

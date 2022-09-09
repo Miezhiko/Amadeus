@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.3.9"
+version = "10.3.10"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -3611,7 +3611,7 @@ checksum = "1df8c4ec4b0627e53bdf214615ad287367e482558cf84b109250b37464dc03ae"
 [[package]]
 name = "plotters"
 version = "0.3.5"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#0e3332ad3f37142ff7eb56f96370a131ae5ddae0"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#a4dab40bcc2a2765aa30c6d4a5e43c9a98e83f46"
 dependencies = [
  "chrono",
  "font-kit",
@@ -3630,12 +3630,12 @@ dependencies = [
 [[package]]
 name = "plotters-backend"
 version = "0.3.4"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#0e3332ad3f37142ff7eb56f96370a131ae5ddae0"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#a4dab40bcc2a2765aa30c6d4a5e43c9a98e83f46"
 
 [[package]]
 name = "plotters-bitmap"
 version = "0.3.3"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#0e3332ad3f37142ff7eb56f96370a131ae5ddae0"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#a4dab40bcc2a2765aa30c6d4a5e43c9a98e83f46"
 dependencies = [
  "gif",
  "image 0.24.3",
@@ -3645,7 +3645,7 @@ dependencies = [
 [[package]]
 name = "plotters-svg"
 version = "0.3.4"
-source = "git+https://github.com/plotters-rs/plotters.git?branch=master#0e3332ad3f37142ff7eb56f96370a131ae5ddae0"
+source = "git+https://github.com/plotters-rs/plotters.git?branch=master#a4dab40bcc2a2765aa30c6d4a5e43c9a98e83f46"
 dependencies = [
  "plotters-backend",
 ]

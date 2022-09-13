@@ -81,5 +81,5 @@ pub struct Flo;
 
 #[group("Gentoo")]
 #[help_available(true)]
-#[commands(zugaina)]
+#[commands(bug, zugaina)]
 pub struct Gentoo;

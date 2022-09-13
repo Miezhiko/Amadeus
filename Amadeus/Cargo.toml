@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "10.3.10"
+version             = "10.3.11"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -41,7 +41,7 @@ futures-util        = "0.3.24"
 qrcode              = "0.12"
 cannyls             = "0.10"
 bincode             = "2.0.0-rc.1"
-itertools           = "0.10.3"
+itertools           = "0.10.4"
 anyhow              = "1"
 async-recursion     = "1.0.0"
 unic-langid         = "0.9"
@@ -116,7 +116,7 @@ branch = "main"
 optional = true
 
 [dependencies.tokio]
-version = "1.21.0"
+version = "1.21.1"
 features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
 
 [dependencies.dasp_signal]

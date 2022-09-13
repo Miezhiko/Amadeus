@@ -1,4 +1,7 @@
-use crate::types::serenity::ReqwestClient;
+use crate::{
+  common::msg::channel_message,
+  types::serenity::ReqwestClient
+};
 
 use serenity::{
   prelude::*,
@@ -13,6 +16,15 @@ use serenity::{
 use tokio::task;
 
 use nipper::Document;
+
+#[command]
+#[description("Find bugzilla bug by number")]
+#[min_args(1)]
+async fn bug(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  let number = args.single::<u64>()?;
+  channel_message(ctx, msg, &format!("<https://bugs.gentoo.org/{number}>")).await;
+  Ok(())
+}
 
 #[command]
 #[description("Find package atom in Gentoo overlays")]

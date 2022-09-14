@@ -7,6 +7,7 @@ pub struct Bug {
   pub is_open: bool,
   pub priority: String,
   pub product: String,
+  pub severity: String,
   pub resolution: String,
   pub status: String,
   pub summary: String,

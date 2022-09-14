@@ -16,6 +16,8 @@ use serenity::{
   }
 };
 
+use chrono::DateTime;
+
 use tokio::task;
 
 use nipper::Document;
@@ -37,18 +39,24 @@ async fn bug(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let mut e = CreateEmbed::new()
       .title(&bug.summary)
       .url(&format!("https://bugs.gentoo.org/{number}"))
+      .color((255, 0, 0))
       .footer(CreateEmbedFooter::new(footer));
     if !bug.assigned_to.is_empty() {
       e = e.field("assigned", &bug.assigned_to, true);
     }
     if !bug.creation_time.is_empty() {
-      e = e.field("creation time", &bug.creation_time, true);
+      if let Ok(dt) = DateTime::parse_from_rfc3339(&bug.creation_time) {
+        e = e.timestamp(dt);
+      }
     }
     if !bug.creator.is_empty() {
       e = e.field("creator", &bug.creator, true);
     }
     if !bug.priority.is_empty() {
       e = e.field("priority", &bug.priority, true);
+    }
+    if !bug.severity.is_empty() {
+      e = e.field("severity", &bug.severity, true);
     }
     if !bug.product.is_empty() {
       e = e.field("product", &bug.product, true);
@@ -66,6 +74,9 @@ async fn bug(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     };
   } else {
     channel_message(ctx, msg, &format!("no bugs found with number: {number}")).await;
+  }
+  if let Err(why) = msg.delete(ctx).await {
+    error!("Error deleting original command {why}");
   }
   Ok(())
 }

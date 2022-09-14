@@ -34,19 +34,33 @@ async fn bug(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let bugs: Bugs = res.json().await?;
   if let Some(bug) = bugs.bugs.first() {
     let footer = format!("Requested by {}", msg.author.name);
+    let mut e = CreateEmbed::new()
+      .title(&bug.summary)
+      .url(&format!("https://bugs.gentoo.org/{number}"))
+      .footer(CreateEmbedFooter::new(footer));
+    if !bug.assigned_to.is_empty() {
+      e = e.field("assigned", &bug.assigned_to, true);
+    }
+    if !bug.creation_time.is_empty() {
+      e = e.field("creation time", &bug.creation_time, true);
+    }
+    if !bug.creator.is_empty() {
+      e = e.field("creator", &bug.creator, true);
+    }
+    if !bug.priority.is_empty() {
+      e = e.field("priority", &bug.priority, true);
+    }
+    if !bug.product.is_empty() {
+      e = e.field("product", &bug.product, true);
+    }
+    if !bug.resolution.is_empty() {
+      e = e.field("resolution", &bug.resolution, true);
+    }
+    if !bug.status.is_empty() {
+      e = e.field("status", &bug.status, true);
+    }
     if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
-      .embed(CreateEmbed::new()
-        .title(&bug.summary)
-        .url(&format!("https://bugs.gentoo.org/{number}"))
-        .field("assigned", &bug.assigned_to, true)
-        .field("creation time", &bug.creation_time, true)
-        .field("creator", &bug.creator, true)
-        .field("priority", &bug.priority, true)
-        .field("product", &bug.product, true)
-        .field("resolution", &bug.resolution, true)
-        .field("status", &bug.status, true)
-        .footer(CreateEmbedFooter::new(footer))
-      )
+      .embed(e)
     ).await {
       msg.channel_id.say(ctx, &format!("Error: {why}")).await?;
     };

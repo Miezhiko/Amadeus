@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.3.12"
+version = "10.3.13"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -131,7 +131,7 @@ dependencies = [
  "serde_derive",
  "serde_dhall",
  "serde_json",
- "serde_yaml 0.9.11",
+ "serde_yaml 0.9.12",
  "serenity",
  "sled",
  "songbird",
@@ -4688,9 +4688,9 @@ dependencies = [
 
 [[package]]
 name = "serde_yaml"
-version = "0.9.11"
+version = "0.9.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89f31df3f50926cdf2855da5fd8812295c34752cb20438dae42a67f79e021ac3"
+checksum = "4a2aed7a697360aae71c545044813761b33c131ba40cbbf721f87bfd86dd07a0"
 dependencies = [
  "indexmap",
  "itoa 1.0.3",

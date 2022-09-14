@@ -1,6 +1,9 @@
 use crate::{
   common::msg::channel_message,
-  types::serenity::ReqwestClient
+  types::{
+    gentoo::*,
+    serenity::ReqwestClient
+  }
 };
 
 use serenity::{
@@ -22,7 +25,34 @@ use nipper::Document;
 #[min_args(1)]
 async fn bug(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let number = args.single::<u64>()?;
-  channel_message(ctx, msg, &format!("<https://bugs.gentoo.org/{number}>")).await;
+  let reqwest_client = {
+    set!{ data            = ctx.data.read().await
+        , reqwest_client  = data.get::<ReqwestClient>().unwrap() };
+    reqwest_client.clone()
+  };
+  let res = reqwest_client.get(&format!("https://bugs.gentoo.org/rest/bug?id={number}")).send().await?;
+  let bugs: Bugs = res.json().await?;
+  if let Some(bug) = bugs.bugs.first() {
+    let footer = format!("Requested by {}", msg.author.name);
+    if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+      .embed(CreateEmbed::new()
+        .title(&bug.summary)
+        .url(&format!("https://bugs.gentoo.org/{number}"))
+        .field("assigned", &bug.assigned_to, true)
+        .field("creation time", &bug.creation_time, true)
+        .field("creator", &bug.creator, true)
+        .field("priority", &bug.priority, true)
+        .field("product", &bug.product, true)
+        .field("resolution", &bug.resolution, true)
+        .field("status", &bug.status, true)
+        .footer(CreateEmbedFooter::new(footer))
+      )
+    ).await {
+      msg.channel_id.say(ctx, &format!("Error: {why}")).await?;
+    };
+  } else {
+    channel_message(ctx, msg, &format!("no bugs found with number: {number}")).await;
+  }
   Ok(())
 }
 

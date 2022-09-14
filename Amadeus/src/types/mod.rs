@@ -6,3 +6,4 @@ pub mod team;
 pub mod tracking;
 pub mod twitch;
 pub mod w3c;
+pub mod gentoo;

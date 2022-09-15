@@ -13,14 +13,16 @@ use crate::{
                     , poller::{ self, checker } }
 };
 
-use chrono::Timelike;
+use chrono::{ Timelike, Datelike, Weekday };
 use serenity::{ prelude::*
               , builder::*
               , model::id::ChannelId
               , model::channel::ReactionType };
 
 use std::{ time
-         , sync::{ Arc, atomic::Ordering } };
+         , sync::{ Arc
+                 , atomic::Ordering }
+};
 
 use rand::Rng;
 
@@ -331,13 +333,21 @@ pub async fn activate_games_tracking(
         }
       }
 
-      let current_hour_utc = chrono::offset::Utc::now().hour();
-      if current_hour_utc > 2 && current_hour_utc < 15 {
-        checker::CURRENT_TIMEOUT.store(DAY_TIMEOUT_SECS, Ordering::Relaxed);
-        tokio::time::sleep(DAY_TIMEOUT).await;
-      } else {
+      set!{ nao             = chrono::offset::Utc::now()
+          , current_weekday = nao.weekday() };
+      if current_weekday == Weekday::Sat
+      || current_weekday == Weekday::Sun {
         checker::CURRENT_TIMEOUT.store(NIGHT_TIMEOUT_SECS, Ordering::Relaxed);
         tokio::time::sleep(NIGHT_TIMEOUT).await;
+      } else {
+        let current_hour_utc = nao.hour();
+        if current_hour_utc > 2 && current_hour_utc < 15 {
+          checker::CURRENT_TIMEOUT.store(DAY_TIMEOUT_SECS, Ordering::Relaxed);
+          tokio::time::sleep(DAY_TIMEOUT).await;
+        } else {
+          checker::CURRENT_TIMEOUT.store(NIGHT_TIMEOUT_SECS, Ordering::Relaxed);
+          tokio::time::sleep(NIGHT_TIMEOUT).await;
+        }
       }
     }
   });

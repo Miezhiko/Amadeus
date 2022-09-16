@@ -154,7 +154,7 @@ pub async fn update_cache( ctx: &Context
   let mut i_progress: u64 = 0; // progress for single channel
 
   for chan in channels.keys() {
-    if let Some(c_name) = chan.name(&ctx) {
+    if let Ok(c_name) = chan.name(&ctx).await {
       if let Some(ch_lang) = AI_LEARN.iter().find(|c| c.id == chan.0.get()) {
         let start_typing = ctx.http.start_typing(chan.0.get());
         let mut messages = chan.messages_iter(&ctx).boxed();

@@ -58,7 +58,7 @@ pub async fn process( ioptions: &IOptions
                     , ctx: &Context
                     , msg: Message ) {
 
-  if msg.is_own(&ctx) {
+  if msg.is_own(ctx) {
     if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0.get()) {
       let mut backup_deq = BACKUP.lock().await;
       if backup_deq.len() == backup_deq.capacity() {
@@ -131,8 +131,8 @@ pub async fn process( ioptions: &IOptions
     if let Some(guild_id) = msg.guild_id {
       #[cfg(feature = "spam_filter")]
       spam_check(&guild_id, ctx, &msg).await;
-      if (&msg.mentions).iter().any(|u| u.bot) {
-        if (&msg.mentions).iter().any(|u| u.bot && u.id == amadeus_id) {
+      if msg.mentions.iter().any(|u| u.bot) {
+        if msg.mentions.iter().any(|u| u.bot && u.id == amadeus_id) {
           set!{ amention1 = format!("<@{}>", amadeus_id)
               , amention2 = format!("<@!{}>", amadeus_id) };
           if !msg.content.starts_with(&amention1)

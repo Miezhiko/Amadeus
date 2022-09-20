@@ -146,8 +146,8 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     msg.channel_id.say(ctx, format!("The term '{term}' has no Urban Definitions")).await?;
   } else {
     let choice = &resp.list[0];
-    let parsed_definition = &choice.definition.replace('[', "").replace(']', "");
-    let parsed_example = &choice.example.replace('[', "").replace(']', "");
+    let parsed_definition = &choice.definition.replace(['[', ']'], "");
+    let parsed_example = &choice.example.replace(['[', ']'], "");
     let mut fields = vec![
       ("Definition", parsed_definition.as_str(), false),
     ];

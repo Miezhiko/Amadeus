@@ -165,7 +165,7 @@ pub async fn update_cache( ctx: &Context
         while let Some(message_result) = messages.next().await {
           if let Ok(mmm) = message_result {
             if !mmm.author.bot && !mmm.content.starts_with(PREFIX) {
-              let is_to_bot = !mmm.mentions.is_empty() && (&mmm.mentions).iter().any(|u| u.bot);
+              let is_to_bot = !mmm.mentions.is_empty() && mmm.mentions.iter().any(|u| u.bot);
               if !is_to_bot {
                 if i > CHANNEL_CACHE_MAX {
                   break;

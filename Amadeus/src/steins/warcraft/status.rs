@@ -95,6 +95,7 @@ pub async fn add_to_weekly( ctx: &Context
     }
     p_stats.mmr = xmmr;
   } else {
+    #[allow(clippy::bool_to_int_with_if)]
     let stats = DailyWinLoses {
       wins    : if win { 1 } else { 0 },
       losses  : if win { 0 } else { 1 },
@@ -171,7 +172,7 @@ pub async fn generate_stats_graph( ctx: &Context
       .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
       .x_labels(24)
       .y_labels(10)
-      .axis_style(&RGBColor(80, 80, 80))
+      .axis_style(RGBColor(80, 80, 80))
       .draw()?;
     for (st, player_str, plx) in plx_vec {
       cc.draw_series(LineSeries::new(plx, st))?
@@ -180,7 +181,7 @@ pub async fn generate_stats_graph( ctx: &Context
     }
     cc.configure_series_labels()
       .position(SeriesLabelPosition::LowerRight)
-      .border_style(&BLACK)
+      .border_style(BLACK)
       .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
       .draw()?;
   }

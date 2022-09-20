@@ -15,6 +15,7 @@ use futures_util::{
   StreamExt,
 };
 
+#[cfg(feature = "flo")]
 pub async fn get_player(meme: &str, ctx: &Context, msg: &Message) -> anyhow::Result<Member> {
   if meme.starts_with("<@") && meme.ends_with('>') {
     static RE: Lazy<Regex> = Lazy::new(|| Regex::new("[<@!>]").unwrap() );

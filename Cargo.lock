@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.3.15"
+version = "10.3.16"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -2641,9 +2641,9 @@ checksum = "db13adb97ab515a3691f56e4dbab09283d0b86cb45abd991d8634a9d6f501760"
 
 [[package]]
 name = "libc"
-version = "0.2.132"
+version = "0.2.133"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8371e4e5341c3a96db127eb2465ac681ced4c433e01dd0e938adbef26ba93ba5"
+checksum = "c0f80d65747a3e43d1596c7c5492d95d5edddaabd45a7fcdb02b95f644164966"
 
 [[package]]
 name = "libloading"
@@ -3219,9 +3219,9 @@ dependencies = [
 
 [[package]]
 name = "ordered-float"
-version = "3.0.0"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96bcbab4bfea7a59c2c0fe47211a1ac4e3e96bea6eb446d704f310bc5c732ae2"
+checksum = "98ffdb14730ed2ef599c65810c15b000896e21e8776b512de0db0c3d7335cc2a"
 dependencies = [
  "num-traits 0.2.15",
 ]
@@ -4289,7 +4289,7 @@ dependencies = [
  "dirs",
  "half 2.1.0",
  "lazy_static",
- "ordered-float 3.0.0",
+ "ordered-float 3.1.0",
  "rust_tokenizers",
  "serde",
  "serde_json",

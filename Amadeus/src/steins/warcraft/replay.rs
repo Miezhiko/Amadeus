@@ -107,7 +107,7 @@ pub async fn replay_embed( ctx: &Context
           cc.configure_mesh()
             .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
             .y_labels(10)
-            .axis_style(&RGBColor(80, 80, 80))
+            .axis_style(RGBColor(80, 80, 80))
             .draw()?;
           let colors = gen_colors(fields3.len());
           for (i, (k, plx)) in fields3.into_iter().enumerate() {
@@ -122,7 +122,7 @@ pub async fn replay_embed( ctx: &Context
           }
           cc.configure_series_labels()
             .position(SeriesLabelPosition::LowerRight)
-            .border_style(&BLACK)
+            .border_style(BLACK)
             .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
             .draw()?;
         }
@@ -326,7 +326,7 @@ pub async fn attach_replay( ctx: &Context
                         cc.configure_mesh()
                           .label_style(("monospace", 16).into_font().color(&RGBColor(150, 150, 150)))
                           .y_labels(10)
-                          .axis_style(&RGBColor(80, 80, 80))
+                          .axis_style(RGBColor(80, 80, 80))
                           .draw()?;
                         let colors = gen_colors(fields3.len());
                         for (i, (k, plx)) in fields3.into_iter().enumerate() {
@@ -341,7 +341,7 @@ pub async fn attach_replay( ctx: &Context
                         }
                         cc.configure_series_labels()
                           .position(SeriesLabelPosition::LowerRight)
-                          .border_style(&BLACK)
+                          .border_style(BLACK)
                           .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
                           .draw()?;
                       }

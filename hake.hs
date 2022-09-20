@@ -52,8 +52,7 @@ main = hake $ do
 
   features ∷ [String]
   features = [ "trackers"
-             , "torch"
-             , "flo" ]
+             , "torch" ]
 
   fatArgs ∷ [String]
   fatArgs = [ "--profile"

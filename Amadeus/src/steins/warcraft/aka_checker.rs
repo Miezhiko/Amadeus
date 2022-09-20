@@ -25,19 +25,19 @@ pub async fn check_aka( battletag: &str
             if let Some(aka) = &papi.playerAkaData {
               if let Some(aka_name) = &aka.name {
                 aka_lock.insert(battletag.to_string(), Some(aka_name.clone()));
-                if let Err(err) = aka::put_aka(&*aka_lock).await {
+                if let Err(err) = aka::put_aka(&aka_lock).await {
                   error!("failed to update aka rs db {:?}", err);
                 }
                 return Some(aka_name.to_string());
               } else {
                 aka_lock.insert(battletag.to_string(), None);
-                if let Err(err) = aka::put_aka(&*aka_lock).await {
+                if let Err(err) = aka::put_aka(&aka_lock).await {
                   error!("failed to update aka rs db {:?}", err);
                 }
               }
             } else {
               aka_lock.insert(battletag.to_string(), None);
-              if let Err(err) = aka::put_aka(&*aka_lock).await {
+              if let Err(err) = aka::put_aka(&aka_lock).await {
                 error!("failed to update aka rs db {:?}", err);
               }
             }

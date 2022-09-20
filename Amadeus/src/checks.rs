@@ -14,7 +14,7 @@ pub async fn moderator_check( ctx: &Context
                             , _: &mut Args
                             , _: &CommandOptions ) -> Result<(), Reason> {
   if let Ok(member) = msg.member(ctx).await {
-    if let Ok(permissions) = member.permissions(&ctx) {
+    if let Ok(permissions) = member.permissions(ctx) {
       if permissions.ban_members() {
         return Ok(());
       }
@@ -32,7 +32,7 @@ pub async fn admin_check( ctx: &Context
                         , _: &mut Args
                         , _: &CommandOptions ) -> Result<(), Reason> {
   if let Ok(member) = msg.member(ctx).await {
-    if let Ok(permissions) = member.permissions(&ctx) {
+    if let Ok(permissions) = member.permissions(ctx) {
       if permissions.administrator() {
         return Ok(());
       } else if let Ok(info) = ctx.http.get_current_application_info().await {

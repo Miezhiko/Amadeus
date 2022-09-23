@@ -4,7 +4,8 @@ use crate::{
            , RESTORE, BACKUP },
   types::{ serenity::CoreGuild
          , options::* },
-  common::{ db::trees::{ points, roles, emojis }
+  common::{ options
+          , db::trees::{ points, roles, emojis }
           , constants::{ UNBLOCK_ROLE
                        , LIVE_ROLE
                        , MUTED_ROLE, MUTED_ROOMS }
@@ -46,10 +47,10 @@ pub struct Handler { ioptions:   IOptions
                    , amadeus_id: UserId }
 
 impl Handler {
-  pub fn new(iopts: &IOptions, ropts: ROptions, amadeus: UserId) -> Handler {
-    Handler { ioptions:   iopts.clone()
-            , roptions:   ropts
-            , amadeus_id: amadeus }
+  pub async fn new(iopts: IOptions, amadeus: UserId) -> anyhow::Result<Handler> {
+    Ok(Handler { ioptions:   iopts
+               , roptions:   options::get_roptions().await?
+               , amadeus_id: amadeus })
   }
 }
 

@@ -5,8 +5,7 @@ use crate::{
               , IServer, AllGuilds },
     options::IOptions
   },
-  common::{ options
-          , constants::PREFIX
+  common::{ constants::PREFIX
           , system::ShardManagerContainer
           , voice::DECODE_TYPE },
   handler::Handler,
@@ -33,7 +32,7 @@ use std::{ collections::{ HashSet, HashMap }
          , sync::Arc };
 
 #[instrument]
-pub async fn run(opts: &IOptions) ->
+pub async fn run(opts: IOptions) ->
   anyhow::Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
   LogTracer::init()?;
@@ -65,10 +64,6 @@ pub async fn run(opts: &IOptions) ->
   };
 
   info!("application info loaded");
-
-  let runtime_options = options::get_roptions().await?;
-
-  info!("all the options loaded");
 
   let mut creds = HashMap::new();
   creds.insert("tenor".to_string(), opts.tenor_key.clone());
@@ -149,9 +144,8 @@ pub async fn run(opts: &IOptions) ->
     serenity::Client::builder(&opts.discord, intents)
       .application_id(opts.app_id)
       .event_handler(Handler::new( opts
-                                 , runtime_options
                                  , amadeus_id
-                                 )
+                                 ).await?
                     )
       .framework(std_framework)
       .register_songbird_with(songbird).await?;

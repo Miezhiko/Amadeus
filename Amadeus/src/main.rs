@@ -26,7 +26,7 @@ mod slash; mod hooks; mod groups; mod amadeus;
 async fn main() -> anyhow::Result<()> {
   let iopts = common::options::get_ioptions()
                 .map_err(|e| anyhow!("Failed to parse Dhall config {e}"))?;
-  if let Err(err) = amadeus::run(&iopts).await {
+  if let Err(err) = amadeus::run(iopts).await {
     panic!("Amadeus died {err}")
   }
   Ok(())

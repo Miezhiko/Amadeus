@@ -208,3 +208,46 @@ async fn zugaina(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
   Ok(())
 }
+
+#[command]
+#[description("Find Gentoo Wiki article")]
+#[min_args(1)]
+async fn wiki(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  let search_text = args.single::<String>()?;
+  let reqwest_client = {
+    set!{ data            = ctx.data.read().await
+        , reqwest_client  = data.get::<ReqwestClient>().unwrap() };
+    reqwest_client.clone()
+  };
+  let res = reqwest_client.get(&format!("https://wiki.gentoo.org/api.php?action=opensearch&search={search_text}")).send().await?;
+  let (search_request, texts, _, links): Wiki = res.json().await?;
+
+  if links.is_empty() {
+    channel_message(ctx, msg, &format!("nothing found for: {search_text}")).await;
+    return Ok(());
+  }
+
+  let footer = format!("Requested by {}", msg.author.name);
+  let mut e = CreateEmbed::new()
+                .title(&search_request)
+                .url( links.first().unwrap_or(&"https://wiki.gentoo.org".to_string()) )
+                .color((240, 0, 170))
+                .footer(CreateEmbedFooter::new(footer));
+
+  for (i, link) in links.iter().enumerate() {
+    if let Some(title) = texts.get(i) {
+      e = e.field(title, link, false);
+    }
+  }
+
+  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+    .embed(e)
+  ).await {
+    msg.channel_id.say(ctx, &format!("Error: {why}")).await?;
+  };
+
+  if let Err(why) = msg.delete(ctx).await {
+    error!("Error deleting original command {why}");
+  }
+  Ok(())
+}

@@ -316,10 +316,15 @@ async fn catch_up_with_roles(ctx: &Context, _msg: &Message, mut args: Args) -> C
 #[command]
 #[owners_only]
 #[min_args(1)]
-async fn ban(ctx: &Context, msg: &Message) -> CommandResult {
+async fn ban(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
     if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
-      channel_message(ctx, msg, "you need to target who to ban").await;
+      if let Ok(user_id) = args.single::<u64>() {
+        let guild = guild_id.to_partial_guild(&ctx).await?;
+        guild.ban(ctx, user_id, 0).await?;
+      } else {
+        channel_message(ctx, msg, "you need to target who to ban").await;
+      }
     } else {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
       let guild = guild_id.to_partial_guild(&ctx).await?;

@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "10.3.18"
+version             = "10.3.19"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -62,8 +62,9 @@ git = "https://github.com/aesteve/w3rs.git"
 branch = "master"
 
 [dependencies.plotters]
-git = "https://github.com/plotters-rs/plotters.git"
-branch = "master"
+version = "0.3.4"
+#git = "https://github.com/plotters-rs/plotters.git"
+#branch = "master"
 
 [dependencies.stroke]
 git = "https://github.com/dorianprill/stroke.git"

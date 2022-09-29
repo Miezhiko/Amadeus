@@ -68,6 +68,7 @@
  - Warcraft 3 Status Grid with active players on modes and weekly team players statistics.
  - [FloTV](https://w3flo.com/live) tokens generation using GraphQL API to [Flo Stats](https://stats.w3flo.com).
 
+<img align="right" src="https://cdn.discordapp.com/attachments/249111029668249601/1025077275525382234/unknown.png">
 
 ## Cooking
 

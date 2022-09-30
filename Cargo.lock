@@ -872,7 +872,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#7ce20fcb1134dc11253cb528d25bd9a648e63684"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#531ee4a3bc3a493be53dd75938abaefb1b0ee143"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2638,9 +2638,9 @@ checksum = "db13adb97ab515a3691f56e4dbab09283d0b86cb45abd991d8634a9d6f501760"
 
 [[package]]
 name = "libc"
-version = "0.2.133"
+version = "0.2.134"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0f80d65747a3e43d1596c7c5492d95d5edddaabd45a7fcdb02b95f644164966"
+checksum = "329c933548736bc49fd575ee68c89e8be4d260064184389a5b77517cddd99ffb"
 
 [[package]]
 name = "libloading"
@@ -2904,7 +2904,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.16"
+version = "0.2.17"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -4703,7 +4703,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#7ce20fcb1134dc11253cb528d25bd9a648e63684"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#531ee4a3bc3a493be53dd75938abaefb1b0ee143"
 dependencies = [
  "async-trait",
  "base64",
@@ -4741,7 +4741,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#7ce20fcb1134dc11253cb528d25bd9a648e63684"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#531ee4a3bc3a493be53dd75938abaefb1b0ee143"
 dependencies = [
  "bitflags",
  "enum_primitive",

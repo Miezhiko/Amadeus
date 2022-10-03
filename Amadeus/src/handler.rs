@@ -25,16 +25,16 @@ use serenity::{
   model::{ guild::audit_log::MessageAction
          , id::{ GuildId, MessageId, UserId, ChannelId, RoleId }
          , event::ResumedEvent, gateway::Ready, guild::Member
-         , channel::{ Message, Reaction, ReactionType, AttachmentType
+         , channel::{ Message, Reaction, ReactionType
                     , PermissionOverwrite, PermissionOverwriteType }
          , user::User, application::interaction::Interaction
          , permissions::Permissions
          , colour::Colour
-         }
+         },
+  builder::CreateAttachment
 };
 
-use std::{ borrow::Cow
-         , sync::atomic::{ Ordering, AtomicBool }
+use std::{ sync::atomic::{ Ordering, AtomicBool }
          , collections::HashSet
          };
 
@@ -312,7 +312,7 @@ impl EventHandler for Handler {
         if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
           if msg.is_own(&ctx) { // TODO: not sure whether we want to backup ALL
             if let Some(guild_id) = msg.guild_id {
-              if let Ok(audit) = ctx.http.get_audit_logs( guild_id.0.get()
+              if let Ok(audit) = ctx.http.get_audit_logs( guild_id
                                                         , Some( MessageAction::Delete as u8 )
                                                         , None
                                                         , None
@@ -320,7 +320,7 @@ impl EventHandler for Handler {
                 // Here we just hope it's last in Audit log, very unsafe stuff
                 for entry in audit.entries {
                   // that entry contains target_id: Option<u64> but nobody knows what's that
-                  if let Ok(deleter) = ctx.http.get_user(entry.user_id.0.get()).await {
+                  if let Ok(deleter) = ctx.http.get_user(entry.user_id).await {
                     if !deleter.bot {
                       // message was removed by admin or by author
                       info!("{} or {} was trying to remove message", deleter.name
@@ -328,10 +328,10 @@ impl EventHandler for Handler {
                       // But I don't allow it
                       for file in &msg.attachments {
                         if let Ok(bytes) = file.download().await {
-                          let cow = AttachmentType::Bytes {
-                            data: Cow::from(bytes),
-                            filename: String::from(&file.filename)
-                          };
+                          let cow = CreateAttachment::bytes(
+                            &bytes,
+                            String::from(&file.filename)
+                          );
                           if let Err(why) = channel_id.send_message(&ctx, CreateMessage::new().add_file(cow)).await {
                             error!("Failed to download and post attachment {why}");
                           }

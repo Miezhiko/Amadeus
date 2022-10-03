@@ -10,8 +10,8 @@ use tokio::process::Command;
 use regex::Regex;
 use once_cell::sync::Lazy;
 
-pub async fn upgrade_amadeus(ctx: &Context, channel_id: &ChannelId) -> anyhow::Result<()> {
-  let start_typing = ctx.http.start_typing(channel_id.0.get());
+pub async fn upgrade_amadeus(ctx: &Context, channel_id: ChannelId) -> anyhow::Result<()> {
+  let start_typing = ctx.http.start_typing(channel_id);
   ctx.set_activity(Some( ActivityData::listening("Fetching changes") ));
   ctx.idle();
   let git_fetch = Command::new("sh")

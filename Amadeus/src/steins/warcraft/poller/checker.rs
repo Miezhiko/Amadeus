@@ -24,6 +24,7 @@ use serenity::{
   builder::*,
   model::id::{ UserId
              , GuildId
+             , MessageId
              , ChannelId }
 };
 
@@ -118,8 +119,9 @@ pub async fn check<'a>( ctx: &Context
                     if let Some(ds) = DISCORDS.get(&t.0) {
                     if let Some(ch) = ds.games {
 
-                    if let Ok(mut msg) = ctx.http.get_message(ch, t.1).await {
-                      if let Ok(user) = ctx.http.get_user(playa).await {
+                    if let Ok(mut msg) = ctx.http.get_message( ChannelId(to_nzu!(ch))
+                                                             , MessageId(to_nzu!(t.1)) ).await {
+                      if let Ok(user) = ctx.http.get_user( UserId(to_nzu!(playa)) ).await {
 
                         if track.flo_tv.is_none() {
                           if let Ok(Some(flotv)) = get_flotv(rqcl, &playaz).await {
@@ -274,10 +276,11 @@ pub async fn check<'a>( ctx: &Context
                     if let Some(ds) = DISCORDS.get(&t.0) {
                     if let Some(ch) = ds.games2 {
 
-                    if let Ok(mut msg) = ctx.http.get_message(ch, t.1).await {
+                    if let Ok(mut msg) = ctx.http.get_message( ChannelId(to_nzu!(ch))
+                                                             , MessageId(to_nzu!(t.1)) ).await {
                       // get first player for discord
                       let playa = playaz[0].player.discord;
-                      if let Ok(user) = ctx.http.get_user(playa).await {
+                      if let Ok(user) = ctx.http.get_user( UserId(to_nzu!(playa)) ).await {
 
                         if track.flo_tv.is_none() {
                           if let Ok(Some(flotv)) = get_flotv(rqcl, &playaz).await {
@@ -428,10 +431,11 @@ pub async fn check<'a>( ctx: &Context
                   if let Some(ds) = DISCORDS.get(&t.0) {
                   if let Some(ch) = ds.games4 {
 
-                  if let Ok(mut msg) = ctx.http.get_message(ch, t.1).await {
+                  if let Ok(mut msg) = ctx.http.get_message( ChannelId(to_nzu!(ch))
+                                                           , MessageId(to_nzu!(t.1)) ).await {
                     // get first player for discord
                     let playa = playaz[0].player.discord;
-                    if let Ok(user) = ctx.http.get_user(playa).await {
+                    if let Ok(user) = ctx.http.get_user( UserId(to_nzu!(playa)) ).await {
                       setm!{ fields = Vec::new()
                            , img    = None
                            , url    = None
@@ -543,10 +547,10 @@ pub async fn check<'a>( ctx: &Context
 
         if let Some(finished_game) = check_match(k, &track.players, &track.mode, rqcl).await {
           let fgame = &finished_game;
-          if let Ok(mut msg) = ctx.http.get_message( game_channel.0.get()
-                                                   , track.tracking_msg_id[0].1 ).await {
+          if let Ok(mut msg) = ctx.http.get_message( game_channel
+                                                   , MessageId(to_nzu!(track.tracking_msg_id[0].1)) ).await {
             let footer: String = format!("Passed: {} min", fgame.passed_time);
-            if let Ok(user) = ctx.http.get_user(playa.player.discord).await {
+            if let Ok(user) = ctx.http.get_user( UserId(to_nzu!(playa.player.discord)) ).await {
               let mut old_fields = Vec::new();
               let mut color = None;
               if !msg.embeds.is_empty() {
@@ -747,8 +751,8 @@ pub async fn check<'a>( ctx: &Context
           } else {
             // mark tracking game for removal after 3 fails
             k_to_del.push(k.clone());
-            if let Ok(msg) = ctx.http.get_message( game_channel.0.get()
-                                                 , track.tracking_msg_id[0].1 ).await {
+            if let Ok(msg) = ctx.http.get_message( game_channel
+                                                 , MessageId(to_nzu!(track.tracking_msg_id[0].1)) ).await {
               if let Err(wtf) = msg.delete(ctx).await {
                 error!("Failed to clean up dropped Live game {:?}", wtf);
               }

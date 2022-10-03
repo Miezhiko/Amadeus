@@ -21,7 +21,8 @@ use songbird::{ Config as DriverConfig
 
 use serenity::{
   framework::StandardFramework,
-  model::gateway::GatewayIntents
+  model::{ gateway::GatewayIntents
+         , id::ApplicationId }
 };
 
 use tracing::{ Level, instrument };
@@ -142,7 +143,7 @@ pub async fn run(opts: IOptions) ->
               | GatewayIntents::MESSAGE_CONTENT;
   let mut client =
     serenity::Client::builder(&opts.discord, intents)
-      .application_id(opts.app_id)
+      .application_id( ApplicationId(to_nzu!(opts.app_id)) )
       .event_handler(Handler::new( opts
                                  , amadeus_id
                                  ).await?

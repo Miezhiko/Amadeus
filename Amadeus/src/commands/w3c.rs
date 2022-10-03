@@ -122,7 +122,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
         loop {
           let collector = bot_msg.reaction_collector(&ctx.shard)
                                  .timeout(Duration::from_secs(120))
-                                 .author_id(msg.author.id.0);
+                                 .author_id(msg.author.id);
           if let Some(reaction) = collector.collect_single().await {
             let emoji = &reaction.as_inner_ref().emoji;
             match emoji.as_data().as_str() {
@@ -182,7 +182,7 @@ async fn get_player(rqcl: &Arc<reqwest::Client>, target: &str, season: &str) -> 
 #[aliases(статистика, statistics)]
 #[description("display statistics on W3Champions")]
 pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
+  let start_typing = ctx.http.start_typing(msg.channel_id);
   let mut args_msg = args.message();
   if args_msg.is_empty() {
     args_msg = &msg.author.name;
@@ -457,7 +457,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let args_msg = args.single::<String>()?;
   let race_vs = args.single::<String>()?;
 
-  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
+  let start_typing = ctx.http.start_typing(msg.channel_id);
 
   let mut seasons = 2;
   let season_str = current_season();
@@ -603,7 +603,7 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let p1 = args.single::<String>()?;
   let p2 = args.single::<String>()?;
 
-  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
+  let start_typing = ctx.http.start_typing(msg.channel_id);
   let mut seasons = 2;
   let season_str = current_season();
   let season = season_str.parse::<u32>()?;

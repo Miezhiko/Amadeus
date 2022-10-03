@@ -28,7 +28,7 @@ async fn generate_response( ctx: &Context
                           , gtry: u32
                           , lsm: bool
                           , is_response: bool ) -> Option<String> {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
+  let start_typing = ctx.http.start_typing(msg.channel_id);
   let message_id = if is_response { Some(msg.id.0.get()) } else { None };
   if gtry > 0 {
     warn!("Response: failed to generate normal response, try: {gtry}");
@@ -156,7 +156,7 @@ async fn generate_response( ctx: &Context
                           , gtry: u32
                           , lsm: bool
                           , is_response: bool ) -> Option<String> {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
+  let start_typing = ctx.http.start_typing(msg.channel_id);
   if gtry > 0 {
     warn!("Failed to generate normal respons, try: {gtry}");
   }

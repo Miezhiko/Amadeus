@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.3.19"
+version = "10.3.20"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -872,7 +872,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#531ee4a3bc3a493be53dd75938abaefb1b0ee143"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#93fa816f4aa47b213d069868109938e432aabe3d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3216,9 +3216,9 @@ dependencies = [
 
 [[package]]
 name = "ordered-float"
-version = "3.1.0"
+version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98ffdb14730ed2ef599c65810c15b000896e21e8776b512de0db0c3d7335cc2a"
+checksum = "129d36517b53c461acc6e1580aeb919c8ae6708a4b1eae61c4463a615d4f0411"
 dependencies = [
  "num-traits 0.2.15",
 ]
@@ -3359,9 +3359,9 @@ checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 
 [[package]]
 name = "pest"
-version = "2.3.1"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb779fcf4bb850fbbb0edc96ff6cf34fd90c4b1a112ce042653280d9a7364048"
+checksum = "dbc7bc69c062e492337d74d59b120c274fd3d261b6bf6d3207d499b4b379c41a"
 dependencies = [
  "thiserror",
  "ucd-trie",
@@ -3391,9 +3391,9 @@ dependencies = [
 
 [[package]]
 name = "pest_derive"
-version = "2.3.1"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "502b62a6d0245378b04ffe0a7fb4f4419a4815fce813bd8a0ec89a56e07d67b1"
+checksum = "60b75706b9642ebcb34dab3bc7750f811609a0eb1dd8b88c2d15bf628c1c65b2"
 dependencies = [
  "pest",
  "pest_generator",
@@ -3401,9 +3401,9 @@ dependencies = [
 
 [[package]]
 name = "pest_generator"
-version = "2.3.1"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "451e629bf49b750254da26132f1a5a9d11fd8a95a3df51d15c4abd1ba154cb6c"
+checksum = "f4f9272122f5979a6511a749af9db9bfc810393f63119970d7085fed1c4ea0db"
 dependencies = [
  "pest",
  "pest_meta",
@@ -3414,9 +3414,9 @@ dependencies = [
 
 [[package]]
 name = "pest_meta"
-version = "2.3.1"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bcec162c71c45e269dfc3fc2916eaeb97feab22993a21bcce4721d08cd7801a6"
+checksum = "4c8717927f9b79515e565a64fe46c38b8cd0427e64c40680b14a7365ab09ac8d"
 dependencies = [
  "once_cell",
  "pest",
@@ -4290,7 +4290,7 @@ dependencies = [
  "dirs",
  "half 2.1.0",
  "lazy_static",
- "ordered-float 3.1.0",
+ "ordered-float 3.2.0",
  "rust_tokenizers",
  "serde",
  "serde_json",
@@ -4703,7 +4703,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#531ee4a3bc3a493be53dd75938abaefb1b0ee143"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#93fa816f4aa47b213d069868109938e432aabe3d"
 dependencies = [
  "async-trait",
  "base64",
@@ -4741,7 +4741,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#531ee4a3bc3a493be53dd75938abaefb1b0ee143"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#93fa816f4aa47b213d069868109938e432aabe3d"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -4886,9 +4886,9 @@ checksum = "8347046d4ebd943127157b94d63abb990fcf729dc4e9978927fdf4ac3c998d06"
 
 [[package]]
 name = "smallvec"
-version = "1.9.0"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2fd0db749597d91ff862fd1d55ea87f7855a744a8425a64695b6fca237d1dad1"
+checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
 
 [[package]]
 name = "snafu"

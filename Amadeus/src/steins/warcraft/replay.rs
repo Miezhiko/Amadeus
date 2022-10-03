@@ -16,7 +16,6 @@ use serenity::{
   builder::*,
   model::channel::{ Attachment
                   , Message
-                  , AttachmentType
                   , ReactionType },
   builder::CreateEmbed
 };
@@ -126,8 +125,9 @@ pub async fn replay_embed( ctx: &Context
             .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
             .draw()?;
         }
+        let a = CreateAttachment::path(std::path::Path::new(&fname_apm)).await?;
         match APM_PICS.send_message(&ctx, CreateMessage::new()
-          .add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
+          .add_file(a)).await {
           Ok(msg) => {
             if !msg.attachments.is_empty() {
               let img_attachment = &msg.attachments[0];
@@ -345,8 +345,9 @@ pub async fn attach_replay( ctx: &Context
                           .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
                           .draw()?;
                       }
+                      let a = CreateAttachment::path(std::path::Path::new(&fname_apm)).await?;
                       match APM_PICS.send_message(&ctx, CreateMessage::new()
-                        .add_file(AttachmentType::Path(std::path::Path::new(&fname_apm)))).await {
+                        .add_file(a)).await {
                         Ok(msg) => {
                           if !msg.attachments.is_empty() {
                             let img_attachment = &msg.attachments[0];
@@ -384,9 +385,10 @@ pub async fn attach_replay( ctx: &Context
                     if let Some(colour) = &mmm.embeds[0].colour {
                       e = e.colour(colour.tuple());
                     }
+                    let a = CreateAttachment::path(std::path::Path::new(&file.filename)).await?;
                     if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
                         .embed(e)
-                      .add_file(AttachmentType::Path(std::path::Path::new(&file.filename)))
+                      .add_file(a)
                     ).await {
                       error!("Failed to attach replay {why}");
                     } else {

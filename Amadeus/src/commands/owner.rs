@@ -22,7 +22,8 @@ use serenity::{
   model::channel::{ Message
                   , ReactionType },
   model::id::{ ChannelId
-             , RoleId },
+             , RoleId
+             , MessageId },
   framework::standard::{
     Args, CommandResult,
     macros::command
@@ -174,7 +175,7 @@ async fn upgrade(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command, {why}");
   }
-  if let Err(why) = system::upgrade::upgrade_amadeus(ctx, &msg.channel_id).await {
+  if let Err(why) = system::upgrade::upgrade_amadeus(ctx, msg.channel_id).await {
     error!("Failed to upgrade Amadeus, {why}");
   }
   Ok(())
@@ -273,7 +274,7 @@ async fn eix(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 async fn catch_up_with_roles(ctx: &Context, _msg: &Message, mut args: Args) -> CommandResult {
   set!{ chan_id = args.single::<u64>()?
       , msg_id  = args.single::<u64>()?
-      , msg     = ctx.http.get_message(chan_id, msg_id).await?
+      , msg     = ctx.http.get_message( ChannelId(to_nzu!(chan_id)), MessageId(to_nzu!(msg_id)) ).await?
       , channel = msg.channel(&ctx).await? };
   if let Some(guild_channel) = channel.guild() {
     let guild_u64 = guild_channel.guild_id.get();

@@ -14,17 +14,16 @@ use crate::{
 use serenity::{
   prelude::*,
   builder::*,
-  model::channel::AttachmentType,
   model::id::{ ChannelId
-             , GuildId }
+             , GuildId
+             , MessageId
+             , UserId }
 };
 
-use std::{
-  borrow::Cow,
-  collections::HashMap,
-  time,
-  sync::Arc
-};
+use std::{ collections::HashMap
+         , time
+         , sync::Arc
+         };
 
 use chrono::DateTime;
 use rand::Rng;
@@ -99,7 +98,7 @@ pub async fn activate_streamers_tracking(
         streams.remove(&ktd);
       }
       for p in ALL.iter() {
-        if let Ok(user) = ctx_clone.http.get_user(p.player.discord).await {
+        if let Ok(user) = ctx_clone.http.get_user( UserId(to_nzu!(p.player.discord)) ).await {
           setm!{ twitch_live        = false
                , additional_fields  = Vec::new()
                , title              = String::new()
@@ -236,8 +235,8 @@ pub async fn activate_streamers_tracking(
               if let Some(discord) = DISCORDS.get(&t_msg.0) {
               if let Some(streams_channel) = discord.streams {
 
-              if let Ok(mut msg) = ctx_clone.http.get_message( streams_channel
-                                                             , t_msg.1 ).await {
+              if let Ok(mut msg) = ctx_clone.http.get_message( ChannelId(to_nzu!(streams_channel))
+                                                             , MessageId(to_nzu!(t_msg.1)) ).await {
                 let footer = if track.passed_time > 60 {
                     let hours: u32 = track.passed_time / 60;
                     let minutes = track.passed_time % 60;
@@ -293,10 +292,10 @@ pub async fn activate_streamers_tracking(
                 if let Some(some_image) = &image {
                   if let Ok(response) = reqwest::get(some_image.as_str()).await {
                     if let Ok(bytes) = response.bytes().await {
-                      let cow = AttachmentType::Bytes {
-                        data: Cow::from(bytes.as_ref()),
-                        filename: "stream_img.jpg".to_string()
-                      };
+                      let cow = CreateAttachment::bytes(
+                        bytes.as_ref(),
+                        "stream_img.jpg"
+                      );
                       match STREAM_PICS.send_message(&ctx_clone, CreateMessage::new().add_file(cow)).await {
                         Ok(msg) => {
                           if !msg.attachments.is_empty() {
@@ -410,8 +409,8 @@ pub async fn activate_streamers_tracking(
             if let Some(discord) = DISCORDS.get(&t_msg.0) {
             if let Some(streas_channel) = discord.streams {
 
-            if let Ok(mut msg) = ctx_clone.http.get_message( streas_channel
-                                                           , t_msg.1 ).await {
+            if let Ok(mut msg) = ctx_clone.http.get_message( ChannelId(to_nzu!(streas_channel))
+                                                           , MessageId(to_nzu!(t_msg.1)) ).await {
               let footer = if track.passed_time > 60 {
                   let hours: u32 = track.passed_time / 60;
                   let minutes = track.passed_time % 60;

@@ -37,7 +37,7 @@ use std::collections::HashMap;
 use mozart::bert::{ RE1, RE2, RE3 };
 
 pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Option<String> {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
+  let start_typing = ctx.http.start_typing(msg.channel_id);
   let mut have_something = false;
 
   let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();

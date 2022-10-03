@@ -109,7 +109,7 @@ pub async fn rep_embed( ctx: &Context
         loop {
           let collector = bot_msg.reaction_collector(&ctx.shard)
                                  .timeout(Duration::from_secs(120))
-                                 .author_id(msg.author.id.0);
+                                 .author_id(msg.author.id);
           if let Some(reaction) = collector.collect_single().await {
             let emoji = &reaction.as_inner_ref().emoji;
             match emoji.as_data().as_str() {

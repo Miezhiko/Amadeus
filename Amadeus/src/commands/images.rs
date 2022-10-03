@@ -75,7 +75,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
                               , target: GType
                               , nsfw: bool
                               ) -> CommandResult {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
+  let start_typing = ctx.http.start_typing(msg.channel_id);
   if match target {
     GType::Target(_) => !(msg.mentions.is_empty() || (!msg.mentions.is_empty() && msg.mentions[0].bot)),
     GType::Own(_) => true,
@@ -148,7 +148,7 @@ pub async fn gifs<C: Into<Colour>>( ctx: &Context
                                   , nsfw: bool
                                   , arg: Option<String>
                                   ) -> anyhow::Result<()> {
-  let start_typing = ctx.http.start_typing(msg.channel_id.0.get());
+  let start_typing = ctx.http.start_typing(msg.channel_id);
   if match target {
     GType::Target(_) => arg.is_some(),
     GType::Own(_) => true,

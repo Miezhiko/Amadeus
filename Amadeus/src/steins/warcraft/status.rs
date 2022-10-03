@@ -17,8 +17,7 @@ use chrono::{
 
 use serenity::{
   prelude::*,
-  builder::*,
-  model::channel::AttachmentType
+  builder::*
 };
 
 use std::collections::{
@@ -185,8 +184,9 @@ pub async fn generate_stats_graph( ctx: &Context
       .label_font(("monospace", 19).into_font().color(&RGBColor(200, 200, 200)))
       .draw()?;
   }
+  let a = CreateAttachment::path(std::path::Path::new(&fname_weekly_statis)).await?;
   match APM_PICS.send_message(&ctx, CreateMessage::new()
-    .add_file(AttachmentType::Path(std::path::Path::new(&fname_weekly_statis)))).await {
+    .add_file(a)).await {
     Ok(msg) => {
       if !msg.attachments.is_empty() {
         let img_attachment = &msg.attachments[0];

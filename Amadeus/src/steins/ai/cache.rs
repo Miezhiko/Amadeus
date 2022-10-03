@@ -156,7 +156,7 @@ pub async fn update_cache( ctx: &Context
   for chan in channels.keys() {
     if let Ok(c_name) = chan.name(&ctx).await {
       if let Some(ch_lang) = AI_LEARN.iter().find(|c| c.id == chan.0.get()) {
-        let start_typing = ctx.http.start_typing(chan.0.get());
+        let start_typing = ctx.http.start_typing(*chan);
         let mut messages = chan.messages_iter(&ctx).boxed();
 
         info!("updating ai chain from {}", &c_name);

@@ -29,13 +29,13 @@ use serenity::{
   prelude::*,
   builder::*,
   model::{ id::{ EmojiId, MessageId, UserId }
-         , channel::{ Message, AttachmentType, ReactionType }
+         , channel::{ Message, ReactionType }
          , colour::Colour
          },
   gateway::ActivityData
 };
 
-use std::{ borrow::Cow, collections::VecDeque
+use std::{ collections::VecDeque
          , sync::atomic::{ Ordering, AtomicBool }
          , time::Duration
          };
@@ -80,10 +80,10 @@ pub async fn process( ioptions: &IOptions
     let mut is_file = false;
     for file in &msg.attachments {
       if let Ok(bytes) = file.download().await {
-        let cow = AttachmentType::Bytes {
-          data: Cow::from(bytes),
-          filename: String::from(&file.filename)
-        };
+        let cow = CreateAttachment::bytes(
+          &bytes,
+          String::from(&file.filename)
+        );
         if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::new().add_file(cow)).await {
           error!("Failed to download and post attachment {:?}", why);
         } else {

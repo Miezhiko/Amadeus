@@ -15,7 +15,7 @@ use chrono::{ prelude::*
             , Utc };
 
 pub async fn tour_internal( ctx: &Context
-                          , channel_id: &ChannelId
+                          , channel_id: ChannelId
                           , on: DateTime<Utc>
                           , passed_check: bool
                           , report_no_events: bool
@@ -140,8 +140,8 @@ pub async fn tour_internal( ctx: &Context
         }
       }
       if let Some(msg_id) = post_to_edit {
-        if let Ok(mut msg) = ctx.http.get_message( channel_id.0.get()
-                                                 , msg_id.0.get() ).await {
+        if let Ok(mut msg) = ctx.http.get_message( channel_id
+                                                 , msg_id ).await {
           let embed = CreateEmbed::new()
             .title(title.as_str())
             .thumbnail("https://upload.wikimedia.org/wikipedia/en/4/4f/Warcraft_III_Reforged_Logo.png")
@@ -174,7 +174,7 @@ pub async fn tour_internal( ctx: &Context
 }
 
 pub async fn tour(ctx: &Context, msg: &Message, on: DateTime<Utc>) -> CommandResult {
-  tour_internal(ctx, &msg.channel_id, on, false, true).await
+  tour_internal(ctx, msg.channel_id, on, false, true).await
 }
 
 #[command]
@@ -194,7 +194,7 @@ pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
 #[description("display today events from w3info")]
 pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
   let today: DateTime<Utc> = Utc::now(); 
-  tour_internal(ctx, &msg.channel_id, today, true, true).await?;
+  tour_internal(ctx, msg.channel_id, today, true, true).await?;
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command {why}");
   }
@@ -219,7 +219,7 @@ pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
 pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
   let mut today: DateTime<Utc> = Utc::now();
   if today.weekday() == Weekday::Sun {
-    tour_internal(ctx, &msg.channel_id, today, true, false).await?;
+    tour_internal(ctx, msg.channel_id, today, true, false).await?;
   } else {
     let is_saturday = today.weekday() == Weekday::Sat;
     if !is_saturday {
@@ -227,7 +227,7 @@ pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {
         today += Duration::days(1); 
       }
     }
-    tour_internal(ctx, &msg.channel_id, today, is_saturday, true).await?;
+    tour_internal(ctx, msg.channel_id, today, is_saturday, true).await?;
     let tomorrow: DateTime<Utc> = today + Duration::days(1); 
     tour(ctx, msg, tomorrow).await?;
   }

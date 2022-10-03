@@ -16,7 +16,7 @@ use crate::{
 use chrono::{ Timelike, Datelike, Weekday };
 use serenity::{ prelude::*
               , builder::*
-              , model::id::ChannelId
+              , model::id::{ ChannelId, UserId }
               , model::channel::ReactionType };
 
 use std::{ time
@@ -121,7 +121,8 @@ pub async fn activate_games_tracking(
       for game in our_gsx {
         let game_key = game.key.clone();
         let playa = &game.players[0];
-        if let Ok(user) = ctx_clone.http.get_user(playa.player.discord).await {
+        if let Ok(user) = ctx_clone.http
+          .get_user( UserId(to_nzu!(playa.player.discord)) ).await {
 
           setm!{ twitch_live        = false
                , additional_fields  = vec![]

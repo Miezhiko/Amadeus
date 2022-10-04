@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.3.20"
+version = "10.3.21"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -872,7 +872,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#93fa816f4aa47b213d069868109938e432aabe3d"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#067b4a8088c3fbd32da6d19fbe1bd70241b3d278"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4703,7 +4703,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#93fa816f4aa47b213d069868109938e432aabe3d"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#067b4a8088c3fbd32da6d19fbe1bd70241b3d278"
 dependencies = [
  "async-trait",
  "base64",
@@ -4729,7 +4729,7 @@ dependencies = [
  "serde-value",
  "serde_json",
  "static_assertions",
- "time 0.3.14",
+ "time 0.3.15",
  "tokio",
  "tokio-tungstenite",
  "tracing",
@@ -4741,7 +4741,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#93fa816f4aa47b213d069868109938e432aabe3d"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#067b4a8088c3fbd32da6d19fbe1bd70241b3d278"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -5254,9 +5254,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.14"
+version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c3f9a28b618c3a6b9251b6908e9c99e04b9e5c02e6581ccbb67d59c34ef7f9b"
+checksum = "d634a985c4d4238ec39cacaed2e7ae552fbd3c476b552c1deac3021b7d7eaf0c"
 dependencies = [
  "itoa 1.0.3",
  "libc",
@@ -6355,7 +6355,7 @@ dependencies = [
  "hmac",
  "pbkdf2",
  "sha1 0.10.5",
- "time 0.3.14",
+ "time 0.3.15",
  "zstd",
 ]
 

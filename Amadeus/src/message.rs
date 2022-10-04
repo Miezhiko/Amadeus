@@ -81,7 +81,7 @@ pub async fn process( ioptions: &IOptions
     for file in &msg.attachments {
       if let Ok(bytes) = file.download().await {
         let cow = CreateAttachment::bytes(
-          &bytes,
+          bytes,
           String::from(&file.filename)
         );
         if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::new().add_file(cow)).await {

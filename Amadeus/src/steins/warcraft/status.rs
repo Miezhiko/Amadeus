@@ -45,7 +45,8 @@ const KURISU_LINK: &str = "https://vignette.wikia.nocookie.net/steins-gate/image
 pub struct DailyWinLoses {
   pub wins: u64,
   pub losses: u64,
-  pub mmr: u32
+  pub mmr: u32,
+  pub race: Option<u32>
 }
 
 type StatusStats = BTreeMap<String, DailyWinLoses>;
@@ -81,24 +82,35 @@ pub async fn add_to_weekly( ctx: &Context
                           , win: bool
                           , xmmr: u32
                           , solo: bool
+                          , xrace: u32
                           ) -> anyhow::Result<()> {
   let mut current_weekly = get_weekly(ctx).await?;
   let weekly_stats: &mut StatusStats =
     if solo { &mut current_weekly.stats[0].statistics }
        else { &mut current_weekly.stats[0].statistics2 };
   if let Some(p_stats) = weekly_stats.get_mut(p) {
-    if win {
-      p_stats.wins += 1;
+    if win {  p_stats.wins += 1;
+    } else {  p_stats.losses += 1; }
+    if let Some(prace) = p_stats.race {
+      if prace == xrace {
+        p_stats.mmr = xmmr;
+      } else {
+        if xmmr > p_stats.mmr {
+          p_stats.mmr   = xmmr;
+          p_stats.race  = Some(xrace)
+        }
+      }
     } else {
-      p_stats.losses += 1;
+      p_stats.mmr   = xmmr;
+      p_stats.race  = Some(xrace)
     }
-    p_stats.mmr = xmmr;
   } else {
     #[allow(clippy::bool_to_int_with_if)]
     let stats = DailyWinLoses {
       wins    : if win { 1 } else { 0 },
       losses  : if win { 0 } else { 1 },
-      mmr     : xmmr
+      mmr     : xmmr,
+      race    : Some(xrace)
     };
     weekly_stats.insert(p.to_string(), stats);
   }

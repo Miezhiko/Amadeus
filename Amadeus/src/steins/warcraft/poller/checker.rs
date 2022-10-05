@@ -569,28 +569,27 @@ pub async fn check<'a>( ctx: &Context
               setm!{ title          = "FINISHED"
                    , streak_fields  = None
                    , bet_fields     = None };
-              for ((pws, pw), is_win, xmmr) in &fgame.winners {
+              for winner in &fgame.winners {
                 let is_solo = match track.mode {
                   GameMode::Solo  => true,
                   GameMode::Team2 => false,
                   GameMode::Team4 => false
                 };
                 if track.mode != GameMode::Team4 {
-                  if let Err(why) = add_to_weekly( ctx
-                                                , pws
-                                                , *is_win
-                                                , *xmmr
-                                                , is_solo
-                                                ).await {
+                  if let Err(why) = add_to_weekly( ctx, winner.player.0.as_str()
+                                                 , winner.won, winner.mmr
+                                                 , is_solo
+                                                 , winner.race
+                                                 ).await {
                     error!("Failed to add stats: {why}");
                   }
                 }
-                if *is_win {
-                  trace!("Registering win for {pw}");
+                if winner.won {
+                  trace!("Registering win for {}", winner.player.0.as_str());
                   let streak = points::add_win_points( guild_id
-                                                     , *pw
+                                                     , winner.player.1
                                                      ).await;
-                  if playa.player.discord == *pw && streak >= 3 {
+                  if playa.player.discord == winner.player.1 && streak >= 3 {
                     title =
                       match streak { 3  => "MULTIKILL"
                                    , 4  => "MEGA KILL"
@@ -607,8 +606,8 @@ pub async fn check<'a>( ctx: &Context
                     streak_fields = Some(vec![("Winning streak", dd, false)]);
                   }
                 } else {
-                  trace!("Registering lose for {pw}");
-                  points::break_streak(guild_id, *pw).await;
+                  trace!("Registering lose for {}", winner.player.0.as_str());
+                  points::break_streak(guild_id, winner.player.1).await;
                 }
                 if !track.bets.is_empty() && bet_fields.is_none() {
                   trace!("Paying for bets");
@@ -626,7 +625,7 @@ pub async fn check<'a>( ctx: &Context
                            , k                = 2.0f32
                            , losers_output    = vec![] };
                       for bet in &track.bets {
-                        if *is_win == bet.positive {
+                        if winner.won == bet.positive {
                           let best_win = 
                             if bet.registered {
                               (bet.points as f32 * k).round() as u64

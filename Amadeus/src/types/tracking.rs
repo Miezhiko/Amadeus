@@ -8,14 +8,21 @@ pub enum GameMode {
   Team4
 }
 
-pub type Winners = Vec<((String, u64), bool, u32)>;
+#[allow(non_snake_case)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Winner {
+  pub player: (String, u64),
+  pub won: bool,
+  pub mmr: u32,
+  pub race: u32
+}
 
 #[allow(non_snake_case)]
 pub struct FinishedGame {
   pub desc: Vec<String>,
   pub passed_time: u32,
   pub link: String,
-  pub winners: Winners,
+  pub winners: Vec<Winner>,
   pub additional_fields: Option<(String, String, String, String)>,
   pub hero_png: Option<String>
 }

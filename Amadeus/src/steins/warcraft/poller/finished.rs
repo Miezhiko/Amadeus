@@ -68,7 +68,7 @@ pub async fn check_match( matchid: &str
     let m = md.match_data?;
     let ps = md.playerScores?;
     let address = format!("https://www.w3champions.com/match/{}", &m.id);
-    let mut losers: Winners = vec![];
+    let mut losers: Vec<Winner> = vec![];
     let mstr_o =
       if m.gameMode == 1 {
         set!{ g_map = get_map(&m.map)
@@ -80,11 +80,11 @@ pub async fn check_match( matchid: &str
             p.player.alt_accounts.iter().any(|a| a == &m.teams[i].players[0].battleTag)
           } else { false }
           ) {
-            let won = m.teams[i].players[0].won;
-            let mmr = m.teams[i].players[0].currentMmr;
-            losers.push(( ( playa.player.battletag.clone()
-                          , playa.player.discord )
-                        , won, mmr ));
+            set!{ won   = m.teams[i].players[0].won
+                , mmr   = m.teams[i].players[0].currentMmr
+                , race  = m.teams[i].players[0].race };
+            losers.push(Winner { player: ( playa.player.battletag.clone()
+                                         , playa.player.discord ), won, mmr, race });
           }
         }
         set!{ t0_name = aka(&m.teams[0].players[0], rqcl).await
@@ -127,11 +127,12 @@ pub async fn check_match( matchid: &str
                 p.player.alt_accounts.iter().any(|a| a == &m.teams[i].players[j].battleTag)
               } else { false }
             ) {
-              let won = m.teams[i].players[j].won;
-              let mmr = m.teams[i].players[j].currentMmr;
-              losers.push(( ( playa.player.battletag.clone()
-                            , playa.player.discord )
-                          , won, mmr ));
+              set!{ won   = m.teams[i].players[j].won
+                  , mmr   = m.teams[i].players[j].currentMmr
+                  , race  = m.teams[i].players[j].race };
+              losers.push(Winner { player: ( playa.player.battletag.clone()
+                                           , playa.player.discord )
+                                 , won, mmr, race });
             }
             aka_names[i][j] = aka(&m.teams[i].players[j], rqcl).await;
           }
@@ -168,11 +169,12 @@ pub async fn check_match( matchid: &str
                 p.player.alt_accounts.iter().any(|a| a == &m.teams[i].players[0].battleTag)
               } else { false }
             ) {
-              let won = m.teams[i].players[j].won;
-              let mmr = m.teams[i].players[j].currentMmr;
-              losers.push(( ( playa.player.battletag.clone()
-                            , playa.player.discord )
-                          , won, mmr ));
+              set!{ won   = m.teams[i].players[j].won
+                  , mmr   = m.teams[i].players[j].currentMmr
+                  , race  = m.teams[i].players[j].race };
+              losers.push(Winner { player: ( playa.player.battletag.clone()
+                                           , playa.player.discord )
+                                 , won, mmr, race });
             }
             aka_names[i][j] = aka(&m.teams[i].players[j], rqcl).await;
           }

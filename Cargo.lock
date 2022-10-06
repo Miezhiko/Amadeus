@@ -873,7 +873,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#252d1f93c23366b62d6cfb3a84036f3470104354"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#7d63b89fb56a8e6042574a24e2d024d83b588826"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3208,15 +3208,6 @@ dependencies = [
 
 [[package]]
 name = "ordered-float"
-version = "2.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7940cf2ca942593318d07fcf2596cdca60a85c9e7fab408a5e21a4f9dcd40d87"
-dependencies = [
- "num-traits 0.2.15",
-]
-
-[[package]]
-name = "ordered-float"
 version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "129d36517b53c461acc6e1580aeb919c8ae6708a4b1eae61c4463a615d4f0411"
@@ -4291,7 +4282,7 @@ dependencies = [
  "dirs",
  "half 2.1.0",
  "lazy_static",
- "ordered-float 3.2.0",
+ "ordered-float",
  "rust_tokenizers",
  "serde",
  "serde_json",
@@ -4609,16 +4600,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde-value"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f3a1a3341211875ef120e117ea7fd5228530ae7e7036a779fdc9117be6b3282c"
-dependencies = [
- "ordered-float 2.10.0",
- "serde",
-]
-
-[[package]]
 name = "serde_derive"
 version = "1.0.145"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4704,13 +4685,12 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#252d1f93c23366b62d6cfb3a84036f3470104354"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#7d63b89fb56a8e6042574a24e2d024d83b588826"
 dependencies = [
  "async-trait",
  "base64",
  "bitflags",
  "bytes",
- "cfg-if 1.0.0",
  "chrono",
  "command_attr",
  "dashmap",
@@ -4719,14 +4699,12 @@ dependencies = [
  "futures 0.3.24",
  "fxhash",
  "levenshtein",
- "mime",
  "mime_guess",
  "nougat",
  "parking_lot 0.12.1",
  "percent-encoding",
  "reqwest",
  "serde",
- "serde-value",
  "serde_json",
  "static_assertions",
  "time 0.3.15",
@@ -4741,7 +4719,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#252d1f93c23366b62d6cfb3a84036f3470104354"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#7d63b89fb56a8e6042574a24e2d024d83b588826"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -5042,7 +5020,7 @@ dependencies = [
 [[package]]
 name = "stroke"
 version = "0.1.0"
-source = "git+https://github.com/dorianprill/stroke.git?branch=main#fa74ff085e1bd1985933b2aaf80415ba42a879dd"
+source = "git+https://github.com/dorianprill/stroke.git?branch=main#eb5f3f60cf8f8e1809c333b0390332bef810846b"
 dependencies = [
  "num-traits 0.2.15",
  "tinyvec",

@@ -78,7 +78,7 @@ impl EventHandler for Handler {
                     if guild.role_by_name(UNBLOCK_ROLE).is_none() {
                       if let Err(why) =
                         guild.create_role(&ctx, EditRole::default()
-                          .colour(Colour::from_rgb(226,37,37).0 as u32)
+                          .colour(Colour::from_rgb(226,37,37).0)
                           .hoist(false)
                           .mentionable(false)
                           .name(UNBLOCK_ROLE)).await {
@@ -88,7 +88,7 @@ impl EventHandler for Handler {
                     if guild.role_by_name(LIVE_ROLE).is_none() {
                       if let Err(why) =
                         guild.create_role(&ctx, EditRole::default()
-                          .colour(Colour::from_rgb(117,244,255).0 as u32)
+                          .colour(Colour::from_rgb(117,244,255).0)
                           .hoist(true)
                           .position(100) // bigger = higher
                           .mentionable(false)
@@ -99,7 +99,7 @@ impl EventHandler for Handler {
                     if guild.role_by_name(MUTED_ROLE).is_none() {
                       if let Err(why) =
                         guild.create_role(&ctx, EditRole::default()
-                          .colour(Colour::from_rgb(113,113,113).0 as u32)
+                          .colour(Colour::from_rgb(113,113,113).0)
                           .hoist(true)
                           .position(100) // bigger = higher
                           .mentionable(false)

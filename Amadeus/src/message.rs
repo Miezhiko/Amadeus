@@ -328,7 +328,7 @@ pub async fn process( ioptions: &IOptions
                   }
                 } else if let Err(why) =
                   guild.create_role(&ctx, EditRole::default()
-                       .colour(Colour::from_rgb(226,37,37).0 as u32)
+                       .colour(Colour::from_rgb(226,37,37).0)
                        .name(UNBLOCK_ROLE)).await {
                   error!("Failed to create UNBLOCK role, {why}");
                 }

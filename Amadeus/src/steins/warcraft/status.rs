@@ -85,32 +85,52 @@ pub async fn add_to_weekly( ctx: &Context
                           , xrace: u32
                           ) -> anyhow::Result<()> {
   let mut current_weekly = get_weekly(ctx).await?;
+  let mut old_mmr   = 0;
+  let mut old_race  = None;
+  {
+    for stat in &current_weekly.stats {
+      let iter_stats: &StatusStats =
+        if solo { &stat.statistics }
+           else { &stat.statistics2 };
+      if let Some(ps) = iter_stats.get(p) {
+        old_mmr   = ps.mmr;
+        old_race  = ps.race;
+        break;
+      }
+    }
+  }
   let weekly_stats: &mut StatusStats =
     if solo { &mut current_weekly.stats[0].statistics }
        else { &mut current_weekly.stats[0].statistics2 };
   if let Some(p_stats) = weekly_stats.get_mut(p) {
     if win {  p_stats.wins += 1;
     } else {  p_stats.losses += 1; }
-    if let Some(prace) = p_stats.race {
+    if let Some(prace) = old_race {
       if prace == xrace {
         p_stats.mmr = xmmr;
-      } else {
-        if xmmr > p_stats.mmr {
-          p_stats.mmr   = xmmr;
-          p_stats.race  = Some(xrace)
-        }
+      } else if xmmr > old_mmr {
+        p_stats.mmr   = xmmr;
+        p_stats.race  = Some(xrace)
       }
     } else {
       p_stats.mmr   = xmmr;
       p_stats.race  = Some(xrace)
     }
   } else {
+    let mut new_mrr   = xmmr;
+    let mut new_race  = Some(xrace);
+    if let Some(prace) = old_race {
+      if prace != xrace && xmmr < old_mmr {
+        new_mrr  = old_mmr;
+        new_race = old_race;
+      }
+    }
     #[allow(clippy::bool_to_int_with_if)]
     let stats = DailyWinLoses {
       wins    : if win { 1 } else { 0 },
       losses  : if win { 0 } else { 1 },
-      mmr     : xmmr,
-      race    : Some(xrace)
+      mmr     : new_mrr,
+      race    : new_race
     };
     weekly_stats.insert(p.to_string(), stats);
   }
@@ -161,7 +181,7 @@ pub async fn generate_stats_graph( ctx: &Context
       let color = RGBColor(red, green, blue);
       let style: ShapeStyle = ShapeStyle::from(color).stroke_width(2);
       let pxx = px.iter().enumerate()
-                  .map(|(i, x)| PointN::new([i as f64, *x as f64]))
+                  .map(|(i, x)| PointN::new([i as f64, *x]))
                   .collect::<Vec<PointN<f64,2>>>();
       let bezier: Bezier<PointN<f64, 2>, DAYS_FOR_STATUS> = Bezier::new( pxx.try_into().unwrap() );
       let mut bezier_graph: Vec<(f64, f64)> = Vec::with_capacity(BEZIER_STEPS);

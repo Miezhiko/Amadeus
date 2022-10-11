@@ -41,11 +41,7 @@ fn rnd_tan(huy: &mut f32, sat: &mut f32, val: &mut f32, i: f32, d: f32) {
   *sat = (i * 0.35).sin().abs();
   *val = ((6.33 * i) * 0.5).cos().abs();
   if *sat < 0.4 { *sat = 0.4; }
-  if *val < 0.2 {
-    *val = 0.2;
-  } else if *val > 0.85 {
-    *val = 0.85;
-  }
+  *val = (*val).clamp(0.2, 0.85);
 }
 
 pub fn gen_colors(n: usize) -> Vec<(u8, u8, u8)> {

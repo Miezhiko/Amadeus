@@ -874,7 +874,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#a5b597d1fe99d9ef75f2f78859ae12e5902e1165"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#c206f2f85bb8f8321caab98bf0789ba9cb30166b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2258,9 +2258,9 @@ dependencies = [
 
 [[package]]
 name = "home"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2456aef2e6b6a9784192ae780c0f15bc57df0e918585282325e8c8ac27737654"
+checksum = "747309b4b440c06d57b0b25f2aee03ee9b5e5397d288c60e21fc709bb98a7408"
 dependencies = [
  "winapi 0.3.9",
 ]
@@ -4772,7 +4772,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#a5b597d1fe99d9ef75f2f78859ae12e5902e1165"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#c206f2f85bb8f8321caab98bf0789ba9cb30166b"
 dependencies = [
  "async-trait",
  "base64",
@@ -4806,7 +4806,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#a5b597d1fe99d9ef75f2f78859ae12e5902e1165"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#c206f2f85bb8f8321caab98bf0789ba9cb30166b"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -5447,9 +5447,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-stream"
-version = "0.1.10"
+version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6edf2d6bc038a43d31353570e27270603f4648d18f5ed10c0e179abe43255af"
+checksum = "d660770404473ccd7bc9f8b28494a811bc18542b915c0855c51e8f419d5223ce"
 dependencies = [
  "futures-core",
  "pin-project-lite",

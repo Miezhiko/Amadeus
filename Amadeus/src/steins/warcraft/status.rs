@@ -106,21 +106,21 @@ pub async fn add_to_weekly( ctx: &Context
     if win {  p_stats.wins += 1;
     } else {  p_stats.losses += 1; }
     if let Some(prace) = old_race {
-      if prace == xrace {
+      if prace == xrace || !solo {
         p_stats.mmr = xmmr;
       } else if xmmr > old_mmr {
         p_stats.mmr   = xmmr;
-        p_stats.race  = Some(xrace)
+        p_stats.race  = Some(xrace);
       }
     } else {
       p_stats.mmr   = xmmr;
-      p_stats.race  = Some(xrace)
+      p_stats.race  = Some(xrace);
     }
   } else {
     let mut new_mrr   = xmmr;
     let mut new_race  = Some(xrace);
     if let Some(prace) = old_race {
-      if prace != xrace && xmmr < old_mmr {
+      if solo && prace != xrace && xmmr < old_mmr {
         new_mrr  = old_mmr;
         new_race = old_race;
       }

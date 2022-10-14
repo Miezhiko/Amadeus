@@ -625,11 +625,11 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
   if let Some(userx1) = get_player(&rqcl, &p1, &season_str).await? {
     if let Some(userx2) = get_player(&rqcl, &p2, &season_str).await? {
-      let name1 = &userx1.split('#').collect::<Vec<&str>>()[0];
-      let name2 = &userx2.split('#').collect::<Vec<&str>>()[0];
+      set!{ name1 = &userx1.split('#').collect::<Vec<&str>>()[0]
+          , name2 = &userx2.split('#').collect::<Vec<&str>>()[0] };
 
-      let user1 = userx1.replace('#',"%23");
-      let user2 = userx2.replace('#',"%23");
+      set!{ user1 = userx1.replace('#',"%23")
+          , user2 = userx2.replace('#',"%23") };
 
       let mut match_strings = vec![];
       let mut wins = 0;
@@ -654,9 +654,9 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
               } else {
                 "BNET".to_string()
               };
-            let mut p1s = String::new();
-            let mut p2s = String::new();
-            let mut winner = false;
+            setm!{ p1s    = String::new()
+                 , p2s    = String::new()
+                 , winner = false };
             for t in m.teams.iter() {
               for p in t.players.iter() {
                 let race = get_race2(p.race);

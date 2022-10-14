@@ -7,7 +7,7 @@ use crate::{
 };
 
 use serenity::{
-  builder::{ CreateMessage, CreateEmbed, CreateEmbedAuthor, CreateEmbedFooter, EditMessage },
+  builder::*,
   prelude::*,
   model::{
     channel::*,
@@ -347,10 +347,10 @@ async fn time_internal(msg: &Message, args: Args) -> anyhow::Result<CreateEmbed>
     format!("**CET**: {cet} {cet_emoji}\n**MSK**: {msk} {msk_emoji}\n**EST**: {est} {est_emoji}");
 
   if let Ok(tz) = mb_tz.parse::<chrono_tz::Tz>() {
-    let tz_time = utc.with_timezone(&tz).time();
-    let tz_fmt = tz_time.format(time_format);
-    let tz_pattern = (est_time.hour12().1, munutes_first_half);
-    let tz_emoji = get_emoji(tz_pattern);
+    set!{ tz_time     = utc.with_timezone(&tz).time()
+        , tz_fmt      = tz_time.format(time_format)
+        , tz_pattern  = (est_time.hour12().1, munutes_first_half)
+        , tz_emoji    = get_emoji(tz_pattern) };
     desc = format!("{desc}\n**{mb_tz}**: {tz_fmt} {tz_emoji}");
   }
 

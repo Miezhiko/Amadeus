@@ -211,8 +211,8 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   match bert_translate(text.clone(), SLanguage::English, SLanguage::German).await {
     Ok(out) => {
       let fields = vec![
-        ("Text", format!("{text}\n"), false),
-        ("Translation", out, false)
+        ("Text",        format!("{text}\n"),  false),
+        ("Translation", out,                  false)
       ];
       if let Ok(mut mm) = mmm {
         mm.edit(ctx, EditMessage::default()

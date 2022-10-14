@@ -310,7 +310,7 @@ impl EventHandler for Handler {
       let backup_deq = BACKUP.lock().await;
       if !backup_deq.is_empty() {
         if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
-          if msg.is_own(&ctx) { // TODO: not sure whether we want to backup ALL
+          if msg.is_own(&ctx) { // backup only own messages
             if let Some(guild_id) = msg.guild_id {
               if let Ok(audit) = ctx.http.get_audit_logs( guild_id
                                                         , Some( MessageAction::Delete as u8 )

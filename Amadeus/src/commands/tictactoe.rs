@@ -88,8 +88,8 @@ impl Display for Board {
 
 impl Board {
   fn place_piece(&mut self, piece: Piece) -> Result<(), ()> {
-    let x = piece.pos_x * 3;
-    let y = piece.pos_y % 3;
+    set!{ x = piece.pos_x * 3
+        , y = piece.pos_y % 3 };
     if self.table[x+y].typ.is_none() {
       self.table[x+y] = piece;
       Ok(())
@@ -204,14 +204,14 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
     let num = ReactionType::Unicode(format!("{}\u{fe0f}\u{20e3}", i));
     m.react(ctx, num).await?;
   }
-  let _a = ReactionType::Unicode(String::from("\u{01f1e6}"));
-  let _b = ReactionType::Unicode(String::from("\u{01f1e7}"));
-  let _c = ReactionType::Unicode(String::from("\u{01f1e8}"));
-  m.react(ctx, _a).await?;
-  m.react(ctx, _b).await?;
-  m.react(ctx, _c).await?;
+  set!{ _a = ReactionType::Unicode(String::from("\u{01f1e6}"))
+      , _b = ReactionType::Unicode(String::from("\u{01f1e7}"))
+      , _c = ReactionType::Unicode(String::from("\u{01f1e8}")) };
+  m.react(ctx, _a).await?; m.react(ctx, _b).await?; m.react(ctx, _c).await?;
   for i in &players {
-    m.edit(ctx, EditMessage::default().content(format!("{}\n>>> ```{}```", i.0.mention(), &board))).await?;
+    m.edit( ctx
+          , EditMessage::default().content(format!("{}\n>>> ```{}```", i.0.mention(), &board))
+          ).await?;
     'outer: loop {
       let mut x: Option<usize> = None;
       let mut y: Option<usize> = None;

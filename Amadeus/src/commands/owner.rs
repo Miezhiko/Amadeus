@@ -202,9 +202,9 @@ async fn register_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandR
     error!("Error deleting original command, {why}");
   }
   if let Some(guild_id) = msg.guild_id {
-    let message_id = args.single::<u64>()?;
-    let emoji_id = args.single::<u64>()?;
-    let role_id = args.single::<u64>()?;
+    set!{ message_id  = args.single::<u64>()?
+        , emoji_id    = args.single::<u64>()?
+        , role_id     = args.single::<u64>()? };
     emojis::register_message( &guild_id.get()
                             , &message_id
                             , &emoji_id
@@ -235,8 +235,8 @@ async fn list_message_roles(ctx: &Context, msg: &Message, mut args: Args) -> Com
 #[owners_only]
 async fn unban_all(ctx: &Context, msg: &Message) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
-    let guild = guild_id.to_partial_guild(ctx).await?;
-    let bans = guild.bans(ctx).await?;
+    set!{ guild = guild_id.to_partial_guild(ctx).await?
+        , bans  = guild.bans(ctx).await? };
     for ban in bans {
       if let Err(why) = guild.unban(ctx, ban.user.id).await {
         error!("Failed to unban user: {}, {why}", ban.user.name);
@@ -277,8 +277,8 @@ async fn catch_up_with_roles(ctx: &Context, _msg: &Message, mut args: Args) -> C
       , msg     = ctx.http.get_message( ChannelId(to_nzu!(chan_id)), MessageId(to_nzu!(msg_id)) ).await?
       , channel = msg.channel(&ctx).await? };
   if let Some(guild_channel) = channel.guild() {
-    let guild_u64 = guild_channel.guild_id.get();
-    let guild = guild_channel.guild_id.to_partial_guild(ctx).await?;
+    set!{ guild_u64 = guild_channel.guild_id.get()
+        , guild     = guild_channel.guild_id.to_partial_guild(ctx).await? };
     if let Ok(Some(emoji_roles)) = emojis::message_roles(&guild_u64, &msg_id).await {
       let mut reaction_types = vec![];
       for reaction in &msg.reactions {

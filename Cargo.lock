@@ -677,7 +677,7 @@ dependencies = [
 [[package]]
 name = "celery"
 version = "0.4.666"
-source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#4600d3ebdc53b54fde17b28d91dfe5af36113b3b"
+source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#4a983f6a54969ac2a1600e3f27d348b40209be2e"
 dependencies = [
  "async-trait",
  "base64",
@@ -705,7 +705,7 @@ dependencies = [
 [[package]]
 name = "celery-codegen"
 version = "0.4.0-rcn.666"
-source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#4600d3ebdc53b54fde17b28d91dfe5af36113b3b"
+source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#4a983f6a54969ac2a1600e3f27d348b40209be2e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3309,7 +3309,7 @@ dependencies = [
  "hmac",
  "lazy_static",
  "rc2",
- "sha1 0.10.5",
+ "sha1",
  "yasna",
 ]
 
@@ -3493,7 +3493,7 @@ checksum = "4c8717927f9b79515e565a64fe46c38b8cd0427e64c40680b14a7365ab09ac8d"
 dependencies = [
  "once_cell",
  "pest",
- "sha1 0.10.5",
+ "sha1",
 ]
 
 [[package]]
@@ -4199,9 +4199,9 @@ dependencies = [
 
 [[package]]
 name = "redis"
-version = "0.21.6"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "571c252c68d09a2ad3e49edd14e9ee48932f3e0f27b06b4ea4c9b2a706d31103"
+checksum = "2e5450e9add55de0ea728a964191669d3707fa20666c5f16753f3a6a51e96231"
 dependencies = [
  "arc-swap",
  "async-trait",
@@ -4213,7 +4213,7 @@ dependencies = [
  "percent-encoding",
  "pin-project-lite",
  "ryu",
- "sha1 0.6.1",
+ "sha1_smol",
  "tokio",
  "tokio-util 0.7.4",
  "url",
@@ -4834,15 +4834,6 @@ dependencies = [
  "cfg-if 1.0.0",
  "cpufeatures",
  "digest",
-]
-
-[[package]]
-name = "sha1"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1da05c97445caa12d05e848c4a4fcbbea29e748ac28f7e80e9b010392063770"
-dependencies = [
- "sha1_smol",
 ]
 
 [[package]]
@@ -6419,7 +6410,7 @@ dependencies = [
  "flate2",
  "hmac",
  "pbkdf2",
- "sha1 0.10.5",
+ "sha1",
  "time 0.3.15",
  "zstd",
 ]

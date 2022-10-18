@@ -13,7 +13,6 @@ let playersList : List Playerx =
     , streams   = Some { ggru   = Some "Miezhiko"
                        , twitch = Some "Miezhiko" }
     , alt_accounts = ["Miezhiko#2378"] }
-  , b "Reyenir#2169"        287914378513088515 "reyenir" "Cherry-Phoenix"
   , b "ag3nt#21617"         293268448212156416 "ag3ntik" "ag3nt"
   , b "Rici#2903"           404379597568999425 "riciii" "Rici"
   , t "Avernus#2393"        247774118798295041 "ghost_17"

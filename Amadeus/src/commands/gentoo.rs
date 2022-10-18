@@ -214,6 +214,7 @@ async fn zugaina(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[min_args(1)]
 async fn wiki(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let search_text = args.single::<String>()?;
+  let maybe_second = args.single::<String>();
   let reqwest_client = {
     set!{ data            = ctx.data.read().await
         , reqwest_client  = data.get::<ReqwestClient>().unwrap() };
@@ -234,9 +235,25 @@ async fn wiki(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                 .color((240, 0, 170))
                 .footer(CreateEmbedFooter::new(footer));
 
-  for (i, link) in links.iter().enumerate() {
-    if let Some(title) = texts.get(i) {
-      e = e.field(title, link, false);
+  let mut filtered_result = false;
+  if let Ok(other) = maybe_second {
+    let other_lowered = other.to_lowercase();
+    for (i, link) in links.iter().enumerate() {
+      if let Some(title) = texts.get(i) {
+        let title_lowered = title.to_lowercase();
+        if title_lowered.contains(&other_lowered) {
+          e = e.field(title, link, false);
+          if !filtered_result { filtered_result = true; }
+        }
+      }
+    }
+  }
+
+  if !filtered_result {
+    for (i, link) in links.iter().enumerate() {
+      if let Some(title) = texts.get(i) {
+        e = e.field(title, link, false);
+      }
     }
   }
 

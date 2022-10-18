@@ -874,7 +874,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#3fa5ac0427623093fa8e26729009c15e9af4e9d8"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#de023f533c786d24a0f23581b0695e148ceecab8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4772,7 +4772,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#3fa5ac0427623093fa8e26729009c15e9af4e9d8"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#de023f533c786d24a0f23581b0695e148ceecab8"
 dependencies = [
  "async-trait",
  "base64",
@@ -4806,7 +4806,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#3fa5ac0427623093fa8e26729009c15e9af4e9d8"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#de023f533c786d24a0f23581b0695e148ceecab8"
 dependencies = [
  "bitflags",
  "enum_primitive",

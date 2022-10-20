@@ -16,7 +16,6 @@ let playersList : List Playerx =
   , b "ag3nt#21617"         293268448212156416 "ag3ntik" "ag3nt"
   , b "Rici#2903"           404379597568999425 "riciii" "Rici"
   , t "Avernus#2393"        247774118798295041 "ghost_17"
-  , t "JustDoiTpLs#2907"    543121502711840799 "justdoitpls22"
   , t "Fingon#2350"         361930230375514112 "Skyrimoon"
   , t "YoungUndead#2289"    332258705456234497 "youngundeadd"
   , p "FreeMasha#2272"      743770620671819776

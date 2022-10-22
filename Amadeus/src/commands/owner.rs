@@ -319,10 +319,12 @@ async fn catch_up_with_roles(ctx: &Context, _msg: &Message, mut args: Args) -> C
 #[min_args(1)]
 async fn ban(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
-    if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
+    if msg.mentions.is_empty() || (msg.mentions.len() > 0 && msg.mentions[0].bot) {
       if let Ok(user_id) = args.single::<u64>() {
         let guild = guild_id.to_partial_guild(&ctx).await?;
-        guild.ban(ctx, user_id, 0).await?;
+        if let Ok(member) = guild.member(&ctx, user_id).await {
+          member.ban_with_reason(ctx, 0, &format!("banned by {}", msg.author.name)).await?;
+        }
       } else {
         channel_message(ctx, msg, "you need to target who to ban").await;
       }

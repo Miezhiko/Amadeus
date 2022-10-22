@@ -12,7 +12,7 @@ use std::num::NonZeroU64;
 use serenity::{
   prelude::*,
   builder::{ CreateMessage, CreateChannel, CreateEmbed, CreateEmbedFooter, CreateEmbedAuthor, GetMessages },
-  model::{ id::{ ChannelId, UserId, RoleId }
+  model::{ id::{ ChannelId, UserId, RoleId, GuildId }
          , channel::*, Timestamp
          , permissions::Permissions },
   framework::standard::{ CommandResult
@@ -22,22 +22,26 @@ use serenity::{
 
 const PURGE_ITERATIONS: usize = 10;
 
-#[command]
-#[required_permissions(BAN_MEMBERS)]
-async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
-  if let Some(guild_id) = msg.guild_id {
-    if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
-      channel_message(ctx, msg, "you need to target who to mute").await;
-    } else {
-      let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-      let guild = guild_id.to_partial_guild(&ctx).await?;
-      let mut member = guild.member(&ctx, target_user.id).await?;
-      if let Some(role) = guild.role_by_name(MUTED_ROLE) {
-        if !member.roles.contains(&role.id) {
-          if let Err(why) = member.add_role(&ctx, role).await {
-            error!("Failed to assign muted role {why}");
-          }
-        }
+async fn mute_internal(ctx: &Context, guild_id: &GuildId, user_id: &UserId) -> anyhow::Result<()> {
+  let guild = guild_id.to_partial_guild(&ctx).await?;
+  let mut member = guild.member(&ctx, user_id).await?;
+  if let Some(role) = guild.role_by_name(MUTED_ROLE) {
+    if !member.roles.contains(&role.id) {
+      if let Err(why) = member.add_role(&ctx, role).await {
+        error!("Failed to assign muted role {why}");
+      }
+    }
+  }
+  Ok(())
+}
+
+async fn unmute_internal(ctx: &Context, guild_id: &GuildId, user_id: &UserId) -> anyhow::Result<()> {
+  let guild = guild_id.to_partial_guild(&ctx).await?;
+  let mut member = guild.member(&ctx, user_id).await?;
+  if let Some(role) = guild.role_by_name(MUTED_ROLE) {
+    if member.roles.contains(&role.id) {
+      if let Err(why) = member.remove_role(&ctx, role).await {
+        error!("Failed to unassign muted role {why}");
       }
     }
   }
@@ -46,21 +50,35 @@ async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[required_permissions(BAN_MEMBERS)]
-async fn unmute(ctx: &Context, msg: &Message) -> CommandResult {
+async fn mute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
-    if msg.mentions.is_empty() || (msg.mentions.len() == 1 && msg.mentions[0].bot) {
-      channel_message(ctx, msg, "you need to target who to unmute").await;
+    if msg.mentions.is_empty() || (msg.mentions.len() > 0 && msg.mentions[0].bot) {
+      if let Ok(user_id) = args.single::<u64>() {
+        mute_internal(ctx, &guild_id, &UserId( to_nzu!(user_id) ) ).await?;
+      } else {
+        channel_message(ctx, msg, "you need to target who to mute").await;
+      }
     } else {
       let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-      let guild = guild_id.to_partial_guild(&ctx).await?;
-      let mut member = guild.member(&ctx, target_user.id).await?;
-      if let Some(role) = guild.role_by_name(MUTED_ROLE) {
-        if member.roles.contains(&role.id) {
-          if let Err(why) = member.remove_role(&ctx, role).await {
-            error!("Failed to unassign muted role {why}");
-          }
-        }
+      mute_internal(ctx, &guild_id, &target_user.id ).await?;
+    }
+  }
+  Ok(())
+}
+
+#[command]
+#[required_permissions(BAN_MEMBERS)]
+async fn unmute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  if let Some(guild_id) = msg.guild_id {
+    if msg.mentions.is_empty() || (msg.mentions.len() > 0 && msg.mentions[0].bot) {
+      if let Ok(user_id) = args.single::<u64>() {
+        unmute_internal(ctx, &guild_id, &UserId( to_nzu!(user_id) ) ).await?;
+      } else {
+        channel_message(ctx, msg, "you need to target who to unmute").await;
       }
+    } else {
+      let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
+      unmute_internal(ctx, &guild_id, &target_user.id ).await?;
     }
   }
   Ok(())

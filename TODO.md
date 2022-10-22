@@ -4,7 +4,6 @@
  - Store long-term conversation with everyone in DB, use Summarize model for context generation
    (Run Summarization generation periodically, possibly on deep nights)
    (Use generated context for Bert models later)
- - mute/unmute commands: allow passing user id in addition to mention
 
 ##I DON'T WANT TO DO IT:
 

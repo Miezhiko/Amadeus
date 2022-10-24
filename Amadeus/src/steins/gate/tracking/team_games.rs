@@ -282,9 +282,9 @@ pub async fn activate_games_tracking(
                         if let Some(g) = inref.guild_id {
                           if let Ok(p) = points::get_points( g.0.get(), u.0.get() ).await {
                             if p > 100 {
-                              let emoji_data = emoji.as_data();
-                              if emoji_data.as_str() == "👍🏻" || emoji_data.as_str() == "👎🏻" {
-                                let is_positive = emoji_data.as_str() == "👍🏻";
+                              let emoji_data: String = emoji.as_data().to_string();
+                              if emoji_data == "👍🏻" || emoji_data == "👎🏻" {
+                                let is_positive = emoji_data == "👍🏻";
                                 { // games lock scope
                                   trace!("team games: thumb was clicked");
                                   let mut gl = poller::GAMES.lock().await;

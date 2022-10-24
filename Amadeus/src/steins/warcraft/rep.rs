@@ -9,7 +9,10 @@ use serenity::{
   builder::CreateEmbed
 };
 
-use std::time::Duration;
+use std::{
+  time::Duration,
+  borrow::Borrow
+};
 
 use async_std::{ fs::File, fs
                , prelude::* };
@@ -112,7 +115,7 @@ pub async fn rep_embed( ctx: &Context
                                  .author_id(msg.author.id);
           if let Some(reaction) = collector.collect_single().await {
             let emoji = &reaction.as_inner_ref().emoji;
-            match emoji.as_data().as_str() {
+            match emoji.as_data().borrow() {
               "⬅️" => { 
                 if page != 0 {
                   page -= 1;

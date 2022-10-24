@@ -2,7 +2,7 @@ use regex::Regex;
 use once_cell::sync::Lazy;
 
 static MAP_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(
-r"^(?:s[0-9]+[_|-][0-9])?(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+[_|-][0-9]+(?:[a-z])?)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$"
+r"^(?:s[0-9]+(?:[_|-][0-9]|))?(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+[_|-][0-9]+(?:[a-z])?)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$"
 ).unwrap());
 
 pub fn get_race(r: u32) -> String {
@@ -90,6 +90,7 @@ fn try_get_map_short(m: &str) -> String {
             , "springtime"            => "ST"
             , "rustycreek"            => "RC"
             , "secretvalley"          => "SV"
+            , "eversong"              => "ES"
             , _                       => "" })
 }
 
@@ -157,6 +158,7 @@ fn try_get_map(m: &str) -> String {
             , "secretvalley"          => "Secret Valley"
             , "monopoly"              => "Monopoly"
             , "vanguardpoint"         => "Vanguard Point"
+            , "chimneyisles"          => "Chimney Isles"
             , _                       => m /*""*/ })
 }
 
@@ -204,10 +206,13 @@ pub fn get_hero_png(hero: &str) -> String {
 mod cyber_utils_tests {
   use super::*;
   #[test]
-  fn get_map_test() {
+  fn get_map_test_basic() {
     assert_eq!(get_map("echoisles"), "Echo Isles");
     assert_eq!(get_map_short("echoisles"), "EI");
+  }
 
+  #[test]
+  fn get_map_test_advanced() {
     assert_eq!(get_map_short("s12_1WellspringTemplev1_2"), "WS");
     assert_eq!(get_map_short("SecretValleyv2_0a"), "SV");
 
@@ -221,6 +226,7 @@ mod cyber_utils_tests {
     assert_eq!(get_map_short("_gnollwood_anon"), "GW");
 
     assert_eq!(get_map_short("Springtimev1_1"), "ST");
+    assert_eq!(get_map_short("s13SecretValleyv2_0"), "SV");
 
     assert_eq!(get_map("phantomgrovew3c201016"), "Phantom Grove");
     assert_eq!(get_map("PhantomGroveW3C"), "Phantom Grove");

@@ -9,7 +9,8 @@ use std::{
     Display,
     Write as _
   },
-  time::Duration
+  time::Duration,
+  borrow::Borrow
 };
 
 use serenity::{
@@ -160,7 +161,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
                                 .timeout(Duration::from_secs(120));
     if let Some(reaction) = collector.collect_single().await {
       let emoji = &reaction.as_inner_ref().emoji;
-      match emoji.as_data().as_str() {
+      match emoji.as_data().borrow() {
         "✅" => {
           confirmation.delete(ctx).await?;
           break;
@@ -224,7 +225,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
             let _ = reaction.as_inner_ref().delete(ctx).await;
             let emoji = &reaction.as_inner_ref().emoji;
 
-            match emoji.as_data().as_str() {
+            match emoji.as_data().borrow() {
               "1\u{fe0f}\u{20e3}" => x = Some(0),
               "2\u{fe0f}\u{20e3}" => x = Some(1),
               "3\u{fe0f}\u{20e3}" => x = Some(2),

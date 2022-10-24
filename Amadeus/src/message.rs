@@ -38,6 +38,7 @@ use serenity::{
 use std::{ collections::VecDeque
          , sync::atomic::{ Ordering, AtomicBool }
          , time::Duration
+         , borrow::Borrow
          };
 
 use rand::{ Rng
@@ -167,7 +168,7 @@ pub async fn process( ioptions: &IOptions
                                    .timeout(Duration::from_secs(3600));
                 if let Some(reaction) = collector.collect_single().await {
                   let emoji = &reaction.as_inner_ref().emoji;
-                  match emoji.as_data().as_str() {
+                  match emoji.as_data().borrow() {
                     "🌈" => {
                       if let Err(why) = replay_embed(ctx, &msg, file).await {
                         error!("Failed to analyze replay:\n{why}");

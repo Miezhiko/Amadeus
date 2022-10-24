@@ -32,7 +32,8 @@ use std::{ time::Duration
          , collections::HashMap
          , sync::Arc
          , sync::atomic::Ordering::Relaxed
-         , sync::atomic::AtomicU32 };
+         , sync::atomic::AtomicU32
+         , borrow::Borrow };
 
 use chrono::{ Utc, DateTime, Datelike };
 use once_cell::sync::Lazy;
@@ -125,7 +126,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
                                  .author_id(msg.author.id);
           if let Some(reaction) = collector.collect_single().await {
             let emoji = &reaction.as_inner_ref().emoji;
-            match emoji.as_data().as_str() {
+            match emoji.as_data().borrow() {
               "⬅️" => { 
                 if page != 0 {
                   page -= 1;

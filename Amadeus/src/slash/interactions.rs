@@ -17,8 +17,8 @@ use crate::{
 use serenity::{
   prelude::*,
   builder::*,
-  model::application::interaction::{ InteractionResponseType
-                                   , Interaction },
+  model::application::interaction::{ // InteractionResponseType
+                                     Interaction },
   framework::standard::{ Args, Delimiter }
 };
 
@@ -48,7 +48,7 @@ static ASYNC_CMDS: [&str; 51] = [ "translate", "перевод", "help"
                                 , "smug", "smirk", "gif" ];
 
 pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
-  if let Interaction::ApplicationCommand(ac) = interaction {
+  if let Interaction::Command(ac) = interaction {
     match ac.data.name.as_str() {
       "join" => {
         if let Some(guild_id) = &ac.guild_id {
@@ -59,19 +59,15 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           };
           if let Some(member) = &ac.member {
             if let Err(err) = music::join_slash(ctx, &member.user, &guild).await {
-              if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::default()
-                  .kind(InteractionResponseType::ChannelMessageWithSource)
-                  .interaction_response_data(
-                    CreateInteractionResponseData::new().content( format!("Failed to join {err}") )
+              if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::Message(
+                    CreateInteractionResponseMessage::default().content( format!("Failed to join {err}") )
                   )
               ).await {
                 error!("Failed to create boris interaction response {why}");
               }
             } else if let Err(why) =
-              ac.create_interaction_response(&ctx.http, CreateInteractionResponse::default()
-                .kind(InteractionResponseType::ChannelMessageWithSource)
-                .interaction_response_data(
-                  CreateInteractionResponseData::new().content( "I've joined voice channel" )
+              ac.create_interaction_response(&ctx.http, CreateInteractionResponse::Message(
+                CreateInteractionResponseMessage::default().content( "I've joined voice channel" )
                 )
             ).await {
               error!("Failed to create boris interaction response {why}");
@@ -84,9 +80,8 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           value: ResolvedValue::String(t), ..
         }) = ac.data.options().first() {
           #[cfg(not(target_os = "windows"))]
-          if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::default()
-              .kind(InteractionResponseType::ChannelMessageWithSource)
-              .interaction_response_data( CreateInteractionResponseData::new().content( boris::spell(t) ) )
+          if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::Message(
+              CreateInteractionResponseMessage::default().content( boris::spell(t) ) )
           ).await {
             error!("Failed to create boris interaction response {why}");
           }
@@ -97,9 +92,8 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           value: ResolvedValue::String(t), ..
         }) = ac.data.options().first() {
           #[cfg(not(target_os = "windows"))]
-          if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::default()
-              .kind(InteractionResponseType::ChannelMessageWithSource)
-              .interaction_response_data( CreateInteractionResponseData::new().content( uwu::spell(t) ) )
+          if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::Message(
+              CreateInteractionResponseMessage::default().content( uwu::spell(t) ) )
           ).await {
             error!("Failed to create uwu interaction response {why}");
           }
@@ -107,8 +101,8 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
       },
       c if ASYNC_CMDS.iter().any(|cmd| c == *cmd) => {
 
-        if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::default()
-          .kind(InteractionResponseType::DeferredChannelMessageWithSource)
+        if let Err(why) = ac.create_interaction_response(&ctx.http,
+          CreateInteractionResponse::Defer(CreateInteractionResponseMessage::default())
         ).await {
           error!("Failed to set DeferredChannelMessageWithSource {why}");
         }

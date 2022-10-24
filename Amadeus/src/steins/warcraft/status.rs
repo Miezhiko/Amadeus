@@ -377,7 +377,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     }
     for wss in &[weekly_statistics, weekly_statistics2] {
       let mut ws = Vec::from_iter(wss);
-      ws.sort_by( |&(_, a), &(_, b)| (b.wins + b.losses).cmp(&(a.wins + a.losses)) );
+      ws.sort_by( |&(_, a), &(_, b)| b.mmr.cmp(&a.mmr) );
       weekly_str.push(
         if ws.is_empty() {
           String::from("no weekly statistic")

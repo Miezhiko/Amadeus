@@ -388,9 +388,10 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
                         .collect::<Vec<&str>>()[0];
             let winrate = ( (d.wins as f32 / (d.wins + d.losses) as f32) * 100.0).round();
             weekly_vec.push(
-              format!( "{name}: {}W, {}L, {winrate}%"
+              format!( "{name}: {}W, {}L, {winrate}% ({})"
                     , d.wins
-                    , d.losses )
+                    , d.losses
+                    , d.mmr )
             );
           }
           weekly_vec.join("\n")

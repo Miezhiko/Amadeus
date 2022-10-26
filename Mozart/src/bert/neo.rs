@@ -112,7 +112,7 @@ async fn chat_neo(something: String, lsm: bool) -> anyhow::Result<String> {
   let split = neo_result.split(&NEO_SEPARATORS[..]).collect::<Vec<&str>>();
   if let Some(first) = split.choose(&mut rand::thread_rng()) {
     let result = process_message_for_gpt(first);
-    if result.is_empty() {
+    if result.is_empty() || result.len() == 1 {
       Err( anyhow!("only trash in chat neo response") )
     } else if result.chars().any(|c| matches!(c, '$' | '{' | '}'))
            || result.contains("following code") {

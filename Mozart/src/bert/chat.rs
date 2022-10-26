@@ -98,7 +98,12 @@ async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> anyhow::Result
       if out_values.is_empty() {
         Err(anyhow!("no output from GPT 2 model"))
       } else {
-        Ok(out_values[0].clone())
+        let answer = out_values[0].clone();
+        if answer.is_empty() || answer.len() == 1 {
+          Err(anyhow!("GPT 2: bad answer, I don't like it"))
+        } else {
+          Ok(answer)
+        }
       }
     } else {
       Err(anyhow!("Empty GPT 2 model"))

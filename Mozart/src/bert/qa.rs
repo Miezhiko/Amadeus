@@ -85,7 +85,11 @@ async fn ask(msg_content: String, lsm: bool) -> anyhow::Result<String> {
 
         // we have several answers (hope they sorted by score)
         if let Some(answer) = my_answers.get(0) {
-          Ok(answer.answer.clone())
+          if answer.answer.is_empty() || answer.answer.len() == 1 {
+            Err(anyhow!("QA: bad answer, I don't like it"))
+          } else {
+            Ok(answer.answer.clone())
+          }
         } else {
           Err(anyhow!("empty answer by GPT QA model"))
         }

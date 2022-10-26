@@ -83,7 +83,12 @@ async fn summarize(msg_content: String, lsm: bool) -> anyhow::Result<String> {
       if output.is_empty() {
         Err(anyhow!("no output from Summarization model"))
       } else {
-        Ok(output[0].clone())
+        let answer = output[0].clone();
+        if answer.is_empty() || answer.len() == 1 {
+          Err(anyhow!("Summarization: bad answer, I don't like it"))
+        } else {
+          Ok(answer)
+        }
       }
     } else {
       Err(anyhow!("Empty Summarization model"))

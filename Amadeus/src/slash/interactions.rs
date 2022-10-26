@@ -59,14 +59,14 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           };
           if let Some(member) = &ac.member {
             if let Err(err) = music::join_slash(ctx, &member.user, &guild).await {
-              if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::Message(
+              if let Err(why) = ac.create_response(&ctx.http, CreateInteractionResponse::Message(
                     CreateInteractionResponseMessage::default().content( format!("Failed to join {err}") )
                   )
               ).await {
                 error!("Failed to create boris interaction response {why}");
               }
             } else if let Err(why) =
-              ac.create_interaction_response(&ctx.http, CreateInteractionResponse::Message(
+              ac.create_response(&ctx.http, CreateInteractionResponse::Message(
                 CreateInteractionResponseMessage::default().content( "I've joined voice channel" )
                 )
             ).await {
@@ -80,7 +80,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           value: ResolvedValue::String(t), ..
         }) = ac.data.options().first() {
           #[cfg(not(target_os = "windows"))]
-          if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::Message(
+          if let Err(why) = ac.create_response(&ctx.http, CreateInteractionResponse::Message(
               CreateInteractionResponseMessage::default().content( boris::spell(t) ) )
           ).await {
             error!("Failed to create boris interaction response {why}");
@@ -92,7 +92,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           value: ResolvedValue::String(t), ..
         }) = ac.data.options().first() {
           #[cfg(not(target_os = "windows"))]
-          if let Err(why) = ac.create_interaction_response(&ctx.http, CreateInteractionResponse::Message(
+          if let Err(why) = ac.create_response(&ctx.http, CreateInteractionResponse::Message(
               CreateInteractionResponseMessage::default().content( uwu::spell(t) ) )
           ).await {
             error!("Failed to create uwu interaction response {why}");
@@ -101,7 +101,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
       },
       c if ASYNC_CMDS.iter().any(|cmd| c == *cmd) => {
 
-        if let Err(why) = ac.create_interaction_response(&ctx.http,
+        if let Err(why) = ac.create_response(&ctx.http,
           CreateInteractionResponse::Defer(CreateInteractionResponseMessage::default())
         ).await {
           error!("Failed to set DeferredChannelMessageWithSource {why}");
@@ -109,7 +109,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
 
         match c {
           "help" => {
-            match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+            match ac.edit_response(&ctx.http, EditInteractionResponse::default()
               .content("Creating Help ...")
             ).await {
               Ok(mut msg) => {
@@ -121,7 +121,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "wave" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Waving ...")
               ).await {
                 Ok(mut msg) => {
@@ -142,7 +142,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "cry" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Crying ...")
               ).await {
                 Ok(mut msg) => {
@@ -163,7 +163,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "clap" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Clapping ...")
               ).await {
                 Ok(mut msg) => {
@@ -184,7 +184,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "angry" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Angry ...")
               ).await {
                 Ok(mut msg) => {
@@ -205,7 +205,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "confused" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Confused ...")
               ).await {
                 Ok(mut msg) => {
@@ -226,7 +226,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "nervous" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Nervous !!!")
               ).await {
                 Ok(mut msg) => {
@@ -247,7 +247,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "sleepy" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("sleepy zzzzz")
               ).await {
                 Ok(mut msg) => {
@@ -268,7 +268,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "annoyed" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("annoyed ...")
               ).await {
                 Ok(mut msg) => {
@@ -289,7 +289,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "sad" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("sad :(")
               ).await {
                 Ok(mut msg) => {
@@ -310,7 +310,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "happy" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("happy =)")
               ).await {
                 Ok(mut msg) => {
@@ -331,7 +331,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "shrug" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Shrugs ...")
               ).await {
                 Ok(mut msg) => {
@@ -352,7 +352,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "ahegao" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Ahegao")
               ).await {
                 Ok(mut msg) => {
@@ -373,7 +373,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "dance" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Dance Dance Dance")
               ).await {
                 Ok(mut msg) => {
@@ -394,7 +394,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "wink" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Winks")
               ).await {
                 Ok(mut msg) => {
@@ -415,7 +415,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "facepalm" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Facepalm")
               ).await {
                 Ok(mut msg) => {
@@ -436,7 +436,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "pout" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("...")
               ).await {
                 Ok(mut msg) => {
@@ -457,7 +457,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "smug" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("=)")
               ).await {
                 Ok(mut msg) => {
@@ -478,7 +478,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "smirk" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content(";-)")
               ).await {
                 Ok(mut msg) => {
@@ -499,7 +499,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "whatever" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("whatever ...")
               ).await {
                 Ok(mut msg) => {
@@ -520,7 +520,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "smile" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Doing the best smile")
               ).await {
                 Ok(mut msg) => {
@@ -541,7 +541,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "shock" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Shocked")
               ).await {
                 Ok(mut msg) => {
@@ -562,7 +562,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "awkward" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Awkward")
               ).await {
                 Ok(mut msg) => {
@@ -583,7 +583,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "oops" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Oops")
               ).await {
                 Ok(mut msg) => {
@@ -604,7 +604,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "lazy" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Feeling lazy")
               ).await {
                 Ok(mut msg) => {
@@ -625,7 +625,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "hungry" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Feeling hungry")
               ).await {
                 Ok(mut msg) => {
@@ -646,7 +646,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "stressed" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Feeling stressed")
               ).await {
                 Ok(mut msg) => {
@@ -667,7 +667,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "scared" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Feeling scared")
               ).await {
                 Ok(mut msg) => {
@@ -688,7 +688,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "bored" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Feeling bored")
               ).await {
                 Ok(mut msg) => {
@@ -709,7 +709,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "yes" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Yes")
               ).await {
                 Ok(mut msg) => {
@@ -730,7 +730,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "no" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("No")
               ).await {
                 Ok(mut msg) => {
@@ -751,7 +751,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "bye" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Bye Bye")
               ).await {
                 Ok(mut msg) => {
@@ -772,7 +772,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "sorry" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("I am sorry")
               ).await {
                 Ok(mut msg) => {
@@ -793,7 +793,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "ew" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("ew...")
               ).await {
                 Ok(mut msg) => {
@@ -814,7 +814,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "omg" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("OMG")
               ).await {
                 Ok(mut msg) => {
@@ -835,7 +835,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "lol" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("lol")
               ).await {
                 Ok(mut msg) => {
@@ -856,7 +856,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
           },
           "cringe" => {
             if let Some(member) = &ac.member {
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content("Cringe ...")
               ).await {
                 Ok(mut msg) => {
@@ -880,7 +880,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               value: ResolvedValue::String(t), ..
             }) = ac.data.options().first() {
               if let Some(member) = &ac.member {
-                match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+                match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                   .content("Hugs ...")
                 ).await {
                   Ok(mut msg) => {
@@ -905,7 +905,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               value: ResolvedValue::String(t), ..
             }) = ac.data.options().first() {
               if let Some(member) = &ac.member {
-                match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+                match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                   .content("Pats ...")
                 ).await {
                   Ok(mut msg) => {
@@ -930,7 +930,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               value: ResolvedValue::String(t), ..
             }) = ac.data.options().first() {
               if let Some(member) = &ac.member {
-                match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+                match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                   .content("Slaps ...")
                 ).await {
                   Ok(mut msg) => {
@@ -955,7 +955,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               value: ResolvedValue::String(t), ..
             }) = ac.data.options().first() {
               if let Some(member) = &ac.member {
-                match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+                match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                   .content("Searching ...")
                 ).await {
                   Ok(mut msg) => {
@@ -975,7 +975,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
             }
           },
           "leave" => {
-            match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+            match ac.edit_response(&ctx.http, EditInteractionResponse::default()
               .content("Leaving...")
             ).await {
               Ok(msg) => {
@@ -991,7 +991,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
             };
           },
           "repeat" => {
-            match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+            match ac.edit_response(&ctx.http, EditInteractionResponse::default()
               .content("Repeating...")
             ).await {
               Ok(msg) => {
@@ -1011,7 +1011,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               value: ResolvedValue::String(t), ..
             }) = ac.data.options().first() {
               RESTORE.store(false, Ordering::Relaxed);
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content(&format!("Getting stats for {}", t))
               ).await {
                 Ok(msg) => {
@@ -1031,7 +1031,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               value: ResolvedValue::String(t), ..
             }) = ac.data.options().first() {
               RESTORE.store(false, Ordering::Relaxed);
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content(&format!("Феминизация \"{}\"", t))
               ).await {
                 Ok(msg) => {
@@ -1051,7 +1051,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               value: ResolvedValue::String(t), ..
             }) = ac.data.options().first() {
               RESTORE.store(false, Ordering::Relaxed);
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content(&format!("Playing {}", t))
               ).await {
                 Ok(msg) => {
@@ -1071,7 +1071,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               value: ResolvedValue::String(t), ..
             }) = ac.data.options().first() {
               RESTORE.store(false, Ordering::Relaxed);
-              match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+              match ac.edit_response(&ctx.http, EditInteractionResponse::default()
                 .content(&format!("Translating {}", t))
               ).await {
                 Ok(msg) => {
@@ -1099,7 +1099,7 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               str_arg = String::from(*t);
             }
             RESTORE.store(false, Ordering::Relaxed);
-            match ac.edit_original_interaction_response(&ctx.http, EditInteractionResponse::default()
+            match ac.edit_response(&ctx.http, EditInteractionResponse::default()
               .content("⌚")
             ).await {
               Ok(mut msg) => {

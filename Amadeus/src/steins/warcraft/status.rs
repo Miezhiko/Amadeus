@@ -152,8 +152,8 @@ pub async fn generate_stats_graph( ctx: &Context
     };
   { // because of Rc < > in BitMapBackend I need own scope here
     let mut plx_vec = vec![];
-    let mut min_mmr = 1499;
-    let mut max_mmr = 1501;
+    let mut min_mmr = 2000;
+    let mut max_mmr = 1300;
     let mut stats_vec: HashMap<String, [f64; DAYS_FOR_STATUS]> = HashMap::new();
     for (n, d) in weeky.iter().rev().enumerate() {
       let stats = if solo {
@@ -173,6 +173,10 @@ pub async fn generate_stats_graph( ctx: &Context
           stats_vec.insert(p.0.clone(), dd);
         }
       }
+    }
+
+    if max_mmr <= min_mmr {
+      min_mmr = max_mmr - 1;
     }
 
     let colors = gen_colors(stats_vec.len());

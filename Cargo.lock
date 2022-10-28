@@ -862,9 +862,9 @@ dependencies = [
 
 [[package]]
 name = "comfy-table"
-version = "6.1.1"
+version = "6.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b3d16bb3da60be2f7c7acfc438f2ae6f3496897ce68c291d0509bb67b4e248e"
+checksum = "1090f39f45786ec6dc6286f8ea9c75d0a7ef0a0d3cda674cef0c3af7b307fbc2"
 dependencies = [
  "crossterm",
  "strum",
@@ -875,7 +875,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#1d0fa5980616d8282dcf8e8b7d38d937a6b26d3e"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#5ff1a2a0a619e91842144256001bf2664edbb9c1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2406,9 +2406,9 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.51"
+version = "0.1.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5a6ef98976b22b3b7f2f3a806f858cb862044cfa66805aa3ad84cb3d3b785ed"
+checksum = "c422fb4f6e80490d0afcacf5c3de2c22ab8e631e0cd7cb2d4a3baf844720a52a"
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
@@ -4782,7 +4782,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#1d0fa5980616d8282dcf8e8b7d38d937a6b26d3e"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#5ff1a2a0a619e91842144256001bf2664edbb9c1"
 dependencies = [
  "async-trait",
  "base64",
@@ -4816,7 +4816,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#1d0fa5980616d8282dcf8e8b7d38d937a6b26d3e"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#5ff1a2a0a619e91842144256001bf2664edbb9c1"
 dependencies = [
  "bitflags",
  "enum_primitive",

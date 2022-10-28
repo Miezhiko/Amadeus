@@ -2642,9 +2642,9 @@ dependencies = [
 
 [[package]]
 name = "kathoey"
-version = "1.1.2"
+version = "1.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99b2f2a1505c9e02936bf90b6ff64ee3f078f73ca4045fdaa47fb3497e656e45"
+checksum = "00b81c50f97c854feea46b3e8150d0d06932aca6e8195e75b8d738b542fe284d"
 dependencies = [
  "anyhow",
  "bincode",

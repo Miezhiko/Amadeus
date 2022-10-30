@@ -270,9 +270,9 @@ dependencies = [
 
 [[package]]
 name = "async-global-executor"
-version = "2.3.0"
+version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0da5b41ee986eed3f524c380e6d64965aea573882a8907682ad100f7859305ca"
+checksum = "f1b6f5d7df27bd294849f8eec66ecfc63d11814df7a4f5d74168a2394467b776"
 dependencies = [
  "async-channel",
  "async-executor",
@@ -296,16 +296,16 @@ dependencies = [
 
 [[package]]
 name = "async-io"
-version = "1.9.0"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83e21f3a490c72b3b0cf44962180e60045de2925d8dff97918f7ee43c8f637c7"
+checksum = "e8121296a9f05be7f34aa4196b1747243b3b62e048bb7906f644f3fbfc490cf7"
 dependencies = [
+ "async-lock",
  "autocfg 1.1.0",
  "concurrent-queue",
  "futures-lite",
  "libc",
  "log",
- "once_cell",
  "parking",
  "polling",
  "slab",
@@ -668,9 +668,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.73"
+version = "1.0.74"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2fff2a6927b3bb87f9595d67196a70493f627687a71d87a0d692242c33f58c11"
+checksum = "581f5dba903aac52ea3feb5ec4810848460ee833876f1f9b0fdeab1f19091574"
 dependencies = [
  "jobserver",
 ]
@@ -799,9 +799,9 @@ dependencies = [
 
 [[package]]
 name = "cmake"
-version = "0.1.48"
+version = "0.1.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8ad8cef104ac57b68b89df3208164d228503abbdce70f6880ffa3d970e7443a"
+checksum = "db34956e100b30725f2eb215f90d4871051239535632f84fea3bc92722c66b7c"
 dependencies = [
  "cc",
 ]
@@ -875,7 +875,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#5ff1a2a0a619e91842144256001bf2664edbb9c1"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#30275d9c4e8041ce0edfcd495af2943b8a7d4390"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2406,9 +2406,9 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.52"
+version = "0.1.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c422fb4f6e80490d0afcacf5c3de2c22ab8e631e0cd7cb2d4a3baf844720a52a"
+checksum = "64c122667b287044802d6ce17ee2ddf13207ed924c712de9a66a5814d5b64765"
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
@@ -4200,9 +4200,9 @@ dependencies = [
 
 [[package]]
 name = "realfft"
-version = "3.0.1"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8028eb3fabd68ddf331f744ba9c25a939804e276d820f9b218ab25a4bd7b91b8"
+checksum = "30030cf3ea04d9192da88768b8b1b865e08733b5ae3cf1f012041749f4bef28f"
 dependencies = [
  "rustfft",
 ]
@@ -4367,7 +4367,7 @@ dependencies = [
 [[package]]
 name = "rust-bert"
 version = "0.19.0"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#78da0f4814da00139551b615d6d06e7e92f59a79"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#340be36ed9617ee2b8e82ad2780a4bb327c6236e"
 dependencies = [
  "cached-path",
  "dirs",
@@ -4782,7 +4782,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#5ff1a2a0a619e91842144256001bf2664edbb9c1"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#30275d9c4e8041ce0edfcd495af2943b8a7d4390"
 dependencies = [
  "async-trait",
  "base64",
@@ -4816,7 +4816,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#5ff1a2a0a619e91842144256001bf2664edbb9c1"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#30275d9c4e8041ce0edfcd495af2943b8a7d4390"
 dependencies = [
  "bitflags",
  "enum_primitive",

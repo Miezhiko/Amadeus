@@ -388,10 +388,8 @@ pub async fn attach_replay( ctx: &Context
                     if let Some(colour) = &mmm.embeds[0].colour {
                       e = e.colour(colour.tuple());
                     }
-                    let a = CreateAttachment::path(std::path::Path::new(&file.filename)).await?;
                     if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
-                        .embed(e)
-                      .add_file(a)
+                      .embed(e)
                     ).await {
                       error!("Failed to attach replay {why}");
                     } else {

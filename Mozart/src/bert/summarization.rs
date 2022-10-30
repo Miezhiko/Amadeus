@@ -34,9 +34,9 @@ fn summarization_model_bart_loader() -> SummarizationModel {
   let vocab_resource = Box::new(RemoteResource::from_pretrained(
     BartVocabResources::DISTILBART_CNN_6_6,
   ));
-  let merges_resource = Box::new(RemoteResource::from_pretrained(
+  let merges_resource = Some(Box::new(RemoteResource::from_pretrained(
     BartMergesResources::DISTILBART_CNN_6_6,
-  ));
+  )));
   let model_resource = Box::new(RemoteResource::from_pretrained(
     BartModelResources::DISTILBART_CNN_6_6,
   ));

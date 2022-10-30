@@ -33,9 +33,9 @@ fn xlnet_model_loader() -> TextGenerationModel {
   let vocab_resource = Box::new(RemoteResource::from_pretrained(
     XLNetVocabResources::XLNET_BASE_CASED,
   ));
-  let merges_resource = Box::new(RemoteResource::from_pretrained(
+  let merges_resource = Some(Box::new(RemoteResource::from_pretrained(
     XLNetVocabResources::XLNET_BASE_CASED,
-  ));
+  )));
   let model_resource = Box::new(RemoteResource::from_pretrained(
     XLNetModelResources::XLNET_BASE_CASED,
   ));

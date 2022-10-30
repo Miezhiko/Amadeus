@@ -34,9 +34,9 @@ fn neo_model_loader() -> TextGenerationModel {
   let vocab_resource = Box::new(RemoteResource::from_pretrained(
     GptNeoVocabResources::GPT_NEO_125M,
   ));
-  let merges_resource = Some(Box::new(RemoteResource::from_pretrained(
+  let merges_resource = Box::new(RemoteResource::from_pretrained(
     GptNeoMergesResources::GPT_NEO_125M,
-  )));
+  ));
   let model_resource = Box::new(RemoteResource::from_pretrained(
     GptNeoModelResources::GPT_NEO_125M,
   ));

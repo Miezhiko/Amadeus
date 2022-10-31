@@ -137,9 +137,12 @@ pub async fn run(opts: IOptions) ->
   );
   let intents = GatewayIntents::GUILDS
               | GatewayIntents::GUILD_MEMBERS
+              | GatewayIntents::GUILD_BANS
               | GatewayIntents::GUILD_PRESENCES
               | GatewayIntents::GUILD_MESSAGES
               | GatewayIntents::GUILD_MESSAGE_REACTIONS
+              | GatewayIntents::GUILD_WEBHOOKS
+              | GatewayIntents::GUILD_VOICE_STATES
               | GatewayIntents::MESSAGE_CONTENT;
   let mut client =
     serenity::Client::builder(&opts.discord, intents)

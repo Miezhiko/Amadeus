@@ -875,7 +875,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#30275d9c4e8041ce0edfcd495af2943b8a7d4390"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#11b8f71c68790fde11d5497548309e237e5e99a9"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3024,9 +3024,9 @@ dependencies = [
 
 [[package]]
 name = "native-tls"
-version = "0.2.10"
+version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd7e2f3618557f980e0b17e8856252eee3c97fa12c54dff0ca290fb6266ca4a9"
+checksum = "07226173c32f2926027b63cce4bcd8076c3552846cbe7925f3aaffeac0a3b92e"
 dependencies = [
  "lazy_static",
  "libc",
@@ -4791,7 +4791,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#30275d9c4e8041ce0edfcd495af2943b8a7d4390"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#11b8f71c68790fde11d5497548309e237e5e99a9"
 dependencies = [
  "async-trait",
  "base64",
@@ -4825,7 +4825,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#30275d9c4e8041ce0edfcd495af2943b8a7d4390"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#11b8f71c68790fde11d5497548309e237e5e99a9"
 dependencies = [
  "bitflags",
  "enum_primitive",

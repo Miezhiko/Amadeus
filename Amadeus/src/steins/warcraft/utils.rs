@@ -98,7 +98,7 @@ fn try_get_map(m: &str) -> String {
   String::from(
     match m { "overall"               => "All"
             , "echoisles"             => "Echo Isles"
-            , "northernisles"         => "Northen Isles"
+            , "northernisles"         => "Northern Isles"
             , "amazonia"              => "Amazonia"
             , "lastrefuge"            => "Last Refuge"
             , "concealedhill"         => "Concealed Hill"

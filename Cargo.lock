@@ -1638,9 +1638,9 @@ dependencies = [
 
 [[package]]
 name = "env_logger"
-version = "0.9.1"
+version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c90bf5f19754d10198ccb95b70664fc925bd1fc090a0fd9a6ebc54acc8cd6272"
+checksum = "a12e6657c4c97ebab115a42dcee77225f7f482cdd841cf7088c657a42e9e00e7"
 dependencies = [
  "atty",
  "humantime",
@@ -2344,9 +2344,9 @@ checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "hyper"
-version = "0.14.22"
+version = "0.14.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "abfba89e19b959ca163c7752ba59d737c1ceea53a5d31a149c805446fc958064"
+checksum = "034711faac9d2166cb1baf1a2fb0b60b1f277f8492fd72176c17f3515e1abd3c"
 dependencies = [
  "bytes",
  "futures-channel",
@@ -2974,7 +2974,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.19"
+version = "0.2.20"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -4324,7 +4324,7 @@ dependencies = [
 [[package]]
 name = "rust-bert"
 version = "0.19.0"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#340be36ed9617ee2b8e82ad2780a4bb327c6236e"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#c6771d39929d6490db38848d0761b57996992130"
 dependencies = [
  "cached-path",
  "dirs",
@@ -4394,9 +4394,9 @@ dependencies = [
 
 [[package]]
 name = "rustfft"
-version = "6.0.1"
+version = "6.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1d089e5c57521629a59f5f39bca7434849ff89bd6873b521afe389c1c602543"
+checksum = "e17d4f6cbdb180c9f4b2a26bbf01c4e647f1e1dea22fe8eb9db54198b32f9434"
 dependencies = [
  "num-complex",
  "num-integer",
@@ -4404,6 +4404,7 @@ dependencies = [
  "primal-check",
  "strength_reduce",
  "transpose",
+ "version_check",
 ]
 
 [[package]]
@@ -5031,9 +5032,9 @@ dependencies = [
 
 [[package]]
 name = "strength_reduce"
-version = "0.2.3"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3ff2f71c82567c565ba4b3009a9350a96a7269eaa4001ebedae926230bc2254"
+checksum = "fe895eb47f22e2ddd4dabc02bce419d2e643c8e3b585c78158b349195bc24d82"
 
 [[package]]
 name = "string_cache"
@@ -5158,9 +5159,9 @@ dependencies = [
 
 [[package]]
 name = "tch"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "584cc6a09b0a28a9ebd85b64a74cfe0643d54a724ab649379c4ff5edd59b2356"
+checksum = "3d46cf7b3ac7264ed8ec3e88a3dea3a9c1a8271a878d099fd743e63a9976d7d1"
 dependencies = [
  "half 1.8.2",
  "lazy_static",
@@ -5515,9 +5516,9 @@ dependencies = [
 
 [[package]]
 name = "torch-sys"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a097a0fe5fda9773f6515d4eaf692caa77818c8628f1be42b79c31de9473300"
+checksum = "4aebf5bacfdacc38c539c17e5444c935c863d2b7a7b66bbd7ebfbaf32f98834e"
 dependencies = [
  "anyhow",
  "cc",
@@ -5662,9 +5663,9 @@ dependencies = [
 
 [[package]]
 name = "transpose"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95f9c900aa98b6ea43aee227fd680550cdec726526aab8ac801549eadb25e39f"
+checksum = "e6522d49d03727ffb138ae4cbc1283d3774f0d10aa7f9bf52e6784c45daf9b23"
 dependencies = [
  "num-integer",
  "strength_reduce",

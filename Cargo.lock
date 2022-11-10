@@ -875,7 +875,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#6ac5d2385ba465114ce28fe7845da06a1cdf0d29"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#60c5ab350a2c7e6e08f9100ab2e15e43e5321eca"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4166,9 +4166,9 @@ dependencies = [
 
 [[package]]
 name = "realfft"
-version = "3.0.2"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30030cf3ea04d9192da88768b8b1b865e08733b5ae3cf1f012041749f4bef28f"
+checksum = "3052e66d6ebeff8049607775c41d39a58d1dfa91a2733e89f2b7816bce2ea4cc"
 dependencies = [
  "rustfft",
 ]
@@ -4333,7 +4333,7 @@ dependencies = [
 [[package]]
 name = "rust-bert"
 version = "0.19.0"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#c6771d39929d6490db38848d0761b57996992130"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#2ffb6005f37624442d1bef299ee768ec44970b67"
 dependencies = [
  "cached-path",
  "dirs",
@@ -4749,7 +4749,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#6ac5d2385ba465114ce28fe7845da06a1cdf0d29"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#60c5ab350a2c7e6e08f9100ab2e15e43e5321eca"
 dependencies = [
  "async-trait",
  "base64",
@@ -4782,7 +4782,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#6ac5d2385ba465114ce28fe7845da06a1cdf0d29"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#60c5ab350a2c7e6e08f9100ab2e15e43e5321eca"
 dependencies = [
  "bitflags",
  "enum_primitive",

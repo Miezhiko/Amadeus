@@ -167,7 +167,7 @@ pub async fn process( ioptions: &IOptions
                 let collector = msg.reaction_collector(&ctx.shard)
                                    .timeout(Duration::from_secs(3600));
                 if let Some(reaction) = collector.collect_single().await {
-                  let emoji = &reaction.as_inner_ref().emoji;
+                  let emoji = &reaction.emoji;
                   match emoji.as_data().borrow() {
                     "🌈" => {
                       if let Err(why) = replay_embed(ctx, &msg, file).await {

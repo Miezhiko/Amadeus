@@ -114,7 +114,7 @@ pub async fn rep_embed( ctx: &Context
                                  .timeout(Duration::from_secs(120))
                                  .author_id(msg.author.id);
           if let Some(reaction) = collector.collect_single().await {
-            let emoji = &reaction.as_inner_ref().emoji;
+            let emoji = &reaction.emoji;
             match emoji.as_data().borrow() {
               "⬅️" => { 
                 if page != 0 {
@@ -131,7 +131,7 @@ pub async fn rep_embed( ctx: &Context
             bot_msg.edit(ctx, EditMessage::default().embed(
               embeds[page].clone()
             )).await?;
-            let _ = reaction.as_inner_ref().delete(ctx).await;
+            let _ = reaction.delete(ctx).await;
           } else {
             let _ = bot_msg.delete_reactions(ctx).await;
             break;

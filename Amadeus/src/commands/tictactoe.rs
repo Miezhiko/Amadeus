@@ -160,7 +160,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
     let collector = other_player.reaction_collector(&ctx.shard)
                                 .timeout(Duration::from_secs(120));
     if let Some(reaction) = collector.collect_single().await {
-      let emoji = &reaction.as_inner_ref().emoji;
+      let emoji = &reaction.emoji;
       match emoji.as_data().borrow() {
         "✅" => {
           confirmation.delete(ctx).await?;
@@ -222,8 +222,8 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
           let collector = ux.reaction_collector(&ctx.shard)
                             .timeout(Duration::from_secs(120));
           if let Some(reaction) = collector.collect_single().await {
-            let _ = reaction.as_inner_ref().delete(ctx).await;
-            let emoji = &reaction.as_inner_ref().emoji;
+            let _ = reaction.delete(ctx).await;
+            let emoji = &reaction.emoji;
 
             match emoji.as_data().borrow() {
               "1\u{fe0f}\u{20e3}" => x = Some(0),

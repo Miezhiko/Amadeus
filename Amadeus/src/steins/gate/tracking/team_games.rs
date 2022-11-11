@@ -276,10 +276,9 @@ pub async fn activate_games_tracking(
                     let collector = msg_id.reaction_collector(&xtx_clone.shard)
                                           .timeout(time::Duration::from_secs(600));
                     if let Some(reaction) = collector.collect_single().await {
-                      let inref = reaction.as_inner_ref();
-                      let emoji = &inref.emoji;
-                      if let Some(u) = inref.user_id {
-                        if let Some(g) = inref.guild_id {
+                      let emoji = &reaction.emoji;
+                      if let Some(u) = reaction.user_id {
+                        if let Some(g) = reaction.guild_id {
                           if let Ok(p) = points::get_points( g.0.get(), u.0.get() ).await {
                             if p > 100 {
                               let emoji_data: String = emoji.as_data().to_string();

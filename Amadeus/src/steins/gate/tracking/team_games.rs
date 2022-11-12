@@ -27,7 +27,7 @@ use std::{ time
 use rand::Rng;
 
 const DAY_TIMEOUT_SECS: u32   = 60;
-const NIGHT_TIMEOUT_SECS: u32 = 20;
+const NIGHT_TIMEOUT_SECS: u32 = 30;
 
 const DAY_TIMEOUT: time::Duration   = time::Duration::from_secs(DAY_TIMEOUT_SECS as u64);
 const NIGHT_TIMEOUT: time::Duration = time::Duration::from_secs(NIGHT_TIMEOUT_SECS as u64);
@@ -335,8 +335,7 @@ pub async fn activate_games_tracking(
 
       set!{ nao             = chrono::offset::Utc::now()
           , current_weekday = nao.weekday() };
-      if current_weekday == Weekday::Sat
-      || current_weekday == Weekday::Sun {
+      if current_weekday == Weekday::Sun {
         checker::CURRENT_TIMEOUT.store(NIGHT_TIMEOUT_SECS, Ordering::Relaxed);
         tokio::time::sleep(NIGHT_TIMEOUT).await;
       } else {

@@ -45,7 +45,7 @@ fn xlnet_model_loader() -> TextGenerationModel {
     config_resource,
     vocab_resource,
     merges_resource: Some(merges_resource),
-    max_length: 32,
+    max_length: Some(64),
     do_sample: false,
     num_beams: 3,
     temperature: 1.0,

@@ -165,8 +165,9 @@ pub async fn process( ioptions: &IOptions
                                    .timeout(Duration::from_secs(3600));
                 if let Some(reaction) = collector.collect_single().await {
                   let emoji = &reaction.emoji;
+                  // TODO: rework this, use match on &ReactionType somehow
                   match emoji.as_data().as_str() {
-                    "🌈" => {
+                    "%F0%9F%8C%88" => {
                       info!("parsing replay");
                       if let Err(why) = replay_embed(ctx, &msg, file).await {
                         error!("Failed to analyze replay:\n{why}");
@@ -175,12 +176,7 @@ pub async fn process( ioptions: &IOptions
                         error!("failed to delte msg reactions {why}");
                       }
                     },
-                    _ => {
-                      // TODO: DELETE THIS
-                      if let Err(why) = msg.reply(&ctx, emoji.as_data().as_str()).await {
-                        error!("Error sending reply for emoji: {why}");
-                      }
-                    }
+                    _ => ()
                   }
                 }
               }

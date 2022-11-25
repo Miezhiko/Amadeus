@@ -47,7 +47,7 @@ fn neo_model_loader() -> TextGenerationModel {
     vocab_resource,
     merges_resource: Some(merges_resource),
     min_length: 10,
-    max_length: 30,
+    max_length: Some(30),
     do_sample: true,
     early_stopping: true,
     num_beams: 4,

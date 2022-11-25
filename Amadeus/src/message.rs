@@ -4,8 +4,7 @@ use crate::{
   steins::{ gate
           , warcraft::{
               replay::{ replay_embed
-                      , attach_replay },
-              rep::rep_embed
+                      , attach_replay }
             }
           },
   common::{ db::trees::points
@@ -159,10 +158,8 @@ pub async fn process( ioptions: &IOptions
                 error!("failed to clean attachment from log {why}");
               }
             } else {
-              set!{ rainbow = ReactionType::Unicode(String::from("🌈"))
-                  , notepad = ReactionType::Unicode(String::from("🗒️")) };
+              let rainbow = ReactionType::Unicode(String::from("🌈"));
               let _ = msg.react(&ctx, rainbow).await;
-              let _ = msg.react(&ctx, notepad).await;
               loop {
                 let collector = msg.reaction_collector(&ctx.shard)
                                    .timeout(Duration::from_secs(3600));
@@ -171,14 +168,6 @@ pub async fn process( ioptions: &IOptions
                   match emoji.as_data().borrow() {
                     "🌈" => {
                       if let Err(why) = replay_embed(ctx, &msg, file).await {
-                        error!("Failed to analyze replay:\n{why}");
-                      }
-                      if let Err(why) = msg.delete_reactions(ctx).await {
-                        error!("failed to delte msg reactions {why}");
-                      }
-                    },
-                    "🗒️" => {
-                      if let Err(why) = rep_embed(ctx, &msg, file).await {
                         error!("Failed to analyze replay:\n{why}");
                       }
                       if let Err(why) = msg.delete_reactions(ctx).await {

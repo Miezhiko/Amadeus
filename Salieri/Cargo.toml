@@ -12,7 +12,7 @@ log         = "0.4.17"
 anyhow      = "1"
 
 [dependencies.tokio]
-version = "1.21.2"
+version = "1.22.0"
 features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
 
 [dependencies.celery]

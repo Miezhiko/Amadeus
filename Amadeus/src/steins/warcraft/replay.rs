@@ -162,7 +162,7 @@ pub async fn replay_embed( ctx: &Context
                                .timeout(Duration::from_secs(360));
         if let Some(reaction) = collector.collect_single().await {
           let emoji = &reaction.emoji;
-          match emoji.as_data().borrow() {
+          match emoji.as_data().as_str() {
             "⬅️" => { 
               if page != 0 {
                 page -= 1;

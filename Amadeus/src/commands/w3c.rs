@@ -126,7 +126,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
                                  .author_id(msg.author.id);
           if let Some(reaction) = collector.collect_single().await {
             let emoji = &reaction.emoji;
-            match emoji.as_data().borrow() {
+            match emoji.as_data().as_str() {
               "⬅️" => { 
                 if page != 0 {
                   page -= 1;

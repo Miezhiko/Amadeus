@@ -13,7 +13,7 @@ log             = "0.4.17"
 anyhow          = "1"
 once_cell       = "1.16.0"
 rand            = "0.8.5"
-chrono          = "0.4.22"
+chrono          = "0.4.23"
 bincode         = "2.0.0-rc.2"
 regex           = "1.7"
 async-recursion = "1.0"
@@ -26,7 +26,7 @@ branch = "master"
 features = [ "remote" ]
 
 [dependencies.tokio]
-version = "1.21.2"
+version = "1.22.0"
 features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
 
 [dependencies.celery]

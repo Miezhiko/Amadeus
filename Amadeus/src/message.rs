@@ -165,7 +165,7 @@ pub async fn process( ioptions: &IOptions
                                    .timeout(Duration::from_secs(3600));
                 if let Some(reaction) = collector.collect_single().await {
                   let emoji = &reaction.emoji;
-                  match emoji.as_data().borrow() {
+                  match emoji.as_data().as_str() {
                     "🌈" => {
                       info!("parsing replay");
                       if let Err(why) = replay_embed(ctx, &msg, file).await {

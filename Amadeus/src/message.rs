@@ -175,7 +175,12 @@ pub async fn process( ioptions: &IOptions
                         error!("failed to delte msg reactions {why}");
                       }
                     },
-                    _ => ()
+                    _ => {
+                      // TODO: DELETE THIS
+                      if let Err(why) = msg.reply(&ctx, emoji.as_data().as_str()).await {
+                        error!("Error sending reply for emoji: {why}");
+                      }
+                    }
                   }
                 }
               }

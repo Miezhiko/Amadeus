@@ -167,6 +167,7 @@ pub async fn process( ioptions: &IOptions
                   let emoji = &reaction.emoji;
                   match emoji.as_data().borrow() {
                     "🌈" => {
+                      info!("parsing replay");
                       if let Err(why) = replay_embed(ctx, &msg, file).await {
                         error!("Failed to analyze replay:\n{why}");
                       }
@@ -174,12 +175,7 @@ pub async fn process( ioptions: &IOptions
                         error!("failed to delte msg reactions {why}");
                       }
                     },
-                    _ => {
-                      if let Err(why) = msg.delete_reactions(ctx).await {
-                        error!("failed to delte msg reactions {why}");
-                      }
-                      break;
-                    }
+                    _ => ()
                   }
                 }
               }

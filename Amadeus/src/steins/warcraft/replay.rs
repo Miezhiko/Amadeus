@@ -173,7 +173,7 @@ pub async fn replay_embed( ctx: &Context
                 page += 1;
               }
             },
-            _ => (),
+            _ => ()
           }
           if let Err(err) = bot_msg.edit(&ctx, EditMessage::default()
             .embed( embeds[page].clone() )

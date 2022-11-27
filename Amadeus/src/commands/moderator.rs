@@ -52,7 +52,7 @@ async fn unmute_internal(ctx: &Context, guild_id: &GuildId, user_id: &UserId) ->
 #[required_permissions(BAN_MEMBERS)]
 async fn mute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
-    if msg.mentions.is_empty() || (msg.mentions.len() > 0 && msg.mentions[0].bot) {
+    if msg.mentions.is_empty() || (!msg.mentions.is_empty() && msg.mentions[0].bot) {
       if let Ok(user_id) = args.single::<u64>() {
         mute_internal(ctx, &guild_id, &UserId( to_nzu!(user_id) ) ).await?;
       } else {
@@ -70,7 +70,7 @@ async fn mute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[required_permissions(BAN_MEMBERS)]
 async fn unmute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
-    if msg.mentions.is_empty() || (msg.mentions.len() > 0 && msg.mentions[0].bot) {
+    if msg.mentions.is_empty() || (!msg.mentions.is_empty() && msg.mentions[0].bot) {
       if let Ok(user_id) = args.single::<u64>() {
         unmute_internal(ctx, &guild_id, &UserId( to_nzu!(user_id) ) ).await?;
       } else {
@@ -171,8 +171,8 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
                                   .kind(ChannelType::Text)
                                 ).await?;
     let mut e = CreateEmbed::new()
-      .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
-      .title(&format!("You was timed out by {}", msg.author.name))
+      .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(msg.author.face()))
+      .title(format!("You was timed out by {}", msg.author.name))
       .timestamp(chrono::Utc::now());
     if let Some(r) = reason {
       e = e.description(r);
@@ -302,7 +302,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     channel_message(ctx, msg, "no users found").await;
     return Ok(());
   }
-  let now = chrono::offset::Utc::now().date();
+  let now = chrono::offset::Utc::now().date_naive();
   let mut last_msg_id_on_iteration = Some(msg.id);
   let mut messages = std::collections::HashSet::new();
   for _iteration in [0..PURGE_ITERATIONS] {
@@ -312,7 +312,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         ).await {
         let mut we_are_done = false;
         for message in &msgs {
-          let diff = now - message.timestamp.date();
+          let diff = now - message.timestamp.date_naive();
           if diff.num_days() > 13 {
             we_are_done = true;
             break;

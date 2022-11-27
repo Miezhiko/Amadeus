@@ -32,8 +32,7 @@ use std::{ time::Duration
          , collections::HashMap
          , sync::Arc
          , sync::atomic::Ordering::Relaxed
-         , sync::atomic::AtomicU32
-         , borrow::Borrow };
+         , sync::atomic::AtomicU32 };
 
 use chrono::{ Utc, DateTime, Datelike };
 use once_cell::sync::Lazy;
@@ -857,7 +856,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
 #[description("Clear weekly stats (owner only)")]
 async fn regenerate_stats(ctx: &Context, msg: &Message) -> CommandResult {
   let now = chrono::Utc::now();
-  let now_day = now.date().naive_utc().day();
+  let now_day = now.date_naive().day();
   clear_weekly(ctx, now_day).await?;
   channel_message(ctx, msg, "Done").await;
   Ok(())

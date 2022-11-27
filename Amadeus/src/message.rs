@@ -37,7 +37,6 @@ use serenity::{
 use std::{ collections::VecDeque
          , sync::atomic::{ Ordering, AtomicBool }
          , time::Duration
-         , borrow::Borrow
          };
 
 use rand::{ Rng
@@ -198,7 +197,7 @@ pub async fn process( ioptions: &IOptions
         let rndx: u8 = rand::thread_rng().gen_range(0..3);
         if rndx != 1 {
           if let Some(nick) = msg.author.nick_in(ctx, &guild_id).await {
-            ctx.set_activity(Some( ActivityData::listening(&nick) ));
+            ctx.set_activity(Some( ActivityData::listening(nick) ));
           } else {
             ctx.set_activity(Some( ActivityData::listening(&msg.author.name) ));
           }

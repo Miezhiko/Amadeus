@@ -70,7 +70,7 @@ pub struct Weekly {
 
 pub async fn get_weekly(ctx: &Context) -> anyhow::Result<Weekly> {
   if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
-    clear_weekly(ctx, chrono::Utc::now().date().naive_utc().day()).await?;
+    clear_weekly(ctx, chrono::Utc::now().date_naive().day()).await?;
   }
   let contents = fs::read_to_string(WEEKLY_STATS_FNAME).await?;
   let yml = serde_yaml::from_str(&contents)?;
@@ -299,7 +299,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     let now = chrono::Utc::now();
     // only check on midnight
     if now.hour() == 0 {
-      let now_day = now.date().naive_utc().day();
+      let now_day = now.date_naive().day();
       if now_day != weekly.reset_day {
         clear_weekly(ctx, now_day).await?;
       }

@@ -20,10 +20,7 @@ use serenity::{
   builder::CreateEmbed
 };
 
-use std::{
-  time::Duration,
-  borrow::Borrow
-};
+use std::time::Duration;
 
 use async_std::{ fs::File, fs
                , prelude::* };
@@ -367,20 +364,20 @@ pub async fn attach_replay( ctx: &Context
                                          .await
                                          .unwrap_or_else(|| msg.author.name.clone());
                     let mut e = CreateEmbed::new()
-                      .title(&mmm.embeds[0].title.clone().unwrap())
-                      .author(CreateEmbedAuthor::new(&nick).icon_url(&msg.author.face()))
-                      .description(&mmm.embeds[0].description.clone().unwrap())
+                      .title(mmm.embeds[0].title.clone().unwrap())
+                      .author(CreateEmbedAuthor::new(&nick).icon_url(msg.author.face()))
+                      .description(mmm.embeds[0].description.clone().unwrap())
                       .footer(CreateEmbedFooter::new( mmm.embeds[0].footer.clone().unwrap().text ));
                     if !fields2.is_empty() {
                       e = e.fields(fields2);
                     }
                     if let Some(apm) = apm_image {
-                      e = e.image(&apm);
+                      e = e.image(apm);
                     }
                     if let Some(some_img) = mmm.embeds[0].image.clone() {
-                      e = e.thumbnail(&some_img.url);
+                      e = e.thumbnail(some_img.url);
                     } else if let Some(hero) = mmm.embeds[0].thumbnail.clone() {
-                      e = e.thumbnail(&hero.url);
+                      e = e.thumbnail(hero.url);
                     }
                     if let Some(some_url) = &mmm.embeds[0].url {
                       e = e.url(some_url);

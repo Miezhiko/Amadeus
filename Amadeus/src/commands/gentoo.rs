@@ -38,7 +38,7 @@ async fn bug(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let footer = format!("Requested by {}", msg.author.name);
     let mut e = CreateEmbed::new()
       .title(&bug.summary)
-      .url(&format!("https://bugs.gentoo.org/{number}"))
+      .url(format!("https://bugs.gentoo.org/{number}"))
       .color((255, 0, 0))
       .footer(CreateEmbedFooter::new(footer));
     if !bug.assigned_to.is_empty() {

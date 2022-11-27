@@ -9,8 +9,7 @@ use std::{
     Display,
     Write as _
   },
-  time::Duration,
-  borrow::Borrow
+  time::Duration
 };
 
 use serenity::{

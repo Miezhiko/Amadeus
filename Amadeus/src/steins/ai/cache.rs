@@ -46,8 +46,7 @@ static CACHE_YML: &str = "cache/cache.yml";
 // NO IDEA WHY...
 static CHANNEL_CACHE_MAX: u64 = 199;
 
-// TODO: store in some variable
-pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(199);
+pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(255);
 
 pub static CACHE_ENG: Lazy<Mutex<Chain<String>>> =
   Lazy::new(|| Mutex::new(Chain::new()));

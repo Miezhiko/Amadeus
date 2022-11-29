@@ -259,13 +259,13 @@ pub async fn activate_streamers_tracking(
                 let is_now_live = format!("{} is now live!", &user.name);
                 let mut e = CreateEmbed::new()
                   .title(&title)
-                  .author(CreateEmbedAuthor::new(&is_now_live).icon_url(&user.face()))
+                  .author(CreateEmbedAuthor::new(&is_now_live).icon_url(user.face()))
                   .footer(CreateEmbedFooter::new(&footer));
                 if !fields.is_empty() {
                   e = e.fields(fields.clone());
                 }
                 if let Some(some_img) = &img {
-                  e = e.image(&some_img.url.clone());
+                  e = e.image(some_img.url.clone());
                 }
                 if let Some(some_url) = &url {
                   e = e.url(some_url);
@@ -336,7 +336,7 @@ pub async fn activate_streamers_tracking(
               let mut e = CreateEmbed::new()
                 .title(&title)
                 .colour((red, green, blue))
-                .author(CreateEmbedAuthor::new(&is_now_live).icon_url(&user.face()));
+                .author(CreateEmbedAuthor::new(&is_now_live).icon_url(user.face()));
               if !additional_fields.is_empty() {
                 e = e.fields(additional_fields.clone());
               }
@@ -432,13 +432,13 @@ pub async fn activate_streamers_tracking(
               };
               let mut e = CreateEmbed::new()
                 .title("FINISHED")
-                .author(CreateEmbedAuthor::new(&user.name).icon_url(&user.face()))
+                .author(CreateEmbedAuthor::new(&user.name).icon_url(user.face()))
                 .footer(CreateEmbedFooter::new(&footer));
               if !fields.is_empty() {
                 e = e.fields(fields.clone());
               }
               if let Some(some_img) = &img {
-                e = e.image(&some_img.url.clone());
+                e = e.image(some_img.url.clone());
               }
               if let Some(some_url) = &url {
                 e = e.url(some_url);

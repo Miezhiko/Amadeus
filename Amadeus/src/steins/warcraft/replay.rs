@@ -142,7 +142,7 @@ pub async fn replay_embed( ctx: &Context
       eb1 = eb1.fields(fields1);
       eb2 = eb2.fields(fields2);
       if let Some(apm) = apm_image {
-        eb3 = eb3.image(&apm);
+        eb3 = eb3.image(apm);
       }
     }
     let embeds = vec![ eb1, eb3, eb2 ];
@@ -161,6 +161,7 @@ pub async fn replay_embed( ctx: &Context
           let emoji = &reaction.emoji;
           match emoji.as_data().as_str() {
             "⬅️" => { 
+              #[allow(clippy::implicit_saturating_sub)]
               if page != 0 {
                 page -= 1;
               }

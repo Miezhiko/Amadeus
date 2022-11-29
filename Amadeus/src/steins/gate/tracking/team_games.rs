@@ -217,7 +217,7 @@ pub async fn activate_games_tracking(
 
             let mut e = CreateEmbed::new()
               .title("JUST STARTED")
-              .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
+              .author(CreateEmbedAuthor::new(&nick).icon_url(user.face()))
               .colour((red, green, blue));
             if !game.description.is_empty() {
               e = e.description(&game.description[0]);

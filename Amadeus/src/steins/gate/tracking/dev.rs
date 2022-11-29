@@ -68,7 +68,7 @@ async fn parse_notification(ctx: &Context, github: &str, json_str: &str) -> anyh
                     e = e.description(body);
                   }
                   if !author.0.is_empty() {
-                    e = e.footer(CreateEmbedFooter::new(&format!("author: {}", author.0)));
+                    e = e.footer(CreateEmbedFooter::new(format!("author: {}", author.0)));
                   }
                   GITHUB_PRS.send_message(ctx, CreateMessage::new()
                     .embed(e)

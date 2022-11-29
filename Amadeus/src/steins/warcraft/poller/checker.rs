@@ -151,7 +151,7 @@ pub async fn check<'a>( ctx: &Context
                                        .await.unwrap_or_else(|| user.name.clone());
                         let mut e = CreateEmbed::new()
                           .title("LIVE")
-                          .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
+                          .author(CreateEmbedAuthor::new(&nick).icon_url(user.face()))
                           .description(&mvec[0])
                           .footer(CreateEmbedFooter::new(&footer));
                         if !fields.is_empty() {
@@ -161,7 +161,7 @@ pub async fn check<'a>( ctx: &Context
                           e = e.fields(bet_data.clone());
                         }
                         if let Some(some_img) = img {
-                          e = e.image(&some_img.url);
+                          e = e.image(some_img.url);
                         }
                         if let Some(some_url) = url {
                           e = e.url(some_url);
@@ -310,7 +310,7 @@ pub async fn check<'a>( ctx: &Context
                                        .await.unwrap_or_else(|| user.name.clone());
                         let mut e = CreateEmbed::new()
                           .title("LIVE")
-                          .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
+                          .author(CreateEmbedAuthor::new(&nick).icon_url(user.face()))
                           .description(&mvec[0])
                           .footer(CreateEmbedFooter::new(&footer));
                         if !fields.is_empty() {
@@ -320,7 +320,7 @@ pub async fn check<'a>( ctx: &Context
                           e = e.fields(bet_data.clone());
                         }
                         if let Some(some_img) = img {
-                          e = e.image(&some_img.url);
+                          e = e.image(some_img.url);
                         }
                         if let Some(some_url) = url {
                           e = e.url(some_url);
@@ -458,7 +458,7 @@ pub async fn check<'a>( ctx: &Context
                                      .await.unwrap_or_else(|| user.name.clone());
                       let mut e = CreateEmbed::new()
                         .title("LIVE")
-                        .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
+                        .author(CreateEmbedAuthor::new(&nick).icon_url(user.face()))
                         .description(&mvec[0])
                         .footer(CreateEmbedFooter::new(&footer));
                       if !fields.is_empty() {
@@ -468,7 +468,7 @@ pub async fn check<'a>( ctx: &Context
                         e = e.fields(bet_data.clone());
                       }
                       if let Some(some_img) = img {
-                        e = e.image(&some_img.url);
+                        e = e.image(some_img.url);
                       }
                       if let Some(some_url) = url {
                         e = e.url(some_url);
@@ -696,7 +696,7 @@ pub async fn check<'a>( ctx: &Context
               let nick = user.nick_in(&ctx.http, guild)
                              .await.unwrap_or_else(|| user.name.clone());
               let mut e = CreateEmbed::new()
-                .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
+                .author(CreateEmbedAuthor::new(&nick).icon_url(user.face()))
                 .title(title)
                 .url(&fgame.link)
                 .footer(CreateEmbedFooter::new(footer));

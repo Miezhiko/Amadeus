@@ -172,7 +172,7 @@ pub async fn update_cache( ctx: &Context
                 if i_progress > progress_step {
                   let part = ((m_progress as f64/m_count as f64) * 100.0).round();
                   let status = format!("Learning {part}%");
-                  ctx.set_activity(Some( ActivityData::listening(&status) ));
+                  ctx.set_activity(Some( ActivityData::listening(status) ));
                   i_progress = 0;
                 } else {
                   i_progress += 1;
@@ -254,7 +254,7 @@ pub async fn update_cache( ctx: &Context
   RESTORE.store(true, Ordering::Relaxed);
 
   let version = format!("Version {}", env!("CARGO_PKG_VERSION"));
-  ctx.set_activity(Some( ActivityData::playing(&version) ));
+  ctx.set_activity(Some( ActivityData::playing(version) ));
 }
 
 pub async fn clear_cache() {

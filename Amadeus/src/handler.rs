@@ -248,11 +248,11 @@ impl EventHandler for Handler {
                     if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                       if let Ok(member) = guild.member(&ctx, user_id).await {
                         let weight =
-                          if !member.roles.contains(&jonin) {
+                          if member.roles.contains(&jonin) {
                             1.5
-                          } else if !member.roles.contains(&chuunin) {
+                          } else if member.roles.contains(&chuunin) {
                             1.2
-                          } else if !member.roles.contains(&genin) {
+                          } else if member.roles.contains(&genin) {
                             1.2
                           } else {
                             1.0

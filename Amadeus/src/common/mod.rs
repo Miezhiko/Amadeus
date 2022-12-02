@@ -10,6 +10,7 @@ pub mod help;
 pub mod db;
 pub mod system;
 pub mod voice;
+pub mod giveaway;
 
 #[cfg(feature = "voice_analysis")]
 pub mod voice_to_text;

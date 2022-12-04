@@ -237,8 +237,8 @@ impl EventHandler for Handler {
               let user_u64 = user_id.get();
               let guild_u64 = guild_channel.guild_id.get();
               // TODO: change those ids
-              if add_reaction.message_id.get() == 1047933340193394688u64
-                                   && id.get() == 984095342666584134 {
+              if add_reaction.message_id.get() == 1049324893193384036
+                                   && id.get() == 950149204930621460 {
                 let jonin   = RoleId( to_nzu!(977238413050794075) );
                 let chuunin = RoleId( to_nzu!(977238377382428742) );
                 let genin   = RoleId( to_nzu!(977238521259647006) );

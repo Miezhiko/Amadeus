@@ -284,6 +284,12 @@ async fn wiki(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   Ok(())
 }
 
+fn weighted_choice(weights: &Vec<f64>) -> anyhow::Result<usize> {
+  let distribution = WeightedIndex::new(weights)?;
+  let mut rng = rand::thread_rng();
+  Ok( distribution.sample(&mut rng) )
+}
+
 #[command]
 #[description("roll the dice for giveaway")]
 async fn dice_giveaway(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -302,16 +308,7 @@ async fn dice_giveaway(ctx: &Context, msg: &Message, mut args: Args) -> CommandR
 
   loop {
     if !keys.is_empty() && !weights.is_empty() {
-      // this is super dirty stupid hack, should be done other way
-      let weights_clone = weights.clone();
-      let winner_index = task::spawn_blocking(move || {
-        if let Ok(dist) = WeightedIndex::new(&weights_clone) {
-          let mut rng = rand::thread_rng();
-          dist.sample(&mut rng)
-        } else {
-          0
-        }
-      }).await?;
+      let winner_index = weighted_choice(&weights)?;
       let winner = keys[winner_index];
       if !winners.contains(&winner) {
         let id = UserId( to_nzu!( winner ) );

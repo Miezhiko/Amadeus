@@ -102,7 +102,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
         }
       }
       let embed = CreateEmbed::new()
-        .title(&format!("Ongoing matches, page {}", i + 1))
+        .title(format!("Ongoing matches, page {}", i + 1))
         .description(description)
         .thumbnail("https://i.pinimg.com/originals/b4/a0/40/b4a04082647a8505b3991cbaea7d2f86.png")
         .colour((180,40,200))
@@ -126,7 +126,8 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
           if let Some(reaction) = collector.collect_single().await {
             let emoji = &reaction.emoji;
             match emoji.as_data().as_str() {
-              "⬅️" => { 
+              "⬅️" => {
+                #[allow(clippy::implicit_saturating_sub)]
                 if page != 0 {
                   page -= 1;
                 }

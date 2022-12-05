@@ -253,7 +253,7 @@ impl EventHandler for Handler {
                           } else if member.roles.contains(&chuunin) {
                             1.2
                           } else if member.roles.contains(&genin) {
-                            1.2
+                            1.1
                           } else {
                             1.0
                           };
@@ -261,7 +261,7 @@ impl EventHandler for Handler {
                           if let Ok(gvw) = get_giveway().await {
                             gvw
                           } else {
-                            giveaway::GIVEAWAY::new()
+                            giveaway::Giveaway::new()
                           };
                         reg.insert(user_id.0.get(), weight);
                         if let Err(why) = put_giveway(&reg).await {

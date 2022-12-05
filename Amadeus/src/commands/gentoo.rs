@@ -1,5 +1,8 @@
 use crate::{
-  common::msg::channel_message,
+  common::{
+    msg::channel_message,
+    giveaway
+  },
   types::{
     gentoo::*,
     serenity::ReqwestClient
@@ -9,10 +12,22 @@ use crate::{
 use serenity::{
   prelude::*,
   builder::{ CreateMessage, CreateEmbed, CreateEmbedFooter },
-  model::channel::*,
+  model::{
+    channel::*,
+    id::UserId
+  },
   framework::standard::{
     CommandResult, Args,
     macros::command
+  }
+};
+
+use std::collections::HashSet;
+
+use rand::{
+  distributions::{
+    WeightedIndex,
+    Distribution
   }
 };
 
@@ -266,5 +281,70 @@ async fn wiki(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {why}");
   }
+  Ok(())
+}
+
+#[command]
+#[description("roll the dice for giveaway")]
+async fn dice_giveaway(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+  let gw = giveaway::get_giveway().await?;
+  if let Err(why) = msg.delete(&ctx).await {
+    error!("Error deleting original command, {why}");
+  }
+  let winners_count = args.single::<u32>().unwrap_or(1);
+
+  let mut winners = HashSet::new();
+
+  let mut keys = gw.clone().into_keys().collect::<Vec<u64>>();
+  let mut weights = gw.into_values().collect::<Vec<f64>>();
+  let mut winner_counter = 0;
+  let mut winners_strings: Vec<String> = vec![];
+
+  loop {
+    if !keys.is_empty() && !weights.is_empty() {
+      // this is super dirty stupid hack, should be done other way
+      let weights_clone = weights.clone();
+      let winner_index = task::spawn_blocking(move || {
+        if let Ok(dist) = WeightedIndex::new(&weights_clone) {
+          let mut rng = rand::thread_rng();
+          dist.sample(&mut rng)
+        } else {
+          0
+        }
+      }).await?;
+      let winner = keys[winner_index];
+      if !winners.contains(&winner) {
+        let id = UserId( to_nzu!( winner ) );
+        if let Ok(user) = ctx.http.get_user(id).await {
+          winners.insert(winner);
+          winners_strings.push(
+            format!("{}: {winner}", user.name)
+          );
+          winner_counter += 1;
+          if winner_counter == winners_count {
+            break;
+          }
+        }
+        keys.remove(winner_index);
+        weights.remove(winner_index);
+      }
+    } else {
+      break;
+    }
+  }
+
+  let footer = format!("Requested by {}", msg.author.name);
+
+  let eb = CreateEmbed::new()
+    .color(0xe535ccu32)
+    .title("Winners are:")
+    .description(winners_strings.join("\n"))
+    .thumbnail("https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png")
+    .footer(CreateEmbedFooter::new(footer));
+
+  msg.channel_id.send_message(ctx, CreateMessage::new()
+    .embed(eb)
+  ).await?;
+
   Ok(())
 }

@@ -25,6 +25,11 @@ let playersList : List Playerx =
     , alt_accounts = ["Wayfarer#21400"] }
   , p "RiplEy#21126"        137314790769950720
   , p "RavenTT#2656"        277555411584942080
+  , { battletag = "Soulful#2300"
+    , discord   = 147805125824610304
+    , streams   = Some { ggru    = None Text
+                       , twitch  = Some "soulful85" }
+    , alt_accounts = ["Lefthander#21389"] }
   ]
 
 let discord : Discordx = { uid      = 611822838831251466

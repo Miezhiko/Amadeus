@@ -186,7 +186,7 @@ pub async fn leave(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
     if let Err(why) = manager.remove(guild_id).await {
       error!("Error removing songbird manager from guild: {why}");
     }
-    let _ = msg.channel_id.say(&ctx, "I left voice channel");
+    msg.channel_id.say(&ctx, "I left voice channel").await?;
     let mut conf = options::get_roptions().await?;
     if conf.rejoin {
       conf.rejoin = false;

@@ -281,28 +281,29 @@ pub async fn activate_games_tracking(
                         if let Some(g) = reaction.guild_id {
                           if let Ok(p) = points::get_points( g.0.get(), u.0.get() ).await {
                             if p > 100 {
-                              let emoji_data: String = emoji.as_data().to_string();
-                              if emoji_data == "👍🏻" || emoji_data == "👎🏻" {
-                                let is_positive = emoji_data == "👍🏻";
-                                { // games lock scope
-                                  trace!("team games: thumb was clicked");
-                                  let mut gl = poller::GAMES.lock().await;
-                                  if let Some(track) = gl.get_mut(&game_key_clone) {
-                                    if track.still_live {
-                                      // you bet only once
-                                      if !track.bets.iter().any(|b| b.member == u.0.get()) {
-                                        let bet = Bet { guild: g.0.get()
-                                                      , member: u.0.get()
-                                                      , points: 100
-                                                      , positive: is_positive
-                                                      , registered: false };
-                                        let (succ, rst) = points::give_points( g.0.get(), u.0.get()
-                                                                             , amadeus
-                                                                             , 100 ).await;
-                                        if succ {
-                                          track.bets.push(bet);
-                                        } else {
-                                          error!("Error on bet {:?}", rst);
+                              if let ReactionType::Unicode(emoji_data) = emoji {
+                                if emoji_data == "👍🏻" || emoji_data == "👎🏻" {
+                                  let is_positive = emoji_data == "👍🏻";
+                                  { // games lock scope
+                                    trace!("team games: thumb was clicked");
+                                    let mut gl = poller::GAMES.lock().await;
+                                    if let Some(track) = gl.get_mut(&game_key_clone) {
+                                      if track.still_live {
+                                        // you bet only once
+                                        if !track.bets.iter().any(|b| b.member == u.0.get()) {
+                                          let bet = Bet { guild: g.0.get()
+                                                        , member: u.0.get()
+                                                        , points: 100
+                                                        , positive: is_positive
+                                                        , registered: false };
+                                          let (succ, rst) = points::give_points( g.0.get(), u.0.get()
+                                                                               , amadeus
+                                                                               , 100 ).await;
+                                          if succ {
+                                            track.bets.push(bet);
+                                          } else {
+                                            error!("Error on bet {:?}", rst);
+                                          }
                                         }
                                       }
                                     }

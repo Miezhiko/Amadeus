@@ -98,7 +98,7 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
           let mstr = format!("({}) **{}** [{}] vs ({}) **{}** [{}] *{}*",
             race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
           , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
-          description = format!("{}\n{}", mstr, description);
+          description = format!("{mstr}\n{description}");
         }
       }
       let embed = CreateEmbed::new()
@@ -125,19 +125,21 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
                                  .author_id(msg.author.id);
           if let Some(reaction) = collector.collect_single().await {
             let emoji = &reaction.emoji;
-            match emoji.as_data().as_str() {
-              "⬅️" => {
-                #[allow(clippy::implicit_saturating_sub)]
-                if page != 0 {
-                  page -= 1;
-                }
-              },
-              "➡️" => { 
-                if page != embeds.len() - 1 {
-                  page += 1;
-                }
-              },
-              _ => (),
+            if let ReactionType::Unicode(e) = emoji {
+              match e.as_str() {
+                "⬅️" => {
+                  #[allow(clippy::implicit_saturating_sub)]
+                  if page != 0 {
+                    page -= 1;
+                  }
+                },
+                "➡️" => { 
+                  if page != embeds.len() - 1 {
+                    page += 1;
+                  }
+                },
+                _ => ()
+              }
             }
             bot_msg.edit(ctx, EditMessage::default().embed(
               embeds[page].clone()
@@ -309,7 +311,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let mut stats_by_races: String = String::new();
     if !stats.is_empty() {
 
-      let clan_uri = format!("{}/clans?battleTag={}", W3C_API, user);
+      let clan_uri = format!("{W3C_API}/clans?battleTag={user}");
       let name = &userx.split('#').collect::<Vec<&str>>()[0];
       let mut clanned = String::from(*name);
       if let Ok(clan_res) = rqcl.get(&clan_uri).send().await {
@@ -318,7 +320,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           if let Ok(clan_json) = clan_json_res {
             if let Some(clan) = clan_json.pointer("/clanId") {
               if let Some(clan_str) = clan.as_str() {
-                clanned = format!("[{}] {}", clan_str, name);
+                clanned = format!("[{clan_str}] {name}");
               }
             }
           }
@@ -427,7 +429,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         .embed(CreateEmbed::new()
           .title(&clanned)
           .description(description)
-          .url(&format!("https://www.w3champions.com/player/{}", user))
+          .url(&format!("https://www.w3champions.com/player/{user}"))
           .thumbnail(&league_avi)
           .fields(additional_info)
           .colour(main_race_colors)
@@ -637,8 +639,9 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       let mut loses = 0;
       for sx in 0..seasons {
         let previous_season = season - sx;
-        let vs_uri = format!("{}/matches/search?playerId={}&gateway=20&offset=0&opponentId={}&season={}",
-                                W3C_API, user1, user2, previous_season);
+        let vs_uri = format!(
+          "{W3C_API}/matches/search?playerId={user1}&gateway=20&offset=0&opponentId={user2}&season={previous_season}"
+        );
 
         debug!("VS: {vs_uri}");
         let ress = rqcl.get(&vs_uri).send().await?;

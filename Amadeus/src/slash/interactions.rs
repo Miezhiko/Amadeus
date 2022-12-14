@@ -1012,15 +1012,15 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
             }) = ac.data.options().first() {
               RESTORE.store(false, Ordering::Relaxed);
               match ac.edit_response(&ctx.http, EditInteractionResponse::default()
-                .content(&format!("Getting stats for {}", t))
+                .content(&format!("Getting stats for {t}"))
               ).await {
                 Ok(msg) => {
                   let args = Args::new(t, &[Delimiter::Single(';')]);
                   if let Err(serr) = stats(ctx, &msg, args).await {
-                    error!("Failed to get stats on interaction {:?}", serr);
+                    error!("Failed to get stats on interaction {serr:?}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create stats interaction response {:?}", why);
+                  error!("Failed to create stats interaction response {why:?}");
                 }
               };
               RESTORE.store(true, Ordering::Relaxed);
@@ -1032,15 +1032,15 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
             }) = ac.data.options().first() {
               RESTORE.store(false, Ordering::Relaxed);
               match ac.edit_response(&ctx.http, EditInteractionResponse::default()
-                .content(&format!("Феминизация \"{}\"", t))
+                .content(&format!("Феминизация \"{t}\""))
               ).await {
                 Ok(msg) => {
                   let args = Args::new(t, &[Delimiter::Single(';')]);
                   if let Err(serr) = chat::feminize(ctx, &msg, args).await {
-                    error!("Failed to feminize on interaction {:?}", serr);
+                    error!("Failed to feminize on interaction {serr:?}");
                   }
                 }, Err(why) => {
-                  error!("Failed to feminize on interaction response {:?}", why);
+                  error!("Failed to feminize on interaction response {why:?}");
                 }
               };
               RESTORE.store(true, Ordering::Relaxed);
@@ -1052,15 +1052,15 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
             }) = ac.data.options().first() {
               RESTORE.store(false, Ordering::Relaxed);
               match ac.edit_response(&ctx.http, EditInteractionResponse::default()
-                .content(&format!("Playing {}", t))
+                .content(&format!("Playing {t}"))
               ).await {
                 Ok(msg) => {
                   let args = Args::new(t, &[Delimiter::Single(';')]);
                   if let Err(serr) = music::play(ctx, &msg, args).await {
-                    error!("Failed to get play on interaction {:?}", serr);
+                    error!("Failed to get play on interaction {serr:?}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create play interaction response {:?}", why);
+                  error!("Failed to create play interaction response {why:?}");
                 }
               };
               RESTORE.store(true, Ordering::Relaxed);
@@ -1072,20 +1072,20 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
             }) = ac.data.options().first() {
               RESTORE.store(false, Ordering::Relaxed);
               match ac.edit_response(&ctx.http, EditInteractionResponse::default()
-                .content(&format!("Translating {}", t))
+                .content(&format!("Translating {t}"))
               ).await {
                 Ok(msg) => {
                   let args = Args::new(t, &[Delimiter::Single(';')]);
                   #[cfg(not(target_os = "windows"))]
                   if cmd == "translate" {
                     if let Err(terr) = translation::translate(ctx, &msg, args).await {
-                      error!("Failed to translate to English on interaction {:?}", terr);
+                      error!("Failed to translate to English on interaction {terr:?}");
                     }
                   } else if let Err(terr) = translation::perevod(ctx, &msg, args).await {
-                    error!("Failed to translate to Russian on interaction {:?}", terr);
+                    error!("Failed to translate to Russian on interaction {terr:?}");
                   }
                 }, Err(why) => {
-                  error!("Failed to create translation interaction response {:?}", why);
+                  error!("Failed to create translation interaction response {why:?}");
                 }
               };
               RESTORE.store(true, Ordering::Relaxed);
@@ -1105,10 +1105,10 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               Ok(mut msg) => {
                 let args = Args::new(str_arg.as_str(), &[Delimiter::Single(';')]);
                 if let Err(terr) = meta::time_slash(ctx, &mut msg, args).await {
-                  error!("Failed to show time on interaction {:?}", terr);
+                  error!("Failed to show time on interaction {terr:?}");
                 }
               }, Err(why) => {
-                error!("Failed to show time interaction response {:?}", why);
+                error!("Failed to show time interaction response {why:?}");
               }
             };
             RESTORE.store(true, Ordering::Relaxed);

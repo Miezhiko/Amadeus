@@ -159,19 +159,21 @@ pub async fn replay_embed( ctx: &Context
                                .timeout(Duration::from_secs(360));
         if let Some(reaction) = collector.collect_single().await {
           let emoji = &reaction.emoji;
-          match emoji.as_data().as_str() {
-            "⬅️" => { 
-              #[allow(clippy::implicit_saturating_sub)]
-              if page != 0 {
-                page -= 1;
-              }
-            },
-            "➡️" => { 
-              if page != 2 {
-                page += 1;
-              }
-            },
-            _ => ()
+          if let ReactionType::Unicode(e) = emoji {
+            match e.as_str() {
+              "⬅️" => { 
+                #[allow(clippy::implicit_saturating_sub)]
+                if page != 0 {
+                  page -= 1;
+                }
+              },
+              "➡️" => { 
+                if page != 2 {
+                  page += 1;
+                }
+              },
+              _ => ()
+            }
           }
           if let Err(err) = bot_msg.edit(&ctx, EditMessage::default()
             .embed( embeds[page].clone() )

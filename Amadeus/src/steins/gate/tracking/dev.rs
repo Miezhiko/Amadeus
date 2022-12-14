@@ -32,7 +32,9 @@ async fn parse_notification(ctx: &Context, github: &str, json_str: &str) -> anyh
           if last_read_at.is_null() {
             set!{ title = subject.pointer("/title").unwrap_or(&Value::Null).as_str().unwrap_or_default()
                 , url   = subject.pointer("/url").unwrap_or(&Value::Null).as_str().unwrap_or_default() };
-            let pr_curl = format!("curl -u {} -H \"Accept: application/vnd.github.v3+json\" {}", github, url);
+            let pr_curl = format!(
+              "curl -u {github} -H \"Accept: application/vnd.github.v3+json\" {url}"
+            );
             let curl_pr = Command::new("sh")
               .arg("-c")
               .arg(&pr_curl)

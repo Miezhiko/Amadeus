@@ -29,7 +29,7 @@ fn prettify_analyze_ts(j: &str, minimal: bool)
       if let Some(checksum) = map.pointer("/checksum") { 
         let winner = checksum.as_str().unwrap();
         if !winner.is_empty() {
-          out = format!("{}**winner**: {}\n", out, winner);
+          out = format!("{out}**winner**: {winner}\n");
         }
       }
     }

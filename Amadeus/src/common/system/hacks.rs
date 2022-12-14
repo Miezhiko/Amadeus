@@ -17,8 +17,8 @@ pub async fn twitch_update(ctx: &Context) -> anyhow::Result<()> {
       , client_id       = data.get::<PubCreds>().unwrap().get("twitch_client").unwrap().as_str()
       , client_secret   = data.get::<PubCreds>().unwrap().get("twitch_secret").unwrap().as_str() };
   let curl_command = format!(
-    "curl -X POST \"https://id.twitch.tv/oauth2/token?client_id={}&client_secret={}&grant_type=client_credentials\"",
-      client_id, client_secret);
+    "curl -X POST \"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={client_secret}&grant_type=client_credentials\""
+  );
   //TODO recode to simple request (maybe not?)
   let curl = Command::new("sh")
     .arg("-c")

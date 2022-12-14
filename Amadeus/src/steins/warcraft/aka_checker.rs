@@ -18,7 +18,7 @@ pub async fn check_aka( battletag: &str
     Some(aka) => aka.clone(),
     None => {
       set!{ user  = battletag.replace('#',"%23")
-          , url   = format!("{}/players/{}", W3C_API, user) };
+          , url   = format!("{W3C_API}/players/{user}") };
       if let Ok(res) = rqcl.get(&url).send().await {
         match res.json::<PlayerAPI>().await {
           Ok(papi) => {

@@ -137,6 +137,7 @@ async fn generate_response( ctx: &Context
   if let Ok(typing) = start_typing {
     typing.stop();
   }
+  #[allow(clippy::manual_filter)]
   if let Some(answer) = answer_option {
     if answer.is_empty() || answer.len() < 3 {
       sleep(Duration::from_millis(100)).await;

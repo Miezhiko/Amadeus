@@ -66,12 +66,12 @@ pub async fn get_system_info(ctx: &Context) -> SysInfo {
   if let Ok((memory_mb, memori_saliery)) = get_memory_mb().await {
     sys_info.memory = if memory_mb >= 1024.0 {
       let memory_gb = memory_mb / 1024f32;
-      format!("{:.3} GB", memory_gb)
-      } else { format!("{:.3} MB", memory_mb) };
+      format!("{memory_gb:.3} GB")
+      } else { format!("{memory_mb:.3} MB") };
     sys_info.memory_saliery = if memori_saliery >= 1024.0 {
       let memory_gb = memori_saliery / 1024f32;
-      format!("{:.3} GB", memory_gb)
-      } else { format!("{:.3} MB", memori_saliery) };
+      format!("{memory_gb:.3} GB")
+      } else { format!("{memori_saliery:.3} MB") };
   } else {
     error!("Failed to parse mem stdout");
   }
@@ -85,8 +85,8 @@ pub async fn get_system_info(ctx: &Context) -> SysInfo {
     if let Ok(db_kb) = db_size_str[..db_size_str.len() - 1].parse::<u32>() {
       sys_info.db_size = if db_kb >= 1024 {
         let db_mb = db_kb as f32 / 1024f32;
-        format!("{:.3} MB", db_mb)
-        } else { format!("{:.3} KB", db_kb) };
+        format!("{db_mb:.3} MB")
+        } else { format!("{db_kb:.3} KB") };
     } else {
       error!("Failed to parse: {db_size_str}");
       sys_info.db_size = String::from("?");

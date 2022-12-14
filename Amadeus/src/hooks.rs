@@ -49,8 +49,7 @@ pub async fn after( ctx: &Context
 }
 
 fn greeting_regex_from_str(c: &str) -> Option<Regex> {
-  let regex = format!(r"(^|\W)((?i){}(?-i))($|\W)", c);
-  Regex::new(&regex).ok()
+  Regex::new(&format!(r"(^|\W)((?i){c}(?-i))($|\W)")).ok()
 }
 
 #[hook]

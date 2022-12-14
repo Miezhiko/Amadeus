@@ -225,7 +225,7 @@ async fn list_message_roles(ctx: &Context, msg: &Message, mut args: Args) -> Com
     let message_id = args.single::<u64>()?;
     if let Ok(Some(mr)) = emojis::message_roles( &guild_id.get()
                                                , &message_id ).await {
-      channel_message(ctx, msg, &format!("message roles: {:?}", mr)).await;
+      channel_message(ctx, msg, &format!("message roles: {mr:?}")).await;
     }
   }
   Ok(())

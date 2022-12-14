@@ -132,8 +132,8 @@ pub async fn process( ioptions: &IOptions
       spam_check(&guild_id, ctx, &msg).await;
       if msg.mentions.iter().any(|u| u.bot) {
         if msg.mentions.iter().any(|u| u.bot && u.id == amadeus_id) {
-          set!{ amention1 = format!("<@{}>", amadeus_id)
-              , amention2 = format!("<@!{}>", amadeus_id) };
+          set!{ amention1 = format!("<@{amadeus_id}>")
+              , amention2 = format!("<@!{amadeus_id}>") };
           if !msg.content.starts_with(&amention1)
           && !msg.content.starts_with(&amention2) {
             #[cfg(not(target_os = "windows"))]
@@ -157,16 +157,16 @@ pub async fn process( ioptions: &IOptions
                 error!("failed to clean attachment from log {why}");
               }
             } else {
-              let rainbow = ReactionType::Unicode(String::from("🌈"));
+              const RAINBOW_STRING: &str = "🌈";
+              let rainbow = ReactionType::Unicode(String::from(RAINBOW_STRING));
               let _ = msg.react(&ctx, rainbow).await;
               loop {
                 let collector = msg.reaction_collector(&ctx.shard)
                                    .timeout(Duration::from_secs(3600));
                 if let Some(reaction) = collector.collect_single().await {
                   let emoji = &reaction.emoji;
-                  // TODO: rework this, use match on &ReactionType somehow
-                  match emoji.as_data().as_str() {
-                    "%F0%9F%8C%88" => {
+                  if let ReactionType::Unicode(unicode) = emoji {
+                    if unicode == RAINBOW_STRING {
                       info!("parsing replay");
                       if let Err(why) = replay_embed(ctx, &msg, file).await {
                         error!("Failed to analyze replay:\n{why}");
@@ -174,8 +174,7 @@ pub async fn process( ioptions: &IOptions
                       if let Err(why) = msg.delete_reactions(ctx).await {
                         error!("failed to delte msg reactions {why}");
                       }
-                    },
-                    _ => ()
+                    }
                   }
                 }
               }

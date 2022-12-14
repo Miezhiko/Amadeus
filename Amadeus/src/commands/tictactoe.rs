@@ -201,7 +201,7 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
   board.current_piece = players[0].1;
   let mut m = msg.channel_id.say(ctx, format!(">>> ```{}```", &board)).await?;
   for i in 1..4u8 {
-    let num = ReactionType::Unicode(format!("{}\u{fe0f}\u{20e3}", i));
+    let num = ReactionType::Unicode(format!("{i}\u{fe0f}\u{20e3}"));
     m.react(ctx, num).await?;
   }
   set!{ _a = ReactionType::Unicode(String::from("\u{01f1e6}"))
@@ -224,14 +224,16 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
             let _ = reaction.delete(ctx).await;
             let emoji = &reaction.emoji;
 
-            match emoji.as_data().as_str() {
-              "1\u{fe0f}\u{20e3}" => x = Some(0),
-              "2\u{fe0f}\u{20e3}" => x = Some(1),
-              "3\u{fe0f}\u{20e3}" => x = Some(2),
-              "\u{01f1e6}" => y = Some(0),
-              "\u{01f1e7}" => y = Some(1),
-              "\u{01f1e8}" => y = Some(2),
-              _ => ()
+            if let ReactionType::Unicode(e) = emoji {
+              match e.as_str() {
+                "1\u{fe0f}\u{20e3}" => x = Some(0),
+                "2\u{fe0f}\u{20e3}" => x = Some(1),
+                "3\u{fe0f}\u{20e3}" => x = Some(2),
+                "\u{01f1e6}" => y = Some(0),
+                "\u{01f1e7}" => y = Some(1),
+                "\u{01f1e8}" => y = Some(2),
+                _ => ()
+              }
             }
           } else {
             m.edit(ctx, EditMessage::default().content(format!("{}: Timeout", i.0.mention()))).await?;

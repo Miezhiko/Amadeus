@@ -133,7 +133,6 @@ dependencies = [
  "tokio",
  "tonic",
  "tracing",
- "tracing-futures",
  "tracing-log",
  "tracing-subscriber",
  "ucd",

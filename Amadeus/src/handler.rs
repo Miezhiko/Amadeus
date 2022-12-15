@@ -28,7 +28,7 @@ use serenity::{
          , event::ResumedEvent, gateway::Ready, guild::Member
          , channel::{ Message, Reaction, ReactionType
                     , PermissionOverwrite, PermissionOverwriteType }
-         , user::User, application::interaction::Interaction
+         , user::User, application::Interaction
          , permissions::Permissions
          , colour::Colour
          },

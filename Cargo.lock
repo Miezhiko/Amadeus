@@ -89,7 +89,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.4.0"
+version = "10.4.1"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -660,9 +660,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.77"
+version = "1.0.78"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9f73505338f7d905b19d18738976aae232eb46b8efc15554ffc56deb5d9ebe4"
+checksum = "a20104e2335ce8a659d6dd92a51a767a0c062599c73b343fd152cb401e828c3d"
 dependencies = [
  "jobserver",
 ]
@@ -867,7 +867,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#943988c6857d760d1974c8853b34f8e3c6c7375a"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#528fd9339de14b8d0c0895e7bc1ec421cafe9131"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4785,7 +4785,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#943988c6857d760d1974c8853b34f8e3c6c7375a"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#528fd9339de14b8d0c0895e7bc1ec421cafe9131"
 dependencies = [
  "async-trait",
  "base64",
@@ -4818,7 +4818,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#943988c6857d760d1974c8853b34f8e3c6c7375a"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#528fd9339de14b8d0c0895e7bc1ec421cafe9131"
 dependencies = [
  "bitflags",
  "enum_primitive",

@@ -273,9 +273,9 @@ pub async fn activate_games_tracking(
                 tokio::spawn(async move {
                   loop {
                     // 10 minutes for each game
-                    let collector = msg_id.reaction_collector(&xtx_clone.shard)
+                    let collector = msg_id.await_reaction(&xtx_clone.shard)
                                           .timeout(time::Duration::from_secs(600));
-                    if let Some(reaction) = collector.collect_single().await {
+                    if let Some(reaction) = collector.await {
                       let emoji = &reaction.emoji;
                       if let Some(u) = reaction.user_id {
                         if let Some(g) = reaction.guild_id {

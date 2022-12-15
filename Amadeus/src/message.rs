@@ -161,9 +161,9 @@ pub async fn process( ioptions: &IOptions
               let rainbow = ReactionType::Unicode(String::from(RAINBOW_STRING));
               let _ = msg.react(&ctx, rainbow).await;
               loop {
-                let collector = msg.reaction_collector(&ctx.shard)
+                let collector = msg.await_reaction(&ctx.shard)
                                    .timeout(Duration::from_secs(3600));
-                if let Some(reaction) = collector.collect_single().await {
+                if let Some(reaction) = collector.await {
                   let emoji = &reaction.emoji;
                   if let ReactionType::Unicode(unicode) = emoji {
                     if unicode == RAINBOW_STRING {

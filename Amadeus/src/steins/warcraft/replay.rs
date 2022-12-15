@@ -155,9 +155,9 @@ pub async fn replay_embed( ctx: &Context
       let _ = bot_msg.react(&ctx, left).await;
       let _ = bot_msg.react(&ctx, right).await;
       loop {
-        let collector = bot_msg.reaction_collector(&ctx.shard)
+        let collector = bot_msg.await_reaction(&ctx.shard)
                                .timeout(Duration::from_secs(360));
-        if let Some(reaction) = collector.collect_single().await {
+        if let Some(reaction) = collector.await {
           let emoji = &reaction.emoji;
           if let ReactionType::Unicode(e) = emoji {
             match e.as_str() {

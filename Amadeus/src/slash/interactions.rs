@@ -17,14 +17,8 @@ use crate::{
 use serenity::{
   prelude::*,
   builder::*,
-  model::application::interaction::{ // InteractionResponseType
-                                     Interaction },
+  model::application::{ Interaction, ResolvedOption, ResolvedValue },
   framework::standard::{ Args, Delimiter }
-};
-
-use serenity::model::application::interaction::application_command::{
-  ResolvedOption,
-  ResolvedValue
 };
 
 use std::sync::atomic::Ordering;

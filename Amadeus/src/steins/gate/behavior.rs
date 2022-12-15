@@ -22,7 +22,7 @@ use crate::{
 use serenity::{
   prelude::*,
   model::{
-    application::command::Command,
+    application::Command,
     id::{ GuildId, ChannelId, UserId },
     channel::GuildChannel
   }

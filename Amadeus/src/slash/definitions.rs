@@ -2,7 +2,7 @@ use serenity::{
   prelude::*,
   builder::{ CreateCommand, CreateCommandOption },
   model::{ guild::PartialGuild
-         , application::command::CommandOptionType
+         , application::CommandOptionType
          }
 };
 

@@ -11,7 +11,7 @@ doctest = false
 serde           = "1"
 log             = "0.4.17"
 anyhow          = "1"
-once_cell       = "1.16.0"
+once_cell       = "1.17.0"
 rand            = "0.8.5"
 chrono          = "0.4.23"
 bincode         = "2.0.0-rc.2"
@@ -26,7 +26,7 @@ branch = "master"
 features = [ "remote" ]
 
 [dependencies.tokio]
-version = "1.23.1"
+version = "1.24.1"
 features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
 
 [dependencies.celery]

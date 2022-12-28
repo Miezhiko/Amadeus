@@ -484,6 +484,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
+name = "base64"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4a4ddaa51a5bc52a6948f74c06d20aaaddb71924eab79b8c97a8c556e942d6a"
+
+[[package]]
 name = "base64ct"
 version = "1.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -680,10 +686,10 @@ dependencies = [
 [[package]]
 name = "celery"
 version = "0.4.666"
-source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#4dd52a82b87adb9988ce30f2eaa5c73a66f83a21"
+source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#7e2094ae0d16b95c0600a259397ccdee9c53f886"
 dependencies = [
  "async-trait",
- "base64",
+ "base64 0.21.0",
  "celery-codegen",
  "chrono",
  "colored",
@@ -708,7 +714,7 @@ dependencies = [
 [[package]]
 name = "celery-codegen"
 version = "0.4.0-rcn.666"
-source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#4dd52a82b87adb9988ce30f2eaa5c73a66f83a21"
+source = "git+https://github.com/Qeenon/rusty-celery.git?branch=mawa#7e2094ae0d16b95c0600a259397ccdee9c53f886"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4285,7 +4291,7 @@ version = "0.11.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68cc60575865c7831548863cc02356512e3f1dc2f3f82cb837d7fc4cc8f3c97c"
 dependencies = [
- "base64",
+ "base64 0.13.1",
  "bytes",
  "encoding_rs",
  "futures-core",
@@ -4502,7 +4508,7 @@ version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0864aeff53f8c05aa08d86e5ef839d3dfcf07aeba2db32f12db0ef716e87bd55"
 dependencies = [
- "base64",
+ "base64 0.13.1",
 ]
 
 [[package]]
@@ -4796,7 +4802,7 @@ version = "0.11.5"
 source = "git+https://github.com/serenity-rs/serenity?branch=next#7cfb5076a40e04dd62d8faa173a52adea3a97ec7"
 dependencies = [
  "async-trait",
- "base64",
+ "base64 0.13.1",
  "bitflags",
  "bytes",
  "chrono",
@@ -5522,7 +5528,7 @@ checksum = "ff08f4649d10a70ffa3522ca559031285d8e421d727ac85c60825761818f5d0a"
 dependencies = [
  "async-stream",
  "async-trait",
- "base64",
+ "base64 0.13.1",
  "bytes",
  "futures-core",
  "futures-util",
@@ -5732,7 +5738,7 @@ version = "0.17.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e27992fd6a8c29ee7eef28fc78349aa244134e10ad447ce3b9f0ac0ed0fa4ce0"
 dependencies = [
- "base64",
+ "base64 0.13.1",
  "byteorder",
  "bytes",
  "http",
@@ -5759,9 +5765,9 @@ dependencies = [
 
 [[package]]
 name = "typed-arena"
-version = "2.0.1"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0685c84d5d54d1c26f7d3eb96cd41550adb97baed141a761cf335d3d33bcd0ae"
+checksum = "6af6ae20167a9ece4bcb41af5b80f8a1f1df981f6391189ce00fd257af04126a"
 
 [[package]]
 name = "typemap_rev"

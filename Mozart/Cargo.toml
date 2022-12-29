@@ -1,7 +1,7 @@
 [package]
 name = "mozart"
 description = "Amadeus services library"
-version = "0.2.21"
+version = "0.2.22"
 edition = "2021"
 
 [lib]
@@ -17,7 +17,7 @@ chrono          = "0.4.23"
 bincode         = "2.0.0-rc.2"
 regex           = "1.7"
 async-recursion = "1.0"
-tch             = "0.9"
+tch             = "0.10.1"
 
 [dependencies.rust-bert]
 default-features = false

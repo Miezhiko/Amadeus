@@ -32,7 +32,7 @@ pub async fn activate_social_skils(ctx: &Arc<Context>) {
         if rndx < 2 {
           let (chanz, ru) = match rndx {
             0 => { (MAIN_CHANNEL, true) },
-            _ => { ( ChannelId( NonZeroU64::new( 827151604053835807 ).unwrap() ), true) } // mist
+            _ => { ( ChannelId( NonZeroU64::new( 1052777234454294569 ).unwrap() ), false) }
           };
           let ai_text = chain::generate_with_language(&ctx_clone, ru).await;
           if let Err(why) = chanz.send_message(&ctx_clone, CreateMessage::new()

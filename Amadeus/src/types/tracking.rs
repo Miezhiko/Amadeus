@@ -9,11 +9,11 @@ pub enum GameMode {
 }
 
 #[allow(non_snake_case)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct Winner {
   pub player: (String, u64),
   pub won: bool,
-  pub mmr: u32,
+  pub mmr: f64,
   pub race: u32
 }
 

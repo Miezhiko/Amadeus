@@ -56,8 +56,8 @@ pub_struct!(PadPlayer {
 });
 
 pub_struct!(RankingPointsProgress {
-  rankingPoints: i32,
-  mmr: i32,
+  rankingPoints: f64,
+  mmr: f64,
 });
 
 pub_struct!(Search {
@@ -65,7 +65,7 @@ pub_struct!(Search {
   id: String,
   league: u32,
   rankNumber: u32,
-  rankingPoints: u32,
+  rankingPoints: f64,
   playerId: String,
   player: PadPlayer,
   gameMode: u32,
@@ -85,7 +85,7 @@ pub_struct!(GMStats {
   mmr: u32,
   playerIds: Vec<PlayerId>,
   rank: u32,
-  rankingPoints: u32,
+  rankingPoints: f64,
   rankingPointsProgress: RankingPointsProgress,
   season: u32,
   winrate: f64,
@@ -95,11 +95,11 @@ pub_struct!(GMStats {
 pub_struct!(TeamPlayer {
   race: u32,
   rndRace: Option<u32>,
-  oldMmr: u32,
-  currentMmr: u32,
+  oldMmr: f64,
+  currentMmr: f64,
   battleTag: String,
   name: String,
-  mmrGain: i32,
+  mmrGain: f64,
   won: bool,
   location: Option<String>,
   countryCode: Option<String>,

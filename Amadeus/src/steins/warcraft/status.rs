@@ -80,10 +80,11 @@ pub async fn get_weekly(ctx: &Context) -> anyhow::Result<Weekly> {
 pub async fn add_to_weekly( ctx: &Context
                           , p: &str
                           , win: bool
-                          , xmmr: u32
+                          , wmmr: f64
                           , solo: bool
                           , xrace: u32
                           ) -> anyhow::Result<()> {
+  let xmmr = wmmr as u32;
   let mut current_weekly = get_weekly(ctx).await?;
   let mut old_mmr   = 0;
   let mut old_race  = None;

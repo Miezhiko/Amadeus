@@ -9,7 +9,7 @@ use crate::{
   },
   collections::team::PLAYERS,
   steins::warcraft::{
-    utils::{ get_race, get_race2
+    utils::{ get_race
            , get_league, get_map_short
            , get_league_png },
     status::clear_weekly
@@ -93,8 +93,8 @@ async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
       for m in chunk {
         if m.teams.len() > 1 && !m.teams[0].players.is_empty() && !m.teams[1].players.is_empty() {
           set! { g_map = get_map_short(&m.map)
-               , race1 = get_race2(m.teams[0].players[0].race)
-               , race2 = get_race2(m.teams[1].players[0].race) };
+               , race1 = get_race(m.teams[0].players[0].race)
+               , race2 = get_race(m.teams[1].players[0].race) };
           let mstr = format!("({}) **{}** [{}] vs ({}) **{}** [{}] *{}*",
             race1, m.teams[0].players[0].name, m.teams[0].players[0].oldMmr
           , race2, m.teams[1].players[0].name, m.teams[1].players[0].oldMmr, g_map);
@@ -218,8 +218,10 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
          , league_avi          = String::new() };
     let mut at_list: Vec<(u32, String)> = Vec::new();
 
+    let mut maybe_player_race = 0;
     for gmstat in game_mode_stats {
       if gmstat.gameMode == 1 && league_info.is_empty() {
+        maybe_player_race = gmstat.race.unwrap_or(0);
         set!{ lid         = gmstat.leagueOrder
             , league_str  = get_league(lid)
             , winrate     = (gmstat.winrate * 100.0).round() };
@@ -236,6 +238,9 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         league_info = format!("**Winrate**: **{winrate}%** **MMR**: __**{}**__\n{} *Rank*: **{}**",
           gmstat.mmr, &league_division, gmstat.rank);
       } else if gmstat.gameMode == 2 {
+        if maybe_player_race == 0 {
+          maybe_player_race = gmstat.race.unwrap_or(0);
+        }
         set!{ lid         = gmstat.leagueOrder
             , league_str  = get_league(lid)
             , winrate     = (gmstat.winrate * 100.0).round() };
@@ -249,6 +254,9 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         rt_string = format!("{} *games* {league_division} *Rank*: {} __**{winrate}%**__ *MMR*: __**{}**__",
           gmstat.games, gmstat.rank, gmstat.mmr);
       } else if gmstat.gameMode == 5 {
+        if maybe_player_race == 0 {
+          maybe_player_race = gmstat.race.unwrap_or(0);
+        }
         set!{ lid         = gmstat.leagueOrder
             , league_str  = get_league(lid)
             , winrate     = (gmstat.winrate * 100.0).round() };
@@ -262,6 +270,9 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         ffa_info = format!("{league_division} *Rank*: **{}** *Winrate*: **{winrate}%** *MMR*: __**{}**__",
           gmstat.rank, gmstat.mmr);
       } else if gmstat.gameMode == 6 {
+        if maybe_player_race == 0 {
+          maybe_player_race = gmstat.race.unwrap_or(0);
+        }
         let players = gmstat.playerIds;
         let mut player_str = String::new();
         for p in players {
@@ -294,6 +305,8 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       }
     }
 
+    // this API looks like deprecated or just broken
+    /*
     let uri = format!("{W3C_API}/players/{user}/race-stats?season={season}&gateWay=20");
     let res = rqcl.get(&uri).send().await?;
     let stats: Vec<Stats> =
@@ -307,138 +320,122 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           vec![]
         }
       };
+    */
 
-    let mut stats_by_races: String = String::new();
-    if !stats.is_empty() {
-
-      let clan_uri = format!("{W3C_API}/clans?battleTag={user}");
-      let name = &userx.split('#').collect::<Vec<&str>>()[0];
-      let mut clanned = String::from(*name);
-      if let Ok(clan_res) = rqcl.get(&clan_uri).send().await {
-        if let Ok(clan_text_res) = clan_res.text().await {
-          let clan_json_res = serde_json::from_str::<Value>(&clan_text_res);
-          if let Ok(clan_json) = clan_json_res {
-            if let Some(clan) = clan_json.pointer("/clanId") {
-              if let Some(clan_str) = clan.as_str() {
-                clanned = format!("[{clan_str}] {name}");
-              }
+    let clan_uri = format!("{W3C_API}/clans?battleTag={user}");
+    let name = &userx.split('#').collect::<Vec<&str>>()[0];
+    let mut clanned = String::from(*name);
+    if let Ok(clan_res) = rqcl.get(&clan_uri).send().await {
+      if let Ok(clan_text_res) = clan_res.text().await {
+        let clan_json_res = serde_json::from_str::<Value>(&clan_text_res);
+        if let Ok(clan_json) = clan_json_res {
+          if let Some(clan) = clan_json.pointer("/clanId") {
+            if let Some(clan_str) = clan.as_str() {
+              clanned = format!("[{clan_str}] {name}");
             }
           }
         }
       }
+    }
 
-      for stat in &stats {
-        let race = get_race(stat.race);
-        let winrate = (stat.winrate * 100.0).round();
-        stats_by_races = format!("{stats_by_races}\n**{race}**\t: *wins*: {}, *loses*: {}, *winrate*: **{winrate}%**", stat.wins, stat.losses);
-      }
+    //TODO: parse /api/personal-settings/{player} maybe for avatar etc
+    if league_avi.is_empty() {
+      league_avi = match maybe_player_race {
+        1 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/HUMAN.png",
+        2 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/ORC.png",
+        4 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/NIGHT_ELF.png",
+        8 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/UNDEAD.png",
+        _ => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/RANDOM.png"
+      }.to_string();
+    }
+    let main_race_colors = match maybe_player_race {
+      1 => (0, 0, 222),
+      2 => (222, 0, 0),
+      4 => (0, 222, 0),
+      8 => (155, 0, 143),
+      _ => (50, 120, 150)
+    };
 
-      let max_games: Option<&Stats> = stats.iter().max_by_key(|s| s.games);
-      let max_games_race =
-        if let Some(max) = max_games {
-          max.race
-        } else { 0 };
-      if league_avi.is_empty() {
-        league_avi = match max_games_race {
-            1 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/HUMAN.png",
-            2 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/ORC.png",
-            4 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/NIGHT_ELF.png",
-            8 => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/UNDEAD.png",
-            _ => "https://github.com/w3champions/w3champions-ui/raw/master/src/assets/raceIcons/RANDOM.png"
-          }.to_string();
-      }
-      let main_race_colors = match max_games_race {
-          1 => (0, 0, 222),
-          2 => (222, 0, 0),
-          4 => (0, 222, 0),
-          8 => (155, 0, 143),
-          _ => (50, 120, 150)
-        };
+    let mut description = format!("[{}] {}\n", &userx, &league_info);
 
-      let mut description = format!("[{}] {}\n", &userx, &league_info);
-
-      let uri2 = format!("{W3C_API}/player-stats/{user}/race-on-map-versus-race?season={season}");
-      let res2 = rqcl.get(&uri2).send().await?;
-      let stats2_mb: Option<Stats2> =
-        match res2.json::<Stats2>().await {
-          Ok(sms2) => Some(sms2),
-          Err(wha2) => {
-            let sms2_res_2 = rqcl.get(&uri2).send().await?;
-            if let Ok(text_res) = sms2_res_2.text().await {
-              error!("{wha2} on {text_res}");
-            }
-            None
+    let uri2 = format!("{W3C_API}/player-stats/{user}/race-on-map-versus-race?season={season}");
+    let res2 = rqcl.get(&uri2).send().await?;
+    let stats2_mb: Option<Stats2> =
+      match res2.json::<Stats2>().await {
+        Ok(sms2) => Some(sms2),
+        Err(wha2) => {
+          let sms2_res_2 = rqcl.get(&uri2).send().await?;
+          if let Ok(text_res) = sms2_res_2.text().await {
+            error!("{wha2} on {text_res}");
           }
-        };
+          None
+        }
+      };
 
-      if let Some(stats2) = stats2_mb {
-        let mut table = Table::new();
+    if let Some(stats2) = stats2_mb {
+      let mut table = Table::new();
 
-        table.set_content_arrangement(ContentArrangement::Dynamic)
-             .set_width(40)
-             .set_header(vec!["Map", "vs HU", "vs O", "vs NE", "vs UD"]);
+      table.set_content_arrangement(ContentArrangement::Dynamic)
+            .set_width(40)
+            .set_header(vec!["Map", "vs HU", "vs O", "vs NE", "vs UD"]);
 
-        if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
-          for s3 in s24 {
-            if !s3.winLossesOnMap.is_empty() &&
-                s3.race == 16 {
-              for s4 in &s3.winLossesOnMap {
-                let text = get_map_short(&s4.map);
-                let mut scores: HashMap<u32, String> = HashMap::new();
-                for s5 in &s4.winLosses {
-                  let vs_winrate = (s5.winrate * 100.0).round();
-                  let text = format!("{vs_winrate}%");
-                  scores.insert(s5.race, text);
-                }
-                table.add_row(vec![
-                  Cell::new(text).set_alignment(CellAlignment::Left),
-                  Cell::new(scores.get(&1).unwrap_or( &String::from("-") ))
-                    .set_alignment(CellAlignment::Center),
-                  Cell::new(scores.get(&2).unwrap_or( &String::from("-") ))
-                    .set_alignment(CellAlignment::Center),
-                  Cell::new(scores.get(&4).unwrap_or( &String::from("-") ))
-                    .set_alignment(CellAlignment::Center),
-                  Cell::new(scores.get(&8).unwrap_or( &String::from("-") ))
-                    .set_alignment(CellAlignment::Center)
-                ]);
+      if let Some(s24) = stats2.raceWinsOnMapByPatch.get("All") {
+        for s3 in s24 {
+          if !s3.winLossesOnMap.is_empty() &&
+              s3.race == 16 {
+            for s4 in &s3.winLossesOnMap {
+              let text = get_map_short(&s4.map);
+              let mut scores: HashMap<u32, String> = HashMap::new();
+              for s5 in &s4.winLosses {
+                let vs_winrate = (s5.winrate * 100.0).round();
+                let text = format!("{vs_winrate}%");
+                scores.insert(s5.race, text);
               }
+              table.add_row(vec![
+                Cell::new(text).set_alignment(CellAlignment::Left),
+                Cell::new(scores.get(&1).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center),
+                Cell::new(scores.get(&2).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center),
+                Cell::new(scores.get(&4).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center),
+                Cell::new(scores.get(&8).unwrap_or( &String::from("-") ))
+                  .set_alignment(CellAlignment::Center)
+              ]);
             }
           }
         }
-        description = format!("{description}```\n{table}\n```");
       }
+      description = format!("{description}```\n{table}\n```");
+    }
 
-      let footer = if !msg.author.bot {
-          format!("Requested by {}", msg.author.name)
-        } else {
-          String::from("Requested from /")
-        };
+    let footer = if !msg.author.bot {
+        format!("Requested by {}", msg.author.name)
+      } else {
+        String::from("Requested from /")
+      };
 
-      let mut additional_info = vec![("Stats by races", stats_by_races.as_str(), false)];
-      if !rt_string.is_empty() {
-        additional_info.push(("RT 2x2", rt_string.as_str(), false));
-      }
-      if !at_info.is_empty() {
-        additional_info.push(("AT 2x2", at_info.as_str(), false));
-      }
-      if !ffa_info.is_empty() {
-        additional_info.push(("FFA", ffa_info.as_str(), false));
-      }
+    let mut additional_info = vec![];
+    if !rt_string.is_empty() {
+      additional_info.push(("RT 2x2", rt_string.as_str(), false));
+    }
+    if !at_info.is_empty() {
+      additional_info.push(("AT 2x2", at_info.as_str(), false));
+    }
+    if !ffa_info.is_empty() {
+      additional_info.push(("FFA", ffa_info.as_str(), false));
+    }
 
-      if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::new()
-        .embed(CreateEmbed::new()
-          .title(&clanned)
-          .description(description)
-          .url(&format!("https://www.w3champions.com/player/{user}"))
-          .thumbnail(&league_avi)
-          .fields(additional_info)
-          .colour(main_race_colors)
-          .footer(CreateEmbedFooter::new(footer)))).await {
-        error!("Error sending stats message: {why}");
-      }
-    } else {
-      let resp = format!("User {args_msg} not found");
-      channel_message(ctx, msg, &resp).await;
+    if let Err(why) = msg.channel_id.send_message(&ctx, CreateMessage::new()
+      .embed(CreateEmbed::new()
+        .title(&clanned)
+        .description(description)
+        .url(&format!("https://www.w3champions.com/player/{user}"))
+        .thumbnail(&league_avi)
+        .fields(additional_info)
+        .colour(main_race_colors)
+        .footer(CreateEmbedFooter::new(footer)))).await {
+      error!("Error sending stats message: {why}");
     }
   } else {
     let resp = format!("Search on {args_msg} found no users");
@@ -663,7 +660,7 @@ async fn vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                  , winner = false };
             for t in m.teams.iter() {
               for p in t.players.iter() {
-                let race = get_race2(p.race);
+                let race = get_race(p.race);
                 let mut if_ping = String::new();
                 for psi in m.serverInfo.playerServerInfos.iter() {
                   if psi.battleTag == p.battleTag {

@@ -11,7 +11,7 @@ use crate::{
     poller::{ GAMES
             , finished::check_match
             , bet_fields::generate_bet_fields },
-    utils::{ get_race2
+    utils::{ get_race
            , get_map },
     status::{ add_to_weekly
             , status_update },
@@ -80,8 +80,8 @@ pub async fn check<'a>( ctx: &Context
                 } else { false }).collect::<Vec<&DiscordPlayer>>();
               if !playaz.is_empty() {
                 set!{ g_map   = get_map(&m.map)
-                    , race1   = get_race2(m.teams[0].players[0].race)
-                    , race2   = get_race2(m.teams[1].players[0].race)
+                    , race1   = get_race(m.teams[0].players[0].race)
+                    , race2   = get_race(m.teams[1].players[0].race)
                     , t0_name = aka(&m.teams[0].players[0], rqcl).await
                     , t1_name = aka(&m.teams[1].players[0], rqcl).await };
 
@@ -232,10 +232,10 @@ pub async fn check<'a>( ctx: &Context
               if !playaz.is_empty() {
                 let g_map = get_map(&m.map);
 
-                set! { race1  = get_race2(m.teams[0].players[0].race)
-                     , race12 = get_race2(m.teams[0].players[1].race)
-                     , race2  = get_race2(m.teams[1].players[0].race)
-                     , race22 = get_race2(m.teams[1].players[1].race) };
+                set! { race1  = get_race(m.teams[0].players[0].race)
+                     , race12 = get_race(m.teams[0].players[1].race)
+                     , race2  = get_race(m.teams[1].players[0].race)
+                     , race22 = get_race(m.teams[1].players[1].race) };
 
                 let mut aka_names: [[String; 2]; 2] = Default::default();
                 for i in 0..2 {
@@ -392,10 +392,10 @@ pub async fn check<'a>( ctx: &Context
             if !playaz.is_empty() {
               let g_map = get_map(&m.map);
 
-              set!{ race1  = get_race2(m.teams[0].players[0].race), race13 = get_race2(m.teams[0].players[2].race)
-                  , race12 = get_race2(m.teams[0].players[1].race), race14 = get_race2(m.teams[0].players[3].race)
-                  , race2  = get_race2(m.teams[1].players[0].race), race23 = get_race2(m.teams[1].players[2].race)
-                  , race22 = get_race2(m.teams[1].players[1].race), race24 = get_race2(m.teams[1].players[3].race) };
+              set!{ race1  = get_race(m.teams[0].players[0].race), race13 = get_race(m.teams[0].players[2].race)
+                  , race12 = get_race(m.teams[0].players[1].race), race14 = get_race(m.teams[0].players[3].race)
+                  , race2  = get_race(m.teams[1].players[0].race), race23 = get_race(m.teams[1].players[2].race)
+                  , race22 = get_race(m.teams[1].players[1].race), race24 = get_race(m.teams[1].players[3].race) };
 
               let mut aka_names: [[String; 4]; 2] = Default::default();
               for i in 0..2 {

@@ -7,15 +7,6 @@ r"^(?:s[0-9]+(?:[_|-][0-9]|))?(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z.
 
 pub fn get_race(r: u32) -> String {
   String::from(
-    match r { 1 => "Human"
-            , 2 => "Orc"
-            , 4 => "Night Elf"
-            , 8 => "Undead"
-            , _ => "Random" })
-}
-
-pub fn get_race2(r: u32) -> String {
-  String::from(
     match r { 1 => "H"
             , 2 => "O"
             , 4 => "NE"

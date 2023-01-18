@@ -1,6 +1,8 @@
 use crate::{
   common::msg::reply,
-  steins::ai::cache::KATHOEY,
+  steins::ai::{ cache::KATHOEY
+              , boris
+              , uwu }
 };
 
 use mozart::{
@@ -69,16 +71,19 @@ pub async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Res
     let (decoded, _len): (ChatResponse, usize) = bincode::decode_from_slice(&buf[..], BINCODE_CONFIG)?;
     let chan: ChannelId = ChannelId( to_nzu!( decoded.channel ) );
     let response: String;
+
     if decoded.russian {
       match mozart::bert::translation::en2ru(decoded.response.clone()).await {
         Ok(translated) => {
           let rnda: u32 = rand::thread_rng().gen_range(0..10);
+          let rndy: u32 = rand::thread_rng().gen_range(0..50);
           if rnda != 1 {
             let kathoey = KATHOEY.lock().await;
-            let rndy: u32 = rand::thread_rng().gen_range(0..30);
             response =
               if rndy == 1 {
                 kathoey.extreme_feminize(&translated)
+              } else if rndy == 2 {
+                boris::spell(&kathoey.feminize(&translated))
               } else {
                 kathoey.feminize(&translated)
               };
@@ -91,7 +96,12 @@ pub async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Res
         }
       }
     } else {
-      response = decoded.response;
+      let rndy: u32 = rand::thread_rng().gen_range(0..100);
+      if rndy == 1 {
+        response = uwu::spell(&decoded.response);
+      } else {
+        response = decoded.response;
+      }
     }
 
     if let Some(msg_id) = &decoded.message {

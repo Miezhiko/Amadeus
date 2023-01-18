@@ -87,9 +87,9 @@ pub async fn chat( msg: Option<u64>
     return Err(anyhow!("empty input"));
   }
   match rndx {
-    0 => chat_neo(msg, chan, input, user_id, lsm, russian).await,
-    1 => summarize(msg, chan, input, user_id, lsm, russian).await,
-    2 => xlnet(msg, chan, input, user_id, lsm, russian).await,
-    _ => chat_gpt2(msg, chan, input, user_id, lsm, russian).await
+    0 => chat_neo   (msg, chan, input, user_id, lsm, russian).await,
+    1 => summarize  (msg, chan, input, user_id, lsm, russian).await,
+    2 => xlnet      (msg, chan, input, user_id, lsm, russian).await,
+    _ => chat_gpt2  (msg, chan, input, user_id, lsm, russian).await
   }
 }

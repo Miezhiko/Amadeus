@@ -49,17 +49,13 @@ sled                = "0.34.7"
 kathoey             = "1.1.4"
 serde_dhall         = "0.12.0"
 nipper              = "0.1.9"
+plotters            = "0.3.4"
 
 cynic   = { version = "2.2.1",    features = ["http-reqwest"] }
 rand    = { version = "0.8.5",    features = ["std", "std_rng"] }
 reqwest = { version = "0.11.13",  features = ["json", "blocking"] }
 ical    = { version = "0.7",      features = ["ical"] }
 markov  = { version = "1.1",      features = ["yaml"] }
-
-[dependencies.plotters]
-version = "0.3.4"
-#git = "https://github.com/plotters-rs/plotters.git"
-#branch = "master"
 
 [dependencies.stroke]
 git = "https://github.com/dorianprill/stroke.git"

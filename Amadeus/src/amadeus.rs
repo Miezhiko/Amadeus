@@ -158,12 +158,12 @@ pub async fn run(opts: IOptions) ->
     let request_client = reqwest::Client::builder()
                                 .pool_max_idle_per_host(0)
                                 .build()?;
-    data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
-    data.insert::<ReqwestClient>(Arc::new(request_client));
-    data.insert::<PubCreds>(Arc::new(creds));
-    data.insert::<CoreGuilds>(Arc::new(core_guilds));
-    data.insert::<AllGuilds>(Arc::new(all_guilds));
-    data.insert::<IContext>(Arc::new(context));
+    data.insert::<ShardManagerContainer>  (Arc::clone(&client.shard_manager));
+    data.insert::<ReqwestClient>          (Arc::new(request_client));
+    data.insert::<PubCreds>               (Arc::new(creds));
+    data.insert::<CoreGuilds>             (Arc::new(core_guilds));
+    data.insert::<AllGuilds>              (Arc::new(all_guilds));
+    data.insert::<IContext>               (Arc::new(context));
   }
 
   // start listening for events by starting a single shard

@@ -11,6 +11,7 @@ pub const MAIN_CHANNEL: ChannelId     = ChannelId( NonZeroU64::new( 611822932897
 pub const STREAM_PICS: ChannelId      = ChannelId( NonZeroU64::new( 740153825272266822 ).unwrap() );
 pub const APM_PICS: ChannelId         = ChannelId( NonZeroU64::new( 752538491312930878 ).unwrap() );
 pub const GITHUB_PRS: ChannelId       = ChannelId( NonZeroU64::new( 912241728243769395 ).unwrap() );
+pub const MAIN_LOG: ChannelId         = ChannelId( NonZeroU64::new( 740913303278321704 ).unwrap() );
 
 pub const LIVE_ROLE: &str             = "🔴 LIVE";
 pub const UNBLOCK_ROLE: &str          = "UNBLOCK AMADEUS";

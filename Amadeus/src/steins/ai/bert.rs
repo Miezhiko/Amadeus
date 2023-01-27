@@ -10,7 +10,8 @@ use mozart::{
         , qa::ASK
         , neo::CHAT_NEO
         , summarization::SUMMARIZE
-        , xlnet::XLNET }
+        , xlnet::XLNET
+        , code::CODEBERT }
 };
 
 async fn salieri_request<T>( sig: celery::task::Signature<T>
@@ -70,6 +71,15 @@ pub async fn xlnet( msg: Option<u64>
   salieri_request(XLNET::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
+pub async fn codebert( msg: Option<u64>
+                     , chan: u64
+                     , something: String
+                     , user_id: u64
+                     , lsm: bool
+                     , russian: bool ) -> Result<Option<String>> {
+  salieri_request(CODEBERT::new(msg, chan, something, user_id, lsm, russian)).await
+}
+
 pub async fn chat( msg: Option<u64>
                  , chan: u64
                  , something: String
@@ -90,6 +100,7 @@ pub async fn chat( msg: Option<u64>
     0 => chat_neo   (msg, chan, input, user_id, lsm, russian).await,
     1 => summarize  (msg, chan, input, user_id, lsm, russian).await,
     2 => xlnet      (msg, chan, input, user_id, lsm, russian).await,
+    3 => codebert   (msg, chan, input, user_id, lsm, russian).await,
     _ => chat_gpt2  (msg, chan, input, user_id, lsm, russian).await
   }
 }

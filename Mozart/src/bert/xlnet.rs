@@ -61,9 +61,9 @@ static XLNET_MODEL: Lazy<Mutex<Option<TextGenerationModel>>> =
 async fn xlnet(msg_content: String, lsm: bool) -> anyhow::Result<String> {
   info!("Generating xlnet response");
   let cache_eng_vec = CACHE_ENG_STR.lock().await;
-  let mut summ_model = XLNET_MODEL.lock().await;
-  if summ_model.is_none() {
-    *summ_model = Some( xlnet_model_loader() );
+  let mut xlnet_model = XLNET_MODEL.lock().await;
+  if xlnet_model.is_none() {
+    *xlnet_model = Some( xlnet_model_loader() );
   }
   let input_str = process_message_for_gpt(&msg_content);
   let mut input =
@@ -75,10 +75,10 @@ async fn xlnet(msg_content: String, lsm: bool) -> anyhow::Result<String> {
     };
   input.push(input_str);
   task::spawn_blocking(move || {
-    if let Some(sum) = &mut *summ_model {
-      let output = sum.generate(&input, None);
+    if let Some(xlnetm) = &mut *xlnet_model {
+      let output = xlnetm.generate(&input, None);
       if ! lsm {
-        *summ_model = None;
+        *xlnet_model = None;
       }
       if output.is_empty() {
         Err(anyhow!("no output from xlnet model"))

@@ -4,6 +4,7 @@ pub mod qa;
 pub mod neo;
 pub mod summarization;
 pub mod xlnet;
+pub mod code;
 
 use regex::Regex;
 

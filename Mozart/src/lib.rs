@@ -40,6 +40,7 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryEr
             , bert::neo::CHAT_NEO
             , bert::summarization::SUMMARIZE
             , bert::xlnet::XLNET
+            , bert::code::CODEBERT
             ],
     task_routes = [
       "*" => SALIERI_SERVICE,

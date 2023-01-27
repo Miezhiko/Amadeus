@@ -5,10 +5,9 @@ use crate::{
          , goodgame::GoodGameData
          },
   collections::team::{ ALL, DISCORDS },
-  common::{
-    constants::{ LIVE_ROLE
-               , STREAM_PICS }
-  }
+  common::constants::{ LIVE_ROLE
+                     , STREAM_PICS
+                     , MAIN_LOG }
 };
 
 use serenity::{
@@ -112,21 +111,9 @@ pub async fn activate_streamers_tracking(
               let discord_guild_id = GuildId( to_nzu!(*d) );
               if let Ok(guild) = discord_guild_id.to_partial_guild(&ctx_clone).await {
                 if guild.member(&ctx_clone.http, user.id).await.is_err() {
-                  let mut reported = false;
-                  for d in &p.discords {
-                    if let Some(ds) = DISCORDS.get(d) {
-                      if let Some(log) = ds.log {
-                        if let Err(why) = log
-                          .say(&ctx_clone, &format!("streamers: missing user: {}", p.player.discord)).await {
-                            error!("streamers: failed to report leaving user {} on {d}, {why}", p.player.discord);
-                        }
-                        reported = true;
-                      }
-                    }
-                  }
-                  // in case if there is no log channel
-                  if !reported {
-                    error!("Leaving user {} on {d}", p.player.discord);
+                  if let Err(why) = MAIN_LOG
+                    .say(&ctx_clone, &format!("streamers: missing user: {} on {d}", p.player.discord)).await {
+                      error!("streamers: failed to report leaving user {} on {d}, {why}", p.player.discord);
                   }
                   do_continue = true;
                 }
@@ -460,14 +447,8 @@ pub async fn activate_streamers_tracking(
             streams.remove(&p.player.discord);
           }
         } else {
-          for d in &p.discords {
-            if let Some(ds) = DISCORDS.get(d) {
-              if let Some(log) = ds.log {
-                if let Err(why) = log.say(&ctx_clone, &format!("streamers: missing user: {}", p.player.discord)).await {
-                  error!("failed to report missing user {why}");
-                }
-              }
-            }
+          if let Err(why) = MAIN_LOG.say(&ctx_clone, &format!("streamers: missing user id: {}", p.player.discord)).await {
+            error!("failed to report missing user {why}");
           }
         }
 	      // with 5 sec delay for each

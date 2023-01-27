@@ -26,8 +26,6 @@ jobs:
             sccache-path: /home/runner/.cache/sccache
           - os: macos-latest
             sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
-          - os: windows-latest
-            sccache-path: C:\\Users\\runner\\AppData\\Local\\Mozilla\\sccache\\cache
     env:
       RUST_BACKTRACE: full
       RUSTC_WRAPPER: sccache
@@ -53,10 +51,6 @@ jobs:
         run: |
           brew update
           brew install sccache
-      - name: Install sccache (windows-latest)
-        if: matrix.os == 'windows-latest'
-        run: |
-          choco install sccache
       - name: Install Rust ${{ matrix.rust }}
         uses: actions-rs/toolchain@v1
         with:

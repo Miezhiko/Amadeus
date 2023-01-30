@@ -108,7 +108,7 @@ branch = "main"
 optional = true
 
 [dependencies.tokio]
-version = "1.24.1"
+version = "1.25.0"
 features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
 
 [dependencies.dasp_signal]

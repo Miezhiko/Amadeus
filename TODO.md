@@ -1,5 +1,6 @@
 ##REALLY PLANNED:
 
+ - MOVE BERT MODELS SOMEWHERE ELSE
  - Single interface for bert models processing on mozart
  - Store long-term conversation with everyone in DB, use Summarize model for context generation
    (Run Summarization generation periodically, possibly on deep nights)

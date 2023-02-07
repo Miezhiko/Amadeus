@@ -76,6 +76,10 @@ pub async fn process( ioptions: &IOptions
     if IGNORED.contains(&msg.channel_id.0.get()) {
       return;
     }
+    // allow ChatGPT to chat from it's own name
+    if msg.author.id.0 ==  to_nzu!( 1064152790181609532 ) {
+      return;
+    }
     let mut is_file = false;
     for file in &msg.attachments {
       if let Ok(bytes) = file.download().await {

@@ -5,6 +5,7 @@ After=multi-user.target
 After=rabbitmq.target
 
 [Service]
+Environment="RUSTBERT_CACHE=/data/.rustbert"
 Type=simple
 User=mawa
 WorkingDirectory=/data/contrib/rust/Amadeus

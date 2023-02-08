@@ -5,6 +5,7 @@ After=multi-user.target
 After=Salieri.target
 
 [Service]
+Environment="RUSTBERT_CACHE=/data/.rustbert"
 Type=simple
 User=mawa
 Environment=DEFAULT_NODE_PATH=/usr/lib64/node_modules

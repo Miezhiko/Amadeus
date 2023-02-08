@@ -237,36 +237,36 @@ impl EventHandler for Handler {
               let user_u64 = user_id.get();
               let guild_u64 = guild_channel.guild_id.get();
               // TODO: change those ids
-              if add_reaction.message_id.get() == 1049324893193384036
+              if add_reaction.message_id.get() == 1072844911801552916
                                    && id.get() == 950149204930621460 {
                 let jonin   = RoleId( to_nzu!(977238413050794075) );
                 let chuunin = RoleId( to_nzu!(977238377382428742) );
                 let genin   = RoleId( to_nzu!(977238521259647006) );
-                if let Ok(p) = points::get_points( guild_channel.guild_id.0.get()
-                                                 , user_id.0.get() ).await {
-                  if p >= 250 {
-                    if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
-                      if let Ok(member) = guild.member(&ctx, user_id).await {
-                        let weight =
-                          if member.roles.contains(&jonin) {
-                            1.5
-                          } else if member.roles.contains(&chuunin) {
-                            1.2
-                          } else if member.roles.contains(&genin) {
-                            1.1
-                          } else {
-                            1.0
-                          };
-                        let mut reg =
-                          if let Ok(gvw) = get_giveway().await {
-                            gvw
-                          } else {
-                            giveaway::Giveaway::new()
-                          };
-                        reg.insert(user_id.0.get(), weight);
-                        if let Err(why) = put_giveway(&reg).await {
-                          error!("Failed to register for giveaway {why}");
-                        }
+                //if let Ok(p) = points::get_points( guild_channel.guild_id.0.get()
+                //                                 , user_id.0.get() ).await {
+                //  if p >= 250 {
+                if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
+                  if let Ok(member) = guild.member(&ctx, user_id).await {
+                    let weight =
+                      if member.roles.contains(&jonin) {
+                        1.5
+                      } else if member.roles.contains(&chuunin) {
+                        1.2
+                      } else if member.roles.contains(&genin) {
+                        1.1
+                      } else {
+                        1.0
+                      };
+                    if weight >= 1.1 {
+                      let mut reg =
+                        if let Ok(gvw) = get_giveway().await {
+                          gvw
+                        } else {
+                          giveaway::Giveaway::new()
+                        };
+                      reg.insert(user_id.0.get(), weight);
+                      if let Err(why) = put_giveway(&reg).await {
+                        error!("Failed to register for giveaway {why}");
                       }
                     }
                   }

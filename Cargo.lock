@@ -3032,7 +3032,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.23"
+version = "0.2.30"
 dependencies = [
  "anyhow",
  "async-recursion",

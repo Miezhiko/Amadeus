@@ -68,74 +68,79 @@ impl EventHandler for Handler {
   async fn cache_ready(&self, ctx: Context, guilds: Vec<GuildId>) {
     info!("Cache is READY");
     for guild_id in guilds {
-      if guild_id.0.get() != self.ioptions.guild && guild_id.0.get() != self.ioptions.amadeus_guild {
-        if let Some(serv) = self.ioptions.servers.iter().find(|s| s.id == guild_id.0.get()) {
-          if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-            definitions::create_app_commands(&ctx, &guild).await;
-            if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
-              if let Ok(some_permissions) = member.permissions(&ctx) {
-                if some_permissions.administrator() {
-                  if serv.kind == CoreGuild::Unsafe {
-                    if guild.role_by_name(UNBLOCK_ROLE).is_none() {
-                      if let Err(why) =
-                        guild.create_role(&ctx, EditRole::default()
-                          .colour(Colour::from_rgb(226,37,37).0)
-                          .hoist(false)
-                          .mentionable(false)
-                          .name(UNBLOCK_ROLE)).await {
-                        error!("Failed to create UNBLOCK role, {why}");
-                      }
-                    }
-                    if guild.role_by_name(LIVE_ROLE).is_none() {
-                      if let Err(why) =
-                        guild.create_role(&ctx, EditRole::default()
-                          .colour(Colour::from_rgb(117,244,255).0)
-                          .hoist(true)
-                          .position(100) // bigger = higher
-                          .mentionable(false)
-                          .name(LIVE_ROLE)).await {
-                        error!("Failed to create LIVE role, {why}");
-                      }
-                    }
-                    if guild.role_by_name(MUTED_ROLE).is_none() {
-                      if let Err(why) =
-                        guild.create_role(&ctx, EditRole::default()
-                          .colour(Colour::from_rgb(113,113,113).0)
-                          .hoist(true)
-                          .position(100) // bigger = higher
-                          .mentionable(false)
-                          .name(MUTED_ROLE)).await {
-                        error!("Failed to create muted role, {why}");
-                      }
+      let guild_id_number = guild_id.0.get();
+      if let Some(serv) = self.ioptions.servers
+                              .iter()
+                              .find(
+        |s| s.id == guild_id_number
+         || guild_id_number == self.ioptions.guild
+         || guild_id_number == self.ioptions.amadeus_guild
+      ) {
+        if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
+          definitions::create_app_commands(&ctx, &guild).await;
+          if let Ok(member) = guild.member(&ctx, self.amadeus_id).await {
+            if let Ok(some_permissions) = member.permissions(&ctx) {
+              if some_permissions.administrator() {
+                if serv.kind == CoreGuild::Unsafe {
+                  if guild.role_by_name(UNBLOCK_ROLE).is_none() {
+                    if let Err(why) =
+                      guild.create_role(&ctx, EditRole::default()
+                        .colour(Colour::from_rgb(226,37,37).0)
+                        .hoist(false)
+                        .mentionable(false)
+                        .name(UNBLOCK_ROLE)).await {
+                      error!("Failed to create UNBLOCK role, {why}");
                     }
                   }
-                  if let Some(muted_role) = guild.role_by_name(MUTED_ROLE) {
-                    if let Ok(channels) = guild.channels(&ctx).await {
-                      let deny = Permissions::SEND_MESSAGES
-                                | Permissions::ADD_REACTIONS
-                                | Permissions::STREAM
-                                | Permissions::SEND_TTS_MESSAGES
-                                | Permissions::ATTACH_FILES
-                                | Permissions::EMBED_LINKS
-                                | Permissions::SPEAK
-                                | Permissions::CHANGE_NICKNAME
-                                | Permissions::MANAGE_EMOJIS_AND_STICKERS
-                                | Permissions::USE_APPLICATION_COMMANDS
-                                | Permissions::CREATE_PUBLIC_THREADS
-                                | Permissions::CREATE_PRIVATE_THREADS
-                                | Permissions::USE_VAD
-                                | Permissions::SEND_MESSAGES_IN_THREADS;
-                      let overwrite = PermissionOverwrite {
-                        allow: Permissions::empty(), deny,
-                        kind: PermissionOverwriteType::Role(muted_role.id)
-                      };
-                      for (chan, _guild_channel) in channels {
-                        if MUTED_ROOMS.contains(&chan) {
-                          continue;
-                        }
-                        if let Err(why) = chan.create_permission(&ctx, overwrite.clone()).await {
-                          error!("Failed to create channel override for muted role, {why}");
-                        }
+                  if guild.role_by_name(LIVE_ROLE).is_none() {
+                    if let Err(why) =
+                      guild.create_role(&ctx, EditRole::default()
+                        .colour(Colour::from_rgb(117,244,255).0)
+                        .hoist(true)
+                        .position(100) // bigger = higher
+                        .mentionable(false)
+                        .name(LIVE_ROLE)).await {
+                      error!("Failed to create LIVE role, {why}");
+                    }
+                  }
+                  if guild.role_by_name(MUTED_ROLE).is_none() {
+                    if let Err(why) =
+                      guild.create_role(&ctx, EditRole::default()
+                        .colour(Colour::from_rgb(113,113,113).0)
+                        .hoist(true)
+                        .position(100) // bigger = higher
+                        .mentionable(false)
+                        .name(MUTED_ROLE)).await {
+                      error!("Failed to create muted role, {why}");
+                    }
+                  }
+                }
+                if let Some(muted_role) = guild.role_by_name(MUTED_ROLE) {
+                  if let Ok(channels) = guild.channels(&ctx).await {
+                    let deny = Permissions::SEND_MESSAGES
+                              | Permissions::ADD_REACTIONS
+                              | Permissions::STREAM
+                              | Permissions::SEND_TTS_MESSAGES
+                              | Permissions::ATTACH_FILES
+                              | Permissions::EMBED_LINKS
+                              | Permissions::SPEAK
+                              | Permissions::CHANGE_NICKNAME
+                              | Permissions::MANAGE_EMOJIS_AND_STICKERS
+                              | Permissions::USE_APPLICATION_COMMANDS
+                              | Permissions::CREATE_PUBLIC_THREADS
+                              | Permissions::CREATE_PRIVATE_THREADS
+                              | Permissions::USE_VAD
+                              | Permissions::SEND_MESSAGES_IN_THREADS;
+                    let overwrite = PermissionOverwrite {
+                      allow: Permissions::empty(), deny,
+                      kind: PermissionOverwriteType::Role(muted_role.id)
+                    };
+                    for (chan, _guild_channel) in channels {
+                      if MUTED_ROOMS.contains(&chan) {
+                        continue;
+                      }
+                      if let Err(why) = chan.create_permission(&ctx, overwrite.clone()).await {
+                        error!("Failed to create channel override for muted role, {why}");
                       }
                     }
                   }
@@ -143,16 +148,11 @@ impl EventHandler for Handler {
               }
             }
           }
-        } else {
-          info!("leaving guild: {:?}", guild_id.0);
-          if let Err(why) = guild_id.leave(&ctx).await {
-            error!("Failed to leave guild {why}");
-          }
         }
       } else {
-        // this is for own server and amadeus testing server
-        if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
-          definitions::create_app_commands(&ctx, &guild).await;
+        info!("leaving guild: {:?}", guild_id.0);
+        if let Err(why) = guild_id.leave(&ctx).await {
+          error!("Failed to leave guild {why}");
         }
       }
     }

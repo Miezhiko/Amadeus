@@ -1,6 +1,5 @@
 {-# LANGUAGE MultiWayIf    #-}
 {-# LANGUAGE UnicodeSyntax #-}
-
 import           Hake
 
 import           Data.List (intercalate)

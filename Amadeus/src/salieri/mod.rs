@@ -13,7 +13,7 @@ use tokio::{ sync::Mutex, select
 };
 
 use once_cell::sync::Lazy;
-use celery::{ Celery, broker::AMQPBroker };
+use celery::Celery;
 
 use mozart::{
   commands::SALIERI_SOCKET,
@@ -22,7 +22,7 @@ use mozart::{
 
 use serenity::prelude::*;
 
-type SalieriBroker = Arc<Celery<AMQPBroker>>;
+type SalieriBroker = Arc<Celery>;
 
 pub static SALIERI: Lazy<Mutex<Option<SalieriBroker>>> =
   Lazy::new(|| Mutex::new(None));

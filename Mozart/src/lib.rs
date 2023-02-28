@@ -27,7 +27,7 @@ pub async fn AMADEUS_INIT() -> TaskResult<()> {
 }
 
 #[cfg(not(target_os = "windows"))]
-pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryError> {
+pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
   celery::app!(
     broker = AMQPBroker { String::from( ampq ) },
     tasks = [ AMADEUS_INIT
@@ -49,7 +49,7 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryEr
 }
 
 #[cfg(target_os = "windows")]
-pub async fn celery_init(ampq: &str) -> Result<Arc<Celery<AMQPBroker>>, CeleryError> {
+pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
   celery::app!(
     broker = AMQPBroker { String::from( ampq ) },
     tasks = [ AMADEUS_INIT

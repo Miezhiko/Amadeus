@@ -77,7 +77,8 @@ pub async fn process( ioptions: &IOptions
       return;
     }
     // allow ChatGPT to chat from it's own name
-    if msg.author.id.0 ==  to_nzu!( 1064152790181609532 ) {
+    if msg.author.id.0 == to_nzu!( 1064152790181609532 )
+    || msg.author.id.0 == to_nzu!( 936929561302675456 )  {
       return;
     }
     let mut is_file = false;

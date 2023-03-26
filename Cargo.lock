@@ -4337,7 +4337,7 @@ dependencies = [
 [[package]]
 name = "rust-bert"
 version = "0.20.1-alpha"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=torch_2_update#351b5bfd86a636adeba48b34d5f7ab2bdcd640ed"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#e08adf62c9b99e7588e0a8a7254837cc629bfb43"
 dependencies = [
  "cached-path",
  "dirs",

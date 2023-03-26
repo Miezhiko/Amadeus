@@ -22,7 +22,7 @@ tch             = "0.11.0"
 [dependencies.rust-bert]
 default-features = false
 git = "https://github.com/guillaume-be/rust-bert.git"
-branch = "torch_2_update"
+branch = "master"
 features = [ "remote" ]
 
 [dependencies.tokio]

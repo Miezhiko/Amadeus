@@ -1,3 +1,5 @@
+use crate::bert::chat;
+
 use rust_bert::{
   resources::RemoteResource,
   pipelines::{
@@ -77,8 +79,7 @@ pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32)>>>
 
 #[celery::task]
 pub async fn CONTEXT_CLEAR() -> TaskResult<()> {
-  let mut chat_context = CHAT_CONTEXT.lock().await;
-  chat_context.clear();
+  chat::reinit().await;
   Ok(())
 }
 

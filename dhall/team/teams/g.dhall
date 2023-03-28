@@ -10,13 +10,13 @@ let playersList : List Playerx =
   , t "" 85124478685675520  "xartin"
   ]
 
-let discord : Discordx = { uid      = 249111029668249601
+let discord : Discordx = { uid      = 249111029668249601ly
                          , games    = None Natural
                          , games2   = None Natural
                          , games4   = None Natural
                          , streams  = Some 913860369112506419
                          , events   = None Natural
-                         , log      = Some 947749304339169310
+                         , log      = Some 1090204376007720960
                          , players  = playersList }
 
 in discord

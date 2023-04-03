@@ -77,7 +77,7 @@ pub async fn process( ioptions: &IOptions
       return;
     }
     // TODO: move it to some conf file
-    if msg.channel_id.0.get() == 1089983152585441390 {
+    if msg.channel_id.0.get() == 1072881810050130020 {
       // the asnwer hardcoded for now
       if msg.content.contains("4c39771f7ca06d1c7bb7862aaf0f0823e6c0aad42d40af5dcb586e8c4c230f53") {
         if let Ok(channel) = msg.channel(&ctx).await {

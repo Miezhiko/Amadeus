@@ -36,6 +36,9 @@ main = hake $ do
     systemctl ["restart", appNameSalieri]
     systemctl ["restart", appNameAmadeus]
 
+  "run | run Amadeus" ◉ [ amadeusExecutable ] ∰ do
+    cargo . (("run" : buildFlagsAmadeus False) ++) . ("--" :) =<< getHakeArgs
+
  where
   appNameSalieri ∷ String
   appNameSalieri = "salieri"

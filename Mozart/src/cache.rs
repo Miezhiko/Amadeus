@@ -23,22 +23,22 @@ pub static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
 pub static CACHE_ENG_STR: Lazy<Mutex<HashSet<String>>> =
   Lazy::new(|| Mutex::new(HashSet::new()));
 
-const DIALOGPT_LARGE_MODEL: (&'static str, &'static str) = (
+const DIALOGPT_LARGE_MODEL: (&str, &str) = (
   "dialogpt-large/model",
   "https://huggingface.co/microsoft/DialoGPT-large/resolve/refs%2Fpr%2F4/rust_model.ot"
 );
 
-const DIALOGPT_LARGE_CONFIG: (&'static str, &'static str) = (
+const DIALOGPT_LARGE_CONFIG: (&str, &str) = (
   "dialogpt-large/config",
   "https://huggingface.co/microsoft/DialoGPT-large/resolve/main/config.json",
 );
 
-const DIALOGPT_LARGE_VOCAB: (&'static str, &'static str) = (
+const DIALOGPT_LARGE_VOCAB: (&str, &str) = (
   "dialogpt-large/vocab",
   "https://huggingface.co/microsoft/DialoGPT-large/resolve/main/vocab.json",
 );
 
-const DIALOGPT_LARGE_MERGES: (&'static str, &'static str) = (
+const DIALOGPT_LARGE_MERGES: (&str, &str) = (
   "dialogpt-large/merges",
   "https://huggingface.co/microsoft/DialoGPT-large/resolve/main/merges.txt",
 );

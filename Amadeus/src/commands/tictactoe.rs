@@ -28,10 +28,11 @@ use serenity::{
 
 /* Original author nitsuga5124 */
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 enum Pieces {
+  #[default]
   Cross,
-  Circle,
+  Circle
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -41,25 +42,21 @@ struct Player(UserId, Pieces);
 struct Piece {
   pos_x: usize,
   pos_y: usize,
-  typ: Option<Pieces>,
+  typ: Option<Pieces>
 }
 
 #[derive(Default, Debug)]
 struct Board {
   table: [Piece; 9],
   current_piece: Pieces,
-  win_condition: Option<Pieces>,
-}
-
-impl Default for Pieces {
-  fn default() -> Self { Pieces::Cross }
+  win_condition: Option<Pieces>
 }
 
 impl Display for Pieces {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     write!(f, "{}", match self {
-      Self::Cross => "X",
-      Self::Circle => "O",
+      Self::Cross   => "X",
+      Self::Circle  => "O"
     })
   }
 }

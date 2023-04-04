@@ -54,7 +54,7 @@ pub async fn check<'a>( ctx: &Context
 
   let guild = GuildId( to_nzu!(guild_id) );
   let mut out: Vec<StartingGame> = Vec::new();
-  let mut stats: W3CStats = W3CStats { ..Default::default() };
+  let mut stats: W3CStats = Default::default();
 
   if let Ok(res) =
     rqcl.get(&format!("{W3C_API}/matches/ongoing?offset=0&gameMode=1"))

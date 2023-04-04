@@ -446,10 +446,10 @@ pub async fn activate_streamers_tracking(
 
             streams.remove(&p.player.discord);
           }
-        } else {
-          if let Err(why) = MAIN_LOG.say(&ctx_clone, &format!("streamers: missing user id: {}", p.player.discord)).await {
-            error!("failed to report missing user {why}");
-          }
+        } else if let Err(why) =
+          MAIN_LOG.say( &ctx_clone
+                      , &format!("streamers: missing user id: {}", p.player.discord) ).await {
+          error!("failed to report missing user {why}");
         }
 	      // with 5 sec delay for each
         tokio::time::sleep(time::Duration::from_secs(5)).await;

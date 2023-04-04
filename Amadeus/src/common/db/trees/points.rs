@@ -43,7 +43,7 @@ pub async fn add_points( guild_id: u64
           }
         } else {
           let points = Points { count: 0, streak: 0 };
-          if let Ok(encoded) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
+          if let Ok(encoded) = bincode::encode_to_vec(points, BINCODE_CONFIG) {
             if let Ok(lump_data) = LumpData::new(encoded) {
               match storage.put(&lump_id, &lump_data) {
                 Ok(added) => {
@@ -120,7 +120,7 @@ pub async fn give_points( guild_id: u64
                   }
                 } else {
                   let tpoints = Points { count: points_count, streak: 0 };
-                  if let Ok(tencoded) = bincode::encode_to_vec(&tpoints, BINCODE_CONFIG) {
+                  if let Ok(tencoded) = bincode::encode_to_vec(tpoints, BINCODE_CONFIG) {
                     if let Ok(tlump_data) = LumpData::new(tencoded) {
                       if let Ok(tadded) = storage.put(&target_lump_id, &tlump_data) {
                         if !tadded {
@@ -233,7 +233,7 @@ pub async fn add_win_points( guild_id: u64
           } else { 0 }
         } else {
           let points = Points { count: 10, streak: 1 };
-          if let Ok(encoded) = bincode::encode_to_vec(&points, BINCODE_CONFIG) {
+          if let Ok(encoded) = bincode::encode_to_vec(points, BINCODE_CONFIG) {
             if let Ok(lump_data) = LumpData::new(encoded) {
               if let Ok(added) = storage.put(&lump_id, &lump_data) {
                 if !added {

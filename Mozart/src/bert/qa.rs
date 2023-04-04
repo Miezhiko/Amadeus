@@ -116,7 +116,7 @@ async fn ask_send( msg: Option<u64>
         response: result,
         russian
       };
-      let encoded = bincode::encode_to_vec(&package, BINCODE_CONFIG)?;
+      let encoded = bincode::encode_to_vec(package, BINCODE_CONFIG)?;
       lukashenko.write_all(&encoded)?;
       Ok(())
     }, Err(why) => {

@@ -27,7 +27,7 @@ use crate::steins::ai::{ cache, chain, response };
 use serenity::{
   prelude::*,
   builder::*,
-  model::{ id::{ EmojiId, MessageId, UserId, RoleId }
+  model::{ id::{ EmojiId, MessageId, UserId }
          , channel::{ Message, ReactionType }
          , colour::Colour
          },
@@ -74,30 +74,6 @@ pub async fn process( ioptions: &IOptions
       }
     }
     if IGNORED.contains(&msg.channel_id.0.get()) {
-      return;
-    }
-    // TODO: move it to some conf file
-    if msg.channel_id.0.get() == 1072881810050130020 {
-      // the asnwer hardcoded for now
-      if msg.content.contains("4c39771f7ca06d1c7bb7862aaf0f0823e6c0aad42d40af5dcb586e8c4c230f53") {
-        if let Ok(channel) = msg.channel(&ctx).await {
-          if let Some(guild_channel) = channel.guild() {
-            if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
-              if let Ok(mut member) = guild.member(&ctx, msg.author.id).await {
-                let g_role = RoleId( to_nzu!(1089928048771608647) );
-                if !member.roles.contains(&g_role) {
-                  if let Err(why) = member.add_role(&ctx, g_role).await {
-                    error!("Failed to assign role on verify process {why}");
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      if let Err(why) = &msg.delete(ctx).await {
-        error!("Error deleting verify message {:?}", why);
-      }
       return;
     }
     // allow ChatGPT to chat from it's own name

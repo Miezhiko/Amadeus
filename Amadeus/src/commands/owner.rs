@@ -109,30 +109,12 @@ async fn say(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[command]
 #[owners_only]
 async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  if args.len() == 1 {
+  if args.len() >= 1 {
     let countdown: u8 = args.find().unwrap_or_default();
     if let Ok(vec) = msg.channel_id.messages(ctx, GetMessages::default().before(msg.id).limit(countdown)).await {
       let mut vec_id = Vec::new();
       for message in vec {
         vec_id.push(message.id);
-      }
-      vec_id.push(msg.id);
-      match msg.channel_id.delete_messages(ctx, vec_id.as_slice()).await {
-        Ok(val)  => val,
-        Err(_err) => (),
-      };
-    }
-    direct_message(ctx, msg, &format!("Deleted {countdown} messages")).await;
-  } else if args.len() == 2 {
-    let countdown: usize = args.find().unwrap_or_default();
-    let counter: usize = args.find().unwrap_or_default();
-    let full = countdown + counter;
-    if let Ok(vec) = msg.channel_id.messages(ctx, GetMessages::default().before(msg.id).limit(full as u8)).await {
-      let mut vec_id = Vec::new();
-      for (i, message) in vec.iter().rev().enumerate() {
-        if i < countdown {
-          vec_id.push(message.id);
-        }
       }
       vec_id.push(msg.id);
       match msg.channel_id.delete_messages(ctx, vec_id.as_slice()).await {

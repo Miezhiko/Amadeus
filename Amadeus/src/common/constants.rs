@@ -17,8 +17,8 @@ pub const LIVE_ROLE: &str             = "🔴 LIVE";
 pub const UNBLOCK_ROLE: &str          = "UNBLOCK AMADEUS";
 pub const MUTED_ROLE: &str            = "muted";
 
-pub const MUTED_ROOMS: &[ChannelId]   = &[ ChannelId( NonZeroU64::new( 958705907099918386 ).unwrap() )
-                                         , ChannelId( NonZeroU64::new( 958712754951323718 ).unwrap() ) ];
+// TODO: move this into teams configs
+pub const MUTED_ROOMS: &[ChannelId]   = &[ ChannelId( NonZeroU64::new( 1093531555642744922 ).unwrap() ) ];
 
 pub const W3C_STATS_ROOM: ChannelId   = ChannelId( NonZeroU64::new( 965968135666696322 ).unwrap() );
 pub const W3C_STATS_MSG: MessageId    = MessageId( NonZeroU64::new( 965968232328609802 ).unwrap() );

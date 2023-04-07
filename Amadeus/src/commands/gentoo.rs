@@ -208,18 +208,32 @@ async fn zugaina(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     parse_result.push( format!("{desc}\n{pkg_level_str}") );
   }
 
+  // TODO: if exact package name found then show only that
+  if parse_result.is_empty() {
+    warn!("empty parsed result for ~overlays");
+    return Ok(());
+  }
+
   let parse_result_str = parse_result.join("\n\n");
-  let footer = format!("Requested by {}", msg.author.name);
-  if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
-    .embed(CreateEmbed::new()
-      .title(&search)
-      .url(&url)
-      .description(parse_result_str)
-      .footer(CreateEmbedFooter::new(footer))
-    )
-  ).await {
-    msg.channel_id.say(ctx, &format!("Error: {why}")).await?;
-  };
+
+  let parsed_many = parse_result_str.as_bytes()
+    .chunks(4000)
+    .map(|s| unsafe { ::std::str::from_utf8_unchecked(s) })
+    .collect::<Vec<&str>>();
+
+  for parsed_one in parsed_many {
+    let footer = format!("Requested by {}", msg.author.name);
+    if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
+      .embed(CreateEmbed::new()
+        .title(&search)
+        .url(&url)
+        .description(parsed_one)
+        .footer(CreateEmbedFooter::new(footer))
+      )
+    ).await {
+      msg.channel_id.say(ctx, &format!("Error: {why}")).await?;
+    };
+  }
 
   Ok(())
 }

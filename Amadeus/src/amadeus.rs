@@ -6,8 +6,7 @@ use crate::{
     options::IOptions
   },
   common::{ constants::PREFIX
-          , system::ShardManagerContainer
-          , voice::DECODE_TYPE },
+          , system::ShardManagerContainer },
   handler::Handler,
   groups::*, hooks::*
 };
@@ -132,7 +131,6 @@ pub async fn run(opts: IOptions) ->
   let songbird = Songbird::serenity();
   songbird.set_config(
     DriverConfig::default()
-      .decode_mode(DECODE_TYPE)
       .crypto_mode(CryptoMode::Normal),
   );
   let intents = GatewayIntents::GUILDS

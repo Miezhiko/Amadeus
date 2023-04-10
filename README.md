@@ -38,7 +38,6 @@
  - Slash commands support (type `/`)
  - Chatty (`set activity 66` is default)
  - Automatic translation with bert models
- - [Deepspeach](https://github.com/mozilla/DeepSpeech) for voice[WIP]
  - Live games tracking on [w3champions](https://www.w3champions.com)
  - W3info news tracking using calendar
  - Replays parsing (click emoji to get report)
@@ -112,7 +111,6 @@ Optional Build Features:
 
  - `trackers` - enable games trackers / w3info news trackers / streams trackers
  - `flo` - gather flo nodes information / register players / host games
- - `voice_analysis` - experimental voice recognition (you need libdeepspeach for this to work) (WIP)
  - `full` - enable all
 
 `cargo build --release --features flo,trackers` enabled by default,
@@ -164,7 +162,7 @@ systemctl restart Amadeus
 ## Notes
 
  - Check [TODO.md](https://github.com/Miezhiko/Amadeus/blob/mawa/TODO.md) for planned work (also if you want to help me)
- - You need libdeepspeech for voice analysis feature
+ - deepspeech mode was dropped (due bad voice to text model quality)
  - Code open sourced just for my friend Sirius to be able to see it, please pay attention to [LICENSE.md](https://github.com/Miezhiko/Amadeus/blob/mawa/LICENSE.md)
  - Fingon is cute
  - Additional thank to @fluxxu for removing my ban on W3C (this was kind of important for my motivation to improve flo/w3c aspects of Amadeus)

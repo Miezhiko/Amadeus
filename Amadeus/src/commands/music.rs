@@ -1,20 +1,11 @@
 use crate::{
-  types::{
-    options::ROptions,
-    serenity::ReqwestClient
-  },
-  common::{
-    msg::{ direct_message, reply },
-    options
-  }
+  types::{ options::ROptions
+         , serenity::ReqwestClient },
+  common::{ msg::reply
+          , options }
 };
 
 use songbird::input::YoutubeDl;
-
-#[cfg(feature = "voice_analysis")]
-use crate::common::voice_analysis::*;
-#[cfg(feature = "voice_analysis")]
-use songbird::CoreEvent;
 
 use std::sync::Arc;
 
@@ -47,22 +38,22 @@ pub async fn rejoin_voice_channel(ctx: &Context, conf: &ROptions) {
     let manager = songbird::get(ctx).await
       .expect("Songbird Voice client placed in at initialisation.").clone();
 
-    let (_call, j) = manager.join(last_guild_conf, last_channel_conf).await;
-
-    if j.is_ok() {
-      info!("Rejoined voice channel: {last_channel_conf}");
-      if !conf.last_stream.is_empty() {
-        if let Some(handler_lock) = manager.get(last_guild_conf) {
-          let mut handler = handler_lock.lock().await;
-          let youtube = YoutubeDl::new(
-            Arc::unwrap_or_clone( reqwest_client ),
-            conf.last_stream.clone());
-          handler.play_input(youtube.into());
+    match manager.join(last_guild_conf, last_channel_conf).await {
+      Ok (_call) => {
+        info!("Rejoined voice channel: {last_channel_conf}");
+        if !conf.last_stream.is_empty() {
+          if let Some(handler_lock) = manager.get(last_guild_conf) {
+            let mut handler = handler_lock.lock().await;
+            let youtube = YoutubeDl::new(
+              Arc::unwrap_or_clone( reqwest_client ),
+              conf.last_stream.clone());
+            handler.play_input(youtube.into());
+          }
         }
+      } , Err (err) => {
+        error!("JoinError on rejoin: {err}");
       }
-    } else {
-      error!("Failed to rejoin voice channel: {last_channel_conf}");
-    }
+    };
   }
 }
 
@@ -87,37 +78,23 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
   };
   let manager = songbird::get(ctx).await
     .expect("Songbird Voice client placed in at initialisation.").clone();
-  let (_handler_lock, conn_result) = manager.join(guild_id, connect_to).await;
-  if conn_result.is_ok() {
-    let mut opts = options::get_roptions().await?;
-    if opts.last_guild != guild_id.0.get()
-    || opts.last_channel != connect_to.0.get()
-    || !opts.rejoin {
-      opts.rejoin = true;
-      opts.last_guild = guild_id.0.get();
-      opts.last_channel = connect_to.0.get();
-      options::put_roptions(&opts).await?;
-    }
+  let _call = manager.join(guild_id, connect_to).await?;
 
-    #[cfg(feature = "voice_analysis")]
-    {
-      let ctx_arc = Arc::new(ctx.clone());
-      let receiver = Receiver::new(ctx_arc);
-      let mut handler = _handler_lock.lock().await;
+  let mut opts = options::get_roptions().await?;
 
-      handler.add_global_event(CoreEvent::SpeakingStateUpdate.into(), receiver.clone());
-      handler.add_global_event(CoreEvent::SpeakingUpdate.into(), receiver.clone());
-      handler.add_global_event(CoreEvent::VoicePacket.into(), receiver.clone());
-      handler.add_global_event(CoreEvent::ClientConnect.into(), receiver.clone());
-      handler.add_global_event(CoreEvent::ClientDisconnect.into(), receiver.clone());
-    }
-
-    if let Err(why) = msg.channel_id.say(ctx, &format!("I've joined {}", connect_to.mention())).await {
-      error!("failed to say joined {why}");
-    }
-  } else {
-    direct_message(ctx, msg, "Some error joining the channel...").await;
+  if opts.last_guild != guild_id.0.get()
+  || opts.last_channel != connect_to.0.get()
+  || !opts.rejoin {
+    opts.rejoin = true;
+    opts.last_guild = guild_id.0.get();
+    opts.last_channel = connect_to.0.get();
+    options::put_roptions(&opts).await?;
   }
+
+  if let Err(why) = msg.channel_id.say(ctx, &format!("I've joined {}", connect_to.mention())).await {
+    error!("failed to say joined {why}");
+  }
+
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command {why}");
   }
@@ -140,34 +117,19 @@ pub async fn join_slash(ctx: &Context, user: &User, guild: &Guild) -> anyhow::Re
   };
   let manager = songbird::get(ctx).await
     .expect("Songbird Voice client placed in at initialisation.").clone();
-  let (_handler_lock, conn_result) = manager.join(guild_id, connect_to).await;
-  if conn_result.is_ok() {
-    let mut opts = options::get_roptions().await?;
-    if opts.last_guild != guild_id.0.get()
-    || opts.last_channel != connect_to.0.get()
-    || !opts.rejoin {
-      opts.rejoin = true;
-      opts.last_guild = guild_id.0.get();
-      opts.last_channel = connect_to.0.get();
-      options::put_roptions(&opts).await?;
-    }
+  let _call = manager.join(guild_id, connect_to).await?;
 
-    #[cfg(feature = "voice_analysis")]
-    {
-      let ctx_arc = Arc::new(ctx.clone());
-      let receiver = Receiver::new(ctx_arc);
-      let mut handler = _handler_lock.lock().await;
+  let mut opts = options::get_roptions().await?;
 
-      handler.add_global_event(CoreEvent::SpeakingStateUpdate.into(), receiver.clone());
-      handler.add_global_event(CoreEvent::SpeakingUpdate.into(), receiver.clone());
-      handler.add_global_event(CoreEvent::VoicePacket.into(), receiver.clone());
-      handler.add_global_event(CoreEvent::ClientConnect.into(), receiver.clone());
-      handler.add_global_event(CoreEvent::ClientDisconnect.into(), receiver.clone());
-    }
-
-  } else {
-    error!("Some error joining the channel on slash command");
+  if opts.last_guild != guild_id.0.get()
+  || opts.last_channel != connect_to.0.get()
+  || !opts.rejoin {
+    opts.rejoin = true;
+    opts.last_guild = guild_id.0.get();
+    opts.last_channel = connect_to.0.get();
+    options::put_roptions(&opts).await?;
   }
+
   Ok(())
 }
 

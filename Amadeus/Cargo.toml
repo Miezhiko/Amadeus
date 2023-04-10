@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "10.4.16"
+version             = "10.5.0"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -16,8 +16,7 @@ trackers            = []
 torch               = []
 spam_filter         = []
 flo                 = ["tonic", "hex", "flo-grpc"]
-voice_analysis      = ["dasp_interpolate", "dasp_signal", "deepspeech"]
-full                = ["flo", "voice_analysis", "trackers"]
+full                = ["flo", "trackers"]
 
 [dependencies]
 mozart              = { path = "../Mozart" }
@@ -61,14 +60,15 @@ markov  = { version = "1.1",      features = ["yaml"] }
 git = "https://github.com/dorianprill/stroke.git"
 branch = "main"
 
+# should be on serenity-rs organization after fix
 [dependencies.songbird]
 default-features = false
-git = "https://github.com/FelixMcFelix/songbird.git"
-branch = "symphonia"
-features = [ "serenity-rustls"
+git = "https://github.com/tazz4843/songbird.git"
+branch = "next"
+features = [ "serenity"
            , "driver"
+           , "native"
            , "gateway"
-           , "serenity-deps"
            ]
 
 [dependencies.serenity]
@@ -110,19 +110,6 @@ optional = true
 [dependencies.tokio]
 version = "1.26.0"
 features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
-
-[dependencies.dasp_signal]
-version = "0.11"
-optional = true
-
-[dependencies.dasp_interpolate]
-version = "0.11"
-optional = true
-features = ["linear"]
-
-[dependencies.deepspeech]
-version = "0.9.1"
-optional = true
 
 [dependencies.celery]
 git = "https://github.com/rusty-celery/rusty-celery.git"

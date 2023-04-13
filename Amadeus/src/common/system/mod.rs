@@ -3,7 +3,7 @@ pub mod upgrade;
 pub mod hacks;
 
 use serenity::{
-  client::bridge::gateway::ShardManager,
+  gateway::ShardManager,
   prelude::*
 };
 

@@ -4,7 +4,7 @@ use crate::{
 };
 
 use serenity::{
-  client::bridge::gateway::ShardId,
+  gateway::ShardId,
   prelude::*
 };
 

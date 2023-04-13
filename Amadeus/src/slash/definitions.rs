@@ -7,7 +7,7 @@ use serenity::{
 };
 
 pub async fn create_app_commands(ctx: &Context, guild: &PartialGuild) {
-  if let Err(why) = guild.set_application_commands(ctx, vec![
+  if let Err(why) = guild.set_commands(ctx, vec![
     CreateCommand::new("help").description("Display Amadeus Help"),
     CreateCommand::new("wave").description("Wave a hand you know..."),
     CreateCommand::new("cry").description("Start to cry!"),

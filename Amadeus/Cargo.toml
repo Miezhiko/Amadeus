@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "10.5.0"
+version             = "10.5.1"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -60,10 +60,9 @@ markov  = { version = "1.1",      features = ["yaml"] }
 git = "https://github.com/dorianprill/stroke.git"
 branch = "main"
 
-# should be on serenity-rs organization after fix
 [dependencies.songbird]
 default-features = false
-git = "https://github.com/tazz4843/songbird.git"
+git = "https://github.com/serenity-rs/songbird.git"
 branch = "next"
 features = [ "serenity"
            , "driver"

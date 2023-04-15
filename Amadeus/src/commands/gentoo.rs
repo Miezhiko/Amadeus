@@ -292,9 +292,6 @@ async fn wiki(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     msg.channel_id.say(ctx, &format!("Error: {why}")).await?;
   };
 
-  if let Err(why) = msg.delete(ctx).await {
-    error!("Error deleting original command {why}");
-  }
   Ok(())
 }
 

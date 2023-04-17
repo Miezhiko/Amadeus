@@ -4210,7 +4210,7 @@ dependencies = [
 [[package]]
 name = "rust-bert"
 version = "0.20.1-alpha"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#2e5f4a95a693959dd7db4dd25e7b5c1318109ebd"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#b40adb812146be1c6ea8ebbdc358c487d14d9306"
 dependencies = [
  "cached-path",
  "dirs",
@@ -4228,9 +4228,9 @@ dependencies = [
 
 [[package]]
 name = "rust_tokenizers"
-version = "8.0.0"
+version = "8.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f83d9783ddbdccb208d3a67a93151ed68f449bb3ca6ff58a3d2577ed7f3320b7"
+checksum = "1f367f6b13bc686e822237b97caeb4b2e366dd1936ec204f11d266ede402c31b"
 dependencies = [
  "csv",
  "hashbrown 0.13.2",

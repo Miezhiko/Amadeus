@@ -17,7 +17,7 @@ let playersList : List Playerx =
   , b "Rici#2903"           404379597568999425 "riciii" "Rici"
   , p "Avernus#2393"        247774118798295041
   , t "Fingon#2350"         361930230375514112 "Skyrimoon"
-  , p "FreeMasha#2272"      743770620671819776
+  , t "FreeMasha#2272"      743770620671819776 "alaster216"
   , { battletag = "Smurf#24244"
     , discord   = 255345878917709824
     , streams   = None Streams

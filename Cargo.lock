@@ -89,7 +89,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.5.2"
+version = "10.5.3"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -2055,9 +2055,9 @@ dependencies = [
 
 [[package]]
 name = "h2"
-version = "0.3.17"
+version = "0.3.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66b91535aa35fea1523ad1b86cb6b53c28e0ae566ba4a460f4457e936cad7c6f"
+checksum = "17f8a914c2987b688368b5138aa05321db91f4090cf26118185672ad588bce21"
 dependencies = [
  "bytes",
  "fnv",
@@ -4210,7 +4210,7 @@ dependencies = [
 [[package]]
 name = "rust-bert"
 version = "0.20.1-alpha"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#b40adb812146be1c6ea8ebbdc358c487d14d9306"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#68543fe4a94d87faf71bf960dbd3e284a6e2777b"
 dependencies = [
  "cached-path",
  "dirs",

@@ -24,11 +24,6 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: ChannelId) -> anyhow::Re
                   .output()
                   .await
                   .expect("failed add aka.yml");
-  let _git_adcl = Command::new("sh")
-                  .arg("-c").arg("git add Cargo.lock")
-                  .output()
-                  .await
-                  .expect("failed add Cargo.lock");
   let _git_cmak = Command::new("sh")
                   .arg("-c").arg("git commit -m \"aka database update\"")
                   .output()
@@ -85,6 +80,21 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: ChannelId) -> anyhow::Re
           )
         ).await?;
       }
+
+      let _git_adcl2 = Command::new("sh")
+            .arg("-c").arg("git add Cargo.lock")
+            .output()
+            .await
+            .expect("failed add Cargo.lock");
+      let _git_cmak2 = Command::new("sh")
+            .arg("-c").arg("git commit -m \"some updates\"")
+            .output()
+            .await.unwrap(); // ignore error (if aka db not changed)
+      let _git_push2 = Command::new("sh")
+            .arg("-c").arg("git push origin mawa")
+            .output()
+            .await.unwrap(); // ignore error (if aka db not changed)
+
       let cargo_build = Command::new("sh")
                 .arg("-c").arg("hake")
                 .output()

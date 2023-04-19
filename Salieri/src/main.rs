@@ -1,4 +1,7 @@
 extern crate serde;
+
+mod kafka;
+
 use env_logger::Env;
 
 use mozart::{ celery_init, SALIERI_AMPQ, SALIERI_SERVICE };

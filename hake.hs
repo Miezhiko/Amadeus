@@ -1,5 +1,6 @@
 {-# LANGUAGE MultiWayIf    #-}
 {-# LANGUAGE UnicodeSyntax #-}
+
 import           Hake
 
 import           Data.List (intercalate)
@@ -8,7 +9,7 @@ main ∷ IO ()
 main = hake $ do
 
   "clean | clean the project" ∫
-    cargo ["clean"] >> removeDirIfExists targetPath
+    cargo ["clean"] ?> removeDirIfExists targetPath
 
   "update | update dependencies" ∫ cargo ["update"]
 

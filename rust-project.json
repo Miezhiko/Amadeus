@@ -1,0 +1,6 @@
+{
+  "crates": [],
+  "checkOnSave": {
+    "overrideCommand": ["cargo", "check", "--all-targets"]
+  }
+}

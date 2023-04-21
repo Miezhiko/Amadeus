@@ -1,5 +1,6 @@
 extern crate serde;
 
+#[cfg(feature = "kafka")]
 mod kafka;
 
 use env_logger::Env;
@@ -12,6 +13,9 @@ async fn main() -> anyhow::Result<()> {
             ::from_env(
               Env::default().default_filter_or("info")
             ).init();
+
+  #[cfg(feature = "kafka")]
+  kafka::run_with_workers(1);
 
   let salieri = celery_init(SALIERI_AMPQ).await?;
   salieri.display_pretty().await;

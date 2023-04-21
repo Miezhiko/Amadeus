@@ -4476,7 +4476,6 @@ dependencies = [
  "futures 0.3.28",
  "log",
  "mozart",
- "rand 0.8.5",
  "rdkafka",
  "serde",
  "tokio",

@@ -1,17 +1,19 @@
-use std::thread;
-use std::time::Duration;
+use mozart::bert::{
+  chat::chat_gpt2_send,
+  LUKASHENKO
+};
 
 use futures::stream::FuturesUnordered;
-use futures::{StreamExt, TryStreamExt};
+use futures::{ StreamExt, TryStreamExt };
 
-use log::info;
+use log::{ info, error };
 
 use rdkafka::{
   config::ClientConfig,
   consumer::stream_consumer::StreamConsumer,
   consumer::Consumer,
   message::OwnedMessage,
-  producer::{FutureProducer, FutureRecord},
+  producer::{ FutureProducer, FutureRecord },
   Message
 };
 
@@ -22,18 +24,38 @@ async fn record_owned_message_receipt(msg: &OwnedMessage) {
   info!("Message received: {}", msg.offset());
 }
 
-// Emulates an expensive, synchronous computation.
-fn expensive_computation<'a>(msg: OwnedMessage) -> String {
+async fn mozart_process<'a>(msg: OwnedMessage) -> String {
   info!("Starting expensive computation on message {}", msg.offset());
-  thread::sleep(Duration::from_millis(rand::random::<u64>() % 5000));
   info!(
     "Expensive computation completed on message {}",
     msg.offset()
   );
   match msg.payload_view::<str>() {
-    Some(Ok(payload)) => format!("Payload len for {} is {}", payload, payload.len()),
-    Some(Err(_)) => "Message payload is not a string".to_owned(),
-    None => "No payload".to_owned()
+    Some(Ok(payload)) => {
+      let key = msg.key().expect("Kafka: no key proviced!");
+      let key_str = std::str::from_utf8(&key).expect("Kafka: key is not string!");
+      let key3 = key_str.split('|')
+                        .filter(|&x| !x.is_empty())
+                        .collect::<Vec<&str>>();
+      if key3.len() < 3 {
+        return "Error: Invalid key split".to_owned();
+      }
+
+      if let Err(why) = chat_gpt2_send( Some( key3[2].parse::<u64>().unwrap() )
+                                      , key3[0].parse::<u64>().unwrap()
+                                      , payload.to_string()
+                                      , key3[1].parse::<u64>().unwrap()
+                                      , false
+                                      , false // TODO: check for russian
+                                      , 0 ).await {
+        error!("Failed to generate response, {why}");
+      } else {
+        info!("GPT2 response sent to {LUKASHENKO}!");
+      }
+      format!("Payload len for {} is {}", payload, payload.len())
+    },
+    Some(Err(_)) => "Error: Message payload is not a string".to_owned(),
+    None => "Error: No payload".to_owned()
   }
 }
 
@@ -74,22 +96,16 @@ async fn run_async_processor(
       let owned_message = borrowed_message.detach();
       record_owned_message_receipt(&owned_message).await;
       tokio::spawn(async move {
-        // The body of this block will be executed on the main thread pool,
-        // but we perform `expensive_computation` on a separate thread pool
-        // for CPU-intensive tasks via `tokio::task::spawn_blocking`.
-        let computation_result =
-          tokio::task::spawn_blocking(|| expensive_computation(owned_message))
-            .await
-            .expect("failed to wait for expensive computation");
+        let computation_result = mozart_process(owned_message).await;
         let produce_future = producer.send(
           FutureRecord::to(&output_topic)
             .key("some key")
             .payload(&computation_result),
-          Duration::from_secs(0),
+          std::time::Duration::from_secs(0)
         );
         match produce_future.await {
           Ok(delivery) => println!("Sent: {:?}", delivery),
-          Err((e, _)) => println!("Error: {:?}", e),
+          Err((e, _)) => println!("Error: {:?}", e)
         }
       });
       Ok(())

@@ -6,23 +6,20 @@ use futures::{StreamExt, TryStreamExt};
 
 use log::info;
 
-use rdkafka::config::ClientConfig;
-use rdkafka::consumer::stream_consumer::StreamConsumer;
-use rdkafka::consumer::Consumer;
-use rdkafka::message::{BorrowedMessage, OwnedMessage};
-use rdkafka::producer::{FutureProducer, FutureRecord};
-use rdkafka::Message;
+use rdkafka::{
+  config::ClientConfig,
+  consumer::stream_consumer::StreamConsumer,
+  consumer::Consumer,
+  message::OwnedMessage,
+  producer::{FutureProducer, FutureRecord},
+  Message
+};
 
-async fn record_borrowed_message_receipt(msg: &BorrowedMessage<'_>) {
-  // Simulate some work that must be done in the same order as messages are
-  // received; i.e., before truly parallel processing can begin.
-  info!("Message received: {}", msg.offset());
-}
-
-async fn record_owned_message_receipt(_msg: &OwnedMessage) {
+async fn record_owned_message_receipt(msg: &OwnedMessage) {
   // Like `record_borrowed_message_receipt`, but takes an `OwnedMessage`
   // instead, as in a real-world use case  an `OwnedMessage` might be more
   // convenient than a `BorrowedMessage`.
+  info!("Message received: {}", msg.offset());
 }
 
 // Emulates an expensive, synchronous computation.
@@ -72,7 +69,6 @@ async fn run_async_processor(
     let output_topic = output_topic.to_string();
     async move {
       // Process each message
-      record_borrowed_message_receipt(&borrowed_message).await;
       // Borrowed messages can't outlive the consumer they are received from, so they need to
       // be owned in order to be sent to a separate thread.
       let owned_message = borrowed_message.detach();
@@ -82,21 +78,37 @@ async fn run_async_processor(
         // but we perform `expensive_computation` on a separate thread pool
         // for CPU-intensive tasks via `tokio::task::spawn_blocking`.
         let computation_result =
-            tokio::task::spawn_blocking(|| expensive_computation(owned_message))
-                .await
-                .expect("failed to wait for expensive computation");
+          tokio::task::spawn_blocking(|| expensive_computation(owned_message))
+            .await
+            .expect("failed to wait for expensive computation");
         let produce_future = producer.send(
-            FutureRecord::to(&output_topic)
-                .key("some key")
-                .payload(&computation_result),
-            Duration::from_secs(0),
+          FutureRecord::to(&output_topic)
+            .key("some key")
+            .payload(&computation_result),
+          Duration::from_secs(0),
         );
         match produce_future.await {
-            Ok(delivery) => println!("Sent: {:?}", delivery),
-            Err((e, _)) => println!("Error: {:?}", e),
+          Ok(delivery) => println!("Sent: {:?}", delivery),
+          Err((e, _)) => println!("Error: {:?}", e),
         }
       });
       Ok(())
     }
   });
+
+  info!("Starting kafka event loop");
+  stream_processor.await.expect("Kafka stream processing failed");
+  info!("Kafka stream processing terminated");
+}
+
+pub fn run_with_workers(num_workers: u32) {
+  let _ = (0..num_workers).map(|_| {
+    tokio::spawn(run_async_processor(
+      "localhost:9092".to_owned(),
+      "kalmarity_group".to_owned(),
+      "Salieri".to_owned(),
+      "Kalmarity".to_owned(),
+    ))
+  }).collect::<FuturesUnordered<_>>()
+    .for_each(|_| async { () });
 }

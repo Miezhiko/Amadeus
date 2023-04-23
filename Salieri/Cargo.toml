@@ -1,20 +1,21 @@
 [package]
 name = "salieri"
 description = "Amadeus services consumer"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 
 [features]
 default             = ["kafka"]
-kafka               = ["rdkafka", "futures"]
+kafka               = ["rdkafka", "futures", "async-recursion"]
 
 [dependencies]
-mozart      = { path = "../Mozart" }
-serde       = "1"
-env_logger  = "0.10"
-log         = "0.4.17"
-anyhow      = "1"
-futures     = {version = "0.3", optional = true}
+mozart          = { path = "../Mozart" }
+serde           = "1"
+env_logger      = "0.10"
+log             = "0.4.17"
+anyhow          = "1"
+futures         = {version = "0.3", optional = true}
+async-recursion = {version = "1", optional = true}
 
 [dependencies.tokio]
 version = "1.26.0"

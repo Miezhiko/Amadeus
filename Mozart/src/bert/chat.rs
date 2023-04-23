@@ -27,7 +27,7 @@ pub async fn reinit() {
   chat_context.clear();
 }
 
-async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> anyhow::Result<String> {
+pub async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> anyhow::Result<String> {
   info!("Generating GPT2 response");
   let cache_eng_hs = CACHE_ENG_STR.lock().await;
   let mut conversation = CONVMODEL.lock().await;

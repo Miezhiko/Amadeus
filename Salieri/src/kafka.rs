@@ -1,12 +1,9 @@
-use mozart::bert::{
-  chat::chat_gpt2_send,
-  LUKASHENKO
-};
+use mozart::bert::chat::chat_gpt2;
 
 use futures::stream::FuturesUnordered;
 use futures::{ StreamExt, TryStreamExt };
 
-use log::{ info, error };
+use log::{ info, warn, error };
 
 use rdkafka::{
   config::ClientConfig,
@@ -17,6 +14,8 @@ use rdkafka::{
   Message
 };
 
+use async_recursion::async_recursion;
+
 async fn record_owned_message_receipt(msg: &OwnedMessage) {
   // Like `record_borrowed_message_receipt`, but takes an `OwnedMessage`
   // instead, as in a real-world use case  an `OwnedMessage` might be more
@@ -24,7 +23,34 @@ async fn record_owned_message_receipt(msg: &OwnedMessage) {
   info!("Message received: {}", msg.offset());
 }
 
-async fn mozart_process<'a>(msg: OwnedMessage) -> String {
+#[async_recursion]
+pub async fn chat_gpt2_kafka(msg: Option<u64>
+                           , chan: u64
+                           , something: String
+                           , user_id: u64
+                           , lsm: bool
+                           , russian: bool
+                           , gtry: u32) -> anyhow::Result<(String, String)> {
+  if gtry > 0 {
+    warn!("GPT2: trying again: {gtry}");
+  }
+  match chat_gpt2(something.clone(), user_id, lsm).await {
+    Ok(result) => {
+      let k_key = format!("{chan}|{user_id}|{}", msg.unwrap_or(0));
+      Ok((k_key, result))
+    }, Err(why) => {
+      error!("GPT2: Failed to generate response: {why}");
+      if gtry > 9 {
+        error!("GPT2: failed to generate response 10 times!");
+        Err( why )
+      } else {
+        chat_gpt2_kafka(msg, chan, something, user_id, lsm, russian, gtry + 1).await
+      }
+    }
+  }
+}
+
+async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
   info!("Starting expensive computation on message {}", msg.offset());
   info!(
     "Expensive computation completed on message {}",
@@ -38,24 +64,31 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> String {
                         .filter(|&x| !x.is_empty())
                         .collect::<Vec<&str>>();
       if key3.len() < 3 {
-        return "Error: Invalid key split".to_owned();
+        error!("Error: Invalid key split");
+        return None;
       }
 
-      if let Err(why) = chat_gpt2_send( Some( key3[2].parse::<u64>().unwrap() )
-                                      , key3[0].parse::<u64>().unwrap()
-                                      , payload.to_string()
-                                      , key3[1].parse::<u64>().unwrap()
-                                      , false
-                                      , false // TODO: check for russian
-                                      , 0 ).await {
-        error!("Failed to generate response, {why}");
-      } else {
-        info!("GPT2 response sent to {LUKASHENKO}!");
+      let gpt2gen =
+        chat_gpt2_kafka( Some( key3[2].parse::<u64>().unwrap() )
+                       , key3[0].parse::<u64>().unwrap()
+                       , payload.to_string()
+                       , key3[1].parse::<u64>().unwrap()
+                       , false
+                       , false // TODO: check for russian
+                       , 0 ).await;
+      match gpt2gen {
+        Ok(response) => Some(response),
+        Err(err) => {
+          error!("Failed to generate gpt stuff on Kafka {err}");
+          None
+        }
       }
-      format!("Payload len for {} is {}", payload, payload.len())
     },
-    Some(Err(_)) => "Error: Message payload is not a string".to_owned(),
-    None => "Error: No payload".to_owned()
+    Some(Err(_)) => {
+      error!("Error: Message payload is not a string");
+      None
+    }
+    None => None
   }
 }
 
@@ -96,16 +129,17 @@ async fn run_async_processor(
       let owned_message = borrowed_message.detach();
       record_owned_message_receipt(&owned_message).await;
       tokio::spawn(async move {
-        let computation_result = mozart_process(owned_message).await;
-        let produce_future = producer.send(
-          FutureRecord::to(&output_topic)
-            .key("some key")
-            .payload(&computation_result),
-          std::time::Duration::from_secs(0)
-        );
-        match produce_future.await {
-          Ok(delivery) => println!("Sent: {:?}", delivery),
-          Err((e, _)) => println!("Error: {:?}", e)
+        if let Some((k_key, response)) = mozart_process(owned_message).await {
+          let produce_future = producer.send(
+            FutureRecord::to(&output_topic)
+              .key(&k_key)
+              .payload(&response),
+            std::time::Duration::from_secs(0)
+          );
+          match produce_future.await {
+            Ok(delivery) => println!("Sent: {:?}", delivery),
+            Err((e, _)) => println!("Error: {:?}", e)
+          }
         }
       });
       Ok(())

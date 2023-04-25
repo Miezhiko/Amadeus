@@ -2,7 +2,7 @@ use regex::Regex;
 use once_cell::sync::Lazy;
 
 static MAP_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(
-r"^(?:s[0-9]+(?:[_|-][0-9]|))?(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+[_|-][0-9]+(?:[a-z])?)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m)?(?:_|\.)?$"
+r"^(?:s[0-9]+(?:[_|-][0-9]|))?(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+[_|-][0-9]+(?:[a-z])?)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m|nodraw)?(?:_|\.)?$"
 ).unwrap());
 
 pub fn get_race(r: u32) -> String {
@@ -110,7 +110,7 @@ fn try_get_map(m: &str) -> String {
             , "fullscaleassault"      => "Assault"
             , "northshire"            => "North Shire"
             , "golemsinthemist"       => "Gay Golems"
-            , "wellspringtemple"      => "Well Spring"
+            , "wellspringtemple"      => "Well Spring Temple"
             , "marketsquare"          => "Базарная площадь"
             , "deadlock"              => "Deadlock"
             , "northernfelwood"       => "Northen Gay Wood"
@@ -226,5 +226,7 @@ mod cyber_utils_tests {
     assert_eq!(get_map("ShatteredExilev2_06"), "Shattered Exile");
     assert_eq!(get_map("BanditsRetreatv1_1"), "Bandits Betreat");
     assert_eq!(get_map("mapNames.ShatteredExilev2-07"), "Shattered Exile");
+
+    assert_eq!(get_map("s14WellspringTemplev1_2nodraw"), "Well Spring Temple");
   }
 }

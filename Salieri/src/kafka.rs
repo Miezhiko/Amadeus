@@ -51,11 +51,7 @@ pub async fn chat_gpt2_kafka(msg: Option<u64>
 }
 
 async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
-  info!("Starting expensive computation on message {}", msg.offset());
-  info!(
-    "Expensive computation completed on message {}",
-    msg.offset()
-  );
+  info!("Generating response for Kafka message {}", msg.offset());
   match msg.payload_view::<str>() {
     Some(Ok(payload)) => {
       let key = msg.key().expect("Kafka: no key proviced!");
@@ -137,8 +133,8 @@ async fn run_async_processor(
             std::time::Duration::from_secs(0)
           );
           match produce_future.await {
-            Ok(delivery) => println!("Sent: {:?}", delivery),
-            Err((e, _)) => println!("Error: {:?}", e)
+            Ok(delivery) => println!("Kafka response sent: {:?}", delivery),
+            Err((e, _)) => println!("Error on kafka response: {:?}", e)
           }
         }
       });

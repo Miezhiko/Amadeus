@@ -107,7 +107,7 @@ branch = "main"
 optional = true
 
 [dependencies.tokio]
-version = "1.26.0"
+version = "1.28.0"
 features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
 
 [dependencies.celery]

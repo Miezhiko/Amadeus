@@ -4,7 +4,7 @@ use crate::{
          , tracking::{ TrackingGame
                      , Bet, GameMode }
          , twitch::{ Twitch, TWITCH_WC3 }
-         , goodgame::GoodGameData
+         // , goodgame::GoodGameData
          },
   common::{ db::trees::points
           , aka },
@@ -160,6 +160,7 @@ pub async fn activate_games_tracking(
                 }
               }
             }
+            /*
             if let Some(ggru) = &streams.ggru {
               let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{ggru}");
               if let Ok(gg) = rqcl.get(&ggru_link).send().await {
@@ -194,6 +195,7 @@ pub async fn activate_games_tracking(
                 };
               }
             }
+            */
           }
 
           set!{ red   = rand::thread_rng().gen_range(0..255)

@@ -124,8 +124,8 @@ pub async fn activate_games_tracking(
         if let Ok(user) = ctx_clone.http
           .get_user( UserId(to_nzu!(playa.player.discord)) ).await {
 
-          setm!{ twitch_live        = false
-               , additional_fields  = vec![]
+          setm!{ // twitch_live        = false
+                 additional_fields  = vec![]
                , image              = None
                , em_url             = None };
 
@@ -150,7 +150,7 @@ pub async fn activate_games_tracking(
                           additional_fields.push(("Live on twitch", titurl, false));
                           image       = Some(pic);
                           em_url      = Some(url);
-                          twitch_live = true;
+                          // twitch_live = true;
                         }
                       }
                     }

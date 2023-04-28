@@ -21,7 +21,7 @@ use songbird::{ Config as DriverConfig
 use serenity::{
   framework::StandardFramework,
   model::{ gateway::GatewayIntents
-         , id::ApplicationId }
+         , id::ApplicationId, id::UserId }
 };
 
 use tracing::{ Level, instrument };
@@ -55,6 +55,9 @@ pub async fn run(opts: IOptions) ->
       } else {
         if let Some(owner) = info.owner {
           owners.insert(owner.id);
+        } else {
+          // hack for now
+          owners.insert( UserId( to_nzu!(510368731378089984) ) );
         }
       }
       match http.get_current_user().await {

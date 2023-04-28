@@ -44,7 +44,7 @@ static Q4T: AtomicU32 = AtomicU32::new(0);
 static LAST_QTIME_UPDATE: Lazy<Mutex<DateTime<Utc>>> =
   Lazy::new(|| Mutex::new(Utc::now()));
 
-pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(12);
+pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(15);
 static ONGOING_PAGE_SIZE: usize = 15;
 
 #[cfg(feature = "trackers")]

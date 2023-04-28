@@ -40,8 +40,10 @@ pub async fn admin_check( ctx: &Context
           if msg.author.id == team.owner_user_id {
             return Ok(());
           }
-        } else if msg.author.id == info.owner.id {
-          return Ok(());
+        } else if let Some(owner) = info.owner {
+          if msg.author.id == owner.id {
+            return Ok(());
+          }
         }
       }
     }

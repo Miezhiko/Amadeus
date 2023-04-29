@@ -81,6 +81,7 @@ pub async fn process( ioptions: &IOptions
     || msg.author.id.0 == to_nzu!( 1049413890276077690 )
     || msg.author.id.0 == to_nzu!( 504095380166803466 )
     || msg.author.id.0 == to_nzu!( 1096396952117198868 )
+    || msg.author.id.0 == to_nzu!( 1053015370115588147 )
     || msg.author.id.0 == to_nzu!( 936929561302675456 )  {
       return;
     }

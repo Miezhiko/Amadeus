@@ -4,7 +4,6 @@ use crate::{
          , tracking::{ TrackingGame
                      , Bet, GameMode }
          , twitch::{ Twitch, TWITCH_WC3 }
-         // , goodgame::GoodGameData
          },
   common::{ db::trees::points
           , aka },
@@ -12,6 +11,9 @@ use crate::{
   steins::warcraft::{ aka_checker::AKA
                     , poller::{ self, checker } }
 };
+
+#[cfg(feature = "ggru")]
+use crate::types::goodgame::GoodGameData;
 
 use chrono::{ Timelike, Datelike, Weekday };
 use serenity::{ prelude::*
@@ -124,8 +126,9 @@ pub async fn activate_games_tracking(
         if let Ok(user) = ctx_clone.http
           .get_user( UserId(to_nzu!(playa.player.discord)) ).await {
 
-          setm!{ // twitch_live        = false
-                 additional_fields  = vec![]
+          #[cfg(feature = "ggru")]
+          let mut twitch_live = false;
+          setm!{ additional_fields  = vec![]
                , image              = None
                , em_url             = None };
 
@@ -150,7 +153,10 @@ pub async fn activate_games_tracking(
                           additional_fields.push(("Live on twitch", titurl, false));
                           image       = Some(pic);
                           em_url      = Some(url);
-                          // twitch_live = true;
+                          #[cfg(feature = "ggru")]
+                          {
+                            twitch_live = true;
+                          }
                         }
                       }
                     }
@@ -160,7 +166,7 @@ pub async fn activate_games_tracking(
                 }
               }
             }
-            /*
+            #[cfg(feature = "ggru")]
             if let Some(ggru) = &streams.ggru {
               let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{ggru}");
               if let Ok(gg) = rqcl.get(&ggru_link).send().await {
@@ -195,7 +201,6 @@ pub async fn activate_games_tracking(
                 };
               }
             }
-            */
           }
 
           set!{ red   = rand::thread_rng().gen_range(0..255)

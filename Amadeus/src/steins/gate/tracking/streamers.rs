@@ -2,7 +2,6 @@ use crate::{
   types::{ options::IOptions
          , tracking::{ TrackingGame, GameMode }
          , twitch::Twitch
-         // , goodgame::GoodGameData
          },
   collections::team::{ ALL, DISCORDS },
   common::constants::{ LIVE_ROLE
@@ -18,6 +17,9 @@ use serenity::{
              , MessageId
              , UserId }
 };
+
+#[cfg(feature = "ggru")]
+use crate::types::goodgame::GoodGameData;
 
 use std::{ collections::HashMap
          , time
@@ -175,7 +177,7 @@ pub async fn activate_streamers_tracking(
                 }
               }
             }
-            /*
+            #[cfg(feature = "ggru")]
             if streams.ggru.is_some() {
               let ggru = streams.ggru.clone().unwrap();
               let ggru_link = format!("http://api2.goodgame.ru/v2/streams/{}", &ggru);
@@ -211,7 +213,6 @@ pub async fn activate_streamers_tracking(
                 };
               }
             }
-            */
           } else { continue; }
 
           if !additional_fields.is_empty() {

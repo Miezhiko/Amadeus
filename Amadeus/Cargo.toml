@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "10.5.6"
+version             = "10.5.7"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -17,6 +17,7 @@ torch               = []
 spam_filter         = []
 flo                 = ["tonic", "hex", "flo-grpc"]
 full                = ["flo", "trackers"]
+ggru                = []
 
 [dependencies]
 mozart              = { path = "../Mozart" }

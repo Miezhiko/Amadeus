@@ -3,8 +3,6 @@
 
 import           Hake
 
-import           Data.List (intercalate)
-
 main ∷ IO ()
 main = hake $ do
 

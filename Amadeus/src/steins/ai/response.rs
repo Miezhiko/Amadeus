@@ -1,9 +1,7 @@
 use crate::{
   types::serenity::{ IContext
                    , ChannelLanguage },
-  common::{ help::lang
-          , msg::{ reply, channel_message }
-  },
+  common::msg::{ reply, channel_message },
   collections::base::CASELIST,
   collections::channels::AI_ALLOWED,
   steins::ai::{ cache::KATHOEY
@@ -17,6 +15,8 @@ use serenity::{
 };
 
 use rand::Rng;
+
+use mozart::help::lang;
 
 use tokio::time::{ sleep, Duration };
 use async_recursion::async_recursion;

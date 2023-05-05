@@ -1,8 +1,7 @@
 use crate::{
   salieri::SALIERI,
   types::serenity::{ AllGuilds, ChannelLanguage },
-  common::{ help::lang
-          , constants::PREFIX
+  common::{ constants::PREFIX
           , db::trees::{ messages::{ register, check_registration }
                        , LSUF, ZSUF, RSUF, MSUF }
   },
@@ -24,6 +23,8 @@ use serenity::{
   gateway::ActivityData,
   futures::StreamExt
 };
+
+use mozart::help::lang;
 
 use std::sync::atomic::Ordering;
 use async_std::fs;

@@ -1,8 +1,7 @@
 use crate::{
   types::serenity::{ ChannelLanguage
                    , AllGuilds },
-  common::{ help::lang
-          , constants::PREFIX
+  common::{ constants::PREFIX
           , db::trees::messages::{ register, check_registration }
   },
   collections::base::{ OBFUSCATION
@@ -34,6 +33,7 @@ use tokio::sync::MutexGuard;
 
 use std::collections::HashMap;
 
+use mozart::help::lang;
 use mozart::bert::{ RE1, RE2, RE3 };
 
 pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Option<String> {

@@ -1,12 +1,13 @@
 [package]
 name = "salieri"
 description = "Amadeus services consumer"
-version = "0.2.3"
+version = "0.3.0"
 edition = "2021"
 
 [features]
-default             = ["kafka"]
+default             = ["kafka", "gpt4free"]
 kafka               = ["rdkafka", "futures", "async-recursion"]
+gpt4free            = ["inline-python"]
 
 [dependencies]
 mozart          = { path = "../Mozart" }
@@ -16,6 +17,7 @@ log             = "0.4.17"
 anyhow          = "1"
 futures         = {version = "0.3", optional = true}
 async-recursion = {version = "1", optional = true}
+inline-python   = {version = "0.10", optional = true}
 
 [dependencies.tokio]
 version = "1.28.0"

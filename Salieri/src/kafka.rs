@@ -16,6 +16,9 @@ use rdkafka::{
 
 use async_recursion::async_recursion;
 
+#[cfg(feature = "gpt4free")]
+use crate::gpt4free;
+
 async fn record_owned_message_receipt(msg: &OwnedMessage) {
   // Like `record_borrowed_message_receipt`, but takes an `OwnedMessage`
   // instead, as in a real-world use case  an `OwnedMessage` might be more
@@ -23,8 +26,9 @@ async fn record_owned_message_receipt(msg: &OwnedMessage) {
   info!("Message received: {}", msg.offset());
 }
 
+#[cfg(not(feature = "gpt4free"))]
 #[async_recursion]
-pub async fn chat_gpt2_kafka(msg: Option<u64>
+pub async fn chat_gpt2_kafka(msg: u64
                            , chan: u64
                            , something: String
                            , user_id: u64
@@ -36,7 +40,7 @@ pub async fn chat_gpt2_kafka(msg: Option<u64>
   }
   match chat_gpt2(something.clone(), user_id, lsm).await {
     Ok(result) => {
-      let k_key = format!("{chan}|{user_id}|{}", msg.unwrap_or(0));
+      let k_key = format!("{chan}|{user_id}|{msg}");
       Ok((k_key, result))
     }, Err(why) => {
       error!("GPT2: Failed to generate response: {why}");
@@ -64,19 +68,35 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         return None;
       }
 
-      let gpt2gen =
-        chat_gpt2_kafka( Some( key3[2].parse::<u64>().unwrap() )
-                       , key3[0].parse::<u64>().unwrap()
-                       , payload.to_string()
-                       , key3[1].parse::<u64>().unwrap()
-                       , false
-                       , false // TODO: check for russian
-                       , 0 ).await;
-      match gpt2gen {
-        Ok(response) => Some(response),
-        Err(err) => {
-          error!("Failed to generate gpt stuff on Kafka {err}");
+      #[cfg(feature = "gpt4free")]
+      {
+        // TODO: fallback to bert
+        if let Ok(gpt4free_result) = gpt4free::generate( payload ) {
+          let chan      = key3[0].parse::<u64>().unwrap();
+          let user_id   = key3[1].parse::<u64>().unwrap();
+          let msg       = key3[2].parse::<u64>().unwrap();
+          let k_key     = format!("{chan}|{user_id}|{msg}");
+          Some((k_key, gpt4free_result))
+        } else {
           None
+        }
+      }
+      #[cfg(not(feature = "gpt4free"))]
+      {
+        let gpt2gen =
+          chat_gpt2_kafka( key3[2].parse::<u64>().unwrap_or(0)
+                         , key3[0].parse::<u64>().unwrap()
+                         , payload.to_string()
+                         , key3[1].parse::<u64>().unwrap()
+                         , false
+                         , false // TODO: check for russian
+                         , 0 ).await;
+        match gpt2gen {
+          Ok(response) => Some(response),
+          Err(err) => {
+            error!("Failed to generate gpt stuff on Kafka {err}");
+            None
+          }
         }
       }
     },

@@ -17,7 +17,7 @@
   <a href="#notes">Notes</a>
 </p>
 
-<h2 align="center">Looking for hosting.</h2>
+<h2 align="center">Looking for a [drinks](https://www.youtube.com/watch?v=J_8cnSvHLLc) and hosting.</h2>
 
 [![Build Status](https://dev.azure.com/miezhiko/Amadeus/_apis/build/status/Miezhiko.Amadeus?branchName=mawa)](https://dev.azure.com/miezhiko/Amadeus/_build/latest?definitionId=1&branchName=mawa)
 [![GitHub](https://github.com/Miezhiko/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Miezhiko/Amadeus/actions/workflows/mawa.yml)
@@ -34,7 +34,7 @@
 
 <img align="right" src="https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png">
 
- - Too many small commands (use `~help`)
+ - Too many small [commands](https://www.youtube.com/watch?v=vVacOaFbrdE) (use `~help`)
  - Slash commands support (type `/`)
  - Chatty (`set activity 66` is default)
  - Automatic translation with bert models
@@ -66,6 +66,8 @@
  - Using tokio [UnixStream](https://docs.rs/tokio/1.17.0/tokio/net/struct.UnixStream.html#method.try_read_buf) on various sockets for IPC
  - Warcraft 3 Status Grid with active players on modes and weekly team players statistics.
  - [FloTV](https://w3flo.com/live) tokens generation using GraphQL API to [Flo Stats](https://stats.w3flo.com).
+ - [Kafka](https://kafka.apache.org) interface for Salieri service to work with [Kalmarity](https://github.com/Miezhiko/Kalmarity)
+ - [gpt4free] interfaces on Saliri service using inline python under `catch_unwind`.
 
 <img src="https://cdn.discordapp.com/attachments/249111029668249601/1025077275525382234/unknown.png">
 
@@ -140,8 +142,9 @@ The models will be downloaded to the environment variable `RUSTBERT_CACHE` if it
  - **Amadeus** is discord bot service on Serenity
  - **Mozart** is set of tasks running on distributed tasks queue
  - **Salieri** is celery daemon running on rabbitmq and processing tasks
+ - [Kalmarity](https://github.com/Miezhiko/Kalmarity) is separated bot using **Salieri** service
 
-*rustfmt usage is forbidden*
+*rustfmt usage is forbidden*, *stylish-haskell is a must*
 
 ## Service
 
@@ -163,6 +166,9 @@ systemctl restart Amadeus
 
  - Check [TODO.md](https://github.com/Miezhiko/Amadeus/blob/mawa/TODO.md) for planned work (also if you want to help me)
  - deepspeech mode was dropped (due bad voice to text model quality)
- - Code open sourced just for my friend Sirius to be able to see it, please pay attention to [LICENSE.md](https://github.com/Miezhiko/Amadeus/blob/mawa/LICENSE.md)
+ - Code open sourced just for my friend Sirius to be able to see it, please don't pay [attention](https://www.youtube.com/watch?v=sKy6dSHn9Z8)
  - Fingon is cute
  - Additional thank to @fluxxu for removing my ban on W3C (this was kind of important for my motivation to improve flo/w3c aspects of Amadeus)
+ - Eventually I will rewrite this stuff since there are a lot of code and some of it is becoming legacy, I'm thinking about [Timely Dataflow](https://github.com/TimelyDataflow/timely-dataflow) architecture and probably that work could be in some separated repository if I will still be able to waste my time on such things.
+ - I feel sad
+

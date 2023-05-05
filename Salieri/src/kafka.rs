@@ -55,8 +55,9 @@ pub async fn chat_gpt2_kafka(msg: u64
 
 async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
   info!("Generating response for Kafka message {}", msg.offset());
-  match msg.payload_view::<str>() {
-    Some(Ok(payload)) => {
+  match msg.payload() {
+    Some(payload_bytes) => {
+      let payload = std::str::from_utf8(payload_bytes).expect("Kafka: payload is not UTF8");
       let key = msg.key().expect("Kafka: no key proviced!");
       let key_str = std::str::from_utf8(&key).expect("Kafka: key is not string!");
       let key3 = key_str.split('|')
@@ -112,10 +113,6 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         }
       }
     },
-    Some(Err(_)) => {
-      error!("Error: Message payload is not a string");
-      None
-    }
     None => None
   }
 }

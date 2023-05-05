@@ -4,8 +4,7 @@ use std::panic::catch_unwind;
 
 use anyhow::bail;
 
-use mozart::help::lang;
-
+// encoded_prompt = prompt.encode("utf-8")
 pub fn generate(prompt: &str) -> anyhow::Result<String> {
   match catch_unwind(|| {
     let c = Context::new();

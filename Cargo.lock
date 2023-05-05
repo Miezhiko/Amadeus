@@ -4547,7 +4547,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "salieri"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "async-recursion",

@@ -4,6 +4,7 @@ extern crate serde;
 
 pub mod types;
 pub mod cache;
+pub mod help;
 
 #[cfg(not(target_os = "windows"))]
 pub mod bert;

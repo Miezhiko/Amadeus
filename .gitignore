@@ -3,6 +3,7 @@
 /cache/
 /node_modules/
 /.vscode/
+/misc/__pycache__/
 
 package-lock.json
 

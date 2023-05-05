@@ -8,7 +8,6 @@ use crate::{
             }
           },
   common::{ db::trees::points
-          , help::lang
           , msg::channel_message
           , constants::{ PREFIX, UNBLOCK_ROLE }
           },
@@ -17,6 +16,8 @@ use crate::{
                , team::DISCORDS
                }
 };
+
+use mozart::help::lang;
 
 #[cfg(feature = "spam_filter")]
 use crate::spam::spam_check;

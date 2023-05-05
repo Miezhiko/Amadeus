@@ -17,7 +17,7 @@
   <a href="#notes">Notes</a>
 </p>
 
-<h2 align="center">Looking for a [drinks](https://www.youtube.com/watch?v=J_8cnSvHLLc) and hosting.</h2>
+<h2 align="center">Looking for a drinks and hosting.</h2>
 
 [![Build Status](https://dev.azure.com/miezhiko/Amadeus/_apis/build/status/Miezhiko.Amadeus?branchName=mawa)](https://dev.azure.com/miezhiko/Amadeus/_build/latest?definitionId=1&branchName=mawa)
 [![GitHub](https://github.com/Miezhiko/Amadeus/workflows/mawa/badge.svg?branch=mawa)](https://github.com/Miezhiko/Amadeus/actions/workflows/mawa.yml)
@@ -36,7 +36,7 @@
 
  - Too many small [commands](https://www.youtube.com/watch?v=vVacOaFbrdE) (use `~help`)
  - Slash commands support (type `/`)
- - Chatty (`set activity 66` is default)
+ - [Chatty](https://www.youtube.com/watch?v=J_8cnSvHLLc) (`set activity 66` is default)
  - Automatic translation with bert models
  - Live games tracking on [w3champions](https://www.w3champions.com)
  - W3info news tracking using calendar

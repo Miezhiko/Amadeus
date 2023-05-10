@@ -99,7 +99,10 @@ pub async fn parse_member(ctx: &Context, msg: &Message, member_name: String) -> 
       let mut members_string =  stream::iter(members.iter())
         .map(|m| async move {
           let member = &m.user;
-          format!("`{}#{}`|", member.name, member.discriminator)
+          format!("`{}#{}`|", member.name
+                            , member.discriminator
+                                    .unwrap_or( std::num::NonZeroU16::new(1).unwrap() )
+                 )
         })
         .fold(String::new(), |mut acc, c| async move {
           acc.push_str(&c.await);

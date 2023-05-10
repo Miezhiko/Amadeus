@@ -31,13 +31,12 @@ pub async fn chat_gpt2_kafka(msg: u64
                            , chan: u64
                            , something: String
                            , user_id: u64
-                           , lsm: bool
                            , russian: bool
                            , gtry: u32) -> anyhow::Result<(String, String)> {
   if gtry > 0 {
     warn!("GPT2: trying again: {gtry}");
   }
-  match chat_gpt2(something.clone(), user_id, lsm).await {
+  match chat_gpt2(something.clone(), user_id, true).await {
     Ok(result) => {
       let k_key = format!("{chan}|{user_id}|{msg}");
       Ok((k_key, result))
@@ -47,7 +46,7 @@ pub async fn chat_gpt2_kafka(msg: u64
         error!("GPT2: failed to generate response 10 times!");
         Err( why )
       } else {
-        chat_gpt2_kafka(msg, chan, something, user_id, lsm, russian, gtry + 1).await
+        chat_gpt2_kafka(msg, chan, something, user_id, russian, gtry + 1).await
       }
     }
   }
@@ -82,7 +81,6 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
                         , key3[0].parse::<u64>().unwrap()
                         , payload.to_string()
                         , key3[1].parse::<u64>().unwrap()
-                        , false
                         , false // TODO: check for russian
                         , 0 ).await;
           match gpt2gen {

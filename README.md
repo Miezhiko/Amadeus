@@ -48,7 +48,7 @@
  - Using [Fluent](https://www.projectfluent.org/) for localization
  - [Sled](https://github.com/spacejam/sled) for editable info archive
  - Plays music streams using [Songbird](https://github.com/serenity-rs/songbird)! (`~join ~play`)
- - Transfer learning using chats context (models: [DialoGPT](https://github.com/microsoft/DialoGPT) [GPT-Neo](https://github.com/EleutherAI/gpt-neo), [DistilBERT](https://arxiv.org/abs/1910.01108) fine-tuned on SQuAD) and more
+ - NLP with context (models: [DialoGPT](https://github.com/microsoft/DialoGPT) [GPT-Neo](https://github.com/EleutherAI/gpt-neo), [DistilBERT](https://arxiv.org/abs/1910.01108) fine-tuned on SQuAD) and more
  - [Dhall](https://dhall-lang.org) and YAML config files, dhall for per-guild teams configurations
  - Multi-server streams notifications/trackers for twitch and goodgame.ru (using channels from dhall conf)
  - Tracking pull requests of watching by some user repositories on GitHub and posting detailed PR embeds
@@ -67,7 +67,7 @@
  - Warcraft 3 Status Grid with active players on modes and weekly team players statistics.
  - [FloTV](https://w3flo.com/live) tokens generation using GraphQL API to [Flo Stats](https://stats.w3flo.com).
  - [Kafka](https://kafka.apache.org) interface for Salieri service to work with [Kalmarity](https://github.com/Miezhiko/Kalmarity)
- - [gpt4free] interfaces on Saliri service using inline python under `catch_unwind`.
+ - [gpt4free](https://github.com/xtekky/gpt4free) interfaces on Saliri service using inline python under `catch_unwind`.
 
 <img src="https://cdn.discordapp.com/attachments/249111029668249601/1025077275525382234/unknown.png">
 

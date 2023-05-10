@@ -27,7 +27,7 @@ branch = "master"
 features = [ "remote" ]
 
 [dependencies.tokio]
-version = "1.28.0"
+version = "1.28.1"
 features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
 
 [dependencies.celery]

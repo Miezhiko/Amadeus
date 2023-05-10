@@ -32,14 +32,14 @@ pub async fn chat_gpt2_kafka(msg: u64
                            , something: String
                            , user_id: u64
                            , russian: bool
-                           , gtry: u32) -> anyhow::Result<(String, String)> {
+                           , gtry: u32) -> anyhow::Result<(String, Vec<String>)> {
   if gtry > 0 {
     warn!("GPT2: trying again: {gtry}");
   }
   match chat_gpt2(something.clone(), user_id, true).await {
     Ok(result) => {
       let k_key = format!("{chan}|{user_id}|{msg}");
-      Ok((k_key, result))
+      Ok((k_key, vec![result]))
     }, Err(why) => {
       error!("GPT2: Failed to generate response: {why}");
       if gtry > 9 {
@@ -52,7 +52,7 @@ pub async fn chat_gpt2_kafka(msg: u64
   }
 }
 
-async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
+async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, Vec<String>)> {
   info!("Generating response for Kafka message {}", msg.offset());
   match msg.payload() {
     Some(payload_bytes) => {
@@ -152,16 +152,18 @@ async fn run_async_processor(
       let owned_message = borrowed_message.detach();
       record_owned_message_receipt(&owned_message).await;
       tokio::spawn(async move {
-        if let Some((k_key, response)) = mozart_process(owned_message).await {
-          let produce_future = producer.send(
-            FutureRecord::to(&output_topic)
-              .key(&k_key)
-              .payload(&response),
-            std::time::Duration::from_secs(0)
-          );
-          match produce_future.await {
-            Ok(delivery) => println!("Kafka response sent: {:?}", delivery),
-            Err((e, _)) => println!("Error on kafka response: {:?}", e)
+        if let Some((k_key, responses)) = mozart_process(owned_message).await {
+          for response in responses {
+            let produce_future = producer.send(
+              FutureRecord::to(&output_topic)
+                .key(&k_key)
+                .payload(&response),
+              std::time::Duration::from_secs(0)
+            );
+            match produce_future.await {
+              Ok(delivery)  => println!("Kafka response sent: {:?}", delivery),
+              Err((e, _))   => println!("Error on kafka response: {:?}", e)
+            }
           }
         }
       });

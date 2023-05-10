@@ -1,6 +1,6 @@
 use crate::{
   common::{ system
-          , constants::GITHUB_PRS }
+          , constants::MAIN_LOG }
 };
 
 #[cfg(not(target_os = "windows"))]
@@ -56,7 +56,7 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
         let mem_mb = amadeus_mb + salier_mb;
         // USE 24 GB RAM LIMIT FOR NOW
         if mem_mb > 1024.0 * 24.0 {
-          if let Err(why) = system::upgrade::upgrade_amadeus(&ctx_clone, GITHUB_PRS).await {
+          if let Err(why) = system::upgrade::upgrade_amadeus(&ctx_clone, MAIN_LOG).await {
             error!("Failed to run upgrade {:?}", why);
           }
         } else if mem_mb > 1024.0 * 13.0 {

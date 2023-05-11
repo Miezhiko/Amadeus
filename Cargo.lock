@@ -98,7 +98,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.5.9"
+version = "10.6.0"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -2900,7 +2900,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.36"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "async-recursion",

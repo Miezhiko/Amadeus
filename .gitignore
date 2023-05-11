@@ -3,7 +3,7 @@
 /cache/
 /node_modules/
 /.vscode/
-/misc/__pycache__/
+/misc/gpt4free-tests/__pycache__/
 
 package-lock.json
 
@@ -12,9 +12,6 @@ conf.yml
 weekly.yml
 mmm.yml
 giveaway.yml
-
-# secret commands, tokens and stuff
-misc/secret
 
 *.png
 *.w3g
@@ -25,3 +22,6 @@ hake
 
 # deepseach models
 ds/
+
+# gpt4free stuff
+*.txt

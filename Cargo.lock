@@ -98,7 +98,7 @@ dependencies = [
 
 [[package]]
 name = "amadeus"
-version = "10.5.8"
+version = "10.5.9"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -657,7 +657,8 @@ dependencies = [
 [[package]]
 name = "celery"
 version = "0.5.3"
-source = "git+https://github.com/rusty-celery/rusty-celery.git?branch=main#74c7cfeacaeeef1de836e901f73c7e99c7ff94a1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb13ea01bdba539dfe56a2c6b83594a1d01944a89979dd9d0f998cb631b6249c"
 dependencies = [
  "async-trait",
  "base64 0.21.0",
@@ -686,7 +687,8 @@ dependencies = [
 [[package]]
 name = "celery-codegen"
 version = "0.5.3"
-source = "git+https://github.com/rusty-celery/rusty-celery.git?branch=main#74c7cfeacaeeef1de836e901f73c7e99c7ff94a1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9546f0dc45d5d99441c5541eec523e2cc27b8588eb6ff34666838df5cff91544"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2898,7 +2900,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.2.35"
+version = "0.2.36"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -4547,7 +4549,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 
 [[package]]
 name = "salieri"
-version = "0.3.4"
+version = "0.3.6"
 dependencies = [
  "anyhow",
  "async-recursion",

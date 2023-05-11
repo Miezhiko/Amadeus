@@ -38,7 +38,7 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
               current_string = current_string[1980:]
           if current_string:
             result.append(current_string)
-            message_id = rspns["id"]
+          message_id = rspns["id"]
       except OSError as err:
         result = [("OS Error! {0}".format(err))]
         reslt = False
@@ -49,9 +49,9 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
         , c.get::<Vec<String>>("result")
         , c.get::<String>("message_id") )
   }) {
-    Ok((r,m,msgId)) => {
+    Ok((r,m,new_msg)) => {
       if r {
-        *msg_lock = msgId;
+        *msg_lock = new_msg;
         Ok(m)
       } else {
         bail!("No tokens generated: {:?}", m)

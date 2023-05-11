@@ -4,16 +4,24 @@ use std::panic::catch_unwind;
 
 use anyhow::bail;
 
-pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
+use once_cell::sync::Lazy;
+
+use tokio::sync::Mutex;
+
+static MYMSG: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new( String::from("") ));
+
+pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
+  let mut msg_lock = MYMSG.lock().await;
+  let tmp_msg = msg_lock.as_str();
   match catch_unwind(|| {
     let c = Context::new();
     c.set("prompt", prompt);
+    c.set("message_id", tmp_msg);
     c.run(python! {
       import sys
       import os
       from gpt4free import usesless
 
-      message_id = ""
       result = []
       try:
         rspns = usesless.Completion.create(prompt=prompt, parentMessageId=message_id)
@@ -30,7 +38,7 @@ pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
               current_string = current_string[1980:]
           if current_string:
             result.append(current_string)
-          message_id = rspns["id"]
+            message_id = rspns["id"]
       except OSError as err:
         result = [("OS Error! {0}".format(err))]
         reslt = False
@@ -38,10 +46,14 @@ pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
         result = [("Runtime Error! {0}".format(err))]
         reslt = False
     }); ( c.get::<bool>("reslt")
-        , c.get::<Vec<String>>("result") )
+        , c.get::<Vec<String>>("result")
+        , c.get::<String>("message_id") )
   }) {
-    Ok((r,m)) => {
-      if r { Ok(m) } else {
+    Ok((r,m,msgId)) => {
+      if r {
+        *msg_lock = msgId;
+        Ok(m)
+      } else {
         bail!("No tokens generated: {:?}", m)
       }
     }, Err(_) => { bail!("Failed to to use gpt4free::useless now!") }

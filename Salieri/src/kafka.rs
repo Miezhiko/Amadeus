@@ -73,9 +73,9 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, Vec<String>)> 
         let user_id   = key3[1].parse::<u64>().unwrap();
         let msg       = key3[2].parse::<u64>().unwrap();
         let k_key     = format!("{chan}|{user_id}|{msg}");
-        if let Ok(gpt4free_result) = gpt4free::theb::generate( payload ) {
+        if let Ok(gpt4free_result) = gpt4free::useless::generate( payload ).await {
           Some((k_key, gpt4free_result))
-        } else if let Ok(gpt4free_result) = gpt4free::useless::generate( payload ) {
+        } else if let Ok(gpt4free_result) = gpt4free::theb::generate( payload ) {
           Some((k_key, gpt4free_result))
         } else {
           let gpt2gen =

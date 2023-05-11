@@ -42,6 +42,7 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
             , bert::summarization::SUMMARIZE
             , bert::xlnet::XLNET
             , bert::code::CODEBERT
+            , bert::gptj::GPTJ
             ],
     task_routes = [
       "*" => SALIERI_SERVICE,

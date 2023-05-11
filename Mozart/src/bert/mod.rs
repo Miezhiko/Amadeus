@@ -5,6 +5,7 @@ pub mod neo;
 pub mod summarization;
 pub mod xlnet;
 pub mod code;
+pub mod gptj;
 
 use regex::Regex;
 

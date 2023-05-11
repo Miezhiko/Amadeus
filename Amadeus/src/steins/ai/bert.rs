@@ -11,7 +11,8 @@ use mozart::{
         , neo::CHAT_NEO
         , summarization::SUMMARIZE
         , xlnet::XLNET
-        , code::CODEBERT }
+        , code::CODEBERT
+        , gptj::GPTJ }
 };
 
 async fn salieri_request<T>( sig: celery::task::Signature<T>
@@ -80,13 +81,22 @@ pub async fn codebert( msg: Option<u64>
   salieri_request(CODEBERT::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
+pub async fn gptj( msg: Option<u64>
+                 , chan: u64
+                 , something: String
+                 , user_id: u64
+                 , lsm: bool
+                 , russian: bool ) -> Result<Option<String>> {
+  salieri_request(GPTJ::new(msg, chan, something, user_id, lsm, russian)).await
+}
+
 pub async fn chat( msg: Option<u64>
                  , chan: u64
                  , something: String
                  , user_id: u64
                  , lsm: bool
                  , russian: bool ) -> Result<Option<String>> {
-  let rndx = rand::thread_rng().gen_range(0..30);
+  let rndx = rand::thread_rng().gen_range(0..32);
   let mut input = process_message_for_gpt(&something);
   if input.len() > GPT_LIMIT {
     if let Some((i, _)) = input.char_indices().rev().nth(GPT_LIMIT) {
@@ -101,6 +111,7 @@ pub async fn chat( msg: Option<u64>
     1 => summarize  (msg, chan, input, user_id, lsm, russian).await,
     2 => xlnet      (msg, chan, input, user_id, lsm, russian).await,
     3 => codebert   (msg, chan, input, user_id, lsm, russian).await,
+    4 => gptj       (msg, chan, input, user_id, lsm, russian).await,
     _ => chat_gpt2  (msg, chan, input, user_id, lsm, russian).await
   }
 }

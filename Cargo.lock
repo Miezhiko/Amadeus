@@ -858,7 +858,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#4a88111f676a2a987f7000dc85d60e7ccd2d994d"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#382a17e5b8159db913b63fde5b30fcd399c4fe9a"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2900,7 +2900,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -4357,7 +4357,7 @@ dependencies = [
 [[package]]
 name = "rust-bert"
 version = "0.20.1-alpha"
-source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#9fd7983878d500cd0d6abc2fc13696aa8618bfc6"
+source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#5f9500c54a4e06cec3c999e20e91a4ab3f93514a"
 dependencies = [
  "cached-path",
  "dirs",
@@ -4546,6 +4546,16 @@ name = "ryu"
 version = "1.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
+
+[[package]]
+name = "safetensors"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1d818a2cb3f564a1844be835011acf5c7ec8ad1986a47f73abc7b5fea91cc3a"
+dependencies = [
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "salieri"
@@ -4824,7 +4834,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#4a88111f676a2a987f7000dc85d60e7ccd2d994d"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#382a17e5b8159db913b63fde5b30fcd399c4fe9a"
 dependencies = [
  "async-trait",
  "base64 0.21.0",
@@ -4857,7 +4867,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#4a88111f676a2a987f7000dc85d60e7ccd2d994d"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#382a17e5b8159db913b63fde5b30fcd399c4fe9a"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -5269,15 +5279,16 @@ checksum = "fd1ba337640d60c3e96bc6f0638a939b9c9a7f2c316a1598c279828b3d1dc8c5"
 
 [[package]]
 name = "tch"
-version = "0.11.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3394fea57e43ef3708196025beb3445dc13998b162f972233f11b9fdf091401"
+checksum = "1d16bd7ae15424f3e0f7c47c86ace947c14005c25340ac8c528b5e0ad001bfc8"
 dependencies = [
  "half 2.2.1",
  "lazy_static",
  "libc",
  "ndarray",
  "rand 0.8.5",
+ "safetensors",
  "thiserror",
  "torch-sys",
  "zip",
@@ -5617,13 +5628,15 @@ dependencies = [
 
 [[package]]
 name = "torch-sys"
-version = "0.11.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ff928d3e632acda675e388d8e0efe526136350620800cc770e3727c9abc6ea1"
+checksum = "c9f191dd20c1c765c2a4cf1a0edf9b4f3a2ce7cb81a9c2384cc6a7a69f37f1c5"
 dependencies = [
  "anyhow",
  "cc",
  "libc",
+ "serde",
+ "serde_json",
  "ureq",
  "zip",
 ]
@@ -5686,9 +5699,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-core"
-version = "0.1.30"
+version = "0.1.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24eb03ba0eab1fd845050058ce5e616558e8f8d8fca633e6b163fe25c797213a"
+checksum = "0955b8137a1df6f1a2e9a37d8a6656291ff0297c1a97c24e0d8425fe2312f79a"
 dependencies = [
  "once_cell",
  "valuable",
@@ -6022,6 +6035,8 @@ dependencies = [
  "log",
  "once_cell",
  "rustls 0.20.8",
+ "serde",
+ "serde_json",
  "url",
  "webpki",
  "webpki-roots",

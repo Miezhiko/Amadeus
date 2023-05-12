@@ -14,16 +14,13 @@ mozart          = { path = "../Mozart" }
 serde           = { workspace = true }
 anyhow          = { workspace = true }
 celery          = { workspace = true }
+tokio           = { workspace = true }
 env_logger      = "0.10"
 log             = "0.4.17"
 futures         = {version = "0.3", optional = true}
 async-recursion = { optional = true, workspace = true }
 inline-python   = {version = "0.10", optional = true}
 once_cell       = { optional = true, workspace = true }
-
-[dependencies.tokio]
-features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
-workspace = true
 
 [dependencies.rdkafka]
 version = "0.29"

@@ -1,7 +1,7 @@
 [package]
 name = "mozart"
 description = "Amadeus services library"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 
 [lib]
@@ -13,12 +13,13 @@ anyhow          = { workspace = true }
 once_cell       = { workspace = true }
 async-recursion = { workspace = true }
 celery          = { workspace = true }
+tokio           = { workspace = true }
 log             = "0.4.17"
 rand            = "0.8.5"
 chrono          = "0.4.24"
-bincode         = "2.0.0-rc.2"
-regex           = "1.7"
-tch             = "0.11.0"
+bincode         = "2.0.0-rc.3"
+regex           = "1.8"
+tch             = "0.12"
 ucd             = "0.1.1"
 
 [dependencies.rust-bert]
@@ -26,7 +27,3 @@ default-features = false
 git = "https://github.com/guillaume-be/rust-bert.git"
 branch = "master"
 features = [ "remote" ]
-
-[dependencies.tokio]
-features = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
-workspace = true

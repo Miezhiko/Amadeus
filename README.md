@@ -169,6 +169,4 @@ systemctl restart Amadeus
  - Code open sourced just for my friend Sirius to be able to see it, please don't pay [attention](https://www.youtube.com/watch?v=sKy6dSHn9Z8)
  - Fingon is cute
  - Additional thank to @fluxxu for removing my ban on W3C (this was kind of important for my motivation to improve flo/w3c aspects of Amadeus)
- - Eventually I will rewrite this stuff since there are a lot of code and some of it is becoming legacy, I'm thinking about [Timely Dataflow](https://github.com/TimelyDataflow/timely-dataflow) architecture and probably that work could be in some separated repository if I will still be able to waste my time on such things.
  - I feel sad
-

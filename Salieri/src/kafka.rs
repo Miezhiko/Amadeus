@@ -80,9 +80,10 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, Vec<String>)> 
           }
         }
 
-        if let Ok(gpt4free_result)        = gpt4free::deepai::generate( payload ).await {
-          Some((k_key, gpt4free_result))
-        } else if let Ok(gpt4free_result) = gpt4free::useless::generate( payload ).await {
+        // disable deepai for now!
+        //if let Ok(gpt4free_result)        = gpt4free::deepai::generate( payload ).await {
+        //  Some((k_key, gpt4free_result))
+        /*} else*/ if let Ok(gpt4free_result) = gpt4free::useless::generate( payload ).await {
           Some((k_key, gpt4free_result))
         } else if let Ok(gpt4free_result) = gpt4free::theb::generate( payload ) {
           Some((k_key, gpt4free_result))

@@ -19,6 +19,8 @@ rand            = "0.8.5"
 chrono          = "0.4.24"
 bincode         = "2.0.0-rc.3"
 regex           = "1.8"
+
+# waiting for PR: https://github.com/guillaume-be/rust-bert/pull/380
 tch             = "0.12"
 ucd             = "0.1.1"
 

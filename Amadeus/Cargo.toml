@@ -54,7 +54,7 @@ plotters            = "0.3.4"
 
 cynic   = { version = "2.2.8",    features = ["http-reqwest"] }
 rand    = { version = "0.8.5",    features = ["std", "std_rng"] }
-reqwest = { version = "0.11.17",  features = ["json", "blocking"] }
+reqwest = { version = "0.11.18",  features = ["json", "blocking"] }
 ical    = { version = "0.8",      features = ["ical"] }
 markov  = { version = "1.1",      features = ["yaml"] }
 

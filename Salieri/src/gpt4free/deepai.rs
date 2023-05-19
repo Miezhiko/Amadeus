@@ -9,9 +9,9 @@ use once_cell::sync::Lazy;
 
 use tokio::sync::Mutex;
 
-// try with 6 msgs history for now?
+// try with 1 msgs history for now, mb will experiment with more later :'(
 static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
-  Lazy::new(|| Mutex::new( VecDeque::with_capacity(6) ));
+  Lazy::new(|| Mutex::new( VecDeque::with_capacity(1) ));
 
 pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
   let mut msg_lock = MSGHIST.lock().await;

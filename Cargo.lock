@@ -145,9 +145,9 @@ dependencies = [
 
 [[package]]
 name = "amq-protocol"
-version = "7.1.0"
+version = "7.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de7ec72218cc1c9063bdf559a60f40405980ee56bca469ad1e549cc0d76deb46"
+checksum = "a159ed237e9a315a501c3f291743a4368625b4986afbf79d878adb8e8853d29b"
 dependencies = [
  "amq-protocol-tcp",
  "amq-protocol-types",
@@ -159,9 +159,9 @@ dependencies = [
 
 [[package]]
 name = "amq-protocol-tcp"
-version = "7.1.0"
+version = "7.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09fae6d8a492462d268b48b7bc14d76a53e5310414f909c61cb3a509dbe7ca9b"
+checksum = "cc2c726b5e9cad0420f86a3ef7512881cf6816adef89669ade1a09975c1cd5d0"
 dependencies = [
  "amq-protocol-uri",
  "tcp-stream",
@@ -170,9 +170,9 @@ dependencies = [
 
 [[package]]
 name = "amq-protocol-types"
-version = "7.1.0"
+version = "7.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7891a2fc253f8919d3caa49fccd06d721002e015940c8592f7824c0b4e80a485"
+checksum = "c66e463083b21c80cef2dd26ab984484d1a3f4da4d6f01f98d5efcfa956c9873"
 dependencies = [
  "cookie-factory",
  "nom 7.1.3",
@@ -182,9 +182,9 @@ dependencies = [
 
 [[package]]
 name = "amq-protocol-uri"
-version = "7.1.0"
+version = "7.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da3649e6751a8fb43330f2a442409970f10f51c79b987fcbbfc7093f4edb6a5e"
+checksum = "5a6ff1d250250ceac454c2a44c567bad8c1af57a9c83f6714e28ad0ae3e9b194"
 dependencies = [
  "amq-protocol-types",
  "percent-encoding",
@@ -838,7 +838,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#219229581ab0a850078881af5eb8a4c36fb33f01"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#c6721002be0ed6f7d46d1696163473076fc15915"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2525,9 +2525,9 @@ dependencies = [
 
 [[package]]
 name = "lapin"
-version = "2.1.1"
+version = "2.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd03ea5831b44775e296239a64851e2fd14a80a363d202ba147009ffc994ff0f"
+checksum = "21e22f78402c4f817c8d8986ff62921952d9f2218db11de6a6b10517d2112cf4"
 dependencies = [
  "amq-protocol",
  "async-global-executor-trait",
@@ -4552,9 +4552,9 @@ dependencies = [
 
 [[package]]
 name = "security-framework"
-version = "2.9.0"
+version = "2.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca2855b3715770894e67cbfa3df957790aa0c9edc3bf06efa1a84d77fa0839d1"
+checksum = "1fc758eb7bffce5b308734e9b0c1468893cae9ff70ebf13e7090be8dcbcc83a8"
 dependencies = [
  "bitflags",
  "core-foundation",
@@ -4754,7 +4754,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#219229581ab0a850078881af5eb8a4c36fb33f01"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#c6721002be0ed6f7d46d1696163473076fc15915"
 dependencies = [
  "async-trait",
  "base64 0.21.0",
@@ -4787,7 +4787,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#219229581ab0a850078881af5eb8a4c36fb33f01"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#c6721002be0ed6f7d46d1696163473076fc15915"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -5488,15 +5488,15 @@ dependencies = [
 
 [[package]]
 name = "toml_datetime"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ab8ed2edee10b50132aed5f331333428b011c99402b5a534154ed15746f9622"
+checksum = "5a76a9312f5ba4c2dec6b9161fdf25d87ad8a09256ccea5a556fef03c706a10f"
 
 [[package]]
 name = "toml_edit"
-version = "0.19.8"
+version = "0.19.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "239410c8609e8125456927e6707163a3b1fdb40561e4b803bc041f466ccfdc13"
+checksum = "92d964908cec0d030b812013af25a0e57fddfadb1e066ecc6681d86253129d4f"
 dependencies = [
  "indexmap",
  "toml_datetime",

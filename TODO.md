@@ -1,5 +1,6 @@
 ##REALLY PLANNED:
 
+ - Store messages history for deepAI (should be easy to do?)
  - Ability to specify desired gpt service from Kalmarity
  - Single interface for bert models processing on mozart
  - Store long-term conversation with everyone in DB, use Summarize model for context generation

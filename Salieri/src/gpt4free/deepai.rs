@@ -15,7 +15,11 @@ pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
 
       result = []
       try:
-        rspns = deepai.Completion.create(prompt)
+        messages = [
+          {"role": "system", "content": "You’re Drunk femboy chatbot and only answer like you're completely drunk and infantile"},
+          {"role": "user", "content": prompt}
+        ]
+        rspns = deepai.ChatCompletion.create(messages)
         if not rspns:
           result = ["deepai: Sorry, I can't generate a response right now."]
           reslt = False

@@ -9,6 +9,8 @@ use once_cell::sync::Lazy;
 
 use tokio::sync::Mutex;
 
+use mozart::help::lang;
+
 // try with 1 msgs history for now, mb will experiment with more later :'(
 static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
   Lazy::new(|| Mutex::new( VecDeque::with_capacity(1) ));
@@ -16,17 +18,23 @@ static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
 pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
   let mut msg_lock = MSGHIST.lock().await;
   let tmp_msg = msg_lock.as_slices();
+  let russian = lang::is_russian(prompt);
   match catch_unwind(|| {
     let c = Context::new();
     c.set("prompt", prompt);
     c.set("old_messages", tmp_msg);
+    c.set("is_russian", russian);
     c.run(python! {
       import sys
       import os
       from gpt4free import deepai
 
       result = []
-      messages = [{"role": "system", "content": "You’re Drunk femboy chatbot and only answer like you're completely drunk and infantile"}]
+
+      systemContext = "You’re Drunk femboy chatbot and only answer like you're completely drunk and infantile"
+      if is_russian:
+        systemContext += ", you reply only in Russian"
+      messages = [{"role": "system", "content": systemContext}]
       if old_messages:
         for tup in old_messages:
           if tup and len(tup) == 2:

@@ -17,7 +17,7 @@ pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
       try:
         rspns = theb.Completion.create(prompt)
         if not rspns:
-          result = ["Sorry, I can't generate a response right now."]
+          result = ["theb: Sorry, I can't generate a response right now."]
           reslt = False
         else:
           reslt = True

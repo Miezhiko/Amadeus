@@ -4,41 +4,31 @@ use std::panic::catch_unwind;
 
 use anyhow::bail;
 
-use once_cell::sync::Lazy;
-
-use tokio::sync::Mutex;
-
-static MYMSG: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new( String::from("") ));
-
-pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
-  let mut msg_lock = MYMSG.lock().await;
-  let tmp_msg = msg_lock.as_str();
+pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
   match catch_unwind(|| {
     let c = Context::new();
     c.set("prompt", prompt);
-    c.set("message_id", tmp_msg);
     c.run(python! {
       import sys
       import os
-      from gpt4free import usesless
+      from gpt4free import deepai
 
       result = []
       try:
-        rspns = usesless.Completion.create(prompt=prompt, parentMessageId=message_id)
+        rspns = deepai.Completion.create(prompt)
         if not rspns:
-          result = ["useless: Sorry, I can't generate a response right now."]
+          result = ["deepai: Sorry, I can't generate a response right now."]
           reslt = False
         else:
           reslt = True
           current_string = ""
-          for token in rspns["text"]:
+          for token in rspns:
             current_string += token
             if len(current_string) >= 1980:
               result.append(current_string[:1980])
               current_string = current_string[1980:]
           if current_string:
             result.append(current_string)
-          message_id = rspns["id"]
       except OSError as err:
         result = [("OS Error! {0}".format(err))]
         reslt = False
@@ -46,16 +36,12 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
         result = [("Runtime Error! {0}".format(err))]
         reslt = False
     }); ( c.get::<bool>("reslt")
-        , c.get::<Vec<String>>("result")
-        , c.get::<String>("message_id") )
+        , c.get::<Vec<String>>("result") )
   }) {
-    Ok((r,m,new_msg)) => {
-      if r {
-        *msg_lock = new_msg;
-        Ok(m)
-      } else {
+    Ok((r,m)) => {
+      if r { Ok(m) } else {
         bail!("No tokens generated: {:?}", m)
       }
-    }, Err(_) => { bail!("Failed to to use gpt4free::useless now!") }
+    }, Err(_) => { bail!("Failed to to use gpt4free::deepai now!") }
   }
 }

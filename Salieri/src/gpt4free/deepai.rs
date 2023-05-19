@@ -1,24 +1,39 @@
 use inline_python::{ python, Context };
 
+use std::collections::VecDeque;
 use std::panic::catch_unwind;
 
 use anyhow::bail;
 
-pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
+use once_cell::sync::Lazy;
+
+use tokio::sync::Mutex;
+
+// try with 6 msgs history for now?
+static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
+  Lazy::new(|| Mutex::new( VecDeque::with_capacity(6) ));
+
+pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
+  let mut msg_lock = MSGHIST.lock().await;
+  let tmp_msg = msg_lock.as_slices();
   match catch_unwind(|| {
     let c = Context::new();
     c.set("prompt", prompt);
+    c.set("old_messages", tmp_msg);
     c.run(python! {
       import sys
       import os
       from gpt4free import deepai
 
       result = []
+      messages = [{"role": "system", "content": "You’re Drunk femboy chatbot and only answer like you're completely drunk and infantile"}]
+      if old_messages:
+        for tup in old_messages:
+          if tup and len(tup) == 2:
+            messages.append({"role": "user", "content": tup[0]})
+            messages.append({"role": "assistant", "content": tup[1]})
       try:
-        messages = [
-          {"role": "system", "content": "You’re Drunk femboy chatbot and only answer like you're completely drunk and infantile"},
-          {"role": "user", "content": prompt}
-        ]
+        messages.append({"role": "user", "content": prompt})
         rspns = deepai.ChatCompletion.create(messages)
         if not rspns:
           result = ["deepai: Sorry, I can't generate a response right now."]
@@ -43,7 +58,15 @@ pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
         , c.get::<Vec<String>>("result") )
   }) {
     Ok((r,m)) => {
-      if r { Ok(m) } else {
+      if r {
+        if ! m.is_empty() {
+          if msg_lock.len() == msg_lock.capacity() {
+            msg_lock.pop_front();
+          }
+          msg_lock.push_back((prompt.to_string(), m[0].clone()));
+        }
+        Ok(m)
+      } else {
         bail!("No tokens generated: {:?}", m)
       }
     }, Err(_) => { bail!("Failed to to use gpt4free::deepai now!") }

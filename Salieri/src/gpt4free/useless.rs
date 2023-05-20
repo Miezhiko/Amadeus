@@ -8,15 +8,30 @@ use once_cell::sync::Lazy;
 
 use tokio::sync::Mutex;
 
-static MYMSG: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new( String::from("") ));
+static MYMSG: Lazy<Mutex<String>> =
+  Lazy::new(|| Mutex::new( String::from("") ));
+
+/// creating new useless account on every restart
+static TOKEN: Lazy<Mutex<String>> = Lazy::new(
+  || Mutex::new(
+    let c = Context::new();
+    c.run(python! {
+      from gpt4free import usesless
+      mytoken = usesless.Account.create(logging=True)
+    });
+    c.get::<String>("mytoken")
+  )
+);
 
 pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
-  let mut msg_lock = MYMSG.lock().await;
-  let tmp_msg = msg_lock.as_str();
+  let mut msg_lock  = MYMSG.lock().await;
+  let token         = TOKEN.lock().await;
+  let tmp_msg       = msg_lock.as_str();
   match catch_unwind(|| {
     let c = Context::new();
     c.set("prompt", prompt);
     c.set("message_id", tmp_msg);
+    c.set("mytoken", token);
     c.run(python! {
       import sys
       import os
@@ -24,7 +39,7 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
 
       result = []
       try:
-        rspns = usesless.Completion.create(prompt=prompt, parentMessageId=message_id)
+        rspns = usesless.Completion.create(prompt=prompt, parentMessageId=message_id, token=mytoken)
         if not rspns:
           result = ["useless: Sorry, I can't generate a response right now."]
           reslt = False

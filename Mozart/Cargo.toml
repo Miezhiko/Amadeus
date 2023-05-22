@@ -7,9 +7,6 @@ edition = "2021"
 [lib]
 doctest = false
 
-[env]
-LIBTORCH = { value = "/usr/lib64/libtorch.so", relative = false, force = true }
-
 [dependencies]
 serde           = { workspace = true }
 anyhow          = { workspace = true }

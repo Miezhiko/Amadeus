@@ -11,21 +11,13 @@ use tokio::sync::Mutex;
 static MYMSG: Lazy<Mutex<String>> =
   Lazy::new(|| Mutex::new( String::from("") ));
 
-/// creating new useless account on every restart
-static TOKEN: Lazy<Mutex<String>> = Lazy::new(
-  || { let c = Context::new();
-       c.run(python! {
-        from gpt4free import usesless
-        mytoken = usesless.Account.create(logging=True)
-       });
-       Mutex::new(c.get::<String>("mytoken"))
-     }
-  );
+static TOKEN: Lazy<Mutex<String>> =
+  Lazy::new(|| Mutex::new( String::from("") ));
 
 pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
   let mut msg_lock  = MYMSG.lock().await;
-  let token         = TOKEN.lock().await;
   let tmp_msg       = msg_lock.as_str();
+  let mut token     = TOKEN.lock().await;
   let token_tmp     = token.as_str();
   match catch_unwind(|| {
     let c = Context::new();
@@ -39,6 +31,8 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
 
       result = []
       try:
+        if not mytoken:
+          mytoken = usesless.Account.create(logging=True)
         rspns = usesless.Completion.create(prompt=prompt, parentMessageId=message_id, token=mytoken)
         if not rspns:
           result = ["useless: Sorry, I can't generate a response right now."]
@@ -62,11 +56,13 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
         reslt = False
     }); ( c.get::<bool>("reslt")
         , c.get::<Vec<String>>("result")
-        , c.get::<String>("message_id") )
+        , c.get::<String>("message_id")
+        , c.get::<String>("mytoken") )
   }) {
-    Ok((r,m,new_msg)) => {
+    Ok((r, m, new_msg, new_token)) => {
       if r {
         *msg_lock = new_msg;
+        *token    = new_token;
         Ok(m)
       } else {
         bail!("No tokens generated: {:?}", m)

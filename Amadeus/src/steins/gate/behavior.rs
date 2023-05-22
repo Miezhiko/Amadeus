@@ -12,7 +12,6 @@ use crate::{
   commands::w3c::update_current_season
 };
 
-#[cfg(not(target_os = "windows"))]
 use crate::{
   salieri,
   steins::{ ai::cache
@@ -50,11 +49,8 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
     error!("Twitch token update failed, {why}");
   }
 
-  #[cfg(not(target_os = "windows"))]
-  {
-    info!("loading Kathoey");
-    Lazy::force(&cache::KATHOEY);
-  }
+  info!("loading Kathoey");
+  Lazy::force(&cache::KATHOEY);
 
   info!("starting background threads");
   if options.gencache_on_start {
@@ -74,24 +70,18 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
     }
 
     // updating ai:chain cache
-    #[cfg(not(target_os = "windows"))]
     cache::update_cache(&ctx, &all_channels).await;
   }
 
   let ac = std::sync::Arc::new(ctx);
   let oc = std::sync::Arc::new(options.clone());
 
-  #[cfg(not(target_os = "windows"))]
-  {
-    info!("connecting to Salieri");
-    if let Err(why) = salieri::salieri_init(&ac).await {
-      error!("failed to init Salieri services {why}");
-    }
+  info!("connecting to Salieri");
+  if let Err(why) = salieri::salieri_init(&ac).await {
+    error!("failed to init Salieri services {why}");
   }
 
   activate_system_tracker(&ac).await;
-
-  #[cfg(not(target_os = "windows"))]
   activate_social_skils(&ac).await;
 
   let opts = options::get_roptions().await.unwrap();

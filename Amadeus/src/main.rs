@@ -16,7 +16,6 @@ mod collections; mod commands; mod steins;
 #[cfg(feature = "spam_filter")]
 mod spam;
 
-#[cfg(not(target_os = "windows"))]
 pub mod salieri;
 
 mod message; mod handler; mod checks;

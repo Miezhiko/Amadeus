@@ -4,7 +4,6 @@ use crate::common::{
   msg::channel_message
 };
 
-#[cfg(not(target_os = "windows"))]
 use crate::steins::ai::{ cache, chain, boris, uwu };
 
 use serenity::{
@@ -154,7 +153,6 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
   if !(msg.mentions.is_empty() || !msg.mentions.len() == 1 && msg.mentions[0].bot) {
     let target = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-    #[cfg(not(target_os = "windows"))]
     if let Some(q) = chain::make_quote(ctx, msg, target.id).await {
       let footer = format!("Requested by {}", msg.author.name);
       if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
@@ -180,7 +178,6 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
 #[aliases(борис)]
 #[description("metaphone for russian text")]
 async fn boris(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  #[cfg(not(target_os = "windows"))]
   channel_message( ctx
                  , msg
                  , &boris::spell(args.message())
@@ -192,7 +189,6 @@ async fn boris(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[min_args(1)]
 #[description("uwu")]
 async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  #[cfg(not(target_os = "windows"))]
   channel_message( ctx
                  , msg
                  , &uwu::spell(args.message())
@@ -205,7 +201,6 @@ async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[aliases(fem)]
 #[description("feminize text")]
 pub async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  #[cfg(not(target_os = "windows"))]
   {
     let kathoey = cache::KATHOEY.lock().await;
     channel_message( ctx
@@ -221,7 +216,6 @@ pub async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 #[aliases(ffem)]
 #[description("feminize text with extreme mode!")]
 async fn extreme_feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-  #[cfg(not(target_os = "windows"))]
   {
     let kathoey = cache::KATHOEY.lock().await;
     channel_message( ctx

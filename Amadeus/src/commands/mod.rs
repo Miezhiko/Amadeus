@@ -9,8 +9,6 @@ pub mod info;
 pub mod music;
 pub mod moderator;
 pub mod gentoo;
-
-#[cfg(not(target_os = "windows"))]
 pub mod translation;
 
 #[cfg(feature = "flo")]

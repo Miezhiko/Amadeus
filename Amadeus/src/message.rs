@@ -6,6 +6,7 @@ use crate::{
               replay::{ replay_embed
                       , attach_replay }
             }
+          , ai::{ cache, chain, response }
           },
   common::{ db::trees::points
           , msg::channel_message
@@ -21,9 +22,6 @@ use mozart::help::lang;
 
 #[cfg(feature = "spam_filter")]
 use crate::spam::spam_check;
-
-#[cfg(not(target_os = "windows"))]
-use crate::steins::ai::{ cache, chain, response };
 
 use serenity::{
   prelude::*,
@@ -146,7 +144,6 @@ pub async fn process( ioptions: &IOptions
               , amention2 = format!("<@!{amadeus_id}>") };
           if !msg.content.starts_with(&amention1)
           && !msg.content.starts_with(&amention2) {
-            #[cfg(not(target_os = "windows"))]
             response::response(ctx, &msg).await;
           }
         }
@@ -212,9 +209,6 @@ pub async fn process( ioptions: &IOptions
           }
           ctx.online();
         } else {
-          #[cfg(target_os = "windows")]
-          let activity = "doing nothing";
-          #[cfg(not(target_os = "windows"))]
           let activity = chain::generate(ctx, &msg, None).await;
           if !activity.is_empty() {
             if activity.contains('<') && activity.contains('>') {
@@ -230,7 +224,6 @@ pub async fn process( ioptions: &IOptions
             ctx.idle();
           }
         }
-        #[cfg(not(target_os = "windows"))]
         if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0.get()) {
           let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed);
           let rnd = rand::thread_rng().gen_range(0..activity_level);

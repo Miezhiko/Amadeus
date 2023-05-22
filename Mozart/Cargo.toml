@@ -1,11 +1,14 @@
 [package]
 name = "mozart"
 description = "Amadeus services library"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 
 [lib]
 doctest = false
+
+[env]
+LIBTORCH = { value = "/usr/lib64/libtorch.so", relative = false, force = true }
 
 [dependencies]
 serde           = { workspace = true }
@@ -19,9 +22,7 @@ rand            = "0.8.5"
 chrono          = "0.4.24"
 bincode         = "2.0.0-rc.3"
 regex           = "1.8"
-
-# waiting for PR: https://github.com/guillaume-be/rust-bert/pull/380
-tch             = "0.12"
+tch             = "0.13"
 ucd             = "0.1.1"
 
 [dependencies.rust-bert]

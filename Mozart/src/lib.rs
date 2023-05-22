@@ -5,8 +5,6 @@ extern crate serde;
 pub mod types;
 pub mod cache;
 pub mod help;
-
-#[cfg(not(target_os = "windows"))]
 pub mod bert;
 
 pub mod commands;
@@ -27,7 +25,6 @@ pub async fn AMADEUS_INIT() -> TaskResult<()> {
   Ok(())
 }
 
-#[cfg(not(target_os = "windows"))]
 pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
   celery::app!(
     broker = AMQPBroker { String::from( ampq ) },
@@ -43,22 +40,6 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
             , bert::xlnet::XLNET
             , bert::code::CODEBERT
             , bert::gptj::GPTJ
-            ],
-    task_routes = [
-      "*" => SALIERI_SERVICE,
-    ],
-  ).await
-}
-
-#[cfg(target_os = "windows")]
-pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
-  celery::app!(
-    broker = AMQPBroker { String::from( ampq ) },
-    tasks = [ AMADEUS_INIT
-            , cache::CONTEXT_CLEAR
-            , cache::MODELS_REINIT
-            , cache::REINIT_CACHE
-            , cache::SET_CACHE
             ],
     task_routes = [
       "*" => SALIERI_SERVICE,

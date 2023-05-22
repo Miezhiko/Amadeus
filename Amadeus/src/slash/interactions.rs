@@ -3,15 +3,11 @@ use crate::{
   common::i18n::{ edit_help_i18n, US_ENG },
   commands::{
     w3c::stats,
-    chat, meta, music, images
-  }
-};
-
-#[cfg(not(target_os = "windows"))]
-use crate::{
+    chat, meta, music, images,
+    translation
+  },
   steins::{ ai::boris
-          , ai::uwu },
-  commands::translation
+          , ai::uwu }
 };
 
 use serenity::{
@@ -73,7 +69,6 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
         if let Some(ResolvedOption {
           value: ResolvedValue::String(t), ..
         }) = ac.data.options().first() {
-          #[cfg(not(target_os = "windows"))]
           if let Err(why) = ac.create_response(&ctx.http, CreateInteractionResponse::Message(
               CreateInteractionResponseMessage::default().content( boris::spell(t) ) )
           ).await {
@@ -85,7 +80,6 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
         if let Some(ResolvedOption {
           value: ResolvedValue::String(t), ..
         }) = ac.data.options().first() {
-          #[cfg(not(target_os = "windows"))]
           if let Err(why) = ac.create_response(&ctx.http, CreateInteractionResponse::Message(
               CreateInteractionResponseMessage::default().content( uwu::spell(t) ) )
           ).await {
@@ -1070,7 +1064,6 @@ pub async fn handle_slash_commands(ctx: &Context, interaction: &Interaction) {
               ).await {
                 Ok(msg) => {
                   let args = Args::new(t, &[Delimiter::Single(';')]);
-                  #[cfg(not(target_os = "windows"))]
                   if cmd == "translate" {
                     if let Err(terr) = translation::translate(ctx, &msg, args).await {
                       error!("Failed to translate to English on interaction {terr:?}");

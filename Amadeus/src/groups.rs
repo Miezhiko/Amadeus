@@ -5,10 +5,8 @@ use crate::commands::{
 , owner::*, moderator::*
 , tictactoe::*, images::*
 , info::*, music::*, gentoo::*
+, translation::*
 };
-
-#[cfg(not(target_os = "windows"))]
-use crate::commands::translation::*;
 
 #[cfg(feature = "flo")]
 use crate::commands::host::*;
@@ -27,7 +25,6 @@ pub struct Meta;
           , feminize, extreme_feminize )]
 pub struct Chat;
 
-#[cfg(not(target_os = "windows"))]
 #[group("Translation")]
 #[description = "Translation commands"]
 #[commands( perevod, translate, en2de, de2en

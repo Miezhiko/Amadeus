@@ -1,10 +1,6 @@
 use crate::{
   common::{ system
-          , constants::MAIN_LOG }
-};
-
-#[cfg(not(target_os = "windows"))]
-use crate::{
+          , constants::MAIN_LOG },
   types::serenity::IContext,
   salieri::SALIERI,
   steins::ai::reinit
@@ -25,7 +21,6 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
     loop {
       tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
 
-      #[cfg(not(target_os = "windows"))]
       { // clean up old bert model conversation id-s
         let salieri_lock = SALIERI.lock().await;
         if let Some(salieri) = &*salieri_lock {
@@ -61,7 +56,6 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
           }
         } else if mem_mb > 1024.0 * 13.0 {
           // soft reset on 13 gb
-          #[cfg(not(target_os = "windows"))]
           reinit().await;
         }
       }

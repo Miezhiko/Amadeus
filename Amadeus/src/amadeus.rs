@@ -113,6 +113,7 @@ pub async fn run(opts: IOptions) ->
       .group(&OWNER_GROUP)
       .group(&MODERATOR_GROUP)
       .group(&GENTOO_GROUP)
+      .group(&TRANSLATE_GROUP)
       .help(&HELP_COMMAND);
 
   std_framework.configure(|c| c
@@ -122,11 +123,6 @@ pub async fn run(opts: IOptions) ->
     .delimiters(vec![" ", ";", "\n", "\t"])
     .case_insensitivity(true)
   );
-
-  #[cfg(not(target_os = "windows"))]
-  {
-    std_framework = std_framework.group(&TRANSLATE_GROUP)
-  }
 
   #[cfg(feature = "flo")]
   {

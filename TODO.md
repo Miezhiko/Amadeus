@@ -11,7 +11,6 @@
 
  - Stream announce (e.g. stream in 30 mins or something like that) + stream announce role
  - Select menu roles
- - UnixSockets alternative for Windows
  - Some of slash commands are still missing (vs command, etc...)
  - I need part of speech tagging POSModel but for russian langauge, that could be used for Kathoey
  - Finetune GTP2 model

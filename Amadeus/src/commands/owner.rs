@@ -6,14 +6,10 @@ use crate::{
          , direct_message },
     system
   },
-  steins::gate
-};
-
-#[cfg(not(target_os = "windows"))]
-use crate::{
+  steins::gate,
   steins::ai::cache::{ ACTIVITY_LEVEL
-                     , actualize_cache
-                     , clear_cache }
+    , actualize_cache
+    , clear_cache }
 };
 
 use serenity::{
@@ -47,7 +43,6 @@ async fn set(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Ok(property) = args.single::<String>() {
     #[allow(clippy::single_match)]
     match property.as_str() {
-      #[cfg(not(target_os = "windows"))]
       "activity" =>
         if let Ok(level) = args.single::<u32>() {
           ACTIVITY_LEVEL.store(level, Ordering::Relaxed);
@@ -133,7 +128,6 @@ async fn clear_chain_cache(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command, {why}");
   }
-  #[cfg(not(target_os = "windows"))]
   clear_cache().await;
   channel_message(ctx, msg, "Cache removed").await;
   Ok(())
@@ -145,7 +139,6 @@ async fn update_cache(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(ctx).await {
     error!("Error deleting original command, {why}");
   }
-  #[cfg(not(target_os = "windows"))]
   actualize_cache(ctx, true).await;
   channel_message(ctx, msg, "Cache updated").await;
   Ok(())

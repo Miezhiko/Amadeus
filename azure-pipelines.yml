@@ -4,9 +4,3 @@ jobs:
     name: 'Linux_stable'
     vmImage: 'ubuntu-latest'
     toolchain: 'nightly'
-
-#- template: 'azure-template-win.yml'
-#  parameters:
-#    name: 'Windows_stable'
-#    vmImage: 'windows-latest'
-#    toolchain: 'nightly'

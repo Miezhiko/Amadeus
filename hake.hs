@@ -17,6 +17,10 @@ main = hake $ do
        setTorchEnv
     >> cargo <| "build" : buildFlagsSalieri False
 
+  vivaldiExecutable ♯
+       setTorchEnv
+    >> cargo <| "build" : buildFlagsVivaldi False
+
   amadeusExecutable ◉ [salieriExecutable] ♯♯
        setTorchEnv
     >> cargo <| "build" : buildFlagsAmadeus False
@@ -24,6 +28,7 @@ main = hake $ do
   "fat | build Amadeus and Salieri with fat LTO" ∫
        setTorchEnv
     >> cargo <| "build" : buildFlagsSalieri True
+    >> cargo <| "build" : buildFlagsVivaldi True
     >> cargo <| "build" : buildFlagsAmadeus True
 
   "install | install to system" ◉ [ "fat" ] ∰
@@ -38,6 +43,7 @@ main = hake $ do
   "restart | restart services" ◉ [ salieriExecutable
                                  , amadeusExecutable ] ∰ do
     systemctl ["restart", appNameSalieri]
+    systemctl ["restart", appNameVivaldi]
     systemctl ["restart", appNameAmadeus]
 
   "run | run Amadeus" ◉ [ amadeusExecutable ] ∰ do
@@ -51,6 +57,9 @@ main = hake $ do
   appNameSalieri ∷ String
   appNameSalieri = "salieri"
 
+  appNameVivaldi ∷ String
+  appNameVivaldi = "vivaldi"
+
   appNameAmadeus ∷ String
   appNameAmadeus = "amadeus"
 
@@ -59,9 +68,6 @@ main = hake $ do
 
   buildPath ∷ FilePath
   buildPath = targetPath </> "release"
-
-  salieriFeatures ∷ [String]
-  salieriFeatures = [ "kafka" ]
 
   amadeusFeatures ∷ [String]
   amadeusFeatures = [ "trackers"
@@ -74,8 +80,14 @@ main = hake $ do
   buildFlagsSalieri ∷ Bool -> [String]
   buildFlagsSalieri fat =
     let defaultFlags = [ "-p", appNameSalieri
-                       , "--release", "--features"
-                       , intercalate "," salieriFeatures ]
+                       , "--release" ]
+    in if fat then defaultFlags ++ fatArgs
+              else defaultFlags
+
+  buildFlagsVivaldi ∷ Bool -> [String]
+  buildFlagsVivaldi fat =
+    let defaultFlags = [ "-p", appNameVivaldi
+                       , "--release" ]
     in if fat then defaultFlags ++ fatArgs
               else defaultFlags
 
@@ -88,13 +100,10 @@ main = hake $ do
               else defaultFlags
 
   salieriExecutable ∷ FilePath
-  salieriExecutable =
-    {- HLINT ignore "Redundant multi-way if" -}
-    if | os ∈ ["win32", "mingw32", "cygwin32"] → buildPath </> appNameSalieri ++ ".exe"
-       | otherwise → buildPath </> appNameSalieri
+  salieriExecutable = buildPath </> appNameSalieri
+
+  vivaldiExecutable ∷ FilePath
+  vivaldiExecutable = buildPath </> appNameVivaldi
 
   amadeusExecutable ∷ FilePath
-  amadeusExecutable =
-    {- HLINT ignore "Redundant multi-way if" -}
-    if | os ∈ ["win32", "mingw32", "cygwin32"] → buildPath </> appNameAmadeus ++ ".exe"
-       | otherwise → buildPath </> appNameAmadeus
+  amadeusExecutable = buildPath </> appNameAmadeus

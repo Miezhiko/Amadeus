@@ -2515,9 +2515,9 @@ dependencies = [
 
 [[package]]
 name = "kathoey"
-version = "1.1.4"
+version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00b81c50f97c854feea46b3e8150d0d06932aca6e8195e75b8d738b542fe284d"
+checksum = "eca8e22b827d43fbdefeff12a782d594dfb538591d62063e4919d23c89bb1f87"
 dependencies = [
  "anyhow",
  "bincode",
@@ -4546,18 +4546,13 @@ dependencies = [
 
 [[package]]
 name = "salieri"
-version = "0.3.13"
+version = "0.4.0"
 dependencies = [
  "anyhow",
- "async-recursion",
  "celery",
  "env_logger",
- "futures 0.3.28",
- "inline-python",
  "log",
  "mozart",
- "once_cell",
- "rdkafka",
  "serde",
  "tokio",
 ]
@@ -6112,6 +6107,23 @@ name = "virtue"
 version = "0.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9dcc60c0624df774c82a0ef104151231d37da4962957d691c011c852b2473314"
+
+[[package]]
+name = "vivaldi"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "async-recursion",
+ "env_logger",
+ "futures 0.3.28",
+ "inline-python",
+ "log",
+ "mozart",
+ "once_cell",
+ "rdkafka",
+ "serde",
+ "tokio",
+]
 
 [[package]]
 name = "void"

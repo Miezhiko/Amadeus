@@ -4,6 +4,7 @@
 /node_modules/
 /.vscode/
 /misc/gpt4free-tests/__pycache__/
+/misc/opengpt-tests/__pycache__/
 
 package-lock.json
 

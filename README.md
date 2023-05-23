@@ -48,7 +48,7 @@
  - Using [Fluent](https://www.projectfluent.org/) for localization
  - [Sled](https://github.com/spacejam/sled) for editable info archive
  - Plays music streams using [Songbird](https://github.com/serenity-rs/songbird)! (`~join ~play`)
- - NLP with context (models: [DialoGPT](https://github.com/microsoft/DialoGPT) [GPT-Neo](https://github.com/EleutherAI/gpt-neo), [DistilBERT](https://arxiv.org/abs/1910.01108) fine-tuned on SQuAD, Codebert, XLNET, GPT-J) and more...
+ - NLP with context (models: [DialoGPT](https://github.com/microsoft/DialoGPT) [GPT-Neo](https://github.com/EleutherAI/gpt-neo), [DistilBERT](https://arxiv.org/abs/1910.01108) fine-tuned on SQuAD, Codebert, XLNET, GPT-J)...
  - [Dhall](https://dhall-lang.org) and YAML config files, dhall for per-guild teams configurations
  - Multi-server streams notifications/trackers for twitch and goodgame.ru (using channels from dhall conf)
  - Tracking pull requests of watching by some user repositories on GitHub and posting detailed PR embeds

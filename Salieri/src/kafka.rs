@@ -78,7 +78,7 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, Vec<String>)> 
         let k_key     = format!("{chan}|{user_id}|{msg}");
 
         if payload.contains("please") || payload.contains("пожалуйста") {
-          if let Ok(gpt4free_result) = gpt4free::useless::generate( payload ).await {
+          if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload ).await {
             return Some((k_key, gpt4free_result));
           }
         } else if payload.contains("Please")
@@ -91,7 +91,7 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, Vec<String>)> 
 
         if let Ok(gpt4free_result)        = gpt4free::deepai::generate( payload ).await {
           Some((k_key, gpt4free_result))
-        } else if let Ok(gpt4free_result) = gpt4free::useless::generate( payload ).await {
+        } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload ).await {
           Some((k_key, gpt4free_result))
         } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
           Some((k_key, gpt4free_result))

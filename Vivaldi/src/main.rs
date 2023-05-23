@@ -16,8 +16,7 @@ async fn main() -> anyhow::Result<()> {
 
   kafka::run_with_workers(1);
 
-  // is there better way?
-  loop { }
+  tokio::signal::ctrl_c().await?;
 
-  // Ok(())
+  Ok(())
 }

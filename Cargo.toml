@@ -2,7 +2,8 @@
 members = [
   "Mozart",
   "Amadeus",
-  "Salieri"
+  "Salieri",
+  "Vivaldi"
 ]
 
 [workspace.dependencies]

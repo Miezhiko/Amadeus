@@ -16,7 +16,6 @@ use rdkafka::{
 
 use async_recursion::async_recursion;
 
-#[cfg(feature = "gpt4free")]
 use crate::{
   gpt4free,
   opengpt
@@ -70,60 +69,39 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, Vec<String>)> 
         return None;
       }
 
-      #[cfg(feature = "gpt4free")]
-      {
-        let chan      = key3[0].parse::<u64>().unwrap();
-        let user_id   = key3[1].parse::<u64>().unwrap();
-        let msg       = key3[2].parse::<u64>().unwrap();
-        let k_key     = format!("{chan}|{user_id}|{msg}");
+      let chan      = key3[0].parse::<u64>().unwrap();
+      let user_id   = key3[1].parse::<u64>().unwrap();
+      let msg       = key3[2].parse::<u64>().unwrap();
+      let k_key     = format!("{chan}|{user_id}|{msg}");
 
-        if payload.contains("please") || payload.contains("пожалуйста") {
-          if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload ).await {
-            return Some((k_key, gpt4free_result));
-          }
-        } else if payload.contains("Please")
-               || payload.contains("Пожалуйста")
-               || payload.contains("PLEASE") {
-          if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
-            return Some((k_key, gpt4free_result));
-          }
+      if payload.contains("please") || payload.contains("пожалуйста") {
+        if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload ).await {
+          return Some((k_key, gpt4free_result));
         }
-
-        if let Ok(gpt4free_result)        = gpt4free::deepai::generate( payload ).await {
-          Some((k_key, gpt4free_result))
-        } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload ).await {
-          Some((k_key, gpt4free_result))
-        } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
-          Some((k_key, gpt4free_result))
-        } else if let Ok(gpt4free_result) = gpt4free::theb::generate( payload ) {
-          Some((k_key, gpt4free_result))
-        } else {
-          let gpt2gen =
-          chat_gpt2_kafka( key3[2].parse::<u64>().unwrap_or(0)
-                        , key3[0].parse::<u64>().unwrap()
-                        , payload.to_string()
-                        , key3[1].parse::<u64>().unwrap()
-                        , false // TODO: check for russian
-                        , 0 ).await;
-          match gpt2gen {
-            Ok(response) => Some(response),
-            Err(err) => {
-              error!("Failed to generate gpt stuff on Kafka {err}");
-              None
-            }
-          }
+      } else if payload.contains("Please")
+              || payload.contains("Пожалуйста")
+              || payload.contains("PLEASE") {
+        if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
+          return Some((k_key, gpt4free_result));
         }
       }
-      #[cfg(not(feature = "gpt4free"))]
-      {
+
+      if let Ok(gpt4free_result)        = gpt4free::deepai::generate( payload ).await {
+        Some((k_key, gpt4free_result))
+      } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload ).await {
+        Some((k_key, gpt4free_result))
+      } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
+        Some((k_key, gpt4free_result))
+      } else if let Ok(gpt4free_result) = gpt4free::theb::generate( payload ) {
+        Some((k_key, gpt4free_result))
+      } else {
         let gpt2gen =
-          chat_gpt2_kafka( key3[2].parse::<u64>().unwrap_or(0)
-                        , key3[0].parse::<u64>().unwrap()
-                        , payload.to_string()
-                        , key3[1].parse::<u64>().unwrap()
-                        , false
-                        , false // TODO: check for russian
-                        , 0 ).await;
+        chat_gpt2_kafka( key3[2].parse::<u64>().unwrap_or(0)
+                       , key3[0].parse::<u64>().unwrap()
+                       , payload.to_string()
+                       , key3[1].parse::<u64>().unwrap()
+                       , false // TODO: check for russian
+                       , 0 ).await;
         match gpt2gen {
           Ok(response) => Some(response),
           Err(err) => {

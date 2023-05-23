@@ -1,0 +1,21 @@
+[package]
+name = "vivaldi"
+description = "Kalmarity services consumer"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+mozart          = { path = "../Mozart" }
+serde           = { workspace = true }
+anyhow          = { workspace = true }
+tokio           = { workspace = true }
+async-recursion = { workspace = true }
+once_cell       = { workspace = true }
+env_logger      = "0.10"
+log             = "0.4.17"
+futures         = "0.3"
+inline-python   = "0.10"
+
+[dependencies.rdkafka]
+version = "0.31"
+features = ["dynamic-linking", "tokio"]

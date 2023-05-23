@@ -2,6 +2,9 @@ extern crate serde;
 
 #[cfg(feature = "gpt4free")]
 mod gpt4free;
+#[cfg(feature = "gpt4free")]
+mod opengpt;
+
 #[cfg(feature = "kafka")]
 mod kafka;
 

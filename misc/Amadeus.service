@@ -8,9 +8,11 @@ After=Salieri.target
 Environment="RUSTBERT_CACHE=/data/.rustbert"
 Type=simple
 User=mawa
-Environment=DEFAULT_NODE_PATH=/usr/lib64/node_modules
-Environment=LIBTORCH_USE_PYTORCH=1
-Environment=LIBTORCH_BYPASS_VERSION_CHECK=1
+Environment="DEFAULT_RUST_CACHED_PATH_ROOT=/data/.rustbert"
+Environment="DEFAULT_RUSTBERT_CACHE=/data/.rustbert"
+Environment="DEFAULT_NODE_PATH=/usr/lib64/node_modules"
+Environment="LIBTORCH_USE_PYTORCH=1"
+Environment="LIBTORCH_BYPASS_VERSION_CHECK=1"
 WorkingDirectory=/data/contrib/rust/Amadeus
 ExecStart=/bin/bash -c 'NODE_PATH=$DEFAULT_NODE_PATH cargo run -p amadeus --release --features=trackers,torch'
 ExecStop=killall Amadeus

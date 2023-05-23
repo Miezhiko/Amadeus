@@ -15,6 +15,14 @@ use mozart::help::lang;
 static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
   Lazy::new(|| Mutex::new( VecDeque::with_capacity(1) ));
 
+// TODO: test old messages support
+/*
+      if old_messages:
+        for tup in old_messages:
+          if tup and len(tup) == 2:
+            messages.append({"role": "user", "content": tup[0]})
+            messages.append({"role": "assistant", "content": tup[1]})
+*/
 pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
   let mut msg_lock = MSGHIST.lock().await;
   let tmp_msg = msg_lock.as_slices();
@@ -36,11 +44,6 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
       if is_russian:
         systemContext += ", you reply only in Russian"
       messages = [{"role": "system", "content": systemContext}]
-      if old_messages:
-        for tup in old_messages:
-          if tup and len(tup) == 2:
-            messages.append({"role": "user", "content": tup[0]})
-            messages.append({"role": "assistant", "content": tup[1]})
       try:
         rspns = italygpt2.Completion.create(account_data=account_data,prompt=prompt,message=messages)
         if not rspns:

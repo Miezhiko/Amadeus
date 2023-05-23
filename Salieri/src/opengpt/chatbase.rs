@@ -4,16 +4,22 @@ use std::panic::catch_unwind;
 
 use anyhow::bail;
 
+use mozart::help::lang;
+
 pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
+  let russian = lang::is_russian(prompt);
   match catch_unwind(|| {
     let c = Context::new();
     c.set("prompt", prompt);
+    c.set("is_russian", russian);
     c.run(python! {
       import sys
       import os
 
       from opengpt.models.completion.chatbase.model import Model
 
+      if is_russian:
+        prompt += ", you reply only in Russian"
       result = []
       try:
         chatbase = Model()

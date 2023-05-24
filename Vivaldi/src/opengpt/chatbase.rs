@@ -6,7 +6,7 @@ use anyhow::bail;
 
 use mozart::help::lang;
 
-pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
+pub fn generate(prompt: &str) -> anyhow::Result<String> {
   let russian = lang::is_russian(prompt);
   match catch_unwind(|| {
     let c = Context::new();
@@ -20,31 +20,25 @@ pub fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
 
       if is_russian:
         prompt += ", you reply only in Russian"
-      result = []
+      result = ""
       try:
         chatbase = Model()
         rspns = chatbase.GetAnswer(prompt=prompt, model="gpt-4")
         if not rspns:
-          result = ["chatbase: Sorry, I can't generate a response right now."]
+          result = "chatbase: Sorry, I can't generate a response right now."
           reslt = False
         else:
           reslt = True
-          current_string = ""
           for token in rspns:
-            current_string += token
-            if len(current_string) >= 1980:
-              result.append(current_string[:1980])
-              current_string = current_string[1980:]
-          if current_string:
-            result.append(current_string)
+            result += token
       except OSError as err:
-        result = [("OS Error! {0}".format(err))]
+        result = ("OS Error! {0}".format(err))
         reslt = False
       except RuntimeError as err:
-        result = [("Runtime Error! {0}".format(err))]
+        result = ("Runtime Error! {0}".format(err))
         reslt = False
     }); ( c.get::<bool>("reslt")
-        , c.get::<Vec<String>>("result") )
+        , c.get::<String>("result") )
   }) {
     Ok((r,m)) => {
       if r { Ok(m) } else {

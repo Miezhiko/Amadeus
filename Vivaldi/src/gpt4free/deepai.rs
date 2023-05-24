@@ -15,7 +15,7 @@ use mozart::help::lang;
 static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
   Lazy::new(|| Mutex::new( VecDeque::with_capacity(1) ));
 
-pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
+pub async fn generate(prompt: &str) -> anyhow::Result<String> {
   let mut msg_lock = MSGHIST.lock().await;
   let tmp_msg = msg_lock.as_slices();
   let russian = lang::is_russian(prompt);
@@ -29,7 +29,7 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
       import os
       from gpt4free import deepai
 
-      result = []
+      result = ""
 
       systemContext = "You’re Drunk femboy chatbot and only answer like you're completely drunk and infantile"
       if is_russian:
@@ -44,26 +44,20 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
         messages.append({"role": "user", "content": prompt})
         rspns = deepai.ChatCompletion.create(messages)
         if not rspns:
-          result = ["deepai: Sorry, I can't generate a response right now."]
+          result = "deepai: Sorry, I can't generate a response right now."
           reslt = False
         else:
           reslt = True
-          current_string = ""
           for token in rspns:
-            current_string += token
-            if len(current_string) >= 1980:
-              result.append(current_string[:1980])
-              current_string = current_string[1980:]
-          if current_string:
-            result.append(current_string)
+            result += token
       except OSError as err:
-        result = [("OS Error! {0}".format(err))]
+        result = ("OS Error! {0}".format(err))
         reslt = False
       except RuntimeError as err:
-        result = [("Runtime Error! {0}".format(err))]
+        result = ("Runtime Error! {0}".format(err))
         reslt = False
     }); ( c.get::<bool>("reslt")
-        , c.get::<Vec<String>>("result") )
+        , c.get::<String>("result") )
   }) {
     Ok((r,m)) => {
       if r {
@@ -71,7 +65,7 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
           if msg_lock.len() == msg_lock.capacity() {
             msg_lock.pop_front();
           }
-          msg_lock.push_back((prompt.to_string(), m[0].clone()));
+          msg_lock.push_back((prompt.to_string(), m.clone()));
         }
         Ok(m)
       } else {

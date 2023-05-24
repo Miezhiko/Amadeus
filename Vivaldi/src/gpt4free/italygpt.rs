@@ -23,7 +23,7 @@ static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
             messages.append({"role": "user", "content": tup[0]})
             messages.append({"role": "assistant", "content": tup[1]})
 */
-pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
+pub async fn generate(prompt: &str) -> anyhow::Result<String> {
   let mut msg_lock = MSGHIST.lock().await;
   let tmp_msg = msg_lock.as_slices();
   let russian = lang::is_russian(prompt);
@@ -37,7 +37,7 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
       import os
       from gpt4free import italygpt2
 
-      result = []
+      result = ""
 
       account_data=italygpt2.Account.create()
       systemContext = "You’re femboy helpful assistant"
@@ -47,26 +47,21 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
       try:
         rspns = italygpt2.Completion.create(account_data=account_data,prompt=prompt,message=messages)
         if not rspns:
-          result = ["italygpt: Sorry, I can't generate a response right now."]
+          result = "italygpt: Sorry, I can't generate a response right now."
           reslt = False
         else:
           reslt = True
           current_string = ""
           for token in rspns:
-            current_string += token
-            if len(current_string) >= 1980:
-              result.append(current_string[:1980])
-              current_string = current_string[1980:]
-          if current_string:
-            result.append(current_string)
+            result += token
       except OSError as err:
-        result = [("OS Error! {0}".format(err))]
+        result = ("OS Error! {0}".format(err))
         reslt = False
       except RuntimeError as err:
-        result = [("Runtime Error! {0}".format(err))]
+        result = ("Runtime Error! {0}".format(err))
         reslt = False
     }); ( c.get::<bool>("reslt")
-        , c.get::<Vec<String>>("result") )
+        , c.get::<String>("result") )
   }) {
     Ok((r,m)) => {
       if r {
@@ -74,7 +69,7 @@ pub async fn generate(prompt: &str) -> anyhow::Result<Vec<String>> {
           if msg_lock.len() == msg_lock.capacity() {
             msg_lock.pop_front();
           }
-          msg_lock.push_back((prompt.to_string(), m[0].clone()));
+          msg_lock.push_back((prompt.to_string(), m.clone()));
         }
         Ok(m)
       } else {

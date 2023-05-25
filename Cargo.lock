@@ -6110,7 +6110,7 @@ checksum = "9dcc60c0624df774c82a0ef104151231d37da4962957d691c011c852b2473314"
 
 [[package]]
 name = "vivaldi"
-version = "0.0.2"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-recursion",

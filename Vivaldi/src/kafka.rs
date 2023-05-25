@@ -90,6 +90,8 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         Some((k_key, gpt4free_result))
       } else if let Ok(gpt4free_result) = gpt4free::deepai::generate( payload, fmode ).await {
         Some((k_key, gpt4free_result))
+      } else if let Ok(gpt4free_result) = gpt4free::gptworldAi::generate( payload, fmode ).await {
+        Some((k_key, gpt4free_result))
       } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload, fmode ).await {
         Some((k_key, gpt4free_result))
       } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {

@@ -38,6 +38,8 @@ pub async fn generate(prompt: &str, fmode: bool) -> anyhow::Result<String> {
         systemContext = "You are a helpful assistant"
       if is_russian:
         systemContext += ", you reply only in Russian"
+      else:
+        systemContext += ", you reply only in English"
       messages = [{"role": "system", "content": systemContext}]
       if old_messages:
         for tup in old_messages:

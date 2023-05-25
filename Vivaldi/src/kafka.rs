@@ -74,21 +74,23 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
       let msg       = key3[2].parse::<u64>().unwrap();
       let k_key     = format!("{chan}|{user_id}|{msg}");
 
+      let mut fmode = true;
       if payload.contains("please") || payload.contains("пожалуйста") {
-        if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload ).await {
-          return Some((k_key, gpt4free_result));
-        }
+        fmode = false;
       } else if payload.contains("Please")
-              || payload.contains("Пожалуйста")
-              || payload.contains("PLEASE") {
+             || payload.contains("Пожалуйста")
+             || payload.contains("PLEASE") {
         if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
           return Some((k_key, gpt4free_result));
         }
+        fmode = false;
       }
 
-      if let Ok(gpt4free_result)        = gpt4free::deepai::generate( payload ).await {
+      if let Ok(gpt4free_result)        = gpt4free::useless::generate( payload, fmode ).await {
         Some((k_key, gpt4free_result))
-      } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload ).await {
+      } else if let Ok(gpt4free_result) = gpt4free::deepai::generate( payload, fmode ).await {
+        Some((k_key, gpt4free_result))
+      } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload, fmode ).await {
         Some((k_key, gpt4free_result))
       } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
         Some((k_key, gpt4free_result))

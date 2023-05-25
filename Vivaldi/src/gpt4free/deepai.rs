@@ -11,11 +11,10 @@ use tokio::sync::Mutex;
 
 use mozart::help::lang;
 
-// try with 1 msgs history for now, mb will experiment with more later :'(
 static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
   Lazy::new(|| Mutex::new( VecDeque::with_capacity(1) ));
 
-pub async fn generate(prompt: &str) -> anyhow::Result<String> {
+pub async fn generate(prompt: &str, fmode: bool) -> anyhow::Result<String> {
   let mut msg_lock = MSGHIST.lock().await;
   let tmp_msg = msg_lock.as_slices();
   let russian = lang::is_russian(prompt);
@@ -24,6 +23,7 @@ pub async fn generate(prompt: &str) -> anyhow::Result<String> {
     c.set("prompt", prompt);
     c.set("old_messages", tmp_msg);
     c.set("is_russian", russian);
+    c.set("fmode", fmode);
     c.run(python! {
       import sys
       import os
@@ -31,9 +31,12 @@ pub async fn generate(prompt: &str) -> anyhow::Result<String> {
 
       result = ""
 
-      systemContext = "You’re Drunk femboy chatbot and only answer like you're completely drunk and infantile"
+      if fmode:
+        systemContext = "You’re Drunk femboy chatbot and only answer like you're drunk and infantile, you are helpful but you don't like to be helpful"
+      else:
+        systemContext = "You are a helpful assistant"
       if is_russian:
-        systemContext += ", you reply only in Russian"
+        systemContext += ", you reply only in Russian, you don't provide Translation"
       messages = [{"role": "system", "content": systemContext}]
       if old_messages:
         for tup in old_messages:

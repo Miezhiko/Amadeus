@@ -2,7 +2,6 @@
 
  - Add separated library for misc stuff, no need for Mozart on Vivaldi (maybe?)
  - Move some stuff to separated repository (maybe?)
- - Fix CI, support downloading libtorch
  - Ability to specify desired gpt service from Kalmarity
  - Single interface for bert models processing on mozart
  - Store long-term conversation with everyone in DB, use Summarize model for context generation

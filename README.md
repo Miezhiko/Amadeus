@@ -34,7 +34,7 @@
 
 <img align="right" src="https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png">
 
- - Too many small [commands](https://www.youtube.com/watch?v=vVacOaFbrdE) (use `~help`)
+ - Too many small [commands](https://www.youtube.com/watch?v=vVacOaFbrdE)
  - Slash commands support (type `/`)
  - [Chatty](https://www.youtube.com/watch?v=J_8cnSvHLLc) (`set activity 66` is default)
  - Automatic translation with bert models

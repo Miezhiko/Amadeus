@@ -1,7 +1,7 @@
 [package]
 name = "mozart"
 description = "Amadeus services library"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2021"
 
 [lib]
@@ -26,4 +26,4 @@ ucd             = "0.1.1"
 default-features = false
 git = "https://github.com/guillaume-be/rust-bert.git"
 branch = "master"
-features = [ "remote" ]
+features = [ "remote", "download-libtorch" ]

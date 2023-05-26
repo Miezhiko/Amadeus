@@ -3,8 +3,6 @@
 
 import           Hake
 
-import           System.Environment
-
 main ∷ IO ()
 main = hake $ do
 
@@ -14,20 +12,16 @@ main = hake $ do
   "update | update dependencies" ∫ cargo ["update"]
 
   salieriExecutable ♯
-       setTorchEnv
-    >> cargo <| "build" : buildFlagsSalieri False
+    cargo <| "build" : buildFlagsSalieri False
 
   vivaldiExecutable ♯
-       setTorchEnv
-    >> cargo <| "build" : buildFlagsVivaldi False
+    cargo <| "build" : buildFlagsVivaldi False
 
   amadeusExecutable ◉ [salieriExecutable] ♯♯
-       setTorchEnv
-    >> cargo <| "build" : buildFlagsAmadeus False
+    cargo <| "build" : buildFlagsAmadeus False
 
   "fat | build Amadeus and Salieri with fat LTO" ∫
-       setTorchEnv
-    >> cargo <| "build" : buildFlagsSalieri True
+       cargo <| "build" : buildFlagsSalieri True
     >> cargo <| "build" : buildFlagsVivaldi True
     >> cargo <| "build" : buildFlagsAmadeus True
 
@@ -50,9 +44,12 @@ main = hake $ do
     cargo . (("run" : buildFlagsAmadeus False) ++) . ("--" :) =<< getHakeArgs
 
  where
+  -- to use system PyTorch instead of downloaded
+  {-
   setTorchEnv ∷ IO ()
   setTorchEnv = setEnv "LIBTORCH_USE_PYTORCH" "1"
              >> setEnv "LIBTORCH_BYPASS_VERSION_CHECK" "1"
+  -}
 
   appNameSalieri ∷ String
   appNameSalieri = "salieri"

@@ -84,6 +84,11 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
           return Some((k_key, gpt4free_result));
         }
         fmode = false;
+      } else if payload.contains("aicolour ") {
+        let payload_new = payload.replace("aicolour ", "");
+        if let Ok(gpt4free_result) = gpt4free::aicolors::generate( payload_new.as_str() ) {
+          return Some((k_key, gpt4free_result));
+        }
       }
 
       if let Ok(gpt4free_result)        = gpt4free::useless::generate( payload, fmode ).await {

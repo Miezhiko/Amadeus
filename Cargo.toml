@@ -15,7 +15,7 @@ celery              = "^0.5"
 
 [workspace.dependencies.tokio]
 features  = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs"]
-version   = "^1.28.1"
+version   = "^1.28.2"
 workspace = true
 
 [profile.release]

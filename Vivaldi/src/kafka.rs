@@ -69,10 +69,25 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         return None;
       }
 
-      let chan      = key3[0].parse::<u64>().unwrap();
-      let user_id   = key3[1].parse::<u64>().unwrap();
-      let msg       = key3[2].parse::<u64>().unwrap();
+      let chan      = key3[0].parse::<u64>().unwrap_or(0);
+      let user_id   = key3[1].parse::<u64>().unwrap_or(0);
+      let msg       = key3[2].parse::<u64>().unwrap_or(0);
       let k_key     = format!("{chan}|{user_id}|{msg}");
+
+      if key3.len() > 3 {
+        let command = key3[3].parse::<u64>().unwrap_or(0);
+        match command {
+          1 => {
+            if let Ok(gpt4free_result) =
+              gpt4free::aicolors::generate( payload )
+            {
+              return Some((k_key, gpt4free_result));
+            }
+          },
+          _ => warn!("Unknown command")
+        };
+        return None;
+      }
 
       let mut fmode = true;
       if payload.contains("please") || payload.contains("пожалуйста") {
@@ -84,11 +99,6 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
           return Some((k_key, gpt4free_result));
         }
         fmode = false;
-      } else if payload.contains("aicolour ") {
-        let payload_new = payload.replace("aicolour ", "");
-        if let Ok(gpt4free_result) = gpt4free::aicolors::generate( payload_new.as_str() ) {
-          return Some((k_key, gpt4free_result));
-        }
       }
 
       if let Ok(gpt4free_result)        = gpt4free::useless::generate( payload, fmode ).await {

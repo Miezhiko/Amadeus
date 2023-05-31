@@ -8,7 +8,7 @@ use crate::{
 
 use celery::prelude::*;
 
-use rust_bert::pipelines::common::ModelType;
+use rust_bert::pipelines::common::{ ModelType, ModelResource };
 use rust_bert::pipelines::sequence_classification::{
     SequenceClassificationConfig, SequenceClassificationModel,
 };
@@ -30,7 +30,9 @@ use once_cell::sync::Lazy;
 fn codebert_model_loader() -> SequenceClassificationModel {
   let generate_config = SequenceClassificationConfig::new(
     ModelType::Roberta,
-    RemoteResource::from_pretrained(RobertaModelResources::CODEBERTA_LANGUAGE_ID),
+    ModelResource::Torch(
+      Box::new( RemoteResource::from_pretrained(RobertaModelResources::CODEBERTA_LANGUAGE_ID) )
+    ),
     RemoteResource::from_pretrained(RobertaConfigResources::CODEBERTA_LANGUAGE_ID),
     RemoteResource::from_pretrained(RobertaVocabResources::CODEBERTA_LANGUAGE_ID),
     Some(RemoteResource::from_pretrained(

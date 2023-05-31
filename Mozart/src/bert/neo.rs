@@ -12,8 +12,8 @@ use rust_bert::gpt_neo::{
     GptNeoConfigResources, GptNeoMergesResources, GptNeoModelResources, GptNeoVocabResources,
 };
 use rust_bert::{
-  pipelines::common::ModelType,
-  pipelines::text_generation::{TextGenerationConfig, TextGenerationModel},
+  pipelines::common::{ ModelType, ModelResource },
+  pipelines::text_generation::{ TextGenerationConfig, TextGenerationModel },
   resources::RemoteResource
 };
 
@@ -42,7 +42,7 @@ fn neo_model_loader() -> TextGenerationModel {
   ));
   let generate_config = TextGenerationConfig {
     model_type: ModelType::GPTNeo,
-    model_resource,
+    model_resource: ModelResource::Torch(model_resource),
     config_resource,
     vocab_resource,
     merges_resource: Some(merges_resource),

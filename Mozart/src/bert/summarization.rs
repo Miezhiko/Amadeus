@@ -14,6 +14,7 @@ use rust_bert::bart::{
 };
 use rust_bert::pipelines::summarization::{ SummarizationConfig, SummarizationModel };
 use rust_bert::resources::RemoteResource;
+use rust_bert::pipelines::common::ModelResource;
 
 use std::{ 
   os::unix::net::UnixStream,
@@ -41,7 +42,7 @@ fn summarization_model_bart_loader() -> SummarizationModel {
     BartModelResources::DISTILBART_CNN_6_6,
   ));
   let summarization_config = SummarizationConfig {
-    model_resource,
+    model_resource: ModelResource::Torch(model_resource),
     config_resource,
     vocab_resource,
     merges_resource: Some(merges_resource),

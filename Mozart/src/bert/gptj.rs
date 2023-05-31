@@ -9,10 +9,10 @@ use crate::{
 
 use celery::prelude::*;
 
-use rust_bert::gpt_j::{GptJConfigResources, GptJMergesResources, GptJVocabResources};
-use rust_bert::pipelines::common::ModelType;
-use rust_bert::pipelines::text_generation::{TextGenerationConfig, TextGenerationModel};
-use rust_bert::resources::{LocalResource, RemoteResource};
+use rust_bert::gpt_j::{ GptJConfigResources, GptJMergesResources, GptJVocabResources };
+use rust_bert::pipelines::common::{ ModelType, ModelResource };
+use rust_bert::pipelines::text_generation::{ TextGenerationConfig, TextGenerationModel };
+use rust_bert::resources::{ LocalResource, RemoteResource };
 
 use std::{ 
   os::unix::net::UnixStream,
@@ -44,7 +44,7 @@ fn gptj_model_loader() -> TextGenerationModel {
 
   let generation_config = TextGenerationConfig {
       model_type: ModelType::GPTJ,
-      model_resource,
+      model_resource: ModelResource::Torch(model_resource),
       config_resource,
       vocab_resource,
       merges_resource: Some(merges_resource),

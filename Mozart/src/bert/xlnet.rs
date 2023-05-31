@@ -9,10 +9,10 @@ use crate::{
 
 use celery::prelude::*;
 
-use rust_bert::pipelines::common::ModelType;
-use rust_bert::pipelines::text_generation::{TextGenerationConfig, TextGenerationModel};
+use rust_bert::pipelines::common::{ ModelType, ModelResource };
+use rust_bert::pipelines::text_generation::{ TextGenerationConfig, TextGenerationModel };
 use rust_bert::resources::RemoteResource;
-use rust_bert::xlnet::{XLNetConfigResources, XLNetModelResources, XLNetVocabResources};
+use rust_bert::xlnet::{ XLNetConfigResources, XLNetModelResources, XLNetVocabResources };
 
 use std::{ 
   os::unix::net::UnixStream,
@@ -41,7 +41,7 @@ fn xlnet_model_loader() -> TextGenerationModel {
   ));
   let generate_config = TextGenerationConfig {
     model_type: ModelType::XLNet,
-    model_resource,
+    model_resource: ModelResource::Torch(model_resource),
     config_resource,
     vocab_resource,
     merges_resource: Some(merges_resource),

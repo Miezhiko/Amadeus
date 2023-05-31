@@ -3,6 +3,7 @@ use crate::bert::chat;
 use rust_bert::{
   resources::RemoteResource,
   pipelines::{
+    common::ModelResource,
     conversation::{ ConversationManager
                   , ConversationModel
                   , ConversationConfig }
@@ -46,9 +47,9 @@ const DIALOGPT_LARGE_MERGES: (&str, &str) = (
 pub fn conv_model_loader() -> ConversationModel {
   ConversationModel::new(
     ConversationConfig {
-      model_resource: Box::new(RemoteResource::from_pretrained(
+      model_resource: ModelResource::Torch(Box::new(RemoteResource::from_pretrained(
         DIALOGPT_LARGE_MODEL
-      )),
+      ))),
       config_resource: Box::new(RemoteResource::from_pretrained(
         DIALOGPT_LARGE_CONFIG
       )),

@@ -26,7 +26,6 @@ serde               = { workspace = true }
 once_cell           = { workspace = true }
 anyhow              = { workspace = true }
 async-recursion     = { workspace = true }
-celery              = { workspace = true }
 chrono              = "0.4.24"
 glob                = "0.3.1"
 chrono-tz           = "0.8.2"
@@ -51,8 +50,9 @@ kathoey             = "1.1.4"
 serde_dhall         = "0.12.1"
 nipper              = "0.1.9"
 plotters            = "0.3.4"
+celery              = "^0.5"
 
-cynic   = { version = "3.0.0-beta.3", features = ["http-reqwest"] }
+cynic   = { version = "3.0.0",        features = ["http-reqwest"] }
 rand    = { version = "0.8.5",        features = ["std", "std_rng"] }
 reqwest = { version = "0.11.18",      features = ["json", "blocking"] }
 ical    = { version = "0.8",          features = ["ical"] }

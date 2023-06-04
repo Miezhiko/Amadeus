@@ -94,9 +94,9 @@ dependencies = [
 
 [[package]]
 name = "aho-corasick"
-version = "1.0.1"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67fc08ce920c31afb70f013dcce1bfc3a3195de6a228474e45e1f145b36f8d04"
+checksum = "43f6cb1bf222025340178f382c426f13757b2960e89779dfcb319c32542a5a41"
 dependencies = [
  "memchr",
 ]
@@ -856,7 +856,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#6f256e7c11713bd0b457520c5c1a5f736ac3f9ec"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#14e65e3d2823f2a4c8920a65ad8c5a18605aa110"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1092,12 +1092,12 @@ dependencies = [
 
 [[package]]
 name = "cssparser-macros"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dfae75de57f2b2e85e8768c3ea840fd159c8f33e2b6522c7835b7abac81be16e"
+checksum = "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331"
 dependencies = [
  "quote",
- "syn 1.0.109",
+ "syn 2.0.18",
 ]
 
 [[package]]
@@ -1123,11 +1123,12 @@ dependencies = [
 
 [[package]]
 name = "cynic"
-version = "3.0.0-beta.3"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2155e722fd76f4fa51635811279242e78cf312de1165e53cec4316425fd97c4d"
+checksum = "7b954f07a233e227b4b1e65660a76ed14439d5f566be943b2a7b81519feaa423"
 dependencies = [
  "cynic-proc-macros",
+ "ref-cast",
  "reqwest",
  "serde",
  "serde_json",
@@ -1137,9 +1138,9 @@ dependencies = [
 
 [[package]]
 name = "cynic-codegen"
-version = "3.0.0-beta.3"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2454afe901e4de5b4cbdf45a18453fff9d6dfe3bb096babd6a62882995a5138c"
+checksum = "a014fff9d5047b9efc9222ab8379a946aa1f7212fe35f982c3af4933abf484a0"
 dependencies = [
  "counter",
  "darling",
@@ -1155,11 +1156,13 @@ dependencies = [
 
 [[package]]
 name = "cynic-proc-macros"
-version = "3.0.0-beta.3"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6fd3ce67a4faeea7002a853acefe43938bc897d593f11abd76039dfb7ec445f0"
+checksum = "714bf9948fb6175c92e59e7f8ddfd185107dac31f2a77a75125609feb34ec41d"
 dependencies = [
  "cynic-codegen",
+ "proc-macro2",
+ "quote",
  "syn 1.0.109",
 ]
 
@@ -2575,9 +2578,9 @@ checksum = "db13adb97ab515a3691f56e4dbab09283d0b86cb45abd991d8634a9d6f501760"
 
 [[package]]
 name = "libc"
-version = "0.2.144"
+version = "0.2.145"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b00cc1c228a6782d0f076e7b232802e0c5689d41bb5df366f2a6b6621cfdfe1"
+checksum = "fc86cde3ff845662b8f4ef6cb50ea0e20c524eb3d29ae048287e06a1b3fa6a81"
 
 [[package]]
 name = "libloading"
@@ -3095,9 +3098,9 @@ checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
 
 [[package]]
 name = "once_cell"
-version = "1.17.2"
+version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9670a07f94779e00908f3e686eab508878ebb390ba6e604d3a284c00e8d0487b"
+checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
 
 [[package]]
 name = "opaque-debug"
@@ -4241,12 +4244,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "ref-cast"
+version = "1.0.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f43faa91b1c8b36841ee70e97188a869d37ae21759da6846d4be66de5bf7b12c"
+dependencies = [
+ "ref-cast-impl",
+]
+
+[[package]]
+name = "ref-cast-impl"
+version = "1.0.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d2275aab483050ab2a7364c1a46604865ee7d6906684e08db0f090acf74f9e7"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.18",
+]
+
+[[package]]
 name = "regex"
 version = "1.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "81ca098a9821bd52d6b24fd8b10bd081f47d39c22778cafaa75a2857a62c6390"
 dependencies = [
- "aho-corasick 1.0.1",
+ "aho-corasick 1.0.2",
  "memchr",
  "regex-syntax 0.7.2",
 ]
@@ -4817,7 +4840,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#6f256e7c11713bd0b457520c5c1a5f736ac3f9ec"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#14e65e3d2823f2a4c8920a65ad8c5a18605aa110"
 dependencies = [
  "async-trait",
  "base64 0.21.2",
@@ -4850,7 +4873,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#6f256e7c11713bd0b457520c5c1a5f736ac3f9ec"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#14e65e3d2823f2a4c8920a65ad8c5a18605aa110"
 dependencies = [
  "bitflags",
  "enum_primitive",

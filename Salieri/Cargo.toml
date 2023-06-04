@@ -8,7 +8,7 @@ edition = "2021"
 mozart          = { path = "../Mozart" }
 serde           = { workspace = true }
 anyhow          = { workspace = true }
-celery          = { workspace = true }
 tokio           = { workspace = true }
 env_logger      = "0.10"
 log             = "0.4.17"
+celery          = "^0.5"

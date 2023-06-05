@@ -1,5 +1,5 @@
 <h1 align="center">
-  Amadeus, Mozart, Salieri, Vivaldi
+  Amadeus
   <br>
 </h1>
 
@@ -141,8 +141,9 @@ The models will be downloaded to the environment variable `RUSTBERT_CACHE` if it
 
 ## Development
 
- - **Amadeus** is discord bot service on Serenity
+ - **Schubert** common tiny helper library shared between all (almost)
  - **Mozart** is set of tasks running on distributed tasks queue
+ - **Amadeus** is discord bot service on Serenity
  - **Salieri** is celery daemon running on rabbitmq and processing tasks
  - **Vivaldi** is kafka daemon processing bert / network tasks
  - [Kalmarity](https://github.com/Miezhiko/Kalmarity) is separated bot using **Salieri** service

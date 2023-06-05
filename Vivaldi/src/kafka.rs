@@ -1,5 +1,3 @@
-use mozart::bert::chat::chat_gpt2;
-
 use futures::stream::FuturesUnordered;
 use futures::{ StreamExt, TryStreamExt };
 
@@ -14,8 +12,6 @@ use rdkafka::{
   Message
 };
 
-use async_recursion::async_recursion;
-
 use crate::{
   gpt4free,
   opengpt
@@ -28,33 +24,7 @@ async fn record_owned_message_receipt(msg: &OwnedMessage) {
   info!("Message received: {}", msg.offset());
 }
 
-#[async_recursion]
-pub async fn chat_gpt2_kafka(msg: u64
-                           , chan: u64
-                           , something: String
-                           , user_id: u64
-                           , russian: bool
-                           , gtry: u32) -> anyhow::Result<(String, String)> {
-  if gtry > 0 {
-    warn!("GPT2: trying again: {gtry}");
-  }
-  match chat_gpt2(something.clone(), user_id, true).await {
-    Ok(result) => {
-      let k_key = format!("{chan}|{user_id}|{msg}");
-      Ok((k_key, result))
-    }, Err(why) => {
-      error!("GPT2: Failed to generate response: {why}");
-      if gtry > 9 {
-        error!("GPT2: failed to generate response 10 times!");
-        Err( why )
-      } else {
-        chat_gpt2_kafka(msg, chan, something, user_id, russian, gtry + 1).await
-      }
-    }
-  }
-}
-
-async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
+async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
   info!("Generating response for Kafka message {}", msg.offset());
   match msg.payload() {
     Some(payload_bytes) => {
@@ -115,24 +85,8 @@ async fn mozart_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         Some((k_key, gpt4free_result))
       } else if let Ok(gpt4free_result) = gpt4free::theb::generate( payload ) {
         Some((k_key, gpt4free_result))
-      } else {
-        let gpt2gen =
-        chat_gpt2_kafka( key3[2].parse::<u64>().unwrap_or(0)
-                       , key3[0].parse::<u64>().unwrap()
-                       , payload.to_string()
-                       , key3[1].parse::<u64>().unwrap()
-                       , false // TODO: check for russian
-                       , 0 ).await;
-        match gpt2gen {
-          Ok(response) => Some(response),
-          Err(err) => {
-            error!("Failed to generate gpt stuff on Kafka {err}");
-            None
-          }
-        }
-      }
-    },
-    None => None
+      } else { None }
+    }, None => None
   }
 }
 
@@ -173,7 +127,7 @@ async fn run_async_processor(
       let owned_message = borrowed_message.detach();
       record_owned_message_receipt(&owned_message).await;
       tokio::spawn(async move {
-        if let Some((k_key, response)) = mozart_process(owned_message).await {
+        if let Some((k_key, response)) = gpt_process(owned_message).await {
           let produce_future = producer.send(
             FutureRecord::to(&output_topic)
               .key(&k_key)

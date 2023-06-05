@@ -4,7 +4,6 @@ extern crate serde;
 
 pub mod types;
 pub mod cache;
-pub mod help;
 pub mod bert;
 
 pub mod commands;

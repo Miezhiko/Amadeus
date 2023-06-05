@@ -1,13 +1,14 @@
 [package]
 name = "mozart"
 description = "Amadeus services library"
-version = "0.3.4"
+version = "0.3.5"
 edition = "2021"
 
 [lib]
 doctest = false
 
 [dependencies]
+schubert        = { path = "../Schubert" }
 serde           = { workspace = true }
 anyhow          = { workspace = true }
 once_cell       = { workspace = true }
@@ -19,7 +20,6 @@ chrono          = "0.4.24"
 bincode         = "2.0.0-rc.3"
 regex           = "1.8"
 tch             = "0.13"
-ucd             = "0.1.1"
 celery          = "^0.5"
 
 [dependencies.rust-bert]

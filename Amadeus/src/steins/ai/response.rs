@@ -16,7 +16,7 @@ use serenity::{
 
 use rand::Rng;
 
-use mozart::help::lang;
+use schubert::help::lang;
 
 use tokio::time::{ sleep, Duration };
 use async_recursion::async_recursion;

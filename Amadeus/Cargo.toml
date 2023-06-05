@@ -20,6 +20,7 @@ full                = ["flo", "trackers"]
 ggru                = []
 
 [dependencies]
+schubert            = { path = "../Schubert" }
 mozart              = { path = "../Mozart" }
 tokio               = { workspace = true }
 serde               = { workspace = true }

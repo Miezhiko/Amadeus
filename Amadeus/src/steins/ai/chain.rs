@@ -33,7 +33,7 @@ use tokio::sync::MutexGuard;
 
 use std::collections::HashMap;
 
-use mozart::help::lang;
+use schubert::help::lang;
 use mozart::bert::{ RE1, RE2, RE3 };
 
 pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Option<String> {

@@ -8,7 +8,7 @@ use once_cell::sync::Lazy;
 
 use tokio::sync::Mutex;
 
-use mozart::help::lang;
+use schubert::help::lang;
 
 static MYMSG: Lazy<Mutex<String>> =
   Lazy::new(|| Mutex::new( String::from("") ));

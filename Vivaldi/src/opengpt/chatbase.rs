@@ -4,7 +4,7 @@ use std::panic::catch_unwind;
 
 use anyhow::bail;
 
-use mozart::help::lang;
+use schubert::help::lang;
 
 pub fn generate(prompt: &str) -> anyhow::Result<String> {
   let russian = lang::is_russian(prompt);

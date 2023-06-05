@@ -24,7 +24,7 @@ use serenity::{
   futures::StreamExt
 };
 
-use mozart::help::lang;
+use schubert::help::lang;
 
 use std::sync::atomic::Ordering;
 use async_std::fs;

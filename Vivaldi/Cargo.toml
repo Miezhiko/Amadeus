@@ -1,15 +1,14 @@
 [package]
 name = "vivaldi"
 description = "Kalmarity services consumer"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 
 [dependencies]
-mozart          = { path = "../Mozart" }
+schubert        = { path = "../Schubert" }
 serde           = { workspace = true }
 anyhow          = { workspace = true }
 tokio           = { workspace = true }
-async-recursion = { workspace = true }
 once_cell       = { workspace = true }
 env_logger      = "0.10"
 log             = "0.4.18"

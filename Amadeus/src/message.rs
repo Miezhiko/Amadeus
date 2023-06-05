@@ -18,7 +18,7 @@ use crate::{
                }
 };
 
-use mozart::help::lang;
+use schubert::help::lang;
 
 #[cfg(feature = "spam_filter")]
 use crate::spam::spam_check;

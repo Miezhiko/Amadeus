@@ -9,7 +9,7 @@ use once_cell::sync::Lazy;
 
 use tokio::sync::Mutex;
 
-use mozart::help::lang;
+use schubert::help::lang;
 
 static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
   Lazy::new(|| Mutex::new( VecDeque::with_capacity(1) ));

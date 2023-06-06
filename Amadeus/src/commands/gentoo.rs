@@ -210,7 +210,7 @@ async fn zugaina(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
   // TODO: if exact package name found then show only that
   if parse_result.is_empty() {
-    warn!("empty parsed result for ~overlays");
+    msg.channel_id.say(ctx, &format!("empty result for : {search}")).await?;
     return Ok(());
   }
 

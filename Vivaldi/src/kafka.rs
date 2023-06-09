@@ -14,7 +14,8 @@ use rdkafka::{
 
 use crate::{
   gpt4free,
-  opengpt
+  opengpt,
+  poe
 };
 
 async fn record_owned_message_receipt(msg: &OwnedMessage) {
@@ -65,7 +66,9 @@ async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
       } else if payload.contains("Please")
              || payload.contains("Пожалуйста")
              || payload.contains("PLEASE") {
-        if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
+        if let Ok(gpt4free_result) = poe::generate( payload ) {
+          return Some((k_key, gpt4free_result));
+        } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
           return Some((k_key, gpt4free_result));
         }
         fmode = false;
@@ -78,6 +81,8 @@ async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
       } else if let Ok(gpt4free_result) = gpt4free::deepai::generate( payload, fmode ).await {
         Some((k_key, gpt4free_result))
       } else if let Ok(gpt4free_result) = gpt4free::gptworldAi::generate( payload, fmode ).await {
+        Some((k_key, gpt4free_result))
+      } else if let Ok(gpt4free_result) = poe::generate( payload ) {
         Some((k_key, gpt4free_result))
       } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload, fmode ).await {
         Some((k_key, gpt4free_result))

@@ -1,9 +1,7 @@
 use crate::bert::chat;
 
 use rust_bert::{
-  resources::RemoteResource,
   pipelines::{
-    common::ModelResource,
     conversation::{ ConversationManager
                   , ConversationModel
                   , ConversationConfig }
@@ -24,44 +22,14 @@ pub static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
 pub static CACHE_ENG_STR: Lazy<Mutex<HashSet<String>>> =
   Lazy::new(|| Mutex::new(HashSet::new()));
 
-const DIALOGPT_LARGE_MODEL: (&str, &str) = (
-  "dialogpt-large/model",
-  "https://huggingface.co/microsoft/DialoGPT-large/resolve/refs%2Fpr%2F4/rust_model.ot"
-);
-
-const DIALOGPT_LARGE_CONFIG: (&str, &str) = (
-  "dialogpt-large/config",
-  "https://huggingface.co/microsoft/DialoGPT-large/resolve/main/config.json",
-);
-
-const DIALOGPT_LARGE_VOCAB: (&str, &str) = (
-  "dialogpt-large/vocab",
-  "https://huggingface.co/microsoft/DialoGPT-large/resolve/main/vocab.json",
-);
-
-const DIALOGPT_LARGE_MERGES: (&str, &str) = (
-  "dialogpt-large/merges",
-  "https://huggingface.co/microsoft/DialoGPT-large/resolve/main/merges.txt",
-);
-
 pub fn conv_model_loader() -> ConversationModel {
   ConversationModel::new(
     ConversationConfig {
-      model_resource: ModelResource::Torch(Box::new(RemoteResource::from_pretrained(
-        DIALOGPT_LARGE_MODEL
-      ))),
-      config_resource: Box::new(RemoteResource::from_pretrained(
-        DIALOGPT_LARGE_CONFIG
-      )),
-      vocab_resource: Box::new(RemoteResource::from_pretrained(
-        DIALOGPT_LARGE_VOCAB
-      )),
-      merges_resource: Some(Box::new(RemoteResource::from_pretrained(
-        DIALOGPT_LARGE_MERGES
-      ))),
       min_length: 3,
-      max_length: Some(1000),
+      max_length: Some(1800),
       min_length_for_response: 10,
+      num_beams: 3,
+      do_sample: false,
       device: *DEVICE,
       ..Default::default()
     }

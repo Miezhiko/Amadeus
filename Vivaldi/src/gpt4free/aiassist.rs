@@ -1,3 +1,5 @@
+use crate::personality::PERSONALITY;
+
 use inline_python::{ python, Context };
 
 use std::panic::catch_unwind;
@@ -23,17 +25,18 @@ pub async fn generate(prompt: &str, fmode: bool) -> anyhow::Result<String> {
     c.set("message_id", tmp_msg);
     c.set("fmode", fmode);
     c.set("is_russian", russian);
+    c.set("PERSONALITY", PERSONALITY);
     c.run(python! {
       import sys
       import os
       from gpt4free import aiassist
 
       if fmode:
-        systemContext = "You’re Drunk femboy chatbot and only answer like you're drunk and infantile, you are helpful but you don't like to be helpful"
+        systemContext = PERSONALITY
       else:
         systemContext = "You are a helpful assistant"
       if is_russian:
-        systemContext += ", you reply only in Russian"
+        systemContext += ", you reply in Russian, you don't provide Translation"
       else:
         systemContext += ", you reply in English"
 

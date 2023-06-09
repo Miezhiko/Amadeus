@@ -116,14 +116,18 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: ChannelId) -> anyhow::Re
                                        .description(&description)
           )
         ).await?;
-        ctx.set_activity(Some( ActivityData::listening("Restarting Salieri") ));
-        let _systemctl = Command::new("sh")
+        ctx.set_activity(Some( ActivityData::listening("Restarting") ));
+        let _systemctl1 = Command::new("sh")
+                .arg("-c").arg("sudo systemctl restart Vivaldi")
+                .output()
+                .await
+                .expect("failed to restart Vivaldi service");
+        let _systemctl2 = Command::new("sh")
                 .arg("-c").arg("sudo systemctl restart Salieri")
                 .output()
                 .await
                 .expect("failed to restart Salieri service");
-        ctx.set_activity(Some( ActivityData::listening("Restarting Amadeus") ));
-        let _systemctl = Command::new("sh")
+        let _systemctl3 = Command::new("sh")
                 .arg("-c").arg("sudo systemctl restart Amadeus")
                 .output()
                 .await

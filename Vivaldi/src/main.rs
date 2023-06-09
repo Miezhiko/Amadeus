@@ -1,6 +1,7 @@
 extern crate serde;
 
 mod personality;
+mod poe;
 mod gpt4free;
 mod opengpt;
 

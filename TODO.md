@@ -1,6 +1,6 @@
 ##REALLY PLANNED:
 
- - Add separated library for misc stuff, no need for Mozart on Vivaldi (maybe?)
+ - Flag for minimal upgrade without deps updates for safety
  - Move some stuff to separated repository (maybe?)
  - Ability to specify desired gpt service from Kalmarity
  - Single interface for bert models processing on mozart

@@ -3,10 +3,7 @@ use crate::{
   steins::gate::START_TIME
 };
 
-use serenity::{
-  gateway::ShardId,
-  prelude::*
-};
+use serenity::prelude::*;
 
 use chrono::{ Duration, Utc };
 use tokio::process::Command;
@@ -50,7 +47,7 @@ pub async fn get_system_info(ctx: &Context) -> SysInfo {
       set!{ shard_manager = data.get::<ShardManagerContainer>().unwrap()
           , manager       = shard_manager.lock().await
           , runners       = manager.runners.lock().await
-          , runner_raw    = runners.get(&ShardId(ctx.shard_id)) };
+          , runner_raw    = runners.get(&ctx.shard_id) };
       match runner_raw {
         Some(runner) => {
           match runner.latency {

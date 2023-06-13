@@ -12,7 +12,7 @@ use rdkafka::{
   Message
 };
 
-use crate::{
+use wagner::{
   gpt4free,
   opengpt,
   poe

@@ -109,7 +109,7 @@ checksum = "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd"
 
 [[package]]
 name = "amadeus"
-version = "10.6.4"
+version = "11.0.0"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -2844,7 +2844,7 @@ dependencies = [
 
 [[package]]
 name = "mozart"
-version = "0.3.6"
+version = "0.4.0"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -2860,6 +2860,7 @@ dependencies = [
  "serde",
  "tch",
  "tokio",
+ "wagner",
 ]
 
 [[package]]
@@ -6180,13 +6181,13 @@ dependencies = [
  "anyhow",
  "env_logger",
  "futures 0.3.28",
- "inline-python",
  "log",
  "once_cell",
  "rdkafka",
  "schubert",
  "serde",
  "tokio",
+ "wagner",
 ]
 
 [[package]]
@@ -6194,6 +6195,21 @@ name = "void"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
+
+[[package]]
+name = "wagner"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "env_logger",
+ "futures 0.3.28",
+ "inline-python",
+ "log",
+ "once_cell",
+ "schubert",
+ "serde",
+ "tokio",
+]
 
 [[package]]
 name = "waker-fn"

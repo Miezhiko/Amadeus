@@ -17,13 +17,13 @@ pub fn generate(prompt: &str) -> anyhow::Result<String> {
       system = "system: your response will be rendered in a discord message, include language hints when returning code like: ```py ...```, and use * or ** or > to create highlights ||\n prompt: "
 
       try:
-        token = random.choice(open("tokens.txt", "r").read().splitlines())
+        token = random.choice(open("/data/contrib/rust/Amadeus/tokens.txt", "r").read().splitlines())
         client = poe.Client(token.split(":")[0])
 
         completion = client.send_message("beaver", system + prompt, with_chat_break=True)
 
-        for token in completion:
-          result += token["text_new"]
+        for tt in completion:
+          result += tt["text_new"]
           result = result.replace("Discord Message:", "")
         reslt = True
       except OSError as err:

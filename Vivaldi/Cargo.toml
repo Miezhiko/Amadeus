@@ -1,7 +1,7 @@
 [package]
 name = "vivaldi"
 description = "Kalmarity services consumer"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 
 [dependencies]
@@ -11,10 +11,10 @@ anyhow          = { workspace = true }
 tokio           = { workspace = true }
 once_cell       = { workspace = true }
 env_logger      = "0.10"
-log             = "0.4.18"
+log             = "0.4.19"
 futures         = "0.3"
 inline-python   = "0.10"
 
 [dependencies.rdkafka]
-version = "0.31"
+version = "0.32"
 features = ["dynamic-linking", "tokio"]

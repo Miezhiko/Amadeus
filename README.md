@@ -78,6 +78,7 @@
  - Salieri needs [RabbitMQ](https://www.rabbitmq.com) to work properly
  - Vivaldi needs running [Kafka](https://kafka.apache.org)
  - Mozart needs to link with [PyTorch](https://pytorch.org/), instructions on [tch-rs](https://github.com/LaurentMazare/tch-rs)
+ - Wagner needs `tokens.txt` file for poe API to work
  - to compile just use `cargo build --release` or `hake`
  - `cp conf.example.dhall conf.dhall` (initial constant options)
  - `cp conf.example.yml conf.yml` (those options may change in runtime)
@@ -143,6 +144,7 @@ The models will be downloaded to the environment variable `RUSTBERT_CACHE` if it
 ## Development
 
  - **Schubert** common tiny helper library shared between all (almost)
+ - **Wagner** python modules using inline-python
  - **Mozart** is set of tasks running on distributed tasks queue
  - **Amadeus** is discord bot service on Serenity
  - **Salieri** is celery daemon running on rabbitmq and processing tasks

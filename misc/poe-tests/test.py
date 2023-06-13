@@ -15,7 +15,7 @@ model = 'gpt-4'
 base = f'\n'
 system = 'system: your response will be rendered in a discord message, include language hints when returning code like: ```py ...```, and use * or ** or > to create highlights ||\n prompt: '
 
-token = random.choice(open('/data/contrib/rust/Amadeus/tokens.txt', 'r').read().splitlines())
+token = random.choice(open('tokens.txt', 'r').read().splitlines())
 client = poe.Client(token)
 
 completion = client.send_message(models[model], system + prompt, with_chat_break=True)

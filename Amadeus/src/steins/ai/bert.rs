@@ -12,7 +12,8 @@ use mozart::{
         , summarization::SUMMARIZE
         , xlnet::XLNET
         , code::CODEBERT
-        , gptj::GPTJ }
+        , gptj::GPTJ },
+  wagner::WAGNER
 };
 
 async fn salieri_request<T>( sig: celery::task::Signature<T>
@@ -90,6 +91,15 @@ pub async fn gptj( msg: Option<u64>
   salieri_request(GPTJ::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
+pub async fn wagner( msg: Option<u64>
+                   , chan: u64
+                   , something: String
+                   , user_id: u64
+                   , lsm: bool
+                   , russian: bool ) -> Result<Option<String>> {
+  salieri_request(WAGNER::new(msg, chan, something, user_id, lsm, russian)).await
+}
+
 pub async fn chat( msg: Option<u64>
                  , chan: u64
                  , something: String
@@ -112,6 +122,7 @@ pub async fn chat( msg: Option<u64>
     2 => xlnet      (msg, chan, input, user_id, lsm, russian).await,
     3 => codebert   (msg, chan, input, user_id, lsm, russian).await,
     4 => gptj       (msg, chan, input, user_id, lsm, russian).await,
-    _ => chat_gpt2  (msg, chan, input, user_id, lsm, russian).await
+    5 => chat_gpt2  (msg, chan, input, user_id, lsm, russian).await,
+    _ => wagner     (msg, chan, input, user_id, lsm, russian).await
   }
 }

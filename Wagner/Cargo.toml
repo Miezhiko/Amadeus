@@ -1,12 +1,11 @@
 [package]
-name = "vivaldi"
-description = "Kalmarity services consumer"
-version = "0.2.1"
+name = "wagner"
+description = "pythonic modules"
+version = "0.0.1"
 edition = "2021"
 
 [dependencies]
 schubert        = { path = "../Schubert" }
-wagner          = { path = "../Wagner" }
 serde           = { workspace = true }
 anyhow          = { workspace = true }
 tokio           = { workspace = true }
@@ -14,7 +13,4 @@ once_cell       = { workspace = true }
 env_logger      = "0.10"
 log             = "0.4.19"
 futures         = "0.3"
-
-[dependencies.rdkafka]
-version = "0.32"
-features = ["dynamic-linking", "tokio"]
+inline-python   = "0.10"

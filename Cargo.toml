@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
   "Schubert",
+  "Wagner",
   "Mozart",
   "Amadeus",
   "Salieri",

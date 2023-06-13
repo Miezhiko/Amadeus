@@ -1,10 +1,5 @@
 extern crate serde;
 
-mod personality;
-mod poe;
-mod gpt4free;
-mod opengpt;
-
 mod kafka;
 
 use env_logger::Env;

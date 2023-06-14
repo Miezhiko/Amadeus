@@ -21,13 +21,13 @@ use schubert::help::lang;
 use tokio::time::{ sleep, Duration };
 use async_recursion::async_recursion;
 
-#[cfg(feature = "torch")]
 #[async_recursion]
 async fn generate_response( ctx: &Context
                           , msg: &Message
                           , gtry: u32
                           , lsm: bool
-                          , is_response: bool ) -> Option<String> {
+                          , is_response: bool
+                          , guild_id: u64 ) -> Option<String> {
   let start_typing = ctx.http.start_typing(msg.channel_id);
   let message_id = if is_response { Some(msg.id.0.get()) } else { None };
   if gtry > 0 {
@@ -86,7 +86,8 @@ async fn generate_response( ctx: &Context
                           , text
                           , msg.author.id.0.get()
                           , lsm
-                          , russian ).await {
+                          , russian
+                          , guild_id ).await {
             Ok(answer) => {
               bert_generated = true;
               answer },
@@ -102,7 +103,8 @@ async fn generate_response( ctx: &Context
                         , text
                         , msg.author.id.0.get()
                         , lsm
-                        , russian ).await {
+                        , russian 
+                        , guild_id ).await {
           Ok(answer) => {
             bert_generated = true;
             answer },
@@ -139,7 +141,12 @@ async fn generate_response( ctx: &Context
   if let Some(answer) = answer_option {
     if answer.is_empty() || answer.len() < 3 {
       sleep(Duration::from_millis(100)).await;
-      generate_response(ctx, msg, gtry + 1, lsm, is_response).await
+      generate_response( ctx
+                       , msg
+                       , gtry + 1
+                       , lsm
+                       , is_response
+                       , guild_id ).await
     } else {
       Some(answer)
     }
@@ -148,65 +155,14 @@ async fn generate_response( ctx: &Context
   }
 }
 
-#[cfg(not(feature = "torch"))]
-#[async_recursion]
-async fn generate_response( ctx: &Context
-                          , msg: &Message
-                          , gtry: u32
-                          , lsm: bool
-                          , is_response: bool ) -> Option<String> {
-  let start_typing = ctx.http.start_typing(msg.channel_id);
-  if gtry > 0 {
-    warn!("Failed to generate normal respons, try: {gtry}");
-  }
-  let russian =
-    if let Some(ch_lang) = AI_ALLOWED.iter().find(|c| c.id == msg.channel_id.0.get()) {
-      match ch_lang.lang {
-        ChannelLanguage::English => {
-          false
-        },
-        ChannelLanguage::Russian => {
-          true
-        },
-        ChannelLanguage::Bilingual => {
-          lang::is_russian(&msg.content)
-        }
-      }
-    } else {
-      lang::is_russian(&msg.content)
-    };
-  let mut answer = generate(ctx, msg, Some(russian)).await;
-  if russian && !answer.is_empty() {
-    let rndxx: u32 = rand::thread_rng().gen_range(0..2);
-    if rndxx == 1 {
-      let kathoey = KATHOEY.lock().await;
-      let rndxxx: u32 = rand::thread_rng().gen_range(0..30);
-      answer =
-        if rndxxx == 1 {
-          kathoey.extreme_feminize(&answer)
-        } else {
-          kathoey.feminize(&answer)
-        };
-    }
-  }
-  start_typing.stop();
-  let trimmd = answer.as_str().trim();
-  if trimmd.is_empty() || trimmd.len() < 3 {
-    sleep(Duration::from_millis(100)).await;
-    generate_response(ctx, msg, gtry + 1, lsm, is_response).await
-  } else {
-    Some(answer)
-  }
-}
-
-pub async fn chat(ctx: &Context, msg: &Message) {
+pub async fn chat(ctx: &Context, msg: &Message, guild_id: u64) {
   let lsm = {
     let data = ctx.data.read().await;
     if let Some(icontext) = data.get::<IContext>() {
       icontext.lazy_static_models
     } else { false }
   };
-  if let Some(answer) = generate_response(ctx, msg, 0, lsm, false).await {
+  if let Some(answer) = generate_response(ctx, msg, 0, lsm, false, guild_id).await {
     if !answer.is_empty() {
       let rnd = rand::thread_rng().gen_range(0..3);
       if rnd == 1 {
@@ -218,14 +174,14 @@ pub async fn chat(ctx: &Context, msg: &Message) {
   }
 }
 
-pub async fn response(ctx: &Context, msg: &Message) {
+pub async fn response(ctx: &Context, msg: &Message, guild_id: u64) {
   let lsm = {
     let data = ctx.data.read().await;
     if let Some(icontext) = data.get::<IContext>() {
       icontext.lazy_static_models
     } else { false }
   };
-  if let Some(answer) = generate_response(ctx, msg, 0, lsm, true).await {
+  if let Some(answer) = generate_response(ctx, msg, 0, lsm, true, guild_id).await {
     if !answer.is_empty() {
       reply(ctx, msg, &answer).await;
     }

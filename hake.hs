@@ -67,8 +67,7 @@ main = hake $ do
   buildPath = targetPath </> "release"
 
   amadeusFeatures ∷ [String]
-  amadeusFeatures = [ "trackers"
-                    , "torch" ]
+  amadeusFeatures = [ "trackers" ]
 
   fatArgs ∷ [String]
   fatArgs = [ "--profile"

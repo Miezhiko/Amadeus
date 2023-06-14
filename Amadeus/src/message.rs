@@ -136,6 +136,7 @@ pub async fn process( ioptions: &IOptions
     }
   } else if !msg.content.starts_with(PREFIX) {
     if let Some(guild_id) = msg.guild_id {
+      let guild_id_u64: u64 = guild_id.0.get();
       #[cfg(feature = "spam_filter")]
       spam_check(&guild_id, ctx, &msg).await;
       if msg.mentions.iter().any(|u| u.bot) {
@@ -144,11 +145,11 @@ pub async fn process( ioptions: &IOptions
               , amention2 = format!("<@!{amadeus_id}>") };
           if !msg.content.starts_with(&amention1)
           && !msg.content.starts_with(&amention2) {
-            response::response(ctx, &msg).await;
+            response::response(ctx, &msg, guild_id_u64).await;
           }
         }
       } else {
-        points::add_points(guild_id.0.get(), msg.author.id.0.get(), 1).await;
+        points::add_points(guild_id_u64, msg.author.id.0.get(), 1).await;
         let msg_channel_id_u64 = msg.channel_id.0.get();
         for file in &msg.attachments {
           if file.filename.ends_with("w3g") {
@@ -228,7 +229,7 @@ pub async fn process( ioptions: &IOptions
           let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed);
           let rnd = rand::thread_rng().gen_range(0..activity_level);
           if rnd == 1 {
-            response::chat(ctx, &msg).await;
+            response::chat(ctx, &msg, guild_id_u64).await;
           }
           let rnd2: u16 = rand::thread_rng().gen_range(0..2);
           if rnd2 == 1 {
@@ -248,7 +249,7 @@ pub async fn process( ioptions: &IOptions
                   if (normal_people_rnd == 1 || member.roles.contains(&role.id))
                   && !WHITELIST.iter().any(|u| *u == msg.author.id.0.get())
                   && !ioptions.servers.iter()
-                                      .any(|s| s.id    == guild_id.0.get()
+                                      .any(|s| s.id    == guild_id_u64
                                             && s.kind  == CoreGuild::Safe) {
                     if let Err(why) = msg.react(ctx, reaction).await {
                       error!("Failed to react with {}: {why}", emoji.name);

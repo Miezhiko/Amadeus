@@ -72,8 +72,8 @@ pub async fn unrecognised_command( ctx: &Context
         error!("Error sending greeting reply: {why}");
       }
     }
-  } else {
-    response::response(ctx, msg).await;
+  } else if let Some(guild_id) = msg.guild_id {
+    response::response(ctx, msg, guild_id.0.get()).await;
   }
 }
 

@@ -13,46 +13,10 @@ use std::{
   io::prelude::*
 };
 
-use wagner::{
-  gpt4free,
-  opengpt,
-  poe
-};
-
 async fn wagner(msg_content: &str) -> anyhow::Result<String> {
-  info!("Generating vivaldi response");
+  info!("Generating Wagner response");
   let payload = process_message_for_gpt(msg_content);
-  let mut fmode = true;
-  if payload.contains("please") || payload.contains("пожалуйста") {
-    fmode = false;
-  } else if payload.contains("Please")
-         || payload.contains("Пожалуйста")
-         || payload.contains("PLEASE") {
-    if let Ok(gpt4free_result) = poe::generate( &payload ) {
-      return Ok(gpt4free_result)
-    } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( &payload ) {
-      return Ok(gpt4free_result)
-    }
-    fmode = false;
-  }
-
-  if let Ok(gpt4free_result)        = gpt4free::useless::generate( &payload, fmode ).await {
-    Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::aiassist::generate( &payload, fmode ).await {
-    Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::deepai::generate( &payload, fmode ).await {
-    Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::gptworldAi::generate( &payload, fmode ).await {
-    Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = poe::generate( &payload ) {
-    Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( &payload, fmode ).await {
-    Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( &payload ) {
-    Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::theb::generate( &payload ) {
-    Ok(gpt4free_result)
-  } else { Err(anyhow!("Failed to generate Wagner response")) }
+  wagner::wagner(&payload).await
 }
 
 async fn wagner_send( msg: Option<u64>

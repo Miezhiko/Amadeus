@@ -857,7 +857,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#9ea366098273ce9360f88301de8327f8d7414c51"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#7f31a63a660e87a6f13ee2944aa9e8f3e4576e4f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4858,7 +4858,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#9ea366098273ce9360f88301de8327f8d7414c51"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#7f31a63a660e87a6f13ee2944aa9e8f3e4576e4f"
 dependencies = [
  "async-trait",
  "base64 0.21.2",
@@ -4891,7 +4891,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#9ea366098273ce9360f88301de8327f8d7414c51"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#7f31a63a660e87a6f13ee2944aa9e8f3e4576e4f"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -6198,7 +6198,7 @@ checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "wagner"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "anyhow",
  "env_logger",

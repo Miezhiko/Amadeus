@@ -4,18 +4,26 @@ use std::panic::catch_unwind;
 
 use anyhow::bail;
 
+use schubert::help::lang;
+
 pub fn generate(prompt: &str) -> anyhow::Result<String> {
+  let russian = lang::is_russian(prompt);
   match catch_unwind(|| {
     let c = Context::new();
     c.set("prompt", prompt);
+    c.set("is_russian", russian);
     c.run(python! {
       import sys
       import os
       import time, json, poe, random
 
       result = ""
-      system = "system: your response will be rendered in a discord message, include language hints when returning code like: ```py ...```, and use * or ** or > to create highlights ||\n prompt: "
+      system = "system: your response will be rendered in a discord message, include language hints when returning code like: ```py ...```, and use * or ** or > to create highlights ||"
 
+      if is_russian:
+        system += ", you reply only in Russian"
+
+      system += "\n prompt: "
       try:
         token = random.choice(open("tokens.txt", "r").read().splitlines())
         client = poe.Client(token.split(":")[0])

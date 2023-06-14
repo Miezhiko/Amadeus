@@ -12,12 +12,6 @@ use rdkafka::{
   Message
 };
 
-use wagner::{
-  gpt4free,
-  opengpt,
-  poe
-};
-
 async fn record_owned_message_receipt(msg: &OwnedMessage) {
   // Like `record_borrowed_message_receipt`, but takes an `OwnedMessage`
   // instead, as in a real-world use case  an `OwnedMessage` might be more
@@ -50,7 +44,7 @@ async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         match command {
           1 => {
             if let Ok(gpt4free_result) =
-              gpt4free::aicolors::generate( payload )
+              wagner::gpt4free::aicolors::generate( payload )
             {
               return Some((k_key, gpt4free_result));
             }
@@ -60,36 +54,8 @@ async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         return None;
       }
 
-      let mut fmode = true;
-      if payload.contains("please") || payload.contains("пожалуйста") {
-        fmode = false;
-      } else if payload.contains("Please")
-             || payload.contains("Пожалуйста")
-             || payload.contains("PLEASE") {
-        if let Ok(gpt4free_result) = poe::generate( payload ) {
-          return Some((k_key, gpt4free_result));
-        } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
-          return Some((k_key, gpt4free_result));
-        }
-        fmode = false;
-      }
-
-      if let Ok(gpt4free_result)        = gpt4free::useless::generate( payload, fmode ).await {
-        Some((k_key, gpt4free_result))
-      } else if let Ok(gpt4free_result) = gpt4free::aiassist::generate( payload, fmode ).await {
-        Some((k_key, gpt4free_result))
-      } else if let Ok(gpt4free_result) = gpt4free::deepai::generate( payload, fmode ).await {
-        Some((k_key, gpt4free_result))
-      } else if let Ok(gpt4free_result) = gpt4free::gptworldAi::generate( payload, fmode ).await {
-        Some((k_key, gpt4free_result))
-      } else if let Ok(gpt4free_result) = poe::generate( payload ) {
-        Some((k_key, gpt4free_result))
-      } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( payload, fmode ).await {
-        Some((k_key, gpt4free_result))
-      } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( payload ) {
-        Some((k_key, gpt4free_result))
-      } else if let Ok(gpt4free_result) = gpt4free::theb::generate( payload ) {
-        Some((k_key, gpt4free_result))
+      if let Ok(wagner_result) = wagner::wagner(payload).await {
+        Some((k_key, wagner_result))
       } else { None }
     }, None => None
   }

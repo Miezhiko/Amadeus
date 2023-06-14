@@ -5,7 +5,7 @@ version = "0.4.0"
 edition = "2021"
 
 [dependencies]
-mozart          = { path = "../Mozart" }
+strauss          = { path = "../Strauss" }
 serde           = { workspace = true }
 anyhow          = { workspace = true }
 tokio           = { workspace = true }

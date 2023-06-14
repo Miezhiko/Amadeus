@@ -15,7 +15,7 @@ use tokio::{ sync::Mutex, select
 use once_cell::sync::Lazy;
 use celery::Celery;
 
-use mozart::{
+use strauss::{
   commands::SALIERI_SOCKET,
   bert::LUKASHENKO
 };
@@ -50,7 +50,7 @@ async fn process_lukashenko(ctx: &Context, lukashenko: &UnixListener) {
 }
 
 pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
-  match mozart::celery_init(mozart::SALIERI_AMPQ).await {
+  match strauss::celery_init(strauss::SALIERI_AMPQ).await {
     Ok(c) => {
       let mut salieri_lock_mut = SALIERI.lock().await;
       *salieri_lock_mut = Some(c);
@@ -61,7 +61,7 @@ pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
   }
   let salieri_lock = SALIERI.lock().await;
   if let Some(salieri) = &*salieri_lock {
-    salieri.send_task(mozart::AMADEUS_INIT::new()).await?;
+    salieri.send_task(strauss::AMADEUS_INIT::new()).await?;
 
     let temp_dir = std::env::temp_dir();
 

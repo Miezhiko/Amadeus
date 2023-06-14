@@ -8,7 +8,7 @@ use serenity::{
   },
 };
 
-use mozart::bert::translation::{ bert_translate, SLanguage };
+use strauss::bert::translation::{ bert_translate, SLanguage };
 
 #[command]
 #[min_args(1)]

@@ -130,7 +130,6 @@ dependencies = [
  "itertools 0.10.5",
  "kathoey",
  "markov",
- "mozart",
  "nipper",
  "once_cell",
  "plotters",
@@ -147,6 +146,7 @@ dependencies = [
  "serenity",
  "sled",
  "songbird",
+ "strauss",
  "stroke",
  "tokio",
  "tonic",
@@ -2843,27 +2843,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mozart"
-version = "0.4.0"
-dependencies = [
- "anyhow",
- "async-recursion",
- "bincode",
- "celery",
- "chrono",
- "log",
- "once_cell",
- "rand 0.8.5",
- "regex",
- "rust-bert",
- "schubert",
- "serde",
- "tch",
- "tokio",
- "wagner",
-]
-
-[[package]]
 name = "multimap"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4583,8 +4562,8 @@ dependencies = [
  "celery",
  "env_logger",
  "log",
- "mozart",
  "serde",
+ "strauss",
  "tokio",
 ]
 
@@ -5143,6 +5122,27 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
+name = "strauss"
+version = "0.4.0"
+dependencies = [
+ "anyhow",
+ "async-recursion",
+ "bincode",
+ "celery",
+ "chrono",
+ "log",
+ "once_cell",
+ "rand 0.8.5",
+ "regex",
+ "rust-bert",
+ "schubert",
+ "serde",
+ "tch",
+ "tokio",
+ "wagner",
+]
 
 [[package]]
 name = "streamcatcher"

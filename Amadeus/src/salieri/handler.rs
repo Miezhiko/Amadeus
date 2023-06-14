@@ -5,7 +5,7 @@ use crate::{
               , uwu }
 };
 
-use mozart::{
+use strauss::{
   types::ChatResponse,
   commands,
   prelude::*
@@ -73,7 +73,7 @@ pub async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Res
     let response: String;
 
     if decoded.russian {
-      match mozart::bert::translation::en2ru(decoded.response.clone()).await {
+      match strauss::bert::translation::en2ru(decoded.response.clone()).await {
         Ok(translated) => {
           let rnda: u32 = rand::thread_rng().gen_range(0..10);
           let rndy: u32 = rand::thread_rng().gen_range(0..50);

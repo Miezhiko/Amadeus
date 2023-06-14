@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use cannyls::lump::{ LumpData, LumpId };
 
-use mozart::prelude::BINCODE_CONFIG;
+use strauss::prelude::BINCODE_CONFIG;
 
 pub async fn register_message( guild_id: &u64
                              , message_id: &u64

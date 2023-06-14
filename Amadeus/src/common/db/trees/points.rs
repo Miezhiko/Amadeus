@@ -4,7 +4,7 @@ use cannyls::lump::{ LumpData, LumpId };
 
 use tokio::task;
 
-use mozart::prelude::BINCODE_CONFIG;
+use strauss::prelude::BINCODE_CONFIG;
 
 #[derive(bincode::Encode, bincode::Decode)]
 struct Points {

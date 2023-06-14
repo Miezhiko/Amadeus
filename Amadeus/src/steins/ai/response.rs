@@ -55,7 +55,7 @@ async fn generate_response( ctx: &Context
   let mut answer_option =
     if rndx != 1 && !in_case && gtry < 10 {
       let text = if russian {
-        match mozart::bert::translation::ru2en(msg.content.clone()).await {
+        match strauss::bert::translation::ru2en(msg.content.clone()).await {
           Ok(translated) => translated,
           Err(why) => {
             error!("Failed to translate msg content {why}");

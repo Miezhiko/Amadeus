@@ -77,7 +77,7 @@
 
  - Salieri needs [RabbitMQ](https://www.rabbitmq.com) to work properly
  - Vivaldi needs running [Kafka](https://kafka.apache.org)
- - Mozart needs to link with [PyTorch](https://pytorch.org/), instructions on [tch-rs](https://github.com/LaurentMazare/tch-rs)
+ - Strauss needs to link with [PyTorch](https://pytorch.org/), instructions on [tch-rs](https://github.com/LaurentMazare/tch-rs)
  - Wagner needs `tokens.txt` file for poe API to work
  - to compile just use `cargo build --release` or `hake`
  - `cp conf.example.dhall conf.dhall` (initial constant options)
@@ -145,7 +145,7 @@ The models will be downloaded to the environment variable `RUSTBERT_CACHE` if it
 
  - **Schubert** common tiny helper library shared between all (almost)
  - **Wagner** python modules using inline-python
- - **Mozart** is set of tasks running on distributed tasks queue
+ - **Strauss** is set of tasks running on distributed tasks queue
  - **Amadeus** is discord bot service on Serenity
  - **Salieri** is celery daemon running on rabbitmq and processing tasks
  - **Vivaldi** is kafka daemon processing bert / network tasks
@@ -181,4 +181,5 @@ systemctl restart Amadeus
  - Code open sourced just for my friend Sirius to be able to see it, please don't pay [attention](https://www.youtube.com/watch?v=sKy6dSHn9Z8)
  - Fingon is cute
  - Additional thank to @fluxxu for removing my ban on W3C (this was kind of important for my motivation to improve flo/w3c aspects of Amadeus)
- - I feel sad
+ - I feel sad (yes, still)
+ - No I don't like classical music, just only Amadeus and Salieri was mentioned in Steins Gate and I needed more

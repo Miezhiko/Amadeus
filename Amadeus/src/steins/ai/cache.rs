@@ -11,7 +11,7 @@ use crate::{
   message::RESTORE
 };
 
-use mozart::{
+use strauss::{
   cache::CACHE_ENG_STR,
   bert::process_message_for_gpt
 };
@@ -62,7 +62,7 @@ pub async fn reinit() {
   let salieri_lock = SALIERI.lock().await;
   if let Some(salieri) = &*salieri_lock {
     if let Err(why) = salieri.send_task(
-                        mozart::cache::REINIT_CACHE::new()
+                        strauss::cache::REINIT_CACHE::new()
                       ).await {
       error!("failed to reinit cache {why}");
     }
@@ -239,7 +239,7 @@ pub async fn update_cache( ctx: &Context
       if let Some(salieri) = &*salieri_lock {
         let cache_str_to_save = cache_eng_str.clone();
         if let Err(why) = salieri.send_task(
-                            mozart::cache::SET_CACHE::new(cache_str_to_save)
+                            strauss::cache::SET_CACHE::new(cache_str_to_save)
                           ).await {
           error!("failed to reinit cache {why}");
         }
@@ -268,7 +268,7 @@ pub async fn clear_cache() {
     if let Some(salieri) = &*salieri_lock {
       let cache_str_to_save = cache_eng_str.clone();
       if let Err(why) = salieri.send_task(
-                          mozart::cache::SET_CACHE::new(cache_str_to_save)
+                          strauss::cache::SET_CACHE::new(cache_str_to_save)
                         ).await {
         error!("failed to clear cache on salieri {why}");
       }

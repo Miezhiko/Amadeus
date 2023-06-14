@@ -34,7 +34,7 @@ use tokio::sync::MutexGuard;
 use std::collections::HashMap;
 
 use schubert::help::lang;
-use mozart::bert::{ RE1, RE2, RE3 };
+use strauss::bert::{ RE1, RE2, RE3 };
 
 pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Option<String> {
   let start_typing = ctx.http.start_typing(msg.channel_id);

@@ -21,7 +21,7 @@ ggru                = []
 
 [dependencies]
 schubert            = { path = "../Schubert" }
-mozart              = { path = "../Mozart" }
+strauss              = { path = "../Strauss" }
 tokio               = { workspace = true }
 serde               = { workspace = true }
 once_cell           = { workspace = true }

@@ -25,7 +25,7 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
         let salieri_lock = SALIERI.lock().await;
         if let Some(salieri) = &*salieri_lock {
           if let Err(why) = salieri.send_task(
-                              mozart::cache::CONTEXT_CLEAR::new()
+                              strauss::cache::CONTEXT_CLEAR::new()
                             ).await {
             error!("failed to clear context {why}");
           }
@@ -38,7 +38,7 @@ pub async fn activate_system_tracker(ctx: &Arc<Context>) {
           };
           if !lsm {
             if let Err(why) = salieri.send_task(
-                                mozart::cache::MODELS_REINIT::new()
+                                strauss::cache::MODELS_REINIT::new()
                               ).await {
               error!("failed to reinit models {why}");
             }

@@ -2,7 +2,7 @@ extern crate serde;
 
 use env_logger::Env;
 
-use mozart::{ celery_init, SALIERI_AMPQ, SALIERI_SERVICE };
+use strauss::{ celery_init, SALIERI_AMPQ, SALIERI_SERVICE };
 
 #[tokio::main(worker_threads=8)]
 async fn main() -> anyhow::Result<()> {

@@ -3,7 +3,7 @@ use crate::salieri::SALIERI;
 use anyhow::Result;
 use rand::Rng;
 
-use mozart::{
+use strauss::{
   bert::{ process_message_for_gpt
         , GPT_LIMIT
         , chat::CHAT_GPT2

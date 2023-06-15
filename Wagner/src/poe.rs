@@ -18,10 +18,12 @@ pub fn generate(prompt: &str) -> anyhow::Result<String> {
       import time, json, poe, random
 
       result = ""
-      system = "system: your response will be rendered in a discord message, include language hints when returning code like: ```py ...```, and use * or ** or > to create highlights ||"
+      system = "system: your response will be rendered in a discord message, include language hints when returning code like: ```py ...```, and use * or ** or > to create highlights"
 
       if is_russian:
-        system += ", you reply only in Russian"
+        system += ", you reply only in Russian ||"
+      else:
+        system += " ||"
 
       system += "\n prompt: "
       try:

@@ -32,7 +32,8 @@ pub fn generate(prompt: &str) -> anyhow::Result<String> {
           for token in rspns:
             result += token
             result = result.replace("DAN Mode enabled.\n\n", "")
-            result = result.replace("DAN Mode enabled.", "")
+            result = result.replace("DAN Mode enabled\n\n", "")
+            result = result.replace("DAN Mode enabled", "")
             result = result.replace("DAN: ", "")
             result = result.replace("GPT: ", "")
       except OSError as err:

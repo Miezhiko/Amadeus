@@ -1,27 +1,36 @@
+import sys
+import os
 import time, json, poe, random
 
-models = {
-    'claude-v1': 'a2_2',
-    'claude-instant': 'a2',
-    'claude-instant-100k': 'a2_100k',
-    'sage': 'capybara',
-    'gpt-4': 'beaver',
-    'gpt-3.5-turbo': 'chinchilla',
-}
+is_russian = False
+prompt = "who are you?"
 
-prompt = 'who are you?'
+result = ""
+system = "system: your response will be rendered in a discord message, include language hints when returning code like: ```py ...```, and use * or ** or > to create highlights"
 
-model = 'gpt-4'
-base = f'\n'
-system = 'system: your response will be rendered in a discord message, include language hints when returning code like: ```py ...```, and use * or ** or > to create highlights ||\n prompt: '
+if is_russian:
+    system += ", you reply only in Russian ||"
+else:
+    system += " ||"
 
-token = random.choice(open('tokens.txt', 'r').read().splitlines())
-client = poe.Client(token)
+system += "\n prompt: "
+try:
+    token = random.choice(open("tokens.txt", "r").read().splitlines())
+    client = poe.Client(token.split(":")[0])
 
-completion = client.send_message(models[model], system + prompt, with_chat_break=True)
+    print(json.dumps(client.bot_names, indent=2))
 
-for tt in completion:
-    base += tt['text_new']
-    base = base.replace('Discord Message:', '')
+    completion = client.send_message("capybara", system + prompt, with_chat_break=True)
 
-print(base)
+    for tt in completion:
+        result += tt["text_new"]
+        result = result.replace("Discord Message:", "")
+    reslt = True
+except OSError as err:
+    result = ("OS Error! {0}".format(err))
+    reslt = False
+except RuntimeError as err:
+    result = ("Runtime Error! {0}".format(err))
+    reslt = False
+
+print(result)

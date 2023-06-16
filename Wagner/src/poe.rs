@@ -6,12 +6,13 @@ use anyhow::bail;
 
 use schubert::help::lang;
 
-pub fn generate(prompt: &str) -> anyhow::Result<String> {
+pub fn generate(prompt: &str, model: &str) -> anyhow::Result<String> {
   let russian = lang::is_russian(prompt);
   match catch_unwind(|| {
     let c = Context::new();
     c.set("prompt", prompt);
     c.set("is_russian", russian);
+    c.set("model", model);
     c.run(python! {
       import sys
       import os
@@ -30,7 +31,7 @@ pub fn generate(prompt: &str) -> anyhow::Result<String> {
         token = random.choice(open("tokens.txt", "r").read().splitlines())
         client = poe.Client(token.split(":")[0])
 
-        completion = client.send_message("beaver", system + prompt, with_chat_break=True)
+        completion = client.send_message(model, system + prompt, with_chat_break=True)
 
         for tt in completion:
           result += tt["text_new"]

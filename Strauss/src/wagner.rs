@@ -16,7 +16,7 @@ use std::{
 async fn wagner(msg_content: &str) -> anyhow::Result<String> {
   info!("Generating Wagner response");
   let payload = process_message_for_gpt(msg_content);
-  wagner::wagner(&payload).await
+  wagner::wagner(&payload, "Amadeus").await
 }
 
 async fn wagner_send( msg: Option<u64>

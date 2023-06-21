@@ -5112,7 +5112,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strauss"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -6163,7 +6163,7 @@ checksum = "9dcc60c0624df774c82a0ef104151231d37da4962957d691c011c852b2473314"
 
 [[package]]
 name = "vivaldi"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "anyhow",
  "env_logger",
@@ -6185,7 +6185,7 @@ checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "wagner"
-version = "0.0.5"
+version = "0.0.6"
 dependencies = [
  "anyhow",
  "env_logger",

@@ -1,4 +1,4 @@
-use crate::personality::PERSONALITY;
+use crate::personality::get_personality;
 
 use inline_python::{ python, Context };
 
@@ -16,7 +16,10 @@ use schubert::help::lang;
 static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
   Lazy::new(|| Mutex::new( VecDeque::with_capacity(1) ));
 
-pub async fn generate(prompt: &str, fmode: bool) -> anyhow::Result<String> {
+pub async fn generate( prompt: &str
+                     , fmode: bool
+                     , personality: &str
+                     ) -> anyhow::Result<String> {
   let mut msg_lock = MSGHIST.lock().await;
   let tmp_msg = msg_lock.as_slices();
   let russian = lang::is_russian(prompt);
@@ -26,7 +29,7 @@ pub async fn generate(prompt: &str, fmode: bool) -> anyhow::Result<String> {
     c.set("old_messages", tmp_msg);
     c.set("is_russian", russian);
     c.set("fmode", fmode);
-    c.set("PERSONALITY", PERSONALITY);
+    c.set("PERSONALITY", get_personality(personality));
     c.run(python! {
       import sys
       import os

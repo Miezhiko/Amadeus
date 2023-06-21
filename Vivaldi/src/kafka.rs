@@ -54,7 +54,7 @@ async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         return None;
       }
 
-      if let Ok(wagner_result) = wagner::wagner(payload).await {
+      if let Ok(wagner_result) = wagner::wagner(payload, "Kalmarity").await {
         Some((k_key, wagner_result))
       } else { None }
     }, None => None

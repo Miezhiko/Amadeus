@@ -23,7 +23,7 @@ pub fn poe_generate(msg: &str) -> anyhow::Result<String> {
   }
 }
 
-pub async fn wagner(msg: &str) -> anyhow::Result<String> {
+pub async fn wagner(msg: &str, bot_name: &str) -> anyhow::Result<String> {
   let mut fmode = true;
   if msg.contains("please") || msg.contains("пожалуйста") {
     fmode = false;
@@ -38,15 +38,15 @@ pub async fn wagner(msg: &str) -> anyhow::Result<String> {
     fmode = false;
   }
 
-  if let Ok(gpt4free_result)        = gpt4free::aiassist::generate( msg, fmode ).await {
+  if let Ok(gpt4free_result)        = gpt4free::aiassist::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::deepai::generate( msg, fmode ).await {
+  } else if let Ok(gpt4free_result) = gpt4free::deepai::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::gptworldAi::generate( msg, fmode ).await {
+  } else if let Ok(gpt4free_result) = gpt4free::gptworldAi::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::useless::generate( msg, fmode ).await {
+  } else if let Ok(gpt4free_result) = gpt4free::useless::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( msg, fmode ).await {
+  } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( msg ) {
     Ok(gpt4free_result)

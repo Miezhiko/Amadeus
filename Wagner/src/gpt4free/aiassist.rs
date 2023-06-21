@@ -1,4 +1,4 @@
-use crate::personality::PERSONALITY;
+use crate::personality::get_personality;
 
 use inline_python::{ python, Context };
 
@@ -15,7 +15,10 @@ use schubert::help::lang;
 static MYMSG: Lazy<Mutex<String>> =
   Lazy::new(|| Mutex::new( String::from("") ));
 
-pub async fn generate(prompt: &str, fmode: bool) -> anyhow::Result<String> {
+pub async fn generate( prompt: &str
+                     , fmode: bool
+                     , personality: &str
+                     ) -> anyhow::Result<String> {
   let mut msg_lock  = MYMSG.lock().await;
   let tmp_msg       = msg_lock.as_str();
   let russian       = lang::is_russian(prompt);
@@ -25,7 +28,7 @@ pub async fn generate(prompt: &str, fmode: bool) -> anyhow::Result<String> {
     c.set("message_id", tmp_msg);
     c.set("fmode", fmode);
     c.set("is_russian", russian);
-    c.set("PERSONALITY", PERSONALITY);
+    c.set("PERSONALITY", get_personality(personality));
     c.run(python! {
       import sys
       import os

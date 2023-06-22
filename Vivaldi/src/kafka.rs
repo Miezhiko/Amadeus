@@ -13,9 +13,6 @@ use rdkafka::{
 };
 
 async fn record_owned_message_receipt(msg: &OwnedMessage) {
-  // Like `record_borrowed_message_receipt`, but takes an `OwnedMessage`
-  // instead, as in a real-world use case  an `OwnedMessage` might be more
-  // convenient than a `BorrowedMessage`.
   info!("Message received: {}", msg.offset());
 }
 
@@ -24,11 +21,12 @@ async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
   match msg.payload() {
     Some(payload_bytes) => {
       let payload = std::str::from_utf8(payload_bytes).expect("Kafka: payload is not UTF8");
-      let key = msg.key().expect("Kafka: no key proviced!");
-      let key_str = std::str::from_utf8(&key).expect("Kafka: key is not string!");
-      let key3 = key_str.split('|')
-                        .filter(|&x| !x.is_empty())
-                        .collect::<Vec<&str>>();
+      let key     = msg.key().expect("Kafka: no key proviced!");
+      let key_str = std::str::from_utf8(key).expect("Kafka: key is not string!");
+      let key3    = key_str.split('|')
+                           .filter(|&x| !x.is_empty())
+                           .collect::<Vec<&str>>();
+
       if key3.len() < 3 {
         error!("Error: Invalid key split");
         return None;
@@ -121,7 +119,7 @@ async fn run_async_processor(
 }
 
 pub fn run_with_workers(num_workers: u32) {
-  let _ = (0..num_workers).map(|_| {
+  std::mem::drop( (0..num_workers).map(|_| {
     tokio::spawn(run_async_processor(
       "localhost:9092".to_owned(),
       "kalmarity_group".to_owned(),
@@ -129,5 +127,5 @@ pub fn run_with_workers(num_workers: u32) {
       "Kalmarity".to_owned(),
     ))
   }).collect::<FuturesUnordered<_>>()
-    .for_each(|_| async { () });
+    .for_each(|_| async {}) );
 }

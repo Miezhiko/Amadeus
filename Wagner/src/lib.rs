@@ -4,6 +4,7 @@ mod personality;
 pub mod poe;
 pub mod gpt4free;
 pub mod opengpt;
+pub mod g4f;
 
 pub fn poe_generate(msg: &str) -> anyhow::Result<String> {
   if let Ok(gpt4free_result)        = poe::generate( msg, "beaver" ) {
@@ -30,7 +31,9 @@ pub async fn wagner(msg: &str, bot_name: &str) -> anyhow::Result<String> {
   } else if msg.contains("Please")
          || msg.contains("Пожалуйста")
          || msg.contains("PLEASE") {
-    if let Ok(gpt4free_result) = poe_generate( msg ) {
+    if let Ok(gpt4free_result) = g4f::phind::generate( msg ) {
+      return Ok(gpt4free_result)
+    } else if let Ok(gpt4free_result) = poe_generate( msg ) {
       return Ok(gpt4free_result)
     } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( msg ) {
       return Ok(gpt4free_result)
@@ -49,6 +52,8 @@ pub async fn wagner(msg: &str, bot_name: &str) -> anyhow::Result<String> {
   } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( msg ) {
+    Ok(gpt4free_result)
+  } else if let Ok(gpt4free_result) = g4f::phind::generate( msg ) {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = gpt4free::theb::generate( msg ) {
     Ok(gpt4free_result)

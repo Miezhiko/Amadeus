@@ -104,7 +104,7 @@ async fn say(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[command]
 #[owners_only]
 async fn clear_messages(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  if args.len() >= 1 {
+  if !args.is_empty() {
     let countdown: u8 = args.find().unwrap_or_default();
     if let Ok(vec) = msg.channel_id.messages(ctx, GetMessages::default().before(msg.id).limit(countdown)).await {
       let mut vec_id = Vec::new();

@@ -52,13 +52,11 @@ pub async fn run(opts: IOptions) ->
       let mut owners = HashSet::new();
       if let Some(team) = info.team {
         owners.insert(team.owner_user_id);
+      } else if let Some(owner) = info.owner {
+        owners.insert(owner.id);
       } else {
-        if let Some(owner) = info.owner {
-          owners.insert(owner.id);
-        } else {
-          // hack for now
-          owners.insert( UserId( to_nzu!(510368731378089984) ) );
-        }
+        // hack for now
+        owners.insert( UserId( to_nzu!(510368731378089984) ) );
       }
       match http.get_current_user().await {
         Ok(bot_id) => (owners, bot_id.id),

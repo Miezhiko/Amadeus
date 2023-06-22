@@ -87,9 +87,10 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   let opts = options::get_roptions().await.unwrap();
   let access_token = opts.twitch;
 
-  activate_streamers_tracking(
-    &ac, &oc, access_token.clone()
-       ).await;
+  //TODO: fix it
+  //activate_streamers_tracking(
+  //  &ac, &oc, access_token.clone()
+  //     ).await;
   activate_games_tracking(
     &ac, &oc, access_token
        , amadeus.0.get()

@@ -107,14 +107,14 @@ pub async fn chat( msg: Option<u64>
                  , lsm: bool
                  , russian: bool
                  , guild_id: u64 ) -> Result<Option<String>> {
-  let wlmt = if guild_id == 611822838831251466 { 64 } else { 16 };
-  let rndx = if user_id == 510368731378089984 {
-      6
-    } else {
-      rand::thread_rng().gen_range(0..wlmt)
-    };
+  let wlmt = if guild_id == 611822838831251466
+                { 64 }
+           else { 16 };
+  let rndx = if user_id == 510368731378089984
+                { 7 }
+           else { rand::thread_rng().gen_range(0..wlmt) };
   let mut input = process_message_for_gpt(&something);
-  if rndx < 6 {
+  if rndx < 7 {
     if input.len() > GPT_LIMIT {
       if let Some((i, _)) = input.char_indices().rev().nth(GPT_LIMIT) {
         input = input[i..].to_string();
@@ -131,6 +131,7 @@ pub async fn chat( msg: Option<u64>
     3 => codebert   (msg, chan, input, user_id, lsm, russian).await,
     4 => gptj       (msg, chan, input, user_id, lsm, russian).await,
     5 => chat_gpt2  (msg, chan, input, user_id, lsm, russian).await,
+    6 => ask        (msg, chan, input, user_id, lsm, russian).await,
     _ => wagner     (msg, chan, input, user_id, lsm, russian).await
   }
 }

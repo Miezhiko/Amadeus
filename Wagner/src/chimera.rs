@@ -34,7 +34,7 @@ pub fn generate(prompt: &str) -> anyhow::Result<String> {
           reslt = False
         else:
           reslt = True
-          reslt = rspns[0]["message"]["content"]
+          result = rspns[0]["message"]["content"]
       except OSError as err:
         result = ("OS Error! {0}".format(err))
         reslt = False

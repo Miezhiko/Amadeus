@@ -109,7 +109,7 @@ checksum = "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd"
 
 [[package]]
 name = "amadeus"
-version = "11.0.1"
+version = "11.0.2"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -127,7 +127,7 @@ dependencies = [
  "glob",
  "hex",
  "ical",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "kathoey",
  "markov",
  "nipper",
@@ -2471,6 +2471,15 @@ name = "itertools"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
 dependencies = [
  "either",
 ]
@@ -5112,7 +5121,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strauss"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -6185,7 +6194,7 @@ checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "wagner"
-version = "0.0.8"
+version = "0.0.9"
 dependencies = [
  "anyhow",
  "env_logger",

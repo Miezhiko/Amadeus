@@ -107,17 +107,22 @@ pub async fn chat( msg: Option<u64>
                  , lsm: bool
                  , russian: bool
                  , guild_id: u64 ) -> Result<Option<String>> {
-  // TODO: better logics for this maybe
-  let wlmt = if guild_id == 611822838831251466 { 32 } else { 7 };
-  let rndx = rand::thread_rng().gen_range(0..wlmt);
+  let wlmt = if guild_id == 611822838831251466 { 64 } else { 16 };
+  let rndx = if user_id == 510368731378089984 {
+      6
+    } else {
+      rand::thread_rng().gen_range(0..wlmt)
+    };
   let mut input = process_message_for_gpt(&something);
-  if input.len() > GPT_LIMIT {
-    if let Some((i, _)) = input.char_indices().rev().nth(GPT_LIMIT) {
-      input = input[i..].to_string();
+  if rndx < 6 {
+    if input.len() > GPT_LIMIT {
+      if let Some((i, _)) = input.char_indices().rev().nth(GPT_LIMIT) {
+        input = input[i..].to_string();
+      }
     }
-  }
-  if input.is_empty() {
-    return Err(anyhow!("empty input"));
+    if input.is_empty() {
+      return Err(anyhow!("empty input"));
+    }
   }
   match rndx {
     0 => chat_neo   (msg, chan, input, user_id, lsm, russian).await,

@@ -55,6 +55,12 @@ pub async fn wagner(msg: &str, bot_name: &str) -> anyhow::Result<String> {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = g4f::phind::generate( msg ) {
     Ok(gpt4free_result)
+  } else if let Ok(gpt4free_result) = g4f::forefront::generate( msg ) {
+    Ok(gpt4free_result)
+  } else if let Ok(gpt4free_result) = g4f::ora::generate( msg ) {
+    Ok(gpt4free_result)
+  } else if let Ok(gpt4free_result) = g4f::yqcloud::generate( msg ) {
+    Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = gpt4free::theb::generate( msg ) {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = poe_generate( msg ) {

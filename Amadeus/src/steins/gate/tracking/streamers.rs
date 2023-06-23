@@ -336,7 +336,8 @@ pub async fn activate_streamers_tracking(
               if let Some(some_url) = &em_url {
                 e = e.url(some_url);
               }
-              match ChannelId( to_nzu!(sc) ).send_message(&ctx_clone, CreateMessage::new()
+              match ChannelId( to_nzu!(sc) ).send_message( &ctx_clone
+                                                         , CreateMessage::new()
                 .embed(e)
               ).await {
                 Ok(msg_id) => {

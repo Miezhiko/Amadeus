@@ -15,7 +15,7 @@ pub fn generate(prompt: &str) -> anyhow::Result<String> {
 
       result = ""
       try:
-        provider = g4f.Provider.Phind
+        provider = g4f.Provider.Forefront
         rspns = g4f.ChatCompletion.create(model="gpt-4", 
                           messages=[{"role": "user", 
                                      "content": prompt}], 

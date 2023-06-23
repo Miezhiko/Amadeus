@@ -63,55 +63,19 @@ async fn generate_response( ctx: &Context
           }
         }
       } else { msg.content.clone() };
-      if msg.content.ends_with('?') {
-        let rndxqa: u32 = rand::thread_rng().gen_range(0..2);
-        if rndxqa == 1 {
-          match bert::ask( message_id
-                         , msg.channel_id.0.get()
-                         , text
-                         , msg.author.id.0.get()
-                         , lsm
-                         , russian ).await {
-            Ok(answer) => {
-              bert_generated = true;
-              answer },
-            Err(why) => {
-              error!("Failed to bert ask {why}");
-              Some( generate(ctx, msg, Some(russian)).await )
-            }
-          }
-        } else {
-          match bert::chat( message_id
-                          , msg.channel_id.0.get()
-                          , text
-                          , msg.author.id.0.get()
-                          , lsm
-                          , russian
-                          , guild_id ).await {
-            Ok(answer) => {
-              bert_generated = true;
-              answer },
-            Err(why) => {
-              error!("Failed to bert chat with question {why}, input: {}", &msg.content);
-              Some( generate(ctx, msg, Some(russian)).await )
-            }
-          }
-        }
-      } else {
-        match bert::chat( message_id
-                        , msg.channel_id.0.get()
-                        , text
-                        , msg.author.id.0.get()
-                        , lsm
-                        , russian 
-                        , guild_id ).await {
-          Ok(answer) => {
-            bert_generated = true;
-            answer },
-          Err(why) => {
-            error!("Failed to bert chat {why}, input: {}", &msg.content);
-            Some( generate(ctx, msg, Some(russian)).await )
-          }
+      match bert::chat( message_id
+                      , msg.channel_id.0.get()
+                      , text
+                      , msg.author.id.0.get()
+                      , lsm
+                      , russian 
+                      , guild_id ).await {
+        Ok(answer) => {
+          bert_generated = true;
+          answer },
+        Err(why) => {
+          error!("Failed to bert chat {why}, input: {}", &msg.content);
+          Some( generate(ctx, msg, Some(russian)).await )
         }
       }
     } else {

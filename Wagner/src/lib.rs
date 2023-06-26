@@ -26,7 +26,7 @@ pub fn poe_generate(msg: &str) -> anyhow::Result<String> {
 }
 
 pub async fn generate(msg: &str) -> anyhow::Result<String> {
-  if let Ok(gpt4free_result) = chimera::generate( msg ) {
+  if let Ok(gpt4free_result) = chimera::generate( msg, false, "Amadeus" ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = g4f::phind::generate( msg ) {
     Ok(gpt4free_result)
@@ -34,9 +34,7 @@ pub async fn generate(msg: &str) -> anyhow::Result<String> {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( msg ) {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::deepai::generate( msg, true, "Amadeus" ).await {
-    Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::useless::generate( msg, true, "Amadeus" ).await {
+  } else if let Ok(gpt4free_result) = g4f::deepai::generate( msg, true, "Amadeus" ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = gpt4free::aiassist::generate( msg, true, "Amadeus" ).await {
     Ok(gpt4free_result)
@@ -44,9 +42,11 @@ pub async fn generate(msg: &str) -> anyhow::Result<String> {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( msg, true, "Amadeus" ).await {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = g4f::forefront::generate( msg ) {
+  } else if let Ok(gpt4free_result) = g4f::forefront::generate( msg, true, "Amadeus" ).await {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = g4f::ora::generate( msg ) {
+  } else if let Ok(gpt4free_result) = g4f::getgpt::generate( msg, true, "Amadeus" ).await {
+    Ok(gpt4free_result)
+  } else if let Ok(gpt4free_result) = g4f::aichat::generate( msg, true, "Amadeus" ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = g4f::yqcloud::generate( msg ) {
     Ok(gpt4free_result)
@@ -62,7 +62,7 @@ pub async fn wagner(msg: &str, bot_name: &str) -> anyhow::Result<String> {
   } else if msg.contains("Please")
          || msg.contains("Пожалуйста")
          || msg.contains("PLEASE") {
-    if let Ok(gpt4free_result) = chimera::generate( msg ) {
+    if let Ok(gpt4free_result) = chimera::generate( msg, false, bot_name ).await {
       return Ok(gpt4free_result)
     } else if let Ok(gpt4free_result) = g4f::phind::generate( msg ) {
       return Ok(gpt4free_result)
@@ -76,11 +76,11 @@ pub async fn wagner(msg: &str, bot_name: &str) -> anyhow::Result<String> {
 
   if let Ok(gpt4free_result)        = gpt4free::aiassist::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::deepai::generate( msg, fmode, bot_name ).await {
+  } else if let Ok(gpt4free_result) = g4f::deepai::generate( msg, fmode, bot_name ).await {
+    Ok(gpt4free_result)
+  } else if let Ok(gpt4free_result) = chimera::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = gpt4free::gptworldAi::generate( msg, fmode, bot_name ).await {
-    Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = gpt4free::useless::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = gpt4free::italygpt::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
@@ -88,11 +88,11 @@ pub async fn wagner(msg: &str, bot_name: &str) -> anyhow::Result<String> {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = g4f::phind::generate( msg ) {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = chimera::generate( msg ) {
+  } else if let Ok(gpt4free_result) = g4f::forefront::generate( msg, true, bot_name ).await {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = g4f::forefront::generate( msg ) {
+  } else if let Ok(gpt4free_result) = g4f::getgpt::generate( msg, true, bot_name ).await {
     Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = g4f::ora::generate( msg ) {
+  } else if let Ok(gpt4free_result) = g4f::aichat::generate( msg, true, bot_name ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = g4f::yqcloud::generate( msg ) {
     Ok(gpt4free_result)

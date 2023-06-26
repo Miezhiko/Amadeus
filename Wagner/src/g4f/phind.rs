@@ -15,12 +15,41 @@ pub fn generate(prompt: &str) -> anyhow::Result<String> {
 
       result = ""
       try:
-        provider = g4f.Provider.Phind
-        rspns = g4f.ChatCompletion.create(model="gpt-4", 
+        import json
+        import time
+        import subprocess
+        import sys
+        import json
+        import datetime
+        import urllib.parse
+        
+        from curl_cffi import requests
+        from g4f.typing import sha256, Dict, get_type_hints
+        
+        url = "https://phind.com"
+        model = ["gpt-4"]
+        supports_stream = True
+        
+        def create_completion(model: str, messages: list, stream: bool):
+            config = json.dumps({
+                "model": model,
+                "messages": messages}, separators=(",", ":"))
+            cmd = ["python3", "/data/contrib/rust/Amadeus/misc/phind.py", config]
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in iter(p.stdout.readline, b""):
+                if b"<title>Just a moment...</title>" in line:
+                    os.system("clear" if os.name == "posix" else "cls")
+                    yield "Clouflare error, please try again..."
+                    os._exit(0)
+                else:
+                    if b"ping - 2023-" in line:
+                        continue
+                    yield line.decode("utf-8")
+
+        rspns = "".join(create_completion(model="gpt-4",
                           messages=[{"role": "user", 
                                      "content": prompt}], 
-                          stream=False, 
-                          provider=provider)
+                          stream=False))
         if not rspns:
           result = "phind: Sorry, I can't generate a response right now."
           reslt = False

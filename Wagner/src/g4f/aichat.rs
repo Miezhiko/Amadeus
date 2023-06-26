@@ -54,7 +54,7 @@ pub async fn generate( prompt: &str
         messages.append({"role": "user", "content": prompt})
         rspns = g4f.ChatCompletion.create( model=g4f.Model.gpt_4, messages=messages
                                          , stream=False
-                                         , provider=g4f.Provider.Forefront )
+                                         , provider=g4f.Provider.Aichat )
         if not rspns:
           result = "deepai: Sorry, I can't generate a response right now."
           reslt = False

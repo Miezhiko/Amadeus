@@ -14,7 +14,7 @@ use tokio::sync::Mutex;
 use schubert::help::lang;
 
 static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
-  Lazy::new(|| Mutex::new( VecDeque::with_capacity(1) ));
+  Lazy::new(|| Mutex::new( VecDeque::with_capacity(5) ));
 
 pub async fn generate( prompt: &str
                      , fmode: bool
@@ -33,10 +33,9 @@ pub async fn generate( prompt: &str
     c.run(python! {
       import sys
       import os
-      from gpt4free import deepai
+      import g4f
 
       result = ""
-
       if fmode:
         systemContext = PERSONALITY
       else:
@@ -53,14 +52,15 @@ pub async fn generate( prompt: &str
             messages.append({"role": "assistant", "content": tup[1]})
       try:
         messages.append({"role": "user", "content": prompt})
-        rspns = deepai.ChatCompletion.create(messages)
+        rspns = g4f.ChatCompletion.create( model=g4f.Model.gpt_4, messages=messages
+                                         , stream=False
+                                         , provider=g4f.Provider.GetGpt )
         if not rspns:
           result = "deepai: Sorry, I can't generate a response right now."
           reslt = False
         else:
           reslt = True
-          for token in rspns:
-            result += token
+          result = rspns
       except OSError as err:
         result = ("OS Error! {0}".format(err))
         reslt = False

@@ -106,6 +106,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
 #[command]
 #[min_args(1)]
+#[bucket = "A"]
 #[description("give mentioned user some own points")]
 async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
@@ -149,6 +150,7 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
 #[command]
 #[aliases(цитата)]
+#[bucket = "A"]
 #[description("generate random quote of an user")]
 async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
   if !(msg.mentions.is_empty() || !msg.mentions.len() == 1 && msg.mentions[0].bot) {

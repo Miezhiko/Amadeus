@@ -112,6 +112,8 @@ pub async fn run(opts: IOptions) ->
       .group(&MODERATOR_GROUP)
       .group(&GENTOO_GROUP)
       .group(&TRANSLATE_GROUP)
+      // limits a command to 3 uses per 10 seconds with a 2 second delay in between invocations
+      .bucket("A", |b| b.delay(2).time_span(10).limit(3)).await
       .help(&HELP_COMMAND);
 
   std_framework.configure(|c| c

@@ -39,6 +39,7 @@ use nipper::Document;
 
 #[command]
 #[description("Find bugzilla bug by number")]
+#[bucket = "A"]
 #[min_args(1)]
 async fn bug(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let number = args.single::<u64>()?;
@@ -99,6 +100,7 @@ async fn bug(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[command]
 #[description("Find package atom in Gentoo overlays")]
 #[min_args(1)]
+#[bucket = "A"]
 #[aliases(overlays)]
 async fn zugaina(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   let search = args.message().to_string();
@@ -241,6 +243,7 @@ async fn zugaina(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[command]
 #[description("Find Gentoo Wiki article")]
 #[min_args(1)]
+#[bucket = "A"]
 async fn wiki(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let search_text = args.single::<String>()?;
   let maybe_second = args.single::<String>();
@@ -302,6 +305,7 @@ fn weighted_choice(weights: &Vec<f64>) -> anyhow::Result<usize> {
 }
 
 #[command]
+#[bucket = "A"]
 #[description("roll the dice for giveaway")]
 async fn dice_giveaway(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let gw = giveaway::get_giveway().await?;

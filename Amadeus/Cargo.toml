@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "11.0.5"
+version             = "11.0.6"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -64,7 +64,7 @@ branch = "main"
 
 [dependencies.songbird]
 default-features = false
-git = "https://github.com/Masha/songbird.git"
+git = "https://github.com/serenity-rs/songbird.git"
 branch = "next"
 features = [ "serenity"
            , "driver"
@@ -74,7 +74,7 @@ features = [ "serenity"
 
 [dependencies.serenity]
 default-features = false
-git = "https://github.com/Masha/serenity"
+git = "https://github.com/serenity-rs/serenity"
 branch = "next"
 features = [ "cache"
            , "builder"

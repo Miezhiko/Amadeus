@@ -51,6 +51,7 @@ async fn version(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[aliases(помощь)]
+#[bucket = "A"]
 async fn help_ru(ctx: &Context, msg: &Message) -> CommandResult {
   help_i18n(ctx, msg, &RU).await;
   Ok(())
@@ -58,6 +59,7 @@ async fn help_ru(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[min_args(2)]
+#[bucket = "A"]
 async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command, {why}");
@@ -125,6 +127,7 @@ struct ApiResponse {
 #[command]
 #[description("Find term in Urban Dictionary")]
 #[min_args(1)]
+#[bucket = "A"]
 async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command, {why}");
@@ -180,6 +183,7 @@ async fn urban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
 #[command]
 #[aliases(about)]
+#[bucket = "A"]
 async fn info(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command, {why}");
@@ -225,6 +229,7 @@ Latency:  {}
 }
 
 #[command]
+#[bucket = "A"]
 async fn changelog(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
     error!("Error deleting original command, {why}");

@@ -11,6 +11,7 @@ use serenity::{
 use strauss::bert::translation::{ bert_translate, SLanguage };
 
 #[command]
+#[bucket = "A"]
 #[min_args(1)]
 #[description("Translate English to Russian")]
 #[aliases(перевод, en2ru)]
@@ -56,6 +57,7 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
 }
 
 #[command]
+#[bucket = "A"]
 #[min_args(1)]
 #[description("Translate Ukrainian to Russian")]
 pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
@@ -100,6 +102,7 @@ pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[min_args(1)]
 #[description("Translate Russian to English")]
 #[aliases(ru2en)]
@@ -145,6 +148,7 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
 }
 
 #[command]
+#[bucket = "A"]
 #[min_args(1)]
 #[description("Translate Russian to Ukrainian")]
 pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
@@ -189,6 +193,7 @@ pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[min_args(1)]
 #[description("Translate English to German")]
 async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
@@ -233,6 +238,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[min_args(1)]
 #[description("Translate German to English")]
 async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
@@ -277,6 +283,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[min_args(1)]
 #[description("Translate English to French")]
 async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
@@ -321,6 +328,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[min_args(1)]
 #[description("Translate French to English")]
 async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {

@@ -178,6 +178,7 @@ pub async fn tour(ctx: &Context, msg: &Message, on: DateTime<Utc>) -> CommandRes
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(вчера)]
 #[description("display yesterday events from w3info")]
 pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
@@ -190,6 +191,7 @@ pub async fn yesterday(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(сегодня)]
 #[description("display today events from w3info")]
 pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
@@ -202,6 +204,7 @@ pub async fn today(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(завтра)]
 #[description("display tomorrow events from w3info")]
 pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
@@ -214,6 +217,7 @@ pub async fn tomorrow(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(выходные)]
 #[description("display weekends events from w3info")]
 pub async fn weekends(ctx: &Context, msg: &Message) -> CommandResult {

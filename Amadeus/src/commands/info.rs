@@ -16,6 +16,7 @@ use serenity::{
 
 #[command]
 #[min_args(2)]
+#[bucket = "A"]
 async fn register(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let key = &args.single::<String>()?;
   let value = args.rest();
@@ -29,6 +30,7 @@ async fn register(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
 
 #[command]
 #[min_args(1)]
+#[bucket = "A"]
 async fn show(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let key = &args.single::<String>()?;
   match sled_info::read(key) {
@@ -42,6 +44,7 @@ async fn show(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn list(ctx: &Context, msg: &Message) -> CommandResult {
   match sled_info::list() {
     Ok(val) => {
@@ -55,6 +58,7 @@ async fn list(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 #[min_args(1)]
+#[bucket = "A"]
 async fn delete(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let key = &args.single::<String>()?;
   match sled_info::delete(key) {

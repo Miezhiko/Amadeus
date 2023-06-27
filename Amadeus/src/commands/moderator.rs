@@ -49,6 +49,7 @@ async fn unmute_internal(ctx: &Context, guild_id: &GuildId, user_id: &UserId) ->
 }
 
 #[command]
+#[bucket = "A"]
 #[required_permissions(BAN_MEMBERS)]
 async fn mute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
@@ -67,6 +68,7 @@ async fn mute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[required_permissions(BAN_MEMBERS)]
 async fn unmute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
@@ -85,6 +87,7 @@ async fn unmute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
 async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -124,6 +127,7 @@ async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> Comman
 }
 
 #[command]
+#[bucket = "A"]
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
 async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -199,6 +203,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
 }
 
 #[command]
+#[bucket = "A"]
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
 async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -232,6 +237,7 @@ async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
 async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -269,6 +275,7 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
 }
 
 #[command]
+#[bucket = "A"]
 #[required_permissions(BAN_MEMBERS)]
 async fn prison(ctx: &Context, msg: &Message) -> CommandResult {
   set!{ msg_guild_id  = msg.guild_id.unwrap()
@@ -290,6 +297,7 @@ async fn prison(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[required_permissions(BAN_MEMBERS)]
 async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let mut users = vec![];

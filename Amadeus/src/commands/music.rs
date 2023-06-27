@@ -58,6 +58,7 @@ pub async fn rejoin_voice_channel(ctx: &Context, conf: &ROptions) {
 }
 
 #[command]
+#[bucket = "A"]
 #[only_in("guilds")]
 #[description("join voice channel")]
 async fn join(ctx: &Context, msg: &Message) -> CommandResult {
@@ -134,6 +135,7 @@ pub async fn join_slash(ctx: &Context, user: &User, guild: &Guild) -> anyhow::Re
 }
 
 #[command]
+#[bucket = "A"]
 #[description("leave voice channel")]
 pub async fn leave(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
   let guild_id = match ctx.cache.guild_channel(msg.channel_id) {
@@ -164,6 +166,7 @@ pub async fn leave(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[description("play some mp3/youtube stream")]
 pub async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let url =
@@ -216,6 +219,7 @@ pub async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
 }
 
 #[command]
+#[bucket = "A"]
 #[description("play last stream again")]
 async fn repeat(ctx: &Context, msg: &Message) -> CommandResult {
   play(ctx, msg, Args::new("", &[Delimiter::Single(' ')])).await

@@ -120,6 +120,7 @@ impl Board {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(ttt, tictactoe, крестики_нолики)]
 #[min_args(1)]
 #[description("play tictactoe (optionally for points)")]

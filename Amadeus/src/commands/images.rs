@@ -200,6 +200,7 @@ pub async fn gifs<C: Into<Colour>>( ctx: &Context
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(hugs)]
 async fn hug(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -210,6 +211,7 @@ async fn hug(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(pats)]
 async fn pat(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -220,6 +222,7 @@ async fn pat(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(slaps)]
 async fn slap(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -230,6 +233,7 @@ async fn slap(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(waves)]
 async fn wave(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -240,6 +244,7 @@ async fn wave(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn sex(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "sex anime"
@@ -249,6 +254,7 @@ async fn sex(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn ahegao(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "ahegao anime"
@@ -258,6 +264,7 @@ async fn ahegao(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(dancing)]
 async fn dance(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -268,6 +275,7 @@ async fn dance(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn clap(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "clap anime"
@@ -277,6 +285,7 @@ async fn clap(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(laught)]
 async fn lol(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -287,6 +296,7 @@ async fn lol(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn angry(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "angry anime"
@@ -296,6 +306,7 @@ async fn angry(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn sad(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "sad anime"
@@ -305,6 +316,7 @@ async fn sad(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn happy(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "happy anime"
@@ -314,6 +326,7 @@ async fn happy(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(shrugs)]
 async fn shrug(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -324,6 +337,7 @@ async fn shrug(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(shocked)]
 async fn shock(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -334,6 +348,7 @@ async fn shock(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn nervous(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "nervous anime"
@@ -343,6 +358,7 @@ async fn nervous(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn confused(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "confused anime"
@@ -352,6 +368,7 @@ async fn confused(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(cries)]
 async fn cry(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -362,6 +379,7 @@ async fn cry(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(pouts)]
 async fn pout(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -372,6 +390,7 @@ async fn pout(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn cringe(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "cringe"
@@ -381,6 +400,7 @@ async fn cringe(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(annoying)]
 async fn annoyed(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -391,6 +411,7 @@ async fn annoyed(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(omfg)]
 async fn omg(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -401,6 +422,7 @@ async fn omg(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(smiles)]
 async fn smile(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -411,6 +433,7 @@ async fn smile(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn smirk(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "smirk anime"
@@ -420,6 +443,7 @@ async fn smirk(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn smug(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "smug anime"
@@ -429,6 +453,7 @@ async fn smug(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(eww, ewww)]
 async fn ew(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -439,6 +464,7 @@ async fn ew(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn awkward(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "awkward anime"
@@ -449,6 +475,7 @@ async fn awkward(ctx: &Context, msg: &Message) -> CommandResult {
 
 
 #[command]
+#[bucket = "A"]
 async fn oops(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "oops anime"
@@ -458,6 +485,7 @@ async fn oops(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn lazy(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "lazy anime"
@@ -467,6 +495,7 @@ async fn lazy(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn hungry(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "hungry anime"
@@ -476,6 +505,7 @@ async fn hungry(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(stress)]
 async fn stressed(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
@@ -486,6 +516,7 @@ async fn stressed(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn scared(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "scared anime"
@@ -495,6 +526,7 @@ async fn scared(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn bored(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "bored anime"
@@ -504,6 +536,7 @@ async fn bored(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn yes(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "yes anime"
@@ -513,6 +546,7 @@ async fn yes(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn no(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "no anime"
@@ -522,6 +556,7 @@ async fn no(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn bye(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "bye anime"
@@ -531,6 +566,7 @@ async fn bye(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn sorry(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "sorry anime"
@@ -540,6 +576,7 @@ async fn sorry(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn sleepy(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "sleepy anime"
@@ -549,6 +586,7 @@ async fn sleepy(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn wink(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "wink anime"
@@ -558,6 +596,7 @@ async fn wink(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn facepalm(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "facepalm anime"
@@ -567,6 +606,7 @@ async fn facepalm(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 async fn whatever(ctx: &Context, msg: &Message) -> CommandResult {
   gifx( ctx, msg
       , "whatever anime"
@@ -576,6 +616,7 @@ async fn whatever(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(gif)]
 #[description("search for specific gif")]
 async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {

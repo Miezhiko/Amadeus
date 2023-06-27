@@ -72,6 +72,7 @@ fn current_season() -> String {
 }
 
 #[command]
+#[bucket = "A"]
 #[description("shows ongoing matches on W3Champions")]
 async fn ongoing(ctx: &Context, msg: &Message) -> CommandResult {
   if let Err(why) = msg.delete(&ctx).await {
@@ -182,6 +183,7 @@ async fn get_player(rqcl: &Arc<reqwest::Client>, target: &str, season: &str) -> 
 }
 
 #[command]
+#[bucket = "A"]
 #[aliases(статистика, statistics)]
 #[description("display statistics on W3Champions")]
 pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
@@ -449,6 +451,7 @@ pub async fn stats(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[min_args(2)]
 #[description("Generates ideal veto based on W3C statistics")]
 async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -590,6 +593,7 @@ async fn veto(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
+#[bucket = "A"]
 #[min_args(2)]
 #[aliases(versus)]
 #[description("Show W3C statistics for two players")]
@@ -845,6 +849,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
 }
 
 #[command]
+#[bucket = "A"]
 #[owners_only]
 #[description("Clear weekly stats (owner only)")]
 async fn regenerate_stats(ctx: &Context, msg: &Message) -> CommandResult {

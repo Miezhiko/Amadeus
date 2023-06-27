@@ -109,7 +109,7 @@ checksum = "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd"
 
 [[package]]
 name = "amadeus"
-version = "11.0.5"
+version = "11.0.6"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -251,6 +251,9 @@ name = "arrayvec"
 version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96d30a06541fbafbc7f82ed10c06164cfbd2c401138f6addd8404629c4b16711"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "ascii"
@@ -857,7 +860,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/Masha/serenity?branch=next#0be66504e1060a812c64595436d80cbe855c24c7"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#0c12aa884bcbbe7189eafb0977c5fc2dcabd98e0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4856,8 +4859,9 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/Masha/serenity?branch=next#0be66504e1060a812c64595436d80cbe855c24c7"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#0c12aa884bcbbe7189eafb0977c5fc2dcabd98e0"
 dependencies = [
+ "arrayvec 0.7.4",
  "async-trait",
  "base64 0.21.2",
  "bitflags",
@@ -4889,7 +4893,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/Masha/serenity?branch=next#0be66504e1060a812c64595436d80cbe855c24c7"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#0c12aa884bcbbe7189eafb0977c5fc2dcabd98e0"
 dependencies = [
  "bitflags",
  "enum_primitive",
@@ -5069,7 +5073,7 @@ dependencies = [
 [[package]]
 name = "songbird"
 version = "0.3.2"
-source = "git+https://github.com/Masha/songbird.git?branch=next#f1ac6050765205af8e8e79f18324d162c055ec7e"
+source = "git+https://github.com/serenity-rs/songbird.git?branch=next#4fe23788e859a44a3f29987bff26c2612e74dcc5"
 dependencies = [
  "async-trait",
  "audiopus",

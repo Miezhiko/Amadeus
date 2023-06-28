@@ -117,6 +117,14 @@ pub async fn chat( msg: Option<u64>
     if rndx < 7 { process_message_for_gpt(&something) }
            else { something };
   if rndx < 7 {
+    if russian {
+      match strauss::bert::translation::ru2en(input.clone()).await {
+        Ok(translated) => input = translated,
+        Err(why) => {
+          error!("Failed to translate msg content {why}");
+        }
+      };
+    }
     if input.len() > GPT_LIMIT {
       if let Some((i, _)) = input.char_indices().rev().nth(GPT_LIMIT) {
         input = input[i..].to_string();

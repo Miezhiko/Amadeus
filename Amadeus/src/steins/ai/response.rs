@@ -54,18 +54,9 @@ async fn generate_response( ctx: &Context
   let in_case = CASELIST.iter().any(|u| *u == msg.author.id.0.get());
   let mut answer_option =
     if rndx != 1 && !in_case && gtry < 10 {
-      let text = if russian {
-        match strauss::bert::translation::ru2en(msg.content.clone()).await {
-          Ok(translated) => translated,
-          Err(why) => {
-            error!("Failed to translate msg content {why}");
-            msg.content.clone()
-          }
-        }
-      } else { msg.content.clone() };
       match bert::chat( message_id
                       , msg.channel_id.0.get()
-                      , text
+                      , msg.content.clone()
                       , msg.author.id.0.get()
                       , lsm
                       , russian 

@@ -29,7 +29,7 @@ pub fn generate(prompt: &str, model: &str) -> anyhow::Result<String> {
       system += "\n prompt: "
       try:
         token = random.choice(open("tokens.txt", "r").read().splitlines())
-        client = poe.Client(token.split(":")[0])
+        client = poe.Client(token)
 
         completion = client.send_message(model, system + prompt, with_chat_break=True)
 

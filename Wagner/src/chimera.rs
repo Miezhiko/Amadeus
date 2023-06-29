@@ -50,6 +50,7 @@ static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
           if tup and len(tup) == 2:
             messages.append({"role": "user", "content": tup[0]})
             messages.append({"role": "assistant", "content": tup[1]})
+      reslt = False
       try:
         messages.append({"role": "user", "content": prompt})
         with open("chimera.txt", "r") as file:
@@ -66,16 +67,13 @@ static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
 
         if not rspns:
           result = "chimera: Sorry, I can't generate a response right now."
-          reslt = False
         else:
           reslt = True
           result = rspns[0]["message"]["content"]
       except OSError as err:
         result = ("OS Error! {0}".format(err))
-        reslt = False
       except RuntimeError as err:
         result = ("Runtime Error! {0}".format(err))
-        reslt = False
     }); ( c.get::<bool>("reslt")
         , c.get::<String>("result") )
   }) {

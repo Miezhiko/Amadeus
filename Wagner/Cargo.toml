@@ -1,7 +1,7 @@
 [package]
 name = "wagner"
 description = "pythonic modules"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 
 [dependencies]
@@ -13,4 +13,4 @@ once_cell       = { workspace = true }
 env_logger      = "0.10"
 log             = "0.4.19"
 futures         = "0.3"
-inline-python   = "0.10"
+inline-python   = "0.11"

@@ -16,7 +16,7 @@ else:
 system += "\n prompt: "
 try:
     token = random.choice(open("tokens.txt", "r").read().splitlines())
-    client = poe.Client(token.split(":")[0])
+    client = poe.Client(token)
 
     print(json.dumps(client.bot_names, indent=2))
 

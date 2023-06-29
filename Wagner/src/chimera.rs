@@ -14,7 +14,7 @@ use tokio::sync::Mutex;
 use schubert::help::lang;
 
 static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
-  Lazy::new(|| Mutex::new( VecDeque::with_capacity(2) ));
+  Lazy::new(|| Mutex::new( VecDeque::with_capacity(1) ));
 
   pub async fn generate( prompt: &str
                        , fmode: bool

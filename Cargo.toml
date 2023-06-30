@@ -17,7 +17,7 @@ serde               = "^1"
 
 [workspace.dependencies.tokio]
 features  = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs", "sync"]
-version   = "^1.28.2"
+version   = "^1.29.1"
 workspace = true
 
 [profile.release]

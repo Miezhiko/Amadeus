@@ -313,3 +313,15 @@ async fn ban(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   }
   Ok(())
 }
+
+#[command]
+#[owners_only]
+async fn restart_kalmarity(_ctx: &Context, _msg: &Message) -> CommandResult {
+  let _ = Command::new("sh")
+            .arg("-c")
+            .arg("sudo systemctl restart Kalmarity")
+            .output()
+            .await
+            .expect("failed to run curl");
+  Ok(())
+}

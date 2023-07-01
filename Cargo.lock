@@ -118,7 +118,7 @@ checksum = "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd"
 
 [[package]]
 name = "amadeus"
-version = "11.0.7"
+version = "11.0.8"
 dependencies = [
  "anyhow",
  "async-recursion",

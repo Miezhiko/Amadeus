@@ -73,11 +73,13 @@ pub async fn generate( prompt: &str
   }) {
     Ok((r,m)) => {
       if r {
-        if ! m.is_empty() {
+        if !m.is_empty() {
           if msg_lock.len() == msg_lock.capacity() {
             msg_lock.pop_front();
           }
-          msg_lock.push_back((prompt.to_string(), m.clone()));
+          if (prompt.len() + m.len()) < 500 {
+            msg_lock.push_back((prompt.to_string(), m.clone()));
+          }
         }
         Ok(m)
       } else {

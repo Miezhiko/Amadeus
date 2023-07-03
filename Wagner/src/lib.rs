@@ -26,7 +26,7 @@ pub fn poe_generate(msg: &str) -> anyhow::Result<String> {
 }
 
 pub async fn generate(msg: &str) -> anyhow::Result<String> {
-  if let Ok(gpt4free_result) = chimera::generate( msg, false, "Amadeus" ).await {
+  if let Ok(gpt4free_result)        = chimera::generate( msg, false, "Amadeus" ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = g4f::phind::generate( msg ) {
     Ok(gpt4free_result)
@@ -74,11 +74,9 @@ pub async fn wagner(msg: &str, bot_name: &str) -> anyhow::Result<String> {
     fmode = false;
   }
 
-  if let Ok(gpt4free_result)        = gpt4free::aiassist::generate( msg, fmode, bot_name ).await {
+  if let Ok(gpt4free_result)     = chimera::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = g4f::deepai::generate( msg, fmode, bot_name ).await {
-    Ok(gpt4free_result)
-  } else if let Ok(gpt4free_result) = chimera::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = gpt4free::gptworldAi::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
@@ -87,6 +85,8 @@ pub async fn wagner(msg: &str, bot_name: &str) -> anyhow::Result<String> {
   } else if let Ok(gpt4free_result) = opengpt::chatbase::generate( msg ) {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = g4f::phind::generate( msg ) {
+    Ok(gpt4free_result)
+  } else if let Ok(gpt4free_result) = gpt4free::aiassist::generate( msg, fmode, bot_name ).await {
     Ok(gpt4free_result)
   } else if let Ok(gpt4free_result) = g4f::forefront::generate( msg, true, bot_name ).await {
     Ok(gpt4free_result)

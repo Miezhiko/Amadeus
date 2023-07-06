@@ -70,8 +70,6 @@
  - [gpt4free](https://github.com/xtekky/gpt4free) interfaces on Vivaldi service using inline python under `catch_unwind`.
  - [OpenGPT](https://github.com/uesleibros/OpenGPT) interfaces on Vivaldi.
  - [poe-api](https://github.com/ading2210/poe-api) interface, reverse engineered wrapper for Quora's Poe
- - [g4f](https://gitler.moe/g4f) interfaces.
- - ChimeraGPT gpt-4-0613 with OpenAI-python interfaces integration.
 
 <img src="https://cdn.discordapp.com/attachments/249111029668249601/1025077275525382234/unknown.png">
 

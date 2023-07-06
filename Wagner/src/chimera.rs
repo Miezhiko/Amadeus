@@ -60,7 +60,7 @@ static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
         openai.api_base = "https://chimeragpt.adventblocks.cc/v1"
 
         response = openai.ChatCompletion.create(
-          model="gpt-4-0613",
+          model="gpt-4",
           messages=messages
         )
         rspns = response["choices"]

@@ -7,7 +7,7 @@ openai.api_key = token
 openai.api_base = "https://chimeragpt.adventblocks.cc/v1"
 
 response = openai.ChatCompletion.create(
-  model='gpt-4-0613',
+  model='gpt-4',
   messages=[
     {'role': 'user', 'content': "what is your gpt version?"},
   ]

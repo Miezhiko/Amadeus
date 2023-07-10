@@ -56,7 +56,7 @@ pub async fn generate( prompt: &str
                                          , stream=False
                                          , provider=g4f.Provider.Forefront )
         if not rspns:
-          result = "deepai: Sorry, I can't generate a response right now."
+          result = "forefront: Sorry, I can't generate a response right now."
           reslt = False
         else:
           reslt = True
@@ -84,6 +84,6 @@ pub async fn generate( prompt: &str
       } else {
         bail!("No tokens generated: {:?}", m)
       }
-    }, Err(_) => { bail!("Failed to to use gpt4free::deepai now!") }
+    }, Err(_) => { bail!("Failed to to use gpt4free::forefront now!") }
   }
 }

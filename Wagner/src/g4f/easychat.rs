@@ -54,9 +54,9 @@ pub async fn generate( prompt: &str
         messages.append({"role": "user", "content": prompt})
         rspns = g4f.ChatCompletion.create( model=g4f.Model.gpt_4, messages=messages
                                          , stream=False
-                                         , provider=g4f.Provider.Aichat )
+                                         , provider=g4f.Provider.EasyChat )
         if not rspns:
-          result = "Aichat: Sorry, I can't generate a response right now."
+          result = "EasyChat: Sorry, I can't generate a response right now."
           reslt = False
         else:
           reslt = True
@@ -84,6 +84,6 @@ pub async fn generate( prompt: &str
       } else {
         bail!("No tokens generated: {:?}", m)
       }
-    }, Err(_) => { bail!("Failed to to use gpt4free::Aichat now!") }
+    }, Err(_) => { bail!("Failed to to use gpt4free::EasyChat now!") }
   }
 }

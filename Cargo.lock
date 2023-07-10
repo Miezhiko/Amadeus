@@ -6275,7 +6275,7 @@ checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "wagner"
-version = "0.2.6"
+version = "0.2.7"
 dependencies = [
  "anyhow",
  "env_logger",

@@ -45,7 +45,7 @@ pub async fn generate( prompt: &str
       else:
         systemContext += ", you reply in English"
       messages = [{"role": "system", "content": systemContext}]
-      if old_messages:
+      if not fmode and old_messages:
         for tup in old_messages:
           if tup and len(tup) == 2:
             messages.append({"role": "user", "content": tup[0]})
@@ -54,9 +54,9 @@ pub async fn generate( prompt: &str
         messages.append({"role": "user", "content": prompt})
         rspns = g4f.ChatCompletion.create( model=g4f.Model.gpt_4, messages=messages
                                          , stream=False
-                                         , provider=g4f.Provider.Acytoo )
+                                         , provider=g4f.Provider.AItianhu )
         if not rspns:
-          result = "Acytoo: Sorry, I can't generate a response right now."
+          result = "AItianhu: Sorry, I can't generate a response right now."
           reslt = False
         else:
           reslt = True
@@ -84,6 +84,6 @@ pub async fn generate( prompt: &str
       } else {
         bail!("No tokens generated: {:?}", m)
       }
-    }, Err(_) => { bail!("Failed to to use gpt4free::Acytoo now!") }
+    }, Err(_) => { bail!("Failed to to use gpt4free::AItianhu now!") }
   }
 }

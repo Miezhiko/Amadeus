@@ -45,7 +45,7 @@ static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
       else:
         systemContext += ", you reply in English"
       messages = [{"role": "system", "content": systemContext}]
-      if old_messages:
+      if not fmode and old_messages:
         for tup in old_messages:
           if tup and len(tup) == 2:
             messages.append({"role": "user", "content": tup[0]})

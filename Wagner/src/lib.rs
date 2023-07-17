@@ -1,6 +1,7 @@
 #[macro_use] extern crate anyhow;
 
 mod personality;
+mod constants;
 pub mod poe;
 pub mod gpt4free;
 pub mod opengpt;

@@ -1,4 +1,8 @@
-use crate::personality::get_personality;
+use crate::{
+  constants,
+  personality::get_personality
+};
+
 
 use inline_python::{ python, Context };
 
@@ -76,7 +80,7 @@ pub async fn generate( prompt: &str
           if msg_lock.len() == msg_lock.capacity() {
             msg_lock.pop_front();
           }
-          if (prompt.len() + m.len()) < 500 {
+          if (prompt.len() + m.len()) < constants::HISTORY_LIMIT {
             msg_lock.push_back((prompt.to_string(), m.clone()));
           }
         }

@@ -109,7 +109,7 @@ checksum = "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd"
 
 [[package]]
 name = "amadeus"
-version = "11.0.8"
+version = "11.0.9"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -737,6 +737,26 @@ name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+
+[[package]]
+name = "chat"
+version = "0.0.1"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#deaac18f5c2628d417ee36bdafcf215766d1b0fd"
+dependencies = [
+ "anyhow",
+ "chat-utils",
+ "inline-python",
+ "once_cell",
+ "tokio",
+]
+
+[[package]]
+name = "chat-utils"
+version = "0.0.1"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#deaac18f5c2628d417ee36bdafcf215766d1b0fd"
+dependencies = [
+ "ucd",
+]
 
 [[package]]
 name = "checked_int_cast"
@@ -4152,9 +4172,9 @@ dependencies = [
 
 [[package]]
 name = "rdkafka"
-version = "0.32.2"
+version = "0.33.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8733bc5dc0b192d1a4b28073f9bff1326ad9e4fecd4d9b025d6fc358d1c3e79"
+checksum = "da18026aad1c24033da3da726200de7e911e75c2e2cc2f77ffb9b4502720faae"
 dependencies = [
  "futures-channel",
  "futures-util",
@@ -5192,12 +5212,13 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strauss"
-version = "0.4.3"
+version = "0.4.4"
 dependencies = [
  "anyhow",
  "async-recursion",
  "bincode",
  "celery",
+ "chat",
  "chrono",
  "log",
  "once_cell",
@@ -5208,7 +5229,6 @@ dependencies = [
  "serde",
  "tch",
  "tokio",
- "wagner",
 ]
 
 [[package]]
@@ -6247,6 +6267,7 @@ name = "vivaldi"
 version = "0.2.3"
 dependencies = [
  "anyhow",
+ "chat",
  "env_logger",
  "futures 0.3.28",
  "log",
@@ -6255,7 +6276,6 @@ dependencies = [
  "schubert",
  "serde",
  "tokio",
- "wagner",
 ]
 
 [[package]]
@@ -6263,21 +6283,6 @@ name = "void"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
-
-[[package]]
-name = "wagner"
-version = "0.2.10"
-dependencies = [
- "anyhow",
- "env_logger",
- "futures 0.3.28",
- "inline-python",
- "log",
- "once_cell",
- "schubert",
- "serde",
- "tokio",
-]
 
 [[package]]
 name = "waker-fn"

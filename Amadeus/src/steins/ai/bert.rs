@@ -13,7 +13,7 @@ use strauss::{
         , xlnet::XLNET
         , code::CODEBERT
         , gptj::GPTJ },
-  wagner::WAGNER
+  chat::CHAT
 };
 
 async fn salieri_request<T>( sig: celery::task::Signature<T>
@@ -91,13 +91,13 @@ pub async fn gptj( msg: Option<u64>
   salieri_request(GPTJ::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
-pub async fn wagner( msg: Option<u64>
+pub async fn chatrs( msg: Option<u64>
                    , chan: u64
                    , something: String
                    , user_id: u64
                    , lsm: bool
                    , russian: bool ) -> Result<Option<String>> {
-  salieri_request(WAGNER::new(msg, chan, something, user_id, lsm, russian)).await
+  salieri_request(CHAT::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
 pub async fn chat( msg: Option<u64>
@@ -142,6 +142,6 @@ pub async fn chat( msg: Option<u64>
     4 => gptj       (msg, chan, input, user_id, lsm, russian).await,
     5 => chat_gpt2  (msg, chan, input, user_id, lsm, russian).await,
     6 => ask        (msg, chan, input, user_id, lsm, russian).await,
-    _ => wagner     (msg, chan, input, user_id, lsm, russian).await
+    _ => chatrs     (msg, chan, input, user_id, lsm, russian).await
   }
 }

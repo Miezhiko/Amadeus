@@ -5,7 +5,7 @@ extern crate serde;
 pub mod types;
 pub mod cache;
 pub mod bert;
-pub mod wagner;
+pub mod chat;
 
 pub mod commands;
 pub mod prelude;
@@ -40,7 +40,7 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
             , bert::xlnet::XLNET
             , bert::code::CODEBERT
             , bert::gptj::GPTJ
-            , wagner::WAGNER
+            , chat::CHAT
             ],
     task_routes = [
       "*" => SALIERI_SERVICE,

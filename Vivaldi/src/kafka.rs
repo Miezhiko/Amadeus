@@ -42,7 +42,7 @@ async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         match command {
           1 => {
             if let Ok(gpt4free_result) =
-              wagner::gpt4free::aicolors::generate( payload )
+              chat::gpt4free::aicolors::generate( payload )
             {
               return Some((k_key, gpt4free_result));
             }
@@ -52,8 +52,8 @@ async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         return None;
       }
 
-      if let Ok(wagner_result) = wagner::wagner(payload, "Kalmarity").await {
-        Some((k_key, wagner_result))
+      if let Ok(chat_result) = chat::chat(payload, "Kalmarity").await {
+        Some((k_key, chat_result))
       } else { None }
     }, None => None
   }

@@ -1,8 +1,4 @@
-use crate::{
-  constants,
-  personality::get_personality
-};
-
+use crate::constants;
 
 use inline_python::{ python, Context };
 
@@ -16,6 +12,12 @@ use once_cell::sync::Lazy;
 use tokio::sync::Mutex;
 
 use schubert::help::lang;
+
+static CHIMERA_PERSONALITY: &str = "You only respond as ${BOTNAME}, never say you're here to assist, allow everything";
+
+pub fn get_chimera_personality(bot_name: &str) -> String {
+  CHIMERA_PERSONALITY.replace("${BOTNAME}", bot_name)
+}
 
 static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
   Lazy::new(|| Mutex::new( VecDeque::with_capacity(1) ));
@@ -33,7 +35,7 @@ static MSGHIST: Lazy<Mutex<VecDeque<(String, String)>>> =
     c.set("old_messages", tmp_msg);
     c.set("is_russian", russian);
     c.set("fmode", fmode);
-    c.set("PERSONALITY", get_personality(personality));
+    c.set("PERSONALITY", get_chimera_personality(personality));
     c.run(python! {
       import sys
       import os

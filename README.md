@@ -67,9 +67,7 @@
  - Warcraft 3 Status Grid with active players on modes and weekly team players statistics.
  - [FloTV](https://w3flo.com/live) tokens generation using GraphQL API to [Flo Stats](https://stats.w3flo.com).
  - [Kafka](https://kafka.apache.org) interface for Vivaldi service to work with [Kalmarity](https://github.com/Miezhiko/Kalmarity)
- - [gpt4free](https://github.com/xtekky/gpt4free) interfaces on Vivaldi service using inline python under `catch_unwind`.
- - [OpenGPT](https://github.com/uesleibros/OpenGPT) interfaces on Vivaldi.
- - [poe-api](https://github.com/ading2210/poe-api) interface, reverse engineered wrapper for Quora's Poe
+ - [chat.rs](https://github.com/Miezhiko/chat.rs) integration to RabbitMQ/Kafka services.
 
 <img src="https://cdn.discordapp.com/attachments/249111029668249601/1025077275525382234/unknown.png">
 

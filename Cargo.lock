@@ -109,7 +109,7 @@ checksum = "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd"
 
 [[package]]
 name = "amadeus"
-version = "11.0.9"
+version = "11.0.10"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -117,6 +117,7 @@ dependencies = [
  "bincode",
  "cannyls",
  "celery",
+ "chat-utils",
  "chrono",
  "chrono-tz",
  "comfy-table",
@@ -137,7 +138,6 @@ dependencies = [
  "rand 0.8.5",
  "regex",
  "reqwest",
- "schubert",
  "serde",
  "serde_derive",
  "serde_dhall",
@@ -4648,7 +4648,7 @@ dependencies = [
 
 [[package]]
 name = "salieri"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "anyhow",
  "celery",
@@ -4684,13 +4684,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c3733bf4cf7ea0880754e19cb5a462007c4a8c1914bff372ccc95b464f1df88"
 dependencies = [
  "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "schubert"
-version = "0.0.1"
-dependencies = [
- "ucd",
 ]
 
 [[package]]
@@ -5218,20 +5211,20 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strauss"
-version = "0.4.4"
+version = "0.4.5"
 dependencies = [
  "anyhow",
  "async-recursion",
  "bincode",
  "celery",
  "chat",
+ "chat-utils",
  "chrono",
  "log",
  "once_cell",
  "rand 0.8.5",
  "regex",
  "rust-bert",
- "schubert",
  "serde",
  "tch",
  "tokio",
@@ -6273,12 +6266,12 @@ version = "0.2.3"
 dependencies = [
  "anyhow",
  "chat",
+ "chat-utils",
  "env_logger",
  "futures 0.3.28",
  "log",
  "once_cell",
  "rdkafka",
- "schubert",
  "serde",
  "tokio",
 ]

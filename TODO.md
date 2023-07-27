@@ -1,5 +1,8 @@
 ##REALLY PLANNED:
 
+ - Drop Salieri and Strauss because Celery design for compiled language is horribly bad (you need to link your processing code with both service and client)
+ - Switch to Kafka or alternatively write own AMQ based proto
+ - Change Kafka keys, use numbers instead of strings
  - Flag for minimal upgrade without deps updates for safety
  - Move some stuff to separated repository (maybe?)
  - Ability to specify desired gpt service from Kalmarity

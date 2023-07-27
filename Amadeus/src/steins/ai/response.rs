@@ -16,7 +16,7 @@ use serenity::{
 
 use rand::Rng;
 
-use schubert::help::lang;
+use chat_utils::help::lang;
 
 use tokio::time::{ sleep, Duration };
 use async_recursion::async_recursion;

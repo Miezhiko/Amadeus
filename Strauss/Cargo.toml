@@ -1,25 +1,25 @@
 [package]
 name = "strauss"
 description = "Amadeus services library"
-version = "0.4.4"
+version = "0.4.5"
 edition = "2021"
 
 [lib]
 doctest = false
 
 [dependencies]
-schubert        = { path = "../Schubert" }
 serde           = { workspace = true }
 anyhow          = { workspace = true }
 once_cell       = { workspace = true }
 async-recursion = { workspace = true }
 tokio           = { workspace = true }
 chat            = { workspace = true }
-log             = "0.4.18"
+chat-utils      = { workspace = true }
+log             = "0.4.19"
 rand            = "0.8.5"
-chrono          = "0.4.24"
+chrono          = "0.4.26"
 bincode         = "2.0.0-rc.3"
-regex           = "1.8"
+regex           = "1.9"
 tch             = "0.13"
 celery          = "^0.5"
 

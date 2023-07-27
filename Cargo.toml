@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-  "Schubert",
   "Strauss",
   "Amadeus",
   "Salieri",
@@ -15,6 +14,10 @@ once_cell           = "^1.18"
 serde               = "^1"
 
 [workspace.dependencies.chat]
+git = "https://github.com/Miezhiko/chat.rs.git"
+branch = "mawa"
+
+[workspace.dependencies.chat-utils]
 git = "https://github.com/Miezhiko/chat.rs.git"
 branch = "mawa"
 

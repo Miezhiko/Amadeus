@@ -141,7 +141,6 @@ The models will be downloaded to the environment variable `RUSTBERT_CACHE` if it
 
 ## Development
 
- - **Schubert** common tiny helper library shared between all (almost)
  - **Strauss** is set of tasks running on distributed tasks queue
  - **Amadeus** is discord bot service on Serenity
  - **Salieri** is celery daemon running on rabbitmq and processing tasks

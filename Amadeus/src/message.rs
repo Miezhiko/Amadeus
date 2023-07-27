@@ -18,7 +18,7 @@ use crate::{
                }
 };
 
-use schubert::help::lang;
+use chat_utils::help::lang;
 
 #[cfg(feature = "spam_filter")]
 use crate::spam::spam_check;

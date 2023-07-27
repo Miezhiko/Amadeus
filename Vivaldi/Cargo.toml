@@ -5,12 +5,12 @@ version = "0.2.3"
 edition = "2021"
 
 [dependencies]
-schubert        = { path = "../Schubert" }
 serde           = { workspace = true }
 anyhow          = { workspace = true }
 tokio           = { workspace = true }
 once_cell       = { workspace = true }
 chat            = { workspace = true }
+chat-utils      = { workspace = true }
 env_logger      = "0.10"
 log             = "0.4.19"
 futures         = "0.3"

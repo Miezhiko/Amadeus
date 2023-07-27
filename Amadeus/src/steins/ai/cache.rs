@@ -24,7 +24,7 @@ use serenity::{
   futures::StreamExt
 };
 
-use schubert::help::lang;
+use chat_utils::help::lang;
 
 use std::sync::atomic::Ordering;
 use async_std::fs;

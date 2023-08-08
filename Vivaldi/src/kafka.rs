@@ -1,7 +1,7 @@
 use futures::stream::FuturesUnordered;
 use futures::{ StreamExt, TryStreamExt };
 
-use log::{ info, warn, error };
+use log::{ info, error };
 
 use rdkafka::{
   config::ClientConfig,
@@ -36,21 +36,6 @@ async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
       let user_id   = key3[1].parse::<u64>().unwrap_or(0);
       let msg       = key3[2].parse::<u64>().unwrap_or(0);
       let k_key     = format!("{chan}|{user_id}|{msg}");
-
-      if key3.len() > 3 {
-        let command = key3[3].parse::<u64>().unwrap_or(0);
-        match command {
-          1 => {
-            if let Ok(gpt4free_result) =
-              chat::gpt4free::aicolors::generate( payload )
-            {
-              return Some((k_key, gpt4free_result));
-            }
-          },
-          _ => warn!("Unknown command")
-        };
-        return None;
-      }
 
       if let Ok(chat_result) = chat::chat(payload, "Kalmarity").await {
         Some((k_key, chat_result))

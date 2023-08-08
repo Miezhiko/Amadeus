@@ -109,7 +109,7 @@ checksum = "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd"
 
 [[package]]
 name = "amadeus"
-version = "11.0.12"
+version = "11.0.13"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -759,8 +759,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.1.4"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#b0ea0c9b97eac4c0c1169bb40c4489f1d40be3c7"
+version = "0.1.5"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#2b49e8247c036fd88055740871796898032790c7"
 dependencies = [
  "anyhow",
  "chat-utils",
@@ -772,7 +772,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#b0ea0c9b97eac4c0c1169bb40c4489f1d40be3c7"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#2b49e8247c036fd88055740871796898032790c7"
 dependencies = [
  "ucd",
 ]
@@ -6379,7 +6379,7 @@ checksum = "9dcc60c0624df774c82a0ef104151231d37da4962957d691c011c852b2473314"
 
 [[package]]
 name = "vivaldi"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "anyhow",
  "chat",

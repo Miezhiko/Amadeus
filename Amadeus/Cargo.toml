@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "11.0.10"
+version             = "11.0.12"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -45,7 +45,7 @@ bincode             = "2.0.0-rc.3"
 itertools           = "0.11.0"
 unic-langid         = "0.9.1"
 fluent-templates    = "0.8"
-sled                = "0.34.7"
+sled                = "1.0.0-alpha.114"
 kathoey             = "1.1.4"
 serde_dhall         = "0.12.1"
 nipper              = "0.1.9"

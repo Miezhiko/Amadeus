@@ -20,7 +20,7 @@ use serenity::{
 async fn register(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let key = &args.single::<String>()?;
   let value = args.rest();
-  if let Err(why) = sled_info::store(key, value) {
+  if let Err(why) = sled_info::store(key, value).await {
     error!("Failed to register {key}, {why}");
   } else {
     channel_message(ctx, msg, &format!("Registered {key}")).await;
@@ -33,7 +33,7 @@ async fn register(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
 #[bucket = "A"]
 async fn show(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let key = &args.single::<String>()?;
-  match sled_info::read(key) {
+  match sled_info::read(key).await {
     Ok(val) => {
       channel_message(ctx, msg, &val).await;
     }, Err(why) => {
@@ -46,7 +46,7 @@ async fn show(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[command]
 #[bucket = "A"]
 async fn list(ctx: &Context, msg: &Message) -> CommandResult {
-  match sled_info::list() {
+  match sled_info::list().await {
     Ok(val) => {
       channel_message(ctx, msg, &val).await;
     }, Err(why) => {
@@ -61,7 +61,7 @@ async fn list(ctx: &Context, msg: &Message) -> CommandResult {
 #[bucket = "A"]
 async fn delete(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let key = &args.single::<String>()?;
-  match sled_info::delete(key) {
+  match sled_info::delete(key).await {
     Ok(_) => {
       channel_message(ctx, msg, &format!("Deleted {key}")).await;
     }, Err(why) => {

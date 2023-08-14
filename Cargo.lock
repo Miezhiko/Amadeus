@@ -759,8 +759,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.1.8"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#13b92b66e8f427d36f144e3a2376e96d0eb9e176"
+version = "0.1.9"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#1eafb548324fae3564b8ad1bd68c3ee1715554f7"
 dependencies = [
  "anyhow",
  "chat-utils",
@@ -772,7 +772,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#13b92b66e8f427d36f144e3a2376e96d0eb9e176"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#1eafb548324fae3564b8ad1bd68c3ee1715554f7"
 dependencies = [
  "ucd",
 ]
@@ -5317,7 +5317,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strauss"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
  "anyhow",
  "async-recursion",

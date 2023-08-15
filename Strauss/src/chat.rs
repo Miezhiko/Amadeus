@@ -17,7 +17,10 @@ async fn chat(msg_content: &str, user_id: u64) -> anyhow::Result<String> {
   info!("Generating chat response");
   let payload = process_message_for_gpt(msg_content);
   if user_id == 510368731378089984 {
-    chat::generate(&payload, "Amadeus", false).await
+    match chat::generate(&payload, "Amadeus", false).await {
+      Ok(resp) => Ok(resp),
+      Err(why) => Ok(format!("chat: Failed to generate response: {why}"))
+    }
   } else {
     chat::chat(&payload, "Amadeus").await
   }

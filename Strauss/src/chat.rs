@@ -12,6 +12,8 @@ use std::{
   io::prelude::*
 };
 
+use tokio::time::{ sleep, Duration };
+
 async fn chat_send( msg: Option<u64>
                   , chan: u64
                   , something: String
@@ -24,8 +26,8 @@ async fn chat_send( msg: Option<u64>
                              .replace("MULTIGEN", "");
       let resp_list = chat::generate_all(&payload, "Amadeus", false).await;
       let temp_dir = std::env::temp_dir();
-      let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
       for (model_name, resp) in resp_list {
+        let mut lukashenko = UnixStream::connect(temp_dir.join(LUKASHENKO))?;
         let resp_format = match resp {
           Ok(r) => r,
           Err(err) => format!("Failed: {err}")
@@ -39,6 +41,8 @@ async fn chat_send( msg: Option<u64>
         };
         let encoded = bincode::encode_to_vec(package, BINCODE_CONFIG)?;
         lukashenko.write_all(&encoded)?;
+        // not sure about this
+        sleep(Duration::from_millis(15)).await;
       }
       Ok(())
     } else {

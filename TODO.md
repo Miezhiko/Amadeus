@@ -1,6 +1,5 @@
 ##REALLY PLANNED:
 
- - CORRECTLY SPLIT MESSAGES WITH CODE (IT WAS DONE SOMEWHERE BUT IS NOT WORKING ON NEEDED TASKS) 
  - Drop Salieri and Strauss because Celery design for compiled language is horribly bad (you need to link your processing code with both service and client)
  - Switch to Kafka or alternatively write own AMQ based proto
  - Change Kafka keys, use numbers instead of strings

@@ -55,7 +55,7 @@ async fn chat_send( msg: Option<u64>
       let package = ChatResponse {
         message: msg,
         channel: chan,
-        response: response,
+        response,
         russian: false
       };
       let encoded = bincode::encode_to_vec(package, BINCODE_CONFIG)?;

@@ -313,6 +313,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   let now = chrono::offset::Utc::now().date_naive();
   let mut last_msg_id_on_iteration = Some(msg.id);
   let mut messages = std::collections::HashSet::new();
+  #[allow(clippy::single_range_in_vec_init)]
   for _iteration in [0..PURGE_ITERATIONS] {
     if let Some(last_msg_id) = last_msg_id_on_iteration {
       if let Ok(msgs) = msg.channel_id.messages(ctx,

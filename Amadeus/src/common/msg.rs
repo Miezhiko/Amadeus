@@ -60,21 +60,39 @@ async fn serenity_channel_message_multi2(ctx: &Context, msg: &Message, texts: Ve
 }
 
 pub fn split_code(text: &str) -> Vec<String> {
-  if let Some(first_space) = text.find(' ') {
-    let start_from =
-      if let Some(first_newline) = text.find('\n') {
-        if first_space < first_newline { first_space }
-        else { first_newline }
-      } else { first_space };
-    let starting_pattern = &text[..start_from];
-    let whole_new_text = &text[start_from..text.len()-4];
-    let peaces = whole_new_text.as_bytes()
-      .chunks(MESSAGE_LIMIT - 200)
-      .map(|s| unsafe { ::std::str::from_utf8_unchecked(s).replace("```", "'''") });
-    peaces.map(|s| format!("{starting_pattern}\n{s}\n```")).collect()
-  } else {
-    vec![text.to_string()]
+  let default_split = text.as_bytes()
+                          .chunks(MESSAGE_LIMIT - 8)
+                          .map(|s| unsafe { ::std::str::from_utf8_unchecked(s) })
+                          .collect::<Vec<&str>>();
+  let mut to_top = false;
+  let mut result = vec![];
+  for part in default_split {
+    let new_part = if !part.contains("```")
+                   || part.matches("```").count() % 2 == 0 {
+      if !to_top {
+        part.to_owned()
+      } else {
+        to_top = part.contains("```") && part.matches("```").count() % 2 == 0;
+        if to_top {
+          format!("```\n{part}\n```")
+        } else {
+          format!("```\n{part}")
+        }
+      }
+    } else if !to_top {
+      to_top = true;
+      format!("{part}\n```")
+    } else {
+      to_top = part.matches("```").count() % 2 == 0;
+      if to_top {
+        format!("```\n{part}\n```")
+      } else {
+        format!("```\n{part}")
+      }
+    };
+    result.push(new_part);
   }
+  result
 }
 
 pub fn split_message(text: &str) -> Vec<&str> {
@@ -86,7 +104,7 @@ pub fn split_message(text: &str) -> Vec<&str> {
 
 pub async fn direct_message(ctx: &Context, msg: &Message, text: &str) {
   if Message::overflow_length(text).is_some() {
-    if text.starts_with("```") {
+    if text.contains("```") {
       serenity_direct_message_multi2(ctx, msg, split_code(text)).await;
     } else {
       serenity_direct_message_multi(ctx, msg, split_message(text)).await;
@@ -98,7 +116,7 @@ pub async fn direct_message(ctx: &Context, msg: &Message, text: &str) {
 
 pub async fn reply(ctx: &Context, msg: &Message, text: &str) {
   if Message::overflow_length(text).is_some() {
-    if text.starts_with("```") {
+    if text.contains("```") {
       serenity_reply_multi2(ctx, msg, split_code(text)).await;
     } else {
       serenity_reply_multi(ctx, msg, split_message(text)).await;
@@ -110,7 +128,7 @@ pub async fn reply(ctx: &Context, msg: &Message, text: &str) {
 
 pub async fn channel_message(ctx: &Context, msg: &Message, text: &str) {
   if Message::overflow_length(text).is_some() {
-    if text.starts_with("```") {
+    if text.contains("```") {
       serenity_channel_message_multi2(ctx, msg, split_code(text)).await;
     } else {
       serenity_channel_message_multi(ctx, msg, split_message(text)).await;

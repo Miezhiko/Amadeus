@@ -759,8 +759,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.2.4"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#54559cda50f15a971b835995b6166ea7036dad14"
+version = "0.2.5"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#cfeba45c58bd5cfff2d25ad170674c129c8ecc24"
 dependencies = [
  "anyhow",
  "chat-utils",
@@ -772,7 +772,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#54559cda50f15a971b835995b6166ea7036dad14"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#cfeba45c58bd5cfff2d25ad170674c129c8ecc24"
 dependencies = [
  "ucd",
 ]
@@ -6742,9 +6742,9 @@ checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
 
 [[package]]
 name = "winnow"
-version = "0.5.14"
+version = "0.5.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d09770118a7eb1ccaf4a594a221334119a44a814fcb0d31c5b85e83e97227a97"
+checksum = "7c2e3184b9c4e92ad5167ca73039d0c42476302ab603e2fec4487511f38ccefc"
 dependencies = [
  "memchr",
 ]

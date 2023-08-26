@@ -16,7 +16,7 @@ async fn record_owned_message_receipt(msg: &OwnedMessage) {
   info!("Message received: {}", msg.offset());
 }
 
-async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
+async fn gpt_process(msg: OwnedMessage) -> Option<(String, String)> {
   info!("Generating response for Kafka message {}", msg.offset());
   match msg.payload() {
     Some(payload_bytes) => {
@@ -32,13 +32,15 @@ async fn gpt_process<'a>(msg: OwnedMessage) -> Option<(String, String)> {
         return None;
       }
 
+      /* 
       let chan      = key3[0].parse::<u64>().unwrap_or(0);
       let user_id   = key3[1].parse::<u64>().unwrap_or(0);
       let msg       = key3[2].parse::<u64>().unwrap_or(0);
       let k_key     = format!("{chan}|{user_id}|{msg}");
+      */
 
       if let Ok(chat_result) = chat::chat(payload, "Kalmarity").await {
-        Some((k_key, chat_result))
+        Some((key_str.to_owned(), chat_result))
       } else { None }
     }, None => None
   }
@@ -50,8 +52,6 @@ async fn run_async_processor(
   input_topic: String,
   output_topic: String,
 ) {
-  // Create the `StreamConsumer`
-  // to receive the messages from the topic in form of a `Stream`.
   let consumer: StreamConsumer = ClientConfig::new()
       .set("group.id", &group_id)
       .set("bootstrap.servers", &brokers)
@@ -75,9 +75,6 @@ async fn run_async_processor(
     let producer = producer.clone();
     let output_topic = output_topic.to_string();
     async move {
-      // Process each message
-      // Borrowed messages can't outlive the consumer they are received from, so they need to
-      // be owned in order to be sent to a separate thread.
       let owned_message = borrowed_message.detach();
       record_owned_message_receipt(&owned_message).await;
       tokio::spawn(async move {

@@ -14,15 +14,11 @@ main = hake $ do
   salieriExecutable ♯
     cargo <| "build" : buildFlagsSalieri False
 
-  vivaldiExecutable ♯
-    cargo <| "build" : buildFlagsVivaldi False
-
   amadeusExecutable ◉ [salieriExecutable] ♯♯
     cargo <| "build" : buildFlagsAmadeus False
 
   "fat | build Amadeus and Salieri with fat LTO" ∫
        cargo <| "build" : buildFlagsSalieri True
-    >> cargo <| "build" : buildFlagsVivaldi True
     >> cargo <| "build" : buildFlagsAmadeus True
 
   "install | install to system" ◉ [ "fat" ] ∰
@@ -37,25 +33,14 @@ main = hake $ do
   "restart | restart services" ◉ [ salieriExecutable
                                  , amadeusExecutable ] ∰ do
     systemctl ["restart", appNameSalieri]
-    systemctl ["restart", appNameVivaldi]
     systemctl ["restart", appNameAmadeus]
 
   "run | run Amadeus" ◉ [ amadeusExecutable ] ∰ do
     cargo . (("run" : buildFlagsAmadeus False) ++) . ("--" :) =<< getHakeArgs
 
  where
-  -- to use system PyTorch instead of downloaded
-  {-
-  setTorchEnv ∷ IO ()
-  setTorchEnv = setEnv "LIBTORCH_USE_PYTORCH" "1"
-             >> setEnv "LIBTORCH_BYPASS_VERSION_CHECK" "1"
-  -}
-
   appNameSalieri ∷ String
   appNameSalieri = "salieri"
-
-  appNameVivaldi ∷ String
-  appNameVivaldi = "vivaldi"
 
   appNameAmadeus ∷ String
   appNameAmadeus = "amadeus"
@@ -80,13 +65,6 @@ main = hake $ do
     in if fat then defaultFlags ++ fatArgs
               else defaultFlags
 
-  buildFlagsVivaldi ∷ Bool -> [String]
-  buildFlagsVivaldi fat =
-    let defaultFlags = [ "-p", appNameVivaldi
-                       , "--release" ]
-    in if fat then defaultFlags ++ fatArgs
-              else defaultFlags
-
   buildFlagsAmadeus ∷ Bool -> [String]
   buildFlagsAmadeus fat =
     let defaultFlags = [ "-p", appNameAmadeus
@@ -97,9 +75,6 @@ main = hake $ do
 
   salieriExecutable ∷ FilePath
   salieriExecutable = buildPath </> appNameSalieri
-
-  vivaldiExecutable ∷ FilePath
-  vivaldiExecutable = buildPath </> appNameVivaldi
 
   amadeusExecutable ∷ FilePath
   amadeusExecutable = buildPath </> appNameAmadeus

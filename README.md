@@ -66,7 +66,6 @@
  - Using tokio [UnixStream](https://docs.rs/tokio/1.17.0/tokio/net/struct.UnixStream.html#method.try_read_buf) on various sockets for IPC
  - Warcraft 3 Status Grid with active players on modes and weekly team players statistics.
  - [FloTV](https://w3flo.com/live) tokens generation using GraphQL API to [Flo Stats](https://stats.w3flo.com).
- - [Kafka](https://kafka.apache.org) interface for Vivaldi service to work with [Kalmarity](https://github.com/Miezhiko/Kalmarity)
  - [chat.rs](https://github.com/Miezhiko/chat.rs) integration to RabbitMQ/Kafka services.
 
 <img src="https://cdn.discordapp.com/attachments/249111029668249601/1025077275525382234/unknown.png">
@@ -74,7 +73,6 @@
 ## Cooking
 
  - Salieri needs [RabbitMQ](https://www.rabbitmq.com) to work properly
- - Vivaldi needs running [Kafka](https://kafka.apache.org)
  - Strauss needs to link with [PyTorch](https://pytorch.org/), instructions on [tch-rs](https://github.com/LaurentMazare/tch-rs)
  - `tokens.txt` file for poe API to work
  - to compile just use `cargo build --release` or `hake`
@@ -144,29 +142,22 @@ The models will be downloaded to the environment variable `RUSTBERT_CACHE` if it
  - **Strauss** is set of tasks running on distributed tasks queue
  - **Amadeus** is discord bot service on Serenity
  - **Salieri** is celery daemon running on rabbitmq and processing tasks
- - **Vivaldi** is kafka daemon processing bert / network tasks
- - [Kalmarity](https://github.com/Miezhiko/Kalmarity) is separated bot using **Salieri** service
 
 *rustfmt usage is forbidden*, *stylish-haskell is a must*, *pep8 is OK*
 
 ## Service
 
-Amadeus service should run Salieri by itself, Vivaldi service is separated and optional, you probably just don't need it at all. (who am I talking with, after all)
-
 ```shell
 cp misc/Salieri.service /etc/systemd/system/Salieri.service
-cp misc/Vivaldi.service /etc/systemd/system/Vivaldi.service
 cp misc/Amadeus.service /etc/systemd/system/Amadeus.service
 systemctl daemon-reload
 systemctl enable Amadeus
-systemctl start Vivaldi
 systemctl start Amadeus
 ```
 
 it's safe to rebuild and restart it
 
 ```shell
-systemctl restart Vivaldi
 systemctl restart Amadeus
 ```
 

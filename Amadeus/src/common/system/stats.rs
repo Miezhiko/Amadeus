@@ -3,10 +3,10 @@ use crate::{
   steins::gate::START_TIME
 };
 
-use serenity::prelude::*;
-
 use chrono::{ Duration, Utc };
 use tokio::process::Command;
+
+use anyhow::Context;
 
 #[derive(Default, Debug)]
 pub struct SysInfo {
@@ -40,12 +40,12 @@ pub async fn get_memory_mb() -> anyhow::Result<(f32, f32)> {
      , mem_salieri[..mem_salieri.len() - 2].parse::<f32>().unwrap_or(0f32)/1024f32 ))
 }
 
-pub async fn get_system_info(ctx: &Context) -> SysInfo {
+pub async fn get_system_info(ctx: &serenity::client::Context) -> anyhow::Result<SysInfo> {
   let data = ctx.data.read().await;
   let mut sys_info = SysInfo {
     shard_latency: {
-      set!{ shard_manager = data.get::<ShardManagerContainer>().unwrap()
-          , manager       = shard_manager.lock().await
+      set!{ manager       = data.get::<ShardManagerContainer>()
+                                .context("No Shard Manager")?
           , runners       = manager.runners.lock().await
           , runner_raw    = runners.get(&ctx.shard_id) };
       match runner_raw {
@@ -76,8 +76,7 @@ pub async fn get_system_info(ctx: &Context) -> SysInfo {
           .arg("-c")
           .arg("du -s trees | cut -f 1")
           .output()
-          .await
-          .expect("failed to execute process");
+          .await?;
   if let Ok(db_size_str) = &String::from_utf8(dbs_stdout.stdout) {
     if let Ok(db_kb) = db_size_str[..db_size_str.len() - 1].parse::<u32>() {
       sys_info.db_size = if db_kb >= 1024 {
@@ -91,7 +90,7 @@ pub async fn get_system_info(ctx: &Context) -> SysInfo {
   } else {
     error!("Failed to parse du stdout");
   }
-  sys_info
+  Ok(sys_info)
 }
 
 pub async fn get_uptime(start: &str) -> (String, String) {

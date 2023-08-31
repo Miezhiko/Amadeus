@@ -32,16 +32,6 @@ jobs:
       SCCACHE_DIR: ${{ matrix.sccache-path }}
     steps:
       - uses: actions/checkout@v2
-      - name: Install librdkafka
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential git
-          git clone --depth 1 --branch v1.9.2 https://github.com/edenhill/librdkafka.git
-          cd librdkafka
-          ./configure --prefix=/usr
-          make -j$(nproc)
-          sudo make install
-
       - name: Install sccache (ubuntu-latest)
         if: matrix.os == 'ubuntu-latest'
         env:

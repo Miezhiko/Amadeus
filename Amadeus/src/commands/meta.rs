@@ -194,7 +194,7 @@ async fn info(ctx: &Context, msg: &Message) -> CommandResult {
   set!{ guild_count   = ctx.cache.guilds().len()
       , channel_count = ctx.cache.guild_channel_count()
       , user_count    = ctx.cache.user_count()
-      , sys_info      = get_system_info(ctx).await
+      , sys_info      = get_system_info(ctx).await?
       , footer = format!("Requested by {}", msg.author.name) };
 
   let eb = CreateEmbed::new()

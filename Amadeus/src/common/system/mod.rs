@@ -12,5 +12,5 @@ use std::sync::Arc;
 pub struct ShardManagerContainer;
 
 impl TypeMapKey for ShardManagerContainer {
-  type Value = Arc<Mutex<ShardManager>>;
+  type Value = Arc<ShardManager>;
 }

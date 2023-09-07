@@ -600,9 +600,9 @@ checksum = "a3e2c3daef883ecc1b5d58c15adae93470a91d425f3532ba1695849656af3fc1"
 
 [[package]]
 name = "bytemuck"
-version = "1.13.1"
+version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17febce684fd15d89027105661fec94afb475cb995fbc59d2865198446ba2eea"
+checksum = "374d28ec25809ee0e23827c2ab573d729e293f281dfe393500e7ad618baa61c6"
 
 [[package]]
 name = "byteorder"
@@ -759,8 +759,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.2.10"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#f7e45d0184327ff74a8efb73f1ae42b19a3a8c75"
+version = "0.2.11"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#1b8c5754bc78df99adf9f032250f8632e1e28738"
 dependencies = [
  "anyhow",
  "chat-utils",
@@ -772,7 +772,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#f7e45d0184327ff74a8efb73f1ae42b19a3a8c75"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#1b8c5754bc78df99adf9f032250f8632e1e28738"
 dependencies = [
  "ucd",
 ]
@@ -785,9 +785,9 @@ checksum = "17cc5e6b5ab06331c33589842070416baa137e8b0eb912b008cfd4a78ada7919"
 
 [[package]]
 name = "chrono"
-version = "0.4.28"
+version = "0.4.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95ed24df0632f708f5f6d8082675bef2596f7084dee3dd55f632290bf35bfe0f"
+checksum = "d87d9d13be47a5b7c3907137f1290b0459a7f80efb26be8c52afb11963bccb02"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
@@ -909,7 +909,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#944e53c34c3f8f6263421f897f4aa75cece59b04"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#f4be36c9f001d0ea9cd2537ce538d00c415b2ca2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1404,16 +1404,7 @@ version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca3aa72a6f96ea37bbc5aa912f6788242832f75369bdfdadcb0e38423f100059"
 dependencies = [
- "dirs-sys 0.3.7",
-]
-
-[[package]]
-name = "dirs"
-version = "5.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44c45a9d03d6676652bcb5e724c7e988de1acad23a711b5217ab9cbecbec2225"
-dependencies = [
- "dirs-sys 0.4.1",
+ "dirs-sys",
 ]
 
 [[package]]
@@ -1435,18 +1426,6 @@ dependencies = [
  "libc",
  "redox_users",
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "dirs-sys"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "520f05a5cbd335fae5a99ff7a6ab8627577660ee5cfd6a94a6a929b52ff0321c"
-dependencies = [
- "libc",
- "option-ext",
- "redox_users",
- "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -3274,21 +3253,15 @@ checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
 
 [[package]]
 name = "openssl-sys"
-version = "0.9.92"
+version = "0.9.93"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db7e971c2c2bba161b2d2fdf37080177eff520b3bc044787c7f1f5f9e78d869b"
+checksum = "db4d56a4c0478783083cfafcc42493dd4a981d41669da64b4572a2a089b51b1d"
 dependencies = [
  "cc",
  "libc",
  "pkg-config",
  "vcpkg",
 ]
-
-[[package]]
-name = "option-ext"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
 
 [[package]]
 name = "ordered-float"
@@ -4491,7 +4464,7 @@ version = "0.21.0-alpha"
 source = "git+https://github.com/guillaume-be/rust-bert.git?branch=master#540c9268e7f6327901a99ddc83bf133ba6c5c7af"
 dependencies = [
  "cached-path",
- "dirs 4.0.0",
+ "dirs",
  "half 2.3.1",
  "lazy_static",
  "ordered-float 3.9.1",
@@ -4981,12 +4954,12 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#944e53c34c3f8f6263421f897f4aa75cece59b04"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#f4be36c9f001d0ea9cd2537ce538d00c415b2ca2"
 dependencies = [
  "arrayvec 0.7.4",
  "async-trait",
  "base64 0.21.3",
- "bitflags 1.3.2",
+ "bitflags 2.4.0",
  "bytes",
  "chrono",
  "command_attr",
@@ -5005,7 +4978,7 @@ dependencies = [
  "static_assertions",
  "time 0.3.28",
  "tokio",
- "tokio-tungstenite 0.19.0",
+ "tokio-tungstenite 0.20.0",
  "tracing",
  "typemap_rev",
  "url",
@@ -5015,9 +4988,9 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#944e53c34c3f8f6263421f897f4aa75cece59b04"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#f4be36c9f001d0ea9cd2537ce538d00c415b2ca2"
 dependencies = [
- "bitflags 1.3.2",
+ "bitflags 2.4.0",
  "enum_primitive",
  "serde",
  "serde_json",
@@ -5750,20 +5723,6 @@ dependencies = [
 
 [[package]]
 name = "tokio-tungstenite"
-version = "0.19.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec509ac96e9a0c43427c74f003127d953a265737636129424288d27cb5c4b12c"
-dependencies = [
- "futures-util",
- "log",
- "native-tls",
- "tokio",
- "tokio-native-tls",
- "tungstenite 0.19.0",
-]
-
-[[package]]
-name = "tokio-tungstenite"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b2dbec703c26b00d74844519606ef15d09a7d6857860f84ad223dec002ddea2"
@@ -6027,26 +5986,6 @@ dependencies = [
  "base64 0.13.1",
  "byteorder",
  "bytes",
- "http",
- "httparse",
- "log",
- "native-tls",
- "rand 0.8.5",
- "sha1",
- "thiserror",
- "url",
- "utf-8",
-]
-
-[[package]]
-name = "tungstenite"
-version = "0.19.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15fba1a6d6bb030745759a9a2a588bfe8490fc8b4751a277db3a0be1c9ebbf67"
-dependencies = [
- "byteorder",
- "bytes",
- "data-encoding",
  "http",
  "httparse",
  "log",
@@ -6389,9 +6328,9 @@ checksum = "9d5b2c62b4012a3e1eca5a7e077d13b3bf498c4073e33ccd58626607748ceeca"
 
 [[package]]
 name = "walkdir"
-version = "2.3.3"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36df944cda56c7d8d8b7496af378e6b16de9284591917d307c9b4d313c44e698"
+checksum = "d71d857dc86794ca4c280d616f7da00d2dbfd8cd788846559a6813e6aa4b54ee"
 dependencies = [
  "same-file",
  "winapi-util",
@@ -6530,12 +6469,12 @@ checksum = "9193164d4de03a926d909d3bc7c30543cecb35400c02114792c2cae20d5e2dbb"
 
 [[package]]
 name = "which"
-version = "4.4.1"
+version = "4.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ad25fe5717e59ada8ea33511bbbf7420b11031730a24c65e82428766c307006"
+checksum = "87ba24419a2078cd2b0f2ede2691b6c66d8e47836da3b6db8265ebad47afbfc7"
 dependencies = [
- "dirs 5.0.1",
  "either",
+ "home",
  "once_cell",
  "rustix 0.38.11",
 ]

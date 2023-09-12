@@ -706,9 +706,9 @@ dependencies = [
 
 [[package]]
 name = "celery"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb13ea01bdba539dfe56a2c6b83594a1d01944a89979dd9d0f998cb631b6249c"
+checksum = "b0d568cc271d5a3cd9da1916c36276b46a96c33dce83eee84d82af0912316efc"
 dependencies = [
  "async-trait",
  "base64 0.21.4",
@@ -736,9 +736,9 @@ dependencies = [
 
 [[package]]
 name = "celery-codegen"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9546f0dc45d5d99441c5541eec523e2cc27b8588eb6ff34666838df5cff91544"
+checksum = "143678f098dc472de3a08c1374c414042409a41ea690aa70879f7455a305ba49"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -759,11 +759,13 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.2.14"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#22b90efea4523ed1dda2f369ac5f2df1f428af36"
+version = "0.3.1"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#817b0dbfc7b35e1304cc8069df4b60d0033ffe16"
 dependencies = [
  "anyhow",
+ "async-trait",
  "chat-utils",
+ "futures 0.3.28",
  "inline-python",
  "once_cell",
  "tokio",
@@ -772,7 +774,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#22b90efea4523ed1dda2f369ac5f2df1f428af36"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#817b0dbfc7b35e1304cc8069df4b60d0033ffe16"
 dependencies = [
  "ucd",
 ]
@@ -5176,9 +5178,9 @@ dependencies = [
 
 [[package]]
 name = "socket2"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2538b18701741680e0322a2302176d3253a35388e2e62f172f64f4f16605f877"
+checksum = "4031e820eb552adee9295814c0ced9e5cf38ddf1e8b7d566d6de8e2538ea989e"
 dependencies = [
  "libc",
  "windows-sys 0.48.0",
@@ -5212,7 +5214,7 @@ dependencies = [
  "serde_json",
  "serenity",
  "serenity-voice-model",
- "socket2 0.5.3",
+ "socket2 0.5.4",
  "streamcatcher",
  "symphonia",
  "symphonia-core",
@@ -5622,7 +5624,7 @@ dependencies = [
  "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
- "socket2 0.5.3",
+ "socket2 0.5.4",
  "tokio-macros",
  "tracing",
  "windows-sys 0.48.0",

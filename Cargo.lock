@@ -94,9 +94,9 @@ dependencies = [
 
 [[package]]
 name = "aho-corasick"
-version = "1.0.5"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c378d78423fdad8089616f827526ee33c19f2fddbd5de1629152c9593ba4783"
+checksum = "0f2135563fb5c609d2b2b87c1e8ce7bc41b0b45430fa9661f457981503dd5bf0"
 dependencies = [
  "memchr",
 ]
@@ -109,7 +109,7 @@ checksum = "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd"
 
 [[package]]
 name = "amadeus"
-version = "11.0.15"
+version = "11.0.16"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -759,8 +759,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.3.3"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#bf1dd1824abc51757e3fbf95866a0787312b2383"
+version = "0.3.4"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#006eb95ccdb3cf974ecbb1356fa9ccf031e55872"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -774,7 +774,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#bf1dd1824abc51757e3fbf95866a0787312b2383"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#006eb95ccdb3cf974ecbb1356fa9ccf031e55872"
 dependencies = [
  "ucd",
 ]
@@ -910,7 +910,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#0a77c8ce45670684ea422e7c0022657111e166ab"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#950e52477060da1db19c7354b9cbe3a0c61eef40"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4955,7 +4955,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#0a77c8ce45670684ea422e7c0022657111e166ab"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#950e52477060da1db19c7354b9cbe3a0c61eef40"
 dependencies = [
  "arrayvec 0.7.4",
  "async-trait",
@@ -4989,7 +4989,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#0a77c8ce45670684ea422e7c0022657111e166ab"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#950e52477060da1db19c7354b9cbe3a0c61eef40"
 dependencies = [
  "bitflags 2.4.0",
  "enum_primitive",
@@ -5515,9 +5515,9 @@ dependencies = [
 
 [[package]]
 name = "termcolor"
-version = "1.2.0"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be55cf8942feac5c765c2c993422806843c9a9a45d4d5c407ad6dd2ea95eb9b6"
+checksum = "6093bad37da69aab9d123a8091e4be0aa4a03e4d601ec641c327398315f62b64"
 dependencies = [
  "winapi-util",
 ]

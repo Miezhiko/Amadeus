@@ -27,8 +27,8 @@ use serenity::{
 
 pub async fn rejoin_voice_channel(ctx: &Context, conf: &ROptions) {
   if conf.rejoin && conf.last_guild != 0 && conf.last_channel != 0 {
-    set!{ last_guild_conf   = GuildId( to_nzu!( conf.last_guild ) )
-        , last_channel_conf = ChannelId( to_nzu!( conf.last_channel ) ) };
+    set!{ last_guild_conf   = GuildId::new(conf.last_guild)
+        , last_channel_conf = ChannelId::new(conf.last_channel) };
 
     let reqwest_client = {
       let data = ctx.data.read().await;
@@ -83,12 +83,12 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
 
   let mut opts = options::get_roptions().await?;
 
-  if opts.last_guild != guild_id.0.get()
-  || opts.last_channel != connect_to.0.get()
+  if opts.last_guild != guild_id.get()
+  || opts.last_channel != connect_to.get()
   || !opts.rejoin {
     opts.rejoin = true;
-    opts.last_guild = guild_id.0.get();
-    opts.last_channel = connect_to.0.get();
+    opts.last_guild = guild_id.get();
+    opts.last_channel = connect_to.get();
     options::put_roptions(&opts).await?;
   }
 
@@ -122,12 +122,12 @@ pub async fn join_slash(ctx: &Context, user: &User, guild: &Guild) -> anyhow::Re
 
   let mut opts = options::get_roptions().await?;
 
-  if opts.last_guild != guild_id.0.get()
-  || opts.last_channel != connect_to.0.get()
+  if opts.last_guild != guild_id.get()
+  || opts.last_channel != connect_to.get()
   || !opts.rejoin {
     opts.rejoin = true;
-    opts.last_guild = guild_id.0.get();
-    opts.last_channel = connect_to.0.get();
+    opts.last_guild = guild_id.get();
+    opts.last_channel = connect_to.get();
     options::put_roptions(&opts).await?;
   }
 

@@ -155,7 +155,7 @@ pub async fn update_cache( ctx: &Context
 
   for chan in channels.keys() {
     if let Ok(c_name) = chan.name(&ctx).await {
-      if let Some(ch_lang) = AI_LEARN.iter().find(|c| c.id == chan.0.get()) {
+      if let Some(ch_lang) = AI_LEARN.iter().find(|c| c.id == chan.get()) {
         let start_typing = ctx.http.start_typing(*chan);
         let mut messages = chan.messages_iter(&ctx).boxed();
 
@@ -179,7 +179,7 @@ pub async fn update_cache( ctx: &Context
                   i_progress += 1;
                 }
                 i += 1; m_progress += 1;
-                if !check_registration(chan.0.get(), mmm.id.0.get()).await {
+                if !check_registration(chan.get(), mmm.id.get()).await {
                   debug!("#processing {}", &mmm.content);
                   if let Some((result, lang)) = process_message_string(&mmm.content, ch_lang.lang) {
                     match lang {
@@ -202,7 +202,7 @@ pub async fn update_cache( ctx: &Context
                       },
                       ChannelLanguage::Bilingual => { /* we know language from process_message fn */ }
                     }
-                    register(chan.0.get(), mmm.id.0.get()).await;
+                    register(chan.get(), mmm.id.get()).await;
                   }
                 }
               }
@@ -307,7 +307,7 @@ pub async fn actualize_cache(ctx: &Context, force: bool) {
     let data = ctx.data.read().await;
     if let Some(servers) = data.get::<AllGuilds>() {
       let server_ids = servers.iter()
-                              .map(|srv| GuildId( to_nzu!( srv.id ) ))
+                              .map(|srv| GuildId::new(srv.id))
                               .collect::<Vec<GuildId>>();
       for server in server_ids {
         if let Ok(serv_channels) = server.channels(ctx).await {

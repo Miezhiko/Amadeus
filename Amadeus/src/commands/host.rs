@@ -93,7 +93,7 @@ async fn register_player(ctx: &Context, msg: &Message, mut args: Args) -> Comman
     .update_and_get_player(UpdateAndGetPlayerRequest {
       source: PlayerSource::Api as i32,
       name: meme.user.name,
-      source_id: meme.user.id.0.to_string(),
+      source_id: meme.user.id.to_string(),
       ..Default::default()
     }).await?.into_inner();
   direct_message(ctx, msg, &format!("token {}", res.token)).await;
@@ -112,7 +112,7 @@ async fn register_me(ctx: &Context, msg: &Message) -> CommandResult {
     .update_and_get_player(UpdateAndGetPlayerRequest {
       source: PlayerSource::Api as i32,
       name: msg.author.name.clone(),
-      source_id: msg.author.id.0.to_string(),
+      source_id: msg.author.id.to_string(),
       ..Default::default()
     }).await?.into_inner();
   direct_message(ctx, msg, &format!("token {}", res.token)).await;
@@ -131,7 +131,7 @@ async fn host_vs_amadeus(ctx: &Context, msg: &Message, mut args: Args) -> Comman
     .update_and_get_player(UpdateAndGetPlayerRequest {
       source: PlayerSource::Api as i32,
       name: msg.author.name.clone(),
-      source_id: msg.author.id.0.to_string(),
+      source_id: msg.author.id.to_string(),
       ..Default::default()
     }).await?.into_inner();
 
@@ -223,7 +223,7 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     .update_and_get_player(UpdateAndGetPlayerRequest {
       source: PlayerSource::Api as i32,
       name: msg.author.name.clone(),
-      source_id: msg.author.id.0.to_string(),
+      source_id: msg.author.id.to_string(),
       ..Default::default()
     }).await?.into_inner();
 
@@ -231,7 +231,7 @@ async fn host_vs(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     .update_and_get_player(UpdateAndGetPlayerRequest {
       source: PlayerSource::Api as i32,
       name: meme.user.name.clone(),
-      source_id: meme.user.id.0.to_string(),
+      source_id: meme.user.id.to_string(),
       ..Default::default()
     }).await?.into_inner();
 

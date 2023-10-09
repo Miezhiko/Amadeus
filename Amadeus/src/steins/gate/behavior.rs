@@ -56,7 +56,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   if options.gencache_on_start {
     // Now there are several lists of channels and several Guilds
     let servers = options.servers.iter()
-                                .map(|srv| GuildId( to_nzu!( srv.id ) ))
+                                .map(|srv| GuildId::new(srv.id))
                                 .collect::<Vec<GuildId>>();
     let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
     for server in &servers {
@@ -64,7 +64,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
         all_channels.extend(serv_channels);
       }
     }
-    let home = GuildId( to_nzu!( options.guild ));
+    let home = GuildId::new(options.guild);
     if let Ok(serv_channels) = home.channels(&ctx).await {
       all_channels.extend(serv_channels);
     }
@@ -92,7 +92,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
        ).await;
   activate_games_tracking(
     &ac, &oc, access_token
-       , amadeus.0.get()
+       , amadeus.get()
        ).await;
   activate_w3info_tracking(&ac).await;
   activate_dev_tracker(&ac, &options.github_auth).await;

@@ -57,7 +57,7 @@ pub async fn process( ioptions: &IOptions
                     , msg: Message ) {
 
   if msg.is_own(ctx) {
-    if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0.get()) {
+    if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.get()) {
       let mut backup_deq = BACKUP.lock().await;
       if backup_deq.len() == backup_deq.capacity() {
         backup_deq.pop_front();
@@ -67,22 +67,22 @@ pub async fn process( ioptions: &IOptions
   } else if msg.author.bot {
     if let Some(g) = msg.guild_id {
       if ioptions.servers.iter()
-                         .any(|s| s.id    == g.0.get()
+                         .any(|s| s.id    == g.get()
                                && s.kind  == CoreGuild::Safe) {
         return;
       }
     }
-    if IGNORED.contains(&msg.channel_id.0.get()) {
+    if IGNORED.contains(&msg.channel_id.get()) {
       return;
     }
     // allow ChatGPT to chat from it's own name
-    if msg.author.id.0 == to_nzu!( 1064152790181609532 )
-    || msg.author.id.0 == to_nzu!( 1049413890276077690 )
-    || msg.author.id.0 == to_nzu!( 1081004946872352958 )
-    || msg.author.id.0 == to_nzu!( 504095380166803466 )
-    || msg.author.id.0 == to_nzu!( 1096396952117198868 )
-    || msg.author.id.0 == to_nzu!( 1053015370115588147 )
-    || msg.author.id.0 == to_nzu!( 936929561302675456 )  {
+    if msg.author.id.get() == 1064152790181609532
+    || msg.author.id.get() == 1049413890276077690
+    || msg.author.id.get() == 1081004946872352958
+    || msg.author.id.get() == 504095380166803466
+    || msg.author.id.get() == 1096396952117198868
+    || msg.author.id.get() == 1053015370115588147
+    || msg.author.id.get() == 936929561302675456 {
       return;
     }
     let mut is_file = false;
@@ -137,7 +137,7 @@ pub async fn process( ioptions: &IOptions
     }
   } else if !msg.content.starts_with(PREFIX) {
     if let Some(guild_id) = msg.guild_id {
-      let guild_id_u64: u64 = guild_id.0.get();
+      let guild_id_u64: u64 = guild_id.get();
       #[cfg(feature = "spam_filter")]
       spam_check(&guild_id, ctx, &msg).await;
       if msg.mentions.iter().any(|u| u.bot) {
@@ -150,8 +150,8 @@ pub async fn process( ioptions: &IOptions
           }
         }
       } else {
-        points::add_points(guild_id_u64, msg.author.id.0.get(), 1).await;
-        let msg_channel_id_u64 = msg.channel_id.0.get();
+        points::add_points(guild_id_u64, msg.author.id.get(), 1).await;
+        let msg_channel_id_u64 = msg.channel_id.get();
         for file in &msg.attachments {
           if file.filename.ends_with("w3g") {
             if DISCORDS.iter().any(|(_,df)| df.games.unwrap_or(0)  == msg_channel_id_u64
@@ -200,7 +200,7 @@ pub async fn process( ioptions: &IOptions
           }
           return;
         }
-        gate::LAST_CHANNEL.store(msg.channel_id.0.get(), Ordering::Relaxed);
+        gate::LAST_CHANNEL.store(msg.channel_id.get(), Ordering::Relaxed);
 
         let rndx: u8 = rand::thread_rng().gen_range(0..3);
         if rndx != 1 {
@@ -226,7 +226,7 @@ pub async fn process( ioptions: &IOptions
             ctx.idle();
           }
         }
-        if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.0.get()) {
+        if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.get()) {
           let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed);
           let rnd = rand::thread_rng().gen_range(0..activity_level);
           if rnd == 1 {
@@ -238,7 +238,7 @@ pub async fn process( ioptions: &IOptions
             let emoji = REACTIONS.choose(&mut rng).unwrap();
             let reaction = ReactionType::Custom {
               animated: false,
-              id: EmojiId( to_nzu!(emoji.id) ),
+              id: EmojiId::new( emoji.id ),
               name: Some(emoji.name.clone())
             };
 
@@ -248,7 +248,7 @@ pub async fn process( ioptions: &IOptions
 
                   let normal_people_rnd: u16 = rand::thread_rng().gen_range(0..9);
                   if (normal_people_rnd == 1 || member.roles.contains(&role.id))
-                  && !WHITELIST.iter().any(|u| *u == msg.author.id.0.get())
+                  && !WHITELIST.iter().any(|u| *u == msg.author.id.get())
                   && !ioptions.servers.iter()
                                       .any(|s| s.id    == guild_id_u64
                                             && s.kind  == CoreGuild::Safe) {
@@ -318,7 +318,7 @@ pub async fn process( ioptions: &IOptions
                   }
                 } else if let Err(why) =
                   guild.create_role(&ctx, EditRole::default()
-                       .colour(Colour::from_rgb(226,37,37).0)
+                       .colour(Colour::from_rgb(226,37,37))
                        .name(UNBLOCK_ROLE)).await {
                   error!("Failed to create UNBLOCK role, {why}");
                 }

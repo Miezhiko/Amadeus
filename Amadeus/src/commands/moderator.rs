@@ -7,12 +7,10 @@ use crate::{
   }
 };
 
-use std::num::NonZeroU64;
-
 use serenity::{
   prelude::*,
   builder::{ CreateMessage, CreateChannel, CreateEmbed, CreateEmbedFooter, CreateEmbedAuthor, GetMessages },
-  model::{ id::{ ChannelId, UserId, RoleId, GuildId }
+  model::{ id::{ ChannelId, UserId, GuildId }
          , channel::*, Timestamp
          , permissions::Permissions },
   framework::standard::{ CommandResult
@@ -55,7 +53,7 @@ async fn mute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
     if msg.mentions.is_empty() || (!msg.mentions.is_empty() && msg.mentions[0].bot) {
       if let Ok(user_id) = args.single::<u64>() {
-        mute_internal(ctx, &guild_id, &UserId( to_nzu!(user_id) ) ).await?;
+        mute_internal(ctx, &guild_id, &UserId::new(user_id) ).await?;
       } else {
         channel_message(ctx, msg, "you need to target who to mute").await;
       }
@@ -74,7 +72,7 @@ async fn unmute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
     if msg.mentions.is_empty() || (!msg.mentions.is_empty() && msg.mentions[0].bot) {
       if let Ok(user_id) = args.single::<u64>() {
-        unmute_internal(ctx, &guild_id, &UserId( to_nzu!(user_id) ) ).await?;
+        unmute_internal(ctx, &guild_id, &UserId::new(user_id) ).await?;
       } else {
         channel_message(ctx, msg, "you need to target who to unmute").await;
       }
@@ -91,7 +89,7 @@ async fn unmute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
 async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  set!{ target_channel = ChannelId( args.single::<NonZeroU64>()? )
+  set!{ target_channel = ChannelId::new( args.single::<u64>()? )
       , channel = target_channel.to_channel(ctx).await?
       , msg_guild_id = msg.guild_id.unwrap() };
   match channel.guild() {
@@ -131,7 +129,7 @@ async fn move_discussion(ctx: &Context, msg: &Message, mut args: Args) -> Comman
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
 async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  set!{ user_id = UserId( args.single::<NonZeroU64>()? )
+  set!{ user_id = UserId::new( args.single::<u64>()? )
       , msg_guild_id = msg.guild_id.unwrap() };
 
   let reason = if args.len() > 1 {
@@ -150,12 +148,13 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
       allow, deny: Permissions::empty(),
       kind: PermissionOverwriteType::Member(msg.author.id)
     };
-    let overwrite_all = PermissionOverwrite {
-      allow: Permissions::empty(), deny,
-      kind: PermissionOverwriteType::Role( RoleId( msg_guild_id.0 ))
-    };
-    let mut permisssions_vec = vec![overwrite_user, overwrite_moderator, overwrite_all];
+    let mut permisssions_vec = vec![overwrite_user, overwrite_moderator];
     if let Some(muted_role) = guild.role_by_name(MUTED_ROLE) {
+      let overwrite_all = PermissionOverwrite {
+        allow: Permissions::empty(), deny,
+        kind: PermissionOverwriteType::Role( muted_role.id )
+      };
+      permisssions_vec.push(overwrite_all);
       member.add_role(ctx, muted_role).await?;
       let allow_muted = Permissions::SEND_MESSAGES;
       let muted_override = PermissionOverwrite {
@@ -184,7 +183,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     timeout_channel.send_message(&ctx, CreateMessage::new()
       .content(&format!("{}\n", member.mention()))
       .embed(e)).await?;
-    if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
+    if let Some(ds) = DISCORDS.get(&msg_guild_id.get()) {
       if let Some(log) = ds.log {
         log.send_message(ctx, CreateMessage::new()
           .embed(CreateEmbed::new()
@@ -221,7 +220,7 @@ async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                         .content(&format!("{} has joined", msg.author.name))).await {
         error!("Failed to log new user {why}");
       }
-      if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
+      if let Some(ds) = DISCORDS.get(&msg_guild_id.get()) {
         if let Some(log) = ds.log {
           log.send_message(ctx, CreateMessage::new()
             .embed(CreateEmbed::new()
@@ -241,7 +240,7 @@ async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[required_permissions(BAN_MEMBERS)]
 #[min_args(1)]
 async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-  set!{ user_id = UserId( args.single::<NonZeroU64>()? )
+  set!{ user_id = UserId::new( args.single::<u64>()? )
       , msg_guild_id = msg.guild_id.unwrap() };
 
   let guild = msg_guild_id.to_partial_guild(ctx).await?;
@@ -258,7 +257,7 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
         .title(&format!("{} was untimeouted out by {}", member.user.name, msg.author.name))
         .timestamp(chrono::Utc::now())
       )).await?;
-    if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
+    if let Some(ds) = DISCORDS.get(&msg_guild_id.get()) {
       if let Some(log) = ds.log {
         log.send_message(ctx, CreateMessage::new()
           .embed(CreateEmbed::new()
@@ -326,7 +325,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             we_are_done = true;
             break;
           }
-          if users.iter().any(|u| *u == message.author.id.0.get()) {
+          if users.iter().any(|u| *u == message.author.id.get()) {
             messages.insert(message.id);
           }
         }
@@ -346,7 +345,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       error!("Error deleting original command, {why}");
     }
     let msg_guild_id = msg.guild_id.unwrap();
-    if let Some(ds) = DISCORDS.get(&msg_guild_id.0.get()) {
+    if let Some(ds) = DISCORDS.get(&msg_guild_id.get()) {
       if let Some(log) = ds.log {
         log.send_message(ctx, CreateMessage::new()
           .embed(CreateEmbed::new()

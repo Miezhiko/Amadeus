@@ -63,7 +63,7 @@ async fn delete( guild_id: &GuildId
             // completely ignore harmful words
             return;
           }
-          if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
+          if let Some(ds) = DISCORDS.get(&guild_id.get()) {
             if let Some(log) = ds.log {
               if let Err(why) = log.send_message(&ctx, CreateMessage::new()
                 .embed(CreateEmbed::new()
@@ -81,7 +81,7 @@ async fn delete( guild_id: &GuildId
       }
     }
   }
-  if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
+  if let Some(ds) = DISCORDS.get(&guild_id.get()) {
     if let Some(log) = ds.log {
       let msg_link = if really_delete {
           format!("{}", msg.channel_id.mention())
@@ -93,7 +93,7 @@ async fn delete( guild_id: &GuildId
           .author(CreateEmbedAuthor::new().icon_url(&msg.author.face()).name(&msg.author.name))
           .title(reason)
           .description(&format!( "User UID: {}\n original message: {}\n{}"
-                               , msg.author.id.0, &msg.content
+                               , msg.author.id.get(), &msg.content
                                , msg_link ))
           .timestamp(chrono::Utc::now())
        )).await {

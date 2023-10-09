@@ -44,7 +44,7 @@ pub async fn admin_check( ctx: &Context
           if msg.author.id == owner.id {
             return Ok(());
           }
-        } else if msg.author.id.0 == to_nzu!(510368731378089984) {
+        } else if msg.author.id.get() == 510368731378089984 {
           return Ok(());
         }
       }

@@ -88,7 +88,7 @@ async fn say(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   }
   let last_channel_u64 = gate::LAST_CHANNEL.load(Ordering::Relaxed);
   if last_channel_u64 != 0 {
-    let last_channel_conf = ChannelId( to_nzu!(last_channel_u64) );
+    let last_channel_conf = ChannelId::new(last_channel_u64);
     if msg.guild_id.is_some() {
       let text = args.message();
       if !text.is_empty() {
@@ -249,7 +249,8 @@ async fn eix(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 async fn catch_up_with_roles(ctx: &Context, _msg: &Message, mut args: Args) -> CommandResult {
   set!{ chan_id = args.single::<u64>()?
       , msg_id  = args.single::<u64>()?
-      , msg     = ctx.http.get_message( ChannelId(to_nzu!(chan_id)), MessageId(to_nzu!(msg_id)) ).await?
+      , msg     = ctx.http.get_message( ChannelId::new(chan_id)
+                                      , MessageId::new(msg_id) ).await?
       , channel = msg.channel(&ctx).await? };
   if let Some(guild_channel) = channel.guild() {
     set!{ guild_u64 = guild_channel.guild_id.get()
@@ -268,7 +269,7 @@ async fn catch_up_with_roles(ctx: &Context, _msg: &Message, mut args: Args) -> C
           for user in rt_users {
             let user_u64 = user.id.get();
             if let Ok(mut member) = guild.member(&ctx, user.id).await {
-              let role_id = RoleId(to_nzu!(role));
+              let role_id = RoleId::new(role);
               if !member.roles.contains(&role_id) {
                 if let Err(why) = member.add_role(&ctx, role_id).await {
                   error!("Failed to assign role {why}");

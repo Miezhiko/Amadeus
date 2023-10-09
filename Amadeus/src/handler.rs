@@ -68,7 +68,7 @@ impl EventHandler for Handler {
   async fn cache_ready(&self, ctx: Context, guilds: Vec<GuildId>) {
     info!("Cache is READY");
     for guild_id in guilds {
-      let guild_id_number = guild_id.0.get();
+      let guild_id_number = guild_id.get();
       if let Some(serv) = self.ioptions.servers
                               .iter()
                               .find(
@@ -150,7 +150,7 @@ impl EventHandler for Handler {
           }
         }
       } else {
-        info!("leaving guild: {:?}", guild_id.0);
+        info!("leaving guild: {:?}", guild_id.get());
         if let Err(why) = guild_id.leave(&ctx).await {
           error!("Failed to leave guild {why}");
         }
@@ -199,7 +199,7 @@ impl EventHandler for Handler {
   }
 
   async fn guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User, m: Option<Member>) {
-    if let Err(why) = points::clear_points(guild_id.0.get(), user.id.0.get()).await {
+    if let Err(why) = points::clear_points(guild_id.get(), user.id.get()).await {
       error!("some problem with points: {why}");
     }
     if let Ok(guild) = guild_id.to_partial_guild(&ctx).await {
@@ -214,12 +214,12 @@ impl EventHandler for Handler {
         }
       }
     }
-    if let Some(ds) = DISCORDS.get(&guild_id.0.get()) {
+    if let Some(ds) = DISCORDS.get(&guild_id.get()) {
       if let Some(log) = ds.log {
         if let Err(why) = log.send_message(&ctx, CreateMessage::new()
           .embed(CreateEmbed::new()
             .author(CreateEmbedAuthor::new(&user.name).icon_url(&user.face()))
-            .title(&format!("has left (or was kicked)\nUID: {}", user.id.0))
+            .title(&format!("has left (or was kicked)\nUID: {}", user.id))
             .timestamp(chrono::Utc::now())
           )).await {
           error!("Failed to log leaving user {why}");
@@ -239,11 +239,11 @@ impl EventHandler for Handler {
               // TODO: change those ids
               if add_reaction.message_id.get() == 1072844911801552916
                                    && id.get() == 950149204930621460 {
-                let jonin   = RoleId( to_nzu!(977238413050794075) );
-                let chuunin = RoleId( to_nzu!(977238377382428742) );
-                let genin   = RoleId( to_nzu!(977238521259647006) );
-                //if let Ok(p) = points::get_points( guild_channel.guild_id.0.get()
-                //                                 , user_id.0.get() ).await {
+                let jonin   = RoleId::new( 977238413050794075 );
+                let chuunin = RoleId::new( 977238377382428742 );
+                let genin   = RoleId::new( 977238521259647006 );
+                //if let Ok(p) = points::get_points( guild_channel.guild_id.get()
+                //                                 , user_id.get() ).await {
                 //  if p >= 250 {
                 if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                   if let Ok(member) = guild.member(&ctx, user_id).await {
@@ -264,7 +264,7 @@ impl EventHandler for Handler {
                         } else {
                           giveaway::Giveaway::new()
                         };
-                      reg.insert(user_id.0.get(), weight);
+                      reg.insert(user_id.get(), weight);
                       if let Err(why) = put_giveway(&reg).await {
                         error!("Failed to register for giveaway {why}");
                       }
@@ -275,7 +275,7 @@ impl EventHandler for Handler {
                 if let Some(role) = emoji_roles.get(&id.get()) {
                   if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                     if let Ok(mut member) = guild.member(&ctx, user_id).await {
-                      let role_id = RoleId( to_nzu!( *role ) );
+                      let role_id = RoleId::new( *role );
                       if !member.roles.contains(&role_id) {
                         if let Err(why) = member.add_role(&ctx, role_id).await {
                           error!("Failed to assign role {why}");
@@ -310,7 +310,7 @@ impl EventHandler for Handler {
                 if let Some(role) = emoji_roles.get(&id.get()) {
                   if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                     if let Ok(mut member) = guild.member(&ctx, user_id).await {
-                      let role_id = RoleId( to_nzu!( *role ) );
+                      let role_id = RoleId::new( *role );
                       if member.roles.contains(&role_id) {
                         if let Err(why) = member.remove_role(&ctx, role_id).await {
                           error!("Failed to remove role {why}");
@@ -340,7 +340,7 @@ impl EventHandler for Handler {
                          , _guild_id: Option<GuildId> ) {
 
     if RESTORE.load(Ordering::Relaxed) {
-      if !AI_ALLOWED.iter().any(|c| c.id == channel_id.0.get()) {
+      if !AI_ALLOWED.iter().any(|c| c.id == channel_id.get()) {
         return;
       }
       let backup_deq = BACKUP.lock().await;

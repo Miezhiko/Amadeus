@@ -326,7 +326,7 @@ async fn dice_giveaway(ctx: &Context, msg: &Message, mut args: Args) -> CommandR
       let winner_index = weighted_choice(&weights)?;
       let winner = keys[winner_index];
       if !winners.contains(&winner) {
-        let id = UserId( to_nzu!( winner ) );
+        let id = UserId::new( winner );
         if let Ok(user) = ctx.http.get_user(id).await {
           winners.insert(winner);
           winners_strings.push(

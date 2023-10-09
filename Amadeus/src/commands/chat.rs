@@ -26,12 +26,12 @@ async fn score(ctx: &Context, msg: &Message) -> CommandResult {
       if !(msg.mentions.is_empty() ||
            msg.mentions.len() == 1 && !msg.content.starts_with(PREFIX) && msg.mentions[0].bot) {
         let target_user = if msg.mentions.len() > 1 { &msg.mentions[1] } else { &msg.mentions[0] };
-        if let Ok(p) = points::get_points( guild_id.0.get(), target_user.id.0.get() ).await {
+        if let Ok(p) = points::get_points( guild_id.get(), target_user.id.get() ).await {
           ( &target_user.name, p )
         } else {
           ( &target_user.name, 0 )
         }
-      } else if let Ok(p) = points::get_points( guild_id.0.get(), msg.author.id.0.get() ).await {
+      } else if let Ok(p) = points::get_points( guild_id.get(), msg.author.id.get() ).await {
           ( &msg.author.name, p )
         } else {
           ( &msg.author.name, 0 )
@@ -75,7 +75,7 @@ async fn top(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
   if let Some(guild_id) = msg.guild_id {
     for (id, mem) in members {
       debug!("scanning points for {}", &mem.user.name);
-      if let Ok(p) = points::get_points( guild_id.get(), id.0.get() ).await {
+      if let Ok(p) = points::get_points( guild_id.get(), id.get() ).await {
         members_with_points.push( (mem, p) );
       } else {
         members_with_points.push( (mem, 0) );
@@ -123,9 +123,9 @@ async fn give(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             second
           } else { 0 };
         if points_count > 0 {
-          let (succ, rst) = points::give_points( guild_id.0.get()
-                                               , msg.author.id.0.get()
-                                               , target_user.id.0.get()
+          let (succ, rst) = points::give_points( guild_id.get()
+                                               , msg.author.id.get()
+                                               , target_user.id.get()
                                                , points_count ).await;
           if succ {
             let out = format!("{rst} to {}", target_user.name);

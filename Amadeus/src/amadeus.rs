@@ -56,7 +56,7 @@ pub async fn run(opts: IOptions) ->
         owners.insert(owner.id);
       } else {
         // hack for now
-        owners.insert( UserId( to_nzu!(510368731378089984) ) );
+        owners.insert( UserId::new( 510368731378089984 ) );
       }
       match http.get_current_user().await {
         Ok(bot_id) => (owners, bot_id.id),
@@ -87,7 +87,7 @@ pub async fn run(opts: IOptions) ->
   let mut core_guilds = HashMap::new();
   core_guilds.insert(CoreGuild::HEmo, opts.guild);
   core_guilds.insert(CoreGuild::Storage, opts.amadeus_guild);
-  core_guilds.insert(CoreGuild::Amadeus, amadeus_id.0.get());
+  core_guilds.insert(CoreGuild::Amadeus, amadeus_id.get());
 
   let mut all_guilds = opts.servers.clone();
   all_guilds.push( IServer { id: opts.guild, kind: CoreGuild::HEmo } );
@@ -145,7 +145,7 @@ pub async fn run(opts: IOptions) ->
               | GatewayIntents::MESSAGE_CONTENT;
   let mut client =
     serenity::Client::builder(&opts.discord, intents)
-      .application_id( ApplicationId(to_nzu!(opts.app_id)) )
+      .application_id( ApplicationId::new( opts.app_id ) )
       .event_handler(Handler::new( opts
                                  , amadeus_id
                                  ).await?

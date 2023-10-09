@@ -52,7 +52,7 @@ pub async fn check<'a>( ctx: &Context
                       , rqcl: &reqwest::Client
                       ) -> Vec<StartingGame<'a>> {
 
-  let guild = GuildId( to_nzu!(guild_id) );
+  let guild = GuildId::new(guild_id);
   let mut out: Vec<StartingGame> = Vec::new();
   let mut stats: W3CStats = Default::default();
 
@@ -119,9 +119,9 @@ pub async fn check<'a>( ctx: &Context
                     if let Some(ds) = DISCORDS.get(&t.0) {
                     if let Some(ch) = ds.games {
 
-                    if let Ok(mut msg) = ctx.http.get_message( ChannelId(to_nzu!(ch))
-                                                             , MessageId(to_nzu!(t.1)) ).await {
-                      if let Ok(user) = ctx.http.get_user( UserId(to_nzu!(playa)) ).await {
+                    if let Ok(mut msg) = ctx.http.get_message( ChannelId::new(ch)
+                                                             , MessageId::new(t.1) ).await {
+                      if let Ok(user) = ctx.http.get_user( UserId::new(playa) ).await {
 
                         if track.flo_tv.is_none() {
                           if let Ok(Some(flotv)) = get_flotv(rqcl, &playaz).await {
@@ -276,11 +276,11 @@ pub async fn check<'a>( ctx: &Context
                     if let Some(ds) = DISCORDS.get(&t.0) {
                     if let Some(ch) = ds.games2 {
 
-                    if let Ok(mut msg) = ctx.http.get_message( ChannelId(to_nzu!(ch))
-                                                             , MessageId(to_nzu!(t.1)) ).await {
+                    if let Ok(mut msg) = ctx.http.get_message( ChannelId::new(ch)
+                                                             , MessageId::new(t.1) ).await {
                       // get first player for discord
                       let playa = playaz[0].player.discord;
-                      if let Ok(user) = ctx.http.get_user( UserId(to_nzu!(playa)) ).await {
+                      if let Ok(user) = ctx.http.get_user( UserId::new(playa) ).await {
 
                         if track.flo_tv.is_none() {
                           if let Ok(Some(flotv)) = get_flotv(rqcl, &playaz).await {
@@ -431,11 +431,11 @@ pub async fn check<'a>( ctx: &Context
                   if let Some(ds) = DISCORDS.get(&t.0) {
                   if let Some(ch) = ds.games4 {
 
-                  if let Ok(mut msg) = ctx.http.get_message( ChannelId(to_nzu!(ch))
-                                                           , MessageId(to_nzu!(t.1)) ).await {
+                  if let Ok(mut msg) = ctx.http.get_message( ChannelId::new(ch)
+                                                           , MessageId::new(t.1) ).await {
                     // get first player for discord
                     let playa = playaz[0].player.discord;
-                    if let Ok(user) = ctx.http.get_user( UserId(to_nzu!(playa)) ).await {
+                    if let Ok(user) = ctx.http.get_user( UserId::new(playa) ).await {
                       setm!{ fields = Vec::new()
                            , img    = None
                            , url    = None
@@ -542,14 +542,14 @@ pub async fn check<'a>( ctx: &Context
         };
 
         if let Some(gc) = game_channel_maybe {
-        let game_channel = ChannelId(to_nzu!(gc));
+        let game_channel = ChannelId::new(gc);
 
         if let Some(finished_game) = check_match(k, &track.players, &track.mode, rqcl).await {
           let fgame = &finished_game;
           if let Ok(mut msg) = ctx.http.get_message( game_channel
-                                                   , MessageId(to_nzu!(track.tracking_msg_id[0].1)) ).await {
+                                                   , MessageId::new(track.tracking_msg_id[0].1) ).await {
             let footer: String = format!("Passed: {} min", fgame.passed_time);
-            if let Ok(user) = ctx.http.get_user( UserId(to_nzu!(playa.player.discord)) ).await {
+            if let Ok(user) = ctx.http.get_user( UserId::new(playa.player.discord) ).await {
               let mut old_fields = Vec::new();
               let mut color = None;
               if !msg.embeds.is_empty() {
@@ -634,7 +634,7 @@ pub async fn check<'a>( ctx: &Context
                           win_calculation.insert(bet.member, (bet.points, best_win));
                           waste += best_win;
                         } else {
-                          let user_id = UserId( to_nzu!(bet.member) );
+                          let user_id = UserId::new( bet.member );
                           if let Ok(user) = user_id.to_user(&ctx).await {
                             losers_output.push(
                               format!("**{}** loses **{}**", user.name, bet.points)
@@ -660,7 +660,7 @@ pub async fn check<'a>( ctx: &Context
                         if !succ {
                           error!("failed to give bet win points: {rst}");
                         } else {
-                          let user_id = UserId( to_nzu!(*mpp) );
+                          let user_id = UserId::new( *mpp );
                           if let Ok(user) = user_id.to_user(&ctx).await {
                             let pure_win = *wpp - *ppp;
                             output.push(
@@ -750,7 +750,7 @@ pub async fn check<'a>( ctx: &Context
             // mark tracking game for removal after 3 fails
             k_to_del.push(k.clone());
             if let Ok(msg) = ctx.http.get_message( game_channel
-                                                 , MessageId(to_nzu!(track.tracking_msg_id[0].1)) ).await {
+                                                 , MessageId::new(track.tracking_msg_id[0].1) ).await {
               if let Err(wtf) = msg.delete(ctx).await {
                 error!("Failed to clean up dropped Live game {:?}", wtf);
               }

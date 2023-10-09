@@ -40,28 +40,12 @@ macro_rules! bjf {
   ($fun:expr) => { Rule::new_fn($fun) };
 }
 
-macro_rules! nfz1 {
-  () => { std::num::NonZeroU64::new(1).unwrap() };
-}
-
-macro_rules! to_nzu {
-  ($fun:expr) => { std::num::NonZeroU64::new($fun).unwrap_or( nfz1!() ) };
-}
-
 #[cfg(test)]
 mod macros_tests {
   pub_struct!(TestStruct {
     f1: u32,
     f2: u32,
   });
-  #[test]
-  fn nfz1_test() {
-    assert_eq!( nfz1!(), std::num::NonZeroU64::new(1).unwrap() )
-  }
-  #[test]
-  fn to_nzu() {
-    assert_eq!( to_nzu!(2), std::num::NonZeroU64::new(2).unwrap() )
-  }
   #[test]
   fn all_macros() {
     set!{ v1 = 5

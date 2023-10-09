@@ -76,15 +76,15 @@ pub async fn activate_games_tracking(
   // Delete live games from log channel (if some)
   for (_, df) in DISCORDS.iter() {
     if let Some(sc) = df.games {
-      let channel = ChannelId(to_nzu!(sc));
+      let channel = ChannelId::new(sc);
       clean_games_channel(&channel, ctx).await;
     }
     if let Some(sc) = df.games2 {
-      let channel = ChannelId(to_nzu!(sc));
+      let channel = ChannelId::new(sc);
       clean_games_channel(&channel, ctx).await;
     }
     if let Some(sc) = df.games4 {
-      let channel = ChannelId(to_nzu!(sc));
+      let channel = ChannelId::new(sc);
       clean_games_channel(&channel, ctx).await;
     }
   }
@@ -124,7 +124,7 @@ pub async fn activate_games_tracking(
         let game_key = game.key.clone();
         let playa = &game.players[0];
         if let Ok(user) = ctx_clone.http
-          .get_user( UserId(to_nzu!(playa.player.discord)) ).await {
+          .get_user( UserId::new(playa.player.discord) ).await {
 
           #[cfg(feature = "ggru")]
           let mut twitch_live = false;
@@ -220,7 +220,7 @@ pub async fn activate_games_tracking(
             };
 
             if let Some(gc) = game_channel_maybe {
-            let game_channel = ChannelId(to_nzu!(gc));
+            let game_channel = ChannelId::new(gc);
 
             let mut e = CreateEmbed::new()
               .title("JUST STARTED")
@@ -254,12 +254,12 @@ pub async fn activate_games_tracking(
                   trace!("team games: starting");
                   let mut games_lock = poller::GAMES.lock().await;
                   if let Some(inserted) = games_lock.get_mut(&game_key) {
-                    if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.0.get())) {
-                      inserted.tracking_msg_id.push((*d, msg_id.id.0.get()));
+                    if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.get())) {
+                      inserted.tracking_msg_id.push((*d, msg_id.id.get()));
                     }
                   } else {
                     games_lock.insert( game_key.clone()
-                      , TrackingGame { tracking_msg_id: vec![(*d, msg_id.id.0.get())]
+                      , TrackingGame { tracking_msg_id: vec![(*d, msg_id.id.get())]
                                      , passed_time: 0
                                      , still_live: false
                                      , players: game.players.clone().into_iter()
@@ -286,7 +286,7 @@ pub async fn activate_games_tracking(
                       let emoji = &reaction.emoji;
                       if let Some(u) = reaction.user_id {
                         if let Some(g) = reaction.guild_id {
-                          if let Ok(p) = points::get_points( g.0.get(), u.0.get() ).await {
+                          if let Ok(p) = points::get_points( g.get(), u.get() ).await {
                             if p > 100 {
                               if let ReactionType::Unicode(emoji_data) = emoji {
                                 if emoji_data == "👍🏻" || emoji_data == "👎🏻" {
@@ -297,13 +297,13 @@ pub async fn activate_games_tracking(
                                     if let Some(track) = gl.get_mut(&game_key_clone) {
                                       if track.still_live {
                                         // you bet only once
-                                        if !track.bets.iter().any(|b| b.member == u.0.get()) {
-                                          let bet = Bet { guild: g.0.get()
-                                                        , member: u.0.get()
+                                        if !track.bets.iter().any(|b| b.member == u.get()) {
+                                          let bet = Bet { guild: g.get()
+                                                        , member: u.get()
                                                         , points: 100
                                                         , positive: is_positive
                                                         , registered: false };
-                                          let (succ, rst) = points::give_points( g.0.get(), u.0.get()
+                                          let (succ, rst) = points::give_points( g.get(), u.get()
                                                                                , amadeus
                                                                                , 100 ).await;
                                           if succ {

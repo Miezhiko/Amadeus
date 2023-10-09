@@ -17,7 +17,7 @@ chat            = { workspace = true }
 chat-utils      = { workspace = true }
 log             = "0.4.20"
 rand            = "0.8.5"
-chrono          = "0.4.26"
+chrono          = "0.4.31"
 bincode         = "2.0.0-rc.3"
 regex           = "1.9"
 tch             = "0.13"

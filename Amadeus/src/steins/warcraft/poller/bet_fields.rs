@@ -11,7 +11,7 @@ pub async fn generate_bet_fields( ctx: &Context
     setm!{ woutput = vec![]
          , loutput = vec![] };
     for bet in &mut track.bets {
-      let user_id = UserId( to_nzu!(bet.member) );
+      let user_id = UserId::new(bet.member);
       if let Ok(user) = user_id.to_user(ctx).await {
         if bet.positive {
           woutput.push(

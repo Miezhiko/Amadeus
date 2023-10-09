@@ -25,7 +25,7 @@ use rand::{ rngs::StdRng
 
 #[hook]
 pub async fn before(_ctx: &Context, msg: &Message, cmd_name: &str) -> bool {
-  if IGNORED.contains(&msg.channel_id.0.get()) {
+  if IGNORED.contains(&msg.channel_id.get()) {
     return false;
   }
   debug!("Running command: {}, Message: {}", &cmd_name, &msg.content);
@@ -41,7 +41,7 @@ pub async fn after( ctx: &Context
     error!("Error while running command {}", &cmd_name);
     error!("{:?}", &error);
     if let Err(why) = msg.channel_id.say(ctx, &format!("Error: {why}")).await {
-      error!("Unable to send messages on channel {} {why}", &msg.channel_id.0);
+      error!("Unable to send messages on channel {} {why}", &msg.channel_id);
     }
   }
 }
@@ -73,7 +73,7 @@ pub async fn unrecognised_command( ctx: &Context
       }
     }
   } else if let Some(guild_id) = msg.guild_id {
-    response::response(ctx, msg, guild_id.0.get()).await;
+    response::response(ctx, msg, guild_id.get()).await;
   }
 }
 

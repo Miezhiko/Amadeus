@@ -203,7 +203,7 @@ pub async fn attach_replay( ctx: &Context
                           , msg: &Message
                           , file: &Attachment ) -> anyhow::Result<()> {
   if let Some(playa) = PLAYERS.iter().find(|p|
-    !p.player.battletag.is_empty() && p.player.discord == msg.author.id.0.get()) {
+    !p.player.battletag.is_empty() && p.player.discord == msg.author.id.get()) {
     let battletag = playa.player.battletag.clone();
     if let Ok(bytes) = file.download().await {
       let mut fw3g = match File::create(&file.filename).await {

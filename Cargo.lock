@@ -738,7 +738,7 @@ dependencies = [
  "tokio-executor-trait",
  "tokio-reactor-trait",
  "tokio-stream",
- "uuid 1.4.1",
+ "uuid 1.5.0",
 ]
 
 [[package]]
@@ -767,7 +767,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "chat"
 version = "0.4.5"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#c1e051744e3418a4697b9a2648c352cac034e505"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#39f86ab5d1420a9477ba7ba8c744aed5eee1a605"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -781,7 +781,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#c1e051744e3418a4697b9a2648c352cac034e505"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#39f86ab5d1420a9477ba7ba8c744aed5eee1a605"
 dependencies = [
  "ucd",
 ]
@@ -4492,7 +4492,7 @@ dependencies = [
  "serde_json",
  "tch",
  "thiserror",
- "uuid 1.4.1",
+ "uuid 1.5.0",
 ]
 
 [[package]]
@@ -5206,7 +5206,7 @@ dependencies = [
  "twilight-gateway",
  "typemap_rev",
  "url",
- "uuid 1.4.1",
+ "uuid 1.5.0",
 ]
 
 [[package]]
@@ -6261,9 +6261,9 @@ dependencies = [
 
 [[package]]
 name = "uuid"
-version = "1.4.1"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79daa5ed5740825c40b389c5e50312b9c86df53fccd33f281df655642b43869d"
+checksum = "88ad59a7560b41a70d191093a945f0b87bc1deeda46fb237479708a1d6b6cdfc"
 dependencies = [
  "getrandom 0.2.10",
 ]

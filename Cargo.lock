@@ -766,8 +766,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.4.5"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#39f86ab5d1420a9477ba7ba8c744aed5eee1a605"
+version = "0.4.7"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#35c207a458f8064e319862c2dfa3b005259689ea"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -781,7 +781,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#39f86ab5d1420a9477ba7ba8c744aed5eee1a605"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#35c207a458f8064e319862c2dfa3b005259689ea"
 dependencies = [
  "ucd",
 ]
@@ -917,7 +917,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.2"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#ba7988bf4dd1ea5df412f506574be0fff5afaea3"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#4a44fbe8128327c9194f6ac2bd88639218cc1953"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4935,7 +4935,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.6"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#ba7988bf4dd1ea5df412f506574be0fff5afaea3"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#4a44fbe8128327c9194f6ac2bd88639218cc1953"
 dependencies = [
  "arrayvec 0.7.4",
  "async-trait",
@@ -4969,7 +4969,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#ba7988bf4dd1ea5df412f506574be0fff5afaea3"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#4a44fbe8128327c9194f6ac2bd88639218cc1953"
 dependencies = [
  "bitflags 2.4.1",
  "enum_primitive",
@@ -5847,9 +5847,9 @@ checksum = "b6bc1c9ce2b5135ac7f93c72918fc37feb872bdc6a5533a8b85eb4b86bfdae52"
 
 [[package]]
 name = "tracing"
-version = "0.1.39"
+version = "0.1.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee2ef2af84856a50c1d430afce2fdded0a4ec7eda868db86409b4543df0797f9"
+checksum = "c3523ab5a71916ccf420eebdf5521fcef02141234bbc0b8a49f2fdc4544364ef"
 dependencies = [
  "log",
  "pin-project-lite",
@@ -6282,9 +6282,9 @@ checksum = "830b7e5d4d90034032940e4ace0d9a9a057e7a45cd94e6c007832e39edb82f6d"
 
 [[package]]
 name = "value-bag"
-version = "1.4.1"
+version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d92ccd67fb88503048c01b59152a04effd0782d035a83a6d256ce6085f08f4a3"
+checksum = "4a72e1902dde2bd6441347de2b70b7f5d59bf157c6c62f0c44572607a1d55bbe"
 
 [[package]]
 name = "vcpkg"

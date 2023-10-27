@@ -116,7 +116,7 @@ checksum = "0942ffc6dcaadf03badf6e6a2d0228460359d5e34b57ccdc720b7382dfbd5ec5"
 
 [[package]]
 name = "amadeus"
-version = "12.0.0"
+version = "12.0.1"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -137,6 +137,7 @@ dependencies = [
  "ical",
  "itertools 0.11.0",
  "kathoey",
+ "libc",
  "markov",
  "nipper",
  "once_cell",
@@ -158,7 +159,7 @@ dependencies = [
  "tokio",
  "tonic",
  "tracing",
- "tracing-log",
+ "tracing-log 0.2.0",
  "tracing-subscriber",
  "unic-langid",
 ]
@@ -767,8 +768,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.4.11"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#05ef2fc99c5cf6689d14085d870060436102f634"
+version = "0.4.12"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#0f5a0511d8925720123b41c628726f70ad3eb4ee"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -782,7 +783,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#05ef2fc99c5cf6689d14085d870060436102f634"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#0f5a0511d8925720123b41c628726f70ad3eb4ee"
 dependencies = [
  "ucd",
 ]
@@ -5869,6 +5870,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "tracing-log"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee855f1f400bd0e5c02d150ae5de3840039a3f54b025156404e34c23c03f47c3"
+dependencies = [
+ "log",
+ "once_cell",
+ "tracing-core",
+]
+
+[[package]]
 name = "tracing-subscriber"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5883,7 +5895,7 @@ dependencies = [
  "thread_local",
  "tracing",
  "tracing-core",
- "tracing-log",
+ "tracing-log 0.1.4",
 ]
 
 [[package]]

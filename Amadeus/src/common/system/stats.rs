@@ -3,6 +3,9 @@ use crate::{
   steins::gate::START_TIME
 };
 
+use std::mem;
+use libc::{ getrusage, rusage };
+
 use chrono::{ Duration, Utc };
 use tokio::process::Command;
 
@@ -16,14 +19,18 @@ pub struct SysInfo {
   pub db_size: String
 }
 
+fn get_current_rss() -> f32 {
+  let mut usage: rusage = unsafe { mem::zeroed() };
+
+  if unsafe { getrusage(libc::RUSAGE_SELF, &mut usage) } != 0 {
+    println!("Failed to get process memory information");
+    return 0f32;
+  }
+
+  return usage.ru_maxrss as f32;
+}
+
 pub async fn get_memory_mb() -> anyhow::Result<(f32, f32)> {
-  let pid = std::process::id().to_string();
-  let mem_stdout = Command::new("sh")
-          .arg("-c")
-          .arg(&format!("pmap {} | tail -n 1 | awk '/[0-9]K/{{print $2}}'", &pid))
-          .output()
-          .await?;
-  let mem_used = &String::from_utf8(mem_stdout.stdout)?;
   let salieri_id_cmd = Command::new("sh")
           .arg("-c")
           .arg("pidof salieri")
@@ -36,8 +43,10 @@ pub async fn get_memory_mb() -> anyhow::Result<(f32, f32)> {
           .output()
           .await?;
   let mem_salieri = &String::from_utf8(mem_salieri_stdout.stdout)?;
-  Ok(( mem_used[..mem_used.len() - 2].parse::<f32>().unwrap_or(0f32)/1024f32
-     , mem_salieri[..mem_salieri.len() - 2].parse::<f32>().unwrap_or(0f32)/1024f32 ))
+  Ok(( get_current_rss() / 1024f32
+     , mem_salieri[..mem_salieri.len() - 2]
+                  .parse::<f32>().unwrap_or(0f32)/1024f32 )
+    )
 }
 
 pub async fn get_system_info(ctx: &serenity::client::Context) -> anyhow::Result<SysInfo> {

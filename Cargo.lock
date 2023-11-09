@@ -768,8 +768,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.4.13"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#eb1461e92183dbf9ba77923d462731cc07018c83"
+version = "0.4.14"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#b09a8038d4faadb9015a4893e3728bd06b0e366a"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -783,7 +783,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#eb1461e92183dbf9ba77923d462731cc07018c83"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#b09a8038d4faadb9015a4893e3728bd06b0e366a"
 dependencies = [
  "ucd",
 ]
@@ -919,7 +919,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.2"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#4361c1c9eaf4c31eda9410f3defd61ac34383a2b"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#f0453f8ea2753d9f566f3eaa2487e78a87025a1a"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1579,9 +1579,9 @@ checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 
 [[package]]
 name = "errno"
-version = "0.3.5"
+version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac3e13f66a2f95e32a39eaa81f6b95d42878ca0e1db0c7543723dfe12557e860"
+checksum = "7c18ee0ed65a5f1f81cac6b1d213b69c35fa47d4252ad41f1486dbd8226fe36e"
 dependencies = [
  "libc",
  "windows-sys 0.48.0",
@@ -2088,9 +2088,9 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
-version = "0.2.10"
+version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be4136b2a15dd319360be1c07d9933517ccf0be8f16bf62a3bee4f0d618df427"
+checksum = "fe9006bed769170c11f845cf00c7c1e9092aeb3f268e007c3e760ac68008070f"
 dependencies = [
  "cfg-if 1.0.0",
  "js-sys",
@@ -2773,9 +2773,9 @@ checksum = "ef53942eb7bf7ff43a617b3e2c1c4a5ecf5944a7c1bc12d7ee39bbb15e5c1519"
 
 [[package]]
 name = "linux-raw-sys"
-version = "0.4.10"
+version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da2479e8c062e40bf0066ffa0bc823de0a9368974af99c9f6df941d2c231e03f"
+checksum = "969488b55f8ac402214f3f5fd243ebb7206cf82de60d3172994707a4bcc2b829"
 
 [[package]]
 name = "lock_api"
@@ -2999,7 +2999,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a51313c5820b0b02bd422f4b44776fbf47961755c74ce64afc73bfad10226c3"
 dependencies = [
- "getrandom 0.2.10",
+ "getrandom 0.2.11",
 ]
 
 [[package]]
@@ -3321,7 +3321,7 @@ dependencies = [
  "cbc",
  "cipher",
  "des",
- "getrandom 0.2.10",
+ "getrandom 0.2.11",
  "hmac",
  "lazy_static",
  "rc2",
@@ -4128,7 +4128,7 @@ version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 dependencies = [
- "getrandom 0.2.10",
+ "getrandom 0.2.11",
 ]
 
 [[package]]
@@ -4321,7 +4321,7 @@ version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a18479200779601e498ada4e8c1e1f50e3ee19deb0259c25825a98b5603b2cb4"
 dependencies = [
- "getrandom 0.2.10",
+ "getrandom 0.2.11",
  "libredox",
  "thiserror",
 ]
@@ -4447,7 +4447,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fb0205304757e5d899b9c2e448b867ffd03ae7f988002e47cd24954391394d0b"
 dependencies = [
  "cc",
- "getrandom 0.2.10",
+ "getrandom 0.2.11",
  "libc",
  "spin",
  "untrusted",
@@ -4582,7 +4582,7 @@ dependencies = [
  "bitflags 2.4.1",
  "errno",
  "libc",
- "linux-raw-sys 0.4.10",
+ "linux-raw-sys 0.4.11",
  "windows-sys 0.48.0",
 ]
 
@@ -4934,7 +4934,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.7"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#4361c1c9eaf4c31eda9410f3defd61ac34383a2b"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#f0453f8ea2753d9f566f3eaa2487e78a87025a1a"
 dependencies = [
  "arrayvec 0.7.4",
  "async-trait",
@@ -4968,7 +4968,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#4361c1c9eaf4c31eda9410f3defd61ac34383a2b"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#f0453f8ea2753d9f566f3eaa2487e78a87025a1a"
 dependencies = [
  "bitflags 2.4.1",
  "enum_primitive",
@@ -5147,7 +5147,7 @@ dependencies = [
 [[package]]
 name = "songbird"
 version = "0.3.2"
-source = "git+https://github.com/serenity-rs/songbird.git?branch=next#87bd3abaf336d623ce596c8007ae006ad51a810e"
+source = "git+https://github.com/serenity-rs/songbird.git?branch=next#1c51d7d26d9ac7d3346e2085db509ae5791d72e3"
 dependencies = [
  "async-trait",
  "audiopus",
@@ -6248,7 +6248,7 @@ version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "88ad59a7560b41a70d191093a945f0b87bc1deeda46fb237479708a1d6b6cdfc"
 dependencies = [
- "getrandom 0.2.10",
+ "getrandom 0.2.11",
 ]
 
 [[package]]

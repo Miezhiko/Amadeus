@@ -68,7 +68,7 @@ pub async fn activate_streamers_tracking(
     if let Ok(g) = guild_id.to_partial_guild(&ctx).await {
       for p in ALL.iter() {
         if p.discords.contains(d) {
-          if let Ok(mut m) = g.member(&ctx.http, p.player.discord).await {
+          if let Ok(m) = g.member(&ctx.http, p.player.discord).await {
             if let Some(r) = g.role_by_name(LIVE_ROLE) {
               if m.roles.contains(&r.id) {
                 if let Err(why) = m.remove_role(&ctx, r).await {
@@ -310,7 +310,7 @@ pub async fn activate_streamers_tracking(
 
               let discord_guild = GuildId::new(*d);
               if let Ok(guild) = discord_guild.to_partial_guild(&ctx_clone).await {
-                if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
+                if let Ok(member) = guild.member(&ctx_clone.http, user.id).await {
                   if let Some(role) = guild.role_by_name(LIVE_ROLE) {
                     if !member.roles.contains(&role.id) {
                       if let Err(why) = member.add_role(&ctx_clone, role).await {
@@ -384,7 +384,7 @@ pub async fn activate_streamers_tracking(
             for d in &p.discords {
               let discord_guild = GuildId::new(*d);
               if let Ok(guild) = discord_guild.to_partial_guild(&ctx_clone).await {
-                if let Ok(mut member) = guild.member(&ctx_clone.http, user.id).await {
+                if let Ok(member) = guild.member(&ctx_clone.http, user.id).await {
                   if let Some(role) = guild.role_by_name(LIVE_ROLE) {
                     if member.roles.contains(&role.id) {
                       if let Err(why) = member.remove_role(&ctx_clone, role).await {

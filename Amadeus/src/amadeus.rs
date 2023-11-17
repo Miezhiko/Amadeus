@@ -20,6 +20,7 @@ use songbird::{ Config as DriverConfig
 
 use serenity::{
   framework::StandardFramework,
+  all::standard::{ BucketBuilder, Configuration },
   model::{ gateway::GatewayIntents
          , id::ApplicationId, id::UserId }
 };
@@ -113,10 +114,12 @@ pub async fn run(opts: IOptions) ->
       .group(&GENTOO_GROUP)
       .group(&TRANSLATE_GROUP)
       // limits a command to 3 uses per 10 seconds with a 2 second delay in between invocations
-      .bucket("A", |b| b.delay(2).time_span(10).limit(3)).await
+      .bucket("A", BucketBuilder::default().delay(2)
+                                           .time_span(10)
+                                           .limit(3)).await
       .help(&HELP_COMMAND);
 
-  std_framework.configure(|c| c
+  std_framework.configure(Configuration::new()
     .owners(owners)
     .on_mention(Some(amadeus_id))
     .prefix(PREFIX)
@@ -136,7 +139,7 @@ pub async fn run(opts: IOptions) ->
   );
   let intents = GatewayIntents::GUILDS
               | GatewayIntents::GUILD_MEMBERS
-              | GatewayIntents::GUILD_BANS
+              | GatewayIntents::GUILD_MODERATION
               | GatewayIntents::GUILD_PRESENCES
               | GatewayIntents::GUILD_MESSAGES
               | GatewayIntents::GUILD_MESSAGE_REACTIONS

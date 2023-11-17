@@ -268,7 +268,7 @@ async fn catch_up_with_roles(ctx: &Context, _msg: &Message, mut args: Args) -> C
         if let Ok(rt_users) = msg.reaction_users(ctx, rt, None, None).await {
           for user in rt_users {
             let user_u64 = user.id.get();
-            if let Ok(mut member) = guild.member(&ctx, user.id).await {
+            if let Ok(member) = guild.member(&ctx, user.id).await {
               let role_id = RoleId::new(role);
               if !member.roles.contains(&role_id) {
                 if let Err(why) = member.add_role(&ctx, role_id).await {

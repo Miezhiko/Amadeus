@@ -23,7 +23,7 @@ use serenity::{
   prelude::*,
   builder::*,
   async_trait,
-  model::{ guild::audit_log::MessageAction
+  model::{ guild::audit_log::{ Action, MessageAction }
          , id::{ GuildId, MessageId, UserId, ChannelId, RoleId }
          , event::ResumedEvent, gateway::Ready, guild::Member
          , channel::{ Message, Reaction, ReactionType
@@ -125,7 +125,7 @@ impl EventHandler for Handler {
                               | Permissions::EMBED_LINKS
                               | Permissions::SPEAK
                               | Permissions::CHANGE_NICKNAME
-                              | Permissions::MANAGE_EMOJIS_AND_STICKERS
+                              | Permissions::MANAGE_GUILD_EXPRESSIONS
                               | Permissions::USE_APPLICATION_COMMANDS
                               | Permissions::CREATE_PUBLIC_THREADS
                               | Permissions::CREATE_PRIVATE_THREADS
@@ -173,7 +173,7 @@ impl EventHandler for Handler {
     info!("Resumed");
   }
 
-  async fn guild_member_addition(&self, ctx: Context, mut member: Member) {
+  async fn guild_member_addition(&self, ctx: Context, member: Member) {
     let mut muted_lock = MUTED.lock().await;
     if muted_lock.contains(&member.user.id) {
       if let Ok(guild) = member.guild_id.to_partial_guild(&ctx).await {
@@ -274,7 +274,7 @@ impl EventHandler for Handler {
               } else if let Ok(Some(emoji_roles)) = emojis::message_roles(&guild_u64, &add_reaction.message_id.get()).await {
                 if let Some(role) = emoji_roles.get(&id.get()) {
                   if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
-                    if let Ok(mut member) = guild.member(&ctx, user_id).await {
+                    if let Ok(member) = guild.member(&ctx, user_id).await {
                       let role_id = RoleId::new( *role );
                       if !member.roles.contains(&role_id) {
                         if let Err(why) = member.add_role(&ctx, role_id).await {
@@ -309,7 +309,7 @@ impl EventHandler for Handler {
               if let Ok(Some(emoji_roles)) = emojis::message_roles(&guild_u64, &add_reaction.message_id.get()).await {
                 if let Some(role) = emoji_roles.get(&id.get()) {
                   if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
-                    if let Ok(mut member) = guild.member(&ctx, user_id).await {
+                    if let Ok(member) = guild.member(&ctx, user_id).await {
                       let role_id = RoleId::new( *role );
                       if member.roles.contains(&role_id) {
                         if let Err(why) = member.remove_role(&ctx, role_id).await {
@@ -349,7 +349,7 @@ impl EventHandler for Handler {
           if msg.is_own(&ctx) { // backup only own messages
             if let Some(guild_id) = msg.guild_id {
               if let Ok(audit) = ctx.http.get_audit_logs( guild_id
-                                                        , Some( MessageAction::Delete as u8 )
+                                                        , Some( Action::Message( MessageAction::Delete ) )
                                                         , None
                                                         , None
                                                         , Some(1)).await {

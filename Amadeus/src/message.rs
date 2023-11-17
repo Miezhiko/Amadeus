@@ -243,7 +243,7 @@ pub async fn process( ioptions: &IOptions
             };
 
             if let Ok(guild) = guild_id.to_partial_guild(ctx).await {
-              if let Ok(mut member) = guild.member(ctx, msg.author.id).await {
+              if let Ok(member) = guild.member(ctx, msg.author.id).await {
                 if let Some(role) = guild.role_by_name(UNBLOCK_ROLE) {
 
                   let normal_people_rnd: u16 = rand::thread_rng().gen_range(0..9);

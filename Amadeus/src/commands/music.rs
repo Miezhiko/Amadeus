@@ -138,9 +138,9 @@ pub async fn join_slash(ctx: &Context, user: &User, guild: &Guild) -> anyhow::Re
 #[bucket = "A"]
 #[description("leave voice channel")]
 pub async fn leave(ctx: &Context, msg: &Message, _args: Args) -> CommandResult {
-  let guild_id = match ctx.cache.guild_channel(msg.channel_id) {
-    Some(channel) => channel.guild_id,
-    None => { return Ok(()); }
+  let guild_id = match ctx.http.get_channel(msg.channel_id).await {
+    Ok(channel) => channel.guild().unwrap().guild_id,
+    Err(_)      => { return Ok(()); }
   };
   let manager = songbird::get(ctx).await
     .expect("Songbird Voice client placed in at initialisation.")
@@ -186,9 +186,9 @@ pub async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
     reply(ctx, msg, "You must provide a valid URL").await;
     return Ok(());
   }
-  let guild_id = match ctx.cache.guild_channel(msg.channel_id) {
-    Some(channel) => channel.guild_id,
-    None => { return Ok(()); }
+  let guild_id = match ctx.http.get_channel(msg.channel_id).await {
+    Ok(channel) => channel.guild().unwrap().guild_id,
+    Err(_)      => { return Ok(()); }
   };
   let manager = songbird::get(ctx).await
     .expect("Songbird Voice client placed in at initialisation.").clone();

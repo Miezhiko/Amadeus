@@ -21,8 +21,8 @@ use serenity::{
 const PURGE_ITERATIONS: usize = 10;
 
 async fn mute_internal(ctx: &Context, guild_id: &GuildId, user_id: &UserId) -> anyhow::Result<()> {
-  let guild = guild_id.to_partial_guild(&ctx).await?;
-  let mut member = guild.member(&ctx, user_id).await?;
+  set!{ guild = guild_id.to_partial_guild(&ctx).await?
+      , member = guild.member(&ctx, user_id).await? };
   if let Some(role) = guild.role_by_name(MUTED_ROLE) {
     if !member.roles.contains(&role.id) {
       if let Err(why) = member.add_role(&ctx, role).await {
@@ -34,8 +34,8 @@ async fn mute_internal(ctx: &Context, guild_id: &GuildId, user_id: &UserId) -> a
 }
 
 async fn unmute_internal(ctx: &Context, guild_id: &GuildId, user_id: &UserId) -> anyhow::Result<()> {
-  let guild = guild_id.to_partial_guild(&ctx).await?;
-  let mut member = guild.member(&ctx, user_id).await?;
+  set!{ guild = guild_id.to_partial_guild(&ctx).await?
+      , member = guild.member(&ctx, user_id).await? };
   if let Some(role) = guild.role_by_name(MUTED_ROLE) {
     if member.roles.contains(&role.id) {
       if let Err(why) = member.remove_role(&ctx, role).await {

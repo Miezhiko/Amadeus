@@ -65,9 +65,8 @@ pub struct Owner;
 
 #[group("Moderator")]
 #[checks(Moderator)]
-#[help_available(false)]
 #[commands( mute, unmute, move_discussion, timeout, untimeout
-          , j, prison, purge )]
+          , j, prison, purge, dice_giveaway )]
 pub struct Moderator;
 
 #[cfg(feature = "flo")]
@@ -78,5 +77,5 @@ pub struct Flo;
 
 #[group("Gentoo")]
 #[help_available(true)]
-#[commands(bug, zugaina, wiki, dice_giveaway)]
+#[commands(bug, zugaina, wiki)]
 pub struct Gentoo;

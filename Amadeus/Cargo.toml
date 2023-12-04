@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "12.1.1"
+version             = "13.0.0"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -40,7 +40,6 @@ comfy-table         = "7.1.0"
 async-std           = "1.12"
 futures-util        = "0.3.29"
 qrcode              = "0.12"
-cannyls             = "0.10"
 bincode             = "2.0.0-rc.3"
 itertools           = "0.12.0"
 unic-langid         = "0.9.1"
@@ -56,12 +55,16 @@ libc                = "0.2"
 cynic   = { version = "3.3.0",        features = ["http-reqwest"] }
 rand    = { version = "0.8.5",        features = ["std", "std_rng"] }
 reqwest = { version = "0.11.22",      features = ["json", "blocking"] }
-ical    = { version = "0.8",          features = ["ical"] }
+ical    = { version = "0.9",          features = ["ical"] }
 markov  = { version = "1.1",          features = ["yaml"] }
 
 [dependencies.stroke]
 git = "https://github.com/dorianprill/stroke.git"
 branch = "main"
+
+[dependencies.cannyls]
+git = "https://github.com/Masha/cannyls.git"
+branch = "mawa"
 
 [dependencies.songbird]
 default-features = false

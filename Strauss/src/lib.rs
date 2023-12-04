@@ -17,7 +17,7 @@ use std::sync::Arc;
 pub const SALIERI_SERVICE: &str = "salieri";
 
 // 5672 is default AMPQ port
-pub const SALIERI_AMPQ: &str = "amqp://localhost:5672//";
+pub const SALIERI_AMPQ: &str = "amqp://127.0.0.1:5672/%2f";
 
 #[celery::task]
 pub async fn AMADEUS_INIT() -> TaskResult<()> {

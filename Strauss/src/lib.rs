@@ -45,5 +45,7 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
     task_routes = [
       "*" => SALIERI_SERVICE,
     ],
+    heartbeat = Some( 600 ),
+    broker_connection_timeout = 300
   ).await
 }

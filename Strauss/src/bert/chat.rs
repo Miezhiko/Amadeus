@@ -156,9 +156,10 @@ pub async fn CHAT_GPT2( msg: Option<u64>
                       , russian: bool ) -> TaskResult<()> {
   if let Err(why) = chat_gpt2_send(msg, chan, something, user_id, lsm, russian, 0).await {
     error!("Failed to generate response, {why}");
-    Err( TaskError::ExpectedError( why.to_string() ) )
+    // ignore this
+    // Err( TaskError::ExpectedError( why.to_string() ) )
   } else {
     info!("GPT2 response sent to {LUKASHENKO}!");
-    Ok(())
   }
+  Ok(())
 }

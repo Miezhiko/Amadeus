@@ -167,9 +167,8 @@ pub async fn CHAT_NEO( msg: Option<u64>
                      , russian: bool ) -> TaskResult<()> {
   if let Err(why) = chat_neo_send(msg, chan, something, user_id, lsm, russian).await {
     error!("Failed to generate NEO response, {why}");
-    Err( TaskError::ExpectedError( why.to_string() ) )
   } else {
     info!("NEO: response sent to {LUKASHENKO}!");
-    Ok(())
   }
+  Ok(())
 }

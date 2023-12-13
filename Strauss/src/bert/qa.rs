@@ -135,9 +135,8 @@ pub async fn ASK( msg: Option<u64>
                 , russian: bool ) -> TaskResult<()> {
   if let Err(why) = ask_send(msg, chan, something, user_id, lsm, russian).await {
     error!("QA: Failed to generate response, {why}");
-    Err( TaskError::ExpectedError( why.to_string() ) )
   } else {
     info!("ASK response sent to {LUKASHENKO}!");
-    Ok(())
   }
+  Ok(())
 }

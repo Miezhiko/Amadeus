@@ -131,9 +131,8 @@ pub async fn XLNET( msg: Option<u64>
                   , russian: bool ) -> TaskResult<()> {
   if let Err(why) = xlnet_send(msg, chan, something, user_id, lsm, russian).await {
     error!("xlnet: Failed to generate response, {why}");
-    Err( TaskError::ExpectedError( why.to_string() ) )
   } else {
     info!("xlnet response sent to {LUKASHENKO}!");
-    Ok(())
   }
+  Ok(())
 }

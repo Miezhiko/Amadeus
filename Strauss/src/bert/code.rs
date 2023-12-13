@@ -112,9 +112,8 @@ pub async fn CODEBERT( msg: Option<u64>
                      , russian: bool ) -> TaskResult<()> {
   if let Err(why) = code_send(msg, chan, something, user_id, lsm, russian).await {
     error!("codebert: Failed to generate response, {why}");
-    Err( TaskError::ExpectedError( why.to_string() ) )
   } else {
     info!("codebert response sent to {LUKASHENKO}!");
-    Ok(())
   }
+  Ok(())
 }

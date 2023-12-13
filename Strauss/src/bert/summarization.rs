@@ -132,9 +132,8 @@ pub async fn SUMMARIZE( msg: Option<u64>
                       , russian: bool ) -> TaskResult<()> {
   if let Err(why) = summarize_send(msg, chan, something, user_id, lsm, russian).await {
     error!("Summarization: Failed to generate response, {why}");
-    Err( TaskError::ExpectedError( why.to_string() ) )
   } else {
     info!("Summarization response sent to {LUKASHENKO}!");
-    Ok(())
   }
+  Ok(())
 }

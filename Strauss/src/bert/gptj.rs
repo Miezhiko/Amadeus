@@ -128,9 +128,8 @@ pub async fn GPTJ( msg: Option<u64>
                  , russian: bool ) -> TaskResult<()> {
   if let Err(why) = gptj_send(msg, chan, something, user_id, lsm, russian).await {
     error!("gptj: Failed to generate response, {why}");
-    Err( TaskError::ExpectedError( why.to_string() ) )
   } else {
     info!("gptj response sent to {LUKASHENKO}!");
-    Ok(())
   }
+  Ok(())
 }

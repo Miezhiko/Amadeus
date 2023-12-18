@@ -9,6 +9,7 @@
 package-lock.json
 
 conf.dhall
+kafka.dhall
 conf.yml
 weekly.yml
 mmm.yml

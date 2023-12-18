@@ -18,7 +18,7 @@ mod spam;
 
 pub mod salieri;
 
-#[cfg(feature = "spam_filter")]
+#[cfg(feature = "naoko")]
 mod naoko;
 
 mod message; mod handler; mod checks;

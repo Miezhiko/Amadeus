@@ -76,9 +76,20 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   let ac = std::sync::Arc::new(ctx);
   let oc = std::sync::Arc::new(options.clone());
 
-  info!("connecting to Salieri");
-  if let Err(why) = salieri::salieri_init(&ac).await {
-    error!("failed to init Salieri services {why}");
+  #[cfg(feature = "salieri")]
+  {
+    info!("connecting to Salieri");
+    if let Err(why) = salieri::salieri_init(&ac).await {
+      error!("failed to init Salieri services {why}");
+    }
+  }
+
+  #[cfg(feature = "naoko")]
+  {
+    info!("connecting to Naoko");
+    if let Err(why) = naoko::naoko_init(&ac).await {
+      error!("failed to init Naoko services {why}");
+    }
   }
 
   activate_system_tracker(&ac).await;

@@ -18,8 +18,14 @@ mod spam;
 
 pub mod salieri;
 
+#[cfg(feature = "spam_filter")]
+mod naoko;
+
 mod message; mod handler; mod checks;
 mod slash; mod hooks; mod groups; mod amadeus;
+
+#[cfg(all(feature = "salieri", feature = "naoko"))]
+compile_error!("Feature salieri and naoko are mutually exclusive and cannot be enabled together");
 
 #[tokio::main(worker_threads=8)]
 async fn main() -> anyhow::Result<()> {

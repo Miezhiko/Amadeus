@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "13.0.2"
+version             = "13.0.3"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -11,13 +11,12 @@ license             = "AGPL-3.0-only"
 rust-version        = "1.63.0"
 
 [features]
-default             = ["trackers", "salieri"]
+default             = ["trackers"]
 trackers            = []
 spam_filter         = []
 flo                 = ["tonic", "hex", "flo-grpc"]
 full                = ["flo", "trackers"]
 ggru                = []
-salieri             = [] # celery (should be optional)
 naoko               = ["rdkafka"]
 
 [dependencies]

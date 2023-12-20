@@ -1,4 +1,7 @@
-use crate::options::IOptions;
+use crate::{
+  naoko::options::IOptions,
+  common::msg::reply
+};
 
 use futures::{
   stream::FuturesUnordered,
@@ -16,11 +19,17 @@ use rdkafka::{
   Message
 };
 
+use serenity::{
+  prelude::*,
+  builder::CreateMessage,
+  model::id::{ ChannelId, MessageId }
+};
+
 async fn record_owned_message_receipt(msg: &OwnedMessage) {
   info!("Message received: {}", msg.offset());
 }
 
-async fn got_message(msg: OwnedMessage) -> anyhow::Result<()> {
+async fn got_message(msg: OwnedMessage, ctx: &Arc<Context>) -> anyhow::Result<()> {
   info!("Got message from kafka {}", msg.offset());
   match msg.payload() {
     Some(payload_bytes) => {
@@ -36,12 +45,18 @@ async fn got_message(msg: OwnedMessage) -> anyhow::Result<()> {
         return None;
       }
 
-      let chan      = key3[0].parse::<u64>().unwrap_or(0);
-      let user_id   = key3[1].parse::<u64>().unwrap_or(0);
-      let msg       = key3[2].parse::<u64>().unwrap_or(0);
-      let k_key     = format!("{chan}|{user_id}|{msg}");
+      let chan_id   = key3[0].parse::<u64>().unwrap_or(0);
+      let msg_id    = key3[2].parse::<u64>().unwrap_or(0);
 
-      // TODO: do something here
+      let chan: ChannelId = ChannelId::new(chan_id);
+
+      if msg_id != 0 {
+        if let Ok(mmsg) = chan.message(ctx, MessageId::new(*msg_id)).await {
+          reply(ctx, &mmsg, &payload).await;
+        }
+      } else {
+        chan.send_message(ctx, CreateMessage::new().content(&payload)).await?;
+      }
       Ok(())
     }, None => Err(anyhow!("kafka sent empty payload"))
   }
@@ -50,7 +65,8 @@ async fn got_message(msg: OwnedMessage) -> anyhow::Result<()> {
 async fn run_async_processor(
   brokers: String,
   group_id: String,
-  input_topic: String
+  input_topic: String,
+  ctx: &Arc<Context>
 ) {
   let consumer: StreamConsumer = ClientConfig::new()
       .set("group.id", &group_id)
@@ -77,7 +93,7 @@ async fn run_async_processor(
       let owned_message = borrowed_message.detach();
       record_owned_message_receipt(&owned_message).await;
       tokio::spawn(async move {
-        if let Err(why) = got_message(owned_message).await {
+        if let Err(why) = got_message(owned_message, ctx).await {
           error!("can't process kafka msg: ${why}");
         }
       });
@@ -91,12 +107,13 @@ async fn run_async_processor(
   info!("Kafka stream processing terminated");
 }
 
-pub fn run_with_workers(num_workers: u32, opts: IOptions) {
+pub fn run_with_workers(num_workers: u32, opts: IOptions, ctx: &Arc<Context>) {
   std::mem::drop( (0..num_workers).map(|_| {
     tokio::spawn(run_async_processor(
       opts.kafka_address.clone(),
       opts.kafka_group.clone(),
-      opts.kafka_sink.clone()
+      opts.kafka_sink.clone(),
+      ctx
     ))
   }).collect::<FuturesUnordered<_>>()
     .for_each(|_| async {}) );

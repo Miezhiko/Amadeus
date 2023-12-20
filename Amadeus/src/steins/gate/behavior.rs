@@ -76,12 +76,9 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   let ac = std::sync::Arc::new(ctx);
   let oc = std::sync::Arc::new(options.clone());
 
-  #[cfg(feature = "salieri")]
-  {
-    info!("connecting to Salieri");
-    if let Err(why) = salieri::salieri_init(&ac).await {
-      error!("failed to init Salieri services {why}");
-    }
+  info!("connecting to Salieri");
+  if let Err(why) = salieri::salieri_init(&ac).await {
+    error!("failed to init Salieri services {why}");
   }
 
   #[cfg(feature = "naoko")]

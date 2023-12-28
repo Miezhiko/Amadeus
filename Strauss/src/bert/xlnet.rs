@@ -76,7 +76,7 @@ async fn xlnet(msg_content: String, lsm: bool) -> anyhow::Result<String> {
   input.push(input_str);
   task::spawn_blocking(move || {
     if let Some(xlnetm) = &mut *xlnet_model {
-      let output = xlnetm.generate(&input, None);
+      let output = xlnetm.generate(&input, None)?;
       if ! lsm {
         *xlnet_model = None;
       }

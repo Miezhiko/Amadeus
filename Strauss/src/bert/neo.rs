@@ -81,7 +81,7 @@ async fn chat_neo(something: String, lsm: bool) -> anyhow::Result<String> {
   let neo_result =
     task::spawn_blocking(move || {
       if let Some(neo_model) = &mut *neo {
-        let output = neo_model.generate(&[something.as_str()], None);
+        let output = neo_model.generate(&[something.as_str()], None)?;
         let result = if output.is_empty() {
             error!("Failed to chat with Neo Model");
             Err(anyhow!("no output from GPT neo model"))

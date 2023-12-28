@@ -77,7 +77,7 @@ async fn summarize(msg_content: String, lsm: bool) -> anyhow::Result<String> {
   input.push(input_str);
   task::spawn_blocking(move || {
     if let Some(sum) = &mut *summ_model {
-      let output = sum.summarize(&input);
+      let output = sum.summarize(&input)?;
       if ! lsm {
         *summ_model = None;
       }

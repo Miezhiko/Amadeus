@@ -73,7 +73,7 @@ async fn gptj(msg_content: String, lsm: bool) -> anyhow::Result<String> {
   let input_str = process_message_for_gpt(&msg_content);
   task::spawn_blocking(move || {
     if let Some(gptj_m) = &mut *gptj_model {
-      let output = gptj_m.generate(&[input_str.as_str()], None);
+      let output = gptj_m.generate(&[input_str.as_str()], None)?;
       if ! lsm {
         *gptj_model = None;
       }

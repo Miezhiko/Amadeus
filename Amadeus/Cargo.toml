@@ -45,7 +45,7 @@ bincode             = "2.0.0-rc.3"
 itertools           = "0.12.0"
 unic-langid         = "0.9.4"
 fluent-templates    = "0.8"
-sled                = "1.0.0-alpha.118"
+sled                = "1.0.0-alpha.120"
 kathoey             = "1.1.5"
 serde_dhall         = "0.12.1"
 nipper              = "0.1.9"
@@ -112,6 +112,6 @@ branch = "main"
 optional = true
 
 [dependencies.rdkafka]
-version = "0.35.0"
+version = "0.36.0"
 features = ["dynamic-linking", "tokio"]
 optional = true

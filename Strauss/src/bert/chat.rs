@@ -60,14 +60,14 @@ pub async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> anyhow::Re
                                );
             if let Some(chat_cont) = chat_context.get_mut(&user_id) {
               let (registered_conversation, _) = chat_cont;
-              conversation_model.generate_responses(registered_conversation)
+              conversation_model.generate_responses(registered_conversation)?
             } else {
               return Err(anyhow!("Failed to cregister conversation for {}", &user_id));
             }
           } else {
             tracking_conversation.create(&something);
             *x += 1;
-            conversation_model.generate_responses(tracking_conversation)
+            conversation_model.generate_responses(tracking_conversation)?
           }
         } else {
           let mut conversation_manager = ConversationManager::new();
@@ -84,7 +84,7 @@ pub async fn chat_gpt2(something: String, user_id: u64, lsm: bool) -> anyhow::Re
 
           if let Some(chat_cont) = chat_context.get_mut(&user_id) {
             let (registered_conversation, _) = chat_cont;
-            conversation_model.generate_responses(registered_conversation)
+            conversation_model.generate_responses(registered_conversation)?
           } else {
             return Err(anyhow!("Failed to cregister conversation for {}", &user_id));
           }

@@ -210,46 +210,44 @@ async fn tic_tac_toe(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
     m.edit( ctx
           , EditMessage::default().content(format!("{}\n>>> ```{}```", i.0.mention(), &board))
           ).await?;
-    'outer: loop {
-      let mut x: Option<usize> = None;
-      let mut y: Option<usize> = None;
-      loop {
-        if x.is_none() || y.is_none() {
-          let ux = i.0.to_user(ctx).await?;
-          let collector = ux.await_reaction(&ctx.shard)
-                            .timeout(Duration::from_secs(120));
-          if let Some(reaction) = collector.await {
-            let _ = reaction.delete(ctx).await;
-            let emoji = &reaction.emoji;
+    let mut x: Option<usize> = None;
+    let mut y: Option<usize> = None;
+    loop {
+      if x.is_none() || y.is_none() {
+        let ux = i.0.to_user(ctx).await?;
+        let collector = ux.await_reaction(&ctx.shard)
+                          .timeout(Duration::from_secs(120));
+        if let Some(reaction) = collector.await {
+          let _ = reaction.delete(ctx).await;
+          let emoji = &reaction.emoji;
 
-            if let ReactionType::Unicode(e) = emoji {
-              match e.as_str() {
-                "1\u{fe0f}\u{20e3}" => x = Some(0),
-                "2\u{fe0f}\u{20e3}" => x = Some(1),
-                "3\u{fe0f}\u{20e3}" => x = Some(2),
-                "\u{01f1e6}" => y = Some(0),
-                "\u{01f1e7}" => y = Some(1),
-                "\u{01f1e8}" => y = Some(2),
-                _ => ()
-              }
+          if let ReactionType::Unicode(e) = emoji {
+            match e.as_str() {
+              "1\u{fe0f}\u{20e3}" => x = Some(0),
+              "2\u{fe0f}\u{20e3}" => x = Some(1),
+              "3\u{fe0f}\u{20e3}" => x = Some(2),
+              "\u{01f1e6}" => y = Some(0),
+              "\u{01f1e7}" => y = Some(1),
+              "\u{01f1e8}" => y = Some(2),
+              _ => ()
             }
-          } else {
-            m.edit(ctx, EditMessage::default().content(format!("{}: Timeout", i.0.mention()))).await?;
-            let _ = m.delete_reactions(ctx).await;
-            return Ok(());
           }
-        } else if x.is_some() && y.is_some() {
-          let piece = Piece {
-            pos_x: x.unwrap_or(0),
-            pos_y: y.unwrap_or(0),
-            typ: Some(i.1),
-          };
-          if board.place_piece(piece).is_err() {
-            x = None;
-            y = None;
-          } else {
-            break 'outer
-          }
+        } else {
+          m.edit(ctx, EditMessage::default().content(format!("{}: Timeout", i.0.mention()))).await?;
+          let _ = m.delete_reactions(ctx).await;
+          return Ok(());
+        }
+      } else if x.is_some() && y.is_some() {
+        let piece = Piece {
+          pos_x: x.unwrap_or(0),
+          pos_y: y.unwrap_or(0),
+          typ: Some(i.1),
+        };
+        if board.place_piece(piece).is_err() {
+          x = None;
+          y = None;
+        } else {
+          break;
         }
       }
     }

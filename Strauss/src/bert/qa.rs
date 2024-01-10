@@ -84,7 +84,7 @@ async fn ask(msg_content: String, lsm: bool) -> anyhow::Result<String> {
         let my_answers = &answers[0];
 
         // we have several answers (hope they sorted by score)
-        if let Some(answer) = my_answers.get(0) {
+        if let Some(answer) = my_answers.first() {
           if answer.answer.is_empty() || answer.answer.len() == 1 {
             Err(anyhow!("QA: bad answer, I don't like it"))
           } else {

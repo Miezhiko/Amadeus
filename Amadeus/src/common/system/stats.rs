@@ -27,7 +27,7 @@ fn get_current_rss() -> f32 {
     return 0f32;
   }
 
-  return usage.ru_maxrss as f32;
+  usage.ru_maxrss as f32
 }
 
 pub async fn get_memory_mb() -> anyhow::Result<(f32, f32)> {

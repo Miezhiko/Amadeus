@@ -113,7 +113,11 @@ Optional Build Features:
 
  - `trackers` - enable games trackers / w3info news trackers / streams trackers
  - `flo` - gather flo nodes information / register players / host games
- - `full` - enable all
+ - `flotv` - GraphQL integration with flotv services to get keys for running games
+ - `naoko` - experimental Kafka integration with Naoko service
+ - `ggru` - streaming on GoodGame integration is optional due their instability
+ - `spam_filter` - detect and early remove various phishing links
+ - `full` - enable all (except naoko)
 
 `cargo build --release --features flo,trackers` enabled by default,
 use following to ignore non-needed features `cargo build --release --no-default-features`
@@ -168,5 +172,4 @@ systemctl restart Amadeus
  - Code open sourced just for my friend Sirius to be able to see it, please don't pay [attention](https://www.youtube.com/watch?v=sKy6dSHn9Z8)
  - Fingon is cute
  - Additional thank to @fluxxu for removing my ban on W3C (this was kind of important for my motivation to improve flo/w3c aspects of Amadeus)
- - I feel sad (yes, still)
- - No I don't like classical music, just only Amadeus and Salieri was mentioned in Steins Gate and I needed more
+ - I feel [sad](https://youtube.com/clip/Ugkxpn2o6KtcFncg-2Dx68VeH8hg-HMXZL2M?si=NOSo4thrOr2OTzNt)

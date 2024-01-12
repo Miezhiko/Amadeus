@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "13.0.4"
+version             = "13.1.0"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -15,9 +15,10 @@ default             = ["trackers"]
 trackers            = []
 spam_filter         = []
 flo                 = ["tonic", "hex", "flo-grpc"]
-full                = ["flo", "trackers"]
+flotv               = ["cynic"]
 ggru                = []
 naoko               = ["rdkafka"]
+full                = ["flo", "flotv", "spam_filter", "trackers", "ggru"]
 
 [dependencies]
 strauss             = { path = "../Strauss" }
@@ -53,7 +54,6 @@ plotters            = "0.3.5"
 celery              = "0.5"
 libc                = "0.2"
 
-cynic   = { version = "3.4.0",        features = ["http-reqwest"] }
 rand    = { version = "0.8.5",        features = ["std", "std_rng"] }
 reqwest = { version = "0.11.23",      features = ["json", "blocking"] }
 ical    = { version = "0.9",          features = ["ical"] }
@@ -66,6 +66,12 @@ branch = "main"
 [dependencies.cannyls]
 git = "https://github.com/Masha/cannyls.git"
 branch = "mawa"
+
+[dependencies.cynic]
+default-features  = false
+version           = "3.4.0"
+features          = ["http-reqwest"]
+optional          = true
 
 [dependencies.songbird]
 default-features = false
@@ -112,6 +118,6 @@ branch = "main"
 optional = true
 
 [dependencies.rdkafka]
-version = "0.36.0"
+version = "0.36.1"
 features = ["dynamic-linking", "tokio"]
 optional = true

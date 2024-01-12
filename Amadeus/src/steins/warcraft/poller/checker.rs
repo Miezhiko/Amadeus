@@ -14,10 +14,12 @@ use crate::{
     utils::{ get_race
            , get_map },
     status::{ add_to_weekly
-            , status_update },
-    flotv::get_flotv
+            , status_update }
   }
 };
+
+#[cfg(feature = "flotv")]
+use crate::steins::warcraft::flotv::get_flotv;
 
 use serenity::{
   prelude::*,
@@ -123,6 +125,7 @@ pub async fn check<'a>( ctx: &Context
                                                              , MessageId::new(t.1) ).await {
                       if let Ok(user) = ctx.http.get_user( UserId::new(playa) ).await {
 
+                        #[cfg(feature = "flotv")]
                         if track.flo_tv.is_none() {
                           if let Ok(Some(flotv)) = get_flotv(rqcl, &playaz).await {
                             track.flo_tv = Some(flotv);
@@ -169,6 +172,7 @@ pub async fn check<'a>( ctx: &Context
                         if let Some(colour) = color {
                           e = e.colour(colour);
                         }
+                        #[cfg(feature = "flotv")]
                         if let Some(flotv) = &track.flo_tv {
                           e = e.fields([(FLOTV_FIELD, flotv.as_str(), false)]);
                         }
@@ -282,6 +286,7 @@ pub async fn check<'a>( ctx: &Context
                       let playa = playaz[0].player.discord;
                       if let Ok(user) = ctx.http.get_user( UserId::new(playa) ).await {
 
+                        #[cfg(feature = "flotv")]
                         if track.flo_tv.is_none() {
                           if let Ok(Some(flotv)) = get_flotv(rqcl, &playaz).await {
                             track.flo_tv = Some(flotv);
@@ -328,6 +333,7 @@ pub async fn check<'a>( ctx: &Context
                         if let Some(colour) = color {
                           e = e.colour(colour);
                         }
+                        #[cfg(feature = "flotv")]
                         if let Some(flotv) = &track.flo_tv {
                           e = e.fields([(FLOTV_FIELD, flotv.as_str(), false)]);
                         }

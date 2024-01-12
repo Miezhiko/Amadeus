@@ -4,6 +4,8 @@ pub mod poller;
 pub mod w3g;
 pub mod replay;
 pub mod status;
+
+#[cfg(feature = "flotv")]
 pub mod flotv;
 
 #[cfg(feature = "flo")]

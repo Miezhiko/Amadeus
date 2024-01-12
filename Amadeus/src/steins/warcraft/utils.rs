@@ -82,6 +82,8 @@ fn try_get_map_short(m: &str) -> String {
             , "rustycreek"            => "RC"
             , "secretvalley"          => "SV"
             , "eversong"              => "ES"
+            , "hammerfall"            => "H"
+            , "runemaul"              => "RM"
             , _                       => "" })
 }
 
@@ -152,6 +154,15 @@ fn try_get_map(m: &str) -> String {
             , "chimneyisles"          => "Chimney Isles"
             , "whiteshore"            => "Black Shore"
             , "witheringfields"       => "Withering Fields"
+            , "hammerfall"            => "Hammerfall"
+            , "runemaul"              => "Rune Maul"
+            , "ironshire"             => "Iron Hair"
+            , "faeriescrossing"       => "Faeries Crossing"
+            , "bloodvenomfalls"       => "Blood Venom Falls"
+            , "thejuggernaut"         => "The Juggernaut"
+            , "portalroulette"        => "Portal Roulette"
+            , "darkbeacons"           => "Dark Beacons"
+            , "wintertownship"        => "Winter Townshit"
             , _                       => m /*""*/ })
 }
 

@@ -163,6 +163,7 @@ fn try_get_map(m: &str) -> String {
             , "portalroulette"        => "Portal Roulette"
             , "darkbeacons"           => "Dark Beacons"
             , "wintertownship"        => "Winter Townshit"
+            , "rockyridge"            => "Rocky Ridge"
             , _                       => m /*""*/ })
 }
 

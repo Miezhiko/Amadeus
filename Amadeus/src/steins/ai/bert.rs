@@ -112,7 +112,9 @@ pub async fn chat( msg: Option<u64>
            else { 16 };
   let rndx = if user_id == 510368731378089984
                 { 7 }
-           else { rand::thread_rng().gen_range(0..wlmt) };
+           else if wlmt > 0
+                 { rand::thread_rng().gen_range(0..wlmt) }
+            else { 0 };
   let mut input =
     if rndx < 7 { process_message_for_gpt(&something) }
            else { something };

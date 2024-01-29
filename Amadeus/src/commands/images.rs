@@ -94,7 +94,9 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
 
     let gifs = fetch_gifs(ctx, fetch, 50, filter).await?;
     let mut rng = StdRng::from_entropy();
-    let val = rng.gen_range(0..gifs.len());
+    let val = if gifs.len() > 0
+           { rng.gen_range(0..gifs.len()) }
+      else { 0 };
 
     let nickname_maybe =
       if let Some(guild_id) = msg.guild_id {
@@ -162,7 +164,9 @@ pub async fn gifs<C: Into<Colour>>( ctx: &Context
 
     let gifs = fetch_gifs(ctx, fetch, 50, filter).await?;
     let mut rng = StdRng::from_entropy();
-    let val = rng.gen_range(0..gifs.len());
+    let val = if gifs.len() > 0
+           { rng.gen_range(0..gifs.len()) }
+      else { 0 };
 
     let nickname_maybe =
       if let Some(guild_id) = msg.guild_id {
@@ -636,7 +640,9 @@ async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       };
   let gifs = fetch_gifs(ctx, search_string, 10, filter).await?;
   let mut rng = StdRng::from_entropy();
-  let val = rng.gen_range(0..gifs.len());
+  let val = if gifs.len() > 0
+         { rng.gen_range(0..gifs.len()) }
+    else { 0 };
 
   let nickname_maybe =
     if let Some(guild_id) = msg.guild_id {

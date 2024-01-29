@@ -1,13 +1,13 @@
 [package]
 name                = "amadeus"
-version             = "13.1.1"
+version             = "13.1.2"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
 keywords            = [ "discord", "bot" ]
 edition             = "2021"
 description         = "memory storage and artificial intelligence system"
-license             = "AGPL-3.0-only"
+license             = "AGPL-3.0"
 rust-version        = "1.63.0"
 
 [features]
@@ -28,7 +28,7 @@ once_cell           = { workspace = true }
 anyhow              = { workspace = true }
 async-recursion     = { workspace = true }
 chat-utils          = { workspace = true }
-chrono              = "0.4.31"
+chrono              = "0.4.33"
 glob                = "0.3.1"
 chrono-tz           = "0.8.5"
 tracing             = "0.1.40"
@@ -56,7 +56,7 @@ libc                = "0.2"
 
 rand    = { version = "0.8.5",        features = ["std", "std_rng"] }
 reqwest = { version = "0.11.23",      features = ["json", "blocking"] }
-ical    = { version = "0.9",          features = ["ical"] }
+ical    = { version = "0.10",         features = ["ical"] }
 markov  = { version = "1.1",          features = ["yaml"] }
 
 [dependencies.stroke]

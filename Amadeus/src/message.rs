@@ -228,7 +228,9 @@ pub async fn process( ioptions: &IOptions
         }
         if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.get()) {
           let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed);
-          let rnd = rand::thread_rng().gen_range(0..activity_level);
+          let rnd = if activity_level > 0
+                 { rand::thread_rng().gen_range(0..activity_level) }
+            else { 0 };
           if rnd == 1 {
             response::chat(ctx, &msg, guild_id_u64).await;
           }

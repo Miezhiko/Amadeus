@@ -55,7 +55,7 @@ celery              = "0.5"
 libc                = "0.2"
 
 rand    = { version = "0.8.5",        features = ["std", "std_rng"] }
-reqwest = { version = "0.11.23",      features = ["json", "blocking"] }
+reqwest = { version = "0.11.24",      features = ["json", "blocking"] }
 ical    = { version = "0.10",         features = ["ical"] }
 markov  = { version = "1.1",          features = ["yaml"] }
 

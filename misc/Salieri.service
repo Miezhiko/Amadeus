@@ -5,13 +5,13 @@ After=multi-user.target
 After=rabbitmq.target
 
 [Service]
-Environment="RUST_CACHED_PATH_ROOT=/data/.rustbert"
-Environment="RUSTBERT_CACHE=/data/.rustbert"
+Environment="RUST_CACHED_PATH_ROOT=/data2/.rustbert"
+Environment="RUSTBERT_CACHE=/data2/.rustbert"
 Environment="LIBTORCH_USE_PYTORCH=1"
 Environment="LIBTORCH_BYPASS_VERSION_CHECK=1"
 Type=simple
 User=mawa
-WorkingDirectory=/data/contrib/rust/Amadeus
+WorkingDirectory=/data2/contrib/rust/Amadeus
 ExecStart=/bin/bash -c 'cargo run -p salieri --release'
 ExecStop=killall Salieri
 

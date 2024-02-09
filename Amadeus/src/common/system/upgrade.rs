@@ -62,7 +62,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: ChannelId) -> anyhow::Re
         static GIT_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.Updating git.*)").unwrap());
         let mut update_str = LINKS_RE.replace_all(cargo_update_out, "").to_string();
         update_str = GIT_RE.replace_all(&update_str, "").to_string();
-        update_str = update_str.replace("/data/contrib/rust/", "");
+        update_str = update_str.replace("/data2/contrib/rust/", "");
         update_str = update_str.lines()
                                .filter(|l| !l.trim().is_empty())
                                .collect::<Vec<&str>>()
@@ -101,7 +101,7 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: ChannelId) -> anyhow::Re
                 .await
                 .expect("failed to compile new version");
       if let Ok(cargo_build_out) = &String::from_utf8(cargo_build.stderr) {
-        let mut cut_paths = cargo_build_out.replace("/data/contrib/rust/", "");
+        let mut cut_paths = cargo_build_out.replace("/data2/contrib/rust/", "");
         cut_paths = LINKS_RE.replace_all(&cut_paths, "").to_string();
         // if message is too big, take only last things
         if cut_paths.len() > 666 {

@@ -1,7 +1,7 @@
 [package]
 name = "strauss"
 description = "Amadeus services library"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
 
 [lib]
@@ -20,7 +20,7 @@ rand            = "0.8.5"
 chrono          = "0.4.33"
 bincode         = "2.0.0-rc.3"
 regex           = "1.10"
-tch             = "0.14"
+tch             = "0.15"
 celery          = "^0.5"
 
 [dependencies.rust-bert]

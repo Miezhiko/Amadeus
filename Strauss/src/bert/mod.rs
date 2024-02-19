@@ -3,7 +3,6 @@ pub mod chat;
 pub mod qa;
 pub mod neo;
 pub mod summarization;
-pub mod xlnet;
 pub mod code;
 pub mod gptj;
 

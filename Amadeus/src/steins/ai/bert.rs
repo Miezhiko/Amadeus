@@ -10,7 +10,6 @@ use strauss::{
         , qa::ASK
         , neo::CHAT_NEO
         , summarization::SUMMARIZE
-        , xlnet::XLNET
         , code::CODEBERT
         , gptj::GPTJ },
   chat::CHAT
@@ -64,15 +63,6 @@ pub async fn summarize( msg: Option<u64>
   salieri_request(SUMMARIZE::new(msg, chan, something, user_id, lsm, russian)).await
 }
 
-pub async fn xlnet( msg: Option<u64>
-                  , chan: u64
-                  , something: String
-                  , user_id: u64
-                  , lsm: bool
-                  , russian: bool ) -> Result<Option<String>> {
-  salieri_request(XLNET::new(msg, chan, something, user_id, lsm, russian)).await
-}
-
 pub async fn codebert( msg: Option<u64>
                      , chan: u64
                      , something: String
@@ -111,14 +101,14 @@ pub async fn chat( msg: Option<u64>
                 { 64 }
            else { 16 };
   let rndx = if user_id == 510368731378089984
-                { 7 }
+                { 6 }
            else if wlmt > 0
                  { rand::thread_rng().gen_range(0..wlmt) }
             else { 0 };
   let mut input =
-    if rndx < 7 { process_message_for_gpt(&something) }
+    if rndx < 6 { process_message_for_gpt(&something) }
            else { something };
-  if rndx < 7 {
+  if rndx < 6 {
     if russian {
       match strauss::bert::translation::ru2en(input.clone()).await {
         Ok(translated) => input = translated,
@@ -139,11 +129,10 @@ pub async fn chat( msg: Option<u64>
   match rndx {
     0 => chat_neo   (msg, chan, input, user_id, lsm, russian).await,
     1 => summarize  (msg, chan, input, user_id, lsm, russian).await,
-    2 => xlnet      (msg, chan, input, user_id, lsm, russian).await,
-    3 => codebert   (msg, chan, input, user_id, lsm, russian).await,
-    4 => gptj       (msg, chan, input, user_id, lsm, russian).await,
-    5 => chat_gpt2  (msg, chan, input, user_id, lsm, russian).await,
-    6 => ask        (msg, chan, input, user_id, lsm, russian).await,
+    2 => codebert   (msg, chan, input, user_id, lsm, russian).await,
+    3 => gptj       (msg, chan, input, user_id, lsm, russian).await,
+    4 => chat_gpt2  (msg, chan, input, user_id, lsm, russian).await,
+    5 => ask        (msg, chan, input, user_id, lsm, russian).await,
     _ => chatrs     (msg, chan, input, user_id, lsm, russian).await
   }
 }

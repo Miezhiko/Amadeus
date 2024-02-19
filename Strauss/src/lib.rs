@@ -37,7 +37,6 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
             , bert::qa::ASK
             , bert::neo::CHAT_NEO
             , bert::summarization::SUMMARIZE
-            , bert::xlnet::XLNET
             , bert::code::CODEBERT
             , bert::gptj::GPTJ
             , chat::CHAT

@@ -98,8 +98,8 @@ pub async fn chat( msg: Option<u64>
                  , russian: bool
                  , guild_id: u64 ) -> Result<Option<String>> {
   let wlmt = if guild_id == 611822838831251466
-                { 64 }
-           else { 16 };
+                { 32 }
+           else { 7 };
   let rndx = if user_id == 510368731378089984
                 { 6 }
            else if wlmt > 0

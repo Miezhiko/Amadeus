@@ -109,7 +109,6 @@ struct Definition {
   definition: String,
   permalink: String,
   thumbs_up: u64,
-  sound_urls: Vec<String>,
   author: String,
   word: String,
   defid: u64,

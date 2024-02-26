@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "13.1.4"
+version             = "14.0.0"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -69,17 +69,25 @@ branch = "mawa"
 
 [dependencies.cynic]
 default-features  = false
-version           = "3.4.0"
+version           = "3.4.3"
 features          = ["http-reqwest"]
 optional          = true
 
+[dependencies.symphonia]
+version = "0.5.3"
+features = ["all-formats"]
+
 [dependencies.songbird]
 default-features = false
-version  = "0.4"
+# version  = "0.4"
+# use this for yt search support
+git = "https://github.com/serenity-rs/songbird.git"
+branch = "current"
 features = [ "serenity"
            , "driver"
-           , "native"
+           , "rustls"
            , "gateway"
+           , "builtin-queue"
            ]
 
 [dependencies.serenity]
@@ -93,7 +101,7 @@ features = [ "cache"
            , "voice"
            , "client"
            , "http"
-           , "native_tls_backend"
+           , "rustls_backend"
            , "utils"
            , "collector"
            , "unstable_discord_api"

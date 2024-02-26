@@ -14,9 +14,7 @@ use crate::{
 #[cfg(feature = "flo")]
 use crate::steins::warcraft::flo::FLO_SECRET;
 
-use songbird::{ Config as DriverConfig
-              , driver::CryptoMode
-              , SerenityInit, Songbird };
+use songbird::SerenityInit;
 
 use serenity::{
   framework::StandardFramework,
@@ -132,11 +130,6 @@ pub async fn run(opts: IOptions) ->
     std_framework = std_framework.group(&FLO_GROUP)
   }
 
-  let songbird = Songbird::serenity();
-  songbird.set_config(
-    DriverConfig::default()
-      .crypto_mode(CryptoMode::Normal),
-  );
   let intents = GatewayIntents::GUILDS
               | GatewayIntents::GUILD_MEMBERS
               | GatewayIntents::GUILD_MODERATION
@@ -154,7 +147,7 @@ pub async fn run(opts: IOptions) ->
                                  ).await?
                     )
       .framework(std_framework)
-      .register_songbird_with(songbird).await?;
+      .register_songbird().await?;
   {
     let mut data = client.data.write().await;
     let request_client = reqwest::Client::builder()

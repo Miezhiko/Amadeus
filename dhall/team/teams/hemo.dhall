@@ -12,7 +12,7 @@ let playersList : List Playerx =
     , discord   = 510368731378089984
     , streams   = Some { ggru   = Some "Miezhiko"
                        , twitch = Some "Miezhiko" }
-    , alt_accounts = ["Miezhiko#2378"] }
+    , alt_accounts = ["Miezhiko#2378", "МилягаЙети#2353"] }
   , b "ag3nt#21617"         293268448212156416 "ag3ntik" "ag3nt"
   , b "Rici#2903"           404379597568999425 "riciii" "Rici"
   , p "Avernus#2393"        247774118798295041

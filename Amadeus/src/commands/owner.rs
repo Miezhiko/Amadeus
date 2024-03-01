@@ -1,5 +1,4 @@
 use crate::{
-  types::serenity::IContext,
   common::{
     db::trees::{ emojis, roles },
     msg::{ channel_message
@@ -48,30 +47,6 @@ async fn set(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
           ACTIVITY_LEVEL.store(level, Ordering::Relaxed);
           let chan_msg = format!("Activity level is: {level} now");
           channel_message(ctx, msg, &chan_msg).await;
-        },
-      "lsm" =>
-        if let Ok(on_off) = args.single::<String>() {
-          if let Some(on_off_bool) = match on_off.to_lowercase().as_str() {
-                                      "on"  => Some(true),
-                                      "off" => Some(false),
-                                      _     => None
-                                    } {
-            let mut must_rewrite = false;
-            {
-              let data = ctx.data.read().await;
-              if let Some(icontext) = data.get::<IContext>() {
-                if icontext.lazy_static_models != on_off_bool {
-                  must_rewrite = true;
-                }
-              }
-            }
-            if must_rewrite {
-              let mut data = ctx.data.write().await;
-              if let Some(icontext) = data.get_mut::<IContext>() {
-                *icontext = Arc::new( IContext { lazy_static_models: on_off_bool } );
-              }
-            }
-          }
         },
       _ => ()
     }

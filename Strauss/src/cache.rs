@@ -1,19 +1,8 @@
-use crate::bert::chat;
-
-use rust_bert::{
-  pipelines::{
-    conversation::{ ConversationManager
-                  , ConversationModel
-                  , ConversationConfig }
-  }
-};
-
-use std::collections::{ HashSet, HashMap };
+use std::collections::HashSet;
 
 use tch::Device;
 use tokio::sync::Mutex;
 use once_cell::sync::Lazy;
-use chrono::{ Utc, DateTime, Duration };
 
 use celery::prelude::*;
 
@@ -21,36 +10,6 @@ pub static DEVICE: Lazy<Device> = Lazy::new(Device::cuda_if_available);
 
 pub static CACHE_ENG_STR: Lazy<Mutex<HashSet<String>>> =
   Lazy::new(|| Mutex::new(HashSet::new()));
-
-pub fn conv_model_loader() -> ConversationModel {
-  ConversationModel::new(
-    ConversationConfig {
-      min_length: 3,
-      max_length: Some(1800),
-      min_length_for_response: 10,
-      num_beams: 3,
-      do_sample: false,
-      device: *DEVICE,
-      ..Default::default()
-    }
-  ).unwrap()
-}
-
-pub static CONVMODEL: Lazy<Mutex<Option<ConversationModel>>> =
-  Lazy::new(|| Mutex::new(Some(conv_model_loader())));
-
-pub static CONVMODEL_USED: Lazy<Mutex<Option<DateTime<Utc>>>> =
-  Lazy::new(|| Mutex::new(None));
-
-#[allow(clippy::type_complexity)]
-pub static CHAT_CONTEXT: Lazy<Mutex<HashMap<u64, (ConversationManager, u32)>>>
-  = Lazy::new(|| Mutex::new(HashMap::new()));
-
-#[celery::task]
-pub async fn CONTEXT_CLEAR() -> TaskResult<()> {
-  chat::reinit().await;
-  Ok(())
-}
 
 #[celery::task]
 pub async fn REINIT_CACHE() -> TaskResult<()> {
@@ -66,20 +25,5 @@ pub async fn REINIT_CACHE() -> TaskResult<()> {
 pub async fn SET_CACHE(new_cache: HashSet<String>) -> TaskResult<()> {
   let mut cache_eng_str = CACHE_ENG_STR.lock().await;
   *cache_eng_str = new_cache;
-  Ok(())
-}
-
-#[celery::task]
-pub async fn MODELS_REINIT() -> TaskResult<()> {
-  let mut convmodel_used = CONVMODEL_USED.lock().await;
-  if let Some(conv_model_used_time) = &*convmodel_used {
-    let nao = Utc::now();
-    let since_last_use: Duration = nao - *conv_model_used_time;
-    if since_last_use > Duration::minutes(60) {
-      let mut convmodel = CONVMODEL.lock().await;
-      *convmodel = None;
-      *convmodel_used = None;
-    }
-  }
   Ok(())
 }

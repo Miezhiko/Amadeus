@@ -1,5 +1,8 @@
 #![type_length_limit="2792949"]
 
+// too many things deprecated
+#![allow(warnings)]
+
 // stable on 1.76+ but not still stable on older
 #![allow(stable_features)]
 #![feature(arc_unwrap_or_clone)]

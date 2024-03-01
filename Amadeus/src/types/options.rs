@@ -11,7 +11,6 @@ pub struct IOptions {
   pub twitch_client_secret: String,
   pub tenor_key: String,
   pub flo_secret: String,
-  pub lazy_static_models: bool,
   pub gencache_on_start: bool,
   pub github_auth: String
 }

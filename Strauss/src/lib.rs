@@ -29,13 +29,8 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
   celery::app!(
     broker = AMQPBroker { String::from( ampq ) },
     tasks = [ AMADEUS_INIT
-            , cache::CONTEXT_CLEAR
-            , cache::MODELS_REINIT
             , cache::REINIT_CACHE
             , cache::SET_CACHE
-            , bert::chat::CHAT_GPT2
-            , bert::qa::ASK
-            , bert::code::CODEBERT
             , chat::CHAT
             ],
     task_routes = [

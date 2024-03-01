@@ -29,7 +29,6 @@
 [![Discord](https://img.shields.io/discord/611822838831251466?label=Discord&color=pink)](https://discord.gg/GdzjVvD)
 [![Twitter Follow](https://img.shields.io/twitter/follow/Miezhiko.svg?style=social)](https://twitter.com/Miezhiko)
 
-
 ## Features
 
 <img align="right" src="https://vignette.wikia.nocookie.net/steins-gate/images/0/07/Amadeuslogo.png">
@@ -37,22 +36,19 @@
  - Too many small [commands](https://www.youtube.com/watch?v=vVacOaFbrdE)
  - Slash commands support (type `/`)
  - [Chatty](https://www.youtube.com/watch?v=J_8cnSvHLLc) (`set activity 66` is default)
- - Automatic translation with bert models
+ - Automatic translation with rust-bert models
  - Live games tracking on [w3champions](https://www.w3champions.com)
  - W3info news tracking using calendar
  - Replays parsing (click emoji to get report)
  - Points system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
  - Emoji roles system on [Cannyls](https://github.com/frugalos/cannyls/wiki)
- - Almost everything async [tokio.rs](https://tokio.rs)
  - Various gifs commands using Tenor API
  - Using [Fluent](https://www.projectfluent.org/) for localization
  - [Sled](https://github.com/spacejam/sled) for editable info archive
  - Plays music streams using [Songbird](https://github.com/serenity-rs/songbird)! (`~join ~play`)
- - NLP with context (models: [DialoGPT](https://github.com/microsoft/DialoGPT) [GPT-Neo](https://github.com/EleutherAI/gpt-neo), [DistilBERT](https://arxiv.org/abs/1910.01108) fine-tuned on SQuAD, Codebert, (XLNET dropped), GPT-J)...
  - [Dhall](https://dhall-lang.org) and YAML config files, dhall for per-guild teams configurations
  - Multi-server streams notifications/trackers for twitch and goodgame.ru (using channels from dhall conf)
  - Tracking pull requests of watching by some user repositories on GitHub and posting detailed PR embeds
- - If lazy_static_models option is `False` conv model unloads after use (DialoGPT wait for 10-30 mins)
  - Veto helper (for banning maps against some player) using W3C statistics (`~veto` command)
  - Versus command showing score for one player against another for x seasons (`~vs` command)
  - Bets on live games with `~bet` and emojis under Live tracking games
@@ -103,7 +99,6 @@ in { discord              = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
    , twitch_client_secret = "AAAAAAAAAAAAAAAAAAAAAAAA"
    , tenor_key            = "AAAA"
    , flo_secret           = "AAAAAAAAAAAAAAA"
-   , lazy_static_models   = False
    , gencache_on_start    = True
    , github_auth          = "AccountName:access_token"
    }
@@ -172,4 +167,8 @@ systemctl restart Amadeus
  - Code open sourced just for my friend Sirius to be able to see it, please don't pay [attention](https://www.youtube.com/watch?v=sKy6dSHn9Z8)
  - Fingon is cute
  - Additional thank to @fluxxu for removing my ban on W3C (this was kind of important for my motivation to improve flo/w3c aspects of Amadeus)
- - I feel [sad](https://youtube.com/clip/Ugkxpn2o6KtcFncg-2Dx68VeH8hg-HMXZL2M?si=NOSo4thrOr2OTzNt)
+ - I feel [weird](https://youtube.com/clip/Ugkxpn2o6KtcFncg-2Dx68VeH8hg-HMXZL2M?si=NOSo4thrOr2OTzNt)
+ - Thank to RiplEy for giving me his part for cup winning money
+ - Thank to Reyenir for playing dota2 with me
+ - Thank to Rici for yet another acc after my new [ban](https://youtu.be/CJLqj611ZoM?list=PLllesg0uxudDDdEGkCdCja6wVrslg0SFM&t=404)
+ 

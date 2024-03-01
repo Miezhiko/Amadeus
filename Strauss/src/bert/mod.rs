@@ -1,16 +1,10 @@
 pub mod translation;
-pub mod chat;
-pub mod qa;
-pub mod code;
 
 use regex::Regex;
 
 use once_cell::sync::Lazy;
 
 pub const LUKASHENKO: &str  = "lukashenko";
-
-// translation is not used on MQ for now
-//pub const TRANSLATION: &str = "translation";
 
 pub static GPT_LIMIT: usize = 1000;
 

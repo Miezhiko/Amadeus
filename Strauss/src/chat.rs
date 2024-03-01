@@ -1,8 +1,7 @@
 use crate::{
   types::ChatResponse,
   prelude::*,
-  bert::{ LUKASHENKO
-        , chat::chat_gpt2_send }
+  bert::{ LUKASHENKO }
 };
 
 use celery::prelude::*;
@@ -17,9 +16,7 @@ use tokio::time::{ sleep, Duration };
 async fn chat_send( msg: Option<u64>
                   , chan: u64
                   , something: String
-                  , user_id: u64
-                  , lsm: bool
-                  , russian: bool ) -> anyhow::Result<()> {
+                  , user_id: u64 ) -> anyhow::Result<()> {
   if user_id == 510368731378089984 {
     if something.contains("MULTIGEN") {
       let payload = something.replace("MULTIGEN ", "")
@@ -78,7 +75,7 @@ async fn chat_send( msg: Option<u64>
         Ok(())
       }, Err(why) => {
         error!("chat: Failed to generate response: {why}, using fallback to GPT2");
-        chat_gpt2_send(msg, chan, something, user_id, lsm, russian, 0).await
+        Ok(())
       }
     }
   }
@@ -88,10 +85,8 @@ async fn chat_send( msg: Option<u64>
 pub async fn CHAT( msg: Option<u64>
                  , chan: u64
                  , something: String
-                 , user_id: u64
-                 , lsm: bool
-                 , russian: bool ) -> TaskResult<()> {
-  if let Err(why) = chat_send(msg, chan, something, user_id, lsm, russian).await {
+                 , user_id: u64 ) -> TaskResult<()> {
+  if let Err(why) = chat_send(msg, chan, something, user_id).await {
     error!("chat: Failed to generate response, {why}");
     Err( TaskError::ExpectedError( why.to_string() ) )
   } else {

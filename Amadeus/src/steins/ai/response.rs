@@ -1,6 +1,5 @@
 use crate::{
-  types::serenity::{ IContext
-                   , ChannelLanguage },
+  types::serenity::ChannelLanguage,
   common::msg::{ reply, channel_message },
   collections::base::CASELIST,
   collections::channels::AI_ALLOWED,
@@ -25,7 +24,6 @@ use async_recursion::async_recursion;
 async fn generate_response( ctx: &Context
                           , msg: &Message
                           , gtry: u32
-                          , lsm: bool
                           , is_response: bool
                           , guild_id: u64 ) -> Option<String> {
   let start_typing = ctx.http.start_typing(msg.channel_id);
@@ -58,8 +56,6 @@ async fn generate_response( ctx: &Context
                       , msg.channel_id.get()
                       , msg.content.clone()
                       , msg.author.id.get()
-                      , lsm
-                      , russian 
                       , guild_id ).await {
         Ok(answer) => {
           bert_generated = true;
@@ -99,7 +95,6 @@ async fn generate_response( ctx: &Context
       generate_response( ctx
                        , msg
                        , gtry + 1
-                       , lsm
                        , is_response
                        , guild_id ).await
     } else {
@@ -111,13 +106,7 @@ async fn generate_response( ctx: &Context
 }
 
 pub async fn chat(ctx: &Context, msg: &Message, guild_id: u64) {
-  let lsm = {
-    let data = ctx.data.read().await;
-    if let Some(icontext) = data.get::<IContext>() {
-      icontext.lazy_static_models
-    } else { false }
-  };
-  if let Some(answer) = generate_response(ctx, msg, 0, lsm, false, guild_id).await {
+  if let Some(answer) = generate_response(ctx, msg, 0, false, guild_id).await {
     if !answer.is_empty() {
       let rnd = rand::thread_rng().gen_range(0..3);
       if rnd == 1 {
@@ -130,13 +119,7 @@ pub async fn chat(ctx: &Context, msg: &Message, guild_id: u64) {
 }
 
 pub async fn response(ctx: &Context, msg: &Message, guild_id: u64) {
-  let lsm = {
-    let data = ctx.data.read().await;
-    if let Some(icontext) = data.get::<IContext>() {
-      icontext.lazy_static_models
-    } else { false }
-  };
-  if let Some(answer) = generate_response(ctx, msg, 0, lsm, true, guild_id).await {
+  if let Some(answer) = generate_response(ctx, msg, 0, true, guild_id).await {
     if !answer.is_empty() {
       reply(ctx, msg, &answer).await;
     }

@@ -7,5 +7,4 @@ pub mod chain;
 
 pub async fn reinit() {
   cache::reinit().await;
-  strauss::bert::chat::reinit().await;
 }

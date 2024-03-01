@@ -35,10 +35,7 @@ pub async fn celery_init(ampq: &str) -> Result<Arc<Celery>, CeleryError> {
             , cache::SET_CACHE
             , bert::chat::CHAT_GPT2
             , bert::qa::ASK
-            , bert::neo::CHAT_NEO
-            , bert::summarization::SUMMARIZE
             , bert::code::CODEBERT
-            , bert::gptj::GPTJ
             , chat::CHAT
             ],
     task_routes = [

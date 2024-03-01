@@ -110,7 +110,7 @@ checksum = "0942ffc6dcaadf03badf6e6a2d0228460359d5e34b57ccdc720b7382dfbd5ec5"
 
 [[package]]
 name = "amadeus"
-version = "14.0.2"
+version = "14.0.3"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -5335,8 +5335,9 @@ dependencies = [
 
 [[package]]
 name = "songbird"
-version = "0.4.0"
-source = "git+https://github.com/serenity-rs/songbird.git?branch=current#4d67a7385142a8a195afe22e694f9e2d563c034c"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54d70e66a385ea8f732afac37b6ff2a8334eccac9aeed3d162a3c550b059233a"
 dependencies = [
  "async-trait",
  "audiopus",
@@ -5420,7 +5421,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strauss"
-version = "0.6.2"
+version = "0.6.3"
 dependencies = [
  "anyhow",
  "async-recursion",

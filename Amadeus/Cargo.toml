@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "14.0.2"
+version             = "14.0.3"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -79,10 +79,7 @@ features = ["all-formats"]
 
 [dependencies.songbird]
 default-features = false
-# version  = "0.4"
-# use this for yt search support
-git = "https://github.com/serenity-rs/songbird.git"
-branch = "current"
+version  = "0.4.1"
 features = [ "serenity"
            , "driver"
            , "rustls"

@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "15.0.0"
+version             = "15.0.1"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -41,11 +41,11 @@ serde_yaml          = "0.9.32"
 comfy-table         = "7.1.0"
 async-std           = "1.12"
 futures-util        = "0.3.30"
-qrcode              = "0.13"
+qrcode              = "0.14"
 bincode             = "2.0.0-rc.3"
 itertools           = "0.12.0"
 unic-langid         = "0.9.4"
-fluent-templates    = "0.8"
+fluent-templates    = "0.9"
 sled                = "1.0.0-alpha.120"
 kathoey             = "1.1.5"
 serde_dhall         = "0.12.1"
@@ -55,8 +55,10 @@ celery              = "0.5"
 libc                = "0.2"
 
 rand    = { version = "0.8.5",        features = ["std", "std_rng"] }
-reqwest = { version = "0.11.24",      features = ["json", "blocking"] }
-ical    = { version = "0.10",         features = ["ical"] }
+
+# wait for songbird to be updated for new reqwest
+reqwest = { version = "0.11",         features = ["json", "blocking"] }
+ical    = { version = "0.11",         features = ["ical"] }
 markov  = { version = "1.1",          features = ["yaml"] }
 
 [dependencies.stroke]

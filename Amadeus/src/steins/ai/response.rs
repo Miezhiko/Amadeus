@@ -49,7 +49,8 @@ async fn generate_response( ctx: &Context
     };
   let rndx: u32 = rand::thread_rng().gen_range(0..30);
   let mut bert_generated = false;
-  let in_case = CASELIST.iter().any(|u| *u == msg.author.id.get());
+  let in_case = CASELIST.iter().any(|u| *u == msg.author.id.get()
+                                     || *u == guild_id);
   let mut answer_option =
     if rndx != 1 && !in_case && gtry < 10 {
       match bert::chat( message_id

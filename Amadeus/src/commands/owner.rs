@@ -25,10 +25,7 @@ use serenity::{
   }
 };
 
-use std::sync::{
-  atomic::Ordering,
-  Arc
-};
+use std::sync::atomic::Ordering;
 
 use tokio::process::Command;
 

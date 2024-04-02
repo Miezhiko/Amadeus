@@ -1,7 +1,7 @@
 #![type_length_limit="2792949"]
 
 // too many things deprecated
-#![allow(warnings)]
+#![allow(deprecated)]
 
 // stable on 1.76+ but not still stable on older
 #![allow(stable_features)]

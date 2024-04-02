@@ -3,7 +3,6 @@ use crate::salieri::SALIERI;
 use strauss::chat::CHAT;
 
 use anyhow::Result;
-use rand::Rng;
 
 async fn salieri_request<T>( sig: celery::task::Signature<T>
                            ) -> Result<Option<String>>
@@ -20,7 +19,6 @@ async fn salieri_request<T>( sig: celery::task::Signature<T>
 pub async fn chat( msg: Option<u64>
                  , chan: u64
                  , something: String
-                 , user_id: u64
-                 , guild_id: u64 ) -> Result<Option<String>> {
+                 , user_id: u64 ) -> Result<Option<String>> {
   salieri_request(CHAT::new(msg, chan, something, user_id)).await
 }

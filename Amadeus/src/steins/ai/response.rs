@@ -56,8 +56,7 @@ async fn generate_response( ctx: &Context
       match bert::chat( message_id
                       , msg.channel_id.get()
                       , msg.content.clone()
-                      , msg.author.id.get()
-                      , guild_id ).await {
+                      , msg.author.id.get() ).await {
         Ok(answer) => {
           bert_generated = true;
           answer },

@@ -76,12 +76,14 @@ pub async fn process( ioptions: &IOptions
       return;
     }
     // allow ChatGPT to chat from it's own name
+    // TODO: LOL MOVE IT OUT TO SOME CONF FILE ALREADY LAZY ASS
     if msg.author.id.get() == 1064152790181609532
     || msg.author.id.get() == 1049413890276077690
     || msg.author.id.get() == 1081004946872352958
     || msg.author.id.get() == 504095380166803466
     || msg.author.id.get() == 1096396952117198868
     || msg.author.id.get() == 1053015370115588147
+    || msg.author.id.get() == 1135968813125468303
     || msg.author.id.get() == 936929561302675456 {
       return;
     }

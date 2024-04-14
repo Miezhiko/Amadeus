@@ -2,7 +2,7 @@ use regex::Regex;
 use once_cell::sync::Lazy;
 
 static MAP_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(
-r"^(?:s[0-9]+(?:[_|-][0-9]|))?(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+[_|-][0-9]+(?:[a-z])?)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m|nodraw)?(?:_|\.)?$"
+r"^(?:s[0-9]+(?:[_|-][0-9]|))?(?:\d{10})?(?:mapnames\.)?(?:_)?(?:[1-4]{1}v[1-4]{1}_)?([A-z._']+?)(?:w3c|w3x|roc)?(?:[0-9]+)?(?:v[0-9]+[_|-][0-9]+(?:[a-z])?)?(?:_lv|lv)?(?:_|\.)?(?:anon|w3m|nodraw)?(?:_|\.)?$"
 ).unwrap());
 
 pub fn get_race(r: u32) -> String {
@@ -241,5 +241,6 @@ mod cyber_utils_tests {
     assert_eq!(get_map("mapNames.ShatteredExilev2-07"), "Shattered Exile");
 
     assert_eq!(get_map("s14WellspringTemplev1_2nodraw"), "Well Spring Temple");
+    assert_eq!(get_map_short("2404091839TwistedMeadowsv1_9"), "TM");
   }
 }

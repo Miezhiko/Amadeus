@@ -983,8 +983,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.6.3"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#4ae49fc42e13a7802163d1f62279d602d5835e20"
+version = "0.6.4"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#4c9ede113e7a9e174e4388760a4374208534b6a5"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -992,13 +992,14 @@ dependencies = [
  "futures 0.3.30",
  "inline-python",
  "once_cell",
+ "regex",
  "tokio",
 ]
 
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#4ae49fc42e13a7802163d1f62279d602d5835e20"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#4c9ede113e7a9e174e4388760a4374208534b6a5"
 dependencies = [
  "ucd",
 ]

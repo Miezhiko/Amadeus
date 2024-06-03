@@ -43,7 +43,7 @@ async-std           = "1.12"
 futures-util        = "0.3.30"
 qrcode              = "0.14"
 bincode             = "2.0.0-rc.3"
-itertools           = "0.12.0"
+itertools           = "0.13.0"
 unic-langid         = "0.9.4"
 fluent-templates    = "0.9"
 # todo: manual migration later

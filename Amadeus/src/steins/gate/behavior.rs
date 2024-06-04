@@ -103,5 +103,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
        , amadeus.get()
        ).await;
   activate_w3info_tracking(&ac).await;
-  activate_dev_tracker(&ac, &options.github_auth).await;
+  if !options.github_auth.is_empty() {
+    activate_dev_tracker(&ac, &options.github_auth).await;
+  }
 }

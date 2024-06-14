@@ -1,8 +1,9 @@
 [package]
-name = "strauss"
-description = "Amadeus services library"
-version = "0.7.0"
-edition = "2021"
+name                = "strauss"
+description         = "Amadeus services library"
+version             = "0.7.0"
+edition             = "2021"
+rust-version        = "1.76.0"
 
 [lib]
 doctest = false

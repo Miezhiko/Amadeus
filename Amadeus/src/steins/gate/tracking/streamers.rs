@@ -154,7 +154,7 @@ pub async fn activate_streamers_tracking(
                         let t_d = format!("{}\n{}\nviewers: {}\nstarted: {} CET",
                                     twd.title, url, twd.viewer_count, start);
                         additional_fields.push(("Live on twitch", t_d, true));
-                        title       = twd.title.clone();
+                        title.clone_from(&twd.title);
                         image       = Some(pic);
                         em_url      = Some(url);
                         twitch_live = true;
@@ -242,8 +242,8 @@ pub async fn activate_streamers_tracking(
                   for f in msg.embeds[0].fields.clone() {
                     fields.push((f.name, f.value, f.inline));
                   }
-                  img   = msg.embeds[0].image.clone();
-                  url   = msg.embeds[0].url.clone();
+                  img.clone_from(&msg.embeds[0].image);
+                  url.clone_from(&msg.embeds[0].url);
                   color = msg.embeds[0].colour;
                 };
                 let is_now_live = format!("{} is now live!", &user.name);
@@ -363,15 +363,12 @@ pub async fn activate_streamers_tracking(
 
               } else { // if no stream channel
                 let playa_for_stream = p.clone();
-                if streams.get(&playa_for_stream.player.discord).is_none() {
-                  streams.insert(playa_for_stream.player.discord, TrackingGame {
-                    tracking_msg_id: vec![],
-                    passed_time: 0,
-                    still_live: true,
-                    players: vec![playa_for_stream], bets: vec![], fails: 0,
-                    mode: GameMode::Solo, flo_tv: None }
-                  );
-                }
+                streams.entry(playa_for_stream.player.discord).or_insert_with(|| TrackingGame {
+                  tracking_msg_id: vec![],
+                  passed_time: 0,
+                  still_live: true,
+                  players: vec![playa_for_stream], bets: vec![], fails: 0,
+                  mode: GameMode::Solo, flo_tv: None });
               }
 
               } // if there are fields
@@ -417,8 +414,8 @@ pub async fn activate_streamers_tracking(
                 for f in msg.embeds[0].fields.clone() {
                   fields.push((f.name, f.value, f.inline));
                 }
-                img   = msg.embeds[0].image.clone();
-                url   = msg.embeds[0].url.clone();
+                img.clone_from(&msg.embeds[0].image);
+                url.clone_from(&msg.embeds[0].url);
                 color = msg.embeds[0].colour;
               };
               let mut e = CreateEmbed::new()

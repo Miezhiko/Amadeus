@@ -1,8 +1,9 @@
 [package]
-name = "salieri"
-description = "Amadeus services consumer"
-version = "0.4.3"
-edition = "2021"
+name                = "salieri"
+description         = "Amadeus services consumer"
+version             = "0.4.3"
+edition             = "2021"
+rust-version        = "1.76.0"
 
 [dependencies]
 strauss         = { path = "../Strauss" }

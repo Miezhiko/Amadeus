@@ -27,6 +27,7 @@ pub struct FinishedGame {
   pub hero_png: Option<String>
 }
 
+#[allow(dead_code)]
 #[allow(non_snake_case)]
 pub struct Bet {
   pub guild: u64,
@@ -36,6 +37,7 @@ pub struct Bet {
   pub registered: bool
 }
 
+#[allow(dead_code)]
 #[allow(non_snake_case)]
 pub struct TrackingGame {
   pub tracking_msg_id: Vec<(u64, u64)>,

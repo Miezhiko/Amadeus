@@ -145,8 +145,8 @@ pub async fn check<'a>( ctx: &Context
                               }
                             }
                           }
-                          img   = msg.embeds[0].image.clone();
-                          url   = msg.embeds[0].url.clone();
+                          img.clone_from(&msg.embeds[0].image);
+                          url.clone_from(&msg.embeds[0].url);
                           color = msg.embeds[0].colour;
                         };
 
@@ -306,8 +306,8 @@ pub async fn check<'a>( ctx: &Context
                               }
                             }
                           }
-                          img   = msg.embeds[0].image.clone();
-                          url   = msg.embeds[0].url.clone();
+                          img.clone_from(&msg.embeds[0].image);
+                          url.clone_from(&msg.embeds[0].url);
                           color = msg.embeds[0].colour;
                         };
 
@@ -455,8 +455,8 @@ pub async fn check<'a>( ctx: &Context
                             }
                           }
                         }
-                        img   = msg.embeds[0].image.clone();
-                        url   = msg.embeds[0].url.clone();
+                        img.clone_from(&msg.embeds[0].image);
+                        url.clone_from(&msg.embeds[0].url);
                         color = msg.embeds[0].colour;
                       };
 

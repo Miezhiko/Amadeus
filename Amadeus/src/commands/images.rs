@@ -94,7 +94,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
 
     let gifs = fetch_gifs(ctx, fetch, 50, filter).await?;
     let mut rng = StdRng::from_entropy();
-    let val = if gifs.len() > 0
+    let val = if !gifs.is_empty()
            { rng.gen_range(0..gifs.len()) }
       else { 0 };
 
@@ -164,7 +164,7 @@ pub async fn gifs<C: Into<Colour>>( ctx: &Context
 
     let gifs = fetch_gifs(ctx, fetch, 50, filter).await?;
     let mut rng = StdRng::from_entropy();
-    let val = if gifs.len() > 0
+    let val = if !gifs.is_empty()
            { rng.gen_range(0..gifs.len()) }
       else { 0 };
 
@@ -640,7 +640,7 @@ async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
       };
   let gifs = fetch_gifs(ctx, search_string, 10, filter).await?;
   let mut rng = StdRng::from_entropy();
-  let val = if gifs.len() > 0
+  let val = if !gifs.is_empty()
          { rng.gen_range(0..gifs.len()) }
     else { 0 };
 

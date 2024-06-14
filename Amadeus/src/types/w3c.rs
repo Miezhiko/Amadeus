@@ -112,6 +112,7 @@ pub_struct!(Team {
   won: bool,
 });
 
+#[allow(dead_code)]
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug, Clone)]
 pub struct PlayerServerInfo {
@@ -120,6 +121,7 @@ pub struct PlayerServerInfo {
   pub currentPing: u32
 }
 
+#[allow(dead_code)]
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug, Clone)]
 pub struct ServerInfo {
@@ -131,6 +133,7 @@ pub struct ServerInfo {
   pub provider: Option<String>
 }
 
+#[allow(dead_code)]
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 pub struct Match {
@@ -186,6 +189,7 @@ pub_struct!(PlayerScore {
   resourceScore: ResourceScore,
 });
 
+#[allow(dead_code)]
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 pub struct MD {
@@ -214,6 +218,7 @@ pub_struct!(WinLose {
   wins: u32,
 });
 
+#[allow(dead_code)]
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 pub struct PlayerAPI {
@@ -284,6 +289,7 @@ pub_struct!(PlayerData {
   location: Option<String>,
 });
 
+#[allow(dead_code)]
 #[allow(non_snake_case)]
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct PlayerDataToStore {

@@ -1,5 +1,6 @@
 use crate::types::serenity::IServer;
 
+#[allow(dead_code)]
 #[derive(Clone, Deserialize, Debug)]
 pub struct IOptions {
   pub discord: String,

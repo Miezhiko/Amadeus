@@ -205,6 +205,7 @@ pub async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
     let _ = handler.play_input(youtube.into());
     let mut conf = options::get_roptions().await?;
     let last_stream_conf = conf.last_stream;
+    #[allow(clippy::assigning_clones)]
     if last_stream_conf != url {
       conf.last_stream = url.clone();
       options::put_roptions(&conf).await?;

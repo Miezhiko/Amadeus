@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use serenity::model::id::ChannelId;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize)]
 pub struct Streams {
   pub ggru: Option<String>,

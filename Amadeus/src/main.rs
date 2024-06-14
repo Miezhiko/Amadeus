@@ -6,6 +6,7 @@
 // stable on 1.76+ but not still stable on older
 #![allow(stable_features)]
 #![feature(arc_unwrap_or_clone)]
+#![allow(clippy::blocks_in_conditions)]
 
 #![feature(const_option)]
 

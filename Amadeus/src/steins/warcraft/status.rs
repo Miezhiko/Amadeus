@@ -437,9 +437,9 @@ __**searching 2x2:**__
 ```
 __**currently running:**__
 ```
-1x1 {z1} search {q1s} GAMES: {}
-2x2 {z2} search {q2s} GAMES: {}
-4x4 {z3} search {q3s} GAMES: {}
+1x1 {z1} search {q1s} LIVE: {}
+2x2 {z2} search {q2s} LIVE: {}
+4x4 {z3} search {q3s} LIVE: {}
 ```
 __**currently playing:**__
 ```

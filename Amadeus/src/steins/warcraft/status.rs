@@ -155,7 +155,7 @@ pub async fn generate_stats_graph( ctx: &Context
     let mut plx_vec = vec![];
     let mut min_mmr = 2000;
     let mut max_mmr = 1300;
-    let mut stats_vec: HashMap<String, [f64; DAYS_FOR_STATUS]> = HashMap::new();
+    let mut stats_map: HashMap<String, [f64; DAYS_FOR_STATUS]> = HashMap::new();
     for (n, d) in weeky.iter().rev().enumerate() {
       let stats = if solo {
           &d.statistics
@@ -165,13 +165,13 @@ pub async fn generate_stats_graph( ctx: &Context
       for p in stats {
         max_mmr = std::cmp::max(max_mmr, p.1.mmr);
         min_mmr = std::cmp::min(min_mmr, p.1.mmr);
-        if let Some(sv) = stats_vec.get_mut(p.0) {
+        if let Some(sv) = stats_map.get_mut(p.0) {
           for i in n..DAYS_FOR_STATUS {
             sv[i] = p.1.mmr as f64;
           }
         } else {
           let dd: [f64; DAYS_FOR_STATUS] = [p.1.mmr as f64; DAYS_FOR_STATUS];
-          stats_vec.insert(p.0.clone(), dd);
+          stats_map.insert(p.0.clone(), dd);
         }
       }
     }
@@ -179,6 +179,9 @@ pub async fn generate_stats_graph( ctx: &Context
     if max_mmr <= min_mmr {
       min_mmr = max_mmr - 1;
     }
+
+    let mut stats_vec: Vec<(String, [f64; DAYS_FOR_STATUS])> = stats_map.into_iter().collect();
+    stats_vec.sort_by(|a, b| a.1[DAYS_FOR_STATUS - 1].partial_cmp(&b.1[DAYS_FOR_STATUS - 1]).expect("shit I can't compare numbers"));
 
     let colors = gen_colors(stats_vec.len());
     for (i, (strx, px)) in stats_vec.iter().enumerate() {

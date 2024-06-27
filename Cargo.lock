@@ -110,7 +110,7 @@ checksum = "5c6cb57a04249c6480766f7f7cef5467412af1490f8d1e243141daddada3264f"
 
 [[package]]
 name = "amadeus"
-version = "15.0.10"
+version = "15.0.11"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -596,9 +596,9 @@ checksum = "0c4b4d0bd25bd0b74681c0ad21497610ce1b7c91b1022cd21c80c6fbdd9476b0"
 
 [[package]]
 name = "aws-lc-rs"
-version = "1.7.3"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf7d844e282b4b56750b2d4e893b2205581ded8709fddd2b6aa5418c150ca877"
+checksum = "a8a47f2fb521b70c11ce7369a6c5fa4bd6af7e5d62ec06303875bafe7c6ba245"
 dependencies = [
  "aws-lc-sys",
  "mirai-annotations",
@@ -608,9 +608,9 @@ dependencies = [
 
 [[package]]
 name = "aws-lc-sys"
-version = "0.18.0"
+version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3a2c29203f6bf296d01141cc8bb9dbd5ecd4c27843f2ee0767bcd5985a927da"
+checksum = "2927c7af777b460b7ccd95f8b67acd7b4c04ec8896bf0c8e80ba30523cffc057"
 dependencies = [
  "bindgen",
  "cc",
@@ -983,8 +983,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.6.7"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#72a4c4418e3a5b44cc23d96936d6b20f7f0c128f"
+version = "0.6.9"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#3a3678355d122a5472051d0be55fa9982706ac04"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -999,7 +999,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#72a4c4418e3a5b44cc23d96936d6b20f7f0c128f"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#3a3678355d122a5472051d0be55fa9982706ac04"
 dependencies = [
  "ucd",
 ]

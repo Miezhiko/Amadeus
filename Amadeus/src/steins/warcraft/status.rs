@@ -181,7 +181,7 @@ pub async fn generate_stats_graph( ctx: &Context
     }
 
     let mut stats_vec: Vec<(String, [f64; DAYS_FOR_STATUS])> = stats_map.into_iter().collect();
-    stats_vec.sort_by(|a, b| a.1[DAYS_FOR_STATUS - 1].partial_cmp(&b.1[DAYS_FOR_STATUS - 1]).expect("shit I can't compare numbers"));
+    stats_vec.sort_by(|a, b| b.1[DAYS_FOR_STATUS - 1].partial_cmp(&a.1[DAYS_FOR_STATUS - 1]).expect("shit I can't compare numbers"));
 
     let colors = gen_colors(stats_vec.len());
     for (i, (strx, px)) in stats_vec.iter().enumerate() {

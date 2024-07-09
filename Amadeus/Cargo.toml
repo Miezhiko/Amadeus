@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "15.0.11"
+version             = "15.0.12"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -81,7 +81,7 @@ features = ["all-formats"]
 
 [dependencies.songbird]
 default-features = false
-version  = "0.4.1"
+version  = "0.4.2"
 features = [ "serenity"
            , "driver"
            , "rustls"

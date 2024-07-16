@@ -75,7 +75,7 @@ async fn generate_response( ctx: &Context
     if russian && !answer.is_empty() && !bert_generated {
       let rndxx: u32 = rand::thread_rng().gen_range(0..2);
       if rndxx == 1 {
-        let kathoey = KATHOEY.lock().await;
+        let kathoey = KATHOEY.read().await;
         let rndxxx: u32 = rand::thread_rng().gen_range(0..30);
         *answer =
           if rndxxx == 1 {

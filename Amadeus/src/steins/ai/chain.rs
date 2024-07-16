@@ -29,7 +29,7 @@ use markov::Chain;
 
 use rand::Rng;
 
-use tokio::sync::MutexGuard;
+use tokio::sync::{ RwLockReadGuard, RwLockWriteGuard };
 
 use std::collections::HashMap;
 
@@ -90,11 +90,11 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
 
 pub async fn generate_with_language(ctx: &Context, russian: bool) -> String {
   cache::actualize_cache(ctx, false).await;
-  let chain: MutexGuard<Chain<String>> =
+  let chain: RwLockReadGuard<Chain<String>> =
     if russian {
-      CACHE_RU.lock().await
+      CACHE_RU.read().await
     } else {
-      CACHE_ENG.lock().await
+      CACHE_ENG.read().await
     };
   chain.generate_str()
 }
@@ -104,11 +104,11 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
   let russian = if let Some(rus) = mbrussian
     { rus } else { lang::is_russian(msg_content) };
   cache::actualize_cache(ctx, false).await;
-  let mut chain: MutexGuard<Chain<String>> =
+  let mut chain: RwLockWriteGuard<Chain<String>> =
     if russian {
-        CACHE_RU.lock().await
+        CACHE_RU.write().await
       } else {
-        CACHE_ENG.lock().await
+        CACHE_ENG.write().await
       };
   if !check_registration(msg.channel_id.get(), msg.id.get()).await {
     let ch_lang = if russian {

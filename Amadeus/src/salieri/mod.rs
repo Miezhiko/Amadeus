@@ -8,7 +8,7 @@ use crate::{
 use std::sync::Arc;
 use async_std::fs;
 
-use tokio::{ sync::Mutex, select
+use tokio::{ sync::RwLock, select
            , net::UnixListener
 };
 
@@ -24,8 +24,8 @@ use serenity::prelude::*;
 
 type SalieriBroker = Arc<Celery>;
 
-pub static SALIERI: Lazy<Mutex<Option<SalieriBroker>>> =
-  Lazy::new(|| Mutex::new(None));
+pub static SALIERI: Lazy<RwLock<Option<SalieriBroker>>> =
+  Lazy::new(|| RwLock::new(None));
 
 async fn process_salieri(ctx: &Context, salieri_socket: &UnixListener) {
   match salieri_socket.accept().await {
@@ -52,14 +52,14 @@ async fn process_lukashenko(ctx: &Context, lukashenko: &UnixListener) {
 pub async fn salieri_init(ctx: &Arc<Context>) -> anyhow::Result<()> {
   match strauss::celery_init(strauss::SALIERI_AMPQ).await {
     Ok(c) => {
-      let mut salieri_lock_mut = SALIERI.lock().await;
+      let mut salieri_lock_mut = SALIERI.write().await;
       *salieri_lock_mut = Some(c);
     },
     Err(why) => {
       error!("failed to connect to Salieri services: {why}");
     }
   }
-  let salieri_lock = SALIERI.lock().await;
+  let salieri_lock = SALIERI.read().await;
   if let Some(salieri) = &*salieri_lock {
     salieri.send_task(strauss::AMADEUS_INIT::new()).await?;
 

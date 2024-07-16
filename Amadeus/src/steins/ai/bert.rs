@@ -7,7 +7,7 @@ use anyhow::Result;
 async fn salieri_request<T>( sig: celery::task::Signature<T>
                            ) -> Result<Option<String>>
                            where T: celery::task::Task {
-  let salieri_lock = SALIERI.lock().await;
+  let salieri_lock = SALIERI.read().await;
   if let Some(salieri) = &*salieri_lock {
     salieri.send_task(sig).await?;
     Ok(None)

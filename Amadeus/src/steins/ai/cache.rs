@@ -59,7 +59,7 @@ pub static KATHOEY: Lazy<Mutex<Kathoey>> =
   Lazy::new(|| Mutex::new(Kathoey::load("../Kathoey/dict.bin").unwrap()));
 
 pub async fn reinit() {
-  let salieri_lock = SALIERI.lock().await;
+  let salieri_lock = SALIERI.read().await;
   if let Some(salieri) = &*salieri_lock {
     if let Err(why) = salieri.send_task(
                         strauss::cache::REINIT_CACHE::new()
@@ -235,7 +235,7 @@ pub async fn update_cache( ctx: &Context
 
   {
     {
-      let salieri_lock = SALIERI.lock().await;
+      let salieri_lock = SALIERI.read().await;
       if let Some(salieri) = &*salieri_lock {
         let cache_str_to_save = cache_eng_str.clone();
         if let Err(why) = salieri.send_task(
@@ -264,7 +264,7 @@ pub async fn clear_cache() {
   *cache_ru   = Chain::new();
   cache_eng_str.clear();
   {
-    let salieri_lock = SALIERI.lock().await;
+    let salieri_lock = SALIERI.read().await;
     if let Some(salieri) = &*salieri_lock {
       let cache_str_to_save = cache_eng_str.clone();
       if let Err(why) = salieri.send_task(

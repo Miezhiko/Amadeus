@@ -41,8 +41,8 @@ static Q1T: AtomicU32 = AtomicU32::new(0);
 static Q2T: AtomicU32 = AtomicU32::new(0);
 static Q4T: AtomicU32 = AtomicU32::new(0);
 
-static LAST_QTIME_UPDATE: Lazy<Mutex<DateTime<Utc>>> =
-  Lazy::new(|| Mutex::new(Utc::now()));
+static LAST_QTIME_UPDATE: Lazy<RwLock<DateTime<Utc>>> =
+  Lazy::new(|| RwLock::new(Utc::now()));
 
 pub static CURRENT_SEASON: AtomicU32 = AtomicU32::new(15);
 static ONGOING_PAGE_SIZE: usize = 15;
@@ -814,7 +814,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
   }
 
   let nao = Utc::now();
-  let mut last_update = LAST_QTIME_UPDATE.lock().await;
+  let last_update = LAST_QTIME_UPDATE.read().await;
 
   let (mut qmax1, mut qmax2, mut qmax4) =
     ( max(&qtime1)
@@ -829,7 +829,8 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
     );
   // each 20 minutes half stored search time
   if since_last_update > chrono::Duration::minutes(20) {
-    *last_update = nao;
+    let mut last_update_w = LAST_QTIME_UPDATE.write().await;
+    *last_update_w = nao;
     if qt1m > 2 && !qtime1.is_empty() { qt1m /= 2; }
     if qt2m > 2 && !qtime2.is_empty() { qt2m /= 2; }
     if qt4m > 2 && !qtime4.is_empty() { qt4m /= 2; }

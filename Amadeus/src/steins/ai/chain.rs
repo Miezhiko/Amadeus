@@ -1,15 +1,11 @@
 use crate::{
-  types::serenity::{ ChannelLanguage
-                   , AllGuilds },
-  common::{ constants::PREFIX
-          , db::trees::messages::{ register, check_registration }
-  },
+  types::serenity::AllGuilds ,
+  common::constants::PREFIX,
   collections::base::{ OBFUSCATION
                      , OBFUSCATION_RU },
   collections::channels::AI_LEARN,
   steins::ai::{ cache::{ CACHE_RU
                        , CACHE_ENG
-                       , process_message_string
                        , self }
               , boris, uwu }
 };
@@ -29,7 +25,7 @@ use markov::Chain;
 
 use rand::Rng;
 
-use tokio::sync::{ RwLockReadGuard, RwLockWriteGuard };
+use tokio::sync::{ RwLockReadGuard };
 
 use std::collections::HashMap;
 
@@ -104,23 +100,12 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
   let russian = if let Some(rus) = mbrussian
     { rus } else { lang::is_russian(msg_content) };
   cache::actualize_cache(ctx, false).await;
-  let mut chain: RwLockWriteGuard<Chain<String>> =
+  let chain: RwLockReadGuard<Chain<String>> =
     if russian {
-        CACHE_RU.write().await
+        CACHE_RU.read().await
       } else {
-        CACHE_ENG.write().await
+        CACHE_ENG.read().await
       };
-  if !check_registration(msg.channel_id.get(), msg.id.get()).await {
-    let ch_lang = if russian {
-        ChannelLanguage::Russian
-      } else {
-        ChannelLanguage::English
-      };
-    if let Some((result, _)) = process_message_string(msg_content, ch_lang) {
-      chain.feed_str(&result);
-    }
-    register(msg.channel_id.get(), msg.id.get()).await;
-  }
   let mut out = chain.generate_str();
   let rndx = rand::thread_rng().gen_range(0..66);
   if rndx == 1 {

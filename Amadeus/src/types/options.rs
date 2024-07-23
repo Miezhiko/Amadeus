@@ -13,6 +13,7 @@ pub struct IOptions {
   pub tenor_key: String,
   pub flo_secret: String,
   pub gencache_on_start: bool,
+  pub gencache_on_start_only: bool,
   pub github_auth: String
 }
 

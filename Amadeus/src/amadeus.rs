@@ -2,7 +2,7 @@ use crate::{
   types::{
     serenity::{ PubCreds, ReqwestClient
               , CoreGuild, CoreGuilds
-              , IServer, AllGuilds },
+              , IServer, AllGuilds, NoGencache },
     options::IOptions
   },
   common::{ constants::PREFIX
@@ -128,6 +128,8 @@ pub async fn run(opts: IOptions) ->
     std_framework = std_framework.group(&FLO_GROUP)
   }
 
+  let no_gencache = opts.gencache_on_start_only;
+
   let intents = GatewayIntents::GUILDS
               | GatewayIntents::GUILD_MEMBERS
               | GatewayIntents::GUILD_MODERATION
@@ -156,6 +158,7 @@ pub async fn run(opts: IOptions) ->
     data.insert::<PubCreds>               (Arc::new(creds));
     data.insert::<CoreGuilds>             (Arc::new(core_guilds));
     data.insert::<AllGuilds>              (Arc::new(all_guilds));
+    data.insert::<NoGencache>             (no_gencache);
   }
 
   // start listening for events by starting a single shard

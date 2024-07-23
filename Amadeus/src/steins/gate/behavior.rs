@@ -53,7 +53,7 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   Lazy::force(&cache::KATHOEY);
 
   info!("starting background threads");
-  if options.gencache_on_start {
+  if options.gencache_on_start || options.gencache_on_start_only {
     // Now there are several lists of channels and several Guilds
     let servers = options.servers.iter()
                                 .map(|srv| GuildId::new(srv.id))

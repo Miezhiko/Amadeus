@@ -1,6 +1,6 @@
 use crate::{
   salieri::SALIERI,
-  types::serenity::{ AllGuilds, ChannelLanguage },
+  types::serenity::{ AllGuilds, NoGencache, ChannelLanguage },
   common::{ constants::PREFIX
           , db::trees::{ messages::{ register, check_registration }
                        , LSUF, ZSUF, RSUF, MSUF }
@@ -44,8 +44,7 @@ static CACHE_RU_YML: &str = "cache/cache_ru.yml";
 static CACHE_YML: &str = "cache/cache.yml";
 
 // WILL NOT WORK WITH ANYTHING MORE THAN 200
-// NO IDEA WHY...
-static CHANNEL_CACHE_MAX: u64 = 199;
+static CHANNEL_CACHE_MAX: u64 = 150;
 
 pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(512);
 
@@ -179,16 +178,16 @@ pub async fn update_cache( ctx: &Context
                   i_progress += 1;
                 }
                 i += 1; m_progress += 1;
+                info!("#checking {}", &mmm.content);
                 if !check_registration(chan.get(), mmm.id.get()).await {
-                  debug!("#processing {}", &mmm.content);
                   if let Some((result, lang)) = process_message_string(&mmm.content, ch_lang.lang) {
                     match lang {
                       ChannelLanguage::Russian => {
-                        debug!("#adding to russian {}", &result);
+                        info!("#adding to russian {}", &result);
                         cache_ru.feed_str(&result);
                       },
                       ChannelLanguage::English => {
-                        debug!("#adding to english {}", &result);
+                        info!("#adding to english {}", &result);
                         cache_eng.feed_str(&result);
                         if result.contains('\n') {
                           for line in result.lines() {
@@ -207,6 +206,9 @@ pub async fn update_cache( ctx: &Context
                 }
               }
             }
+          } else {
+            info!("#failed to unwrap the message");
+            break;
           }
         }
         start_typing.stop();
@@ -305,16 +307,22 @@ pub async fn actualize_cache(ctx: &Context, force: bool) {
   if since_last_update > Duration::hours(2) || force {
     let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
     let data = ctx.data.read().await;
+    let no_gencache = 
+      if let Some(ngc) = data.get::<NoGencache>() {
+        *ngc
+      } else { false };
     if let Some(servers) = data.get::<AllGuilds>() {
-      let server_ids = servers.iter()
-                              .map(|srv| GuildId::new(srv.id))
-                              .collect::<Vec<GuildId>>();
-      for server in server_ids {
-        if let Ok(serv_channels) = server.channels(ctx).await {
-          all_channels.extend(serv_channels);
+      if !no_gencache {
+        let server_ids = servers.iter()
+                                .map(|srv| GuildId::new(srv.id))
+                                .collect::<Vec<GuildId>>();
+        for server in server_ids {
+          if let Ok(serv_channels) = server.channels(ctx).await {
+            all_channels.extend(serv_channels);
+          }
         }
+        update_cache(ctx, &all_channels).await;
       }
-      update_cache(ctx, &all_channels).await;
       let mut last_update_write = LAST_UPDATE.write().await;
       *last_update_write = nao;
     }

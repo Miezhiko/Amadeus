@@ -99,7 +99,7 @@ pub async fn activate_games_tracking(
 
       { // scope for GAMES lock
         trace!("team games: clearing");
-        let mut games_lock = poller::GAMES.write().await;
+        let mut games_lock = poller::GAMES.lock().await;
         let mut k_to_del: Vec<String> = Vec::new();
         for (k, track) in games_lock.iter_mut() {
           if track.passed_time < 666 {
@@ -252,7 +252,7 @@ pub async fn activate_games_tracking(
               Ok(msg_id) => {
                 { // scope for games_lock
                   trace!("team games: starting");
-                  let mut games_lock = poller::GAMES.write().await;
+                  let mut games_lock = poller::GAMES.lock().await;
                   if let Some(inserted) = games_lock.get_mut(&game_key) {
                     if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.get())) {
                       inserted.tracking_msg_id.push((*d, msg_id.id.get()));
@@ -293,7 +293,7 @@ pub async fn activate_games_tracking(
                                   let is_positive = emoji_data == "👍🏻";
                                   { // games lock scope
                                     trace!("team games: thumb was clicked");
-                                    let mut gl = poller::GAMES.write().await;
+                                    let mut gl = poller::GAMES.lock().await;
                                     if let Some(track) = gl.get_mut(&game_key_clone) {
                                       if track.still_live {
                                         // you bet only once

@@ -55,8 +55,8 @@ impl Handler {
   }
 }
 
-pub static MUTED: Lazy<RwLock<HashSet<UserId>>> =
-  Lazy::new(|| RwLock::new(HashSet::new()));
+pub static MUTED: Lazy<Mutex<HashSet<UserId>>> =
+  Lazy::new(|| Mutex::new(HashSet::new()));
 
 #[async_trait]
 impl EventHandler for Handler {
@@ -174,7 +174,7 @@ impl EventHandler for Handler {
   }
 
   async fn guild_member_addition(&self, ctx: Context, member: Member) {
-    let muted_lock = MUTED.read().await;
+    let mut muted_lock = MUTED.lock().await;
     if muted_lock.contains(&member.user.id) {
       if let Ok(guild) = member.guild_id.to_partial_guild(&ctx).await {
         if let Some(role) = guild.role_by_name(MUTED_ROLE) {
@@ -182,8 +182,7 @@ impl EventHandler for Handler {
             if let Err(why) = member.add_role(&ctx, role).await {
               error!("Failed to assign muted role {why}");
             } else {
-              let mut muted_lock_write = MUTED.write().await;
-              muted_lock_write.remove(&member.user.id);
+              muted_lock.remove(&member.user.id);
             }
           }
         }
@@ -207,10 +206,9 @@ impl EventHandler for Handler {
       if let Some(member) = m {
         if let Some(role) = guild.role_by_name(MUTED_ROLE) {
           if member.roles.contains(&role.id) {
-            let muted_lock = MUTED.read().await;
+            let mut muted_lock = MUTED.lock().await;
             if !muted_lock.contains(&member.user.id) {
-              let mut muted_lock_write = MUTED.write().await;
-              muted_lock_write.insert(member.user.id);
+              muted_lock.insert(member.user.id);
             }
           }
         }
@@ -345,7 +343,7 @@ impl EventHandler for Handler {
       if !AI_ALLOWED.iter().any(|c| c.id == channel_id.get()) {
         return;
       }
-      let backup_deq = BACKUP.read().await;
+      let backup_deq = BACKUP.lock().await;
       if !backup_deq.is_empty() {
         if let Some((_, msg)) = backup_deq.iter().find(|(id, _)| *id == deleted_message_id) {
           if msg.is_own(&ctx) { // backup only own messages

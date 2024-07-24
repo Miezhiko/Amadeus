@@ -104,7 +104,7 @@ pub async fn get_system_info(ctx: &serenity::client::Context) -> anyhow::Result<
 
 pub async fn get_uptime(start: &str) -> (String, String) {
   set!{ nao = Utc::now()
-      , start_time = START_TIME.read().await }
+      , start_time = START_TIME.lock().await }
   let since_start_time: Duration = nao - *start_time;
   let mut uptime_string = String::from(start);
 

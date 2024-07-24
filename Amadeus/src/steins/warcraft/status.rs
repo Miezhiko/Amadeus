@@ -321,7 +321,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     let mut tracking_info = vec![];
     let mut tracking_players = vec![];
     { // Games lock scope
-      let games_lock = GAMES.read().await;
+      let games_lock = GAMES.lock().await;
       for game in games_lock.values() {
         if game.still_live {
           for fp in game.players.iter() {

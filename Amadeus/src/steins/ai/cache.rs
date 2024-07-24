@@ -178,16 +178,16 @@ pub async fn update_cache( ctx: &Context
                   i_progress += 1;
                 }
                 i += 1; m_progress += 1;
-                info!("#checking {}", &mmm.content);
+                debug!("#checking {}", &mmm.content);
                 if !check_registration(chan.get(), mmm.id.get()).await {
                   if let Some((result, lang)) = process_message_string(&mmm.content, ch_lang.lang) {
                     match lang {
                       ChannelLanguage::Russian => {
-                        info!("#adding to russian {}", &result);
+                        debug!("#adding to russian {}", &result);
                         cache_ru.feed_str(&result);
                       },
                       ChannelLanguage::English => {
-                        info!("#adding to english {}", &result);
+                        debug!("#adding to english {}", &result);
                         cache_eng.feed_str(&result);
                         if result.contains('\n') {
                           for line in result.lines() {
@@ -207,7 +207,7 @@ pub async fn update_cache( ctx: &Context
               }
             }
           } else {
-            info!("#failed to unwrap the message");
+            debug!("#failed to unwrap the message");
             break;
           }
         }

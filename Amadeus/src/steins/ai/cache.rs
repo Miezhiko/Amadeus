@@ -48,17 +48,17 @@ static CHANNEL_CACHE_MAX: u64 = 150;
 
 pub static ACTIVITY_LEVEL: AtomicU32 = AtomicU32::new(512);
 
-pub static CACHE_ENG: Lazy<Mutex<Chain<String>>> =
-  Lazy::new(|| Mutex::new(Chain::new()));
-pub static CACHE_RU: Lazy<Mutex<Chain<String>>> =
-  Lazy::new(|| Mutex::new(Chain::new()));
-pub static LAST_UPDATE: Lazy<Mutex<DateTime<Utc>>> =
-  Lazy::new(|| Mutex::new(Utc::now()));
-pub static KATHOEY: Lazy<Mutex<Kathoey>> =
-  Lazy::new(|| Mutex::new(Kathoey::load("../Kathoey/dict.bin").unwrap()));
+pub static CACHE_ENG: Lazy<RwLock<Chain<String>>> =
+  Lazy::new(|| RwLock::new(Chain::new()));
+pub static CACHE_RU: Lazy<RwLock<Chain<String>>> =
+  Lazy::new(|| RwLock::new(Chain::new()));
+pub static LAST_UPDATE: Lazy<RwLock<DateTime<Utc>>> =
+  Lazy::new(|| RwLock::new(Utc::now()));
+pub static KATHOEY: Lazy<RwLock<Kathoey>> =
+  Lazy::new(|| RwLock::new(Kathoey::load("../Kathoey/dict.bin").unwrap()));
 
 pub async fn reinit() {
-  let salieri_lock = SALIERI.lock().await;
+  let salieri_lock = SALIERI.read().await;
   if let Some(salieri) = &*salieri_lock {
     if let Err(why) = salieri.send_task(
                         strauss::cache::REINIT_CACHE::new()
@@ -104,9 +104,9 @@ pub async fn update_cache( ctx: &Context
 
   info!("updating AI chain has started");
 
-  setm!{ cache_eng      = CACHE_ENG.lock().await
-       , cache_ru       = CACHE_RU.lock().await
-       , cache_eng_str  = CACHE_ENG_STR.lock().await };
+  setm!{ cache_eng      = CACHE_ENG.write().await
+       , cache_ru       = CACHE_RU.write().await
+       , cache_eng_str  = CACHE_ENG_STR.write().await };
 
   if cache_eng.is_empty() || cache_ru.is_empty() {
     if fs::metadata(CACHE_ENG_YML).await.is_ok() {
@@ -237,7 +237,7 @@ pub async fn update_cache( ctx: &Context
 
   {
     {
-      let salieri_lock = SALIERI.lock().await;
+      let salieri_lock = SALIERI.read().await;
       if let Some(salieri) = &*salieri_lock {
         let cache_str_to_save = cache_eng_str.clone();
         if let Err(why) = salieri.send_task(
@@ -259,14 +259,14 @@ pub async fn update_cache( ctx: &Context
 }
 
 pub async fn clear_cache() {
-  setm!{ cache_eng      = CACHE_ENG.lock().await
-       , cache_ru       = CACHE_RU.lock().await
-       , cache_eng_str  = CACHE_ENG_STR.lock().await };
+  setm!{ cache_eng      = CACHE_ENG.write().await
+       , cache_ru       = CACHE_RU.write().await
+       , cache_eng_str  = CACHE_ENG_STR.write().await };
   *cache_eng  = Chain::new();
   *cache_ru   = Chain::new();
   cache_eng_str.clear();
   {
-    let salieri_lock = SALIERI.lock().await;
+    let salieri_lock = SALIERI.read().await;
     if let Some(salieri) = &*salieri_lock {
       let cache_str_to_save = cache_eng_str.clone();
       if let Err(why) = salieri.send_task(
@@ -302,7 +302,7 @@ pub async fn clear_cache() {
 
 pub async fn actualize_cache(ctx: &Context, force: bool) {
   let nao = Utc::now();
-  let mut last_update = LAST_UPDATE.lock().await;
+  let last_update = LAST_UPDATE.read().await;
   let since_last_update: Duration = nao - *last_update;
   if since_last_update > Duration::hours(2) || force {
     let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
@@ -323,7 +323,8 @@ pub async fn actualize_cache(ctx: &Context, force: bool) {
         }
         update_cache(ctx, &all_channels).await;
       }
-      *last_update = nao;
+      let mut last_update_write = LAST_UPDATE.write().await;
+      *last_update_write = nao;
     }
   }
 }

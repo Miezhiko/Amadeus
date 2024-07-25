@@ -48,8 +48,8 @@ use once_cell::sync::Lazy;
 
 pub static RESTORE: AtomicBool  = AtomicBool::new(false);
 
-pub static BACKUP: Lazy<Mutex<VecDeque<(MessageId, Message)>>> =
-  Lazy::new(|| Mutex::new(VecDeque::with_capacity(64)));
+pub static BACKUP: Lazy<RwLock<VecDeque<(MessageId, Message)>>> =
+  Lazy::new(|| RwLock::new(VecDeque::with_capacity(64)));
 
 pub async fn process( ioptions: &IOptions
                     , amadeus_id: UserId
@@ -58,7 +58,7 @@ pub async fn process( ioptions: &IOptions
 
   if msg.is_own(ctx) {
     if AI_ALLOWED.iter().any(|c| c.id == msg.channel_id.get()) {
-      let mut backup_deq = BACKUP.lock().await;
+      let mut backup_deq = BACKUP.write().await;
       if backup_deq.len() == backup_deq.capacity() {
         backup_deq.pop_front();
       }

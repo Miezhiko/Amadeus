@@ -78,7 +78,7 @@ pub async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Res
           let rnda: u32 = rand::thread_rng().gen_range(0..10);
           let rndy: u32 = rand::thread_rng().gen_range(0..50);
           if rnda != 1 {
-            let kathoey = KATHOEY.lock().await;
+            let kathoey = KATHOEY.read().await;
             response =
               if rndy == 1 {
                 kathoey.extreme_feminize(&translated)

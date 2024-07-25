@@ -111,7 +111,7 @@ pub async fn check<'a>( ctx: &Context
 
                 trace!("team games: locking solo");
                 { // games lock scope
-                  let mut games_lock = GAMES.lock().await;
+                  let mut games_lock = GAMES.write().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
                     track.still_live = true;
                     set!{ footer      = passed_time(&track.passed_time)
@@ -271,7 +271,7 @@ pub async fn check<'a>( ctx: &Context
 
                 trace!("team games: locking 2x2");
                 { // games lock scope
-                  let mut games_lock = GAMES.lock().await;
+                  let mut games_lock = GAMES.write().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
                     track.still_live = true;
                     let footer     = passed_time(&track.passed_time);
@@ -428,7 +428,7 @@ pub async fn check<'a>( ctx: &Context
 
               trace!("team games: locking 4x4");
               { // games lock scope
-                let mut games_lock = GAMES.lock().await;
+                let mut games_lock = GAMES.write().await;
                 if let Some(track) = games_lock.get_mut(&m.match_id) {
                   track.still_live = true;
                   let footer     = passed_time(&track.passed_time);
@@ -531,7 +531,7 @@ pub async fn check<'a>( ctx: &Context
   { // games lock scope
     trace!("team games: finishing checking");
     let mut k_to_del: Vec<String> = Vec::new();
-    let mut games_lock = GAMES.lock().await;
+    let mut games_lock = GAMES.write().await;
     for (k, track) in games_lock.iter_mut() {
       if !track.still_live {
 
@@ -771,8 +771,11 @@ pub async fn check<'a>( ctx: &Context
       }
     }
 
-    for ktd in k_to_del {
-      games_lock.remove(&ktd);
+    if !k_to_del.is_empty() {
+      let mut games_lock_write = GAMES.write().await;
+      for ktd in k_to_del {
+        games_lock_write.remove(&ktd);
+      }
     }
   } // games lock scope end
 

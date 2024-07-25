@@ -204,7 +204,7 @@ async fn owo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[description("feminize text")]
 pub async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   {
-    let kathoey = cache::KATHOEY.lock().await;
+    let kathoey = cache::KATHOEY.read().await;
     channel_message( ctx
                    , msg
                    , &kathoey.feminize(args.message())
@@ -219,7 +219,7 @@ pub async fn feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 #[description("feminize text with extreme mode!")]
 async fn extreme_feminize(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   {
-    let kathoey = cache::KATHOEY.lock().await;
+    let kathoey = cache::KATHOEY.read().await;
     channel_message( ctx
                    , msg
                    , &kathoey.extreme_feminize(args.message())

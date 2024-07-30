@@ -5,10 +5,11 @@ use crate::{
   types::{ serenity::CoreGuild
          , options::* },
   common::{ options
+          , system
           , giveaway::{self, get_giveway, put_giveway}
           , db::trees::{ points, roles, emojis }
           , constants::{ UNBLOCK_ROLE
-                       , LIVE_ROLE
+                       , LIVE_ROLE, MAIN_LOG
                        , MUTED_ROLE, MUTED_ROOMS }
           },
   collections::{ team::DISCORDS
@@ -169,8 +170,11 @@ impl EventHandler for Handler {
     rejoin_voice_channel(&ctx, &self.roptions).await;
   }
 
-  async fn resume(&self, _ctx: Context, _: ResumedEvent) {
-    info!("Resumed");
+  async fn resume(&self, ctx: Context, _: ResumedEvent) {
+    info!("resume event handling, starting the upgrade");
+    if let Err(why) = system::upgrade::upgrade_amadeus(&ctx, MAIN_LOG).await {
+      error!("Failed to upgrade Amadeus, {why}");
+    }
   }
 
   async fn guild_member_addition(&self, ctx: Context, member: Member) {

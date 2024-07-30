@@ -96,7 +96,6 @@ pub async fn activate_games_tracking(
       rqcl.clone()
     };
     loop {
-
       { // scope for GAMES lock
         trace!("team games: clearing");
         let mut games_lock = poller::GAMES.write().await;

@@ -55,9 +55,10 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
   info!("starting background threads");
   if options.gencache_on_start || options.gencache_on_start_only {
     // Now there are several lists of channels and several Guilds
-    let servers = options.servers.iter()
-                                .map(|srv| GuildId::new(srv.id))
-                                .collect::<Vec<GuildId>>();
+    let servers = options.servers
+                         .iter()
+                         .map(|srv| GuildId::new(srv.id))
+                         .collect::<Vec<GuildId>>();
     let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
     for server in &servers {
       if let Ok(serv_channels) = server.channels(&ctx).await {

@@ -14,7 +14,6 @@ let rList : List Reaction =
   , { id = 657179213056704522, name = "eee" }
   , { id = 641638050945957904, name = "CocoSmug" }
   , { id = 611889889755004936, name = "antifa_heart" }
-  , { id = 853634592363905044, name = "EgoMawa" }
   , { id = 763653216754860052, name = "daijoubu" }
   , { id = 806785509799231488, name = "elfsmirk" }
   , { id = 763653437078372362, name = "cocona" }

@@ -988,8 +988,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.6.9"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#d6660546a263d70f49ceea4ceb4808bfb0ddcab5"
+version = "0.6.11"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#82ef4756ec2a1e1aa40bbf6037657521d63234d8"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1004,7 +1004,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#d6660546a263d70f49ceea4ceb4808bfb0ddcab5"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#82ef4756ec2a1e1aa40bbf6037657521d63234d8"
 dependencies = [
  "ucd",
 ]

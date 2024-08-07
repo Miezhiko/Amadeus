@@ -64,8 +64,6 @@
  - [FloTV](https://w3flo.com/live) tokens generation using GraphQL API to [Flo Stats](https://stats.w3flo.com).
  - [chat.rs](https://github.com/Miezhiko/chat.rs) integration to RabbitMQ/Kafka services.
 
-<img src="https://cdn.discordapp.com/attachments/249111029668249601/1025077275525382234/unknown.png">
-
 ## Cooking
 
  - Salieri needs [RabbitMQ](https://www.rabbitmq.com) to work properly

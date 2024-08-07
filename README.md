@@ -110,10 +110,9 @@ Optional Build Features:
  - `trackers` - enable games trackers / w3info news trackers / streams trackers
  - `flo` - gather flo nodes information / register players / host games
  - `flotv` - GraphQL integration with flotv services to get keys for running games
- - `naoko` - experimental Kafka integration with Naoko service
  - `ggru` - streaming on GoodGame integration is optional due their instability
  - `spam_filter` - detect and early remove various phishing links
- - `full` - enable all (except naoko)
+ - `full` - enable all
 
 `cargo build --release --features flo,trackers` enabled by default,
 use following to ignore non-needed features `cargo build --release --no-default-features`

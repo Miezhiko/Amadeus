@@ -82,14 +82,6 @@ pub async fn activate(ctx: Context, options: &IOptions, amadeus: &UserId) {
     error!("failed to init Salieri services {why}");
   }
 
-  #[cfg(feature = "naoko")]
-  {
-    info!("connecting to Naoko");
-    if let Err(why) = naoko::naoko_init(&ac).await {
-      error!("failed to init Naoko services {why}");
-    }
-  }
-
   activate_system_tracker(&ac).await;
   activate_social_skils(&ac).await;
 

@@ -1,6 +1,7 @@
 use crate::{
   types::serenity::AllGuilds ,
-  common::constants::PREFIX,
+  common::{ constants::PREFIX
+          , markov::Chain },
   collections::base::{ OBFUSCATION
                      , OBFUSCATION_RU },
   collections::channels::AI_LEARN,
@@ -20,8 +21,6 @@ use serenity::{
                , GuildId }
          }
 };
-
-use markov::Chain;
 
 use rand::Rng;
 
@@ -77,7 +76,8 @@ pub async fn make_quote(ctx: &Context, msg: &Message, author_id: UserId) -> Opti
     }
     if have_something {
       start_typing.stop();
-      return Some(chain.generate_str());
+      return if chain.is_empty() { None }
+             else { Some(chain.generate_str()) };
     }
   }
   start_typing.stop();
@@ -92,7 +92,11 @@ pub async fn generate_with_language(ctx: &Context, russian: bool) -> String {
     } else {
       CACHE_ENG.read().await
     };
-  chain.generate_str()
+  if chain.is_empty() {
+    String::from("well")
+  } else {
+    chain.generate_str()
+  }
 }
 
 pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> String {
@@ -106,7 +110,12 @@ pub async fn generate(ctx: &Context, msg: &Message, mbrussian: Option<bool>) -> 
       } else {
         CACHE_ENG.read().await
       };
-  let mut out = chain.generate_str();
+  let mut out = 
+    if chain.is_empty() {
+      String::from("well")
+    } else {
+      chain.generate_str()
+    };
   let rndx = rand::thread_rng().gen_range(0..66);
   if rndx == 1 {
     if russian {
@@ -132,7 +141,12 @@ pub fn obfuscate(msg_content: &str) -> String {
   }
   chain.feed_str(msg_content);
   let rndx = rand::thread_rng().gen_range(0..6);
-  let cahin_string = chain.generate_str();
+  let cahin_string = 
+    if chain.is_empty() {
+      String::from("why")
+    } else {
+      chain.generate_str()
+    };
   if rndx == 1 {
     if russian {
       boris::spell(&cahin_string)

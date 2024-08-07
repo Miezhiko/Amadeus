@@ -2,6 +2,7 @@ use crate::{
   salieri::SALIERI,
   types::serenity::{ AllGuilds, NoGencache, ChannelLanguage },
   common::{ constants::PREFIX
+          , markov::Chain
           , db::trees::{ messages::{ register, check_registration }
                        , LSUF, ZSUF, RSUF, MSUF }
   },
@@ -28,8 +29,6 @@ use chat_utils::help::lang;
 
 use std::sync::atomic::Ordering;
 use async_std::fs;
-
-use markov::Chain;
 
 use std::collections::HashMap;
 use std::sync::atomic::AtomicU32;

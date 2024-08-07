@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "15.2.5"
+version             = "15.3.0"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -17,7 +17,6 @@ spam_filter         = []
 flo                 = ["tonic", "hex", "flo-grpc"]
 flotv               = ["cynic"]
 ggru                = []
-naoko               = ["rdkafka"]
 full                = ["flo", "flotv", "spam_filter", "trackers", "ggru"]
 
 [dependencies]
@@ -53,13 +52,13 @@ nipper              = "0.1.9"
 plotters            = "0.3.6"
 celery              = "0.5"
 libc                = "0.2"
+petgraph            = "0.6"
 
 rand    = { version = "0.8.5",        features = ["std", "std_rng"] }
 
 # wait for songbird to be updated for new reqwest
 reqwest = { version = "0.11",         features = ["json", "blocking"] }
 ical    = { version = "0.11",         features = ["ical"] }
-markov  = { version = "1.1",          features = ["yaml"] }
 
 [dependencies.stroke]
 git = "https://github.com/dorianprill/stroke.git"
@@ -122,9 +121,4 @@ optional = true
 [dependencies.flo-grpc]
 git = "https://github.com/w3champions/flo-grpc.git"
 branch = "main"
-optional = true
-
-[dependencies.rdkafka]
-version = "0.36.2"
-features = ["dynamic-linking", "tokio"]
 optional = true

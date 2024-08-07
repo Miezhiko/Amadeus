@@ -1,7 +1,6 @@
 ##REALLY PLANNED:
 
- - Switch to Kafka/Naoko, drop Celery as it's bad for compiled code
- - Flag for minimal upgrade without deps updates for safety
+ - nothing
 
 ##I DON'T WANT TO DO IT (contributions welcome):
 

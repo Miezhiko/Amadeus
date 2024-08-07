@@ -10,3 +10,4 @@ pub mod help;
 pub mod db;
 pub mod system;
 pub mod giveaway;
+pub mod markov;

@@ -115,6 +115,7 @@ pub async fn activate_games_tracking(
         }
       }
 
+      info("team games: tick");
       let our_gsx = checker::check( &ctx_clone
                                   , options_clone.guild
                                   , &rqcl

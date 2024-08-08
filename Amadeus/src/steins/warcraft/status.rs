@@ -320,6 +320,8 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
 
     let mut tracking_info = vec![];
     let mut tracking_players = vec![];
+
+    info!("satus: locking GAMES");
     { // Games lock scope
       let games_lock = GAMES.read().await;
       for game in games_lock.values() {
@@ -461,5 +463,6 @@ __**currently playing:**__
                      . timestamp(now)
           )).await?;
   }}
+  info!("satus: updated");
   Ok(())
 }

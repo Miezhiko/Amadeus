@@ -121,6 +121,7 @@ pub async fn activate_games_tracking(
                                   , &rqcl
                                   ).await;
 
+      info!("team games: aftercheck");
       for game in our_gsx {
         let game_key = game.key.clone();
         let playa = &game.players[0];

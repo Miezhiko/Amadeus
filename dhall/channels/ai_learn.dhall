@@ -16,15 +16,12 @@ let channels : List Channel =
   , ru 948097924649353287 -- "okremiy"
   , bi 679723943535312903 -- "dating"
   , bi 611825511433240577 -- "warcraft"
-  , bi 631379331515678720 -- "team-chat-en"
-  , ru 841643803563655198 -- "team-chat-ru"
-  , bi 652060938765205515 -- "division-1"
-  , bi 695909020732620830 -- "division-2"
   , bi 666614389805416448 -- "🌈climatestrike"
   , bi 611824913829068800 -- "🇯🇵日本語"
-  , ru 827151604053835807 -- nejit1
-  , ru 827154134163390535 -- nejit2
-  , en 907157109655883786 -- learn something
+  , bi 611824891666104320 -- "random"
+  , bi 755768364390940692 -- "computers"
+  , bi 1010570616719544330 -- "films"
+  , en 1052777234454294569 -- learn something
   , en 249111029668249601 -- learn something else
   ]
 

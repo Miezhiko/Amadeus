@@ -88,9 +88,9 @@ where
     for p in toks.windows(self.order + 1) {
       self.map
         .entry(p[0..self.order].to_vec())
-        .or_insert_with(HashMap::new);
+        .or_default();
       self.map
-        .get_mut(&p[0..self.order].to_vec())
+        .get_mut(&p[0..self.order])
         .unwrap()
         .add(p[self.order].clone(), 1);
     }
@@ -149,7 +149,7 @@ where
     assert!(self.order == other.order);
 
     for (tokens, next) in other.map {
-      let states = self.map.entry(tokens).or_insert_with(HashMap::new);
+      let states = self.map.entry(tokens).or_default();
 
       for (token, count) in next {
         states.add(token, count);
@@ -249,7 +249,7 @@ where
 impl Chain<String> {
   /// Feeds a string of text into the chain.
   pub fn feed_str(&mut self, string: &str) -> &mut Chain<String> {
-    self.feed(&string.split(' ').map(|s| s.to_owned()).collect::<Vec<_>>())
+    self.feed(string.split(' ').map(|s| s.to_owned()).collect::<Vec<_>>())
   }
 
   /// Feeds a properly formatted file into the chain. This file should be formatted such that

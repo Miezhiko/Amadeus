@@ -28,7 +28,7 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
               .title("Translating From **English** to **Russian**...")
               .fields(fields)
               .author(CreateEmbedAuthor::new(&msg.author.name)
-                        .icon_url(&msg.author.face())
+                        .icon_url(msg.author.face())
                      )
             )
           ).await;
@@ -43,7 +43,7 @@ pub async fn perevod(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
           .embed(CreateEmbed::new()
             .fields(fields)
             .author(CreateEmbedAuthor::new(&msg.author.name)
-                      .icon_url(&msg.author.face())
+                      .icon_url(msg.author.face())
                    )
           )
         ).await?;
@@ -73,7 +73,7 @@ pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
              .title("Translating From **Ukrainian** to **Russian**...")
               .fields(fields)
               .author(CreateEmbedAuthor::new(&msg.author.name)
-                        .icon_url(&msg.author.face())
+                        .icon_url(msg.author.face())
                      )
             )
           ).await;
@@ -88,7 +88,7 @@ pub async fn ua2ru(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           .embed(CreateEmbed::new()
             .fields(fields)
             .author(CreateEmbedAuthor::new(&msg.author.name)
-                      .icon_url(&msg.author.face())
+                      .icon_url(msg.author.face())
                    )
           )
         ).await?;
@@ -119,7 +119,7 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
              .title("Translating From **Russian** to **English**...")
               .fields(fields)
               .author(CreateEmbedAuthor::new(&msg.author.name)
-                        .icon_url(&msg.author.face())
+                        .icon_url(msg.author.face())
                      )
             )
           ).await;
@@ -134,7 +134,7 @@ pub async fn translate(ctx: &Context, msg: &Message, args: Args) -> CommandResul
           .embed(CreateEmbed::new()
             .fields(fields)
             .author(CreateEmbedAuthor::new(&msg.author.name)
-                      .icon_url(&msg.author.face())
+                      .icon_url(msg.author.face())
                    )
           )
         ).await?;
@@ -164,7 +164,7 @@ pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
              .title("Translating From **Russian** to **Ukrainian**...")
               .fields(fields)
               .author(CreateEmbedAuthor::new(&msg.author.name)
-                        .icon_url(&msg.author.face())
+                        .icon_url(msg.author.face())
                      )
             )
           ).await;
@@ -179,7 +179,7 @@ pub async fn ru2ua(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           .embed(CreateEmbed::new()
             .fields(fields)
             .author(CreateEmbedAuthor::new(&msg.author.name)
-                      .icon_url(&msg.author.face())
+                      .icon_url(msg.author.face())
                    )
           )
         ).await?;
@@ -209,7 +209,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
              .title("Translating From **English** to **German**...")
               .fields(fields)
               .author(CreateEmbedAuthor::new(&msg.author.name)
-                        .icon_url(&msg.author.face())
+                        .icon_url(msg.author.face())
                      )
             )
           ).await;
@@ -224,7 +224,7 @@ async fn en2de(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           .embed(CreateEmbed::new()
             .fields(fields)
             .author(CreateEmbedAuthor::new(&msg.author.name)
-                .icon_url(&msg.author.face())
+                .icon_url(msg.author.face())
             )
           )
         ).await?;
@@ -254,7 +254,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
               .title("Translating From **German** to **English**...")
               .fields(fields)
               .author(CreateEmbedAuthor::new(&msg.author.name)
-                        .icon_url(&msg.author.face())
+                        .icon_url(msg.author.face())
                      )
             )
           ).await;
@@ -269,7 +269,7 @@ async fn de2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           .embed(CreateEmbed::new()
              .fields(fields)
              .author(CreateEmbedAuthor::new(&msg.author.name)
-                      .icon_url(&msg.author.face())
+                      .icon_url(msg.author.face())
                     )
           )
         ).await?;
@@ -299,7 +299,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
               .title("Translating From **English** to **French**...")
               .fields(fields)
               .author(CreateEmbedAuthor::new(&msg.author.name)
-                        .icon_url(&msg.author.face())
+                        .icon_url(msg.author.face())
                      )
             )
           ).await;
@@ -314,7 +314,7 @@ async fn en2fr(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           .embed(CreateEmbed::new()
              .fields(fields)
              .author(CreateEmbedAuthor::new(&msg.author.name)
-                      .icon_url(&msg.author.face())
+                      .icon_url(msg.author.face())
                     )
           )
         ).await?;
@@ -344,7 +344,7 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
               .title("Translating From **French** to **English**...")
               .fields(fields)
               .author(CreateEmbedAuthor::new(&msg.author.name)
-                        .icon_url(&msg.author.face())
+                        .icon_url(msg.author.face())
                      )
             )
           ).await;
@@ -359,7 +359,7 @@ async fn fr2en(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
           .embed(CreateEmbed::new()
             .fields(fields)
             .author(CreateEmbedAuthor::new(&msg.author.name)
-                      .icon_url(&msg.author.face())
+                      .icon_url(msg.author.face())
                    )
           )
         ).await?;

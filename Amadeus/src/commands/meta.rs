@@ -78,7 +78,7 @@ async fn embed(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     .embed(CreateEmbed::new()
       .title(title)
       .colour((red, green, blue))
-      .author(CreateEmbedAuthor::new(&nick).icon_url(&msg.author.face()))
+      .author(CreateEmbedAuthor::new(&nick).icon_url(msg.author.face()))
       .description(description)
     )
   ).await?;

@@ -187,7 +187,7 @@ async fn timeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
       if let Some(log) = ds.log {
         log.send_message(ctx, CreateMessage::new()
           .embed(CreateEmbed::new()
-            .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
+            .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(msg.author.face()))
             .title(&format!("{} timed out {}", msg.author.name, member.user.name))
             .timestamp(chrono::Utc::now())
             .footer(CreateEmbedFooter::new(&format!("~j {}", &timeout_channel.name)))
@@ -224,7 +224,7 @@ async fn j(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         if let Some(log) = ds.log {
           log.send_message(ctx, CreateMessage::new()
             .embed(CreateEmbed::new()
-              .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
+              .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(msg.author.face()))
               .title(&format!("{} joined {}", msg.author.name, &channel_name))
               .timestamp(chrono::Utc::now())
             )).await?;
@@ -253,7 +253,7 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
     member.enable_communication(ctx).await?;
     msg.channel_id.send_message(&ctx, CreateMessage::new()
       .embed(CreateEmbed::new()
-        .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
+        .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(msg.author.face()))
         .title(&format!("{} was untimeouted out by {}", member.user.name, msg.author.name))
         .timestamp(chrono::Utc::now())
       )).await?;
@@ -261,7 +261,7 @@ async fn untimeout(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
       if let Some(log) = ds.log {
         log.send_message(ctx, CreateMessage::new()
           .embed(CreateEmbed::new()
-            .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
+            .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(msg.author.face()))
             .title(&format!("{} removed time out from {}", msg.author.name, member.user.name))
             .timestamp(chrono::Utc::now())
           )).await?;
@@ -349,7 +349,7 @@ async fn purge(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
       if let Some(log) = ds.log {
         log.send_message(ctx, CreateMessage::new()
           .embed(CreateEmbed::new()
-            .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(&msg.author.face()))
+            .author(CreateEmbedAuthor::new(&msg.author.name).icon_url(msg.author.face()))
             .title(&format!("{} purged messages from {:?}", msg.author.name, &users))
             .timestamp(chrono::Utc::now())
           )).await?;

@@ -159,7 +159,7 @@ async fn quote(ctx: &Context, msg: &Message) -> CommandResult {
       let footer = format!("Requested by {}", msg.author.name);
       if let Err(why) = msg.channel_id.send_message(ctx, CreateMessage::new()
         .embed(CreateEmbed::new()
-        .author(CreateEmbedAuthor::new(&target.name).icon_url(&target.face()))
+        .author(CreateEmbedAuthor::new(&target.name).icon_url(target.face()))
         .description(q)
         .footer(CreateEmbedFooter::new(footer))
       )).await {

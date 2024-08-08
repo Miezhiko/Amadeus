@@ -224,7 +224,7 @@ impl EventHandler for Handler {
       if let Some(log) = ds.log {
         if let Err(why) = log.send_message(&ctx, CreateMessage::new()
           .embed(CreateEmbed::new()
-            .author(CreateEmbedAuthor::new(&user.name).icon_url(&user.face()))
+            .author(CreateEmbedAuthor::new(&user.name).icon_url(user.face()))
             .title(&format!("has left (or was kicked)\nUID: {}", user.id))
             .timestamp(chrono::Utc::now())
           )).await {

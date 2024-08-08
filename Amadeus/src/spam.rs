@@ -67,7 +67,7 @@ async fn delete( guild_id: &GuildId
             if let Some(log) = ds.log {
               if let Err(why) = log.send_message(&ctx, CreateMessage::new()
                 .embed(CreateEmbed::new()
-                  .author(CreateEmbedAuthor::new().icon_url(&msg.author.face()).name(&msg.author.name))
+                  .author(CreateEmbedAuthor::new().icon_url(msg.author.face()).name(&msg.author.name))
                   .title(reason)
                   .description("ely used bad word again,\nignoring")
                   .timestamp(chrono::Utc::now())
@@ -90,7 +90,7 @@ async fn delete( guild_id: &GuildId
         };
       if let Err(why) = log.send_message(&ctx, CreateMessage::new()
         .embed(CreateEmbed::new()
-          .author(CreateEmbedAuthor::new().icon_url(&msg.author.face()).name(&msg.author.name))
+          .author(CreateEmbedAuthor::new().icon_url(msg.author.face()).name(&msg.author.name))
           .title(reason)
           .description(&format!( "User UID: {}\n original message: {}\n{}"
                                , msg.author.id.get(), &msg.content

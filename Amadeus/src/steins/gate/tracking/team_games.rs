@@ -98,19 +98,20 @@ pub async fn activate_games_tracking(
     loop {
       { // scope for GAMES lock
         trace!("team games: clearing");
-        let mut games_lock = poller::GAMES.write().await;
-        let mut k_to_del: Vec<String> = Vec::new();
-        for (k, track) in games_lock.iter_mut() {
-          if track.passed_time < 666 {
-            track.passed_time += 1;
-            track.still_live = false;
-          } else {
-            k_to_del.push(k.clone());
+        if let Ok(mut games_lock) = poller::GAMES.try_write() {
+          let mut k_to_del: Vec<String> = Vec::new();
+          for (k, track) in games_lock.iter_mut() {
+            if track.passed_time < 666 {
+              track.passed_time += 1;
+              track.still_live = false;
+            } else {
+              k_to_del.push(k.clone());
+            }
           }
-        }
-        for ktd in k_to_del {
-          warn!("match {ktd} out with timeout");
-          games_lock.remove(&ktd);
+          for ktd in k_to_del {
+            warn!("match {ktd} out with timeout");
+            games_lock.remove(&ktd);
+          }
         }
       }
 
@@ -251,21 +252,22 @@ pub async fn activate_games_tracking(
               Ok(msg_id) => {
                 { // scope for games_lock
                   trace!("team games: starting");
-                  let mut games_lock = poller::GAMES.write().await;
-                  if let Some(inserted) = games_lock.get_mut(&game_key) {
-                    if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.get())) {
-                      inserted.tracking_msg_id.push((*d, msg_id.id.get()));
+                  if let Ok(mut games_lock) = poller::GAMES.try_write() {
+                    if let Some(inserted) = games_lock.get_mut(&game_key) {
+                      if !inserted.tracking_msg_id.contains(&(*d, msg_id.id.get())) {
+                        inserted.tracking_msg_id.push((*d, msg_id.id.get()));
+                      }
+                    } else {
+                      games_lock.insert( game_key.clone()
+                        , TrackingGame { tracking_msg_id: vec![(*d, msg_id.id.get())]
+                                      , passed_time: 0
+                                      , still_live: false
+                                      , players: game.players.clone().into_iter()
+                                                              .cloned().collect()
+                                      , bets: vec![]
+                                      , fails: 0
+                                      , mode: game.mode, flo_tv: None } );
                     }
-                  } else {
-                    games_lock.insert( game_key.clone()
-                      , TrackingGame { tracking_msg_id: vec![(*d, msg_id.id.get())]
-                                     , passed_time: 0
-                                     , still_live: false
-                                     , players: game.players.clone().into_iter()
-                                                            .cloned().collect()
-                                     , bets: vec![]
-                                     , fails: 0
-                                     , mode: game.mode, flo_tv: None } );
                   }
                 }
                 let up = ReactionType::Unicode(String::from("👍🏻"));
@@ -292,23 +294,24 @@ pub async fn activate_games_tracking(
                                   let is_positive = emoji_data == "👍🏻";
                                   { // games lock scope
                                     trace!("team games: thumb was clicked");
-                                    let mut gl = poller::GAMES.write().await;
-                                    if let Some(track) = gl.get_mut(&game_key_clone) {
-                                      if track.still_live {
-                                        // you bet only once
-                                        if !track.bets.iter().any(|b| b.member == u.get()) {
-                                          let bet = Bet { guild: g.get()
-                                                        , member: u.get()
-                                                        , points: 100
-                                                        , positive: is_positive
-                                                        , registered: false };
-                                          let (succ, rst) = points::give_points( g.get(), u.get()
-                                                                               , amadeus
-                                                                               , 100 ).await;
-                                          if succ {
-                                            track.bets.push(bet);
-                                          } else {
-                                            error!("Error on bet {:?}", rst);
+                                    if let Ok(mut gl) = poller::GAMES.try_write() {
+                                      if let Some(track) = gl.get_mut(&game_key_clone) {
+                                        if track.still_live {
+                                          // you bet only once
+                                          if !track.bets.iter().any(|b| b.member == u.get()) {
+                                            let bet = Bet { guild: g.get()
+                                                          , member: u.get()
+                                                          , points: 100
+                                                          , positive: is_positive
+                                                          , registered: false };
+                                            let (succ, rst) = points::give_points( g.get(), u.get()
+                                                                                , amadeus
+                                                                                , 100 ).await;
+                                            if succ {
+                                              track.bets.push(bet);
+                                            } else {
+                                              error!("Error on bet {:?}", rst);
+                                            }
                                           }
                                         }
                                       }

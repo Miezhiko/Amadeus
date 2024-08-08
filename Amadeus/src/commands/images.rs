@@ -111,7 +111,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
         msg.channel_id.send_message(ctx, CreateMessage::new()
                                    .embed( CreateEmbed::new()
                        .color(color)
-                       .author( CreateEmbedAuthor::new(&nick).icon_url(&msg.author.face()))
+                       .author( CreateEmbedAuthor::new(&nick).icon_url(msg.author.face()))
                        .description(format!("{t} {}", target_user.name))
                        .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
@@ -119,7 +119,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
         msg.channel_id.send_message(ctx, CreateMessage::new()
                                    .embed( CreateEmbed::new()
                        .color(color)
-                       .author( CreateEmbedAuthor::new(&nick).icon_url(&msg.author.face()))
+                       .author( CreateEmbedAuthor::new(&nick).icon_url(msg.author.face()))
                        .description(o)
                        .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
@@ -127,7 +127,7 @@ async fn gifx<C: Into<Colour>>( ctx: &Context
         msg.channel_id.send_message(ctx, CreateMessage::new()
                                    .embed( CreateEmbed::new()
                        .color(color)
-                       .author( CreateEmbedAuthor::new(&nick).icon_url(&msg.author.face()))
+                       .author( CreateEmbedAuthor::new(&nick).icon_url(msg.author.face()))
                        .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       }
     }
@@ -178,21 +178,21 @@ pub async fn gifs<C: Into<Colour>>( ctx: &Context
       GType::Target(t) => {
         msg.edit(ctx, EditMessage::default().content("")
                            .embed(CreateEmbed::new().color(color)
-                           .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
+                           .author(CreateEmbedAuthor::new(&nick).icon_url(user.face()))
                            .description(format!("{t} {}", arg.unwrap_or_default()))
                            .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
       GType::Own(o) => {
         msg.edit(ctx, EditMessage::default().content("")
                            .embed(CreateEmbed::new().color(color)
-                           .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
+                           .author(CreateEmbedAuthor::new(&nick).icon_url(user.face()))
                            .description(o)
                            .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       },
       GType::Nothing => {
         msg.edit(ctx, EditMessage::default().content("")
                            .embed(CreateEmbed::new().color(color)
-                           .author(CreateEmbedAuthor::new(&nick).icon_url(&user.face()))
+                           .author(CreateEmbedAuthor::new(&nick).icon_url(user.face()))
                            .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
       }
     }
@@ -654,7 +654,7 @@ async fn gifsearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
   msg.channel_id.send_message(ctx, CreateMessage::new()
     .embed(CreateEmbed::new()
                  .color(0x8e613b)
-                 .author(CreateEmbedAuthor::new(&nick).icon_url(&msg.author.face()))
+                 .author(CreateEmbedAuthor::new(&nick).icon_url(msg.author.face()))
                  .image(&gifs[val].media[0].get("gif").unwrap().url))).await?;
   Ok(())
 }

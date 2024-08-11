@@ -390,7 +390,7 @@ checksum = "05b1b633a2115cd122d73b955eadd9916c18c8f510ec9cd1686404c60ad1c29c"
 dependencies = [
  "async-channel 2.3.1",
  "async-executor",
- "async-io 2.3.3",
+ "async-io 2.3.4",
  "async-lock 3.4.0",
  "blocking",
  "futures-lite 2.3.0",
@@ -430,9 +430,9 @@ dependencies = [
 
 [[package]]
 name = "async-io"
-version = "2.3.3"
+version = "2.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d6baa8f0178795da0e71bc42c9e5d13261aac7ee549853162e66a241ba17964"
+checksum = "444b0228950ee6501b3568d3c93bf1176a1fdbc3b758dcd9475046d30f4dc7e8"
 dependencies = [
  "async-lock 3.4.0",
  "cfg-if 1.0.0",
@@ -444,7 +444,7 @@ dependencies = [
  "rustix 0.38.34",
  "slab",
  "tracing",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -4244,9 +4244,9 @@ dependencies = [
 
 [[package]]
 name = "piper"
-version = "0.2.3"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae1d5c74c9876f070d3e8fd503d748c7d974c3e48da8f41350fa5222ef9b4391"
+checksum = "96c8c490f422ef9a4efd2cb5b42b76c8613d7e7dfc1caf667b8a3350a5acc066"
 dependencies = [
  "atomic-waker",
  "fastrand 2.1.0",

@@ -816,16 +816,18 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
     }
   }
 
-  info!("mmm: locing last update");
   let nao = Utc::now();
-  let last_update = LAST_QTIME_UPDATE.read().await;
-
   let (mut qmax1, mut qmax2, mut qmax4) =
     ( max(&qtime1)
     , max(&qtime2)
     , max(&qtime4)
     );
-  let since_last_update: chrono::Duration = nao - *last_update;
+
+  info!("mmm: locking last update read");
+  let since_last_update: chrono::Duration = {
+    let last_update = LAST_QTIME_UPDATE.read().await;
+    nao - *last_update
+  };
   let (mut qt1m, mut qt2m, mut qt4m) =
     ( Q1T.load(Relaxed)
     , Q2T.load(Relaxed)
@@ -833,6 +835,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
     );
   // each 20 minutes half stored search time
   if since_last_update > chrono::Duration::minutes(20) {
+    info!("mmm: locking last update write");
     let mut last_update_w = LAST_QTIME_UPDATE.write().await;
     *last_update_w = nao;
     if qt1m > 2 && !qtime1.is_empty() { qt1m /= 2; }
@@ -842,6 +845,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
   qmax1 = std::cmp::max( qmax1, qt1m );
   qmax2 = std::cmp::max( qmax2, qt2m );
   qmax4 = std::cmp::max( qmax4, qt4m );
+  info!("mmm: updating status data");
   Q1T.store(qmax1, Relaxed);
   Q2T.store(qmax2, Relaxed);
   Q4T.store(qmax4, Relaxed);

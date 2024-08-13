@@ -757,11 +757,13 @@ pub fn secs_to_str(secs: u32) -> String {
 }
 
 pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
+  info!("mmm: locking data");
   let rqcl = {
     set!{ data = ctx.data.read().await
         , rqcl = data.get::<ReqwestClient>().unwrap() };
     rqcl.clone()
   };
+  info!("mmm: getting snapshot");
   let res = rqcl.get("https://matchmaking-service.w3champions.com/queue/snapshots").send().await?;
   let parsed = res.json::<Vec<QueueSnapshot>>().await?;
   trace!("parsed mmm");
@@ -771,6 +773,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
        , searching_players  = vec![]
        , searching_2x2      = vec![] };
 
+  info!("mmm: parsing snapshot");
   for qs in parsed {
     for s in qs.snapshot {
       if qs.gameMode == 1 {
@@ -813,6 +816,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
     }
   }
 
+  info!("mmm: locing last update");
   let nao = Utc::now();
   let last_update = LAST_QTIME_UPDATE.read().await;
 

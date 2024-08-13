@@ -298,9 +298,11 @@ fn merge_stats(s1: &mut StatusStats, s2: &StatusStats) {
 }
 
 pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()> {
+  info!("satus: getting status messages");
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
   if let Ok(mut statusmsg2) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG2).await {
 
+    info!("satus: getting weekly");
     let weekly = get_weekly(ctx).await?;
     let utc_now = chrono::Utc::now();
     let now = utc_now.with_timezone(&chrono_tz::Europe::Moscow);
@@ -311,6 +313,8 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         clear_weekly(ctx, now_day).await?;
       }
     }
+
+    info!("satus: getting mm");
     let ( (z1, q1)
         , (z2, q2)
         , (z3, q3)

@@ -115,13 +115,13 @@ pub async fn activate_games_tracking(
         }
       }
 
-      info!("team games: tick");
+      trace!("team games: tick");
       let our_gsx = checker::check( &ctx_clone
                                   , options_clone.guild
                                   , &rqcl
                                   ).await;
 
-      info!("team games: aftercheck");
+      trace!("team games: aftercheck");
       for game in our_gsx {
         let game_key = game.key.clone();
         let playa = &game.players[0];

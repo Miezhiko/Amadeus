@@ -62,10 +62,10 @@ pub async fn check<'a>( ctx: &Context
     rqcl.get(&format!("{W3C_API}/matches/ongoing?offset=0&gameMode=1"))
         .send()
         .await {
-    info!("team games: checking solo matches");
+    trace!("team games: checking solo matches");
     if let Ok(going) = res.json::<Going>().await {
       let games_solo = going.matches.len();
-      info!("team games: {} matches", games_solo);
+      trace!("team games: {} matches", games_solo);
       stats.games_solo = games_solo;
       if !going.matches.is_empty() {
         for m in going.matches {
@@ -109,7 +109,7 @@ pub async fn check<'a>( ctx: &Context
                       , format!("({race1}) **{t0_name}** [{}]{}", m.teams[0].players[0].oldMmr, t0_ping)
                       , format!("({race2}) **{t1_name}** [{}]{}", m.teams[1].players[0].oldMmr, t1_ping) ];
 
-                info!("team games: locking solo");
+                trace!("team games: locking solo");
                 { // games lock scope
                   let mut games_lock = GAMES.write().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
@@ -210,10 +210,10 @@ pub async fn check<'a>( ctx: &Context
     rqcl.get(&format!("{W3C_API}/matches/ongoing?offset=0&gameMode=2"))
         .send()
         .await {
-    info!("team games: checking 2x2 matches");
+    trace!("team games: checking 2x2 matches");
     if let Ok(going) = res.json::<Going>().await {
       let games_2x2 = going.matches.len();
-      info!("team games: {} matches", games_2x2);
+      trace!("team games: {} matches", games_2x2);
       stats.games_2x2 = games_2x2;
       if !going.matches.is_empty() {
         for m in going.matches {
@@ -269,7 +269,7 @@ pub async fn check<'a>( ctx: &Context
 
                 let host = m.serverInfo.name.unwrap_or_else(|| "no information about host".into());
 
-                info!("team games: locking 2x2");
+                trace!("team games: locking 2x2");
                 { // games lock scope
                   let mut games_lock = GAMES.write().await;
                   if let Some(track) = games_lock.get_mut(&m.match_id) {
@@ -372,10 +372,10 @@ pub async fn check<'a>( ctx: &Context
     rqcl.get(&format!("{W3C_API}/matches/ongoing?offset=0&gameMode=4"))
         .send()
         .await {
-    info!("team games: checking 4x4 matches");
+    trace!("team games: checking 4x4 matches");
     if let Ok(going) = res.json::<Going>().await {
       let games_4x4 = going.matches.len();
-      info!("team games: {} matches", games_4x4);
+      trace!("team games: {} matches", games_4x4);
       stats.games_4x4 = games_4x4;
       if !going.matches.is_empty() {
         for m in going.matches {
@@ -426,7 +426,7 @@ pub async fn check<'a>( ctx: &Context
 
               let host = m.serverInfo.name.unwrap_or_else(|| "no information about host".into());
 
-              info!("team games: locking 4x4");
+              trace!("team games: locking 4x4");
               { // games lock scope
                 let mut games_lock = GAMES.write().await;
                 if let Some(track) = games_lock.get_mut(&m.match_id) {
@@ -512,7 +512,7 @@ pub async fn check<'a>( ctx: &Context
     }
   }
 
-  info!("team games: updating status");
+  trace!("team games: updating status");
   if let Err(what) = status_update(ctx, &stats).await {
     if !what.to_string().contains("connection closed before message completed") {
       if let Ok(res_test) = rqcl.get("https://matchmaking-service.w3champions.com/queue/snapshots").send().await {
@@ -530,7 +530,7 @@ pub async fn check<'a>( ctx: &Context
   }
 
   { // games lock scope
-    info!("team games: finishing checking");
+    trace!("team games: finishing checking");
     let mut k_to_del: Vec<String> = Vec::new();
     let mut games_lock = GAMES.write().await;
     for (k, track) in games_lock.iter_mut() {
@@ -591,7 +591,7 @@ pub async fn check<'a>( ctx: &Context
                   }
                 }
                 if winner.won {
-                  info!("Registering win for {}", winner.player.0.as_str());
+                  trace!("Registering win for {}", winner.player.0.as_str());
                   let streak = points::add_win_points( guild_id
                                                      , winner.player.1
                                                      ).await;
@@ -612,11 +612,11 @@ pub async fn check<'a>( ctx: &Context
                     streak_fields = Some(vec![("Winning streak", dd, false)]);
                   }
                 } else {
-                  info!("Registering lose for {}", winner.player.0.as_str());
+                  trace!("Registering lose for {}", winner.player.0.as_str());
                   points::break_streak(guild_id, winner.player.1).await;
                 }
                 if !track.bets.is_empty() && bet_fields.is_none() {
-                  info!("Paying for bets");
+                  trace!("Paying for bets");
                   let amadeus_maybe = {
                     let data = ctx.data.read().await;
                     if let Some(core_guilds) = data.get::<CoreGuilds>() {

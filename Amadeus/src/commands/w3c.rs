@@ -757,13 +757,13 @@ pub fn secs_to_str(secs: u32) -> String {
 }
 
 pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
-  info!("mmm: locking data");
+  trace!("mmm: locking data");
   let rqcl = {
     set!{ data = ctx.data.read().await
         , rqcl = data.get::<ReqwestClient>().unwrap() };
     rqcl.clone()
   };
-  info!("mmm: getting snapshot");
+  trace!("mmm: getting snapshot");
   let res = rqcl.get("https://matchmaking-service.w3champions.com/queue/snapshots").send().await?;
   let parsed = res.json::<Vec<QueueSnapshot>>().await?;
   trace!("parsed mmm");
@@ -773,7 +773,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
        , searching_players  = vec![]
        , searching_2x2      = vec![] };
 
-  info!("mmm: parsing snapshot");
+  trace!("mmm: parsing snapshot");
   for qs in parsed {
     for s in qs.snapshot {
       if qs.gameMode == 1 {
@@ -823,7 +823,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
     , max(&qtime4)
     );
 
-  info!("mmm: locking last update read");
+  trace!("mmm: locking last update read");
   let since_last_update: chrono::Duration = {
     let last_update = LAST_QTIME_UPDATE.read().await;
     nao - *last_update
@@ -835,7 +835,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
     );
   // each 20 minutes half stored search time
   if since_last_update > chrono::Duration::minutes(20) {
-    info!("mmm: locking last update write");
+    trace!("mmm: locking last update write");
     let mut last_update_w = LAST_QTIME_UPDATE.write().await;
     *last_update_w = nao;
     if qt1m > 2 && !qtime1.is_empty() { qt1m /= 2; }
@@ -845,7 +845,7 @@ pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
   qmax1 = std::cmp::max( qmax1, qt1m );
   qmax2 = std::cmp::max( qmax2, qt2m );
   qmax4 = std::cmp::max( qmax4, qt4m );
-  info!("mmm: updating status data");
+  trace!("mmm: updating status data");
   Q1T.store(qmax1, Relaxed);
   Q2T.store(qmax2, Relaxed);
   Q4T.store(qmax4, Relaxed);

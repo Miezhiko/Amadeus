@@ -99,6 +99,7 @@ in { discord                = "AAAAAAAAA.AAA.AAAA-AAAAAAA"
    , flo_secret             = "AAAAAAAAAAAAAAA"
    , gencache_on_start      = True
    , gencache_on_start_only = False
+   , upgrade_on_resume      = False
    , github_auth            = "AccountName:access_token"
    }
 ```

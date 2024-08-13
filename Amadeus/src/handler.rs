@@ -2,7 +2,7 @@ use crate::{
   slash::{ definitions, interactions },
   message::{ self
            , RESTORE, BACKUP },
-  types::{ serenity::CoreGuild
+  types::{ serenity::{ CoreGuild, ResumeUpgrade }
          , options::* },
   common::{ options
           , system
@@ -172,8 +172,15 @@ impl EventHandler for Handler {
 
   async fn resume(&self, ctx: Context, _: ResumedEvent) {
     info!("resume event handling, starting the upgrade");
-    if let Err(why) = system::upgrade::upgrade_amadeus(&ctx, MAIN_LOG).await {
-      error!("Failed to upgrade Amadeus, {why}");
+    let data = ctx.data.read().await;
+    let resume_upgrade = 
+      if let Some(r_u) = data.get::<ResumeUpgrade>() {
+        *r_u
+      } else { false };
+    if resume_upgrade {
+      if let Err(why) = system::upgrade::upgrade_amadeus(&ctx, MAIN_LOG).await {
+        error!("Failed to upgrade Amadeus, {why}");
+      }
     }
   }
 

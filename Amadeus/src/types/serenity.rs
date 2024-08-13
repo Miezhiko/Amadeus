@@ -46,6 +46,7 @@ impl TypeMapKey for PubCreds {
 pub struct CoreGuilds;
 pub struct AllGuilds;
 pub struct NoGencache;
+pub struct ResumeUpgrade;
 
 impl TypeMapKey for CoreGuilds {
   type Value = Arc<HashMap<CoreGuild, u64>>;
@@ -62,5 +63,9 @@ impl TypeMapKey for ReqwestClient {
 }
 
 impl TypeMapKey for NoGencache {
+  type Value = bool;
+}
+
+impl TypeMapKey for ResumeUpgrade {
   type Value = bool;
 }

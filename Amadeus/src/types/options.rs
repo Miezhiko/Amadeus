@@ -14,6 +14,7 @@ pub struct IOptions {
   pub flo_secret: String,
   pub gencache_on_start: bool,
   pub gencache_on_start_only: bool,
+  pub upgrade_on_resume: bool,
   pub github_auth: String
 }
 

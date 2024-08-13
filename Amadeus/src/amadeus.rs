@@ -2,7 +2,8 @@ use crate::{
   types::{
     serenity::{ PubCreds, ReqwestClient
               , CoreGuild, CoreGuilds
-              , IServer, AllGuilds, NoGencache },
+              , IServer, AllGuilds, NoGencache
+              , ResumeUpgrade },
     options::IOptions
   },
   common::{ constants::PREFIX
@@ -129,6 +130,7 @@ pub async fn run(opts: IOptions) ->
   }
 
   let no_gencache = opts.gencache_on_start_only;
+  let resume_upgrade = opts.upgrade_on_resume;
 
   let intents = GatewayIntents::GUILDS
               | GatewayIntents::GUILD_MEMBERS
@@ -159,6 +161,7 @@ pub async fn run(opts: IOptions) ->
     data.insert::<CoreGuilds>             (Arc::new(core_guilds));
     data.insert::<AllGuilds>              (Arc::new(all_guilds));
     data.insert::<NoGencache>             (no_gencache);
+    data.insert::<ResumeUpgrade>          (resume_upgrade);
   }
 
   // start listening for events by starting a single shard

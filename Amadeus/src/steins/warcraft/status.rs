@@ -244,6 +244,7 @@ pub async fn generate_stats_graph( ctx: &Context
 }
 
 pub async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
+  info!("status: clearing weekly");
   let poplar_hours = KURISU_LINK.to_string();
   let init = if !std::path::Path::new(WEEKLY_STATS_FNAME).exists() {
       Weekly {
@@ -282,6 +283,7 @@ pub async fn clear_weekly(ctx: &Context, day: u32) -> anyhow::Result<()> {
     };
   let yml = serde_yaml::to_string(&init)?;
   fs::write(WEEKLY_STATS_FNAME, yml).await?;
+  info!("status: clearing weekly complete");
   Ok(())
 }
 

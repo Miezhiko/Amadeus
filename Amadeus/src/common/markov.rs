@@ -6,13 +6,10 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::hash::Hash;
 use std::io::prelude::*;
-use std::io::{BufReader, Result};
+use std::io::Result;
 use std::io::{Error, ErrorKind};
-use std::iter::Map;
 use std::path::Path;
 
-use itertools::Itertools;
-use petgraph::graph::Graph;
 use rand::{thread_rng, Rng};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -97,9 +94,6 @@ where
     self
   }
 
-  /// Generates a collection of tokens from the chain. This operation is `O(mn)` where `m` is the
-  /// length of the generated collection, and `n` is the number of possible states from a given
-  /// state.
   pub fn generate(&self) -> Vec<T> {
     let mut ret = Vec::new();
     let mut curs = vec![None; self.order];
@@ -115,107 +109,6 @@ where
       }
     }
     ret
-  }
-
-  /// Generates a collection of tokens from the chain, starting with the given token. This
-  /// operation is O(mn) where m is the length of the generated collection, and n is the number
-  /// of possible states from a given state. This returns an empty vector if the token is not
-  /// found.
-  pub fn generate_from_token(&self, token: T) -> Vec<T> {
-    let mut curs = vec![None; self.order - 1];
-    curs.push(Some(token.clone()));
-    if !self.map.contains_key(&curs) {
-      return Vec::new();
-    }
-    let mut ret = vec![token];
-    loop {
-      let next = self.map[&curs].next();
-      curs = curs[1..self.order].to_vec();
-      curs.push(next.clone());
-      if let Some(next) = next {
-        ret.push(next)
-      };
-      if curs[self.order - 1].is_none() {
-        break;
-      }
-    }
-    ret
-  }
-
-  /// Merges 2 chains (self and other) into self, consuming the other one. Both chains must be of
-  /// the same order. This method is useful when you want to speed up chain building - chains
-  /// built independently (e.g. in parallel with rayon) can be merged into a final one.
-  pub fn merge(&mut self, other: Chain<T>) -> &Chain<T> {
-    assert!(self.order == other.order);
-
-    for (tokens, next) in other.map {
-      let states = self.map.entry(tokens).or_default();
-
-      for (token, count) in next {
-        states.add(token, count);
-      }
-    }
-
-    self
-  }
-
-  /// Produces an infinite iterator of generated token collections.
-  pub fn iter(&self) -> InfiniteChainIterator<T> {
-    InfiniteChainIterator { chain: self }
-  }
-
-  /// Produces an iterator for the specified number of generated token collections.
-  pub fn iter_for(&self, size: usize) -> SizedChainIterator<T> {
-    SizedChainIterator { chain: self, size }
-  }
-
-  /// Create a graph using `petgraph` from the markov chain.
-
-  pub fn graph(&self) -> Graph<Vec<Token<T>>, f64> {
-    let mut graph = Graph::new();
-
-    // Create all possible node and store indices into hashmap.
-    let state_map = self
-      .map
-      .iter()
-      .flat_map(|(state, nexts)| {
-        let mut states = vec![state.clone()];
-
-        let mut state = state.clone();
-        state.remove(0);
-
-        for next in nexts {
-          let mut next_state = state.clone();
-          next_state.push(next.0.clone());
-          states.push(next_state);
-        }
-
-        states
-      })
-      .unique()
-      .map(|state| (state.clone(), graph.add_node(state)))
-      .collect::<HashMap<_, _>>();
-
-    // Create all edges, and add them to the graph.
-    self.map
-      .iter()
-      .flat_map(|(state, nexts)| {
-        let sum = nexts.iter().map(|(_, p)| p).sum::<usize>() as f64;
-
-        nexts
-          .iter()
-          .map(|(next, p)| (state.clone(), next.clone(), *p as f64 / sum))
-          .collect::<Vec<_>>()
-      })
-      .for_each(|(state, next, p)| {
-        let mut next_state = state.clone();
-        next_state.remove(0);
-        next_state.push(next);
-
-        graph.add_edge(state_map[&state], state_map[&next_state], p);
-      });
-
-    graph
   }
 }
 
@@ -252,22 +145,6 @@ impl Chain<String> {
     self.feed(string.split(' ').map(|s| s.to_owned()).collect::<Vec<_>>())
   }
 
-  /// Feeds a properly formatted file into the chain. This file should be formatted such that
-  /// each line is a new sentence. Punctuation may be included if it is desired.
-  pub fn feed_file<P: AsRef<Path>>(&mut self, path: P) -> Result<&mut Chain<String>> {
-    let reader = BufReader::new(File::open(path)?);
-    for line in reader.lines() {
-      let line = line?;
-      let words = line
-        .split_whitespace()
-        .filter(|word| !word.is_empty())
-        .map(|s| s.to_owned())
-        .collect::<Vec<_>>();
-      self.feed(&words);
-    }
-    Ok(self)
-  }
-
   /// Converts the output of `generate(...)` on a String chain to a single String.
   fn vec_to_string(vec: Vec<String>) -> String {
     let mut ret = String::new();
@@ -286,29 +163,7 @@ impl Chain<String> {
   pub fn generate_str(&self) -> String {
     Chain::vec_to_string(self.generate())
   }
-
-  /// Generates a random string of text starting with the desired token. This returns an empty
-  /// string if the token is not found.
-  pub fn generate_str_from_token(&self, string: &str) -> String {
-    Chain::vec_to_string(self.generate_from_token(string.to_owned()))
-  }
-
-  /// Produces an infinite iterator of generated strings.
-  pub fn str_iter(&self) -> InfiniteChainStringIterator {
-    let vec_to_string: fn(Vec<String>) -> String = Chain::vec_to_string;
-    self.iter().map(vec_to_string)
-  }
-
-  /// Produces a sized iterator of generated strings.
-  pub fn str_iter_for(&self, size: usize) -> SizedChainStringIterator {
-    let vec_to_string: fn(Vec<String>) -> String = Chain::vec_to_string;
-    self.iter_for(size).map(vec_to_string)
-  }
 }
-
-/// A sized iterator over a Markov chain of strings.
-pub type SizedChainStringIterator<'a> =
-  Map<SizedChainIterator<'a, String>, fn(Vec<String>) -> String>;
 
 /// A sized iterator over a Markov chain.
 pub struct SizedChainIterator<'a, T: Chainable + 'a> {
@@ -334,10 +189,6 @@ where
     (self.size, Some(self.size))
   }
 }
-
-/// An infinite iterator over a Markov chain of strings.
-pub type InfiniteChainStringIterator<'a> =
-  Map<InfiniteChainIterator<'a, String>, fn(Vec<String>) -> String>;
 
 /// An infinite iterator over a Markov chain.
 pub struct InfiniteChainIterator<'a, T: Chainable + 'a> {

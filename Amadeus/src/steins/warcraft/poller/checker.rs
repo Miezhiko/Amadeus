@@ -772,12 +772,8 @@ pub async fn check<'a>( ctx: &Context
       }
     }
 
-    if !k_to_del.is_empty() {
-      if let Ok(mut games_lock_write) = GAMES.try_write() {
-        for ktd in k_to_del {
-          games_lock_write.remove(&ktd);
-        }
-      }
+    for ktd in k_to_del {
+      games_lock.remove(&ktd);
     }
   } // games lock scope end
 

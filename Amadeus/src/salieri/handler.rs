@@ -54,7 +54,7 @@ pub async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Res
   loop {
     stream.readable().await?;
 
-    let mut buf = Vec::with_capacity(4096);
+    let mut buf = Vec::with_capacity(16384);
     match stream.try_read_buf(&mut buf) {
       Ok(0) => break,
       Ok(n) => {

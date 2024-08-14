@@ -301,8 +301,10 @@ pub async fn clear_cache() {
 
 pub async fn actualize_cache(ctx: &Context, force: bool) {
   let nao = Utc::now();
-  let last_update = LAST_UPDATE.read().await;
-  let since_last_update: Duration = nao - *last_update;
+  let since_last_update: Duration = {
+    let last_update = LAST_UPDATE.read().await;
+    nao - *last_update
+  };
   if since_last_update > Duration::hours(2) || force {
     let mut all_channels: HashMap<ChannelId, GuildChannel> = HashMap::new();
     let data = ctx.data.read().await;

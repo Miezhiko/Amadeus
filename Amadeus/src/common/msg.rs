@@ -2,7 +2,7 @@ use serenity::{ model::channel::Message
               , builder::CreateMessage
               , prelude::* };
 
-pub static MESSAGE_LIMIT: usize = 2000;
+pub static MESSAGE_LIMIT: usize = 1970;
 
 async fn serenity_direct_message_single(ctx: &Context, msg: &Message, text: &str) {
   if let Err(why) = msg.author.dm(ctx, CreateMessage::new().content(text)).await {

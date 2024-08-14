@@ -1,8 +1,7 @@
 use crate::{
   common::msg::reply,
   steins::ai::{ cache::KATHOEY
-              , boris
-              , uwu }
+              , boris }
 };
 
 use strauss::{
@@ -95,14 +94,7 @@ pub async fn handle_lukashenko(ctx: &Context, stream: UnixStream) -> anyhow::Res
           response = decoded.response;
         }
       }
-    } else {
-      let rndy: u32 = rand::thread_rng().gen_range(0..100);
-      if rndy == 1 {
-        response = uwu::spell(&decoded.response);
-      } else {
-        response = decoded.response;
-      }
-    }
+    } else { response = decoded.response; }
 
     if let Some(msg_id) = &decoded.message {
       if let Ok(msg) = chan.message(ctx, MessageId::new(*msg_id)).await {

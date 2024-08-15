@@ -110,7 +110,7 @@ checksum = "5c6cb57a04249c6480766f7f7cef5467412af1490f8d1e243141daddada3264f"
 
 [[package]]
 name = "amadeus"
-version = "16.0.3"
+version = "16.1.0"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -5341,7 +5341,7 @@ dependencies = [
 
 [[package]]
 name = "salieri"
-version = "0.4.4"
+version = "0.4.5"
 dependencies = [
  "anyhow",
  "celery",
@@ -5554,9 +5554,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.124"
+version = "1.0.125"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66ad62847a56b3dba58cc891acd13884b9c61138d330c0d7b6181713d4fce38d"
+checksum = "83c8e735a073ccf5be70aa8066aa984eaf2fa000db6c8d0100ae605b366d31ed"
 dependencies = [
  "itoa 1.0.11",
  "memchr",
@@ -5937,7 +5937,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strauss"
-version = "0.7.2"
+version = "0.7.5"
 dependencies = [
  "anyhow",
  "async-recursion",

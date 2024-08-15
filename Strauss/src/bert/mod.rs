@@ -14,9 +14,9 @@ pub static RE3: Lazy<Regex> = Lazy::new(|| Regex::new(r"&(.*?);").unwrap());
 pub static RE4: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+").unwrap());
 
 pub fn process_message_for_gpt(s: &str) -> String {
-  let mut result_string = RE1.replace_all(s, "").to_string();
-  result_string = RE2.replace_all(&result_string, "").to_string();
-  result_string = RE3.replace_all(&result_string, "").to_string();
-  result_string = RE4.replace_all(&result_string, " ").to_string();
-  result_string.trim().to_string()
+  RE4.replace_all(
+    &RE3.replace_all(
+      &RE2.replace_all(
+        &RE1.replace_all(s, ""), ""), ""), " ")
+          .trim().to_string()
 }

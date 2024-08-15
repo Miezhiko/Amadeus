@@ -6,7 +6,6 @@ use crate::{
          , options::* },
   common::{ options
           , system
-          , giveaway::{self, get_giveway, put_giveway}
           , db::trees::{ points, roles, emojis }
           , constants::{ UNBLOCK_ROLE
                        , LIVE_ROLE, MAIN_LOG
@@ -171,13 +170,14 @@ impl EventHandler for Handler {
   }
 
   async fn resume(&self, ctx: Context, _: ResumedEvent) {
-    info!("resume event handling, starting the upgrade");
+    info!("resume event handling");
     let data = ctx.data.read().await;
     let resume_upgrade = 
       if let Some(r_u) = data.get::<ResumeUpgrade>() {
         *r_u
       } else { false };
     if resume_upgrade {
+      info!("starting the upgrade");
       if let Err(why) = system::upgrade::upgrade_amadeus(&ctx, MAIN_LOG).await {
         error!("Failed to upgrade Amadeus, {why}");
       }
@@ -247,42 +247,8 @@ impl EventHandler for Handler {
             if let Some(guild_channel) = channel.guild() {
               let user_u64 = user_id.get();
               let guild_u64 = guild_channel.guild_id.get();
-              // TODO: change those ids
-              if add_reaction.message_id.get() == 1072844911801552916
-                                   && id.get() == 950149204930621460 {
-                let jonin   = RoleId::new( 977238413050794075 );
-                let chuunin = RoleId::new( 977238377382428742 );
-                let genin   = RoleId::new( 977238521259647006 );
-                //if let Ok(p) = points::get_points( guild_channel.guild_id.get()
-                //                                 , user_id.get() ).await {
-                //  if p >= 250 {
-                if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
-                  if let Ok(member) = guild.member(&ctx, user_id).await {
-                    let weight =
-                      if member.roles.contains(&jonin) {
-                        1.5
-                      } else if member.roles.contains(&chuunin) {
-                        1.2
-                      } else if member.roles.contains(&genin) {
-                        1.1
-                      } else {
-                        1.0
-                      };
-                    if weight >= 1.1 {
-                      let mut reg =
-                        if let Ok(gvw) = get_giveway().await {
-                          gvw
-                        } else {
-                          giveaway::Giveaway::new()
-                        };
-                      reg.insert(user_id.get(), weight);
-                      if let Err(why) = put_giveway(&reg).await {
-                        error!("Failed to register for giveaway {why}");
-                      }
-                    }
-                  }
-                }
-              } else if let Ok(Some(emoji_roles)) = emojis::message_roles(&guild_u64, &add_reaction.message_id.get()).await {
+              if let Ok(Some(emoji_roles)) =
+                  emojis::message_roles(&guild_u64, &add_reaction.message_id.get()).await {
                 if let Some(role) = emoji_roles.get(&id.get()) {
                   if let Ok(guild) = guild_channel.guild_id.to_partial_guild(&ctx).await {
                     if let Ok(member) = guild.member(&ctx, user_id).await {

@@ -14,10 +14,15 @@ static AI_LEARND: &str   = relative!("dhall/channels/ai_learn.dhall");
  * Ignored channels
  */
 static IGNOREDD: &str   = relative!("dhall/channels/ignored.dhall");
+/*
+ * Ignored users
+ */
+static IGNOREDU: &str   = relative!("dhall/channels/allowed.dhall");
 
 pub static AI_ALLOWED: Lazy<Vec<LChannel>> = Lazy::new(|| dhall!(AI_ALLOWEDD));
 pub static AI_LEARN: Lazy<Vec<LChannel>>   = Lazy::new(|| dhall!(AI_LEARND));
 pub static IGNORED: Lazy<Vec<u64>>         = Lazy::new(|| dhall!(IGNOREDD));
+pub static ALLOWED: Lazy<Vec<u64>>         = Lazy::new(|| dhall!(IGNOREDU));
 
 #[cfg(test)]
 mod channels_dhall_tests {
@@ -59,4 +64,6 @@ mod channels_dhall_tests {
   }
   #[test]
   fn ignored() -> Result<(), String> { dhall_vec(IGNOREDD) }
+  #[test]
+  fn allowed() -> Result<(), String> { dhall_vec(IGNOREDU) }
 }

@@ -22,7 +22,7 @@ branch = "mawa"
 
 [workspace.dependencies.tokio]
 features  = ["rt-multi-thread", "signal", "parking_lot", "macros", "fs", "sync"]
-version   = "^1.39.2"
+version   = "^1.39.3"
 
 [profile.release]
 opt-level           = 3

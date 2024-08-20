@@ -11,9 +11,10 @@ use serenity::{
 
 use std::{
   sync::atomic::Ordering,
-  time,
   sync::Arc
 };
+
+use tokio::time;
 
 use rand::Rng;
 
@@ -23,8 +24,10 @@ static POLL_PERIOD_SECONDS: u64 = 2 * 60 * 60;
 pub async fn activate_social_skils(ctx: &Arc<Context>) {
   let ctx_clone = Arc::clone(ctx);
   tokio::spawn(async move {
+    let mut interval = time::interval(time::Duration::from_secs(POLL_PERIOD_SECONDS));
+    interval.set_missed_tick_behavior(time::MissedTickBehavior::Skip);
     loop {
-      tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
+      interval.tick().await;
       {
         let activity_level = cache::ACTIVITY_LEVEL.load(Ordering::Relaxed) + 20;
         let rndx = if activity_level > 0

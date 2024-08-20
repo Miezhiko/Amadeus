@@ -6,9 +6,7 @@ use crate::{
 
 use serenity::prelude::*;
 
-use std::{
-  time, sync::Arc
-};
+use std::sync::Arc;
 
 /* every 60 minutes */
 static POLL_PERIOD_SECONDS: u64 = 60 * 60;
@@ -16,8 +14,9 @@ static POLL_PERIOD_SECONDS: u64 = 60 * 60;
 pub async fn activate_system_tracker(ctx: &Arc<Context>) {
   let ctx_clone = Arc::clone(ctx);
   tokio::spawn(async move {
+    let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(POLL_PERIOD_SECONDS));
     loop {
-      tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
+      interval.tick().await;
       // memory check!
       if let Ok((amadeus_mb, salier_mb)) = system::stats::get_memory_mb().await {
         let mem_mb = amadeus_mb + salier_mb;

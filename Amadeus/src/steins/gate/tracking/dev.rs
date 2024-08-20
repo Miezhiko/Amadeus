@@ -5,12 +5,9 @@ use serenity::{
   builder::*
 };
 
-use std::{
-  time,
-  sync::Arc
-};
+use std::sync::Arc;
 
-use tokio::process::Command;
+use tokio::{ time, process::Command };
 
 use serde_json::Value;
 
@@ -91,8 +88,11 @@ pub async fn activate_dev_tracker( ctx: &Arc<Context>
   let ctx_clone = Arc::clone(ctx);
   let github: String = github_auth.to_string();
   tokio::spawn(async move {
+    let mut interval = time::interval(time::Duration::from_secs(POLL_PERIOD_SECONDS));
+    interval.set_missed_tick_behavior(time::MissedTickBehavior::Skip);
     loop {
       {
+        interval.tick().await;
         let fetch_command = format!("curl -u {} https://api.github.com/notifications?unread=true", &github);
         let curl = Command::new("sh")
           .arg("-c")
@@ -119,7 +119,6 @@ pub async fn activate_dev_tracker( ctx: &Arc<Context>
             .expect("failed to run dev POST curl");
         }
       }
-      tokio::time::sleep(time::Duration::from_secs(POLL_PERIOD_SECONDS)).await;
     }
   });
 }

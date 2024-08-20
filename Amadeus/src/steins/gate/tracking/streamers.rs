@@ -22,7 +22,6 @@ use serenity::{
 use crate::types::goodgame::GoodGameData;
 
 use std::{ collections::HashMap
-         , time
          , sync::Arc
          };
 
@@ -84,7 +83,10 @@ pub async fn activate_streamers_tracking(
 
   tokio::spawn(async move {
     let mut streams: HashMap<u64, TrackingGame> = HashMap::new();
+    let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(60));
+    interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
     loop {
+      interval.tick().await;
       let mut k_to_del: Vec<u64> = Vec::new();
       for (k, track) in streams.iter_mut() {
         if track.passed_time < (60 * 24) {
@@ -98,6 +100,7 @@ pub async fn activate_streamers_tracking(
         warn!("stream {ktd} out with timeout");
         streams.remove(&ktd);
       }
+      let mut stream_interval = tokio::time::interval(tokio::time::Duration::from_secs(5));
       for p in ALL.iter() {
         if let Ok(user) = ctx_clone.http.get_user( UserId::new(p.player.discord) ).await {
           setm!{ twitch_live        = false
@@ -452,11 +455,8 @@ pub async fn activate_streamers_tracking(
                       , &format!("streamers: missing user id: {}", p.player.discord) ).await {
           error!("failed to report missing user {why}");
         }
-	      // with 5 sec delay for each
-        tokio::time::sleep(time::Duration::from_secs(5)).await;
+        stream_interval.tick().await;
       }
-      /* every 10 minutes */
-      tokio::time::sleep(time::Duration::from_secs(60)).await;
     }
   });
 }

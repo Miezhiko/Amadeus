@@ -1375,9 +1375,9 @@ dependencies = [
 
 [[package]]
 name = "cynic"
-version = "3.7.3"
+version = "3.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "478c02b53607e3f21c374f024c2cfc2154e554905bba478e8e09409f10ce3726"
+checksum = "394a4797bda697d5e028f3bc3fcb8c8c374a2b72cf8d22e0efc0e127c95fd11f"
 dependencies = [
  "cynic-proc-macros",
  "ref-cast",
@@ -1390,9 +1390,9 @@ dependencies = [
 
 [[package]]
 name = "cynic-codegen"
-version = "3.7.3"
+version = "3.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c0ec86f960a00ce087e96ff6f073f6ff28b6876d69ce8caa06c03fb4143981c"
+checksum = "408ad3d9c8d729e4d89e1aaed76eab918f76169f1bb3aa017c9fc1b39dac3066"
 dependencies = [
  "counter",
  "cynic-parser",
@@ -1419,9 +1419,9 @@ dependencies = [
 
 [[package]]
 name = "cynic-proc-macros"
-version = "3.7.3"
+version = "3.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25a69ecdf4aa110fed1c0c8de290bc8ccb2835388733cf2f418f0abdf6ff3899"
+checksum = "7f72af69ebf914a975468c4f7e3f81ddc5482e140dd98032d90e7602c535681d"
 dependencies = [
  "cynic-codegen",
  "darling 0.20.10",
@@ -4998,9 +4998,9 @@ checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 
 [[package]]
 name = "rustc_version"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfa0f585226d2e68097d4f95d113b15b83a82e819ab25717ec0590d9584ef366"
+checksum = "cfcb3a22ef46e85b45de6ee7e79d063319ebb6594faafcf1c225ea92ab6e9b92"
 dependencies = [
  "semver",
 ]
@@ -5117,7 +5117,7 @@ checksum = "2a980454b497c439c274f2feae2523ed8138bbd3d323684e1435fec62f800481"
 dependencies = [
  "log",
  "rustls 0.23.12",
- "rustls-native-certs 0.7.2",
+ "rustls-native-certs 0.7.3",
  "rustls-pki-types",
  "rustls-webpki 0.102.7",
 ]
@@ -5136,9 +5136,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-native-certs"
-version = "0.7.2"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04182dffc9091a404e0fc069ea5cd60e5b866c3adf881eff99a32d048242dffa"
+checksum = "e5bfb394eeed242e909609f56089eecfe5fda225042e8b171791b9c95f5931e5"
 dependencies = [
  "openssl-probe",
  "rustls-pemfile 2.1.3",

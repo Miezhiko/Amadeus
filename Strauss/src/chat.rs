@@ -43,7 +43,7 @@ async fn chat_send( msg: Option<u64>
       }
       Ok(())
     } else {
-      let response = match chat::generate(&something, "Amadeus", false).await {
+      let response = match chat::chat(&something, "Amadeus").await {
         Ok(resp) => resp,
         Err(why) => format!("Failed: {why}")
       };
@@ -74,7 +74,7 @@ async fn chat_send( msg: Option<u64>
         lukashenko.write_all(&encoded)?;
         Ok(())
       }, Err(why) => {
-        error!("chat: Failed to generate response: {why}, using fallback to GPT2");
+        error!("chat: Failed to generate response: {why}");
         Ok(())
       }
     }

@@ -870,9 +870,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.1.20"
+version = "1.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45bcde016d64c21da4be18b655631e5ab6d3107607e71a73a9f53eb48aae23fb"
+checksum = "07b1695e2c7e8fc85310cde85aeaab7e3097f593c91d209d3f9df76c928100f0"
 dependencies = [
  "jobserver",
  "libc",
@@ -934,8 +934,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.7.3"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#cfeed866d7f95ada37b79dd7630663746cd43678"
+version = "0.8.1"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#5bc7b1dd71a81bab3ec7b523ca69b31f53fa1ad4"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -943,6 +943,7 @@ dependencies = [
  "futures 0.3.30",
  "inline-python",
  "once_cell",
+ "rand 0.8.5",
  "regex",
  "tokio",
 ]
@@ -950,7 +951,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#cfeed866d7f95ada37b79dd7630663746cd43678"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#5bc7b1dd71a81bab3ec7b523ca69b31f53fa1ad4"
 dependencies = [
  "ucd",
 ]

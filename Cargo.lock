@@ -756,9 +756,9 @@ checksum = "8f1fe948ff07f4bd06c30984e69f5b4899c516a3ef74f34df92a2df2ab535495"
 
 [[package]]
 name = "bytes"
-version = "1.7.1"
+version = "1.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8318a53db07bb3f8dca91a600466bdb3f2eaadeedfdbcf02e1accbad9271ba50"
+checksum = "428d9aa8fbc0670b7b8d6030a7fadd0f86151cae55e4dbbece15f3780a3dfaf3"
 
 [[package]]
 name = "bzip2"
@@ -934,8 +934,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.7.2"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#f1b6c09bf10df587b0c559cc3159fe32561ad872"
+version = "0.7.3"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#cfeed866d7f95ada37b79dd7630663746cd43678"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -950,7 +950,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#f1b6c09bf10df587b0c559cc3159fe32561ad872"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#cfeed866d7f95ada37b79dd7630663746cd43678"
 dependencies = [
  "ucd",
 ]
@@ -6957,9 +6957,9 @@ checksum = "e91b56cd4cadaeb79bbf1a5645f6b4f8dc5bde8834ad5894a8db35fda9efa1fe"
 
 [[package]]
 name = "unicode-normalization"
-version = "0.1.23"
+version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a56d1686db2308d901306f92a263857ef59ea39678a5458e7cb17f01415101f5"
+checksum = "5033c97c4262335cded6d6fc3e5c18ab755e1a3dc96376350f3d8e9f009ad956"
 dependencies = [
  "tinyvec",
 ]

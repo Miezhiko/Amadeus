@@ -934,8 +934,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat"
-version = "0.8.9"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#b807369a83fe8ae73d685a13e439a5926887e868"
+version = "0.9.0"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#9355a9503f1d7286e332c5fea9bf5e0762b04bee"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -951,7 +951,7 @@ dependencies = [
 [[package]]
 name = "chat-utils"
 version = "0.0.1"
-source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#b807369a83fe8ae73d685a13e439a5926887e868"
+source = "git+https://github.com/Miezhiko/chat.rs.git?branch=mawa#9355a9503f1d7286e332c5fea9bf5e0762b04bee"
 dependencies = [
  "ucd",
 ]
@@ -6499,7 +6499,7 @@ dependencies = [
  "tokio",
  "tokio-rustls 0.25.0",
  "tungstenite 0.21.0",
- "webpki-roots 0.26.5",
+ "webpki-roots 0.26.6",
 ]
 
 [[package]]
@@ -7028,7 +7028,7 @@ dependencies = [
  "serde",
  "serde_json",
  "url",
- "webpki-roots 0.26.5",
+ "webpki-roots 0.26.6",
 ]
 
 [[package]]
@@ -7245,9 +7245,9 @@ checksum = "5f20c57d8d7db6d3b86154206ae5d8fba62dd39573114de97c2cb0578251f8e1"
 
 [[package]]
 name = "webpki-roots"
-version = "0.26.5"
+version = "0.26.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0bd24728e5af82c6c4ec1b66ac4844bdf8156257fccda846ec58b42cd0cdbe6a"
+checksum = "841c67bff177718f1d4dfefde8d8f0e78f9b6589319ba88312f567fc5841a958"
 dependencies = [
  "rustls-pki-types",
 ]

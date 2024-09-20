@@ -15,7 +15,7 @@ pub const UNBLOCK_ROLE: &str          = "UNBLOCK AMADEUS";
 pub const MUTED_ROLE: &str            = "muted";
 
 // TODO: move this into teams configs
-pub const MUTED_ROOMS: &[ChannelId]   = &[ ChannelId::new( 1093531555642744922 ) ];
+pub const MUTED_ROOMS: &[ChannelId]   = &[ ChannelId::new( 1286726962349608993 ) ];
 
 pub const W3C_STATS_ROOM: ChannelId   = ChannelId::new( 965968135666696322 );
 pub const W3C_STATS_MSG: MessageId    = MessageId::new( 965968232328609802 );

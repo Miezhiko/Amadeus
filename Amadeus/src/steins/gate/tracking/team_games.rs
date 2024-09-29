@@ -29,7 +29,7 @@ use std::{ time
 use rand::Rng;
 
 const DAY_TIMEOUT_SECS: u32   = 70;
-const NIGHT_TIMEOUT_SECS: u32 = 40;
+const NIGHT_TIMEOUT_SECS: u32 = 30;
 
 const DAY_TIMEOUT: time::Duration   = time::Duration::from_secs(DAY_TIMEOUT_SECS as u64);
 const NIGHT_TIMEOUT: time::Duration = time::Duration::from_secs(NIGHT_TIMEOUT_SECS as u64);

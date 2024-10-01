@@ -6,8 +6,8 @@ use crate::{
   },
   steins::warcraft::poller::{
     GAMES, checker::passed_time_to_minutes
-  },
-  commands::w3c::{ get_mmm, secs_to_str }
+  }
+  //commands::w3c::{ get_mmm, secs_to_str }
 };
 
 use chrono::{
@@ -297,7 +297,7 @@ fn merge_stats(s1: &mut StatusStats, s2: &StatusStats) {
   }
 }
 
-pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()> {
+pub async fn status_update(ctx: &Context, _stats: &W3CStats) -> anyhow::Result<()> {
   trace!("satus: getting status messages");
   if let Ok(mut statusmsg) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG).await {
   if let Ok(mut statusmsg2) = W3C_STATS_ROOM.message(ctx, W3C_STATS_MSG2).await {
@@ -314,6 +314,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
       }
     }
 
+    /*
     trace!("satus: getting mm");
     let ( (z1, q1)
         , (z2, q2)
@@ -323,6 +324,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
     let (q1s, q2s, q3s) = ( secs_to_str(q1)
                           , secs_to_str(q2)
                           , secs_to_str(q3) );
+    */
 
     let mut tracking_info = vec![];
     let mut tracking_players = vec![];
@@ -350,6 +352,8 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         }
       }
     }
+
+    /*
     let mut searching_info = vec![];
     for (ps, ss) in searching {
       if !tracking_players.iter().any(|tp| tp == &ps) {
@@ -360,7 +364,11 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         );
       }
     }
-    let tracking_str = 
+    */
+
+    let tracking_str = tracking_info.join("\n");
+
+    /*
       if tracking_info.is_empty() {
         if searching_info.is_empty() {
           String::from("currently no games")
@@ -375,11 +383,17 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
           , tracking_info.join("\n")
         )
       };
-    setm!{ searching_info_2x2   = vec![]
-         , weekly_str           = vec![]
+    */
+
+    /*
+    let mut searching_info_2x2   = vec![];
+    */
+
+    setm!{ weekly_str           = vec![]
          , weekly_statistics    = StatusStats::new()
          , weekly_statistics2   = StatusStats::new() };
 
+    /*
     for (ps, ss) in searching_2x2 {
       let name = ps.split('#')
                    .collect::<Vec<&str>>()[0];
@@ -387,6 +401,7 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         format!("{name} {ss}")
       );
     }
+    */
 
     for stat in &weekly.stats {
       merge_stats(&mut weekly_statistics, &stat.statistics);
@@ -415,22 +430,28 @@ pub async fn status_update(ctx: &Context, stats: &W3CStats) -> anyhow::Result<()
         }
       );
     }
+    /*
     let searching_2x2_info =
       if searching_info_2x2.is_empty() {
         String::from("nobody is searching for 2x2")
       } else {
         searching_info_2x2.join("\n")
       };
+    */
+
     let stats_str = format!(
 "
 ```
 {}
 ```
+", weekly_str[1]);
+/*
+```
 __**searching 2x2:**__
 ```
 {searching_2x2_info}
-```
-", weekly_str[1]);
+*/
+
     statusmsg.edit(ctx, EditMessage::default()
              .embed(CreateEmbed::new()
                .color((255, 20, 7))
@@ -446,19 +467,10 @@ __**searching 2x2:**__
 ```
 {}
 ```
-__**currently running:**__
-```
-1x1 {z1} search {q1s} LIVE: {}
-2x2 {z2} search {q2s} LIVE: {}
-4x4 {z3} search {q3s} LIVE: {}
-```
 __**currently playing:**__
 ```
 {tracking_str}
-```", weekly_str[0]
-    , stats.games_solo
-    , stats.games_2x2
-    , stats.games_4x4);
+```", weekly_str[0]);
           statusmsg2.edit(ctx, EditMessage::default().content("")
                     .embed(CreateEmbed::new()
                       .color((255, 20, 7))
@@ -469,6 +481,16 @@ __**currently playing:**__
                      . timestamp(now)
           )).await?;
   }}
+
+  /*
+__**currently running:**__
+```
+1x1 {z1} search {q1s} LIVE: {}
+2x2 {z2} search {q2s} LIVE: {}
+4x4 {z3} search {q3s} LIVE: {}
+```
+   */
+
   trace!("satus: updated");
   Ok(())
 }

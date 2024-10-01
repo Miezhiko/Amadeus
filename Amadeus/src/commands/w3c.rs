@@ -756,6 +756,7 @@ pub fn secs_to_str(secs: u32) -> String {
   }
 }
 
+#[allow(dead_code)]
 pub async fn get_mmm(ctx: &Context) -> anyhow::Result<MmmResult> {
   trace!("mmm: locking data");
   let rqcl = {

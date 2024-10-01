@@ -114,7 +114,7 @@ optional = true
 # follow version on flo
 # https://github.com/w3champions/flo/blob/develop/crates/client/Cargo.toml
 [dependencies.tonic]
-version = "0.6"
+version = "0.12"
 optional = true
 
 [dependencies.flo-grpc]

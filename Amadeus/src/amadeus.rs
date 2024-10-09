@@ -21,7 +21,8 @@ use serenity::{
   framework::StandardFramework,
   all::standard::{ BucketBuilder, Configuration },
   model::{ gateway::GatewayIntents
-         , id::ApplicationId, id::UserId }
+         , id::ApplicationId, id::UserId },
+  http::HttpBuilder
 };
 
 use tracing::{ Level, instrument };
@@ -43,7 +44,9 @@ pub async fn run(opts: IOptions) ->
 
   info!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
 
-  let http = serenity::http::Http::new(&opts.discord);
+  let http = HttpBuilder::new(&opts.discord)
+                      /* .proxy("https://127.0.0.1:12334") */
+                         .build();
 
   info!("http context created");
 

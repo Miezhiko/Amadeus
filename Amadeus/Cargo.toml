@@ -7,7 +7,7 @@ readme              = "README.md"
 keywords            = [ "discord", "bot" ]
 edition             = "2021"
 description         = "memory storage and artificial intelligence system"
-license             = "AGPL-3.0"
+license             = "QUADROBER"
 rust-version        = "1.76.0"
 
 [features]

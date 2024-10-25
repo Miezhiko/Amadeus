@@ -45,7 +45,7 @@ pub async fn run(opts: IOptions) ->
   info!("Amadeus {}", env!("CARGO_PKG_VERSION").to_string());
 
   let http = HttpBuilder::new(&opts.discord)
-                      /* .proxy("https://127.0.0.1:12334") */
+                         .ratelimiter_disabled(true)
                          .build();
 
   info!("http context created");

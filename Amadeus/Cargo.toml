@@ -1,6 +1,6 @@
 [package]
 name                = "amadeus"
-version             = "16.3.1"
+version             = "16.3.2"
 authors             = [ "Miezhiko" ]
 repository          = "https://github.com/Miezhiko/Amadeus"
 readme              = "README.md"
@@ -27,20 +27,20 @@ once_cell           = { workspace = true }
 anyhow              = { workspace = true }
 async-recursion     = { workspace = true }
 chat-utils          = { workspace = true }
-chrono              = "0.4.38"
+chrono              = "0.4.39"
 glob                = "0.3.1"
 chrono-tz           = "0.10.0"
-tracing             = "0.1.40"
+tracing             = "0.1.41"
 tracing-log         = "0.2.0"
-tracing-subscriber  = "0.3.18"
-regex               = "1.10.6"
-serde_derive        = "1.0.209"
-serde_json          = "1.0.127"
+tracing-subscriber  = "0.3.19"
+regex               = "1.11.1"
+serde_derive        = "1.0.215"
+serde_json          = "1.0.133"
 serde_yaml          = "0.9.33"
 serde_dhall         = "0.12.1"
-comfy-table         = "7.1.1"
+comfy-table         = "7.1.3"
 async-std           = "1.12"
-futures-util        = "0.3.30"
+futures-util        = "0.3.31"
 qrcode              = "0.14"
 bincode             = "2.0.0-rc.3"
 itertools           = "0.13"
@@ -49,14 +49,14 @@ fluent-templates    = "0.11"
 sled                = "=1.0.0-alpha.121"
 kathoey             = "1.1.5"
 nipper              = "0.1.9"
-plotters            = "0.3.6"
+plotters            = "0.3.7"
 celery              = "0.5"
 libc                = "0.2"
 
 rand    = { version = "0.8.5",        features = ["std", "std_rng"] }
 
 # wait for songbird to be updated for new reqwest
-reqwest = { version = "0.11",         features = ["json", "blocking"] }
+reqwest = { version = "0.12",         features = ["json", "blocking"] }
 ical    = { version = "0.11",         features = ["ical"] }
 
 [dependencies.stroke]
@@ -69,7 +69,7 @@ branch = "mawa"
 
 [dependencies.cynic]
 default-features  = false
-version           = "3.8.0"
+version           = "3.9.1"
 features          = ["http-reqwest"]
 optional          = true
 
@@ -79,7 +79,7 @@ features = ["all-formats"]
 
 [dependencies.songbird]
 default-features = false
-version  = "0.4.2"
+version  = "0.4.6"
 features = [ "serenity"
            , "driver"
            , "rustls"
@@ -89,7 +89,7 @@ features = [ "serenity"
 
 [dependencies.serenity]
 default-features = false
-version  = "0.12.2"
+version  = "0.12.4"
 features = [ "cache"
            , "builder"
            , "model"

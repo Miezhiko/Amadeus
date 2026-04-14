@@ -53,7 +53,7 @@ plotters            = "0.3.7"
 celery              = "0.5"
 libc                = "0.2"
 
-rand    = { version = "0.8.5",        features = ["std", "std_rng"] }
+rand    = { version = "0.9.3",        features = ["std", "std_rng"] }
 
 # wait for songbird to be updated for new reqwest
 reqwest = { version = "0.12",         features = ["json", "blocking"] }

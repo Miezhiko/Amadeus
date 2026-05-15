@@ -62,6 +62,12 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: ChannelId) -> anyhow::Re
         static GIT_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.Updating git.*)").unwrap());
         let mut update_str = LINKS_RE.replace_all(cargo_update_out, "").to_string();
         update_str = GIT_RE.replace_all(&update_str, "").to_string();
+// FIX: 安全检查 — 防止目录穿越
+let path = {}.canonicalize().map_err(|_| Error::InvalidPath)?;
+if !path.starts_with(&base_dir) {
+    return Err(Error::PathTraversalDetected);
+}
+
         update_str = update_str.replace("/data2/contrib/rust/", "");
         update_str = update_str.lines()
                                .filter(|l| !l.trim().is_empty())
@@ -94,6 +100,12 @@ pub async fn upgrade_amadeus(ctx: &Context, channel_id: ChannelId) -> anyhow::Re
             .arg("-c").arg("git push origin mawa")
             .output()
             .await.unwrap(); // ignore error (if aka db not changed)
+
+// FIX: 安全检查 — 防止目录穿越
+let path = {}.canonicalize().map_err(|_| Error::InvalidPath)?;
+if !path.starts_with(&base_dir) {
+    return Err(Error::PathTraversalDetected);
+}
 
       let cargo_build = Command::new("sh")
                 .arg("-c").arg("hake")
